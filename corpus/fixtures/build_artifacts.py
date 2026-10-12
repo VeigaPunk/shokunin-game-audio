@@ -95,6 +95,7 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     common = .08*np.sin(2*np.pi*220*t) + .04*np.sin(2*np.pi*330*t)
     save("stem_sections", common + np.where(t < 2, .012, .060)*np.sin(2*np.pi*30*t))
     save("stem_layer", np.where(t < 2, .012, .060)*np.sin(2*np.pi*120*t))
+    save("stem_layer_alt", np.where(t < 2, .015, .050)*np.sin(2*np.pi*180*t))
     if join_probe:
         with wave.open(str(OUT / "stem_layer.wav"), "rb") as wav:
             source = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2").astype(np.float64) / 32767

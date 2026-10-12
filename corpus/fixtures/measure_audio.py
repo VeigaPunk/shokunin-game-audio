@@ -24,6 +24,7 @@ SPECS = {
     "stem": (2.0, 100, 2000, True),
     "stem_sections": (4.0, 100, 2000, True),
     "stem_layer": (4.0, 100, 2000, True),
+    "stem_layer_alt": (4.0, 100, 2000, True),
 }
 
 
@@ -198,15 +199,16 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
-    sections = {name: section_contrast(ROOT / data["path"], 120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
+    sections = {name: section_contrast(ROOT / data["path"], 180 if name == "stem_layer_alt" else
+                                       120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
                 for name, data in measurements.items()
-                if name in ("stem_sections", "flat30_probe", "stem_layer", "flat120_probe", "join_probe", "layer_slope_probe")}
+                if name in ("stem_sections", "flat30_probe", "stem_layer", "stem_layer_alt", "flat120_probe", "join_probe", "layer_slope_probe")}
     for name, result in sections.items():
         if not result["passed"]:
             measurements[name]["failures"].append(f"sections: {result['component_hz']} Hz component amplitude contrast < 6 dB or invalid")
-        if name in ("stem_layer", "join_probe", "layer_slope_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
+        if name in ("stem_layer", "stem_layer_alt", "join_probe", "layer_slope_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
-        if name in ("stem_layer", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+        if name in ("stem_layer", "stem_layer_alt", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
     mode = "probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))
     receipt = {"mode": mode,

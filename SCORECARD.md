@@ -121,3 +121,13 @@ Admission: depth narrowly improved, no demonstrated scoped harm, no scalar score
 | calibration | unchanged | .001 borrowed from outer slope comparator without audibility study; equality passes by code but no equality-valued probe run. New telemetry can affect unknown strict JSON readers. |
 
 Admit bounded depth, no demonstrated harm in deterministic fixture scope, no scalar score. Verifier's failed orchestration/receipt inspection attempts not credited as checks. No audible/engine/production claim. SHONEN box 4 open.
+
+## Round 12 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| coverage | improved narrowly | Before `f986933`, 11 canonical WAVs, four SFX variants, one measured 120Hz two-half layer. New original 4s 180Hz `stem_layer_alt.wav` has SHA `74926bf517298fa241e9960099aca60a728a54c41d9454876366dfe4d90adaa9` matching selected scratch; 180Hz contrast 10.457250572050896dB, internal/outer gates pass, centroid relative delta .46179931396667484 (> .10), fifth `_alt` record passes. Non-author `reports/round-12/r12-verifier.md`, Sol `r12-adjudicator.md`. |
+| depth | unchanged | Same detectors and old negative controls, no matched flat180 negative; explicit new section frequency applies old checks to new fixture. |
+| calibration | unchanged | Existing 6dB, .03 FS, .001 FS/sample and .10 centroid rules reused; no listening or threshold tuning, unknown strict JSON readers. |
+
+Admit bounded synthetic coverage, no demonstrated scoped harm, no scalar score. Quoted-command and typo exit127 setup failures and handwritten hash typo corrected, never passes. No audible/engine/production claim. SHONEN box 4 open.

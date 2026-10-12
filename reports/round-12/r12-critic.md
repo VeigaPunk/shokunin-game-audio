@@ -1,0 +1,22 @@
+# Round 12 critic — r12-critic
+
+## Scope
+
+The declared move is narrowly **coverage**: one additional original 4 s PCM16 layer at 180 Hz, two 2 s amplitude sections, measured contrast and distinctness from `stem_layer`, while retaining the 120 Hz fixture and historical controls. This review is source-level criticism, not a replay or acceptance. I read the Round 12 declaration in `.shokunin/audio/LOG.md`, `corpus/fixtures/measure_audio.py`, and `corpus/fixtures/build_artifacts.py`. No shell commands were run; no candidate was created or borrowed. I edited only this assigned report.
+
+## Falsification and integration traps
+
+- A new WAV by itself does not substantiate the named coverage claim. It must enter `SPECS` as `stem_layer_alt` (or equivalent measured identity), appear in normal receipt measurements, and get a `sections` result using 180 Hz. The present `sections` comprehension explicitly lists names and selects 120 Hz only for the original layer/probes, otherwise 30 Hz. Merely adding an artifact/spec leaves it without the intended per-half 180 Hz contrast check.
+- The common section helper computes the internal join adjacent gap and side-slope mismatch, but the gate lists are name-specific: internal gap currently applies to `stem_layer`, `join_probe`, and `layer_slope_probe`; internal slope applies to `stem_layer` and `layer_slope_probe`. Adding `stem_layer_alt` to the helper call alone records numbers but gates neither metric. It must be included in both appropriate gates; otherwise the promised per-variant join/slope checks are telemetry only. Ensure this is the *internal* section boundary (indices 95998–96001), not just the outer endpoint checks in `measure()`.
+- Distinctness is coupled to dictionary naming and same-name baseline lookup: keys ending in `_alt` compare to the key with `_alt` removed. `stem_layer_alt` therefore compares against `stem_layer` as intended, but the generic loop only runs on measurements. A candidate omitted from `SPECS` cannot get this check. Inspect the normal receipt's `distinctness` object and ensure the exact comparison is present and passing; passing the 180 Hz section contrast is not distinctness evidence. The existing centroid threshold is relative to whole-waveform centroids, not a direct measurement of the generated sinusoid frequency. Report both values and delta rather than infer it from the label.
+- A plausible synthetic `a/b = .015/.050` envelope at 180 Hz is only a hypothesis. At 48 kHz, each 2 s half contains integral cycles, and the boundary lands at a zero crossing; this makes join gap small, but does not make slope mismatch zero. Quantizing to PCM16 can shift both. Measure decoded PCM values at the exact join and on both sides, all section amplitudes/RMS, contrast, and outer seam. Do not rely on intended floating-point inputs or generator comments.
+- Keep failure attribution clean. The layer's `spec[3]` must be true for generic outer loop checks to run. A negative control that fails both endpoint and internal gates does not isolate the new internal check. Existing thresholds are strict `>` for gap/slope and `>=` for section contrast; a result near `.001` needs enough precision to avoid rounding away a failure. No new threshold is justified by a synthetic fit.
+- The declared `stem_layer_alt` should remain separately named and generated from original synthetic PCM. Do not mutate the 120 Hz source or claim two measured components if the alternate is merely a replacement. A pure tone layer is not a real adaptive engine layer; frequency/contrast/distinctness measurements cannot establish audible separation, smoothness, usefulness in playback, rights clearance beyond the stated original synthesis, or production readiness.
+
+## What would falsify the claim
+
+Reject or narrow the move if the ordinary receipt does not include the alternate and its own 180 Hz section result; if decoded half amplitudes are invalid or contrast < 6 dB; if its internal gap/slope is not actually gated and passing; if generic format, duration, level, centroid-band, or outer seam checks fail; if measured `stem_layer_alt` distinctness is absent/failing; or if old canonical fixture hashes and old probe modes change unexpectedly. A measured pass only supports fixture coverage under these existing local rules. It does not imply audibility or engine behavior.
+
+## Commands and exits
+
+No shell commands were run. No audio candidate was created or borrowed. No source, LOG, SCORECARD, canonical artifact, or commit was changed.
