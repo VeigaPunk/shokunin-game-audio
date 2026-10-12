@@ -111,3 +111,13 @@ Admission: disclosure improved narrowly, none demonstrated harmed within determi
 | calibration | unchanged | `.03` reused as fixture-local comparator, not empirically tuned to audibility; equality passes. All-section additive gap telemetry is not an expanded gate. |
 
 Admission: depth narrowly improved, no demonstrated scoped harm, no scalar score. Earlier failed-fit candidates and unused alternate documented, not passes. No audible/engine/production claim. SHONEN box 4 open.
+
+## Round 11 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `f15fe55`, 2s internal join only had a gap gate. New side-slope mismatch `abs((x[96001]-x[96000])-(x[95999]-x[95998]))` on decoded PCM, strict `> .001` FS/sample, detects selected probe's `.00115966796875` as sole failure while its gap `.00018310546875` passes .03. Clean layer `.000762939453125` passes; old join remains sole-gap failure. Non-author `reports/round-11/r11-verifier.md`, Sol `r11-adjudicator.md`. Exact-edge proxy only. |
+| coverage | unchanged | Same eleven canonical WAV hashes, four variants and prior controls; slope probe is scratch, not content category. |
+| calibration | unchanged | .001 borrowed from outer slope comparator without audibility study; equality passes by code but no equality-valued probe run. New telemetry can affect unknown strict JSON readers. |
+
+Admit bounded depth, no demonstrated harm in deterministic fixture scope, no scalar score. Verifier's failed orchestration/receipt inspection attempts not credited as checks. No audible/engine/production claim. SHONEN box 4 open.

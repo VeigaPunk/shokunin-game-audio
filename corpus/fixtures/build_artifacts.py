@@ -57,7 +57,7 @@ def build_invalid_probes():
                                  for i in range(101)))
 
 
-def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False):
+def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False):
     if slope_probe:
         t_probe = time(1)
         probe = .30 * np.sin(2*np.pi*220*t_probe)
@@ -107,6 +107,17 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
             wav.setsampwidth(2)
             wav.setframerate(RATE)
             wav.writeframes(frames.tobytes())
+    if layer_slope_probe:
+        with wave.open(str(OUT / "stem_layer.wav"), "rb") as wav:
+            samples = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2").copy()
+        samples[96001] = round(samples[96001] + .0004*32767)
+        out = OUT.parent / "live" / "round-11"
+        out.mkdir(parents=True, exist_ok=True)
+        with wave.open(str(out / "slope_probe.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(RATE)
+            wav.writeframes(samples.tobytes())
     if layer_flat_probe:
         save("flat120_probe", .036*np.sin(2*np.pi*120*t),
              OUT.parent / "live" / "round-8")
@@ -122,9 +133,10 @@ if __name__ == "__main__":
     parser.add_argument("--probe-flat", action="store_true")
     parser.add_argument("--probe-layer-flat", action="store_true")
     parser.add_argument("--probe-layer-join", action="store_true")
+    parser.add_argument("--probe-layer-slope", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
     if args.probe_invalid:
         build_invalid_probes()
     else:
-        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join)
+        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope)
