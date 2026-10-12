@@ -191,3 +191,13 @@ Admit bounded frequency-point coverage; no demonstrated scoped harm or scalar sc
 | calibration | unchanged | Existing local .001 FS/sample, .03 FS and >=6dB bounds reused, not perceptually calibrated; +8 excess is target failure, not upper-bound overshoot. |
 
 Admit bounded numeric gate depth with no demonstrated scoped harm or scalar score. Fourteen-mode non-author replay preserved prior failures and normal/restore equality; invalid mode tests invalid fixtures, not canonicals. Executor initial unusable/overshoot wording corrected; alternate +3/+2 and setup failures excluded from selected evidence. No audible/engine/production claim, strict external JSON readers untested. SHONEN box4 open.
+
+## Round 19 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| calibration | improved narrowly | Before `010f88b`, the +8-count 200Hz rejection existed but no integrated near-boundary pair. Opt-in +2/+3 one-frame controls measure 32/32768 = `.0009765625` pass and 33/32768 = `.001007080078125` sole internal-slope failure around the unchanged strict `> .001` FS/sample threshold on this SoX float32 decode path. Independent 16-mode replay and Sol adjudication: `reports/round-19/r19-verifier.md`, `r19-adjudicator.md`. |
+| depth | unchanged | Same comparator and gate, no additional failure class or perceptual criterion. |
+| coverage | unchanged | Thirteen canonical WAV hashes and five `_alt` checks preserved; scratch controls are not canonical content. |
+
+Admitted with zero demonstrated scoped harm. This is local numerical resolution, not proof of audible quality or engine/production behavior; no equality test. Invalid mode is malformed-input scope only. Wave-1 scribe had no artifact and was cancelled. SHONEN box4 open. Operator paused after round 19; no round 20.
