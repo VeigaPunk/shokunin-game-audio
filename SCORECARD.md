@@ -131,3 +131,13 @@ Admit bounded depth, no demonstrated harm in deterministic fixture scope, no sca
 | calibration | unchanged | Existing 6dB, .03 FS, .001 FS/sample and .10 centroid rules reused; no listening or threshold tuning, unknown strict JSON readers. |
 
 Admit bounded synthetic coverage, no demonstrated scoped harm, no scalar score. Quoted-command and typo exit127 setup failures and handwritten hash typo corrected, never passes. No audible/engine/production claim. SHONEN box 4 open.
+
+## Round 13 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `db36a69`, passing 180Hz stepped layer had no matched flat180 negative. New original opt-in `.036*sin(2π180t)` PCM16 scratch with two valid equal 180Hz amplitudes `.03599800833461317` FS gives signed contrast 0dB and sole `<6dB` section failure; generic/outer/internal pass. Non-author `reports/round-13/r13-verifier.md`, Sol `r13-adjudicator.md`. |
+| coverage | unchanged | Same 12 canonical WAVs/five `_alt` records; scratch control is not new content. |
+| calibration | unchanged | Existing >=6dB, <=.03FS and <=.001FS/sample local bounds unchanged; no audibility study. Normal JSON exactly equal; strict external readers untested. |
+
+Admit bounded depth, no demonstrated scoped harm, no scalar score. Verifier TypeError, ten setup exits 127 and flawed text hash discarded. Numeric polarity only; no audible/engine/production inference. SHONEN box 4 open.
