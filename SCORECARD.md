@@ -171,3 +171,13 @@ Admit bounded gate depth, no demonstrated scoped harm, no scalar score. Non-auth
 | calibration | unchanged | Same local >=6dB contrast, .01 component amplitude, .03 gap and .001 slope bounds; no perceptual study or retuning. |
 
 Admit bounded numeric direction-depth move; no demonstrated scoped harm, no scalar score. Independent 13-mode serial replay preserved prior failures and normal/restore equality; verifier initially printed false `{}` failure sets and corrected table against receipts before adjudication. Alternate misquoted SoX exit127 and invalid fit are not passes. No audible/engine/production assertion, strict external JSON readers untested. SHONEN box4 open.
+
+## Round 17 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| coverage | improved narrowly | Before `6fb9e80`, twelve original measured canonical WAVs included stepped 120Hz/180Hz layers. New original separately measured `stem_layer_third.wav` at 200Hz makes thirteen; SHA `3d2048e48a6a16ef2a669736ad1168c9368223fb3a0702478f874e4d2588d445`. Decoded valid section amplitudes `.014999984892417233/.04999803906398615` FS, +10.457242997641432dB contrast; internal gap `.000396728515625` FS and slope `.00091552734375` FS/sample plus outer/generic pass. Non-author `reports/round-17/r17-verifier.md`, Sol `r17-adjudicator.md`. |
+| depth | unchanged | Existing 200Hz bin in section helper and generic/join/outer gates reused; no new gate or rejection class. |
+| calibration | unchanged | Numeric thresholds unchanged; `.00091552734375` slope is close to `.001` local bound, not a robustness or perceptual study. |
+
+Admit bounded frequency-point coverage; no demonstrated scoped harm or scalar score. Independent 13-mode serial replay (invalid mode checks invalid files, not canonical) preserved twelve old hashes, prior failures, five variants and normal/restore equality. Rejected verifier spawn TypeError and alternate relative-path setup failure excluded. New canonical is not evidence of audible/musical distinctness, adaptive engine behavior, external JSON compatibility, security or production quality. SHONEN box4 open.

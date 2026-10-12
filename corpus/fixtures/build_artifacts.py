@@ -96,6 +96,7 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     save("stem_sections", common + np.where(t < 2, .012, .060)*np.sin(2*np.pi*30*t))
     save("stem_layer", np.where(t < 2, .012, .060)*np.sin(2*np.pi*120*t))
     save("stem_layer_alt", np.where(t < 2, .015, .050)*np.sin(2*np.pi*180*t))
+    save("stem_layer_third", np.where(t < 2, .015, .050)*np.sin(2*np.pi*200*t))
     if layer_alt_reverse_probe:
         save("reverse180_probe", np.where(t < 2, .050, .015)*np.sin(2*np.pi*180*t),
              OUT.parent / "live" / "round-16")
