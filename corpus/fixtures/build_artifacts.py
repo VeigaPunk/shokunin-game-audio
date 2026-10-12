@@ -57,7 +57,7 @@ def build_invalid_probes():
                                  for i in range(101)))
 
 
-def main(broken=False, slope_probe=False, flat_probe=False):
+def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False):
     if slope_probe:
         t_probe = time(1)
         probe = .30 * np.sin(2*np.pi*220*t_probe)
@@ -94,6 +94,10 @@ def main(broken=False, slope_probe=False, flat_probe=False):
     t = time(4)
     common = .08*np.sin(2*np.pi*220*t) + .04*np.sin(2*np.pi*330*t)
     save("stem_sections", common + np.where(t < 2, .012, .060)*np.sin(2*np.pi*30*t))
+    save("stem_layer", np.where(t < 2, .012, .060)*np.sin(2*np.pi*120*t))
+    if layer_flat_probe:
+        save("flat120_probe", .036*np.sin(2*np.pi*120*t),
+             OUT.parent / "live" / "round-8")
     if flat_probe:
         save("flat30_probe", common + .036*np.sin(2*np.pi*30*t),
              OUT.parent / "live" / "round-4")
@@ -104,9 +108,10 @@ if __name__ == "__main__":
     parser.add_argument("--probe-failing", action="store_true")
     parser.add_argument("--probe-slope", action="store_true")
     parser.add_argument("--probe-flat", action="store_true")
+    parser.add_argument("--probe-layer-flat", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
     if args.probe_invalid:
         build_invalid_probes()
     else:
-        main(args.probe_failing, args.probe_slope, args.probe_flat)
+        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat)

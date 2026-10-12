@@ -81,3 +81,13 @@ Admission: depth improved narrowly, none harmed; no scalar score or perceptual/s
 | calibration | unchanged | No threshold changes or new LUFS window; local proxy limitations remain. |
 
 Admission: depth narrowly improved, none harmed, no scalar score. Nine verifier misquoted shell attempts exit 127 and are excluded; corrected replay is cited above. SHONEN box 4 remains open.
+
+## Round 8 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| coverage | improved narrowly | Before `75c95d9`: ten canonical WAVs, no separate synchronized-grid companion. New `stem_layer.wav` is eleventh original 4s/192000-frame 120Hz two-section file; non-author `reports/round-8/r8-verifier.md` normal receipt `corpus/live/runs/20261012T172620813098Z-normal/measurements.json` measures 13.9793723 dB amplitude contrast; matched flat120 receipt `172637297691Z-layer-flat` gives 0 dB sole contrast failure. Ten old hashes, four variants preserved; Sol `r8-adjudicator.md`. Numeric alignment only, not adaptive behavior. |
+| depth | unchanged | Same generic and section-check method parameterized 30/120 Hz; no broader detector established. Old probes pass their expected negative behavior. |
+| calibration | unchanged | Old thresholds unchanged; `section_energy_delta_db` is an amplitude-ratio misnomer and top-level `thresholds.section_component_hz: 30` is legacy, while per-section layer `component_hz:120` is authoritative. Disclosed, not empirically tuned. |
+
+Admission: coverage narrowly improved, none harmed within declared numeric fixture scope; seven verifier setup exits 127 excluded; no scalar score or audible/engine/production claim. SHONEN box 4 remains open.
