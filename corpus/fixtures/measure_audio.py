@@ -22,6 +22,7 @@ SPECS = {
     "ambience": (2.0, 5, 200, True),
     "ambience_alt": (2.0, 5, 200, True),
     "stem": (2.0, 100, 2000, True),
+    "stem_sections": (4.0, 100, 2000, True),
 }
 
 
@@ -78,20 +79,38 @@ def measure(name, spec, path=None):
             "seam_slope_delta_full_scale_per_sample": slope_delta, "failures": failures}
 
 
+def section_contrast(path):
+    raw = command("sox", str(path), "-t", "f32", "-e", "floating-point", "-").stdout
+    samples = np.frombuffer(raw, dtype="<f4").astype(np.float64)
+    halves = np.split(samples, 2)
+    amps = [float(2 * abs(np.fft.rfft(half)[60]) / len(half)) for half in halves]
+    rms = [float(np.sqrt(np.mean(half**2))) for half in halves]
+    valid = len(samples) == 192000 and all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
+    delta_db = float(20*np.log10(amps[1]/amps[0])) if valid else None
+    return {"component_hz": 30, "section_samples": 96000, "component_amplitudes_full_scale": amps,
+            "section_rms_full_scale": rms, "section_energy_delta_db": delta_db,
+            "valid": valid, "passed": bool(valid and delta_db >= 6.0)}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
     parser.add_argument("--probe-slope", action="store_true")
+    parser.add_argument("--probe-flat", action="store_true")
     args = parser.parse_args()
-    if args.probe_slope and args.probe_failing:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat]) > 1:
         parser.error("choose one probe mode")
     command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
             *(["--probe-failing"] if args.probe_failing else []),
-            *(["--probe-slope"] if args.probe_slope else []))
+            *(["--probe-slope"] if args.probe_slope else []),
+            *(["--probe-flat"] if args.probe_flat else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
     if args.probe_slope:
         path = ROOT / "live" / "round-3" / "slope_probe.wav"
         measurements["slope_probe"] = measure("slope_probe", (1.0, 5, 24000, True), path)
+    if args.probe_flat:
+        path = ROOT / "live" / "round-4" / "flat30_probe.wav"
+        measurements["flat30_probe"] = measure("flat30_probe", SPECS["stem_sections"], path)
     distinctness = {}
     for name, variant in measurements.items():
         if not name.endswith("_alt"):
@@ -104,17 +123,27 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
-    receipt = {"mode": "probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal"),
+    sections = {name: section_contrast(ROOT / data["path"])
+                for name, data in measurements.items() if name in ("stem_sections", "flat30_probe")}
+    for name, result in sections.items():
+        if not result["passed"]:
+            measurements[name]["failures"].append("sections: 30 Hz energy contrast < 6 dB or invalid")
+    mode = "probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal"))
+    receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
                               "loop_endpoint_delta_max": .03,
                               "loop_slope_delta_max_full_scale_per_sample": .001,
+                              "section_component_hz": 30, "section_contrast_min_db": 6.0,
+                              "section_component_amplitude_min_full_scale": .01,
+                              "section_rms_min_full_scale": .001,
                               "distinctness_duration_delta_min_s": .020,
                               "distinctness_centroid_relative_delta_min": .10,
                               "centroid_bands_hz": {k: [v[1], v[2]] for k,v in SPECS.items()}},
-               "measurements": measurements, "distinctness": distinctness}
+               "measurements": measurements, "distinctness": distinctness,
+               "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")
+    suffix = "-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal"))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

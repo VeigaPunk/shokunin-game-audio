@@ -25,7 +25,7 @@ def time(seconds):
     return np.arange(round(seconds * RATE)) / RATE
 
 
-def main(broken=False, slope_probe=False):
+def main(broken=False, slope_probe=False, flat_probe=False):
     if slope_probe:
         t_probe = time(1)
         probe = .30 * np.sin(2*np.pi*220*t_probe)
@@ -59,11 +59,18 @@ def main(broken=False, slope_probe=False):
          + .06*np.sin(2*np.pi*100*t))
     t = time(2)
     save("stem", .23*np.sin(2*np.pi*220*t) + .11*np.sin(2*np.pi*330*t))
+    t = time(4)
+    common = .08*np.sin(2*np.pi*220*t) + .04*np.sin(2*np.pi*330*t)
+    save("stem_sections", common + np.where(t < 2, .012, .060)*np.sin(2*np.pi*30*t))
+    if flat_probe:
+        save("flat30_probe", common + .036*np.sin(2*np.pi*30*t),
+             OUT.parent / "live" / "round-4")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
     parser.add_argument("--probe-slope", action="store_true")
+    parser.add_argument("--probe-flat", action="store_true")
     args = parser.parse_args()
-    main(args.probe_failing, args.probe_slope)
+    main(args.probe_failing, args.probe_slope, args.probe_flat)
