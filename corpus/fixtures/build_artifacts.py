@@ -11,10 +11,10 @@ RATE = 48000
 OUT = Path(__file__).resolve().parents[1] / "artifacts"
 
 
-def save(name, samples):
-    OUT.mkdir(parents=True, exist_ok=True)
+def save(name, samples, directory=OUT):
+    directory.mkdir(parents=True, exist_ok=True)
     pcm = np.round(np.clip(samples, -1, 1) * 32767).astype("<i2")
-    with wave.open(str(OUT / f"{name}.wav"), "wb") as wav:
+    with wave.open(str(directory / f"{name}.wav"), "wb") as wav:
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(RATE)
@@ -25,7 +25,12 @@ def time(seconds):
     return np.arange(round(seconds * RATE)) / RATE
 
 
-def main(broken=False):
+def main(broken=False, slope_probe=False):
+    if slope_probe:
+        t_probe = time(1)
+        probe = .30 * np.sin(2*np.pi*220*t_probe)
+        probe[0], probe[1], probe[-2], probe[-1] = 0., .45, .02, 0.
+        save("slope_probe", probe, OUT.parent / "live" / "round-3")
     rng = np.random.default_rng(20261012)
     t = time(.12)
     save("ui", .38 * np.sin(2 * np.pi * (700*t + 800*t*t)) * np.exp(-30*t))
@@ -59,5 +64,6 @@ def main(broken=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
+    parser.add_argument("--probe-slope", action="store_true")
     args = parser.parse_args()
-    main(args.probe_failing)
+    main(args.probe_failing, args.probe_slope)

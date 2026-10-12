@@ -29,8 +29,8 @@ def command(*args):
     return subprocess.run(args, check=True, capture_output=True)
 
 
-def measure(name, spec):
-    path = ARTIFACTS / (name + ".wav")
+def measure(name, spec, path=None):
+    path = path or ARTIFACTS / (name + ".wav")
     probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
                                "stream=sample_rate,channels:format=duration", "-of", "json", str(path)).stdout)
     stream = probe["streams"][0]
@@ -55,6 +55,7 @@ def measure(name, spec):
     if lufs is not None and (not np.isfinite(lufs) or lufs <= -70):
         lufs = None
     seam_delta = float(abs(samples[0] - samples[-1])) if spec[3] else None
+    slope_delta = float(abs((samples[-1] - samples[-2]) - (samples[1] - samples[0]))) if spec[3] else None
     failures = []
     if rate != 48000 or int(stream["channels"]) != 1:
         failures.append("format: expected 48kHz mono")
@@ -66,21 +67,31 @@ def measure(name, spec):
         failures.append("spectrum: centroid outside fixture band")
     if spec[3] and seam_delta > .03:
         failures.append("loop seam: endpoint jump > .03 full scale")
+    if spec[3] and slope_delta > .001:
+        failures.append("loop seam: slope mismatch > .001 full scale per sample")
     return {"path": str(path.relative_to(ROOT)), "duration_s": duration,
             "sample_rate_hz": rate, "channels": int(stream["channels"]),
             "peak_full_scale": peak, "rms_dbfs": float(20*np.log10(rms)),
             "integrated_lufs": lufs if np.isfinite(lufs if lufs is not None else float("nan")) else None,
             "spectral_centroid_hz": centroid, "spectral_bandwidth_hz": bandwidth,
-            "seam_endpoint_delta_full_scale": seam_delta, "failures": failures}
+            "seam_endpoint_delta_full_scale": seam_delta,
+            "seam_slope_delta_full_scale_per_sample": slope_delta, "failures": failures}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
+    parser.add_argument("--probe-slope", action="store_true")
     args = parser.parse_args()
+    if args.probe_slope and args.probe_failing:
+        parser.error("choose one probe mode")
     command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
-            *(["--probe-failing"] if args.probe_failing else []))
+            *(["--probe-failing"] if args.probe_failing else []),
+            *(["--probe-slope"] if args.probe_slope else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
+    if args.probe_slope:
+        path = ROOT / "live" / "round-3" / "slope_probe.wav"
+        measurements["slope_probe"] = measure("slope_probe", (1.0, 5, 24000, True), path)
     distinctness = {}
     for name, variant in measurements.items():
         if not name.endswith("_alt"):
@@ -93,16 +104,18 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
-    receipt = {"mode": "probe-failing" if args.probe_failing else "normal",
+    receipt = {"mode": "probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal"),
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
                               "loop_endpoint_delta_max": .03,
+                              "loop_slope_delta_max_full_scale_per_sample": .001,
                               "distinctness_duration_delta_min_s": .020,
                               "distinctness_centroid_relative_delta_min": .10,
                               "centroid_bands_hz": {k: [v[1], v[2]] for k,v in SPECS.items()}},
                "measurements": measurements, "distinctness": distinctness}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    out = ROOT / "live" / "runs" / (stamp + ("-failing" if args.probe_failing else "-normal"))
+    suffix = "-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")
+    out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
     failed = {k: v["failures"] for k,v in measurements.items() if v["failures"]}
