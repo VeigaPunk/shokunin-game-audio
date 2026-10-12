@@ -201,3 +201,15 @@ Admit bounded numeric gate depth with no demonstrated scoped harm or scalar scor
 | coverage | unchanged | Thirteen canonical WAV hashes and five `_alt` checks preserved; scratch controls are not canonical content. |
 
 Admitted with zero demonstrated scoped harm. This is local numerical resolution, not proof of audible quality or engine/production behavior; no equality test. Invalid mode is malformed-input scope only. Wave-1 scribe had no artifact and was cancelled. SHONEN box4 open. Operator paused after round 19; no round 20.
+
+## Round 20 verdict — 2026-10-12
+
+Operator dispatch `shk47-audio-r20` supersedes the round-19 pause line above. That line stays as history.
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| coverage | improved narrowly | Before r19 report work commit `6648aae`: 16 verifier-table mode routes, no 200 Hz internal-gap route. After: 17th route `--probe-layer-third-join`. Non-author `reports/round-20/r20-verifier.md` exits `0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0`; receipt `corpus/live/runs/20261012T232009162006Z-layer-third-join/measurements.json` has sole `join200_probe` internal-gap failure `.030029296875` FS. Thirteen canonical hashes match `a905a26`. Scratch is not a 14th canonical. Sol `r20-adjudicator.md`. |
+| depth | unchanged | Same `.03` FS gap predicate and existing runner; no new detector. First canonical-copy click (`20261012T231846536176Z`) failed centroid and gap and was not selected. |
+| calibration | unchanged | `.03`, `.001`, and `6 dB` bounds unchanged. Target count 839 is geometry of this fixture, not a retuned threshold. |
+
+Admission: coverage narrowly improved, depth and calibration unchanged, no demonstrated scoped harm. No scalar score. The selected scratch adds the original 220/330 Hz bed before the two-frame edit, so it is not a waveform-identical corruption of `stem_layer_third.wav`. No audible, engine, or production claim. SHONEN box 4 remains open.
