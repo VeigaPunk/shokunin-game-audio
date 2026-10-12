@@ -14,9 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
 SPECS = {
     "ui": (.12, 250, 4000, False),
+    "ui_alt": (.16, 250, 4000, False),
     "impact": (.32, 50, 15000, False),
+    "impact_alt": (.32, 50, 15000, False),
     "movement": (.24, 100, 16000, False),
+    "movement_alt": (.36, 100, 16000, False),
     "ambience": (2.0, 5, 200, True),
+    "ambience_alt": (2.0, 5, 200, True),
     "stem": (2.0, 100, 2000, True),
 }
 
@@ -77,12 +81,26 @@ def main():
     command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
             *(["--probe-failing"] if args.probe_failing else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
+    distinctness = {}
+    for name, variant in measurements.items():
+        if not name.endswith("_alt"):
+            continue
+        base = measurements[name[:-4]]
+        duration_delta = abs(variant["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(variant["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        distinctness[name] = {"baseline": name[:-4], "duration_delta_s": duration_delta,
+                              "centroid_relative_delta": centroid_relative_delta, "passed": passed}
+        if not passed:
+            variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
     receipt = {"mode": "probe-failing" if args.probe_failing else "normal",
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
                               "loop_endpoint_delta_max": .03,
+                              "distinctness_duration_delta_min_s": .020,
+                              "distinctness_centroid_relative_delta_min": .10,
                               "centroid_bands_hz": {k: [v[1], v[2]] for k,v in SPECS.items()}},
-               "measurements": measurements}
+               "measurements": measurements, "distinctness": distinctness}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     out = ROOT / "live" / "runs" / (stamp + ("-failing" if args.probe_failing else "-normal"))
     out.mkdir(parents=True)

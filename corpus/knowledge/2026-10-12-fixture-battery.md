@@ -39,3 +39,9 @@ not sample acquisition. Attribution: link the named documentation above. Asset
 rights: not applicable to these source-generated WAVs; no claim about rights to
 external recordings. AI-training permission: not requested or implied for any
 external audio. Future samples require separate answers to all three questions.
+
+## Round 2 extension: measured SFX variants
+
+The same `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` entrypoint now regenerates and measures nine original mono PCM16/48 kHz files: the original five plus `ui_alt` (0.16 s), `impact_alt` (0.32 s), `movement_alt` (0.36 s), and `ambience_alt` (2.00 s). Each new file uses the original category's level and centroid bounds; `ambience_alt` additionally uses the existing endpoint threshold. Recipes and independent worker measurements are in `reports/round-2/r2-{ui,impact,movement,ambience}.md`. All files use analytic oscillators or newly seeded NumPy noise and no external samples.
+
+The receipt adds `distinctness` for each variant, derived from the decoded WAV measurements rather than synthesis parameters. The declared round-2 criterion is absolute duration difference >=0.020 s **or** absolute centroid difference / baseline centroid >=0.10. The 20 ms minimum was tightened before integration after `r2-critic.md` showed that any nonzero sub-millisecond difference would otherwise pass. This is an intentionally local numerical distinction check, not evidence of perceptually distinct audio. A loop's endpoint amplitude can match while its slope is discontinuous; current seam results cannot certify playback-quality loops. The original five records and the existing failing-probe behavior remain in the same receipt. No new loudness target is imposed; `integrated_lufs: null` still indicates the brief-SFX gated floor, not silence.
