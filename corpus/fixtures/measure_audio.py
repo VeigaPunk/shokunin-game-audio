@@ -87,6 +87,7 @@ def section_contrast(path, component_hz=30):
         return {"component_hz": component_hz, "section_samples": 96000,
                 "actual_samples": len(samples), "component_amplitudes_full_scale": [],
                 "section_rms_full_scale": [], "component_amplitude_contrast_db": None,
+                "internal_join_adjacent_delta_full_scale": None,
                 "valid": False, "passed": False, "failure_kind": "section count"}
     halves = np.split(samples, 2)
     component_bin = component_hz * len(halves[0]) // 48000
@@ -94,8 +95,10 @@ def section_contrast(path, component_hz=30):
     rms = [float(np.sqrt(np.mean(half**2))) for half in halves]
     valid = all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
     delta_db = float(20*np.log10(amps[1]/amps[0])) if valid else None
+    join_delta = float(abs(samples[96000] - samples[95999]))
     return {"component_hz": component_hz, "section_samples": 96000, "component_amplitudes_full_scale": amps,
             "section_rms_full_scale": rms, "component_amplitude_contrast_db": delta_db,
+            "internal_join_adjacent_delta_full_scale": join_delta,
             "valid": valid, "passed": bool(valid and delta_db >= 6.0)}
 
 
@@ -141,9 +144,10 @@ def main():
     parser.add_argument("--probe-slope", action="store_true")
     parser.add_argument("--probe-flat", action="store_true")
     parser.add_argument("--probe-layer-flat", action="store_true")
+    parser.add_argument("--probe-layer-join", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_invalid]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_invalid]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -159,7 +163,8 @@ def main():
             *(["--probe-failing"] if args.probe_failing else []),
             *(["--probe-slope"] if args.probe_slope else []),
             *(["--probe-flat"] if args.probe_flat else []),
-            *(["--probe-layer-flat"] if args.probe_layer_flat else []))
+            *(["--probe-layer-flat"] if args.probe_layer_flat else []),
+            *(["--probe-layer-join"] if args.probe_layer_join else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
     if args.probe_slope:
         path = ROOT / "live" / "round-3" / "slope_probe.wav"
@@ -170,6 +175,9 @@ def main():
     if args.probe_layer_flat:
         path = ROOT / "live" / "round-8" / "flat120_probe.wav"
         measurements["flat120_probe"] = measure("flat120_probe", SPECS["stem_layer"], path)
+    if args.probe_layer_join:
+        path = ROOT / "live" / "round-10" / "join_probe.wav"
+        measurements["join_probe"] = measure("join_probe", SPECS["stem_layer"], path)
     distinctness = {}
     for name, variant in measurements.items():
         if not name.endswith("_alt"):
@@ -182,19 +190,22 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
-    sections = {name: section_contrast(ROOT / data["path"], 120 if name in ("stem_layer", "flat120_probe") else 30)
+    sections = {name: section_contrast(ROOT / data["path"], 120 if name in ("stem_layer", "flat120_probe", "join_probe") else 30)
                 for name, data in measurements.items()
-                if name in ("stem_sections", "flat30_probe", "stem_layer", "flat120_probe")}
+                if name in ("stem_sections", "flat30_probe", "stem_layer", "flat120_probe", "join_probe")}
     for name, result in sections.items():
         if not result["passed"]:
             measurements[name]["failures"].append(f"sections: {result['component_hz']} Hz component amplitude contrast < 6 dB or invalid")
-    mode = "probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))
+        if name in ("stem_layer", "join_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
+            measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+    mode = "probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal"))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
                               "loop_endpoint_delta_max": .03,
                               "loop_slope_delta_max_full_scale_per_sample": .001,
                               "section_contrast_min_db": 6.0,
+                              "internal_join_adjacent_delta_max_full_scale": .03,
                               "section_component_amplitude_min_full_scale": .01,
                               "section_rms_min_full_scale": .001,
                               "distinctness_duration_delta_min_s": .020,
@@ -203,7 +214,7 @@ def main():
                "measurements": measurements, "distinctness": distinctness,
                "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))
+    suffix = "-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal"))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

@@ -101,3 +101,13 @@ Admission: coverage narrowly improved, none harmed within declared numeric fixtu
 | coverage | unchanged | Eleven canonical WAV hashes match `aaf4801`, four variants remain passing; no new file/category. |
 
 Admission: disclosure improved narrowly, none demonstrated harmed within deterministic fixture scope; no scalar score. One typo exit 2 excluded; historical JSON unchanged. No compatibility/perceptual/production claim. SHONEN box 4 remains open.
+
+## Round 10 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `f32ab7f`, internal 2s layer boundary unmeasured. New decoded-PCM adjacent gap at frames 95999→96000 gates `stem_layer`/`join_probe` at strict `> .03` FS; non-author `reports/round-10/r10-verifier.md` receipt `corpus/live/runs/20261012T174637561631Z-layer-join/measurements.json` shows selected control `.030914306640625` sole failure; clean layer `.00018310546875` passes. Sol `r10-adjudicator.md`. Single-edge proxy only. |
+| coverage | unchanged | Eleven canonical WAV hashes match `f32ab7f`, four variants pass; scratch probe not new category. Old controls unchanged. |
+| calibration | unchanged | `.03` reused as fixture-local comparator, not empirically tuned to audibility; equality passes. All-section additive gap telemetry is not an expanded gate. |
+
+Admission: depth narrowly improved, no demonstrated scoped harm, no scalar score. Earlier failed-fit candidates and unused alternate documented, not passes. No audible/engine/production claim. SHONEN box 4 open.
