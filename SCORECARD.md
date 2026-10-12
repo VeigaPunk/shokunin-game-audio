@@ -151,3 +151,13 @@ Admit bounded depth, no demonstrated scoped harm, no scalar score. Verifier Type
 | calibration | unchanged | Existing local `.03` FS, `.001` FS/sample and 6dB bounds not retuned; no audible/field study. |
 
 Admit bounded depth, no demonstrated scoped harm, no scalar score. Runner decoded gap authoritative vs worker direct scaling decimal. No audible/engine/production inference, strict external JSON readers untested. SHONEN box4 open.
+
+## Round 15 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `0928e9e`, clean 180Hz layer passed gap/slope checks but lacked a waveform-matched 180Hz slope-only negative. Original opt-in single-frame +13-count (39→52 at 96001) scratch fails solely on decoded internal side-slope `.001251220703125` FS/sample (> .001), while gap `.0003662109375` FS, valid 180Hz contrast 10.457250605879763dB, generic and outer gates pass. Non-author `reports/round-15/r15-verifier.md`; Sol `r15-adjudicator.md`. |
+| coverage | unchanged | 12 canonical WAV hashes unchanged vs `0928e9e`; five `_alt` records pass. Scratch control is not new content. |
+| calibration | unchanged | Existing `.001` FS/sample, `.03` FS and 6dB local bounds unaltered; no perceptual calibration. |
+
+Admit bounded gate depth, no demonstrated scoped harm, no scalar score. Non-author twelve-mode serial replay preserved prior failures and normal/restore equality. Executor's first count direction was corrected from actual PCM bytes. Threshold proxy is not audibility/engine/production evidence; strict external JSON readers untested. SHONEN box 4 open.
