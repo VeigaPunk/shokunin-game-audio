@@ -1,0 +1,44 @@
+{
+  "mode": "probe-invalid",
+  "invalid_probes": [
+    {
+      "probe": "short_sections",
+      "path": "live/round-6/short_sections.wav",
+      "expected_failure": "section count",
+      "observed_failure": "section count",
+      "section": {
+        "component_hz": 30,
+        "section_samples": 96000,
+        "actual_samples": 144000,
+        "component_amplitudes_full_scale": [],
+        "section_rms_full_scale": [],
+        "section_energy_delta_db": null,
+        "valid": false,
+        "passed": false,
+        "failure_kind": "section count"
+      },
+      "status": "expected_failure"
+    },
+    {
+      "probe": "corrupt",
+      "path": "live/round-6/corrupt.wav",
+      "expected_failure": "decode",
+      "observed_failure": "decode",
+      "detail": {
+        "tool": "ffprobe",
+        "exit_code": 1,
+        "stderr": "/home/vgpnk/Projects/prymeagnt/audio/.shokunin/audio/corpus/live/round-6/corrupt.wav: Invalid data found when processing input"
+      },
+      "status": "expected_failure"
+    },
+    {
+      "probe": "wrong_format",
+      "path": "live/round-6/wrong_format.wav",
+      "expected_failure": "format",
+      "observed_failure": "format",
+      "sample_rate_hz": 44100,
+      "channels": 2,
+      "status": "expected_failure"
+    }
+  ]
+}

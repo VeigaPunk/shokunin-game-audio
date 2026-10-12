@@ -82,14 +82,54 @@ def measure(name, spec, path=None):
 def section_contrast(path):
     raw = command("sox", str(path), "-t", "f32", "-e", "floating-point", "-").stdout
     samples = np.frombuffer(raw, dtype="<f4").astype(np.float64)
+    if len(samples) != 192000:
+        return {"component_hz": 30, "section_samples": 96000,
+                "actual_samples": len(samples), "component_amplitudes_full_scale": [],
+                "section_rms_full_scale": [], "section_energy_delta_db": None,
+                "valid": False, "passed": False, "failure_kind": "section count"}
     halves = np.split(samples, 2)
     amps = [float(2 * abs(np.fft.rfft(half)[60]) / len(half)) for half in halves]
     rms = [float(np.sqrt(np.mean(half**2))) for half in halves]
-    valid = len(samples) == 192000 and all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
+    valid = all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
     delta_db = float(20*np.log10(amps[1]/amps[0])) if valid else None
     return {"component_hz": 30, "section_samples": 96000, "component_amplitudes_full_scale": amps,
             "section_rms_full_scale": rms, "section_energy_delta_db": delta_db,
             "valid": valid, "passed": bool(valid and delta_db >= 6.0)}
+
+
+def invalid_probes():
+    probes = ROOT / "live" / "round-6"
+    results = []
+    for name, expected in (("short_sections", "section count"),
+                           ("corrupt", "decode"), ("wrong_format", "format")):
+        path = probes / (name + ".wav")
+        result = {"probe": name, "path": str(path.relative_to(ROOT)),
+                  "expected_failure": expected, "observed_failure": None}
+        if name == "corrupt":
+            try:
+                command("ffprobe", "-v", "error", "-show_entries",
+                        "stream=sample_rate,channels:format=duration", "-of", "json", str(path))
+            except subprocess.CalledProcessError as exc:
+                result["observed_failure"] = "decode"
+                result["detail"] = {"tool": "ffprobe", "exit_code": exc.returncode,
+                                    "stderr": exc.stderr.decode(errors="replace").strip()}
+        elif name == "wrong_format":
+            probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
+                                       "stream=sample_rate,channels:format=duration", "-of", "json", str(path)).stdout)
+            stream = probe["streams"][0]
+            result["sample_rate_hz"] = int(stream["sample_rate"])
+            result["channels"] = int(stream["channels"])
+            if result["sample_rate_hz"] != 48000 or result["channels"] != 1:
+                result["observed_failure"] = "format"
+        else:
+            section = section_contrast(path)
+            result["section"] = section
+            if section.get("failure_kind") == "section count":
+                result["observed_failure"] = "section count"
+        result["status"] = ("expected_failure" if result["observed_failure"] == expected
+                            else "unexpected_result")
+        results.append(result)
+    return results
 
 
 def main():
@@ -97,9 +137,20 @@ def main():
     parser.add_argument("--probe-failing", action="store_true")
     parser.add_argument("--probe-slope", action="store_true")
     parser.add_argument("--probe-flat", action="store_true")
+    parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_invalid]) > 1:
         parser.error("choose one probe mode")
+    if args.probe_invalid:
+        command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+        results = invalid_probes()
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        out = ROOT / "live" / "runs" / (stamp + "-invalid")
+        out.mkdir(parents=True)
+        (out / "measurements.json").write_text(json.dumps({"mode": "probe-invalid", "invalid_probes": results}, indent=2, allow_nan=False) + "\n")
+        print(json.dumps({"receipt": str(out / "measurements.json"),
+                          "failures": {r["probe"]: r["observed_failure"] for r in results}}))
+        return 1 if all(r["status"] == "expected_failure" for r in results) else 2
     command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
             *(["--probe-failing"] if args.probe_failing else []),
             *(["--probe-slope"] if args.probe_slope else []),

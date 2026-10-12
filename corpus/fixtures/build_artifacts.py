@@ -25,6 +25,30 @@ def time(seconds):
     return np.arange(round(seconds * RATE)) / RATE
 
 
+def build_invalid_probes():
+    import struct
+
+    out = OUT.parent / "live" / "round-6"
+    out.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(out / "short_sections.wav"), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(RATE)
+        frames = (int(.2 * 32767 * math.sin(2*math.pi*180*i/RATE)) for i in range(3*RATE))
+        wav.writeframes(b"".join(struct.pack("<h", sample) for sample in frames))
+    (out / "corrupt.wav").write_bytes(bytes.fromhex("524946460000000057415645666d7420"))
+    with wave.open(str(out / "wrong_format.wav"), "wb") as wav:
+        wav.setnchannels(2)
+        wav.setsampwidth(2)
+        wav.setframerate(44100)
+        frames = bytearray()
+        for i in range(44100 * 4):
+            t = i / 44100
+            frames.extend(struct.pack("<hh", round(.30 * math.sin(2*math.pi*440*t)*32767),
+                                      round(.25 * math.sin(2*math.pi*660*t)*32767)))
+        wav.writeframes(frames)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False):
     if slope_probe:
         t_probe = time(1)
@@ -72,5 +96,9 @@ if __name__ == "__main__":
     parser.add_argument("--probe-failing", action="store_true")
     parser.add_argument("--probe-slope", action="store_true")
     parser.add_argument("--probe-flat", action="store_true")
+    parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
-    main(args.probe_failing, args.probe_slope, args.probe_flat)
+    if args.probe_invalid:
+        build_invalid_probes()
+    else:
+        main(args.probe_failing, args.probe_slope, args.probe_flat)
