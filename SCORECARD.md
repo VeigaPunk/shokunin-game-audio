@@ -91,3 +91,13 @@ Admission: depth narrowly improved, none harmed, no scalar score. Nine verifier 
 | calibration | unchanged | Old thresholds unchanged; `section_energy_delta_db` is an amplitude-ratio misnomer and top-level `thresholds.section_component_hz: 30` is legacy, while per-section layer `component_hz:120` is authoritative. Disclosed, not empirically tuned. |
 
 Admission: coverage narrowly improved, none harmed within declared numeric fixture scope; seven verifier setup exits 127 excluded; no scalar score or audible/engine/production claim. SHONEN box 4 remains open.
+
+## Round 9 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| calibration | improved narrowly (disclosure/auditability only) | Before `aaf4801`, top-level `thresholds.section_component_hz:30` could misstate 120Hz layer and `section_energy_delta_db` labeled 20log10(component amplitude ratio) as energy. New receipts use per-section `component_hz` alone and `component_amplitude_contrast_db`; eight paired normal/flat30/flat120 records have zero numeric delta; non-author `reports/round-9/r9-verifier.md` and Sol `r9-adjudicator.md`. No threshold tuning. Breaking JSON schema for unknown external readers, disclosed. |
+| depth | unchanged | Same builder, FFT, gates and outcomes; seven corrected replay exits 0/1/1/1/1/1/0. |
+| coverage | unchanged | Eleven canonical WAV hashes match `aaf4801`, four variants remain passing; no new file/category. |
+
+Admission: disclosure improved narrowly, none demonstrated harmed within deterministic fixture scope; no scalar score. One typo exit 2 excluded; historical JSON unchanged. No compatibility/perceptual/production claim. SHONEN box 4 remains open.

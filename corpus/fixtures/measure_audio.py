@@ -86,7 +86,7 @@ def section_contrast(path, component_hz=30):
     if len(samples) != 192000:
         return {"component_hz": component_hz, "section_samples": 96000,
                 "actual_samples": len(samples), "component_amplitudes_full_scale": [],
-                "section_rms_full_scale": [], "section_energy_delta_db": None,
+                "section_rms_full_scale": [], "component_amplitude_contrast_db": None,
                 "valid": False, "passed": False, "failure_kind": "section count"}
     halves = np.split(samples, 2)
     component_bin = component_hz * len(halves[0]) // 48000
@@ -95,7 +95,7 @@ def section_contrast(path, component_hz=30):
     valid = all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
     delta_db = float(20*np.log10(amps[1]/amps[0])) if valid else None
     return {"component_hz": component_hz, "section_samples": 96000, "component_amplitudes_full_scale": amps,
-            "section_rms_full_scale": rms, "section_energy_delta_db": delta_db,
+            "section_rms_full_scale": rms, "component_amplitude_contrast_db": delta_db,
             "valid": valid, "passed": bool(valid and delta_db >= 6.0)}
 
 
@@ -194,7 +194,7 @@ def main():
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
                               "loop_endpoint_delta_max": .03,
                               "loop_slope_delta_max_full_scale_per_sample": .001,
-                              "section_component_hz": 30, "section_contrast_min_db": 6.0,
+                              "section_contrast_min_db": 6.0,
                               "section_component_amplitude_min_full_scale": .01,
                               "section_rms_min_full_scale": .001,
                               "distinctness_duration_delta_min_s": .020,
