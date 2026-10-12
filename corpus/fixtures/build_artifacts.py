@@ -47,6 +47,14 @@ def build_invalid_probes():
             frames.extend(struct.pack("<hh", round(.30 * math.sin(2*math.pi*440*t)*32767),
                                       round(.25 * math.sin(2*math.pi*660*t)*32767)))
         wav.writeframes(frames)
+    odd = OUT.parent / "live" / "round-7"
+    odd.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(odd / "odd_sections.wav"), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(RATE)
+        wav.writeframes(b"".join(struct.pack("<h", round(.2 * 32767 * math.sin(2*math.pi*180*i/RATE)))
+                                 for i in range(101)))
 
 
 def main(broken=False, slope_probe=False, flat_probe=False):

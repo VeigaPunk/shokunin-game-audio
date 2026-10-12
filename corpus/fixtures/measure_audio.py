@@ -101,8 +101,9 @@ def invalid_probes():
     probes = ROOT / "live" / "round-6"
     results = []
     for name, expected in (("short_sections", "section count"),
-                           ("corrupt", "decode"), ("wrong_format", "format")):
-        path = probes / (name + ".wav")
+                           ("corrupt", "decode"), ("wrong_format", "format"),
+                           ("odd_sections", "section count")):
+        path = (ROOT / "live" / "round-7" if name == "odd_sections" else probes) / (name + ".wav")
         result = {"probe": name, "path": str(path.relative_to(ROOT)),
                   "expected_failure": expected, "observed_failure": None}
         if name == "corrupt":

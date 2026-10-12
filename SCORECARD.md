@@ -71,3 +71,13 @@ Admission: calibration disclosure improved narrowly, depth/coverage unchanged, n
 | calibration | unchanged | Existing thresholds and control gates intact, no threshold tuning, round-5 LUFS caveat preserved; source diff and non-author reports. |
 
 Admission: depth improved narrowly, none harmed; no scalar score or perceptual/security/production claim. SHONEN box 4 remains open pending whole-lane independent review.
+
+## Round 7 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `cba2748`, only even 144000-sample short control existed, leaving the old odd-length split exception unexercised. Named 101-frame odd input raises `ValueError` in isolated `3b02c31` function (non-author `reports/round-7/r7-verifier.md`), while current `--probe-invalid` receipt `corpus/live/runs/20261012T171718939143Z-invalid/measurements.json` reports `section count` 101/192000 without traceback. Precheck code itself dates to round 6; new gain is direct regression control and structured fourth receipt, not old CLI crash/general fix. Sol `r7-adjudicator.md`. |
+| coverage | unchanged | Ten canonical hashes match `cba2748`; four variant checks pass; first three invalid cases and normal/flat/slope/failing/restore outcomes preserved. Odd scratch is not a canonical category. |
+| calibration | unchanged | No threshold changes or new LUFS window; local proxy limitations remain. |
+
+Admission: depth narrowly improved, none harmed, no scalar score. Nine verifier misquoted shell attempts exit 127 and are excluded; corrected replay is cited above. SHONEN box 4 remains open.

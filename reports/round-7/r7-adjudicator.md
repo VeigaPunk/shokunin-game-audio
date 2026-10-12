@@ -1,0 +1,23 @@
+# Round 7 Sol adjudication — odd section-count path
+
+Judge: non-author Sol lane. Report-only; no source, fixture, canonical asset, LOG, SCORECARD, or threshold edit. Compared before `cba2748` to the current worktree and reviewed the independent `r7-verifier.md` replay and its durable receipts. This is a bounded per-axis decision, not a sonic-quality or security review.
+
+| Axis | Verdict | Before → after evidence and bound |
+|---|---|---|
+| depth | **improved narrowly** | Round 6's even 144000-frame short control could not exercise the old `np.split` exception. The independent verifier extracted only `section_contrast` from `3b02c31` and applied it to the original 101-frame odd PCM16/48k mono WAV (SHA-256 `81c7ba97bfc8f68a9ad48403a6b102bf4d5f573963f5d8f74a9697bd09aa72d8`): exit 1, `ValueError: array split does not result in an equal division` at the old split. The integrated opt-in `--probe-invalid` exits 1 intentionally and writes `corpus/live/runs/20261012T171718939143Z-invalid/measurements.json`: `odd_sections` is an `expected_failure`, observed `section count`, `actual_samples: 101` vs the existing exact 192000-sample guard, no traceback. The source diff from `cba2748` adds deterministic scratch generation and a fourth invalid-probe entry; it does **not** add or alter the count-before-split guard, which was already integrated in round 6. Thus the gain is a directly replayed regression control and structured receipt for this one exception path, not a new general fix. The old public CLI did not accept arbitrary scratch paths; the old side is a direct isolated-function execution, not an observed old CLI crash. |
+| coverage | **unchanged** | The same ten canonical WAV hashes match `cba2748`; four UI/impact/movement/ambience distinctness checks pass in `20261012T171605486878Z-normal`. Independent corrected script runs exited 0/1/1/1/0 for normal/flat/slope/failing/restore (`20261012T171605486878Z-normal`, `171613915489Z-flat`, `171614543341Z-slope`, `171615125782Z-failing`, `171615709159Z-normal`, each under `corpus/live/runs/` as `/measurements.json`). The previous three named invalid cases remain `expected_failure` in the new invalid receipt: 144000 vs 192000 `section count`, corrupt ffprobe exit 1 `decode`, wrong format 44100 Hz/stereo `format`. The added odd input is scratch structural control, not a new canonical audio asset, category, or broad input-coverage guarantee. |
+| calibration | **unchanged** | The `cba2748` source diff only adds odd scratch construction and invalid-list/path selection. Verifier checked existing enforcement values/branches unchanged: duration .001, peak .95, RMS .001, endpoint .03, slope .001, section exact count 192000, section amplitude .01, section RMS .001, contrast 6.0 dB. No threshold tuning, LUFS acceptance rule, or perceptual calibration is established. |
+
+**Admission:** depth improved narrowly, coverage/calibration unchanged, none harmed within these guards. No scalar score. Verifier documented nine misquoted setup commands exiting 127 in two batches and counted none as passing; subsequent corrected commands and receipts above support the guard claims. The baseline executor's initial `NameError: np not defined` was likewise corrected before the old-function exception claim. The evidence is limited to the named 101-frame WAV, installed toolchain, isolated historical function, and current opt-in mode; it does not support arbitrary malformed-file, codec-security, perceptual-quality, or production claims. SHONEN box 4 remains open: this is not a whole-lane historical cross-domain review.
+
+## Inspection provenance
+
+Shell inspections (all three exit **0**; none ran the audio toolchain):
+
+```sh
+git status --short && git diff cba2748 -- .shokunin/audio/corpus/fixtures/measure_audio.py .shokunin/audio/corpus/fixtures/build_artifacts.py
+git diff cba2748 -- .shokunin/audio/corpus/knowledge/2026-10-12-fixture-battery.md
+git show 3b02c31:.shokunin/audio/corpus/fixtures/measure_audio.py
+```
+
+I read `PROVINCE.md`, `SCORECARD.md`, `LOG.md`, `SHONEN.md`, all eight wave-1 round-7 reports (`r7-scout.md`, `r7-odd.md`, `r7-baseline.md`, `r7-critic.md`, `r7-reviewer.md`, `r7-simplifier.md`, `r7-scribe.md`, `r7-guard.md`), `r7-verifier.md`, and `/tmp/mission-audio-standing.md`, and the verifier's six named JSON receipts with Python `Path.read_text()` / `json.loads()`; those are direct file reads, not shell commands and have no process exit code. I did not independently replay the commands whose exits are cited from `r7-verifier.md`. The inspected knowledge-file diff is a clarification, not an additional measurement or threshold change.
