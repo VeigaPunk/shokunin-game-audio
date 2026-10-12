@@ -155,9 +155,10 @@ def main():
     parser.add_argument("--probe-layer-alt-join", action="store_true")
     parser.add_argument("--probe-layer-alt-slope", action="store_true")
     parser.add_argument("--probe-layer-alt-reverse", action="store_true")
+    parser.add_argument("--probe-layer-third-slope", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_invalid]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_invalid]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -179,7 +180,8 @@ def main():
             *(["--probe-layer-alt-flat"] if args.probe_layer_alt_flat else []),
             *(["--probe-layer-alt-join"] if args.probe_layer_alt_join else []),
             *(["--probe-layer-alt-slope"] if args.probe_layer_alt_slope else []),
-            *(["--probe-layer-alt-reverse"] if args.probe_layer_alt_reverse else []))
+            *(["--probe-layer-alt-reverse"] if args.probe_layer_alt_reverse else []),
+            *(["--probe-layer-third-slope"] if args.probe_layer_third_slope else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
     if args.probe_slope:
         path = ROOT / "live" / "round-3" / "slope_probe.wav"
@@ -208,6 +210,9 @@ def main():
     if args.probe_layer_alt_reverse:
         path = ROOT / "live" / "round-16" / "reverse180_probe.wav"
         measurements["reverse180_probe"] = measure("reverse180_probe", SPECS["stem_layer_alt"], path)
+    if args.probe_layer_third_slope:
+        path = ROOT / "live" / "round-18" / "slope200_probe.wav"
+        measurements["slope200_probe"] = measure("slope200_probe", SPECS["stem_layer_third"], path)
     distinctness = {}
     for name, variant in measurements.items():
         if not name.endswith("_alt"):
@@ -220,19 +225,19 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
-    sections = {name: section_contrast(ROOT / data["path"], 200 if name == "stem_layer_third" else
+    sections = {name: section_contrast(ROOT / data["path"], 200 if name in ("stem_layer_third", "slope200_probe") else
                                        180 if name in ("stem_layer_alt", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe") else
                                        120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
                 for name, data in measurements.items()
-                if name in ("stem_sections", "flat30_probe", "stem_layer", "stem_layer_alt", "stem_layer_third", "flat120_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe")}
+                if name in ("stem_sections", "flat30_probe", "stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "flat120_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe")}
     for name, result in sections.items():
         if not result["passed"]:
             measurements[name]["failures"].append(f"sections: {result['component_hz']} Hz component amplitude contrast < 6 dB or invalid")
-        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
+        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
-        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))
+    mode = "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal"))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -249,7 +254,7 @@ def main():
                "measurements": measurements, "distinctness": distinctness,
                "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))
+    suffix = "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal"))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

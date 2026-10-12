@@ -181,3 +181,13 @@ Admit bounded numeric direction-depth move; no demonstrated scoped harm, no scal
 | calibration | unchanged | Numeric thresholds unchanged; `.00091552734375` slope is close to `.001` local bound, not a robustness or perceptual study. |
 
 Admit bounded frequency-point coverage; no demonstrated scoped harm or scalar score. Independent 13-mode serial replay (invalid mode checks invalid files, not canonical) preserved twelve old hashes, prior failures, five variants and normal/restore equality. Rejected verifier spawn TypeError and alternate relative-path setup failure excluded. New canonical is not evidence of audible/musical distinctness, adaptive engine behavior, external JSON compatibility, security or production quality. SHONEN box4 open.
+
+## Round 18 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `7083a3f`, passing canonical 200Hz layer lacked a matched slope-only negative. New opt-in canonical-copy scratch changes solely frame 96001 **43→51** (+8 counts), SHA `e7c98cc5af858d8dab2be01a4f76382e06008573a017909c2760e68a585b1881`; decoded internal slope `.00115966796875` FS/sample strictly >.001 as sole failure. Gap `.000396728515625` FS <=.03, valid 200Hz contrast +10.457243020771665dB and generic/outer gates pass. Non-author `reports/round-18/r18-verifier.md`; Sol `r18-adjudicator.md`. |
+| coverage | unchanged | All 13 canonical WAVs match `7083a3f` Git blobs, five variants pass; scratch is not new playable content. |
+| calibration | unchanged | Existing local .001 FS/sample, .03 FS and >=6dB bounds reused, not perceptually calibrated; +8 excess is target failure, not upper-bound overshoot. |
+
+Admit bounded numeric gate depth with no demonstrated scoped harm or scalar score. Fourteen-mode non-author replay preserved prior failures and normal/restore equality; invalid mode tests invalid fixtures, not canonicals. Executor initial unusable/overshoot wording corrected; alternate +3/+2 and setup failures excluded from selected evidence. No audible/engine/production claim, strict external JSON readers untested. SHONEN box4 open.

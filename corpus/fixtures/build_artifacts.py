@@ -57,7 +57,7 @@ def build_invalid_probes():
                                  for i in range(101)))
 
 
-def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False):
+def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False):
     if slope_probe:
         t_probe = time(1)
         probe = .30 * np.sin(2*np.pi*220*t_probe)
@@ -97,6 +97,17 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     save("stem_layer", np.where(t < 2, .012, .060)*np.sin(2*np.pi*120*t))
     save("stem_layer_alt", np.where(t < 2, .015, .050)*np.sin(2*np.pi*180*t))
     save("stem_layer_third", np.where(t < 2, .015, .050)*np.sin(2*np.pi*200*t))
+    if layer_third_slope_probe:
+        with wave.open(str(OUT / "stem_layer_third.wav"), "rb") as wav:
+            frames = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2").copy()
+        frames[96001] += 8
+        out = OUT.parent / "live" / "round-18"
+        out.mkdir(parents=True, exist_ok=True)
+        with wave.open(str(out / "slope200_probe.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(RATE)
+            wav.writeframes(frames.tobytes())
     if layer_alt_reverse_probe:
         save("reverse180_probe", np.where(t < 2, .050, .015)*np.sin(2*np.pi*180*t),
              OUT.parent / "live" / "round-16")
@@ -170,9 +181,10 @@ if __name__ == "__main__":
     parser.add_argument("--probe-layer-alt-join", action="store_true")
     parser.add_argument("--probe-layer-alt-slope", action="store_true")
     parser.add_argument("--probe-layer-alt-reverse", action="store_true")
+    parser.add_argument("--probe-layer-third-slope", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
     if args.probe_invalid:
         build_invalid_probes()
     else:
-        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse)
+        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope)
