@@ -161,3 +161,13 @@ Admit bounded depth, no demonstrated scoped harm, no scalar score. Runner decode
 | calibration | unchanged | Existing `.001` FS/sample, `.03` FS and 6dB local bounds unaltered; no perceptual calibration. |
 
 Admit bounded gate depth, no demonstrated scoped harm, no scalar score. Non-author twelve-mode serial replay preserved prior failures and normal/restore equality. Executor's first count direction was corrected from actual PCM bytes. Threshold proxy is not audibility/engine/production evidence; strict external JSON readers untested. SHONEN box 4 open.
+
+## Round 16 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `35d978c`, passing +10.457dB 180Hz canonical and failing flat 0dB negative lacked a **valid reversed-order** section negative. New original opt-in `.050→.015` 180Hz scratch has valid decoded amplitudes `.04999787162649197/.014999921578770435` FS, signed contrast `-10.457250572050894dB` (<+6dB) sole failure, internal gap `.001190185546875` FS and slope `.00079345703125` FS/sample plus generic/outer pass. Non-author `reports/round-16/r16-verifier.md`, Sol `r16-adjudicator.md`. |
+| coverage | unchanged | 12 canonical WAV hashes match `35d978c`, five variants pass; scratch not new content. |
+| calibration | unchanged | Same local >=6dB contrast, .01 component amplitude, .03 gap and .001 slope bounds; no perceptual study or retuning. |
+
+Admit bounded numeric direction-depth move; no demonstrated scoped harm, no scalar score. Independent 13-mode serial replay preserved prior failures and normal/restore equality; verifier initially printed false `{}` failure sets and corrected table against receipts before adjudication. Alternate misquoted SoX exit127 and invalid fit are not passes. No audible/engine/production assertion, strict external JSON readers untested. SHONEN box4 open.
