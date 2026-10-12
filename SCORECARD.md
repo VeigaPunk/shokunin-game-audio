@@ -141,3 +141,13 @@ Admit bounded synthetic coverage, no demonstrated scoped harm, no scalar score. 
 | calibration | unchanged | Existing >=6dB, <=.03FS and <=.001FS/sample local bounds unchanged; no audibility study. Normal JSON exactly equal; strict external readers untested. |
 
 Admit bounded depth, no demonstrated scoped harm, no scalar score. Verifier TypeError, ten setup exits 127 and flawed text hash discarded. Numeric polarity only; no audible/engine/production inference. SHONEN box 4 open.
+
+## Round 14 verdict — 2026-10-12
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `ce3233a`, passing 180Hz layer had no gap-only 180Hz negative. New opt-in scratch with original 220/330Hz bed fails solely on decoded internal gap `.044403076171875` FS (> .03), side-slope 0 <= .001, valid 180Hz contrast 10.457775175842691dB and generic/outer pass. Non-author `reports/round-14/r14-verifier.md`, Sol `r14-adjudicator.md`. Gate-isolated, **not** waveform-identical canonical corruption. |
+| coverage | unchanged | 12 canonical hashes/five variant records retained; scratch is not new content. |
+| calibration | unchanged | Existing local `.03` FS, `.001` FS/sample and 6dB bounds not retuned; no audible/field study. |
+
+Admit bounded depth, no demonstrated scoped harm, no scalar score. Runner decoded gap authoritative vs worker direct scaling decimal. No audible/engine/production inference, strict external JSON readers untested. SHONEN box4 open.

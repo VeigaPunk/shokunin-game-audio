@@ -1,0 +1,17 @@
+# Round 14 reviewer — minimal opt-in 180 Hz internal-join control
+
+## Source review
+
+Read the Round 14 declaration in `.shokunin/audio/LOG.md` and inspected `corpus/fixtures/build_artifacts.py` and `corpus/fixtures/measure_audio.py`. No shell commands were run; there are no command/exit receipts. I changed no shared source, LOG, SCORECARD, canonical fixture, or commit.
+
+`stem_layer_alt` is built as an original 4 s, 48 kHz mono 180 Hz two-level sine (`.015` then `.050`). The runner currently evaluates it with `section_contrast(..., 180)` and gates its internal join gap at `>.03` FS and side-slope mismatch at `>.001` FS/sample. `join_probe` is mapped to 120 Hz (with `stem_layer`, `flat120_probe`, and `layer_slope_probe`); `stem_layer_alt` alone is mapped to 180 Hz. Thus a new control must be added to the explicit 180 Hz mapping. The join-gap gate currently includes `join_probe` but not the 180 Hz asset; the side-slope gate includes the alt asset but not `join_probe`.
+
+## Minimal opt-in wiring proposal
+
+1. Add `--probe-layer-alt-join` to the builder parser and `main` signature/call, preserving the existing mutually exclusive probe convention. When requested, generate `stem_layer_alt` as usual, then write a separate derived scratch WAV under `live/round-14/join180_probe.wav`. Do not edit/add canonical files or `SPECS`/`ARTIFACTS` entries. Start from the generated alt PCM and alter only the join samples near frame 96000. Set frame 96000 far enough from frame 95999 that the decoded adjacent gap is strictly greater than the existing `.03` FS bound. Independently tune frame 96001 so the decoded right-side first difference matches the left-side difference `(x[9599?]...)`—specifically the helper compares `(x[96001]-x[96000])` with `(x[95999]-x[95998])`. Recheck after PCM16 quantization; do not assume floating-point pre-quantization values establish pass/fail.
+2. Add the corresponding runner flag, include it in the one-mode-at-a-time check and builder invocation, then measure that scratch path with the existing `stem_layer_alt` spec. Give it a distinct receipt entry such as `layer_alt_join_probe` (not an `_alt` name), so it does not enter canonical measurements or variant distinctness.
+3. Include that measurement in `section_contrast` processing and map it explicitly to **180 Hz** alongside `stem_layer_alt` and `flat180_probe`. The same result should remain valid with section component amplitudes retaining at least the existing 6 dB contrast. Ensure generic/outer-seam gates pass and inspect internal gap/slope telemetry.
+4. Add the new entry only to the existing internal-join adjacent-gap gate, alongside `join_probe`; add it to the existing side-slope gate only if the generated/decoded candidate proves that gate passes and the scope intends to assert it. The intended diagnostic is the existing gap-only failure, so do not widen this probe into a new rule or duplicate the slope comparison. Existing `.03` and `.001` limits remain unchanged.
+5. Set the mode label, output suffix, scratch path and receipt consistently for the new probe. Leave all default and old probe branches unchanged.
+
+This keeps the control opt-in and uses the existing section helper and limits. The frame edit is a discrete sample-level seam proxy, not evidence of audible discontinuity, musical quality, downstream engine behavior, security, or production suitability. It should be called a sole gap-gate failure only after measured runner output confirms the valid 180 Hz section contrast and all other gates pass.
