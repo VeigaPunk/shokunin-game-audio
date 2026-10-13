@@ -593,3 +593,13 @@ Non-author `reports/round-57/r57-verifier.md`: **74 new unique receipts**, 36 ex
 | calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.3153076171875`, RMS `-14.629479252569332dBFS`, centroid `1129.9910331085607Hz`, equal SoX-f32 decode, no failures, exit0 through unchanged gates. |
 
 Non-author `reports/round-58/r58-verifier.md`: **76 new unique receipts**, 38 exit0/38 expected validation exit1, prior74 exact raw JSON subset36/38, canonical17 SHA/metrics and controls preserved. No verifier receiptless setup/decode attempt or selected numeric failed fit. Executor relative-path direct-measure exits1 and alt malformed inspection were setup, not selected gates; scout's corrected R57 history error was report transcription. Sol `r58-adjudicator.md` admits no scoped harm. The predicate does not parse valid-bit metadata; no precision/fidelity, universal valid-bit/header/codec, perceptual/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-58/audio.md`.
+
+## Round 59 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Matched, all-divisible-by-eight signed PCM16 payload in extensible PCM-subtype mono headers differing only valid-bits13 versus 16 at WAV byte38, extending the left-aligned 15/16 and 14/16 controls. |
+| coverage | **improved locally** | Two opt-in modes extend prior76 to 78 designated fresh commands; canonical17 and prior76 complete JSON preserved. |
+| calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.659912109375`, RMS `-8.811743007017897dBFS`, centroid `2139.5871109211243Hz`, equal SoX-f32 decode, no failures, exit0 through unchanged gates. |
+
+Non-author `reports/round-59/r59-verifier.md` designated **78 new unique receipts**, 40 exit0/38 expected validation exit1, prior76 exact raw JSON subset38/38, canonical17 SHA/metrics and controls preserved. Separately, an *earlier* unnecessary complete 78-receipt run `131110`–`131231` is also raw evidence, identical JSON but distinct paths; the verifier attributed its repeat to mistaken in-memory state tracking. Original chronology “after” was report transcription, corrected; Sol correctly treated the cause as unknown from evidence available to it. Preliminary malformed shell quote exit127 produced **zero receipt** (setup, not gate). No selected failed numeric fit. No valid-bit enforcement/precision/fidelity, universal header/codec, audible/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-59/audio.md`.
