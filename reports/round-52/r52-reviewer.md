@@ -1,0 +1,22 @@
+# R52 reviewer — opt-in PCM8/PCM16 UI probes
+
+## Scope and source review
+
+Read the R52 declaration in `.shokunin/audio/LOG.md`, the R51 reports/source, and the current `corpus/fixtures/build_artifacts.py` and `measure_audio.py`. This is a source review and integration proposal only. I did not edit source or run the proposed flags; no R52 measurements or exit codes are claimed here.
+
+The existing runner has paired `--probe-ui-pcm24` / `--probe-ui-pcm16` dispatch at `measure_audio.py`: it forwards the selected flag to `build_artifacts.py`, measures the normal `SPECS` set, then adds a supplementary `measure(..., SPECS["ui"], path)` result. The builder's `build_ui_pcm_depth_probe()` writes the R51 pair under `live/round-51/`. The runner checks a sum of all probe flags and rejects more than one. It saves a timestamped JSON receipt and reports nonempty `failures` as exit 1. The builder dispatches the PCM depth options in its mutually exclusive `if`/`elif` chain. `format_failures()` and `measure()` already provide the needed predicates and metrics; neither needs a PCM8-specific exception.
+
+One integration detail: the R51 builder branch runs its normal `main()` and then builds its scratch pair. Keep that pattern (or equivalent ordering) so the selected scratch WAV exists before the runner measures it. Do not use a PCM8 file as a canonical artifact or modify `SPECS`, format predicates, or thresholds.
+
+## Minimal opt-in wiring proposal
+
+1. In `build_artifacts.py`, add `--probe-ui-pcm8` and `--probe-ui-pcm16-r52` parser switches and one dispatch branch for either. Add a narrowly named helper that writes a pair only to `ROOT/live/round-52/`, with mono/48 kHz/5,760-frame PCM8 and PCM16 WAVs. Keep the R51 PCM24/16 helper and paths unchanged.
+2. Construct the pair from unsigned-byte values `u8` and derive signed PCM16 values as `(u8 - 128) * 256`. Write PCM8 as unsigned 8-bit WAV (one byte/sample), and PCM16 as little-endian signed 16-bit WAV. This is the R52 declared construction for equal SoX-f32 decoded vectors; verify it from actual ffprobe and SoX/project results rather than treating the formula as measured proof. Keep the signal comfortably inside the PCM8 endpoints and with a UI-band centroid.
+3. In `measure_audio.py`, add the two arguments to argparse and to the existing one-probe guard list; forward the selected option to the builder invocation. Add one supplementary measurement keyed distinctly by mode (for example `ui_depth_pcm8_r52_probe` or `ui_depth_pcm16_r52_probe`) from `live/round-52/pcm8.wav` or `pcm16.wav`, using the unchanged `measure(name, SPECS["ui"], path)`. Add the two names to the existing receipt `mode` and run-directory suffix selection. Avoid changing normal-mode measurements or any prior probe dispatch.
+4. With each flag alone, the PCM8 measurement should have exactly `format: expected PCM16`, and the PCM16 measurement should have no failures; their format evidence should show respectively unsigned 8-bit PCM and signed 16-bit PCM at 48 kHz mono. Confirm duration 0.12 s within the existing ±1 ms bound, peak `<.95`, RMS `>=.001`, and centroid 250–4000 Hz for each. Since runner exit 1 represents a recorded nonempty fixture failure, PCM8's expected status is process exit 1; PCM16 should exit 0. Run both separately, and confirm both flags together are rejected by argparse before any build/measurement.
+
+The full runner also measures the unchanged canonical set and computes existing comparisons/sections on each invocation. Preserve those receipt fields and ensure the two R52 scratch measurements do not accidentally enter `_alt`, family, or section comparisons. Keep R51 files and all existing controls unchanged. The proposal is limited to these selected fixture predicates; it supports no general PCM8 conversion inference.
+
+## Evidence and limits
+
+No command was run for the proposed integration, so there are no actual commands, exits, hashes, ffprobe results, or decoded measurements to report. The R51 baseline reports establish only their own prior PCM24/PCM16 fixtures; they do not establish an R52 PCM8 result. A verifier should independently run each new flag and the two-flag rejection, inspect the fresh receipts and raw pair, compare decoded sample vectors, and verify canonical hashes and prior controls/restoration before any conclusion. This review makes no broad codec, fidelity, audibility, quality, production, rights, engine, or promotion claim.

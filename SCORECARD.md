@@ -523,3 +523,13 @@ Named non-author `reports/round-50/r50-verifier.md`: corrected **60 unique fresh
 | calibration | **improved locally** | 5760-frame mono 48k pair: PCM24 `pcm_s24le`/24 sole `format: expected PCM16` exit1; PCM16 `pcm_s16le`/16 clean exit0. Both project-decode to equal floats by PCM16×256 construction, peak `.315399169921875`, RMS `-14.628083420045229 dBFS`, centroid `1123.8154138173777 Hz`; all other UI gates pass. |
 
 Named non-author `reports/round-51/r51-verifier.md`: **62 new unique receipts**, 27 exit0/35 expected validation exit1; prior60 subset26/34 exact preserved, canonical17 hash/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. Earlier 62 stalled-verifier receipts `083353`–`083459` excluded; stall and wave1 helper/path/quoting errors are setup, not gates. No selected failed numeric fit or corrected transcription. Sol `r51-adjudicator.md` admits with no demonstrated scoped harm. No additional PCM24 precision, codec generality, fidelity, audibility/perception, production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-51/audio.md`.
+
+## Round 52 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Matched ordinary UI unsigned PCM8/signed PCM16 pair exercises below-16-bit depth while holding decoded vectors equal and all other UI gates passing; no generic conversion claim. |
+| coverage | **improved locally** | Two opt-in modes extend prior62 to fresh 64-command replay; canonical corpus remains 17, prior modes preserved. |
+| calibration | **improved locally** | PCM8 `pcm_u8`/8 sole `format: expected PCM16` exit1; matched PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.3125`, RMS `-14.699802598426999dBFS`, centroid `1581.8516662990894Hz`; project SoX f32 vectors equal by `(u8-128)*256` construction. |
+
+Named non-author `reports/round-52/r52-verifier.md`: **64 fresh unique receipts**, 28 exit0/36 expected validation exit1, prior62 raw JSON exact subset27/35, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid, initial/final normal restoration. Executor initial scratch-root error was setup; parent's first author-mode receipts had wrong `normal` suffix until corrected (report-label integration error), not gate outcomes. Verifier ledger's semicolon joins two ambience failures; raw list has both. Sol `r52-adjudicator.md` admits with no demonstrated scoped harm; no selected failed numeric fit or corrected transcription. No broad codec/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-52/audio.md`.

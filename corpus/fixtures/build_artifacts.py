@@ -189,6 +189,22 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_pcm8_probe():
+    out = OUT.parent / "live" / "round-52"
+    out.mkdir(parents=True, exist_ok=True)
+    n = np.arange(5760)
+    samples = .25*np.sin(2*np.pi*1000*n/RATE) + .08*np.sin(2*np.pi*1500*n/RATE)
+    pcm8 = np.clip(np.rint(samples*127+128), 0, 255).astype(np.uint8)
+    pcm16 = (pcm8.astype(np.int16)-128)*256
+    for name, width, data in (("pcm8", 1, pcm8.tobytes()),
+                              ("pcm16", 2, pcm16.astype("<i2").tobytes())):
+        with wave.open(str(out / f"pair_{name}.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(width)
+            wav.setframerate(RATE)
+            wav.writeframes(data)
+
+
 def build_ui_pcm_depth_probe():
     out = OUT.parent / "live" / "round-51"
     out.mkdir(parents=True, exist_ok=True)
@@ -561,8 +577,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-channel-mono", action="store_true")
     parser.add_argument("--probe-ui-pcm24", action="store_true")
     parser.add_argument("--probe-ui-pcm16", action="store_true")
+    parser.add_argument("--probe-ui-pcm8", action="store_true")
+    parser.add_argument("--probe-ui-pcm16-r52", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_pcm24 or args.probe_ui_pcm16:
+    if args.probe_ui_pcm8 or args.probe_ui_pcm16_r52:
+        main()
+        build_ui_pcm8_probe()
+    elif args.probe_ui_pcm24 or args.probe_ui_pcm16:
         main()
         build_ui_pcm_depth_probe()
     elif args.probe_ui_channel_stereo or args.probe_ui_channel_mono:
