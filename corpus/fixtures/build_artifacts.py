@@ -57,7 +57,7 @@ def build_invalid_probes():
                                  for i in range(101)))
 
 
-def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False):
+def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
         probe = .30 * np.sin(2*np.pi*220*t_probe)
@@ -141,6 +141,21 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
             wav.setsampwidth(2)
             wav.setframerate(RATE)
             wav.writeframes(frames.tobytes())
+    for enabled, gap_counts, name in ((layer_third_join_edge_pass, 983, "join200_edgepass_probe"),
+                                      (layer_third_join_edge_fail, 984, "join200_edgefail_probe")):
+        if enabled:
+            base = (np.where(t < 2, .015, .050)*np.sin(2*np.pi*200*t)
+                    + .08*np.sin(2*np.pi*220*t) + .04*np.sin(2*np.pi*330*t))
+            frames = np.round(np.clip(base, -1, 1)*32767).astype("<i2")
+            frames[96000] = frames[95999] + gap_counts
+            frames[96001] = frames[96000] + frames[95999] - frames[95998]
+            out = OUT.parent / "live" / "round-21"
+            out.mkdir(parents=True, exist_ok=True)
+            with wave.open(str(out / (name + ".wav")), "wb") as wav:
+                wav.setnchannels(1)
+                wav.setsampwidth(2)
+                wav.setframerate(RATE)
+                wav.writeframes(frames.tobytes())
     if layer_alt_reverse_probe:
         save("reverse180_probe", np.where(t < 2, .050, .015)*np.sin(2*np.pi*180*t),
              OUT.parent / "live" / "round-16")
@@ -218,9 +233,11 @@ if __name__ == "__main__":
     parser.add_argument("--probe-layer-third-slope-edge-pass", action="store_true")
     parser.add_argument("--probe-layer-third-slope-edge-fail", action="store_true")
     parser.add_argument("--probe-layer-third-join", action="store_true")
+    parser.add_argument("--probe-layer-third-join-edge-pass", action="store_true")
+    parser.add_argument("--probe-layer-third-join-edge-fail", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
     args = parser.parse_args()
     if args.probe_invalid:
         build_invalid_probes()
     else:
-        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join)
+        main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail)

@@ -213,3 +213,13 @@ Operator dispatch `shk47-audio-r20` supersedes the round-19 pause line above. Th
 | calibration | unchanged | `.03`, `.001`, and `6 dB` bounds unchanged. Target count 839 is geometry of this fixture, not a retuned threshold. |
 
 Admission: coverage narrowly improved, depth and calibration unchanged, no demonstrated scoped harm. No scalar score. The selected scratch adds the original 220/330 Hz bed before the two-frame edit, so it is not a waveform-identical corruption of `stem_layer_third.wav`. No audible, engine, or production claim. SHONEN box 4 remains open.
+
+## Round 21 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| calibration | improved narrowly | Before `b1af040`, selected round-20 984-count 200 Hz internal-gap rejection lacked a paired integrated 983-count positive. New opt-in 983/984 PCM16 gap controls straddle unchanged strict `> .03` gate: 0.029998779296875 FS passes and 0.030029296875 FS fails solely on gap. Named non-author `reports/round-21/r21-verifier.md` independently replayed 19 executions; Sol `r21-adjudicator.md`. Numeric decode-grid disclosure only, not perceptual threshold validation. |
+| depth | unchanged | Same gap/section/outer gates and detector, no new gate. 19-run verifier preserves historical outcomes. |
+| coverage | unchanged | No new canonical WAV, category or detector; 13 canonical hashes match `b1af040`, all five `_alt` checks pass. Scratch modes are controls, not content. |
+
+Admitted narrowly: calibration improved; no demonstrated scoped harm. No scalar score. SHONEN box 4 remains open; no listening/engine/production/rights claim. Counting command: `python3 -c "from pathlib import Path; print(sorted(p.stem for p in Path('.shokunin/audio/corpus/artifacts').glob('*.wav')))"` → thirteen canonical names, unchanged from `b1af040`; report and receipts name exact SHA-256 comparisons. Work commit cited in final `.shokunin/reports/round-21/audio.md` after integration.
