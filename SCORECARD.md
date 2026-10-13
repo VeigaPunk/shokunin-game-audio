@@ -9,6 +9,7 @@ quality rubric; a row count is a measurement, not a score or verdict.
 | coverage | unmeasured | mint: no rounds yet | mint |
 | calibration | unmeasured | mint: no rounds yet | mint |
 
+planned: r61 (devin, ADMIT) — extensible wValidBitsPerSample=17>16 pair: ffprobe reclassifies pcm_s24le/24b, runner exit1 with receipt (format/duration/level/spectrum), valid16 clean; 82-ledger + 3-way reproduction; SoX 3839/3840 frame gap UNKNOWN. Next: SoX frame gap cause, a second impossible-header family, or a distinct axis move.
 planned: round 1 declares the first falsifiable claim (see LOG.md).
 retired: none.
 
