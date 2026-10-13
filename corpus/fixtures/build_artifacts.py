@@ -172,6 +172,22 @@ def build_ui_rate_above_probe():
             wav.writeframes(pcm.tobytes())
 
 
+def build_ui_channel_probe():
+    out = OUT.parent / "live" / "round-50"
+    out.mkdir(parents=True, exist_ok=True)
+    t = np.arange(5760) / RATE
+    samples = (.18*np.sin(2*np.pi*440*t) + .10*np.sin(2*np.pi*1200*t+.2)
+               + .06*np.sin(2*np.pi*2600*t+.7)) * np.exp(-8*t)
+    pcm = np.round(np.clip(samples, -.95, .95)*32767).astype("<i2")
+    for label, channels, data in (("mono", 1, pcm.tobytes()),
+                                  ("stereo", 2, np.column_stack((pcm, pcm)).astype("<i2").tobytes())):
+        with wave.open(str(out / f"{label}.wav"), "wb") as wav:
+            wav.setnchannels(channels)
+            wav.setsampwidth(2)
+            wav.setframerate(RATE)
+            wav.writeframes(data)
+
+
 def build_ui_upper_centroid_probe():
     out = OUT.parent / "live" / "round-47"
     out.mkdir(parents=True, exist_ok=True)
@@ -519,8 +535,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-rate-48000", action="store_true")
     parser.add_argument("--probe-ui-rate-48001", action="store_true")
     parser.add_argument("--probe-ui-rate-48000-r49", action="store_true")
+    parser.add_argument("--probe-ui-channel-stereo", action="store_true")
+    parser.add_argument("--probe-ui-channel-mono", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_rate_48001 or args.probe_ui_rate_48000_r49:
+    if args.probe_ui_channel_stereo or args.probe_ui_channel_mono:
+        main()
+        build_ui_channel_probe()
+    elif args.probe_ui_rate_48001 or args.probe_ui_rate_48000_r49:
         main()
         build_ui_rate_above_probe()
     elif args.probe_ui_rate_47999 or args.probe_ui_rate_48000:

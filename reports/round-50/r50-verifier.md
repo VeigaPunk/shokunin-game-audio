@@ -1,0 +1,99 @@
+# Round 50 non-author verifier — fresh 60-command replay
+
+## Verdict and scope
+
+**The declared stereo-vs-mono UI format check reproduces on current source.** I executed the 60 runner commands serially. Every corrected invocation produced one newly generated receipt path; all 60 paths are unique and none were present before this replay. Outcomes: **26 exit 0 / 34 expected fixture-validation exit 1**. Sequence: #1 normal; #2 `--probe-ui-channel-stereo`; #3 `--probe-ui-channel-mono`; the complete R49 58-command sequence #2–#58 shifted by two to #4–#60, ending normal. The prior58 subset #1+#4–#60 is **25 exit 0 / 33 expected exit 1**, exactly matching the R49 verifier ledger's commands, exits, and receipt failure maps. First and final normal receipts are identical JSON, with 17 canonical measurements and no failures.
+
+The stereo UI probe exits 1 with the **sole** failure `format: expected 48kHz mono`; the mono control exits 0 without failures. This is a bounded test of these generated WAVs and the project's whole-decoded-stream UI checks. It establishes no general stereo behavior.
+
+## New pair: fresh runner evidence
+
+The runner-built WAVs have the executor's exact SHA-256 values. The stream metadata, duration, and project-measured values are:
+
+| Probe | WAV SHA-256 | ffprobe rate / channels / codec / bits | Frames / duration | SoX-decoded float values | Project peak FS | Project RMS dBFS | Project whole-stream centroid | Exit / failures |
+|---|---|---|---:|---:|---:|---:|---:|---|
+| stereo | `59e508f1b30d17eef5f00951434915bc7974e02d6988faf07a557270611e950e` | 48000 / 2 / pcm_s16le / 16 | 5760 / .120000 s | 11520 interleaved | .3160400390625 | -19.902100515581505 | 2019.8445020922231 Hz | 1; sole format failure |
+| mono | `93223ee4df8c027d6efaa12d9eca47af3de4fba1eba90c27f29c49ab0086a54a` | 48000 / 1 / pcm_s16le / 16 | 5760 / .120000 s | 5760 | .3160400390625 | -19.902100515581505 | 1928.2134621890698 Hz | 0; none |
+
+Receipts: `.shokunin/audio/corpus/live/runs/20261013T081329361782Z-ui-channel-stereo/measurements.json` (stereo, #2) and `.shokunin/audio/corpus/live/runs/20261013T081330436427Z-ui-channel-mono/measurements.json` (mono, #3). Both durations are within .12 s ±.001; both pass peak <.95, RMS >=.001, and centroid 250–4000 Hz. The generated stereo file duplicates the mono PCM16 sequence in L and R. The SoX-decoded stereo stream contains 11520 interleaved float values, while mono contains 5760; the whole-stream centroid values differ. The runner's FFT result is for its decoded scalar stream. I make **no** per-channel, channel-agnostic, or general downmix/stereo inference.
+
+## Setup errors, gate outcomes, and report transcription
+
+My initial attempt mechanically wrapped each full command string as a shell executable. All 60 invocations in that attempt exited **127** before Python ran and created **zero receipts**. This was a wrapper-construction/setup error, not a runner invocation, gate result, or failed numeric fit. I corrected execution to invoke each command directly and then completed the 60-command serial replay above. No further receiptless command errors occurred. The executor's initial string-instead-of-`Path` exception and alt worker helper/path exceptions are also setup errors as disclosed in `r50-executor.md` and `r50-alt.md`; they are not gate outcomes. The selected integrated pair needed no unsuccessful numeric fit and I found no corrected report transcription.
+
+## Source and preservation checks
+
+The source diff from clean-before `048449d7809f06100f2c2307eb5c44508033cb4e` adds only the opt-in mono/stereo pair builder and runner flags/mode selection, measurement, and receipt naming in `corpus/fixtures/build_artifacts.py` and `corpus/fixtures/measure_audio.py`. The existing `format_failures(stream)` predicate and `SPECS["ui"]` bounds are unchanged. The generated WAV SHA-256s match the executor's pair. I independently hashed all 17 canonical artifact WAVs against the R49 guard's before-state table; all 17 match.
+
+The replay retained the five generic `_alt` comparisons, four family groups/eight third-variant comparisons, established duration/level/spectrum/outer-loop/section thresholds and section checks. The eight invalid-probe outcomes remained: `short_sections` section count; `corrupt` decode; `wrong_format` format; `odd_sections` section count; `native16_probe` expected pass; `native24_probe`, `stereo48_probe`, and `mono441_probe` format. The exact prior58 run ledger and per-run failures match R49's report for the shifted subset, and initial/final normal receipts match. These are local fixture checks, not evidence of audibility or universal limits.
+
+## Complete fresh serial command ledger
+
+Each row is one actual corrected Python runner command, its process exit, and its distinct newly created receipt. For expected exit-1 rows, failure details are read from that receipt; #55 is the invalid-mode receipt with the listed per-probe classifications.
+
+| # | Exact command | Exit | New receipt | Receipt failure(s) |
+|---:|---|---:|---|---|
+| 1 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081328234481Z-normal/measurements.json` | none |
+| 2 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-channel-stereo` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081329361782Z-ui-channel-stereo/measurements.json` | ui_channel_stereo_probe: format: expected 48kHz mono |
+| 3 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-channel-mono` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081330436427Z-ui-channel-mono/measurements.json` | none |
+| 4 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-rate-48001` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081331561556Z-ui-rate-48001/measurements.json` | ui_rate_r49_48001_probe: format: expected 48kHz mono |
+| 5 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-rate-48000-r49` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081332626715Z-ui-rate-48000-r49/measurements.json` | none |
+| 6 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-rate-47999` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081333693974Z-ui-rate-47999/measurements.json` | ui_rate_47999_probe: format: expected 48kHz mono |
+| 7 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-rate-48000` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081334768844Z-ui-rate-48000/measurements.json` | none |
+| 8 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-upper-centroid-below` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081335839852Z-ui-upper-centroid-below/measurements.json` | none |
+| 9 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-upper-centroid-above` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081336957293Z-ui-upper-centroid-above/measurements.json` | ui_upper_centroid_above_probe: spectrum: centroid outside fixture band |
+| 10 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-absolute-centroid-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081338035546Z-ui-absolute-centroid-below/measurements.json` | ui_absolute_centroid_below_probe: spectrum: centroid outside fixture band |
+| 11 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-absolute-centroid-above` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081339156122Z-ui-absolute-centroid-above/measurements.json` | none |
+| 12 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-lower-tolerance-5713` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081340231674Z-ui-lower-tolerance-5713/measurements.json` | none |
+| 13 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-lower-tolerance-5711` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081341320284Z-ui-lower-tolerance-5711/measurements.json` | ui_lower_tolerance_5711_probe: duration: outside ±1 ms |
+| 14 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-tolerance-5807` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081342390013Z-ui-tolerance-5807/measurements.json` | none |
+| 15 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-tolerance-5809` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081343480552Z-ui-tolerance-5809/measurements.json` | ui_tolerance_5809_probe: duration: outside ±1 ms |
+| 16 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-crest-46` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081344566405Z-ui-crest-46/measurements.json` | ui_crest_46_probe: level: clipping headroom or near silence |
+| 17 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-crest-47` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081345667618Z-ui-crest-47/measurements.json` | none |
+| 18 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-peak-31129` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081346779622Z-ui-peak-31129/measurements.json` | none |
+| 19 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-peak-31130` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081347861001Z-ui-peak-31130/measurements.json` | ui_peak_31130_probe: level: clipping headroom or near silence |
+| 20 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-outer-slope-32` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081348964624Z-outer-slope-32/measurements.json` | none |
+| 21 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-outer-slope-33` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081350064121Z-outer-slope-33/measurements.json` | slope_33_probe: loop seam: slope mismatch > .001 full scale per sample |
+| 22 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-outer-endpoint-983` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081351145181Z-outer-endpoint-983/measurements.json` | none |
+| 23 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-outer-endpoint-984` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081352245707Z-outer-endpoint-984/measurements.json` | endpoint_984_probe: loop seam: endpoint jump > .03 full scale |
+| 24 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ambience-orientation-forward` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081353418738Z-ambience-orientation-forward/measurements.json` | none |
+| 25 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ambience-orientation-reverse` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081354559510Z-ambience-orientation-reverse/measurements.json` | ambience_orientation_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 26 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ambience-centroid-above` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081355712052Z-ambience-centroid-above/measurements.json` | none |
+| 27 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ambience-centroid-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081356868884Z-ambience-centroid-below/measurements.json` | ambience_probe_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 28 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-mixed-pass` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081357997015Z-ui-mixed-pass/measurements.json` | none |
+| 29 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-joint-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081359150113Z-ui-joint-below/measurements.json` | ui_joint_below_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 30 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-orientation-forward` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081400281367Z-ui-orientation-forward/measurements.json` | ui_orientation_forward_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 31 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-orientation-reverse` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081401412813Z-ui-orientation-reverse/measurements.json` | none |
+| 32 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-lower-centroid-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081402543429Z-ui-lower-centroid-below/measurements.json` | ui_lower_centroid_below_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 33 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-lower-centroid-above` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081403718555Z-ui-lower-centroid-above/measurements.json` | none |
+| 34 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-centroid-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081404848481Z-ui-centroid-below/measurements.json` | ui_centroid_below_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 35 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-centroid-above` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081405968301Z-ui-centroid-above/measurements.json` | none |
+| 36 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-duration-below` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081407105504Z-ui-duration-below/measurements.json` | ui_duration_below_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 37 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-duration-at` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081408245702Z-ui-duration-at/measurements.json` | none |
+| 38 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-clone` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081409398433Z-ui-clone/measurements.json` | ui_clone_alt: distinctness: duration < .020 s and centroid delta < 10% |
+| 39 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-join-edge-pass` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081410524140Z-layer-third-join-edge-pass/measurements.json` | none |
+| 40 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-join-edge-fail` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081411645995Z-layer-third-join-edge-fail/measurements.json` | join200_edgefail_probe: sections: internal join adjacent sample gap > .03 full scale |
+| 41 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-join` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081412764586Z-layer-third-join/measurements.json` | join200_probe: sections: internal join adjacent sample gap > .03 full scale |
+| 42 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-slope-edge-pass` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081413891461Z-layer-third-slope-edge-pass/measurements.json` | none |
+| 43 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-slope-edge-fail` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081415020338Z-layer-third-slope-edge-fail/measurements.json` | edgefail_probe: sections: internal join side slope mismatch > .001 full scale per sample |
+| 44 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-third-slope` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081416163513Z-layer-third-slope/measurements.json` | slope200_probe: sections: internal join side slope mismatch > .001 full scale per sample |
+| 45 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-alt-reverse` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081417274531Z-layer-alt-reverse/measurements.json` | reverse180_probe: sections: 180 Hz component amplitude contrast < 6 dB or invalid |
+| 46 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-alt-slope` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081418382114Z-layer-alt-slope/measurements.json` | slope180_probe: sections: internal join side slope mismatch > .001 full scale per sample |
+| 47 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-alt-join` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081419506314Z-layer-alt-join/measurements.json` | join180_probe: sections: internal join adjacent sample gap > .03 full scale |
+| 48 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-alt-flat` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081420605592Z-layer-alt-flat/measurements.json` | flat180_probe: sections: 180 Hz component amplitude contrast < 6 dB or invalid |
+| 49 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-slope` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081421708851Z-layer-slope/measurements.json` | layer_slope_probe: sections: internal join side slope mismatch > .001 full scale per sample |
+| 50 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-join` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081422823602Z-layer-join/measurements.json` | join_probe: sections: internal join adjacent sample gap > .03 full scale |
+| 51 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-flat` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081423924756Z-flat/measurements.json` | flat30_probe: sections: 30 Hz component amplitude contrast < 6 dB or invalid |
+| 52 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-layer-flat` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081425030579Z-layer-flat/measurements.json` | flat120_probe: sections: 120 Hz component amplitude contrast < 6 dB or invalid |
+| 53 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-slope` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081426129760Z-slope/measurements.json` | slope_probe: loop seam: slope mismatch > .001 full scale per sample |
+| 54 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-failing` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081427181700Z-failing/measurements.json` | ambience: spectrum: centroid outside fixture band; loop seam: endpoint jump > .03 full scale |
+| 55 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-invalid` | 1 | `.shokunin/audio/corpus/live/runs/20261013T081427532797Z-invalid/measurements.json` | short_sections=section count; corrupt=decode; wrong_format=format; odd_sections=section count; native16_probe=none; native24_probe=format; stereo48_probe=format; mono441_probe=format |
+| 56 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081428577011Z-normal/measurements.json` | none |
+| 57 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081429621317Z-normal/measurements.json` | none |
+| 58 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081430666593Z-normal/measurements.json` | none |
+| 59 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081431703653Z-normal/measurements.json` | none |
+| 60 | `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` | 0 | `.shokunin/audio/corpus/live/runs/20261013T081432750910Z-normal/measurements.json` | none |
+
+## Limits
+
+This replay supports only the deterministic pair under the current runner and its whole-stream SoX-f32 measurements. It does not establish separate per-channel analysis, general stereo acceptance/rejection, downmix behavior, audibility, quality, production readiness, rights, engine behavior, publishing, or promotion. No audition was performed. I wrote this verifier report and the runner-generated receipts only; no shared source, LOG, SCORECARD, canonical artifact, or other report was edited, and no commit or push was made.
