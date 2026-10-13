@@ -233,3 +233,13 @@ Admitted narrowly: calibration improved; no demonstrated scoped harm. No scalar 
 | calibration | unchanged | All existing numerical thresholds and predicates unchanged; no hearing, perceptual or codec population calibration. |
 
 Admission: depth improved narrowly, zero demonstrated scoped harm. New normal JSON fields and `expected_pass` invalid-record schema are untested with unknown external strict consumers; no compatibility claim. WAVE_FORMAT_EXTENSIBLE valid bits are outside this encoded-width test. Counting commands: `git ls-tree -r --name-only 14cf986 .shokunin/audio/corpus/artifacts/ | wc -l` → 13; `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-invalid` yields six named records (four old + two width controls), receipt and exact exit in `r22-verifier.md`. No scalar score or SHONEN promotion; box4 remains open. Work commit cited in report-last `.shokunin/reports/round-22/audio.md`.
+
+## Round 23 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| calibration | improved narrowly (auditability only) | Before `64e6088`, historical threshold table describes ten files and omits current 13-file/7-loop/4-section/3-gated-join/five-variant distribution. Appended dated current decision table and explicit historical section-count correction in `corpus/knowledge/2026-10-12-threshold-calibration.md`. Non-author `reports/round-23/r23-verifier.md` first FAIL, then correction follow-up PASS with full arithmetic/polarity/control check and seven fresh mode receipts; Sol `r23-adjudicator.md`. |
+| depth | unchanged | Same measurement code and gate predicates; no new detector or control category. `git diff 64e6088 -- .shokunin/audio/corpus/fixtures/` empty. |
+| coverage | unchanged | Thirteen canonical SHA-256 hashes match `64e6088`, five variant records and seven-mode normal/control/restore outcomes pass; no new WAV asset. |
+
+Admitted narrowly after correction with zero demonstrated scoped harm. No scalar score, threshold retuning, audibility inference or external JSON compatibility claim. SHONEN box4 open. Counting commands: `python3 -c "from pathlib import Path; print(len(list(Path('.shokunin/audio/corpus/artifacts').glob('*.wav'))))"` → 13; code/receipt counts in `r23-verifier.md`. Work commit cited in final `.shokunin/reports/round-23/audio.md`.
