@@ -543,3 +543,13 @@ Named non-author `reports/round-52/r52-verifier.md`: **64 fresh unique receipts*
 | calibration | **improved locally** | Float `pcm_f32le`/32 sole `format: expected PCM16` exit1; PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.315399169921875`, RMS `-14.628083420045229dBFS`, centroid `1123.8154138173777Hz`; SoX-f32 decoded vectors equal for constructed PCM16-grid samples. |
 
 Named non-author `reports/round-53/r53-verifier.md`: **66 new unique receipts**, 29 exit0/37 expected validation exit1, prior64 exact JSON subset28/36, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. SoX warns `wave header missing extended part of fmt chunk` for simple float header but decodes exit0; no extensible-header/general-codec claim. Executor scratch path, simplifier quoting, scout malformed ffprobe are setup, not gates. Sol `r53-adjudicator.md` admits no demonstrated scoped harm, no selected numeric failed fit or corrected transcription. No general conversion/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-53/audio.md`.
+
+## Round 54 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Ordinary matched signed PCM32/PCM16 UI pair tests integer width above 24 through unchanged metadata predicate, unlike historical `native24_probe` (`pcm_s24le`/24 even though `sample_fmt=s32`). No added PCM32 low-bit precision tested. |
+| coverage | **improved locally** | Two opt-in modes extend prior66 to 68 fresh commands; canonical corpus remains 17, prior66 raw JSON preserved. |
+| calibration | **improved locally** | PCM32 `pcm_s32le`/32 sole `format: expected PCM16` exit1; PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.31536865234375`, RMS `-14.628519169868087dBFS`, centroid `1123.322704293326Hz`; SoX-f32 vectors equal by `s16*65536` construction. |
+
+Named non-author `reports/round-54/r54-verifier.md`: **68 new unique receipts**, 30 exit0/38 expected validation exit1, prior66 exact raw JSON subset29/37, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. Sol `r54-adjudicator.md` admits no demonstrated scoped harm; wave1 pre-integration proposed flags/results are not replay evidence. No selected numeric failed fit or corrected transcription. No arbitrary PCM32, general codec/conversion/fidelity, audibility/quality, production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-54/audio.md`.
