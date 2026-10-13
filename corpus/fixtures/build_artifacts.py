@@ -189,6 +189,32 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_route_act_r63_probe():
+    out = OUT.parent / "live" / "round-63"
+    out.mkdir(parents=True, exist_ok=True)
+    # r62 disclosed that SoX_ng's default loader probes ACT before WAV:
+    # formats.c CHECK(act, 0, 4, "RIFF", 256, 1, "\x84") — file[0:4]=="RIFF"
+    # and file[256]==0x84 selects the ffmpeg bridge; r63's sweep pinned that
+    # byte exactly (all 256 values x all 11,588 positions on the r61 pair).
+    # This pair keeps the r61 fragile header family (WAVE_FORMAT_EXTENSIBLE
+    # valid17, which the native wav reader refuses outright) and differs ONLY
+    # at file offset 256: 0x84 routes SoX to the ffmpeg bridge (which then
+    # decodes via the valid17->pcm_s24le reclassification), 0x00 leaves the
+    # native wav reader to reject the header. The payload byte is pinned by
+    # assignment, not swept — the pair's purpose is the byte predicate, not
+    # the signal.
+    values = [round(8191 * (.25*math.sin(2*math.pi*920*i/RATE) + .10*math.sin(2*math.pi*1380*i/RATE))) for i in range(5760)]
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, 17, 0x4) + guid
+    riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+    blob = bytearray(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+    for byte in (0x84, 0x00):
+        variant = bytearray(blob)
+        variant[256] = byte
+        (out / f"pair_route_{byte:02x}.wav").write_bytes(variant)
+
+
 def build_ui_extensible_valid24_probe():
     out = OUT.parent / "live" / "round-62"
     out.mkdir(parents=True, exist_ok=True)
@@ -762,8 +788,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-extensible-valid-16-r61", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-24-r62", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-32-r62", action="store_true")
+    parser.add_argument("--probe-ui-route-act-84-r63", action="store_true")
+    parser.add_argument("--probe-ui-route-act-00-r63", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_extensible_valid_24_r62 or args.probe_ui_extensible_valid_32_r62:
+    if args.probe_ui_route_act_84_r63 or args.probe_ui_route_act_00_r63:
+        main()
+        build_ui_route_act_r63_probe()
+    elif args.probe_ui_extensible_valid_24_r62 or args.probe_ui_extensible_valid_32_r62:
         main()
         build_ui_extensible_valid24_probe()
     elif args.probe_ui_extensible_valid_17_r61 or args.probe_ui_extensible_valid_16_r61:

@@ -1,0 +1,53 @@
+Disassembly of section .text:
+
+0000000000035cb0 <lsx_act_format_fn>:
+   35cb0:	f3 0f 1e fa          	endbr64
+   35cb4:	55                   	push   %rbp
+   35cb5:	48 89 e5             	mov    %rsp,%rbp
+   35cb8:	ff 15 c2 3b 0a 00    	call   *0xa3bc2(%rip)        # d9880 <lsx_ffmpeg_format_fn@@Base+0xa6ae0>
+   35cbe:	5d                   	pop    %rbp
+   35cbf:	f3 0f 6f 00          	movdqu (%rax),%xmm0
+   35cc3:	0f 29 05 56 b7 0a 00 	movaps %xmm0,0xab756(%rip)        # e1420 <handler.83>
+   35cca:	f3 0f 6f 40 10       	movdqu 0x10(%rax),%xmm0
+   35ccf:	0f 29 05 5a b7 0a 00 	movaps %xmm0,0xab75a(%rip)        # e1430 <handler.83+0x10>
+   35cd6:	f3 0f 6f 40 20       	movdqu 0x20(%rax),%xmm0
+   35cdb:	0f 29 05 5e b7 0a 00 	movaps %xmm0,0xab75e(%rip)        # e1440 <handler.83+0x20>
+   35ce2:	f3 0f 6f 40 30       	movdqu 0x30(%rax),%xmm0
+   35ce7:	0f 29 05 62 b7 0a 00 	movaps %xmm0,0xab762(%rip)        # e1450 <handler.83+0x30>
+   35cee:	f3 0f 6f 40 40       	movdqu 0x40(%rax),%xmm0
+   35cf3:	0f 29 05 66 b7 0a 00 	movaps %xmm0,0xab766(%rip)        # e1460 <handler.83+0x40>
+   35cfa:	f3 0f 6f 40 50       	movdqu 0x50(%rax),%xmm0
+   35cff:	0f 29 05 6a b7 0a 00 	movaps %xmm0,0xab76a(%rip)        # e1470 <handler.83+0x50>
+   35d06:	f3 0f 6f 40 60       	movdqu 0x60(%rax),%xmm0
+   35d0b:	48 8d 05 7e d8 09 00 	lea    0x9d87e(%rip),%rax        # d3590 <names.82>
+   35d12:	66 48 0f 6e c8       	movq   %rax,%xmm1
+   35d17:	48 8d 05 02 b7 0a 00 	lea    0xab702(%rip),%rax        # e1420 <handler.83>
+   35d1e:	0f 29 05 5b b7 0a 00 	movaps %xmm0,0xab75b(%rip)        # e1480 <handler.83+0x60>
+   35d25:	f3 0f 7e 05 db e9 09 	movq   0x9e9db(%rip),%xmm0        # d4708 <filter_names+0x308>
+208:   77ab lsx_set_signal_defaults
+351:   7f25 lsx_ffmpeg_format_fn
+395:   8258 lsx_wsaud_format_fn
+548:   8d10 lsx_au_format_fn
+583:   8f80 lsx_maud_format_fn
+639:   936c lsx_pulseaudio_format_fn
+741:   9d3e ao_default_driver_id
+801:   a123 pa_channel_map_init_auto
+2778:  9e400 Username/password authentication failure
+2783:  9e4d0 Cannot set SSL crypto engine as default
+2787:  9e560 Peer certificate cannot be authenticated
+2835:  9ee08 AIFF header has invalid blocksize.  Ignoring but expect a premature EOF
+2849:  9f0b0 detected file format type `%s'
+2882:  9f5de pause
+2896:  9f7ac pause -1 'Hit return to continue'
+   7f25 lsx_ffmpeg_format_fn
+  9ee08 AIFF header has invalid blocksize.  Ignoring but expect a premature EOF
+  a19f0 could not create a pipe for ffmpeg
+  ab148 Pseudo format to use libsndfile
+  b3a89 Pseudo format to use ffmpeg
+  b3db4 G729A speech compression
+  b41b9 -loglevel
+  b41c9 -nostdin
+  b420f ffmpeg.c
+  b6f86 premature EOF on input file
+  b8458 premature EOF on input
+  ba8b0 premature EOF

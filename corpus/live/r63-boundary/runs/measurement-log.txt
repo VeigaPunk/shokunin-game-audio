@@ -1,0 +1,177 @@
+r63-boundary measurement log — SoX_ng 14.8.0.1 / ffmpeg n9.0.1 / Arch Linux
+All commands run inside corpus/live/r63-boundary/ (prefix = .shokunin/audio/corpus/live/r63-boundary)
+Base fixtures: pair_valid_1{6,7}.wav copied from corpus/live/r62-boundary/ (SHAs verified
+2c5e244f.. / 15cadf24.. — identical to r62 recorded SHAs).
+
+=== A. -V6 baselines (runs/v6-baseline.txt) ===
+$ sox -V6 pair_valid_17.wav -n stat
+  sox INFO formats: detected file format type `act'
+  sox INFO au: found big-endian `.snd' identifier
+  Input File     : 'pair_valid_17.wav' (ffmpeg)
+  Samples read:  3839                      exit 0
+$ sox -V6 pair_valid_16.wav -n stat
+  sox INFO formats: detected file format type `act'        <-- r61 v16 ALSO act-routed
+  sox INFO au: found big-endian `.snd' identifier
+  Input File     : 'pair_valid_16.wav' (ffmpeg)
+  Samples read:  5760                      exit 0
+$ sox --i pair_valid_16.wav -> "Input File : 'pair_valid_16.wav' (ffmpeg)"
+
+=== B. Fallback-ordering experiments (runs/v6-matrix-1.txt, v6-matrix-2.txt) ===
+variants/ built by byte-editing copies of pair_valid_1{6,7}.wav (SHAs in runs/variant-shas.txt):
+
+v1 RIFF@0, WAVE@8 destroyed ("XXXX"), 0x84@256 kept:
+  $ sox -V6 v1...wav -n stat
+  detected file format type `act'
+  sox FAIL formats: can't open input file `v1_riff_noWave_act84.wav': premature EOF   exit 2
+  (no `au: found .snd` line -> au reader died on the 4-byte magic read of an EMPTY pipe)
+
+v2 valid WAVE + wFormatTag 0x1234 + 0x84@256:
+  detected `act'; FAIL `premature EOF'  exit 2          <-- AU-reader error, NOT wav.c's
+
+v3 = v2 but byte256=0x00:
+  detected `wav'; FAIL `file encoding 0x1234 (Unknown) is not supported'  exit 2
+                                                            <-- wav.c:773, native reader
+  => identical bytes, single byte at 256 selects WHICH reader produces the terminal error.
+     If a wav-fallback existed, v2 would print wav.c:773's error or succeed; it does neither.
+
+v4 pair_valid_17 truncated to 300 B (act, header+232 payload B):
+  detected `act'; au: found .snd; Samples read: 77      exit 0
+  232 B / 3 = 77 s24le frames (1 trailing byte dropped by pcmdec)
+
+v9 pair_valid_17 truncated to 500 B:  Samples read: 144  exit 0   (432/3)
+
+v10 data-chunk declared size = 0 (payload intact, 0x84@256):
+  detected `act'; au: found .snd; Samples read: 3839    exit 0
+  -> ffmpeg wav demuxer ignores declared data-size 0, reads payload to EOF.
+v10b = v10 with byte256=0:
+  detected `wav' (implied); FAIL `number of valid bits exceeds the number of bits
+  per sample'  exit 2   (native fmt-guard fires before data ever read)
+
+v8 header-only 68 B (RIFF+WAVE+fmt+data-header, < 257 B):
+  detected `wav'                                        <-- act needs len>=257
+  FAIL `number of valid bits exceeds the number of bits per sample'  exit 2
+
+ffmpeg absent from PATH (PATH=/tmp/noff containing only sox symlink):
+  detected `act'; FAIL `premature EOF'                  exit 2
+  -> execvp failure inside popen'd child == ffmpeg-cannot-decode: identical error.
+
+=== C. Detection position/value exactness ===
+p1 0x84 at offset 255 (256=0x00): detected `wav'; FAIL valid-bits  exit 2
+p2 0x84 at offset 257 (256=0x00): detected `wav'; FAIL valid-bits  exit 2
+p3 "XFFX"@0 + 0x84@256:          NO detect; extension `.wav' -> native ->
+                               FAIL `RIFF header not found' (wav.c:821) exit 2
+p4 "RIFF"+"AVI "@8 + 0x84@256:   detected `act'; FAIL `premature EOF' exit 2
+                               (act's second predicate is RIFF@0, not WAVE@8:
+                                every RIFF container incl. AVI is captured)
+p5 "RIFF"+"XXXX"@8, no trigger:  NO detect; extension -> native wav ->
+                               FAIL `header not found' (wav.c:843/850) exit 2
+value sweep @256 on pair_valid_16 base (native-decodable), samples read 5760 each:
+  0x00 -> wav   0x83 -> wav   0x84 -> act   0x85 -> wav   0xff -> wav
+  => predicate value-exact: only 0x84.
+
+=== D. Other-format collision surfaces (runs/v6-detect.txt) ===
+v5 "FSSD"@65 + "HCOM"@128 on pair_valid_16 (0x84@256 also present):
+  detected file format type `hcom'
+  FAIL `bad compression type' (hcom.c:132)   exit 2   -> native hcom reader ran;
+  hcom CHECK sits at formats.c:90, BEFORE act(93)/wav(95); two payload byte-groups
+  reroute a valid WAV to a native compressed-Mac format reader.
+v6 "ring.bin\x00"@16 (9 B incl. C-string NUL, overwrites fmt size/tag/ch/rate):
+  detected file format type `gsrt'
+  FAIL `premature EOF'                       exit 2   -> native gsrt reader ran.
+
+vms/dvms: NO CHECK entry in formats.c autodetect table; dvms-fmt.c:22 names=
+  {"dvms","vms"} — reachable ONLY via filename extension, never via payload.
+8svx: CHECK(8svx,"FORM"@0,"8SVX"@8) — both fixed-offset magics conflict with
+  RIFF@0/WAVE@8 -> unreachable on a RIFF/WAVE file. Same for every FORM-family
+  (aiff/aifc/maud/nsp) and @0-magic check (xa,au,flac,avr,caf,wv,paf,pcm,sf,sox,
+  mp3,mp2,voc,smp,wve,amr-*,prc,sph,txw,sndt,vorbis,opus,dff,dsf,wsd,sds,mpc2k)
+  and all post-wav checks (avi/mkv/mov/... — first-match-wins makes wav win first).
+
+=== E. Type forcing (runs/v6-forcing.txt) ===
+$ sox -t wav pair_valid_17.wav -n stat
+  FAIL `number of valid bits exceeds the number of bits per sample'  exit 2
+$ sox -t act  variants/v7_v16_byte256zero.wav -n stat   (0x84 absent; forcing act)
+  Samples read: 5760  exit 0
+$ sox -V6 -t act variants/v7_v16_byte256zero.wav -n stat
+  au: found big-endian `.snd' identifier
+  Input File     : 'variants/v7_v16_byte256zero.wav' (ffmpeg)
+  -> forced `act' resolves to the GENERIC ffmpeg handler (no FORMAT(act) in
+     formats.h; "act" is one of names[] in ffmpeg.c:116) so names[0]="ffmpeg"
+     prints the `(ffmpeg)' suffix (sox_ng.c:418-424). Same tag as autodetected act.
+$ sox -t ffmpeg variants/v7_v16_byte256zero.wav -n stat -> Samples read: 5760  exit 0
+
+=== F. Sample-exactness of the act detour (s16le) ===
+$ sox variants/v7_v16_byte256zero.wav -t f32 runs/v7_native.f32
+$ sox -t act variants/v7_v16_byte256zero.wav -t f32 runs/v7_actpath.f32
+  both 23,040 B; python max|diff| = 0.0, 0 nonzero diffs over 5,760 samples.
+  -> ffmpeg->au-s16be->sox roundtrip is BIT-EXACT for 16-bit payloads. The r62
+     one-frame loss is specific to frame sizes that don't divide packet sizes
+     (s24le: 8192%3=2, 3328%3=1); u8/s16/s32/s64 packets are residue-free.
+
+=== G. strace of the bridge (runs/strace-v17.txt) ===
+$ strace -f -e trace=execve sox pair_valid_17.wav -n stat
+  execve("/usr/bin/sox", ...) = 0
+  execve(".../ffmpeg", ["ffmpeg","-loglevel","quiet","-nostdin","-strict","-2",
+         "-i","pair_valid_17.wav","-f","au","-"], ...)  (PATH search, then found)
+  -> verbatim the argv in ffmpeg.c:35-44.
+
+=== H. Binary evidence (runs/disasm-act.txt) ===
+$ nm -D /usr/lib/libsox_ng.so.3 | grep format_fn   (129 symbols)
+  lsx_ffmpeg_format_fn 0x32da0 ; lsx_act_format_fn 0x35cb0  <- ffmpeg-stub block
+  lsx_au_format_fn 0x6e0f0 ; lsx_wav_format_fn 0x84340 ; lsx_gsrt_format_fn
+  0x6e310 ; lsx_hcom_format_fn 0x79a60 ; lsx_dvms_format_fn 0x6e300 (names incl. "vms")
+  no lsx_vms_format_fn, no lsx_act*read symbol.
+$ objdump -d --start-address=0x35cb0 /usr/lib/libsox_ng.so.3
+  <lsx_act_format_fn>: call lsx_ffmpeg_format_fn; 9x movdqu/movaps copies of the
+  returned ~144-byte handler into static `handler.83'; lea `names.82'; return.
+  = verbatim codegen of FFMPEG_FORMAT(act) -> handler = *lsx_ffmpeg_format_fn()
+  (ffmpeg.c:162-168). act's only specialization is names[]={"act"} + description.
+$ strings: "Pseudo format to use ffmpeg", "G729A speech compression" (act desc),
+  "-loglevel","-nostdin","ffmpeg.c","premature EOF",
+  "can't find Sun/NeXT/DEC identifier" (au.c), "Pseudo format to use libsndfile".
+
+=== I. Direct ffmpeg reproductions ===
+$ ffmpeg -loglevel warning -nostdin -strict -2 -i variants/v1...wav -f au - | wc -c
+  0 ; stderr: "Error opening input: Invalid data found when processing input"
+$ ffmpeg ... -i variants/v2...wav -f au - | wc -c
+  0 ; stderr: "Could not find codec parameters ... (Audio: none (... / 0x1234),
+               48000 Hz, 1 channels, 768 kb/s): unknown codec"
+$ ffmpeg ... -i variants/v4...wav -f au - | wc -c
+  186 B = 32-B AU header + 154 B = 77 x s16be samples (matches sox's 77)
+
+=== J. Source anchors (sox_ng-14.8.0.1, codeberg tarball, src/sox_ng/src/) ===
+formats.c:60-64  AUTO_DETECT_SIZE = 257 /* for act */ (USING_FFMPEG; else 132/hcom)
+formats.c:66-72  CHECK macro: memcmp predicates; `return #type' on FIRST match
+formats.c:90     CHECK(hcom, "FSSD"@65, "HCOM"@128)
+formats.c:81     CHECK(gsrt, "ring.bin\x00"@16 (l1=9 incl. terminating NUL))
+formats.c:93     CHECK(act, "RIFF"@0, 0x84@256)  /* before wav: looks like PCM WAV */
+formats.c:95-97  CHECK(wav, "RIFF"/"RIFX"/"RF64"@0, "WAVE"@8)
+formats.c:855-994 open_read: single sox_find_format -> ONE startread (961-963);
+                 failure -> lsx_fail -> goto error -> NULL. No retry/candidate list.
+formats.c:910-933 undetected -> (use_magic if set) -> filename extension -> handler
+formats.c:1809-1832 sox_find_format: first names[] match wins over s_sox_format_fns[]
+formats.h:68     FORMAT(wav); formats.h ffmpeg block lists FORMAT(aac)...FORMAT(wtv)
+                 + FORMAT(ffmpeg) LAST — no FORMAT(act): "act" resolves via the
+                 generic ffmpeg handler's names[] (ffmpeg.c:116)
+ffmpeg.c:33-108  startread_ffmpeg: argv {ffmpeg,-loglevel,quiet,-nostdin,-strict,-2,
+                 -i,<file>,-f,au,-}; ft->fp = lsx_popen(); return au's startread(ft)
+ffmpeg.c:110-142 lsx_ffmpeg_format_fn: handler = *lsx_au_format_fn(); startread=
+                 startread_ffmpeg; names[] includes "act" (116)
+ffmpeg.c:196-198 FFMPEG_FORMAT(act): "act", "G729A speech compression" — desc only
+au.c:220-244     au handler flags = SOX_FILE_BIG_END|SOX_FILE_REWIND (no NOSTDIO)
+au.c:136-163     au startread: magic ".snd" else "can't find Sun/NeXT/DEC
+                 identifier"; sox_enc fail -> "unsupported encoding '%s' (%#x)"
+formats_i.c:572,582-589  lsx_readchars short read -> sox_errstr "premature EOF"
+wav.c:773,821,827-928  native wav error strings (encoding unsupported, RIFF header
+                 not found, header not found, fmt chunk not found, valid-bits guard)
+hcom.c:99-132    "Mac header type is not FSSD"/"Mac data fork is not HCOM"/
+                 "bad compression type"
+gsrt.c:106       "invalid/missing file name in header"
+libsox_ng.c:134  use_magic default sox_false; sox_ng.c:2547 --magic sets it
+sox_ng.c:418-424 `(ffmpeg)' suffix: handler.names[0] printed when file extension
+                 not among handler->names[]
+dvms-fmt.c:22    names={"dvms","vms"} — vms has NO autodetect predicate
+formats.c:557-561,1442-1499 xfclose->fclose for lsx_io_file: the ffmpeg child's
+                 exit status is never waitpid'd on the read path (io_type stays
+                 lsx_io_file when startread_ffmpeg replaces ft->fp); also the
+                 original file FILE* is left open/leaked (no NOSTDIO flag).
