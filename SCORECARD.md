@@ -303,3 +303,13 @@ Existing `.020 OR .10` predicate/thresholds, thirteen canonical hashes, five var
 | calibration | unchanged | Existing `abs` and `.020 OR .10` thresholds unchanged; no exact boundary or smoothness result. |
 
 Both variants pass unchanged canonical UI .12s ordinary checks, and have centroids below baseline. Prior 24 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restoration held. Verifier's first 26 command-wrapper exit127 attempts produced no receipts; they are setup errors **excluded** from the corrected 26-run evidence. No perception, production, rights, engine, publishing or promotion claim. Final work hash in `.shokunin/reports/round-29/audio.md`.
+
+## Round 30 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Existing numeric distinctness tests remain; no new audio/semantic validation. |
+| coverage | unchanged | Two opt-in original scratch orientations, no canonical WAV or category added. |
+| calibration | improved narrowly | Before `6a36968`, only k=1→.95 had baseline denominator ratio `.09901901500217196` and failed. Independent corrected 28-mode replay `reports/round-30/r30-verifier.md` shows *identical two whole WAV byte strings swapped*: forward exit1 sole distinctness at duration0/ratio `.09901901500217196`; reverse exit0 at duration0/ratio `.10990133715464667`. Sol `r30-adjudicator.md` admitted numerical orientation sensitivity. |
+
+All four paths pass canonical UI ordinary checks, existing `.020 OR .10` and denominator unchanged; thirteen canonical hashes, five variants, prior26 outcomes, eight invalid statuses, thresholds and normal restoration preserved. Verifier's first 28 exit127 command-wrapper attempts produced no receipts and are excluded from corrected 28-run evidence. No normative symmetry, exact cutoff equality, auditory/perceptual/production/rights/engine/publish/promotion claim. Work hash in `.shokunin/reports/round-30/audio.md`.
