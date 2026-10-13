@@ -283,3 +283,13 @@ Admitted narrowly with zero demonstrated scoped harm, no scalar score. Counting 
 | calibration | improved narrowly | Before `6666888`, no adjacent-frame distinctness duration polarity. After, independent 22-mode replay `reports/round-27/r27-verifier.md`: 5760→6719 frames, observed duration delta `0.019978999999999997` and centroid relative `.026103720992748162`, sole distinctness failure (exit1); 5760→6720, delta `0.020000000000000018`, centroid relative `.028427598871782873`, no failures (exit0). Sol `r27-adjudicator.md` admitted this bounded numeric transition. |
 
 The latter binary float delta is **greater** than `.020`: no exact comparator-equality proof. Longer variants use their separately declared scratch duration spec, **not** the canonical `.120 s` UI duration spec; format/level/band checks remain. `.020 OR .10` thresholds, thirteen canonical hashes, previous twenty outcomes, five variants, eight invalid statuses and normal restoration held. No perceptual, production or promotion claim. Final work hash in `.shokunin/reports/round-27/audio.md`.
+
+## Round 28 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Exact-clone and duration branch controls remain; no auditory/semantic validation added. |
+| coverage | unchanged | Original opt-in scratch centroid pair only, no new canonical WAV or category. |
+| calibration | improved narrowly | Before `13a19e2`, no integrated near-`.10` centroid arm pair at duration delta zero. After, independent 24-mode replay `reports/round-28/r28-verifier.md`: baseline/variant both canonical UI .120s ordinary checks pass; k=1.11 relative centroid `0.09434076861679014`, duration delta0, sole distinctness failure (exit1); k=1.10 relative centroid `0.10454649711208937`, duration delta0, no failures (exit0). Sol `r28-adjudicator.md` admitted bounded two-point numeric polarity. |
+
+Existing `.020 OR .10` predicate/thresholds, thirteen canonical hashes, five variants, prior 22 outcomes, eight invalid statuses and normal restoration held. Analytic multiplier sweep is nonmonotonic; no exact `.10` equality, smooth transition, perceptual difference, engine/production/rights/publishing or promotion inference. Failed candidate fits and corrected setup errors in wave reports are not counted as gate evidence. Final work hash in `.shokunin/reports/round-28/audio.md`.
