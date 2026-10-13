@@ -9,7 +9,7 @@ quality rubric; a row count is a measurement, not a score or verdict.
 | coverage | unmeasured | mint: no rounds yet | mint |
 | calibration | unmeasured | mint: no rounds yet | mint |
 
-planned: r61 (devin, ADMIT) — extensible wValidBitsPerSample=17>16 pair: ffprobe reclassifies pcm_s24le/24b, runner exit1 with receipt (format/duration/level/spectrum), valid16 clean; 82-ledger + 3-way reproduction; SoX 3839/3840 frame gap UNKNOWN. Next: SoX frame gap cause, a second impossible-header family, or a distinct axis move.
+planned: r62 (devin, ADMIT) — SoX 3,839 frame gap resolved as ffmpeg packet-residue (act-autodetect byte-256 0x84 → ffmpeg bridge → valid17→pcm_s24le → 8192+3328 packets → mod-3 tails dropped); valid24/32 family landed; 84-ledger + verifier byte-exact. Next: fixture hardening vs byte-256 act-collision fragility, a third valid-bits family (e.g. mask/GUID variation), or a distinct axis move.
 planned: round 1 declares the first falsifiable claim (see LOG.md).
 retired: none.
 
@@ -614,3 +614,23 @@ Non-author `reports/round-59/r59-verifier.md` designated **78 new unique receipt
 | calibration | **improved locally** | This host's ffprobe/SoX and unchanged gate do not reject this one valid0 header: both `pcm_s16le`/16 mono48k/.120s, peak `.082489013671875`, RMS `-26.87354274685677dBFS`, centroid `2139.5871109211243Hz`, no failures/exit0. |
 
 Non-author `reports/round-60/r60-verifier.md`: **80 new unique receipts**, 42 exit0/38 expected validation exit1, designated prior78 exact raw JSON subset40/38, canonical17 SHA/metrics and controls preserved. No verifier extra run or selected failed numeric fit. Critic's pre-integration unknown flag exit2 produced zero receipt (setup); simplifier's `inspect.py` shadowed stdlib in scratch generator exit1, corrected under isolated `python3 -I` (setup). Sol `r60-adjudicator.md` admits no scoped harm. No valid-bit enforcement/standards conformance, zero-bit audio, precision/fidelity, universal header/codec, audible quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-60/audio.md`.
+
+## Round 61 verdict — 2026-10-13 (retroactive record; the round closed ADMIT under Sol `r61-adjudicator.md` — this table was omitted at closeout and is supplied now)
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | First host rejection along the valid-bits dimension: valid17>16 reclassified by ffprobe to `pcm_s24le`/24b/`0.080s` and rejected by the unchanged gate (format/duration/level/spectrum), while valid16 stays `pcm_s16le`/0.120s clean. |
+| coverage | **improved locally** | Two opt-in modes extend designated prior80 to 82 fresh commands; canonical17 and prior80 complete JSON preserved (80/80 pair-matched vs R60 ledger). |
+| calibration | **improved locally** | Malformed above-range valid-bits is neither ignored (valid0) nor decoder-fatal — it is reclassified then gate-rejected, exit1 with receipt; directional asymmetry evidenced. |
+
+Non-author `reports/round-61/r61-verifier.md`: **82 fresh unique receipts**, 43 exit0/39 expected exit1, prior80 complete-JSON subset42/38 exact. SoX 3,839-vs-3,840 one-frame gap retained UNKNOWN at this verdict — resolved at r62. Commit pins cited in r61 records resolve only in the pre-extraction origin repo; canonical equivalents noted in LOG's append-only correction. No valid-bit enforcement/standards conformance/precision/fidelity/audibility/production/rights/engine/publishing/promotion inference.
+
+## Round 62 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | r61's SoX 3,839-vs-5,760 UNKNOWN resolved end-to-end: byte-256 `0x84` payload → `act` autodetect → ffmpeg bridge → valid17→pcm_s24le → packets 8192+3328 → per-packet mod-3 tail drop = 2730+1109. Five independent seat derivations converge; 28/28 predictions confirmed; two-directional falsifications (3839 without valid17, non-3839 with it). |
+| coverage | **improved locally** | Second impossible-header family `corpus/live/round-62/pair_valid_{24,32}.wav` + two opt-in modes extend the designated ledger 82→84 fresh commands; prior 82 preserved verbatim. |
+| calibration | **improved locally** | Gate behavior on above-range valid-bits now measured across three values: 17→4-failure reject, 24→4-failure reject, 32→2-failure reject — all exit1 with receipt under unchanged thresholds. |
+
+Non-author `reports/round-62/r62-verifier.md`: **84 fresh unique receipts**, 43 exit0/41 exit1, **84/84 exits match and 84/84 receipts byte-identical** to committed counterparts; discernment spot-checks both directions (direct ffmpeg = 3,839 — SoX passthrough; byte-256 flip → native fatal refusal). Verifier disclosed and self-restored one `xxd` overwrite incident byte-exact — receipts unaffected. Sol `r62-adjudicator.md` admits no demonstrated scoped harm. Bounded to SoX_ng 14.8.0.1 + ffmpeg n9.0.1 on this host; the `act` detection is a payload byte-256 `0x84` collision (fixture fragility disclosed). No standards-conformance, decoder-correctness, universal valid-bit/header/codec, precision/fidelity, audibility/quality/production/rights/engine/publishing/promotion inference. Work commit `cbe763e`; report-last commit follows.
