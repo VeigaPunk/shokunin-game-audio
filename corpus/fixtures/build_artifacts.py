@@ -142,6 +142,16 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_absolute_centroid_probe():
+    out = OUT.parent / "live" / "round-46"
+    out.mkdir(parents=True, exist_ok=True)
+    n = np.arange(5760)
+    t = n / RATE
+    for label, frequency in (("below", 225), ("above", 226)):
+        samples = .28 * np.sin(2*np.pi*frequency*t) * np.hanning(len(n))
+        save(f"centroid-{label}", samples, out)
+
+
 def build_ui_lower_tolerance_probe():
     out = OUT.parent / "live" / "round-45"
     out.mkdir(parents=True, exist_ok=True)
@@ -461,8 +471,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-tolerance-5809", action="store_true")
     parser.add_argument("--probe-ui-lower-tolerance-5713", action="store_true")
     parser.add_argument("--probe-ui-lower-tolerance-5711", action="store_true")
+    parser.add_argument("--probe-ui-absolute-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-absolute-centroid-above", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_lower_tolerance_5713 or args.probe_ui_lower_tolerance_5711:
+    if args.probe_ui_absolute_centroid_below or args.probe_ui_absolute_centroid_above:
+        main()
+        build_ui_absolute_centroid_probe()
+    elif args.probe_ui_lower_tolerance_5713 or args.probe_ui_lower_tolerance_5711:
         main()
         build_ui_lower_tolerance_probe()
     elif args.probe_ui_tolerance_5807 or args.probe_ui_tolerance_5809:
