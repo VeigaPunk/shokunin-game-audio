@@ -142,6 +142,22 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_outer_endpoint_probe():
+    out = OUT.parent / "live" / "round-40"
+    n = np.arange(96000)
+    t = n / RATE
+    base = .7 + .04*np.cos(2*np.pi*30*t)
+    for counts in (983, 984):
+        correction = counts/32768 - (base[-1] - base[0])
+        pcm = np.rint((base + np.linspace(0, correction, len(n))) * 32768).astype("<i2")
+        out.mkdir(parents=True, exist_ok=True)
+        with wave.open(str(out / f"endpoint_{counts}.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(RATE)
+            wav.writeframes(pcm.tobytes())
+
+
 def build_ambience_orientation_probe():
     out = OUT.parent / "live" / "round-39"
     t = time(2.0)
@@ -374,8 +390,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ambience-centroid-above", action="store_true")
     parser.add_argument("--probe-ambience-orientation-forward", action="store_true")
     parser.add_argument("--probe-ambience-orientation-reverse", action="store_true")
+    parser.add_argument("--probe-outer-endpoint-983", action="store_true")
+    parser.add_argument("--probe-outer-endpoint-984", action="store_true")
     args = parser.parse_args()
-    if args.probe_ambience_orientation_forward or args.probe_ambience_orientation_reverse:
+    if args.probe_outer_endpoint_983 or args.probe_outer_endpoint_984:
+        main()
+        build_outer_endpoint_probe()
+    elif args.probe_ambience_orientation_forward or args.probe_ambience_orientation_reverse:
         main()
         build_ambience_orientation_probe()
     elif args.probe_ambience_centroid_above:
