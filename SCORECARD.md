@@ -583,3 +583,13 @@ Named non-author `reports/round-56/r56-verifier.md`: **72 new unique receipts**,
 | calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.2098388671875`, RMS `-18.84202236105824dBFS`, centroid `2153.742616905067Hz`, identical SoX-f32 decoded vectors, no failures, exit0 through unchanged gates. |
 
 Non-author `reports/round-57/r57-verifier.md`: **74 new unique receipts**, 36 exit0/38 expected validation exit1, prior72 exact raw JSON subset34/38, canonical17 SHA/metrics and control suite preserved. Its preliminary malformed shell-quote exit127 yielded **no receipt** (setup, not gate). Critic found 2520 odd samples in executor's rejected valid15 draft; selected alt pair has 5760/5760 even samples, identical payload, and only WAV offset38 differs. Sol `r57-adjudicator.md` admits no demonstrated scoped harm. No selected failed numeric fit. No metadata-enforcement, universal valid-bit/codec/header, extra precision, fidelity, audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-57/audio.md`.
+
+## Round 58 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Matched, all-divisible-by-four signed PCM16 payload in extensible PCM-subtype mono headers differing only valid-bits14 versus 16 at WAV byte38, advancing R57's all-even 15/16 pair. |
+| coverage | **improved locally** | Two opt-in modes extend prior74 to 76 fresh commands; canonical17 and prior74 complete JSON preserved. |
+| calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.3153076171875`, RMS `-14.629479252569332dBFS`, centroid `1129.9910331085607Hz`, equal SoX-f32 decode, no failures, exit0 through unchanged gates. |
+
+Non-author `reports/round-58/r58-verifier.md`: **76 new unique receipts**, 38 exit0/38 expected validation exit1, prior74 exact raw JSON subset36/38, canonical17 SHA/metrics and controls preserved. No verifier receiptless setup/decode attempt or selected numeric failed fit. Executor relative-path direct-measure exits1 and alt malformed inspection were setup, not selected gates; scout's corrected R57 history error was report transcription. Sol `r58-adjudicator.md` admits no scoped harm. The predicate does not parse valid-bit metadata; no precision/fidelity, universal valid-bit/header/codec, perceptual/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-58/audio.md`.
