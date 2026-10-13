@@ -142,6 +142,15 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_lower_tolerance_probe():
+    out = OUT.parent / "live" / "round-45"
+    out.mkdir(parents=True, exist_ok=True)
+    for frames in (5713, 5711):
+        t = np.arange(frames) / RATE
+        samples = .28 * np.sin(2*np.pi*(700*t + 700*t*t)) * np.exp(-5*t)
+        save(f"duration-{frames}", samples, out)
+
+
 def build_ui_tolerance_probe():
     out = OUT.parent / "live" / "round-44"
     out.mkdir(parents=True, exist_ok=True)
@@ -450,8 +459,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-crest-47", action="store_true")
     parser.add_argument("--probe-ui-tolerance-5807", action="store_true")
     parser.add_argument("--probe-ui-tolerance-5809", action="store_true")
+    parser.add_argument("--probe-ui-lower-tolerance-5713", action="store_true")
+    parser.add_argument("--probe-ui-lower-tolerance-5711", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_tolerance_5807 or args.probe_ui_tolerance_5809:
+    if args.probe_ui_lower_tolerance_5713 or args.probe_ui_lower_tolerance_5711:
+        main()
+        build_ui_lower_tolerance_probe()
+    elif args.probe_ui_tolerance_5807 or args.probe_ui_tolerance_5809:
         main()
         build_ui_tolerance_probe()
     elif args.probe_ui_crest_46 or args.probe_ui_crest_47:
