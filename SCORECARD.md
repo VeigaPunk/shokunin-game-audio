@@ -273,3 +273,13 @@ Admission: depth improved, zero demonstrated scoped harm. Count command: read `c
 | calibration | unchanged | Existing `.020 s OR .10` predicate and thresholds unchanged; neither boundary tested. |
 
 Admitted narrowly with zero demonstrated scoped harm, no scalar score. Counting command: `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-clone` → exit1 with sole `ui_clone_alt` distinctness failure in `corpus/live/runs/20261013T015341619139Z-ui-clone/measurements.json`; non-author exact command and exit in `r26-verifier.md`. No perceptual deduplication or promotion; four SHONEN boxes stay checked. Final work hash in `.shokunin/reports/round-26/audio.md`.
+
+## Round 27 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Exact duplicate zero/zero negative and five old positives remain; no new auditory validation. |
+| coverage | unchanged | Two original opt-in scratch pairs, no new canonical WAV or supported category. |
+| calibration | improved narrowly | Before `6666888`, no adjacent-frame distinctness duration polarity. After, independent 22-mode replay `reports/round-27/r27-verifier.md`: 5760→6719 frames, observed duration delta `0.019978999999999997` and centroid relative `.026103720992748162`, sole distinctness failure (exit1); 5760→6720, delta `0.020000000000000018`, centroid relative `.028427598871782873`, no failures (exit0). Sol `r27-adjudicator.md` admitted this bounded numeric transition. |
+
+The latter binary float delta is **greater** than `.020`: no exact comparator-equality proof. Longer variants use their separately declared scratch duration spec, **not** the canonical `.120 s` UI duration spec; format/level/band checks remain. `.020 OR .10` thresholds, thirteen canonical hashes, previous twenty outcomes, five variants, eight invalid statuses and normal restoration held. No perceptual, production or promotion claim. Final work hash in `.shokunin/reports/round-27/audio.md`.
