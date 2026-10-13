@@ -24,6 +24,7 @@ SPECS = {
     "movement_third": (.30, 100, 16000, False),
     "ambience": (2.0, 5, 200, True),
     "ambience_alt": (2.0, 5, 200, True),
+    "ambience_third": (2.0, 5, 200, True),
     "stem": (2.0, 100, 2000, True),
     "stem_sections": (4.0, 100, 2000, True),
     "stem_layer": (4.0, 100, 2000, True),
@@ -364,6 +365,19 @@ def main():
                                              "passed": passed}
         if not passed:
             third_movement["failures"].append(f"movement family distinctness: movement_third vs {name} below duration and centroid minima")
+    ambience_family_comparisons = {}
+    third_ambience = measurements["ambience_third"]
+    for name in ("ambience", "ambience_alt"):
+        base = measurements[name]
+        duration_delta = abs(third_ambience["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third_ambience["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        ambience_family_comparisons[name] = {"baseline": name, "variant": "ambience_third",
+                                             "duration_delta_s": duration_delta,
+                                             "centroid_relative_delta": centroid_relative_delta,
+                                             "passed": passed}
+        if not passed:
+            third_ambience["failures"].append(f"ambience family distinctness: ambience_third vs {name} below duration and centroid minima")
     sections = {name: section_contrast(ROOT / data["path"], 200 if name in ("stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe") else
                                        180 if name in ("stem_layer_alt", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe") else
                                        120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
@@ -393,7 +407,8 @@ def main():
                "measurements": measurements, "distinctness": distinctness,
                "ui_family_comparisons": ui_family_comparisons,
                "impact_family_comparisons": impact_family_comparisons,
-               "movement_family_comparisons": movement_family_comparisons, "sections": sections}
+               "movement_family_comparisons": movement_family_comparisons,
+               "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     suffix = "-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)

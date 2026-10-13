@@ -363,3 +363,13 @@ Old fourteen canonical SHA/metrics, UI-family records, prior31 outcomes, eight i
 | calibration | unchanged | `.020 s OR .10` cutoffs, ordinary limits and five generic `_alt` comparisons unchanged; new fixture inherits the movement band. |
 
 Old fifteen canonical SHA/metrics, UI/impact family records, prior32 outcomes, eight invalid statuses and normal restores held; replay 12 exit0/21 expected exit1/no runner setup failures. Wave-one command/path failures excluded. Each `.06 s` movement duration gap alone passes OR; centroid scalar does not show spectral-distribution/perceptual novelty. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-35/audio.md`.
+
+## Round 36 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Existing format/level/loop-seam/whole-wave centroid checks on one more original WAV; no new detector or audition. |
+| coverage | **improved narrowly** | Before `1fdccc4`, 16 canonical WAVs/two ambience members; named non-author 34-run corrected replay `reports/round-36/r36-verifier.md` confirms 17 canonical WAVs incl `ambience_third` exactly 2s/96000 frames 48k mono PCM16, SHA `c2c8e0bb2385bc93b39c70b719d0f56553c771969986ef1f732d24af5677d404`, ordinary/loop checks pass; both explicit ambience pair comparisons pass centroid-only at duration delta zero. Sol `r36-adjudicator.md` admits analytical coverage only. |
+| calibration | unchanged | `.020 s OR .10` cutoffs, ordinary/loop limits and five generic `_alt` comparisons unchanged; new fixture inherits ambience band. |
+
+Old sixteen canonical SHA/metrics, UI/impact/movement family records, prior33 outcomes, eight invalid statuses and restored normals held; corrected replay 13 exit0/21 expected exit1. Verifier disclosed 34 initial wrapper attempts exit127 without receipts, excluded setup errors; executor relative-path error excluded. Centroid scalar cannot establish spectral-distribution/perceptual novelty and seam metrics do not prove audible seamlessness. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-36/audio.md`.

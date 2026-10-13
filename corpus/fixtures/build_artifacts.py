@@ -190,6 +190,7 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     save("ambience", ambience)
     save("ambience_alt", .15*np.sin(2*np.pi*20*t) + .09*np.sin(2*np.pi*60*t)
          + .06*np.sin(2*np.pi*100*t))
+    save("ambience_third", .20*np.sin(2*np.pi*90*t) + .025*np.sin(2*np.pi*130*t))
     t = time(2)
     save("stem", .23*np.sin(2*np.pi*220*t) + .11*np.sin(2*np.pi*330*t))
     t = time(4)
