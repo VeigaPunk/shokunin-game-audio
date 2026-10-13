@@ -189,6 +189,28 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_extensible_valid24_probe():
+    out = OUT.parent / "live" / "round-62"
+    out.mkdir(parents=True, exist_ok=True)
+    # Byte 256 of the finished file is the low byte of payload sample 94. The
+    # r61 pair's payload accidentally carried 0x84 there, which routes SoX's
+    # default loader through its ffmpeg bridge (formats.c probes ACT before
+    # WAV on file[256]). Keep that property so this pair exercises the same
+    # default path; sweep f2 deterministically until the byte matches.
+    f2 = 1830
+    while True:
+        values = [round(8191 * (.26*math.sin(2*math.pi*940*i/RATE) + .11*math.sin(2*math.pi*f2*i/RATE))) for i in range(5760)]
+        if values[94] & 0xff == 0x84:
+            break
+        f2 += 1
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    for valid in (24, 32):
+        fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, valid, 0x4) + guid
+        riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+        (out / f"pair_valid_{valid}.wav").write_bytes(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+
+
 def build_ui_extensible_valid17_probe():
     out = OUT.parent / "live" / "round-61"
     out.mkdir(parents=True, exist_ok=True)
@@ -738,8 +760,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-extensible-valid-16-r60", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-17-r61", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-16-r61", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-24-r62", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-32-r62", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_extensible_valid_17_r61 or args.probe_ui_extensible_valid_16_r61:
+    if args.probe_ui_extensible_valid_24_r62 or args.probe_ui_extensible_valid_32_r62:
+        main()
+        build_ui_extensible_valid24_probe()
+    elif args.probe_ui_extensible_valid_17_r61 or args.probe_ui_extensible_valid_16_r61:
         main()
         build_ui_extensible_valid17_probe()
     elif args.probe_ui_extensible_valid_0_r60 or args.probe_ui_extensible_valid_16_r60:
