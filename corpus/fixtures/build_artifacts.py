@@ -2,6 +2,7 @@
 """Reproducibly synthesize five original, mono PCM16 audio fixtures."""
 import argparse
 import math
+import struct
 from pathlib import Path
 import wave
 
@@ -186,6 +187,27 @@ def build_ui_channel_probe():
             wav.setsampwidth(2)
             wav.setframerate(RATE)
             wav.writeframes(data)
+
+
+def build_ui_pcm_depth_probe():
+    out = OUT.parent / "live" / "round-51"
+    out.mkdir(parents=True, exist_ok=True)
+    n = np.arange(5760)
+    samples = .25*np.sin(2*np.pi*1000*n/RATE) + .08*np.sin(2*np.pi*1500*n/RATE)
+    pcm16 = np.rint(samples*32768).astype("<i2")
+    with wave.open(str(out / "pair_pcm16.wav"), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(RATE)
+        wav.writeframes(pcm16.tobytes())
+    pcm24 = pcm16.astype(np.int32)*256
+    with open(out / "pair_pcm24.wav", "wb") as wav:
+        wav.write(b"RIFF" + struct.pack("<I", 36+len(pcm24)*3) + b"WAVEfmt "
+                  + struct.pack("<IHHIIHH", 16, 1, 1, RATE, RATE*3, 3, 24)
+                  + b"data" + struct.pack("<I", len(pcm24)*3))
+        for value in pcm24:
+            value = int(value) & 0xffffff
+            wav.write(bytes((value & 255, (value >> 8) & 255, (value >> 16) & 255)))
 
 
 def build_ui_upper_centroid_probe():
@@ -537,8 +559,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-rate-48000-r49", action="store_true")
     parser.add_argument("--probe-ui-channel-stereo", action="store_true")
     parser.add_argument("--probe-ui-channel-mono", action="store_true")
+    parser.add_argument("--probe-ui-pcm24", action="store_true")
+    parser.add_argument("--probe-ui-pcm16", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_channel_stereo or args.probe_ui_channel_mono:
+    if args.probe_ui_pcm24 or args.probe_ui_pcm16:
+        main()
+        build_ui_pcm_depth_probe()
+    elif args.probe_ui_channel_stereo or args.probe_ui_channel_mono:
         main()
         build_ui_channel_probe()
     elif args.probe_ui_rate_48001 or args.probe_ui_rate_48000_r49:
