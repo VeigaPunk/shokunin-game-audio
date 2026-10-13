@@ -57,6 +57,20 @@ def build_invalid_probes():
                                  for i in range(101)))
 
 
+def build_width_probes():
+    out = OUT.parent / "live" / "round-22"
+    out.mkdir(parents=True, exist_ok=True)
+    samples = .2 * np.sin(2 * np.pi * 440 * time(4))
+    save("native16_probe", samples, out)
+    pcm24 = np.round(np.clip(samples, -1, 1) * 8388607).astype(np.int32)
+    packed = np.stack((pcm24 & 255, (pcm24 >> 8) & 255, (pcm24 >> 16) & 255), axis=1).astype(np.uint8)
+    with wave.open(str(out / "native24_probe.wav"), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(3)
+        wav.setframerate(RATE)
+        wav.writeframes(packed.tobytes())
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -239,5 +253,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.probe_invalid:
         build_invalid_probes()
+        build_width_probes()
     else:
         main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail)

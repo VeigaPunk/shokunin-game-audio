@@ -33,10 +33,19 @@ def command(*args):
     return subprocess.run(args, check=True, capture_output=True)
 
 
+def format_failures(stream):
+    failures = []
+    if int(stream["sample_rate"]) != 48000 or int(stream["channels"]) != 1:
+        failures.append("format: expected 48kHz mono")
+    if stream.get("codec_name") != "pcm_s16le" or stream.get("bits_per_sample") != 16:
+        failures.append("format: expected PCM16")
+    return failures
+
+
 def measure(name, spec, path=None):
     path = path or ARTIFACTS / (name + ".wav")
     probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
-                               "stream=sample_rate,channels:format=duration", "-of", "json", str(path)).stdout)
+                               "stream=sample_rate,channels,codec_name,bits_per_sample:format=duration", "-of", "json", str(path)).stdout)
     stream = probe["streams"][0]
     rate = int(stream["sample_rate"])
     pcm = command("sox", str(path), "-t", "f32", "-e", "floating-point", "-").stdout
@@ -61,8 +70,7 @@ def measure(name, spec, path=None):
     seam_delta = float(abs(samples[0] - samples[-1])) if spec[3] else None
     slope_delta = float(abs((samples[-1] - samples[-2]) - (samples[1] - samples[0]))) if spec[3] else None
     failures = []
-    if rate != 48000 or int(stream["channels"]) != 1:
-        failures.append("format: expected 48kHz mono")
+    failures.extend(format_failures(stream))
     if abs(duration-spec[0]) > .001:
         failures.append("duration: outside ±1 ms")
     if peak >= .95 or rms < .001:
@@ -75,6 +83,7 @@ def measure(name, spec, path=None):
         failures.append("loop seam: slope mismatch > .001 full scale per sample")
     return {"path": str(path.relative_to(ROOT)), "duration_s": duration,
             "sample_rate_hz": rate, "channels": int(stream["channels"]),
+            "codec_name": stream.get("codec_name"), "bits_per_sample": stream.get("bits_per_sample"),
             "peak_full_scale": peak, "rms_dbfs": float(20*np.log10(rms)),
             "integrated_lufs": lufs if np.isfinite(lufs if lufs is not None else float("nan")) else None,
             "spectral_centroid_hz": centroid, "spectral_bandwidth_hz": bandwidth,
@@ -112,8 +121,11 @@ def invalid_probes():
     results = []
     for name, expected in (("short_sections", "section count"),
                            ("corrupt", "decode"), ("wrong_format", "format"),
-                           ("odd_sections", "section count")):
-        path = (ROOT / "live" / "round-7" if name == "odd_sections" else probes) / (name + ".wav")
+                           ("odd_sections", "section count"),
+                           ("native16_probe", None), ("native24_probe", "format")):
+        directory = (ROOT / "live" / "round-22" if name.startswith("native") else
+                     ROOT / "live" / "round-7" if name == "odd_sections" else probes)
+        path = directory / (name + ".wav")
         result = {"probe": name, "path": str(path.relative_to(ROOT)),
                   "expected_failure": expected, "observed_failure": None}
         if name == "corrupt":
@@ -124,21 +136,25 @@ def invalid_probes():
                 result["observed_failure"] = "decode"
                 result["detail"] = {"tool": "ffprobe", "exit_code": exc.returncode,
                                     "stderr": exc.stderr.decode(errors="replace").strip()}
-        elif name == "wrong_format":
+        elif name in ("wrong_format", "native16_probe", "native24_probe"):
             probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
-                                       "stream=sample_rate,channels:format=duration", "-of", "json", str(path)).stdout)
+                                       "stream=sample_rate,channels,codec_name,bits_per_sample:format=duration",
+                                       "-of", "json", str(path)).stdout)
             stream = probe["streams"][0]
             result["sample_rate_hz"] = int(stream["sample_rate"])
             result["channels"] = int(stream["channels"])
-            if result["sample_rate_hz"] != 48000 or result["channels"] != 1:
+            result["codec_name"] = stream.get("codec_name")
+            result["bits_per_sample"] = stream.get("bits_per_sample")
+            if format_failures(stream):
                 result["observed_failure"] = "format"
         else:
             section = section_contrast(path)
             result["section"] = section
             if section.get("failure_kind") == "section count":
                 result["observed_failure"] = "section count"
-        result["status"] = ("expected_failure" if result["observed_failure"] == expected
-                            else "unexpected_result")
+        result["status"] = ("expected_pass" if expected is None and result["observed_failure"] is None else
+                            "expected_failure" if expected is not None and result["observed_failure"] == expected else
+                            "unexpected_result")
         results.append(result)
     return results
 
@@ -174,7 +190,7 @@ def main():
         (out / "measurements.json").write_text(json.dumps({"mode": "probe-invalid", "invalid_probes": results}, indent=2, allow_nan=False) + "\n")
         print(json.dumps({"receipt": str(out / "measurements.json"),
                           "failures": {r["probe"]: r["observed_failure"] for r in results}}))
-        return 1 if all(r["status"] == "expected_failure" for r in results) else 2
+        return 1 if all(r["status"] in ("expected_failure", "expected_pass") for r in results) else 2
     command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
             *(["--probe-failing"] if args.probe_failing else []),
             *(["--probe-slope"] if args.probe_slope else []),

@@ -223,3 +223,13 @@ Admission: coverage narrowly improved, depth and calibration unchanged, no demon
 | coverage | unchanged | No new canonical WAV, category or detector; 13 canonical hashes match `b1af040`, all five `_alt` checks pass. Scratch modes are controls, not content. |
 
 Admitted narrowly: calibration improved; no demonstrated scoped harm. No scalar score. SHONEN box 4 remains open; no listening/engine/production/rights claim. Counting command: `python3 -c "from pathlib import Path; print(sorted(p.stem for p in Path('.shokunin/audio/corpus/artifacts').glob('*.wav')))"` → thirteen canonical names, unchanged from `b1af040`; report and receipts name exact SHA-256 comparisons. Work commit cited in final `.shokunin/reports/round-21/audio.md` after integration.
+
+## Round 22 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `14cf986`, `measure()` allowed matched 48 kHz mono native PCM24 (`failures: []`) alongside PCM16 because it only checked rate/channels. After, shared ffprobe `codec_name == pcm_s16le` and `bits_per_sample == 16` checks reject matched native PCM24 solely as `format: expected PCM16`, admit native PCM16. Non-author `reports/round-22/r22-verifier.md` independently replayed 19 modes, Sol `r22-adjudicator.md` judged scope. |
+| coverage | unchanged | 13 original canonical WAV SHA-256 hashes match `14cf986`; five `_alt` comparisons and 19 historical mode outcomes hold. Two malformed-input width controls are not playable asset expansion. |
+| calibration | unchanged | All existing numerical thresholds and predicates unchanged; no hearing, perceptual or codec population calibration. |
+
+Admission: depth improved narrowly, zero demonstrated scoped harm. New normal JSON fields and `expected_pass` invalid-record schema are untested with unknown external strict consumers; no compatibility claim. WAVE_FORMAT_EXTENSIBLE valid bits are outside this encoded-width test. Counting commands: `git ls-tree -r --name-only 14cf986 .shokunin/audio/corpus/artifacts/ | wc -l` → 13; `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-invalid` yields six named records (four old + two width controls), receipt and exact exit in `r22-verifier.md`. No scalar score or SHONEN promotion; box4 remains open. Work commit cited in report-last `.shokunin/reports/round-22/audio.md`.
