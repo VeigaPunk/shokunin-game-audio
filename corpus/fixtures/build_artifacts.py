@@ -142,6 +142,13 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ambience_orientation_probe():
+    out = OUT.parent / "live" / "round-39"
+    t = time(2.0)
+    for name, frequency in (("orientation_low", 108), ("orientation_high", 114)):
+        save(name, .22*np.sin(2*np.pi*frequency*t), out)
+
+
 def build_ambience_centroid_above_probe():
     out = OUT.parent / "live" / "round-38"
     t = time(2.0)
@@ -365,8 +372,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-mixed-pass", action="store_true")
     parser.add_argument("--probe-ambience-centroid-below", action="store_true")
     parser.add_argument("--probe-ambience-centroid-above", action="store_true")
+    parser.add_argument("--probe-ambience-orientation-forward", action="store_true")
+    parser.add_argument("--probe-ambience-orientation-reverse", action="store_true")
     args = parser.parse_args()
-    if args.probe_ambience_centroid_above:
+    if args.probe_ambience_orientation_forward or args.probe_ambience_orientation_reverse:
+        main()
+        build_ambience_orientation_probe()
+    elif args.probe_ambience_centroid_above:
         main()
         build_ambience_centroid_above_probe()
     elif args.probe_ambience_centroid_below:
