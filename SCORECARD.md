@@ -293,3 +293,13 @@ The latter binary float delta is **greater** than `.020`: no exact comparator-eq
 | calibration | improved narrowly | Before `13a19e2`, no integrated near-`.10` centroid arm pair at duration delta zero. After, independent 24-mode replay `reports/round-28/r28-verifier.md`: baseline/variant both canonical UI .120s ordinary checks pass; k=1.11 relative centroid `0.09434076861679014`, duration delta0, sole distinctness failure (exit1); k=1.10 relative centroid `0.10454649711208937`, duration delta0, no failures (exit0). Sol `r28-adjudicator.md` admitted bounded two-point numeric polarity. |
 
 Existing `.020 OR .10` predicate/thresholds, thirteen canonical hashes, five variants, prior 22 outcomes, eight invalid statuses and normal restoration held. Analytic multiplier sweep is nonmonotonic; no exact `.10` equality, smooth transition, perceptual difference, engine/production/rights/publishing or promotion inference. Failed candidate fits and corrected setup errors in wave reports are not counted as gate evidence. Final work hash in `.shokunin/reports/round-28/audio.md`.
+
+## Round 29 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `99b6c0a`, only higher-centroid comparisons tested near .10. Independent corrected 26-mode replay `reports/round-29/r29-verifier.md`: lower-centroid variant k=.95 absolute relative delta `0.09901901500217196`, zero duration delta, sole distinctness failure (exit1); k=.94 relative delta `0.1084606104331939`, zero duration delta, passes (exit0). A signed delta would miss the latter. Sol `r29-adjudicator.md` admits the bounded numeric direction check. |
+| coverage | unchanged | Two opt-in original scratch controls, no new canonical WAV or category. |
+| calibration | unchanged | Existing `abs` and `.020 OR .10` thresholds unchanged; no exact boundary or smoothness result. |
+
+Both variants pass unchanged canonical UI .12s ordinary checks, and have centroids below baseline. Prior 24 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restoration held. Verifier's first 26 command-wrapper exit127 attempts produced no receipts; they are setup errors **excluded** from the corrected 26-run evidence. No perception, production, rights, engine, publishing or promotion claim. Final work hash in `.shokunin/reports/round-29/audio.md`.

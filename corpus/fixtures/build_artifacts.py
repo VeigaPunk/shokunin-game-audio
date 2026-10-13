@@ -109,6 +109,14 @@ def build_ui_centroid_probe(multiplier, label):
         save(name, .38 * np.sin(2 * np.pi * (700*k*t + 800*k*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_lower_centroid_probe(multiplier, label):
+    out = OUT.parent / "live" / "round-29"
+    t = time(.12)
+    for name, k in ((f"ui_lower_centroid_{label}", 1.0),
+                    (f"ui_lower_centroid_{label}_alt", multiplier)):
+        save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -293,8 +301,14 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-duration-at", action="store_true")
     parser.add_argument("--probe-ui-centroid-below", action="store_true")
     parser.add_argument("--probe-ui-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-lower-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-lower-centroid-above", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_centroid_below or args.probe_ui_centroid_above:
+    if args.probe_ui_lower_centroid_below or args.probe_ui_lower_centroid_above:
+        main()
+        build_ui_lower_centroid_probe(.95 if args.probe_ui_lower_centroid_below else .94,
+                                      "below" if args.probe_ui_lower_centroid_below else "above")
+    elif args.probe_ui_centroid_below or args.probe_ui_centroid_above:
         main()
         build_ui_centroid_probe(1.11 if args.probe_ui_centroid_below else 1.10,
                                 "below" if args.probe_ui_centroid_below else "above")
