@@ -563,3 +563,13 @@ Named non-author `reports/round-54/r54-verifier.md`: **68 new unique receipts**,
 | calibration | **improved locally** | Both headers ffprobe `pcm_s16le`/16, mono48k/.120s, peak `.31536865234375`, RMS `-14.628519169868087dBFS`, centroid `1123.322704293326Hz`, no failures, exit0 through unchanged PCM16/UI gates. Positive representation control complements earlier negative width/codec controls. |
 
 Named non-author `reports/round-55/r55-verifier.md`: **70 new unique receipts**, 32 exit0/38 expected validation exit1; prior68 exact JSON subset30/38, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. Sol `r55-adjudicator.md` admits no demonstrated scoped harm. Guard's extensible WAV SHA was a report transcription error; integrated SHA `bd7d95901935c0effe21fd64e44a47487372be9d0c80f86cc725380df0352f47` is confirmed independently, so guard transcription is not gate evidence. No selected numeric failed fit or receiptless verifier setup error. No universal extensible support, general codec/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-55/audio.md`.
+
+## Round 56 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Same PCM16 payload in valid16 mono extensible PCM-subtype headers with mask0 (unspecified) versus mask0x4 (front-center); isolated mask representation, not other layouts. |
+| coverage | **improved locally** | Two opt-in modes extend prior70 to 72 fresh commands; canonical17 and prior70 complete JSON preserved. |
+| calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.31536865234375`, RMS `-14.628519169868087dBFS`, centroid `1123.322704293326Hz`, identical SoX-f32 decode, no failures, exit0 through unchanged gates. |
+
+Named non-author `reports/round-56/r56-verifier.md`: **72 new unique receipts**, 34 exit0/38 expected validation exit1, prior70 exact raw JSON subset32/38, canonical17 SHA/metrics, generic five/four family, thresholds/sections/eight invalid, normal restoration. One malformed shell-quote attempt produced zero receipt (**setup**, not gate); critic malformed GUID scratch is a separate negative, not the selected pair. Sol `r56-adjudicator.md` admits no demonstrated scoped harm. No selected failed numeric fit or corrected transcription. Mask0 is unspecified positions, not front-center; no arbitrary masks, universal extensible/standards, general codec/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-56/audio.md`.

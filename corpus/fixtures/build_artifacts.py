@@ -189,6 +189,22 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_extensible_mask_probe():
+    out = OUT.parent / "live" / "round-56"
+    out.mkdir(parents=True, exist_ok=True)
+    values = []
+    for i in range(5760):
+        t = i / RATE
+        x = .25*math.sin(2*math.pi*1000*t) + .08*math.sin(2*math.pi*1500*t)
+        values.append(max(-32768, min(32767, round(x*32767))))
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    for name, mask in (("zero", 0), ("center", 0x4)):
+        fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, 16, mask) + guid
+        riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+        (out / f"pair_mask_{name}.wav").write_bytes(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+
+
 def build_ui_extensible_pcm16_probe():
     out = OUT.parent / "live" / "round-55"
     out.mkdir(parents=True, exist_ok=True)
@@ -644,8 +660,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-pcm16-r54", action="store_true")
     parser.add_argument("--probe-ui-extensible-pcm16", action="store_true")
     parser.add_argument("--probe-ui-standard-pcm16-r55", action="store_true")
+    parser.add_argument("--probe-ui-extensible-mask-zero", action="store_true")
+    parser.add_argument("--probe-ui-extensible-mask-center", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_extensible_pcm16 or args.probe_ui_standard_pcm16_r55:
+    if args.probe_ui_extensible_mask_zero or args.probe_ui_extensible_mask_center:
+        main()
+        build_ui_extensible_mask_probe()
+    elif args.probe_ui_extensible_pcm16 or args.probe_ui_standard_pcm16_r55:
         main()
         build_ui_extensible_pcm16_probe()
     elif args.probe_ui_pcm32 or args.probe_ui_pcm16_r54:
