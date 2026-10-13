@@ -373,3 +373,13 @@ Old fifteen canonical SHA/metrics, UI/impact family records, prior32 outcomes, e
 | calibration | unchanged | `.020 s OR .10` cutoffs, ordinary/loop limits and five generic `_alt` comparisons unchanged; new fixture inherits ambience band. |
 
 Old sixteen canonical SHA/metrics, UI/impact/movement family records, prior33 outcomes, eight invalid statuses and restored normals held; corrected replay 13 exit0/21 expected exit1. Verifier disclosed 34 initial wrapper attempts exit127 without receipts, excluded setup errors; executor relative-path error excluded. Centroid scalar cannot establish spectral-distribution/perceptual novelty and seam metrics do not prove audible seamlessness. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-36/audio.md`.
+
+## Round 37 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | No deeper audio/perceptual or full-spectrum check. |
+| coverage | unchanged | Seventeen canonical WAVs remain; one opt-in scratch pair is not a canonical family expansion. |
+| calibration | **improved locally** | Before `83395d1`, no integrated equal-duration ambience nonduplicate negative. Named non-author `reports/round-37/r37-verifier.md` 35-run replay verifies `--probe-ambience-centroid-below` exit1: 2s/96000 frames 48k mono PCM16 loops, ordinary/seam checks pass; duration delta **0.0**, centroid-relative **0.06585562259644766** (`0 < delta < .10`), generic `_alt` `passed:false`, sole variant distinctness failure. Sol `r37-adjudicator.md` admits this one local numeric negative, not universal cutoff calibration. |
+
+Seventeen old canonical SHA/metrics, five generic `_alt`, four family groups, thresholds, sections, prior34 outcomes, eight invalid statuses and restored normal held (35 receipts: 13 exit0/22 expected exit1/no replay setup). Scratch SHA baseline `281e9a25191825bd062f854de6f9b85f6a5902200e0cd1027e36a225422a901c`, variant `cd48ad3f1e4020c10225d65904358a1ea1e7f18d28050e858dec9a9b7feed8a9`. Wave-one SciPy/path setup errors excluded; no failed numeric fits. No perceptual/spectral similarity, audible seamlessness, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-37/audio.md`.

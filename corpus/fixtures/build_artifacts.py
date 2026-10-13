@@ -142,6 +142,13 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ambience_centroid_below_probe():
+    out = OUT.parent / "live" / "round-37"
+    t = time(2.0)
+    for name, frequency in (("ambience_probe", 60), ("ambience_probe_alt", 64)):
+        save(name, .22*np.sin(2*np.pi*frequency*t), out)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -349,8 +356,12 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-orientation-reverse", action="store_true")
     parser.add_argument("--probe-ui-joint-below", action="store_true")
     parser.add_argument("--probe-ui-mixed-pass", action="store_true")
+    parser.add_argument("--probe-ambience-centroid-below", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_mixed_pass:
+    if args.probe_ambience_centroid_below:
+        main()
+        build_ambience_centroid_below_probe()
+    elif args.probe_ui_mixed_pass:
         main()
         build_ui_mixed_pass_probe()
     elif args.probe_ui_joint_below:
