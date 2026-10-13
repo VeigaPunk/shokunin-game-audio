@@ -15,6 +15,7 @@ ARTIFACTS = ROOT / "artifacts"
 SPECS = {
     "ui": (.12, 250, 4000, False),
     "ui_alt": (.16, 250, 4000, False),
+    "ui_third": (.20, 250, 4000, False),
     "impact": (.32, 50, 15000, False),
     "impact_alt": (.32, 50, 15000, False),
     "movement": (.24, 100, 16000, False),
@@ -322,6 +323,19 @@ def main():
                               "centroid_relative_delta": centroid_relative_delta, "passed": passed}
         if not passed:
             variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
+    ui_family_comparisons = {}
+    third = measurements["ui_third"]
+    for name in ("ui", "ui_alt"):
+        base = measurements[name]
+        duration_delta = abs(third["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        ui_family_comparisons[name] = {"baseline": name, "variant": "ui_third",
+                                       "duration_delta_s": duration_delta,
+                                       "centroid_relative_delta": centroid_relative_delta,
+                                       "passed": passed}
+        if not passed:
+            third["failures"].append(f"ui family distinctness: ui_third vs {name} below duration and centroid minima")
     sections = {name: section_contrast(ROOT / data["path"], 200 if name in ("stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe") else
                                        180 if name in ("stem_layer_alt", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe") else
                                        120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
@@ -349,7 +363,7 @@ def main():
                               "distinctness_centroid_relative_delta_min": .10,
                               "centroid_bands_hz": {k: [v[1], v[2]] for k,v in SPECS.items()}},
                "measurements": measurements, "distinctness": distinctness,
-               "sections": sections}
+               "ui_family_comparisons": ui_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     suffix = "-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)

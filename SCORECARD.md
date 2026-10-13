@@ -333,3 +333,13 @@ Longer variant uses separately declared scratch expected duration `6719/48000`, 
 | calibration | unchanged | Existing OR, `.020/.10` cutoffs and ordinary tolerance unchanged; no exact equality/calibration retune. |
 
 Longer variant ordinary check uses separately declared scratch expected duration `6719/48000`, **not** canonical UI `.120 s`; both waveform length and phase change, so no causal independence. Prior29 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restore held. Verifier's initial 30 exit2 mistyped-path attempts produced no receipts and are excluded from corrected 30-run evidence. No perception, production/rights/engine/publishing/promotion claim. Work hash in `.shokunin/reports/round-32/audio.md`.
+
+## Round 33 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Same ordinary checks and OR rule on one more file; no auditory/semantic control. |
+| coverage | improved narrowly | Before `b8e3e5c`, 13 canonical WAVs and two UI members. Independent 31-run replay `reports/round-33/r33-verifier.md` confirms 14 deterministic canonical WAVs incl original ui_third .20s/9600 frames 48k mono PCM16, SHA `734a0a47077f5b614b5d51d486b88a51940c7d61ecea0878642b60a0103513bc`, ordinary checks pass; ui→third comparison passes duration-only (.08000000000000002s/.00018103031409457665), ui_alt→third passes both (.04000000000000001s/.3207185389302337). Sol `r33-adjudicator.md` admits only measured analytical coverage. |
+| calibration | unchanged | Existing `.020 OR .10` cutoffs, generic five `_alt` comparisons, and ordinary limits unchanged. |
+
+Thirteen older canonical hashes/metrics held, prior30 outcomes, eight invalid statuses, thresholds and normal restoration held. Executor's two initial helper-path failures excluded. Duration-only distinction from `ui` is **not** spectral/perceptual novelty. No listening, asset quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-33/audio.md`.

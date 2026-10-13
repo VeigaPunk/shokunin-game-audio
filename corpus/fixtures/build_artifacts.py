@@ -153,6 +153,8 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     save("ui", .38 * np.sin(2 * np.pi * (700*t + 800*t*t)) * np.exp(-30*t))
     t = time(.16)
     save("ui_alt", .32 * np.sin(2 * np.pi * (1200*t + 1200*t*t)) * np.exp(-18*t))
+    t = time(.20)
+    save("ui_third", .38 * np.sin(2 * np.pi * (700*t + 800*t*t)) * np.exp(-30*t))
     t = time(.32)
     noise = rng.standard_normal(len(t))
     save("impact", .40 * np.sin(2*np.pi*90*t) * np.exp(-16*t)
