@@ -86,6 +86,14 @@ def build_rate_channel_probes():
             wav.writeframes(pcm.tobytes())
 
 
+def build_ui_clone_probe():
+    out = OUT.parent / "live" / "round-26"
+    t = time(.12)
+    samples = .30 * np.sin(2 * np.pi * 700 * t) * np.exp(-20 * t)
+    for name in ("ui_clone", "ui_clone_alt"):
+        save(name, samples, out)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -265,8 +273,12 @@ if __name__ == "__main__":
     parser.add_argument("--probe-layer-third-join-edge-pass", action="store_true")
     parser.add_argument("--probe-layer-third-join-edge-fail", action="store_true")
     parser.add_argument("--probe-invalid", action="store_true")
+    parser.add_argument("--probe-ui-clone", action="store_true")
     args = parser.parse_args()
-    if args.probe_invalid:
+    if args.probe_ui_clone:
+        main()
+        build_ui_clone_probe()
+    elif args.probe_invalid:
         build_invalid_probes()
         build_width_probes()
         build_rate_channel_probes()

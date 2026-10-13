@@ -263,3 +263,13 @@ Admitted narrowly, no demonstrated scoped harm, no scalar score. Count command `
 | calibration | unchanged | `format_failures()` and all thresholds unchanged; stereo flattened SoX sample/FFT semantics are not mono-equivalent. |
 
 Admission: depth improved, zero demonstrated scoped harm. Count command: read `corpus/live/runs/20261013T014025494866Z-invalid/measurements.json` `invalid_probes` → eight entries (six old + two new); exact command/exit in `r25-verifier.md`. Nineteen malformed setup shell exits127 produced no receipts, excluded. Four SHONEN boxes remain checked, no rank/promotion change, no scalar score. Work commit in final `.shokunin/reports/round-25/audio.md`.
+
+## Round 26 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `7c3241d`, five `_alt` pairs passed but no exact duplicate negative. Opt-in original `ui_clone`/`ui_clone_alt` WAVs have identical SHA-256 `57b3061d6a1b3ea7d94dcf4ea9c1bf6638d22e5284adaff37d3caf3d07b59ce1`; ordinary UI checks pass, duration and centroid delta both 0, sole existing distinctness failure. Non-author `reports/round-26/r26-verifier.md` 20-mode replay; Sol `r26-adjudicator.md`. |
+| coverage | unchanged | Scratch control not canonical; thirteen WAV hashes, five existing variants and prior 19 outcomes preserved. |
+| calibration | unchanged | Existing `.020 s OR .10` predicate and thresholds unchanged; neither boundary tested. |
+
+Admitted narrowly with zero demonstrated scoped harm, no scalar score. Counting command: `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-clone` → exit1 with sole `ui_clone_alt` distinctness failure in `corpus/live/runs/20261013T015341619139Z-ui-clone/measurements.json`; non-author exact command and exit in `r26-verifier.md`. No perceptual deduplication or promotion; four SHONEN boxes stay checked. Final work hash in `.shokunin/reports/round-26/audio.md`.
