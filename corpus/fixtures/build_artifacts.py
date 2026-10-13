@@ -142,6 +142,21 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_rate_probe():
+    out = OUT.parent / "live" / "round-48"
+    out.mkdir(parents=True, exist_ok=True)
+    n = np.arange(5760)
+    t = n / RATE
+    samples = .28 * np.sin(2*np.pi*1000*t) * np.hanning(len(n))
+    pcm = np.rint(np.clip(samples, -1, 1) * 32767).astype("<i2")
+    for rate in (47999, 48000):
+        with wave.open(str(out / f"ui-{rate}.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(rate)
+            wav.writeframes(pcm.tobytes())
+
+
 def build_ui_upper_centroid_probe():
     out = OUT.parent / "live" / "round-47"
     out.mkdir(parents=True, exist_ok=True)
@@ -485,8 +500,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-absolute-centroid-above", action="store_true")
     parser.add_argument("--probe-ui-upper-centroid-below", action="store_true")
     parser.add_argument("--probe-ui-upper-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-rate-47999", action="store_true")
+    parser.add_argument("--probe-ui-rate-48000", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_upper_centroid_below or args.probe_ui_upper_centroid_above:
+    if args.probe_ui_rate_47999 or args.probe_ui_rate_48000:
+        main()
+        build_ui_rate_probe()
+    elif args.probe_ui_upper_centroid_below or args.probe_ui_upper_centroid_above:
         main()
         build_ui_upper_centroid_probe()
     elif args.probe_ui_absolute_centroid_below or args.probe_ui_absolute_centroid_above:
