@@ -71,6 +71,21 @@ def build_width_probes():
         wav.writeframes(packed.tobytes())
 
 
+def build_rate_channel_probes():
+    out = OUT.parent / "live" / "round-25"
+    out.mkdir(parents=True, exist_ok=True)
+    for name, rate, channels in (("stereo48_probe", 48000, 2), ("mono441_probe", 44100, 1)):
+        t = np.arange(4 * rate) / rate
+        pcm = np.round(.2 * np.sin(2 * np.pi * 440 * t) * 32767).astype("<i2")
+        if channels == 2:
+            pcm = np.repeat(pcm[:, None], 2, axis=1)
+        with wave.open(str(out / (name + ".wav")), "wb") as wav:
+            wav.setnchannels(channels)
+            wav.setsampwidth(2)
+            wav.setframerate(rate)
+            wav.writeframes(pcm.tobytes())
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -254,5 +269,6 @@ if __name__ == "__main__":
     if args.probe_invalid:
         build_invalid_probes()
         build_width_probes()
+        build_rate_channel_probes()
     else:
         main(args.probe_failing, args.probe_slope, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail)

@@ -122,8 +122,10 @@ def invalid_probes():
     for name, expected in (("short_sections", "section count"),
                            ("corrupt", "decode"), ("wrong_format", "format"),
                            ("odd_sections", "section count"),
-                           ("native16_probe", None), ("native24_probe", "format")):
-        directory = (ROOT / "live" / "round-22" if name.startswith("native") else
+                           ("native16_probe", None), ("native24_probe", "format"),
+                           ("stereo48_probe", "format"), ("mono441_probe", "format")):
+        directory = (ROOT / "live" / "round-25" if name in ("stereo48_probe", "mono441_probe") else
+                     ROOT / "live" / "round-22" if name.startswith("native") else
                      ROOT / "live" / "round-7" if name == "odd_sections" else probes)
         path = directory / (name + ".wav")
         result = {"probe": name, "path": str(path.relative_to(ROOT)),
@@ -136,7 +138,7 @@ def invalid_probes():
                 result["observed_failure"] = "decode"
                 result["detail"] = {"tool": "ffprobe", "exit_code": exc.returncode,
                                     "stderr": exc.stderr.decode(errors="replace").strip()}
-        elif name in ("wrong_format", "native16_probe", "native24_probe"):
+        elif name in ("wrong_format", "native16_probe", "native24_probe", "stereo48_probe", "mono441_probe"):
             probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
                                        "stream=sample_rate,channels,codec_name,bits_per_sample:format=duration",
                                        "-of", "json", str(path)).stdout)

@@ -253,3 +253,13 @@ Admitted narrowly after correction with zero demonstrated scoped harm. No scalar
 | calibration | unchanged | No gate/code/threshold changes; no stronger quality or rights inference. |
 
 Admitted narrowly, no demonstrated scoped harm, no scalar score. Count command `git rev-list --first-parent --count 0f60e7658a63030ed054fb83ec7b830bea7be08b..2a198118a527baf749dbd2e23b6667a79a1ccf31` → 47; verifier and Sol reports distinguish 765 endpoint paths from 869 cumulative per-commit path entries, and cite mint/report exceptions. SHONEN all four boxes now checked, **without** promotion or rank change. Work commit cited in final `.shokunin/reports/round-24/audio.md`.
+
+## Round 25 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `30530e1`, the only rate/channel invalid WAV was 44100 Hz stereo PCM16, co-violating both equalities. New source-generated 48000Hz stereo PCM16 and 44100Hz mono PCM16 scratch each fail independently on `format` against 48000Hz mono PCM16 positive; non-author `reports/round-25/r25-verifier.md` confirmed direct `measure()` sole format failure under broad custom spec and 19 serial runner modes, Sol `r25-adjudicator.md`. |
+| coverage | unchanged | No new asset/codec family, canonical WAV, or runner mode. 13 hashes, five variants, old 19 outcomes hold. |
+| calibration | unchanged | `format_failures()` and all thresholds unchanged; stereo flattened SoX sample/FFT semantics are not mono-equivalent. |
+
+Admission: depth improved, zero demonstrated scoped harm. Count command: read `corpus/live/runs/20261013T014025494866Z-invalid/measurements.json` `invalid_probes` → eight entries (six old + two new); exact command/exit in `r25-verifier.md`. Nineteen malformed setup shell exits127 produced no receipts, excluded. Four SHONEN boxes remain checked, no rank/promotion change, no scalar score. Work commit in final `.shokunin/reports/round-25/audio.md`.
