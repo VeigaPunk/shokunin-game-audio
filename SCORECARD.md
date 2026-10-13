@@ -323,3 +323,13 @@ All four paths pass canonical UI ordinary checks, existing `.020 OR .10` and den
 | calibration | improved narrowly | Before `c1c6c96`, zero/zero and separate near-bound controls, not both nonzero below. Independent 29-mode replay `reports/round-31/r31-verifier.md`: 5760→6719 frame pair, measured duration delta `0.019978999999999997` (<.020), relative centroid delta `0.09964036511023265` (<.10); sole distinctness failure exit1. Sol `r31-adjudicator.md` admits bounded joint false-branch observation. |
 
 Longer variant uses separately declared scratch expected duration `6719/48000`, **not** canonical UI `.120 s`; ordinary format/level/band checks retained. Both sample count and phase change: no causal isolation or universal OR/equality claim. Prior28 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restoration held. Failed k=1.0 centroid fit `.1353` and corrected relative-path setup errors excluded. No perception, production, rights, engine, publishing or promotion claim. Work hash in `.shokunin/reports/round-31/audio.md`.
+
+## Round 32 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `ae9c941`, joint nonzero-below negative but no joint duration-below/centroid-above positive. Independent 30-mode replay `reports/round-32/r32-verifier.md`: 5760→6719 frames, duration delta `0.019978999999999997` (<.020) and centroid relative `0.1059638814557548` (>=.10), both nonzero; no failures, exit0 through centroid arm. Sol `r32-adjudicator.md` admits bounded numeric mixed-input outcome. |
+| coverage | unchanged | One opt-in original scratch pair, no canonical WAV/category. |
+| calibration | unchanged | Existing OR, `.020/.10` cutoffs and ordinary tolerance unchanged; no exact equality/calibration retune. |
+
+Longer variant ordinary check uses separately declared scratch expected duration `6719/48000`, **not** canonical UI `.120 s`; both waveform length and phase change, so no causal independence. Prior29 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restore held. Verifier's initial 30 exit2 mistyped-path attempts produced no receipts and are excluded from corrected 30-run evidence. No perception, production/rights/engine/publishing/promotion claim. Work hash in `.shokunin/reports/round-32/audio.md`.

@@ -134,6 +134,14 @@ def build_ui_joint_below_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_mixed_pass_probe():
+    out = OUT.parent / "live" / "round-32"
+    for name, count, k in (("ui_mixed_pass", 5760, 1.0),
+                           ("ui_mixed_pass_alt", 6719, 1.14)):
+        t = np.arange(count) / RATE
+        save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -323,8 +331,12 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-orientation-forward", action="store_true")
     parser.add_argument("--probe-ui-orientation-reverse", action="store_true")
     parser.add_argument("--probe-ui-joint-below", action="store_true")
+    parser.add_argument("--probe-ui-mixed-pass", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_joint_below:
+    if args.probe_ui_mixed_pass:
+        main()
+        build_ui_mixed_pass_probe()
+    elif args.probe_ui_joint_below:
         main()
         build_ui_joint_below_probe()
     elif args.probe_ui_orientation_forward or args.probe_ui_orientation_reverse:
