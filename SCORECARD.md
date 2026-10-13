@@ -243,3 +243,13 @@ Admission: depth improved narrowly, zero demonstrated scoped harm. New normal JS
 | coverage | unchanged | Thirteen canonical SHA-256 hashes match `64e6088`, five variant records and seven-mode normal/control/restore outcomes pass; no new WAV asset. |
 
 Admitted narrowly after correction with zero demonstrated scoped harm. No scalar score, threshold retuning, audibility inference or external JSON compatibility claim. SHONEN box4 open. Counting commands: `python3 -c "from pathlib import Path; print(len(list(Path('.shokunin/audio/corpus/artifacts').glob('*.wav'))))"` → 13; code/receipt counts in `r23-verifier.md`. Work commit cited in final `.shokunin/reports/round-23/audio.md`.
+
+## Round 24 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | improved narrowly | Before `2a19811`, PROVINCE refusals were terse and SHONEN box4 open. After, appended task/action-effect decision table distinguishes audio content/proxies, engine/game/lore/rights/publishing refusals, mixed uncertainty and exact report/write paths. Named non-author `reports/round-24/r24-verifier.md` checked box4 only after 13 held-out classifications and bounded 47-first-parent-commit audit; Sol `r24-adjudicator.md`. This is a bounded review, not universal no-bleed or promotion. |
+| coverage | unchanged | No new WAV/content category. Thirteen canonical hashes match `2a19811`, five variants pass in existing normal receipt. |
+| calibration | unchanged | No gate/code/threshold changes; no stronger quality or rights inference. |
+
+Admitted narrowly, no demonstrated scoped harm, no scalar score. Count command `git rev-list --first-parent --count 0f60e7658a63030ed054fb83ec7b830bea7be08b..2a198118a527baf749dbd2e23b6667a79a1ccf31` → 47; verifier and Sol reports distinguish 765 endpoint paths from 869 cumulative per-commit path entries, and cite mint/report exceptions. SHONEN all four boxes now checked, **without** promotion or rank change. Work commit cited in final `.shokunin/reports/round-24/audio.md`.
