@@ -126,6 +126,14 @@ def build_ui_orientation_probe(reverse):
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_ui_joint_below_probe():
+    out = OUT.parent / "live" / "round-31"
+    for name, count, k in (("ui_joint_below", 5760, 1.0),
+                           ("ui_joint_below_alt", 6719, .88)):
+        t = np.arange(count) / RATE
+        save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
+
+
 def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=False, join_probe=False, layer_slope_probe=False, layer_alt_flat_probe=False, layer_alt_join_probe=False, layer_alt_slope_probe=False, layer_alt_reverse_probe=False, layer_third_slope_probe=False, layer_third_slope_edge_pass=False, layer_third_slope_edge_fail=False, layer_third_join_probe=False, layer_third_join_edge_pass=False, layer_third_join_edge_fail=False):
     if slope_probe:
         t_probe = time(1)
@@ -314,8 +322,12 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-lower-centroid-above", action="store_true")
     parser.add_argument("--probe-ui-orientation-forward", action="store_true")
     parser.add_argument("--probe-ui-orientation-reverse", action="store_true")
+    parser.add_argument("--probe-ui-joint-below", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_orientation_forward or args.probe_ui_orientation_reverse:
+    if args.probe_ui_joint_below:
+        main()
+        build_ui_joint_below_probe()
+    elif args.probe_ui_orientation_forward or args.probe_ui_orientation_reverse:
         main()
         build_ui_orientation_probe(args.probe_ui_orientation_reverse)
     elif args.probe_ui_lower_centroid_below or args.probe_ui_lower_centroid_above:

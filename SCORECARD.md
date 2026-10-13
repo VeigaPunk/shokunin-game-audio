@@ -313,3 +313,13 @@ Both variants pass unchanged canonical UI .12s ordinary checks, and have centroi
 | calibration | improved narrowly | Before `6a36968`, only k=1→.95 had baseline denominator ratio `.09901901500217196` and failed. Independent corrected 28-mode replay `reports/round-30/r30-verifier.md` shows *identical two whole WAV byte strings swapped*: forward exit1 sole distinctness at duration0/ratio `.09901901500217196`; reverse exit0 at duration0/ratio `.10990133715464667`. Sol `r30-adjudicator.md` admitted numerical orientation sensitivity. |
 
 All four paths pass canonical UI ordinary checks, existing `.020 OR .10` and denominator unchanged; thirteen canonical hashes, five variants, prior26 outcomes, eight invalid statuses, thresholds and normal restoration preserved. Verifier's first 28 exit127 command-wrapper attempts produced no receipts and are excluded from corrected 28-run evidence. No normative symmetry, exact cutoff equality, auditory/perceptual/production/rights/engine/publish/promotion claim. Work hash in `.shokunin/reports/round-30/audio.md`.
+
+## Round 31 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Existing controls remain; this is no new audio/semantic validation. |
+| coverage | unchanged | One opt-in original scratch joint pair; no new canonical WAV/category. |
+| calibration | improved narrowly | Before `c1c6c96`, zero/zero and separate near-bound controls, not both nonzero below. Independent 29-mode replay `reports/round-31/r31-verifier.md`: 5760→6719 frame pair, measured duration delta `0.019978999999999997` (<.020), relative centroid delta `0.09964036511023265` (<.10); sole distinctness failure exit1. Sol `r31-adjudicator.md` admits bounded joint false-branch observation. |
+
+Longer variant uses separately declared scratch expected duration `6719/48000`, **not** canonical UI `.120 s`; ordinary format/level/band checks retained. Both sample count and phase change: no causal isolation or universal OR/equality claim. Prior28 outcomes, eight invalid statuses, thirteen canonical hashes, five variants, threshold objects and normal restoration held. Failed k=1.0 centroid fit `.1353` and corrected relative-path setup errors excluded. No perception, production, rights, engine, publishing or promotion claim. Work hash in `.shokunin/reports/round-31/audio.md`.

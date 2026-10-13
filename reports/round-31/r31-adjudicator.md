@@ -1,0 +1,32 @@
+# Round 31 adjudicator — independent per-axis verdict
+
+**Admit narrowly.** The one predeclared **calibration** move is an observed joint nonzero-below control of the existing alternate distinctness check. **Calibration improved narrowly; depth unchanged; coverage unchanged; no demonstrated scoped harm.** This meets the rule of at least one improved axis and zero harmed axes. It does not change the checker policy.
+
+## Before, implementation, and evidence
+
+Clean-before `c1c6c965e7a347597caea0f4ddeab42dd7fdcff2` already covered zero/zero duplicate rejection, separate near-`.020` duration and near-`.10` centroid controls, and baseline-denominator orientation. It lacked an integrated alternate pair whose *both measured signals* are nonzero yet simultaneously below their respective cutoffs. The round-31 LOG declared exactly that calibration move before integration. I read the eight wave-1 reports (`r31-{scout,executor,alt,critic,reviewer,simplifier,scribe,guard}.md`), named **non-author** `r31-verifier.md`, raw joint/normal/invalid receipts, source diff, and SHONEN. The early scout/reviewer/simplifier/scribe recommendations and direct exploratory fits do not count as integrated runner outcomes. The independent replay does.
+
+The source diff against clean-before adds one opt-in `--probe-ui-joint-below` path: source-generated 48 kHz mono PCM16 UI-shaped 5,760-frame baseline (`k=1`) and 6,719-frame alternate (`k=.88`). The baseline is measured with canonical `SPECS["ui"]`; the longer alternate is measured with a **separately declared scratch expected duration** `(6719 / 48000, *SPECS["ui"][1:])`. It does **not** pass or claim conformity to canonical UI `.120 s` duration: its actual ffprobe duration is `.139979 s`. The unchanged `_alt` comparator computes `abs(variant.duration_s-base.duration_s) >= .020 OR abs(variant.centroid-base.centroid)/base.centroid >= .10`; no cutoff, canonical WAV, or ordinary tolerance was changed.
+
+Raw non-author joint receipt `.shokunin/audio/corpus/live/runs/20261013T025133084611Z-ui-joint-below/measurements.json` and the generated WAV headers establish:
+
+| Member | Frames | ffprobe duration s | Centroid Hz | Ordinary checks |
+|---|---:|---:|---:|---|
+| `ui_joint_below` | 5760 | 0.120000 | 966.8966593379727 | pass, canonical UI spec |
+| `ui_joint_below_alt` | 6719 | 0.139979 | 870.5547231776728 | pass, separately declared 6719/48000 scratch duration |
+
+Actual ffprobe-float difference is **`0.019978999999999997`** (nonzero, strictly below `.020`), not the exact-frame arithmetic `959/48000`. Baseline-relative absolute centroid difference is **`0.09964036511023265`** (nonzero, strictly below `.10`). Both branches are false. Receipt `passed: false`; the *sole* alternate failure is `distinctness: duration < .020 s and centroid delta < 10%`, runner **exit 1**. There is no per-file duration failure disguised as distinctness. Analytic sample length **and** phase multiplier change together, so duration/truncation/FFT effects are not causally isolated from the coefficient change. The exploratory `k=1.0` longer-variant fit had centroid relative difference about `.1353` and failed the requested fit; it is not an integrated negative control. Executor's initial relative-path exit 1 and critic's relative-path direct-measurement error were setup errors, not checker failures. Alternate's exact frame-duration arithmetic was not substituted for the runner's float measurement.
+
+## Preservation and axes
+
+Named non-author replay executed **29 serial runner invocations**, 8 exit 0 and 21 expected exit 1, no exit 2 or setup errors, each with a receipt. Prior-28 subset **#1 plus #3–#29** preserved its 8 exit 0 / 20 exit 1 outcomes. Invalid receipt `.shokunin/audio/corpus/live/runs/20261013T025155622067Z-invalid/measurements.json` preserves eight statuses: `short_sections`, `corrupt`, `wrong_format`, `odd_sections`, `native24_probe`, `stereo48_probe`, and `mono441_probe` expected failures, and `native16_probe` expected pass. Thirteen canonical WAV SHA-256 hashes match clean-before according to the verifier and its enumerated hashes; five original alternate comparisons pass in the raw normal and joint receipts. Initial and restored normal receipts (`20261013T025122849530Z-normal` and `20261013T025156430512Z-normal`) are equal in thresholds and five variant results; joint thresholds agree as well. Both normal commands exited 0.
+
+| Axis | Verdict | Before → after |
+|---|---|---|
+| **Calibration** | **improved narrowly** | Adds an independently replayed numeric joint nonzero-below rejection on the existing `.020 OR .10` predicate; previous controls only addressed zero/zero or individual arms. |
+| **Depth** | **unchanged** | Existing per-file UI checks and alternate comparator are reused; no new acoustic detector, causal decomposition, or auditory validation. |
+| **Coverage** | **unchanged** | One opt-in scratch UI pair, not a new canonical asset, fixture family, production sample, or general codec coverage. Thirteen canonical hashes and prior controls hold. |
+
+Inspection commands I ran from repository root: `git diff c1c6c965e7a347597caea0f4ddeab42dd7fdcff2 -- .shokunin/audio/corpus/fixtures/measure_audio.py` — **exit 0**; `git diff c1c6c965e7a347597caea0f4ddeab42dd7fdcff2 -- .shokunin/audio/corpus/fixtures/build_artifacts.py .shokunin/audio/SCORECARD.md` — **exit 0** (no SCORECARD diff); `git diff --check c1c6c965e7a347597caea0f4ddeab42dd7fdcff2 -- .shokunin/audio/corpus/fixtures/build_artifacts.py .shokunin/audio/corpus/fixtures/measure_audio.py` — **exit 0**. Other inspection used Python file/receipt reads and WAV headers; I did **not** rerun the checker. Exact 29 commands, exits and receipt paths belong to non-author `r31-verifier.md`, not my own executions; notably `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-ui-joint-below` — verifier **exit 1**, and `python3 .shokunin/audio/corpus/fixtures/measure_audio.py --probe-invalid` — verifier **exit 1** with eight expected statuses.
+
+**Bounds and rank:** This is one measured pair, not a universal OR-law proof, exact cutoff equality, or causal isolation of duration from centroid. It does not establish perceptual similarity, audio quality, rights clearance, engine behavior, publishing readiness, or production use. Four SHONEN evidence boxes remain checked; **no rank change or promotion**. No shared source, LOG, SCORECARD, commit, or push by this adjudicator.
