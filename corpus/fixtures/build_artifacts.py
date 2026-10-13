@@ -189,6 +189,25 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_float32_probe():
+    out = OUT.parent / "live" / "round-53"
+    out.mkdir(parents=True, exist_ok=True)
+    n = np.arange(5760)
+    samples = .25*np.sin(2*np.pi*1000*n/RATE) + .08*np.sin(2*np.pi*1500*n/RATE)
+    pcm16 = np.rint(samples*32768).astype("<i2")
+    with wave.open(str(out / "pair_pcm16.wav"), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(RATE)
+        wav.writeframes(pcm16.tobytes())
+    floats = (pcm16.astype("<f4")/32768).astype("<f4").tobytes()
+    fmt = struct.pack("<HHIIHH", 3, 1, RATE, RATE*4, 4, 32)
+    header = (b"RIFF" + struct.pack("<I", 4+8+len(fmt)+8+len(floats))
+              + b"WAVEfmt " + struct.pack("<I", 16) + fmt
+              + b"data" + struct.pack("<I", len(floats)))
+    (out / "pair_float32.wav").write_bytes(header + floats)
+
+
 def build_ui_pcm8_probe():
     out = OUT.parent / "live" / "round-52"
     out.mkdir(parents=True, exist_ok=True)
@@ -579,8 +598,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-pcm16", action="store_true")
     parser.add_argument("--probe-ui-pcm8", action="store_true")
     parser.add_argument("--probe-ui-pcm16-r52", action="store_true")
+    parser.add_argument("--probe-ui-float32", action="store_true")
+    parser.add_argument("--probe-ui-pcm16-r53", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_pcm8 or args.probe_ui_pcm16_r52:
+    if args.probe_ui_float32 or args.probe_ui_pcm16_r53:
+        main()
+        build_ui_float32_probe()
+    elif args.probe_ui_pcm8 or args.probe_ui_pcm16_r52:
         main()
         build_ui_pcm8_probe()
     elif args.probe_ui_pcm24 or args.probe_ui_pcm16:

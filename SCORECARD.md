@@ -533,3 +533,13 @@ Named non-author `reports/round-51/r51-verifier.md`: **62 new unique receipts**,
 | calibration | **improved locally** | PCM8 `pcm_u8`/8 sole `format: expected PCM16` exit1; matched PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.3125`, RMS `-14.699802598426999dBFS`, centroid `1581.8516662990894Hz`; project SoX f32 vectors equal by `(u8-128)*256` construction. |
 
 Named non-author `reports/round-52/r52-verifier.md`: **64 fresh unique receipts**, 28 exit0/36 expected validation exit1, prior62 raw JSON exact subset27/35, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid, initial/final normal restoration. Executor initial scratch-root error was setup; parent's first author-mode receipts had wrong `normal` suffix until corrected (report-label integration error), not gate outcomes. Verifier ledger's semicolon joins two ambience failures; raw list has both. Sol `r52-adjudicator.md` admits with no demonstrated scoped harm; no selected failed numeric fit or corrected transcription. No broad codec/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-52/audio.md`.
+
+## Round 53 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Original matched ordinary UI IEEE-float32/PCM16 pair isolates existing PCM16 metadata predicate without tuning gates. Not a general float precision or header test. |
+| coverage | **improved locally** | Two opt-in modes extend the prior64 to 66 fresh commands; canonical corpus remains 17 and prior64 raw JSON is preserved. |
+| calibration | **improved locally** | Float `pcm_f32le`/32 sole `format: expected PCM16` exit1; PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.315399169921875`, RMS `-14.628083420045229dBFS`, centroid `1123.8154138173777Hz`; SoX-f32 decoded vectors equal for constructed PCM16-grid samples. |
+
+Named non-author `reports/round-53/r53-verifier.md`: **66 new unique receipts**, 29 exit0/37 expected validation exit1, prior64 exact JSON subset28/36, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. SoX warns `wave header missing extended part of fmt chunk` for simple float header but decodes exit0; no extensible-header/general-codec claim. Executor scratch path, simplifier quoting, scout malformed ffprobe are setup, not gates. Sol `r53-adjudicator.md` admits no demonstrated scoped harm, no selected numeric failed fit or corrected transcription. No general conversion/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-53/audio.md`.
