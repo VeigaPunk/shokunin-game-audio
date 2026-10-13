@@ -189,6 +189,18 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_extensible_valid0_probe():
+    out = OUT.parent / "live" / "round-60"
+    out.mkdir(parents=True, exist_ok=True)
+    values = [round(8191 * (.24*math.sin(2*math.pi*997*i/RATE) + .09*math.sin(2*math.pi*1633*i/RATE))) for i in range(5760)]
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    for valid in (0, 16):
+        fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, valid, 0x4) + guid
+        riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+        (out / f"pair_valid_{valid}.wav").write_bytes(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+
+
 def build_ui_extensible_valid13_probe():
     out = OUT.parent / "live" / "round-59"
     out.mkdir(parents=True, exist_ok=True)
@@ -710,8 +722,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-extensible-valid-16-r58", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-13-r59", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-16-r59", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-0-r60", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16-r60", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_extensible_valid_13_r59 or args.probe_ui_extensible_valid_16_r59:
+    if args.probe_ui_extensible_valid_0_r60 or args.probe_ui_extensible_valid_16_r60:
+        main()
+        build_ui_extensible_valid0_probe()
+    elif args.probe_ui_extensible_valid_13_r59 or args.probe_ui_extensible_valid_16_r59:
         main()
         build_ui_extensible_valid13_probe()
     elif args.probe_ui_extensible_valid_14_r58 or args.probe_ui_extensible_valid_16_r58:

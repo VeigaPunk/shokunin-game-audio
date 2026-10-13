@@ -603,3 +603,13 @@ Non-author `reports/round-58/r58-verifier.md`: **76 new unique receipts**, 38 ex
 | calibration | **improved locally** | Both ffprobe `pcm_s16le`/16 mono48k/.120s, peak `.659912109375`, RMS `-8.811743007017897dBFS`, centroid `2139.5871109211243Hz`, equal SoX-f32 decode, no failures, exit0 through unchanged gates. |
 
 Non-author `reports/round-59/r59-verifier.md` designated **78 new unique receipts**, 40 exit0/38 expected validation exit1, prior76 exact raw JSON subset38/38, canonical17 SHA/metrics and controls preserved. Separately, an *earlier* unnecessary complete 78-receipt run `131110`–`131231` is also raw evidence, identical JSON but distinct paths; the verifier attributed its repeat to mistaken in-memory state tracking. Original chronology “after” was report transcription, corrected; Sol correctly treated the cause as unknown from evidence available to it. Preliminary malformed shell quote exit127 produced **zero receipt** (setup, not gate). No selected failed numeric fit. No valid-bit enforcement/precision/fidelity, universal header/codec, audible/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-59/audio.md`.
+
+## Round 60 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Matched PCM16 extensible headers differ only at WAV byte38: malformed/unspecified valid-bits0 versus valid16 control; identical payload and decoded samples. Not a conforming positive case. |
+| coverage | **improved locally** | Two opt-in modes extend designated prior78 to 80 fresh commands; canonical17 and prior78 full JSON preserved. This is malformed-input coverage, not positive format conformance. |
+| calibration | **improved locally** | This host's ffprobe/SoX and unchanged gate do not reject this one valid0 header: both `pcm_s16le`/16 mono48k/.120s, peak `.082489013671875`, RMS `-26.87354274685677dBFS`, centroid `2139.5871109211243Hz`, no failures/exit0. |
+
+Non-author `reports/round-60/r60-verifier.md`: **80 new unique receipts**, 42 exit0/38 expected validation exit1, designated prior78 exact raw JSON subset40/38, canonical17 SHA/metrics and controls preserved. No verifier extra run or selected failed numeric fit. Critic's pre-integration unknown flag exit2 produced zero receipt (setup); simplifier's `inspect.py` shadowed stdlib in scratch generator exit1, corrected under isolated `python3 -I` (setup). Sol `r60-adjudicator.md` admits no scoped harm. No valid-bit enforcement/standards conformance, zero-bit audio, precision/fidelity, universal header/codec, audible quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-60/audio.md`.
