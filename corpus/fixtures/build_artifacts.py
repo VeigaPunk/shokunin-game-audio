@@ -142,6 +142,21 @@ def build_ui_mixed_pass_probe():
         save(name, .38 * np.sin(2 * np.pi * k * (700*t + 800*t*t)) * np.exp(-30*t), out)
 
 
+def build_outer_slope_probe():
+    out = OUT.parent / "live" / "round-41"
+    n = np.arange(96000)
+    pcm = np.rint(.15 * np.sin(2*np.pi*120*n/96000) * 32768).astype("<i2")
+    out.mkdir(parents=True, exist_ok=True)
+    for counts in (32, 33):
+        probe = pcm.copy()
+        probe[1] = 38 - counts
+        with wave.open(str(out / f"slope-{counts}.wav"), "wb") as wav:
+            wav.setnchannels(1)
+            wav.setsampwidth(2)
+            wav.setframerate(RATE)
+            wav.writeframes(probe.tobytes())
+
+
 def build_outer_endpoint_probe():
     out = OUT.parent / "live" / "round-40"
     n = np.arange(96000)
@@ -392,8 +407,13 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ambience-orientation-reverse", action="store_true")
     parser.add_argument("--probe-outer-endpoint-983", action="store_true")
     parser.add_argument("--probe-outer-endpoint-984", action="store_true")
+    parser.add_argument("--probe-outer-slope-32", action="store_true")
+    parser.add_argument("--probe-outer-slope-33", action="store_true")
     args = parser.parse_args()
-    if args.probe_outer_endpoint_983 or args.probe_outer_endpoint_984:
+    if args.probe_outer_slope_32 or args.probe_outer_slope_33:
+        main()
+        build_outer_slope_probe()
+    elif args.probe_outer_endpoint_983 or args.probe_outer_endpoint_984:
         main()
         build_outer_endpoint_probe()
     elif args.probe_ambience_orientation_forward or args.probe_ambience_orientation_reverse:
