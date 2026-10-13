@@ -173,6 +173,16 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     t = time(.36)
     noise_alt = np.random.default_rng(20261013).standard_normal(len(t))
     save("movement_alt", .30 * noise_alt * (1-np.exp(-180*t)) * np.exp(-15*t))
+    t = time(.30)
+    movement_rng = np.random.default_rng(3501)
+    movement_env = np.sin(np.pi*np.minimum(t/.012, 1)/2)**2 * np.exp(-t/.20)
+    movement_third = .52*movement_env*np.sin(2*np.pi*1800*t)
+    movement_attack = np.zeros(len(t))
+    attack_count = round(.012*RATE)
+    movement_attack[:attack_count] = movement_rng.normal(0, .07, attack_count) * np.exp(-np.arange(attack_count)/(RATE*.003))
+    movement_third += movement_attack
+    movement_third *= np.minimum(np.arange(len(t))/(RATE*.002), 1)
+    save("movement_third", np.clip(movement_third, -.9, .9))
     t = time(2)
     ambience = .15*np.sin(2*np.pi*12*t) + .09*np.sin(2*np.pi*36*t)
     if broken:

@@ -353,3 +353,13 @@ Thirteen older canonical hashes/metrics held, prior30 outcomes, eight invalid st
 | calibration | unchanged | `.020 s OR .10` thresholds, five generic `_alt` comparisons and ordinary limits unchanged. |
 
 Old fourteen canonical SHA/metrics, UI-family records, prior31 outcomes, eight invalid statuses and restored normals held; replay 11 exit0/21 expected exit1/no runner setup failures. Executor's two failed helper path/type setups excluded. Each `.08000000000000002 s` impact duration delta alone would pass OR; centroid scalar does not show spectral-distribution/perceptual novelty. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-34/audio.md`.
+
+## Round 35 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Existing format/level/duration/whole-wave centroid checks on one more original WAV; no new detector or audition. |
+| coverage | **improved narrowly** | Before `56f2b0f`, 15 canonical WAVs and two movements; named non-author 33-run replay `reports/round-35/r35-verifier.md` verifies 16 canonical WAVs including `movement_third` .30s/14400 frames 48k mono PCM16, SHA `0e5f815e1987e13646170571e1f1e977b25e3566d90ebcca558c72ed07851d44`, ordinary failures []; explicit comparisons pass both duration and centroid arms. Sol `r35-adjudicator.md` admits analytical coverage only. |
+| calibration | unchanged | `.020 s OR .10` cutoffs, ordinary limits and five generic `_alt` comparisons unchanged; new fixture inherits the movement band. |
+
+Old fifteen canonical SHA/metrics, UI/impact family records, prior32 outcomes, eight invalid statuses and normal restores held; replay 12 exit0/21 expected exit1/no runner setup failures. Wave-one command/path failures excluded. Each `.06 s` movement duration gap alone passes OR; centroid scalar does not show spectral-distribution/perceptual novelty. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-35/audio.md`.
