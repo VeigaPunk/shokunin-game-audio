@@ -553,3 +553,13 @@ Named non-author `reports/round-53/r53-verifier.md`: **66 new unique receipts**,
 | calibration | **improved locally** | PCM32 `pcm_s32le`/32 sole `format: expected PCM16` exit1; PCM16 `pcm_s16le`/16 clean exit0. Both mono48k/5760 frames/.120s, peak `.31536865234375`, RMS `-14.628519169868087dBFS`, centroid `1123.322704293326Hz`; SoX-f32 vectors equal by `s16*65536` construction. |
 
 Named non-author `reports/round-54/r54-verifier.md`: **68 new unique receipts**, 30 exit0/38 expected validation exit1, prior66 exact raw JSON subset29/37, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. Sol `r54-adjudicator.md` admits no demonstrated scoped harm; wave1 pre-integration proposed flags/results are not replay evidence. No selected numeric failed fit or corrected transcription. No arbitrary PCM32, general codec/conversion/fidelity, audibility/quality, production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-54/audio.md`.
+
+## Round 55 verdict — 2026-10-13
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | Same 5760 signed16 samples through conventional tag1/fmt16 and exact WAVE_FORMAT_EXTENSIBLE tag0xfffe/fmt40 valid16 front-center-mask0x4 PCM-subtype headers, equal SoX-f32 decoded vectors and UI measurements. No new valid-bit/fidelity claim. |
+| coverage | **improved locally** | Two opt-in modes extend prior68 to 70 new commands; canonical17 and prior68 exact JSON preserved. One specified extensible header, not universal coverage. |
+| calibration | **improved locally** | Both headers ffprobe `pcm_s16le`/16, mono48k/.120s, peak `.31536865234375`, RMS `-14.628519169868087dBFS`, centroid `1123.322704293326Hz`, no failures, exit0 through unchanged PCM16/UI gates. Positive representation control complements earlier negative width/codec controls. |
+
+Named non-author `reports/round-55/r55-verifier.md`: **70 new unique receipts**, 32 exit0/38 expected validation exit1; prior68 exact JSON subset30/38, canonical17 SHA/metrics, five generic/four family, thresholds/sections/eight invalid and normal restoration. Sol `r55-adjudicator.md` admits no demonstrated scoped harm. Guard's extensible WAV SHA was a report transcription error; integrated SHA `bd7d95901935c0effe21fd64e44a47487372be9d0c80f86cc725380df0352f47` is confirmed independently, so guard transcription is not gate evidence. No selected numeric failed fit or receiptless verifier setup error. No universal extensible support, general codec/fidelity/audibility/quality/production/rights/engine/publishing/promotion inference. Work hash in `.shokunin/reports/round-55/audio.md`.

@@ -1,0 +1,17 @@
+# R55 reviewer — standard/extensible PCM16 UI probe wiring
+
+## Scope and evidence
+
+Source-only review of the R55 declaration in `.shokunin/audio/LOG.md`, R54 source in `corpus/fixtures/build_artifacts.py` and `measure_audio.py`, and the R54 reviewer/executor/alternate reports. I made no source edits and ran no build, probe, measurement, syntax, or replay commands. Therefore this report makes no runtime claim and has no measured metadata, metrics, command exit codes, or receipts.
+
+At review time, the builder and runner expose the R54 flags `--probe-ui-pcm32` / `--probe-ui-pcm16-r54`; no R55 standard-vs-extensible options, builder path, supplementary measurement, mode, or run suffix are present. The R54 reviewer describes a suitable narrow precedent, but its recommendation must be adapted from two bit-depth files to two container headers. Existing `measure()` calls ffprobe and SoX, applies unchanged `format_failures()` and UI numeric checks, and returns a receipt; R55 should use this as-is, without modifying predicate/spec/thresholds or canonical fixtures.
+
+## Minimal wiring recommendation
+
+- **Builder:** add only `--probe-ui-extensible-pcm16` and `--probe-ui-standard-pcm16-r55`, include them in the probe dispatch alongside the existing R54 family, and write `corpus/live/round-55/pair_extensible_pcm16.wav` and `pair_standard_pcm16.wav`. Use one shared 5,760-frame mono/48,000-Hz signed PCM16 sample array for both. Standard must be PCM `fmt` tag 1 / 16-byte `fmt`; extensible must be tag `0xfffe` / 40-byte `fmt`, `cbSize=22`, valid bits 16, channel mask `0x4` (mono front-center), and the PCM subtype GUID bytes for `00000001-0000-0010-8000-00aa00389b71`. Both data chunks must contain exactly the same little-endian signed16 bytes and have consistent RIFF/data sizes. Keep the two names and paths distinct; do not route through or overwrite the R54 builder.
+- **Runner:** declare both flags, add both to the existing one-probe-mode sum and forward the selected flag to the builder. Add one supplementary `measure(name, SPECS["ui"], path)` receipt for the selected R55 WAV only; preserve all canonical `SPECS` measurements and lists. Set distinct R55 mode and run-directory suffix labels. Do not modify `format_failures()`, `SPECS["ui"]`, thresholds, canonical artifacts, normal mode, or the existing R54 flags.
+- **Expected review target (not observed):** for each separate invocation, confirm ffprobe `codec_name=pcm_s16le`, `bits_per_sample=16`, 48,000 Hz, mono, `.120000` s; both receipts should have empty failures and identical numeric metrics, with each runner exit 0. Compare SoX-f32-decoded vectors for exact equality. Verify the two R55 flags together are rejected by the existing mode guard (argparse exit 2) before builder/receipt side effects. Preserve artifacts and report exact command/exit evidence in executor/verifier reports; these are recommendations, not results from this review.
+
+## Limits
+
+This proposed matched pair tests only these particular standard and extensible PCM16 WAV headers with the declared channel mask and PCM subtype. It does not establish universal WAVE_FORMAT_EXTENSIBLE support, other channel layouts/subtypes/valid-bit combinations, general WAV decoding, fidelity, audibility, quality, production compatibility, rights, or promotion. No source, LOG, SCORECARD, canonical artifact, or other report was changed; no commit or push was made.
