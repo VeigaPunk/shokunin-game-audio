@@ -162,6 +162,10 @@ def main(broken=False, slope_probe=False, flat_probe=False, layer_flat_probe=Fal
     save("impact_alt", .55*np.sin(2*np.pi*95*t)*np.exp(-14*t)
          + .25*np.sin(2*np.pi*340*t)*np.exp(-35*t)
          + .12*np.sin(2*np.pi*900*t)*np.exp(-50*t))
+    t = time(.40)
+    impact_noise = np.random.default_rng(3401).standard_normal(len(t))
+    save("impact_third", .38*np.sin(2*np.pi*2200*t)*np.exp(-11*t)
+         + .045*impact_noise*np.exp(-80*t))
     t = time(.24)
     noise = rng.standard_normal(len(t))
     # A short broadband step, with a rounded onset and decay.

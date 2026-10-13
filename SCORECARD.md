@@ -343,3 +343,13 @@ Longer variant ordinary check uses separately declared scratch expected duration
 | calibration | unchanged | Existing `.020 OR .10` cutoffs, generic five `_alt` comparisons, and ordinary limits unchanged. |
 
 Thirteen older canonical hashes/metrics held, prior30 outcomes, eight invalid statuses, thresholds and normal restoration held. Executor's two initial helper-path failures excluded. Duration-only distinction from `ui` is **not** spectral/perceptual novelty. No listening, asset quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-33/audio.md`.
+
+## Round 34 verdict — 2026-10-13
+
+| axis | verdict | before → after evidence |
+|---|---|---|
+| depth | unchanged | Existing format/level/duration/whole-wave centroid checks applied to one additional original WAV; no new measurement dimension or audition. |
+| coverage | **improved narrowly** | Before `d6bfc6e`, 14 canonical WAVs, impact family two; non-author 32-run replay `reports/round-34/r34-verifier.md` verifies 15 deterministic canonical WAVs incl `impact_third` .40s/19200 frames 48k mono PCM16, SHA `d14376241f409f07edde30fbcef86b5f060ff36f731b7578fd9934d1dc1b39bf`, ordinary failures []; two explicit impact-family pairs pass both numeric duration and centroid arms. Named Sol `r34-adjudicator.md` admits only analytical fixture coverage. |
+| calibration | unchanged | `.020 s OR .10` thresholds, five generic `_alt` comparisons and ordinary limits unchanged. |
+
+Old fourteen canonical SHA/metrics, UI-family records, prior31 outcomes, eight invalid statuses and restored normals held; replay 11 exit0/21 expected exit1/no runner setup failures. Executor's two failed helper path/type setups excluded. Each `.08000000000000002 s` impact duration delta alone would pass OR; centroid scalar does not show spectral-distribution/perceptual novelty. No audition, quality, production, rights, engine, publishing or promotion inference. Work hash in `.shokunin/reports/round-34/audio.md`.

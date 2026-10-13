@@ -1,0 +1,32 @@
+# Round 34 Sol adjudication — audio (non-author)
+
+**Verdict: admit the declared ONE coverage move, narrowly.** Clean-before revision: `d6bfc6ea374e634fd6eb1322030d014612ff98cb`. The claim was a third original, deterministic canonical impact fixture and explicit comparisons to both earlier impacts, not a new audio-quality dimension. I read the Round 34 LOG, all eight wave-one reports (`r34-{scout,executor,alt,critic,reviewer,simplifier,scribe,guard}.md`), named non-author `r34-verifier.md`, source/artifact diff, and author/non-author receipts. The delivered change is one `impact_third.wav`, a deterministic builder expression, one spec, and a separately named `impact_family_comparisons` record; the generic `_alt` logic and cutoffs are not changed.
+
+| Owned axis | Verdict | Before → delivered evidence |
+|---|---|---|
+| **coverage** (declared move) | **improved** | 14 → 15 canonical WAVs and impact family 2 → 3. Source-generated original `.40 s` impact plus two explicit numeric pair receipts pass ordinary and pair checks; named non-author 32-command replay confirms restoration and old behavior. |
+| depth | **unchanged** | Existing duration/format/level/FFT centroid and other checks are applied to one more fixture; no new measurement dimension or perceptual evaluation. |
+| calibration | **unchanged** | The existing local `.020 s OR .10` rule and thresholds are held; adding another comparison does not validate those thresholds as a perceptual rule. |
+
+Admission rule: at least one improved and zero demonstrated scoped harm; **met**. This is analytical fixture coverage only, not a claim that the sound is spectrally novel or perceptually different. In particular, each `.08000000000000002 s` duration gap independently passes the OR rule; the centroid is a single lossy scalar, not a spectrum comparison. The critic's duration/truncation challenge prevents an inference of spectral-distribution or perceptual novelty even though both centroid arms pass.
+
+## Delivered source, artifact, and measured comparisons
+
+The builder adds `impact_third` from a `.38`-amplitude 2200 Hz decaying tone plus `.045` seeded (`default_rng(3401)`) exponentially decaying noise; `SPECS["impact_third"] = (.40, 50, 15000, False)`. It does not copy an existing impact or use an external source file. The emitted WAV has **19,200 frames, 48 kHz, mono PCM16**, duration **0.4 s**, SHA-256 **`d14376241f409f07edde30fbcef86b5f060ff36f731b7578fd9934d1dc1b39bf`**. Normal receipt: peak `.45611572265625` full scale, RMS `-20.84958464133168` dBFS, centroid `6838.143302962279` Hz, ordinary failures `[]`. These meet the declared local format, peak, RMS and 50–15000 Hz centroid-band gates. The integrated hash equals the selected independent alt scratch candidate; executor's separately fitting candidate was *not* selected. Reviewer/simplifier scratch proposals were unused and removed by the parent, so their values are not delivery evidence.
+
+| Explicit comparison | Absolute duration delta (s) | Baseline-relative centroid delta | Existing OR outcome |
+|---|---:|---:|---|
+| `impact` → `impact_third` | `0.08000000000000002` | `0.36935690461299725` | pass, both arms |
+| `impact_alt` → `impact_third` | `0.08000000000000002` | `13.432810187572105` | pass, both arms |
+
+Direct inspection of the 32 non-author JSON receipts under `.shokunin/audio/corpus/live/runs/20261013T032822674797Z-normal/` through `20261013T032851712243Z-normal/` confirms 15 canonical entries in each valid mode (some probe modes additionally include probe measurements); invalid mode #29 is a separate eight-probe receipt without the canonical measurement set. The 14 pre-existing artifact files have the 14 clean-before hashes listed in `r34-guard.md` and `r34-verifier.md`, unchanged on disk; all 14 existing normal measurement records equal the pre-integration normal receipt, while the generic five (`ui_alt`, `impact_alt`, `movement_alt`, `ambience_alt`, `stem_layer_alt`) and `ui_family_comparisons` equal that receipt too. Old threshold keys and old centroid bands match; only the new fixture's band is added. #1, #30, #31 and #32 normal receipts are equal (even before excluding measurement paths). No demonstrated scoped regression appears in these tested invariants.
+
+## Replay and limits
+
+Named non-author `r34-verifier.md` records **32 serial exact runner commands with exits and receipt paths**: 11 exit 0, 21 *expected* exit 1, zero runner exit 2 or verifier setup errors. Its prior31 subset #1–#31 is 10 exit 0 / 21 expected exit 1; #32 is an extra normal restore. UI threshold/boundary comparisons and earlier layer/loop probes retain expected outcomes. Invalid #29 retains eight expected statuses: `short_sections` section-count failure, `corrupt` decode failure, `wrong_format` format failure, `odd_sections` section-count failure, `native16_probe` pass, `native24_probe` format failure, `stereo48_probe` format failure, and `mono441_probe` format failure. The executor's first **two** direct-measure attempts each exited 1 due to helper input path/type setup, and produced no usable measurement; only its corrected exit-0 scratch measurement counts. This does not alter the selected candidate or non-author replay. No auditory quality, production readiness, rights, engine compatibility, publishing, or promotion inference is supported.
+
+The **four SHONEN boxes are already checked**, each with an existing named non-author evidence pointer; this round changes no rank and claims no promotion. No shared source, LOG, SCORECARD, canonical artifact, commit, push, or other report was edited by this adjudicator.
+
+### Commands and provenance
+
+My shell inspections, all exit **0**: `git status --short; git rev-parse HEAD; git show --stat --oneline d6bfc6e..HEAD` (current HEAD remained `d6bfc6e...`, with Round 34 source/artifact work uncommitted); `git diff -- .shokunin/audio/corpus/fixtures/build_artifacts.py .shokunin/audio/corpus/fixtures/measure_audio.py .shokunin/audio/LOG.md`; `git diff --check`. Read-only Python inspection compared WAV headers/SHA-256, prior/current JSON objects and the 32 receipt files; I did **not** rerun the project measurement runner. Exact replay commands, per-command exits and paths are in the independent `r34-verifier.md` table; author normal `python3 .shokunin/audio/corpus/fixtures/measure_audio.py` exited 0 at `corpus/live/runs/20261013T032603527866Z-normal/measurements.json`. This adjudication is before parent commit, not a claim about a later committed state.
