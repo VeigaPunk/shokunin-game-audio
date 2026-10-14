@@ -1,0 +1,152 @@
+name	codec	pkts	detected	nat_cnt	act_cnt	note
+## A1 declBPS x valid disagreement (patch 34/38 only; ba2 br96000)						
+A1_d24_v16	pcm_s16le,1	[8192, 3328]	act	5760	5760	decl=24 valid=16
+A1_d32_v8	pcm_u8,1	[4096, 4096, 3328]	act	11520	11520	decl=32 valid=8
+A1_d8_v24	pcm_s24le,1	[8192, 3328]	act	3839	3839	decl=8 valid=24
+A1_d32_v16	pcm_s16le,1	[8192, 3328]	act	5760	5760	decl=32 valid=16
+A1_d8_v57	pcm_s64le,1	[11520]	act	1440	1440	decl=8 valid=57
+A1_d24_v32	pcm_s32le,1	[11520]	act	2880	2880	decl=24 valid=32
+A1_d64_v8	pcm_u8,1	[4096, 4096, 3328]	act	11520	11520	decl=64 valid=8
+A1_d0_v17	pcm_s24le,1	[8192, 3328]	act	3839	3839	decl=0 valid=17
+A1_d24_v0	pcm_s24le,1	[8192, 3328]	act	3839	3839	decl=24 valid=0
+A1_d32_v0	pcm_s32le,1	[11520]	act	2880	2880	decl=32 valid=0
+A1_d0_v0	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	decl=0 valid=0
+A1_d57_v0	pcm_s64le,1	[11520]	act	1440	1440	decl=57 valid=0
+A1_d16_v0	pcm_s16le,1	[8192, 3328]	act	5760	5760	decl=16 valid=0
+## A2 tag gate: same valid17 bytes, wFormatTag non-extensible						
+A2_tag0001_pcm	pcm_s16le,1	[8192, 3328]	act	5760	5760	tag=1: valid17 -> extradata?
+A2_tag0003_flt	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	tag=3 float,bps16->none?
+A2_tag0006_alaw	pcm_alaw,1	[4096, 4096, 3328]	act	11520	11520	tag=6 alaw declared path
+## A3 cbSize gate at fixed valid17 (patch @36 only)						
+A3_cb0	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	cbSize=0
+A3_cb1	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	cbSize=1
+A3_cb20	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	cbSize=20
+A3_cb21	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	cbSize=21
+A3_cb22	pcm_s24le,1	[8192, 3328]	act	3839	3839	cbSize=22
+A3_cb23	pcm_s24le,1	[8192, 3328]	act	3839	3839	cbSize=23
+A3_cb24	pcm_s24le,1	[8192, 3328]	act	3839	3839	cbSize=24
+A3_cb65535	pcm_s24le,1	[8192, 3328]	act	3839	3839	cbSize=65535
+## A4 fmt_size gate (structural rebuild; valid17 GUID present)						
+A4_fmt16	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	fmt_size=16
+A4_fmt18	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	fmt_size=18
+A4_fmt38	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	fmt_size=38
+A4_fmt39	ERR:[wav @ 0x5603235f8f40] no 'data' tag found
+/home/vgpnk/Proje	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	fmt_size=39
+A4_fmt40	pcm_s24le,1	[8192, 3328]	act	3839	3839	fmt_size=40
+A4_fmt42	pcm_s24le,1	[8192, 3328]	act	3839	3839	fmt_size=42
+A4_fmt64	pcm_s24le,1	[8192, 3328]	act	3839	3839	fmt_size=64
+## A5 subformat GUID tag @44 (valid17; PCM tail kept)						
+A5_g0001_pcm	pcm_s24le,1	[8192, 3328]	act	3839	3839	guidtag=0x1
+A5_g0003_float	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guidtag=0x3
+A5_g0006_alaw	pcm_alaw,1	[4096, 4096, 3328]	act	11520	11520	guidtag=0x6
+A5_g0007_mulaw	pcm_mulaw,1	[4096, 4096, 3328]	act	11520	11520	guidtag=0x7
+A5_g0002_adpcm_ms	adpcm_ms,1	[2048, 2048, 2048, 2048, 2048, 1280]	act	0	0	guidtag=0x2
+A5_g0011_ima_adpcm	ERR:[adpcm_ima_wav @ 0x55b6cb5c5e40] Decoder requires channel la	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guidtag=0x11
+A5_g0055_mp3	mp3,1	[11520]	act	0	0	guidtag=0x55
+A5_g2000_ac3	ac3,1	[11520]	act	0	0	guidtag=0x2000
+A5_g0000_zero	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guidtag=0x0
+A5_gffff_ffff	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guidtag=0xffff
+## A6 GUID tail corruption @59 (0x71->0x72) + tail=0						
+A6_tail72	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guid tail not base -> guid-table lookup
+A6_tail00	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	guid tail zeroed
+## A7 valid high byte (offset39): 256/512/1024/4096/65535						
+A7_v256	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	valid=256
+A7_v512	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	valid=512
+A7_v1024	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	valid=1024
+A7_v4096	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	valid=4096
+A7_v65535	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	valid=65535
+## A8 mask/channels/rate edge inputs (valid17)						
+A8_ch0_mask4	ERR:[pcm_s24le @ 0x55ff6b261e40] Decoder requires channel layout	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	{'ch': 0, 'mask': 4, 'ba': 2, 'br': 96000}
+A8_ch0_mask0	ERR:[pcm_s24le @ 0x55868f98ee40] Decoder requires channel layout	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	{'ch': 0, 'mask': 0, 'ba': 2, 'br': 96000}
+A8_rate0	ERR:[wav @ 0x563589dcef40] Invalid sample rate: 0
+/home/vgpnk/Pr	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	{'rate': 0, 'br': 0}
+A8_mask0	pcm_s24le,1	[8192, 3328]	act	3839	3839	{'mask': 0}
+A8_mask3	pcm_s24le,1	[8192, 3328]	act	3839	3839	{'mask': 3}
+## B1 block_align sweep at fixed valid17 (patch @32)						
+B1_ba0	pcm_s24le,1	[4096, 4096, 3328]	act	3839	3839	ba=0
+B1_ba1	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=1
+B1_ba2	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=2
+B1_ba3	pcm_s24le,1	[11520]	act	3840	3840	ba=3
+B1_ba4	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=4
+B1_ba5	pcm_s24le,1	[10240, 1280]	act	3839	3839	ba=5
+B1_ba6	pcm_s24le,1	[11520]	act	3840	3840	ba=6
+B1_ba7	pcm_s24le,1	[11520]	act	3840	3840	ba=7
+B1_ba8	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=8
+B1_ba12	pcm_s24le,1	[11520]	act	3840	3840	ba=12
+B1_ba16	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=16
+B1_ba8192	pcm_s24le,1	[8192, 3328]	act	3839	3839	ba=8192
+B1_ba16384	pcm_s24le,1	[11520]	act	3840	3840	ba=16384
+B1_ba40000	pcm_s24le,1	[11520]	act	3840	3840	ba=40000
+B1_ba65535	pcm_s24le,1	[11520]	act	3840	3840	ba=65535
+## B2 byte_rate sweep at fixed valid17 (patch @28)						
+B2_br0	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=0
+B2_br1	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=1
+B2_br48000	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=48000
+B2_br96000	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=96000
+B2_br192000	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=192000
+B2_br4000000	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=4000000
+B2_br4294967295	pcm_s24le,1	[8192, 3328]	act	3839	3839	byte_rate=4294967295
+## B3 channels/stereo geometry						
+B3_ch2_v17	pcm_s24le,2	[11520]	act	3840	3840	stereo v17, ba4
+B3_ch2_v24	pcm_s24le,2	[11520]	act	3840	3840	stereo v24 ba4
+B3_ch2_v24_ba8	pcm_f24le,2	[11520]	act	2880	2880	stereo v24 ba8
+B3_ch3_v17	pcm_s24le,3	[11520]	act	3840	3840	3ch v17 ba6
+B3_ch1_ba4_v17	pcm_s24le,1	[8192, 3328]	act	3839	3839	mono v17 ba4 (ba==ch*4 but bps17)
+## B4 data_size edges (valid17; natural route needs len>256)						
+B4_n1	pcm_s24le,1	[1]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	0	data=1
+B4_n2	pcm_s24le,1	[2]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	0	data=2
+B4_n3	pcm_s24le,1	[3]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	1	data=3
+B4_n4	pcm_s24le,1	[4]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	1	data=4
+B4_n6	pcm_s24le,1	[6]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	2	data=6
+B4_n7	pcm_s24le,1	[7]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	2	data=7
+B4_n8	pcm_s24le,1	[8]	wav	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	2	data=8
+B4_n189	pcm_s24le,1	[189]	act	63	63	data=189
+B4_n8190	pcm_s24le,1	[8190]	act	2730	2730	data=8190
+B4_n8191	pcm_s24le,1	[8191]	act	2730	2730	data=8191
+B4_n8192	pcm_s24le,1	[8192]	act	2730	2730	data=8192
+B4_n8193	pcm_s24le,1	[8192, 1]	act	2730	2730	data=8193
+B4_n8194	pcm_s24le,1	[8192, 2]	act	2730	2730	data=8194
+B4_n8195	pcm_s24le,1	[8192, 3]	act	2731	2731	data=8195
+B4_n8196	pcm_s24le,1	[8192, 4]	act	2731	2731	data=8196
+B4_n11517	pcm_s24le,1	[8192, 3325]	act	3838	3838	data=11517
+B4_n11518	pcm_s24le,1	[8192, 3326]	act	3838	3838	data=11518
+B4_n11519	pcm_s24le,1	[8192, 3327]	act	3839	3839	data=11519
+B4_n11520	pcm_s24le,1	[8192, 3328]	act	3839	3839	data=11520
+B4_n11521	pcm_s24le,1	[8192, 3329]	act	3839	3839	data=11521
+B4_n16383	pcm_s24le,1	[8192, 8191]	act	5460	5460	data=16383
+B4_n16384	pcm_s24le,1	[8192, 8192]	act	5460	5460	data=16384
+B4_n16385	pcm_s24le,1	[8192, 8192, 1]	act	5460	5460	data=16385
+B4_n16387	pcm_s24le,1	[8192, 8192, 3]	act	5461	5461	data=16387
+B4_n32768	pcm_s24le,1	[8192, 8192, 8192, 8192]	act	10920	10920	data=32768
+B4_n32769	pcm_s24le,1	[8192, 8192, 8192, 8192, 1]	act	10920	10920	data=32769
+B4_n32771	pcm_s24le,1	[8192, 8192, 8192, 8192, 3]	act	10921	10921	data=32771
+B4_n40000	pcm_s24le,1	[8192, 8192, 8192, 8192, 7232]	act	13330	13330	data=40000
+## B5 declared data_size vs physical payload						
+B5_decl8192	pcm_s24le,1	[8192]	act	2730	2730	decl 8192 < phys 11520
+B5_decl11520_phys8192	pcm_s24le,1	[8192]	act	2730	2730	decl 11520 > phys 8192
+B5_decl6	pcm_s24le,1	[6]	act	2	2	decl 6 < phys
+B5_decl20000	pcm_s24le,1	[8192, 3328]	act	3839	3839	decl 20000 > phys 11520
+## B6 data-chunk continuation (find_tag after data_end)						
+B6_8194+data3000	pcm_s24le,1	[3000]	act	1000	1000	chunk1 8194(subframe tail)+data2 3000
+B6_8192+data3000	pcm_s24le,1	[3000]	act	1000	1000	chunk1 8192 + data2 3000
+B6_8192+junk+data3000	pcm_s24le,1	[3000]	act	1000	1000	chunk1 8192 + JUNK + data2
+B6_full+data3000	pcm_s24le,1	[3000]	act	1000	1000	full 11520 + data2 3000
+B6_tail_text	pcm_s24le,1	[]	act	0	0	tail 'data'+size=0xFFFFFFFF (overread probe)
+B6_tail_fakedata_in_payload	pcm_s24le,1	[8192, 3332]	act	3840	3840	payload region containing 'data' tag+size inside data chunk
+## B7 hidden codec flips via block_align/extradata						
+B7_v24_ba4	pcm_f24le,1	[11520]	act	2880	2880	v24+ba4 mono -> f24le?
+B7_v24_ba2	pcm_s24le,1	[8192, 3328]	act	3839	3839	v24+ba2 control
+B7_v17_ba4	pcm_s24le,1	[8192, 3328]	act	3839	3839	v17+ba4 (bps!=24 no flip)
+B7_v32_ba4_ext1	pcm_f16le,1	[11520]	act	2880	2880	v32+ba4+cb24+ext{01 00} -> f16le?
+B7_v32_ba4_ext0	pcm_s32le,1	[11520]	act	2880	2880	v32+ba4+cb24+ext{00 00} control
+B7_v32_ba2_ext1	pcm_s32le,1	[11520]	act	2880	2880	v32+ba2+ext{01} ba!=4 control
+## C1 channels=0 -> decoder EINVAL while ffprobe names codec						
+C1_ch0	ERR:[pcm_s24le @ 0x55bab1502d80] Decoder requires channel layout	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	ch=0 mask=4
+C1_ch0_m0	ERR:[pcm_s24le @ 0x55dcbf17ad80] Decoder requires channel layout	[]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	ch=0 mask=0
+## C2 non-PCM subformat codecs vs count law (valid17)						
+C2_float_v17	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	float GUID + v17 -> flt17 none?
+C2_float_v32	pcm_f32le,1	[11520]	act	2880	2880	float GUID + v32 -> f32le
+C2_float_v24	unknown,1	[8192, 3328]	act	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	X2:sox FAIL formats: can't open input file `/home/vgpnk/Project	float GUID + v24 -> none hole
+## C3 au wire encoding per negotiated codec						
+## C4 valid=0 fallback reads DECLARED bps						
+## C5 native-route contrast on codec-NONE variant						

@@ -1,0 +1,24 @@
+=== ffprobe on NONE-codec variant (valid=33) ===
+[wav @ 0x5629d040fc40] Estimating duration from bitrate, this may be inaccurate
+[wav @ 0x5629d040fc40] Could not find codec parameters for stream 0 (Audio: none ([1][0][0][0] / 0x0001), 48000 Hz, mono, 768 kb/s): unknown codec
+Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
+Input #0, wav, from 'variants/s_valid_00033.wav':
+  Duration: 00:00:00.12, bitrate: 772 kb/s
+  Stream #0:0: Audio: none ([1][0][0][0] / 0x0001), 48000 Hz, mono, 768 kb/s
+Unsupported codec with id 0 for input stream 0
+
+=== ffmpeg direct on valid=33 ===
+  [in#0/wav @ 0x555783a96cc0] Could not find codec parameters for stream 0 (Audio: none ([1][0][0][0] / 0x0001), 48000 Hz, mono, 768 kb/s): unknown codec
+  Consider increasing the value for the 'analyzeduration' (0) and 'probesize' (5000000) options
+  Input #0, wav, from 'variants/s_valid_00033.wav':
+    Duration: 00:00:00.12, bitrate: 772 kb/s
+    Stream #0:0: Audio: none ([1][0][0][0] / 0x0001), 48000 Hz, mono, 768 kb/s
+  [aist#0:0/none @ 0x555783a97400] Decoding requested, but no decoder found for: none
+  Error opening output file -.
+  Error opening output files: Invalid argument
+
+=== ffprobe stream valid=57 ===
+codec_name=pcm_s64le
+sample_rate=48000
+bits_per_sample=64
+duration_ts=1440

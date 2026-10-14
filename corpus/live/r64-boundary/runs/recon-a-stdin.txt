@@ -1,0 +1,28 @@
+=== A1. pipe stdin: cat pair_route_84 | sox - -n stat ===
+sox FAIL formats: can't open input  `-': can't find Sun/NeXT/DEC identifier
+exit: 2
+
+=== A2. seekable stdin: sox - -n stat < pair_route_84 ===
+sox FAIL formats: can't open input  `-': premature EOF
+exit: 0
+
+=== A3. -V6 pipe stdin (full stderr) ===
+sox INFO formats: detected file format type `act'
+sox FAIL formats: can't open input  `-': can't find Sun/NeXT/DEC identifier
+
+=== A4. non-trigger via pipe: cat pair_route_00 | sox - -n stat ===
+sox FAIL formats: can't open input  `-': number of valid bits exceeds the number of bits per sample
+exit: 2
+=== A5. forced act on PIPE stdin: cat route_84 | sox -t act - -n stat ===
+Samples read:              3839
+exit-sox: 0
+
+=== A6. forced act on FILE stdin: sox -t act - -n stat < route_84 ===
+Samples read:              3839
+exit: 0
+
+=== A7. forced wav on PIPE stdin: cat route_84 | sox -t wav - -n stat ===
+sox FAIL formats: can't open input  `-': number of valid bits exceeds the number of bits per sample
+
+=== A8. forced ffmpeg on PIPE stdin: cat route_84 | sox -t ffmpeg - -n stat ===
+Samples read:              3839

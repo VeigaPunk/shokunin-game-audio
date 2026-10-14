@@ -189,6 +189,30 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_validbits_steps_r64_probe():
+    out = OUT.parent / "live" / "round-64"
+    out.mkdir(parents=True, exist_ok=True)
+    # r64's sweep pinned the wValidBitsPerSample -> codec step map under the
+    # act-forced ffmpeg bridge (74 variants, corpus/live/r64-author/results.tsv):
+    # nonzero valid V sets bits_per_coded_sample=V; ff_get_pcm_codec_id maps
+    # w=(V+7)>>3 bytes -> pcm_u8(w1) | s16le(w2) | s24le(w3) | s32le(w4) |
+    # none(w5..7) | s64le(w8); V>64 -> none. These three pairs straddle three
+    # different step boundaries: {8,9} u8|s16le (the unsigned special case),
+    # {24,25} s24le|s32le (tight straddle; r62's pair was the loose 24|32),
+    # {56,57} none|s64le (the codec map's return after the dead band).
+    # Byte 256 is pinned to 0x84 by assignment so every member keeps the
+    # act-detected default route (r63 predicate: RIFF@0 AND file[256]==0x84).
+    values = [round(8191 * (.25*math.sin(2*math.pi*920*i/RATE) + .10*math.sin(2*math.pi*1380*i/RATE))) for i in range(5760)]
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    for valid in (8, 9, 24, 25, 56, 57):
+        fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, valid, 0x4) + guid
+        riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+        blob = bytearray(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+        blob[256] = 0x84
+        (out / f"pair_valid_{valid}.wav").write_bytes(blob)
+
+
 def build_ui_route_act_r63_probe():
     out = OUT.parent / "live" / "round-63"
     out.mkdir(parents=True, exist_ok=True)
@@ -790,8 +814,19 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-extensible-valid-32-r62", action="store_true")
     parser.add_argument("--probe-ui-route-act-84-r63", action="store_true")
     parser.add_argument("--probe-ui-route-act-00-r63", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-8-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-9-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-24-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-25-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-56-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-57-r64", action="store_true")
     args = parser.parse_args()
-    if args.probe_ui_route_act_84_r63 or args.probe_ui_route_act_00_r63:
+    if (args.probe_ui_extensible_valid_8_r64 or args.probe_ui_extensible_valid_9_r64
+            or args.probe_ui_extensible_valid_24_r64 or args.probe_ui_extensible_valid_25_r64
+            or args.probe_ui_extensible_valid_56_r64 or args.probe_ui_extensible_valid_57_r64):
+        main()
+        build_ui_validbits_steps_r64_probe()
+    elif args.probe_ui_route_act_84_r63 or args.probe_ui_route_act_00_r63:
         main()
         build_ui_route_act_r63_probe()
     elif args.probe_ui_extensible_valid_24_r62 or args.probe_ui_extensible_valid_32_r62:
