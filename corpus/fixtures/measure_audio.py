@@ -1799,12 +1799,15 @@ def main():
     if args.probe_consumers_r73:
         # r73: CONSUMER class — pw-cat (PipeWire realtime playback) + mpv
         # (lavf detect/decode) on the canonical member x transport matrix.
-        # A NEW parallel ledger family, prior rows untouched. The claim
-        # under test — consumer verdicts partition by mandatory-seek vs
-        # stream-consume polarity, opposite of the decoder {named} axis —
-        # is measured per member per consumer: pw-cat's libsndfile decode
-        # layer inherits the post-sniff extension fallback (named axis),
-        # mpv forks decode on the stream's seekable bit (mandatory-seek).
+        # A NEW parallel ledger family, prior rows untouched. The MEASURED
+        # claim (r73 adjudicated — the briefed class-polarity partition was
+        # falsified corpus-wide, confirmed member-locally): two forks with
+        # different drivers — mpv x dec_hcom inverts on the seekable bit
+        # (lavf refresh-seek -> synthetic EPERM, rc2 vs rc0; redirected_fd
+        # groups with file since the fd IS seekable), pw-cat x .snd forks
+        # on the NAME axis (its decode layer IS libsndfile — inherits the
+        # r72 post-sniff extension fallback; pwcat_name_axis isolates it:
+        # identical bytes via .snd/.wav/.bin fifos -> rc 0/1/1).
         # The ops entry pins the pw-cat daemon gate + fifo writer semantics
         # + playback-paced consumption (viability-conditional: needs a
         # reachable PipeWire daemon).
