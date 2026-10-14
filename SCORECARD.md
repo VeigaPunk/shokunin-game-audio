@@ -732,3 +732,15 @@ Sol (provisional): ADMIT — claim confirmed; operator-authored post-massacre; v
 | coverage | **improved** | THIRD decoder runtime (libsndfile 1.2.2) on the canonical 9×4 matrix — 3-decoder verdict lattice established; .snd named/anonymous fork pinned; txw refuse-tier unique |
 | depth | **improved** | claim corrected by measurement before landing: sndfile-only class empty (joint with sox); ffmpeg strictest (not superset); hold-band shown SoX-bridge-specific; 12B tier onset + sniff-consumption measured |
 | calibration | **unchanged** | insertion-only; prior 121-mode rows untouched; r72 receipts byte-identical ×2 |
+
+Sol `r72-adjudicator.md`: ADMIT-with-correction — 3-decoder lattice verified with corrected class claims; verifier AGREE on committed tree; critic+reviewer corrections folded. Bounded libsndfile 1.2.2 + this host.
+
+## Round 73 verdict — 2026-11-01
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | first non-decoder runtime class: pw-cat (PipeWire realtime) + mpv (lavf) on 9x4 matrix + operational surface entry (daemon gate, writer-attach, pacing) — consumer verdict shape now contrasted with the decoder axis |
+| depth | **improved** | two member-local forks pinned with driver attribution: mpv inverted seekability (lavf-synthetic EPERM, no syscall) vs pw-cat name-axis (inherited libsndfile fallback); pwcat_name_axis 2x2 isolates name-vs-transport; corpus-wide "consumer polarity" claim falsified honestly |
+| calibration | **unchanged** | insertion-only (+466/-3); prior rows byte-stable; wall_s leaves = realtime jitter, pins on signatures |
+
+Sol `r73-adjudicator.md`: ADMIT-with-correction — member-local forks confirmed, class-polarity claim falsified as worded and restated. Bounded PipeWire 1.6.8 live daemon, mpv 0.41.0/lavf 63.1.101, this host. Work commit `febf34b`; report-last commit follows.

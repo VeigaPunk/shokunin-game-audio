@@ -1201,3 +1201,22 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   read 500).
 - Verdict: ADMIT-with-correction. Byte-stable ×2; prior rows untouched
   (insertion-only). Sol final.
+
+## Round 73 — consumer class: pw-cat + mpv (wave-12)
+
+- MOVE: `--probe-consumers-r73` — first NON-decoder runtime class:
+  pw-cat (PipeWire realtime playback, libsndfile decode layer) + mpv
+  (libavformat) on the canonical 9x4 transport matrix + ops entry
+  (daemon gate, writer-attach, pacing).
+- Measured: TWO member-local forks, different drivers — mpv x dec_hcom
+  inverted seekability fork (seekable -> lavf refresh-seek synthetic
+  EPERM rc2; unseekable -> decode rc0; redirected_fd groups with file);
+  pw-cat x .snd NAME-axis fork (named arms accept via libsndfile
+  fallback; pwcat_name_axis cell isolates: same bytes, fifo named
+  .snd/.wav/.bin -> rc 0/1/1). Claim "consumer polarity partition"
+  falsified corpus-wide, confirmed member-locally.
+- Ops: daemon gate precedes open() (rc1 2ms); no-writer fifo blocks
+  wait_for_partner SIGKILL-bound; empty writer rc1; drain is playback-
+  paced (4.03s/4s) and starved trickle blocks to EOF (~6s).
+- Verdict: ADMIT-with-correction (Sol, wave-12). wall_s leaves = measured
+  realtime jitter; pins live on verdict signatures.
