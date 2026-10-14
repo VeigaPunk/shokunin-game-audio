@@ -1,0 +1,8 @@
+#!/bin/bash
+# record argv + dump stdin to a file, then exec real ffmpeg with same args
+d=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r67-reviewer/ffmpeg-capture
+mkdir -p "$d"
+stamp=$(date +%s%N)
+echo "$@" > "$d/argv-$stamp.txt"
+cat > "$d/stdin-$stamp.bin"
+exec /usr/bin/ffmpeg "$@" < "$d/stdin-$stamp.bin"
