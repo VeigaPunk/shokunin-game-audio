@@ -189,6 +189,105 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_dec_preempt_r66_probe():
+    out = OUT.parent / "live" / "round-66"
+    out.mkdir(parents=True, exist_ok=True)
+    # r65 measured the preemptor ordering gsrt < hcom < act < wav on
+    # RIFF+0x84@256 files, with every collision member fail-side. r66's
+    # sweep (corpus/live/r66-author/results.tsv) confirmed the ordering is
+    # detect-only, not decode-only: a file matching hcom's CHECK conjuncts
+    # can still satisfy the hcom reader's field walk and fully decode
+    # (r65-critic's scratch D1 shape: 9 samples @22050 Hz). This pair is the
+    # tracked equivalent — a fmt-16 PCM RIFF/WAVE skeleton whose data
+    # payload (starts @44) carries both hcom conjuncts (FSSD@65-68,
+    # HCOM@128-131) plus the reader's own field chain (huffcount@132=9 BE,
+    # checksum@136, compresstype@140=0, divisor@144=1 -> 22050 Hz,
+    # dictsize@148=2, two 4-byte dict entries, pad@158, first raw
+    # sample@159, Huffman word@160-163 equal to the checksum word).
+    # "hcom" keeps both conjuncts -> detected hcom, reader decodes.
+    # "act" flips exactly one signature byte (@68 'D'->'E'), demoting
+    # detection to act -> the ffmpeg bridge decodes the suppressed PCM16
+    # wav. 0x84@256 is held on both members.
+    buf = bytearray(b"\x00" * 600)
+    buf[0:4] = b"RIFF"
+    struct.pack_into("<I", buf, 4, 592)
+    buf[8:12] = b"WAVE"
+    buf[12:16] = b"fmt "
+    struct.pack_into("<I", buf, 16, 16)
+    struct.pack_into("<H", buf, 20, 1)
+    struct.pack_into("<H", buf, 22, 1)
+    struct.pack_into("<I", buf, 24, 8000)
+    struct.pack_into("<I", buf, 28, 16000)
+    struct.pack_into("<H", buf, 32, 2)
+    struct.pack_into("<H", buf, 34, 16)
+    buf[36:40] = b"data"
+    struct.pack_into("<I", buf, 40, 556)
+    for i in range(44, 600):
+        buf[i] = (i * 7 + 3) & 0xFF          # deterministic ramp payload
+    buf[65:69] = b"FSSD"
+    buf[128:132] = b"HCOM"
+    struct.pack_into(">I", buf, 132, 9)      # huffcount = 9 samples total
+    struct.pack_into(">I", buf, 136, 0xA5A5A5A5)  # checksum = data word
+    struct.pack_into(">I", buf, 140, 0)      # compresstype 0
+    struct.pack_into(">I", buf, 144, 1)      # divisor 1 -> 22050 Hz
+    struct.pack_into(">H", buf, 148, 2)      # dictsize 2
+    struct.pack_into(">hh", buf, 150, 1, 1)  # dict[0] -> entry 1
+    struct.pack_into(">hh", buf, 154, -1, 0) # dict[1] leaf, datum 0
+    buf[158] = 0                             # pad byte before data
+    buf[159] = 0x40                          # first raw sample
+    struct.pack_into(">I", buf, 160, 0xA5A5A5A5)
+    buf[256] = 0x84
+    (out / "pair_dec_hcom.wav").write_bytes(buf)
+    demoted = bytearray(buf)
+    demoted[68] = ord("E")                   # 'D'->'E': FSSD conjunct broken
+    (out / "pair_dec_act.wav").write_bytes(demoted)
+
+
+def build_ui_lengate_r66_probe():
+    out = OUT.parent / "live" / "round-66"
+    out.mkdir(parents=True, exist_ok=True)
+    # Every CHECK row gates on len >= p + l (the deeper signature field):
+    # gsrt needs 16+9 = 25 bytes for "ring.bin\0"@16-24, hcom needs 128+4 =
+    # 132 for "HCOM"@128-131. These four members straddle both gates
+    # exactly: each below-gate member is the same RIFF/WAVE shell with the
+    # signature's final byte truncated away by EOF, so detection falls
+    # through to the wav row — the only row a short RIFF+WAVE file can
+    # still satisfy. RIFF size fields stay self-consistent per member.
+    def shell(n):
+        buf = bytearray(b"\x00" * n)
+        buf[0:4] = b"RIFF"
+        struct.pack_into("<I", buf, 4, n - 8)
+        buf[8:12] = b"WAVE"
+        if n >= 44:
+            buf[12:16] = b"fmt "
+            struct.pack_into("<I", buf, 16, 16)
+            struct.pack_into("<H", buf, 20, 1)
+            struct.pack_into("<H", buf, 22, 1)
+            struct.pack_into("<I", buf, 24, 8000)
+            struct.pack_into("<I", buf, 28, 16000)
+            struct.pack_into("<H", buf, 32, 2)
+            struct.pack_into("<H", buf, 34, 16)
+            buf[36:40] = b"data"
+            struct.pack_into("<I", buf, 40, n - 44)
+        for i in range(44, n):
+            buf[i] = (i * 7 + 3) & 0xFF      # deterministic ramp payload
+        return buf
+    g = shell(25)
+    g[16:25] = b"ring.bin\x00"               # full 9-byte literal fits: len 25
+    (out / "pair_lengate_gsrt_25.wav").write_bytes(g)
+    g = shell(24)
+    g[16:24] = b"ring.bin"                   # NUL@24 truncated by EOF: len 24
+    (out / "pair_lengate_gsrt_24.wav").write_bytes(g)
+    h = shell(132)
+    h[65:69] = b"FSSD"
+    h[128:132] = b"HCOM"                     # 'M'@131 present: len 132
+    (out / "pair_lengate_hcom_132.wav").write_bytes(h)
+    h = shell(131)
+    h[65:69] = b"FSSD"
+    h[128:131] = b"HCO"                      # 'M'@131 truncated by EOF: len 131
+    (out / "pair_lengate_hcom_131.wav").write_bytes(h)
+
+
 def build_ui_preempt_r65_probe():
     out = OUT.parent / "live" / "round-65"
     out.mkdir(parents=True, exist_ok=True)
@@ -855,8 +954,20 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-preempt-gsrt-r65", action="store_true")
     parser.add_argument("--probe-ui-preempt-hcom-r65", action="store_true")
     parser.add_argument("--probe-ui-preempt-both-r65", action="store_true")
+    parser.add_argument("--probe-ui-dec-hcom-r66", action="store_true")
+    parser.add_argument("--probe-ui-dec-act-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-gsrt-24-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-gsrt-25-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-hcom-131-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-hcom-132-r66", action="store_true")
     args = parser.parse_args()
-    if (args.probe_ui_preempt_act_r65 or args.probe_ui_preempt_gsrt_r65
+    if (args.probe_ui_dec_hcom_r66 or args.probe_ui_dec_act_r66
+            or args.probe_ui_lengate_gsrt_24_r66 or args.probe_ui_lengate_gsrt_25_r66
+            or args.probe_ui_lengate_hcom_131_r66 or args.probe_ui_lengate_hcom_132_r66):
+        main()
+        build_ui_dec_preempt_r66_probe()
+        build_ui_lengate_r66_probe()
+    elif (args.probe_ui_preempt_act_r65 or args.probe_ui_preempt_gsrt_r65
             or args.probe_ui_preempt_hcom_r65 or args.probe_ui_preempt_both_r65):
         main()
         build_ui_preempt_r65_probe()

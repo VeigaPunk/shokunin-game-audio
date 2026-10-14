@@ -1,0 +1,27 @@
+== tracked member probes (verbatim, sox -V6 stat) ==
+pair_dec_act.wav det=act' stat_samples=278 f32=1112B -twav=1112B -tact=1112B
+pair_dec_hcom.wav det=hcom' stat_samples=9 f32=36B -twav=1112B -tact=14080B
+pair_lengate_gsrt_24.wav det=wav' stat_samples=FAIL f32=0B -twav=0B -tact=0B
+pair_lengate_gsrt_25.wav det=gsrt' stat_samples=FAIL f32=0B -twav=0B -tact=0B
+pair_lengate_hcom_131.wav det=wav' stat_samples=43 f32=172B -twav=172B -tact=172B
+pair_lengate_hcom_132.wav det=hcom' stat_samples=FAIL f32=0B -twav=176B -tact=0B
+
+== cmp -l dec pair ==
+ 69 104 105
+== cmp -l gsrt 25v24 ==
+cmp: EOF on ‘../round-66/pair_lengate_gsrt_24.wav’ after byte 24
+ 5  21  20
+== cmp -l hcom 132v131 ==
+cmp: EOF on ‘../round-66/pair_lengate_hcom_131.wav’ after byte 131
+  5 174 173
+ 41 130 127
+
+== sha256 tracked round-66 + scratch convergence ==
+777b6764ad75dc2cad6fa862253e106e4230107f182770fdf68a22a946176edb  ../round-66/pair_dec_act.wav
+325fb967f0c9c126b7aaac5f580c92f7f3946a728c2c7323a1c8d497c23896cd  ../round-66/pair_dec_hcom.wav
+e7db997697cfb4723e95d54ce936652aae8447f6722d92e1e7f0fedaca11c571  ../round-66/pair_lengate_gsrt_24.wav
+ede4161b73798f6d4840fc7ca0845d48d36c44404739fcdc5d384d891abc97c5  ../round-66/pair_lengate_gsrt_25.wav
+6fd9f47165bf58eb01ad5f6baaa7ea6caf5e93f4693efc816c6c06789b2790a1  ../round-66/pair_lengate_hcom_131.wav
+a1abdac4c990764979afcfed958639f839e0630d2fef21ebcc7f740d547eb6d6  ../round-66/pair_lengate_hcom_132.wav
+e7db997697cfb4723e95d54ce936652aae8447f6722d92e1e7f0fedaca11c571  probes/s_gsrt_len24.bin
+ede4161b73798f6d4840fc7ca0845d48d36c44404739fcdc5d384d891abc97c5  probes/s_gsrt_len25.bin
