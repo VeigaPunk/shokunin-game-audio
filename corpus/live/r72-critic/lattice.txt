@@ -1,0 +1,20 @@
+member              | sox                          | ffmpeg                       | sndfile
+                    | f  p  r  q                   | f  p  r  q                   | f  p  r  q
+dec_act             | Y . . .                      | Y Y Y Y                      | Y Y Y Y
+dec_hcom            | Y Y Y Y                      | Y Y Y Y                      | Y Y Y Y
+posttable_nomatch   | . . . .                      | . . . .                      | . . . .
+txw_piperefuse      | Y . Y .                      | . . . .                      | . . . .
+extsuffix_wav       | . . . .                      | . . . .                      | . . . .
+extsuffix_bin       | . . . .                      | . . . .                      | . . . .
+extsuffix_txw       | . . . .                      | . . . .                      | . . . .
+extsuffix_f32       | Y . . Y                      | . . . .                      | . . . .
+extsuffix_snd       | Y . . Y                      | . . . .                      | Y . . Y
+
+classes (sox|ffmpeg|sndfile arm-vectors):
+   ('Y---', 'YYYY', 'YYYY') ['dec_act']
+   ('YYYY', 'YYYY', 'YYYY') ['dec_hcom']
+   ('----', '----', '----') ['posttable_nomatch', 'extsuffix_wav', 'extsuffix_bin', 'extsuffix_txw']
+   ('Y-Y-', '----', '----') ['txw_piperefuse']
+   ('Y--Y', '----', '----') ['extsuffix_f32']
+   ('Y--Y', '----', 'Y--Y') ['extsuffix_snd']
+member-level (accept-any-arm): {(True, True, True): ['dec_act', 'dec_hcom'], (False, False, False): ['posttable_nomatch', 'extsuffix_wav', 'extsuffix_bin', 'extsuffix_txw'], (True, False, False): ['txw_piperefuse', 'extsuffix_f32'], (True, False, True): ['extsuffix_snd']}

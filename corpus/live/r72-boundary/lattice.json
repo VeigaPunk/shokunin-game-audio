@@ -1,0 +1,1253 @@
+{
+ "sndfile_receipt": "live/r72-boundary/runs/20261014T142002371100Z-sndfile-transport-r72/measurements.json",
+ "members": {
+  "dec_act": {
+   "path": "live/round-66/pair_dec_act.wav",
+   "acceptance": {
+    "sox": [
+     "file"
+    ],
+    "ffmpeg": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ],
+    "sndfile": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "classes": {
+    "all_three": [
+     "file"
+    ],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": []
+   },
+   "detected_labels": {
+    "sox": [
+     "act"
+    ],
+    "ffmpeg": [
+     "wav"
+    ],
+    "sndfile": [
+     "WAV (Microsoft)/Signed 16 bit PCM"
+    ]
+   },
+   "reject_reasons": {
+    "sox": [
+     "can't find Sun/NeXT/DEC identifier",
+     "premature EOF"
+    ],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": true,
+      "detected": "act",
+      "route": "ffmpeg",
+      "samples": 278,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": "act",
+      "route": "ffmpeg",
+      "samples": null,
+      "error": "can't find Sun/NeXT/DEC identifier"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": "act",
+      "route": "ffmpeg",
+      "samples": null,
+      "error": "can't find Sun/NeXT/DEC identifier"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": "act",
+      "route": "ffmpeg",
+      "samples": null,
+      "error": "premature EOF"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": true,
+      "detected": "wav",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": true,
+      "detected": "wav",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "wav",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "wav",
+      "ffmpeg_exit": 0,
+      "error": null
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "dec_hcom": {
+   "path": "live/round-66/pair_dec_hcom.wav",
+   "acceptance": {
+    "sox": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ],
+    "ffmpeg": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ],
+    "sndfile": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "classes": {
+    "all_three": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": []
+   },
+   "detected_labels": {
+    "sox": [
+     "hcom"
+    ],
+    "ffmpeg": [
+     "hcom"
+    ],
+    "sndfile": [
+     "WAV (Microsoft)/Signed 16 bit PCM"
+    ]
+   },
+   "reject_reasons": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": true,
+      "detected": "hcom",
+      "route": "native",
+      "samples": 9,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": true,
+      "detected": "hcom",
+      "route": "native",
+      "samples": 9,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "hcom",
+      "route": "native",
+      "samples": 9,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "hcom",
+      "route": "native",
+      "samples": 9,
+      "error": null
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": true,
+      "detected": "hcom",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": true,
+      "detected": "hcom",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "hcom",
+      "ffmpeg_exit": 0,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "hcom",
+      "ffmpeg_exit": 0,
+      "error": null
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "WAV (Microsoft)/Signed 16 bit PCM",
+      "read_frames": 278,
+      "frames": 278,
+      "error": null
+     }
+    }
+   },
+   "sox_transport_fork": false,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "posttable_nomatch": {
+   "path": "live/round-68/posttable_nomatch.wav",
+   "acceptance": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "RIFF header not found",
+     "sox FAIL formats: can't determine type of  `-'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "RIFF header not found"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "RIFF header not found"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "txw_piperefuse": {
+   "path": "live/round-68/txw_piperefuse.wav",
+   "acceptance": {
+    "sox": [
+     "file",
+     "redirected_fd"
+    ],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [
+     "file",
+     "redirected_fd"
+    ],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "fifo_path",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [
+     "txw"
+    ],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "input must be a file, not a pipe"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "File contains data in an unimplemented format."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": true,
+      "detected": "txw",
+      "route": "native",
+      "samples": 64,
+      "error": null
+     },
+     "redirected_fd": {
+      "accept": true,
+      "detected": "txw",
+      "route": "native",
+      "samples": 64,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": "txw",
+      "route": "native",
+      "samples": null,
+      "error": "input must be a file, not a pipe"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": "txw",
+      "route": "native",
+      "samples": null,
+      "error": "input must be a file, not a pipe"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "File contains data in an unimplemented format."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "File contains data in an unimplemented format."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "File contains data in an unimplemented format."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "File contains data in an unimplemented format."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "extsuffix_wav": {
+   "path": "live/round-69/extsuffix_nomatch.wav",
+   "acceptance": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "RIFF header not found",
+     "sox FAIL formats: can't determine type of  `-'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "RIFF header not found"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "RIFF header not found"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "extsuffix_bin": {
+   "path": "live/round-69/extsuffix_nomatch.bin",
+   "acceptance": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "sox FAIL formats: can't determine type of  `-'",
+     "sox FAIL formats: no handler for file extension `bin'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: no handler for file extension `bin'"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: no handler for file extension `bin'"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "extsuffix_txw": {
+   "path": "live/round-69/extsuffix_nomatch.txw",
+   "acceptance": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "fifo_path",
+     "file",
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "input must be a file, not a pipe",
+     "invalid filetype ID in input file header, != LM8953",
+     "sox FAIL formats: can't determine type of  `-'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "invalid filetype ID in input file header, != LM8953"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "input must be a file, not a pipe"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "extsuffix_f32": {
+   "path": "live/round-69/extsuffix_nomatch.f32",
+   "acceptance": {
+    "sox": [
+     "fifo_path",
+     "file"
+    ],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [
+     "fifo_path",
+     "file"
+    ],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [],
+    "ffmpeg": [],
+    "sndfile": []
+   },
+   "reject_reasons": {
+    "sox": [
+     "sox FAIL formats: can't determine type of  `-'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": true,
+      "detected": null,
+      "route": "none",
+      "samples": 128,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": null,
+      "route": "none",
+      "samples": 128,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": false
+  },
+  "extsuffix_snd": {
+   "path": "live/round-69/extsuffix_nomatch.snd",
+   "acceptance": {
+    "sox": [
+     "fifo_path",
+     "file"
+    ],
+    "ffmpeg": [],
+    "sndfile": [
+     "fifo_path",
+     "file"
+    ]
+   },
+   "classes": {
+    "all_three": [],
+    "sox_only": [],
+    "sndfile_only": [],
+    "ffmpeg_only": [],
+    "reject_all": [
+     "redirected_fd",
+     "stdin_pipe"
+    ]
+   },
+   "detected_labels": {
+    "sox": [
+     "sndr"
+    ],
+    "ffmpeg": [],
+    "sndfile": [
+     "RAW (header-less)/U-Law"
+    ]
+   },
+   "reject_reasons": {
+    "sox": [
+     "sox FAIL formats: can't determine type of  `-'"
+    ],
+    "ffmpeg": [
+     "Error opening input files: Invalid data found when processing input"
+    ],
+    "sndfile": [
+     "Format not recognised."
+    ]
+   },
+   "transport_axis": {
+    "sox": {
+     "file": {
+      "accept": true,
+      "detected": "sndr",
+      "route": "native",
+      "samples": 504,
+      "error": null
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "sndr",
+      "route": "native",
+      "samples": 504,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "route": "none",
+      "samples": null,
+      "error": "sox FAIL formats: can't determine type of  `-'"
+     }
+    },
+    "ffmpeg": {
+     "file": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     },
+     "fifo_path": {
+      "accept": false,
+      "detected": null,
+      "ffmpeg_exit": 183,
+      "error": "Error opening input files: Invalid data found when processing input"
+     }
+    },
+    "sndfile": {
+     "file": {
+      "accept": true,
+      "detected": "RAW (header-less)/U-Law",
+      "read_frames": 500,
+      "frames": 512,
+      "error": null
+     },
+     "stdin_pipe": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "redirected_fd": {
+      "accept": false,
+      "detected": null,
+      "read_frames": null,
+      "frames": null,
+      "error": "Format not recognised."
+     },
+     "fifo_path": {
+      "accept": true,
+      "detected": "RAW (header-less)/U-Law",
+      "read_frames": 500,
+      "frames": 9223372036854775807,
+      "error": null
+     }
+    }
+   },
+   "sox_transport_fork": true,
+   "ffmpeg_transport_fork": false,
+   "sndfile_transport_fork": true
+  }
+ },
+ "member_level_classes": {
+  "all_three": [
+   "dec_hcom"
+  ],
+  "sox_only": [
+   "txw_piperefuse",
+   "extsuffix_f32"
+  ],
+  "sndfile_only": [],
+  "ffmpeg_only": [],
+  "reject_all": [
+   "posttable_nomatch",
+   "extsuffix_wav",
+   "extsuffix_bin",
+   "extsuffix_txw"
+  ],
+  "mixed_no_sole": [
+   "dec_act",
+   "extsuffix_snd"
+  ]
+ },
+ "detect_label_universe": {
+  "sox": [
+   "act",
+   "hcom",
+   "sndr",
+   "txw"
+  ],
+  "ffmpeg": [
+   "hcom",
+   "wav"
+  ],
+  "sndfile": [
+   "RAW (header-less)/U-Law",
+   "WAV (Microsoft)/Signed 16 bit PCM"
+  ]
+ },
+ "reject_reason_universe": {
+  "sox": [
+   "RIFF header not found",
+   "can't find Sun/NeXT/DEC identifier",
+   "input must be a file, not a pipe",
+   "invalid filetype ID in input file header, != LM8953",
+   "premature EOF",
+   "sox FAIL formats: can't determine type of  `-'",
+   "sox FAIL formats: no handler for file extension `bin'"
+  ],
+  "ffmpeg": [
+   "Error opening input files: Invalid data found when processing input"
+  ],
+  "sndfile": [
+   "File contains data in an unimplemented format.",
+   "Format not recognised."
+  ]
+ }
+}

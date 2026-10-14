@@ -1,0 +1,67 @@
+# accepted arm-cells (of 36): {'sox': 11, 'ffmpeg': 8, 'sndfile': 10}
+
+## per-arm acceptance cells
+member	arm	sox	ffmpeg	sndfile	class
+dec_act	file	1	1	1	sfs
+dec_act	stdin_pipe	0	1	1	fs
+dec_act	redirected_fd	0	1	1	fs
+dec_act	fifo_path	0	1	1	fs
+dec_hcom	file	1	1	1	sfs
+dec_hcom	stdin_pipe	1	1	1	sfs
+dec_hcom	redirected_fd	1	1	1	sfs
+dec_hcom	fifo_path	1	1	1	sfs
+posttable_nomatch	file	0	0	0	none
+posttable_nomatch	stdin_pipe	0	0	0	none
+posttable_nomatch	redirected_fd	0	0	0	none
+posttable_nomatch	fifo_path	0	0	0	none
+txw_piperefuse	file	1	0	0	s
+txw_piperefuse	stdin_pipe	0	0	0	none
+txw_piperefuse	redirected_fd	1	0	0	s
+txw_piperefuse	fifo_path	0	0	0	none
+extsuffix_wav	file	0	0	0	none
+extsuffix_wav	stdin_pipe	0	0	0	none
+extsuffix_wav	redirected_fd	0	0	0	none
+extsuffix_wav	fifo_path	0	0	0	none
+extsuffix_bin	file	0	0	0	none
+extsuffix_bin	stdin_pipe	0	0	0	none
+extsuffix_bin	redirected_fd	0	0	0	none
+extsuffix_bin	fifo_path	0	0	0	none
+extsuffix_txw	file	0	0	0	none
+extsuffix_txw	stdin_pipe	0	0	0	none
+extsuffix_txw	redirected_fd	0	0	0	none
+extsuffix_txw	fifo_path	0	0	0	none
+extsuffix_f32	file	1	0	0	s
+extsuffix_f32	stdin_pipe	0	0	0	none
+extsuffix_f32	redirected_fd	0	0	0	none
+extsuffix_f32	fifo_path	1	0	0	s
+extsuffix_snd	file	1	0	1	ss
+extsuffix_snd	stdin_pipe	0	0	0	none
+extsuffix_snd	redirected_fd	0	0	0	none
+extsuffix_snd	fifo_path	1	0	1	ss
+
+## member-level coverage class (arm-qualified)
+dec_act	mixed	sox=['file'] ffmpeg=['file', 'stdin_pipe', 'redirected_fd', 'fifo_path'] sndfile=['file', 'stdin_pipe', 'redirected_fd', 'fifo_path']
+dec_hcom	all-three/all-arms	sox=['file', 'stdin_pipe', 'redirected_fd', 'fifo_path'] ffmpeg=['file', 'stdin_pipe', 'redirected_fd', 'fifo_path'] sndfile=['file', 'stdin_pipe', 'redirected_fd', 'fifo_path']
+posttable_nomatch	none-accept	sox=[] ffmpeg=[] sndfile=[]
+txw_piperefuse	sox-only	sox=['file', 'redirected_fd'] ffmpeg=[] sndfile=[]
+extsuffix_wav	none-accept	sox=[] ffmpeg=[] sndfile=[]
+extsuffix_bin	none-accept	sox=[] ffmpeg=[] sndfile=[]
+extsuffix_txw	none-accept	sox=[] ffmpeg=[] sndfile=[]
+extsuffix_f32	sox-only	sox=['file', 'fifo_path'] ffmpeg=[] sndfile=[]
+extsuffix_snd	mixed	sox=['file', 'fifo_path'] ffmpeg=[] sndfile=['file', 'fifo_path']
+
+## private cells per decoder (accepted by exactly one)
+sox: [('txw_piperefuse', 'file'), ('txw_piperefuse', 'redirected_fd'), ('extsuffix_f32', 'file'), ('extsuffix_f32', 'fifo_path')]
+ffmpeg: []
+sndfile: []
+
+## pairs accepted by exactly two
+('sox', 'ffmpeg'): []
+('sox', 'sndfile'): [('extsuffix_snd', 'file'), ('extsuffix_snd', 'fifo_path')]
+('ffmpeg', 'sndfile'): [('dec_act', 'stdin_pipe'), ('dec_act', 'redirected_fd'), ('dec_act', 'fifo_path')]
+
+## accepted by all three
+[('dec_act', 'file'), ('dec_hcom', 'file'), ('dec_hcom', 'stdin_pipe'), ('dec_hcom', 'redirected_fd'), ('dec_hcom', 'fifo_path')]
+
+## rejected by all three
+[('posttable_nomatch', 'file'), ('posttable_nomatch', 'stdin_pipe'), ('posttable_nomatch', 'redirected_fd'), ('posttable_nomatch', 'fifo_path'), ('txw_piperefuse', 'stdin_pipe'), ('txw_piperefuse', 'fifo_path'), ('extsuffix_wav', 'file'), ('extsuffix_wav', 'stdin_pipe'), ('extsuffix_wav', 'redirected_fd'), ('extsuffix_wav', 'fifo_path'), ('extsuffix_bin', 'file'), ('extsuffix_bin', 'stdin_pipe'), ('extsuffix_bin', 'redirected_fd'), ('extsuffix_bin', 'fifo_path'), ('extsuffix_txw', 'file'), ('extsuffix_txw', 'stdin_pipe'), ('extsuffix_txw', 'redirected_fd'), ('extsuffix_txw', 'fifo_path'), ('extsuffix_f32', 'stdin_pipe'), ('extsuffix_f32', 'redirected_fd'), ('extsuffix_snd', 'stdin_pipe'), ('extsuffix_snd', 'redirected_fd')]

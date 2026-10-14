@@ -1,0 +1,37 @@
+member	transport	arm	sox_detect	sox_accept	sox_samples	ffmpeg_detect	ffmpeg_accept	sndfile_detect	sndfile_format	sndfile_read	sndfile_error	accept_class
+dec_act	file	named+seekable	act	True	278	wav	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		sox+ffmpeg+sndfile
+dec_act	stdin_pipe	anon+pipe	act	False		wav	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		ffmpeg+sndfile
+dec_act	redirected_fd	anon+seekable	act	False		wav	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		ffmpeg+sndfile
+dec_act	fifo_path	named+pipe	act	False		wav	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		ffmpeg+sndfile
+dec_hcom	file	named+seekable	hcom	True	9	hcom	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		sox+ffmpeg+sndfile
+dec_hcom	stdin_pipe	anon+pipe	hcom	True	9	hcom	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		sox+ffmpeg+sndfile
+dec_hcom	redirected_fd	anon+seekable	hcom	True	9	hcom	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		sox+ffmpeg+sndfile
+dec_hcom	fifo_path	named+pipe	hcom	True	9	hcom	True	True	WAV (Microsoft)/Signed 16 bit PCM	278		sox+ffmpeg+sndfile
+posttable_nomatch	file	named+seekable		False			False	False			Format not recognised.	none
+posttable_nomatch	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+posttable_nomatch	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+posttable_nomatch	fifo_path	named+pipe		False			False	False			Format not recognised.	none
+txw_piperefuse	file	named+seekable	txw	True	64		False	False			File contains data in an unimplemented format.	sox+sndfile_refused
+txw_piperefuse	stdin_pipe	anon+pipe	txw	False			False	False			File contains data in an unimplemented format.	sndfile_refused
+txw_piperefuse	redirected_fd	anon+seekable	txw	True	64		False	False			File contains data in an unimplemented format.	sox+sndfile_refused
+txw_piperefuse	fifo_path	named+pipe	txw	False			False	False			File contains data in an unimplemented format.	sndfile_refused
+extsuffix_wav	file	named+seekable		False			False	False			Format not recognised.	none
+extsuffix_wav	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+extsuffix_wav	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+extsuffix_wav	fifo_path	named+pipe		False			False	False			Format not recognised.	none
+extsuffix_bin	file	named+seekable		False			False	False			Format not recognised.	none
+extsuffix_bin	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+extsuffix_bin	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+extsuffix_bin	fifo_path	named+pipe		False			False	False			Format not recognised.	none
+extsuffix_txw	file	named+seekable		False			False	False			Format not recognised.	none
+extsuffix_txw	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+extsuffix_txw	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+extsuffix_txw	fifo_path	named+pipe		False			False	False			Format not recognised.	none
+extsuffix_f32	file	named+seekable		True	128		False	False			Format not recognised.	sox
+extsuffix_f32	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+extsuffix_f32	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+extsuffix_f32	fifo_path	named+pipe		True	128		False	False			Format not recognised.	sox
+extsuffix_snd	file	named+seekable	sndr	True	504		False	True	RAW (header-less)/U-Law	500		sox+sndfile
+extsuffix_snd	stdin_pipe	anon+pipe		False			False	False			Format not recognised.	none
+extsuffix_snd	redirected_fd	anon+seekable		False			False	False			Format not recognised.	none
+extsuffix_snd	fifo_path	named+pipe	sndr	True	504		False	True	RAW (header-less)/U-Law	500		sox+sndfile

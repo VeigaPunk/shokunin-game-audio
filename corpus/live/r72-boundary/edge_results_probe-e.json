@@ -1,0 +1,149 @@
+{
+ "probe": "e: tier onsets + fallback offset",
+ "e1_tier_onsets": {
+  "dec_act": [
+   {
+    "prefix_bytes": 8,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 9,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 10,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 11,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 12,
+    "verdict": [
+     null,
+     null,
+     "Error in WAV file. No 'data' chunk marker."
+    ]
+   },
+   {
+    "prefix_bytes": 13,
+    "verdict": [
+     null,
+     null,
+     "Error in WAV file. No 'data' chunk marker."
+    ]
+   }
+  ],
+  "txw_piperefuse": [
+   {
+    "prefix_bytes": 8,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 9,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 10,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 11,
+    "verdict": [
+     null,
+     null,
+     "Format not recognised."
+    ]
+   },
+   {
+    "prefix_bytes": 12,
+    "verdict": [
+     null,
+     null,
+     "File contains data in an unimplemented format."
+    ]
+   },
+   {
+    "prefix_bytes": 13,
+    "verdict": [
+     null,
+     null,
+     "File contains data in an unimplemented format."
+    ]
+   }
+  ]
+ },
+ "e2_offset_test": {
+  "first12=0x00,last4=0xAA": {
+   "bytes": "000000000000000000000000aaaaaaaa",
+   "info_frames": 16,
+   "read_counts": [
+    4,
+    0
+   ],
+   "samples": [
+    5372,
+    5372,
+    5372,
+    5372
+   ]
+  },
+  "first12=0xFF,last4=0xAA": {
+   "bytes": "ffffffffffffffffffffffffaaaaaaaa",
+   "info_frames": 16,
+   "read_counts": [
+    4,
+    0
+   ],
+   "samples": [
+    5372,
+    5372,
+    5372,
+    5372
+   ]
+  },
+  "first12=0x00,last4=0x00": {
+   "bytes": "00000000000000000000000000000000",
+   "info_frames": 16,
+   "read_counts": [
+    4,
+    0
+   ],
+   "samples": [
+    -32124,
+    -32124,
+    -32124,
+    -32124
+   ]
+  }
+ }
+}

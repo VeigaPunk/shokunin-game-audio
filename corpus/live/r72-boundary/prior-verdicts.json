@@ -1,0 +1,1558 @@
+{
+ "sox": {
+  "dec_act": {
+   "path": "live/round-66/pair_dec_act.wav",
+   "pair_member": "dec_act",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-66/pair_dec_act.wav",
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 0,
+     "samples_read": 278,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.004",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "can't find Sun/NeXT/DEC identifier",
+     "stderr_tail": "sox FAIL formats: can't open input  `<input>': can't find Sun/NeXT/DEC identifier",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "premature EOF",
+     "stderr_tail": "sox FAIL formats: can't open input  `<input>': premature EOF",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "pair_dec_act.wav",
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "can't find Sun/NeXT/DEC identifier",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': can't find Sun/NeXT/DEC identifier",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file"
+     ],
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 0,
+     "samples_read": 278,
+     "error": null
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "fifo_path"
+     ],
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "can't find Sun/NeXT/DEC identifier"
+    },
+    {
+     "transports": [
+      "redirected_fd"
+     ],
+     "sox_detected_format": "act",
+     "sox_route": "ffmpeg",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "premature EOF"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file=decode 278 samples vs stdin_pipe/fifo_path=can't find Sun/NeXT/DEC identifier vs redirected_fd=premature EOF)"
+   ]
+  },
+  "dec_hcom": {
+   "path": "live/round-66/pair_dec_hcom.wav",
+   "pair_member": "dec_hcom",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-66/pair_dec_hcom.wav",
+     "sox_detected_format": "hcom",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 9,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": "hcom",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 9,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": "hcom",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 9,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "pair_dec_hcom.wav",
+     "sox_detected_format": "hcom",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 9,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "sox_detected_format": "hcom",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 9,
+     "error": null
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "posttable": {
+   "path": "live/round-68/posttable_nomatch.wav",
+   "pair_member": "posttable_nomatch",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-68/posttable_nomatch.wav",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': RIFF header not found",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "posttable_nomatch.wav",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': RIFF header not found",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "fifo_path"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found"
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/fifo_path=RIFF header not found vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-')"
+   ]
+  },
+  "txw_piperefuse": {
+   "path": "live/round-68/txw_piperefuse.wav",
+   "pair_member": "txw_piperefuse",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-68/txw_piperefuse.wav",
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 64,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.020",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "input must be a file, not a pipe",
+     "stderr_tail": "sox FAIL formats: can't open input  `<input>': input must be a file, not a pipe",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 64,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.020",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "txw_piperefuse.wav",
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "input must be a file, not a pipe",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': input must be a file, not a pipe",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "redirected_fd"
+     ],
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 64,
+     "error": null
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "fifo_path"
+     ],
+     "sox_detected_format": "txw",
+     "sox_route": "native",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "input must be a file, not a pipe"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/redirected_fd=decode 64 samples vs stdin_pipe/fifo_path=input must be a file, not a pipe)"
+   ]
+  },
+  "extsuffix_wav": {
+   "path": "live/round-69/extsuffix_nomatch.wav",
+   "pair_member": "extsuffix_wav",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.wav",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': RIFF header not found",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.wav",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': RIFF header not found",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "fifo_path"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "RIFF header not found"
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/fifo_path=RIFF header not found vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-')"
+   ]
+  },
+  "extsuffix_bin": {
+   "path": "live/round-69/extsuffix_nomatch.bin",
+   "pair_member": "extsuffix_bin",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.bin",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: no handler for file extension `bin'",
+     "stderr_tail": "sox FAIL formats: no handler for file extension `<input>'",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.bin",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: no handler for file extension `bin'",
+     "stderr_tail": "sox FAIL formats: no handler for file extension `<input>'",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "fifo_path"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: no handler for file extension `bin'"
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/fifo_path=sox FAIL formats: no handler for file extension `bin' vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-')"
+   ]
+  },
+  "extsuffix_txw": {
+   "path": "live/round-69/extsuffix_nomatch.txw",
+   "pair_member": "extsuffix_txw",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.txw",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "invalid filetype ID in input file header, != LM8953",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': invalid filetype ID in input file header, != LM8953",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.txw",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "input must be a file, not a pipe",
+     "stderr_tail": "sox FAIL formats: can't open input file `<input>': input must be a file, not a pipe",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "invalid filetype ID in input file header, != LM8953"
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    },
+    {
+     "transports": [
+      "fifo_path"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "input must be a file, not a pipe"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file=invalid filetype ID in input file header, != LM8953 vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-' vs fifo_path=input must be a file, not a pipe)"
+   ]
+  },
+  "extsuffix_f32": {
+   "path": "live/round-69/extsuffix_nomatch.f32",
+   "pair_member": "extsuffix_f32",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.f32",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 0,
+     "samples_read": 128,
+     "error": null,
+     "stderr_tail": "sox WARN sox_ng: `<input>' input clipped 64 samples",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.f32",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 0,
+     "samples_read": 128,
+     "error": null,
+     "stderr_tail": "sox WARN sox_ng: `<input>' input clipped 64 samples",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "fifo_path"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 0,
+     "samples_read": 128,
+     "error": null
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/fifo_path=decode 128 samples vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-')"
+   ]
+  },
+  "extsuffix_snd": {
+   "path": "live/round-69/extsuffix_nomatch.snd",
+   "pair_member": "extsuffix_snd",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.snd",
+     "sox_detected_format": "sndr",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 504,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "-",
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'",
+     "stderr_tail": "sox FAIL formats: can't determine type of  `<input>'",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.snd",
+     "sox_detected_format": "sndr",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 504,
+     "error": null,
+     "stderr_tail": "Volume adjustment:        1.000",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 10,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "fifo_path"
+     ],
+     "sox_detected_format": "sndr",
+     "sox_route": "native",
+     "exit_code": 0,
+     "samples_read": 504,
+     "error": null
+    },
+    {
+     "transports": [
+      "stdin_pipe",
+      "redirected_fd"
+     ],
+     "sox_detected_format": null,
+     "sox_route": "none",
+     "exit_code": 2,
+     "samples_read": null,
+     "error": "sox FAIL formats: can't determine type of  `-'"
+    }
+   ],
+   "transport_fork": true,
+   "failures": [
+    "transport: detection+decode verdict forks across transports (file/fifo_path=decode 504 samples vs stdin_pipe/redirected_fd=sox FAIL formats: can't determine type of  `-')"
+   ]
+  }
+ },
+ "ffmpeg": {
+  "dec_act": {
+   "path": "live/round-66/pair_dec_act.wav",
+   "pair_member": "dec_act",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-66/pair_dec_act.wav",
+     "ffprobe_format": "wav",
+     "probe_score": 99,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": "wav",
+     "probe_score": 99,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": "wav",
+     "probe_score": 99,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "pair_dec_act.wav",
+     "ffprobe_format": "wav",
+     "probe_score": 99,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": "wav",
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": "wav",
+     "ffprobe_exit": 0,
+     "ffprobe_error": null
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "dec_hcom": {
+   "path": "live/round-66/pair_dec_hcom.wav",
+   "pair_member": "dec_hcom",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-66/pair_dec_hcom.wav",
+     "ffprobe_format": "hcom",
+     "probe_score": 100,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": "hcom",
+     "probe_score": 100,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": "hcom",
+     "probe_score": 100,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "pair_dec_hcom.wav",
+     "ffprobe_format": "hcom",
+     "probe_score": 100,
+     "ffprobe_exit": 0,
+     "ffprobe_error": null,
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null,
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": "hcom",
+     "ffmpeg_exit": 0,
+     "ffmpeg_error": null
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": "hcom",
+     "ffprobe_exit": 0,
+     "ffprobe_error": null
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "posttable": {
+   "path": "live/round-68/posttable_nomatch.wav",
+   "pair_member": "posttable_nomatch",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-68/posttable_nomatch.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "posttable_nomatch.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "txw_piperefuse": {
+   "path": "live/round-68/txw_piperefuse.wav",
+   "pair_member": "txw_piperefuse",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-68/txw_piperefuse.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "txw_piperefuse.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "extsuffix_wav": {
+   "path": "live/round-69/extsuffix_nomatch.wav",
+   "pair_member": "extsuffix_wav",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.wav",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "extsuffix_bin": {
+   "path": "live/round-69/extsuffix_nomatch.bin",
+   "pair_member": "extsuffix_bin",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.bin",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.bin",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "extsuffix_txw": {
+   "path": "live/round-69/extsuffix_nomatch.txw",
+   "pair_member": "extsuffix_txw",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.txw",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.txw",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "extsuffix_f32": {
+   "path": "live/round-69/extsuffix_nomatch.f32",
+   "pair_member": "extsuffix_f32",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.f32",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.f32",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  },
+  "extsuffix_snd": {
+   "path": "live/round-69/extsuffix_nomatch.snd",
+   "pair_member": "extsuffix_snd",
+   "decoder": "ffmpeg/ffprobe",
+   "transport_axis": {
+    "file": {
+     "input": "live/round-69/extsuffix_nomatch.snd",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": true
+    },
+    "stdin_pipe": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": false
+    },
+    "redirected_fd": {
+     "input": "pipe:",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": false,
+     "seekable": true
+    },
+    "fifo_path": {
+     "input": "extsuffix_nomatch.snd",
+     "ffprobe_format": null,
+     "probe_score": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input",
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input",
+     "named": true,
+     "seekable": false
+    }
+   },
+   "transport_protocol": {
+    "arm_timeout_s": 15,
+    "fifo_writer_hold_s": 1.0,
+    "fifo_feed": "one-shot write then writer lingers"
+   },
+   "transport_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffmpeg_exit": 183,
+     "ffmpeg_error": "Error opening input files: Invalid data found when processing input"
+    }
+   ],
+   "ffprobe_verdict_groups": [
+    {
+     "transports": [
+      "file",
+      "stdin_pipe",
+      "redirected_fd",
+      "fifo_path"
+     ],
+     "ffprobe_format": null,
+     "ffprobe_exit": 1,
+     "ffprobe_error": "<input>: Invalid data found when processing input"
+    }
+   ],
+   "transport_fork": false,
+   "failures": []
+  }
+ },
+ "receipts": {
+  "probe-transport-dec-act-r67": {
+   "run": "20261014T140657558238Z-transport-dec-act-r67",
+   "path": "live/runs/20261014T140657558238Z-transport-dec-act-r67/measurements.json"
+  },
+  "probe-transport-dec-hcom-r67": {
+   "run": "20261014T140655461558Z-transport-dec-hcom-r67",
+   "path": "live/runs/20261014T140655461558Z-transport-dec-hcom-r67/measurements.json"
+  },
+  "probe-transport-posttable-nomatch-r68": {
+   "run": "20261014T140643200613Z-transport-posttable-nomatch-r68",
+   "path": "live/runs/20261014T140643200613Z-transport-posttable-nomatch-r68/measurements.json"
+  },
+  "probe-transport-txw-piperefuse-r68": {
+   "run": "20261014T140645235307Z-transport-txw-piperefuse-r68",
+   "path": "live/runs/20261014T140645235307Z-transport-txw-piperefuse-r68/measurements.json"
+  },
+  "probe-transport-extsuffix-wav-r69": {
+   "run": "20261014T140632996659Z-transport-extsuffix-wav-r69",
+   "path": "live/runs/20261014T140632996659Z-transport-extsuffix-wav-r69/measurements.json"
+  },
+  "probe-transport-extsuffix-bin-r69": {
+   "run": "20261014T140635039506Z-transport-extsuffix-bin-r69",
+   "path": "live/runs/20261014T140635039506Z-transport-extsuffix-bin-r69/measurements.json"
+  },
+  "probe-transport-extsuffix-txw-r69": {
+   "run": "20261014T140637075953Z-transport-extsuffix-txw-r69",
+   "path": "live/runs/20261014T140637075953Z-transport-extsuffix-txw-r69/measurements.json"
+  },
+  "probe-transport-extsuffix-f32-r69": {
+   "run": "20261014T140639114072Z-transport-extsuffix-f32-r69",
+   "path": "live/runs/20261014T140639114072Z-transport-extsuffix-f32-r69/measurements.json"
+  },
+  "probe-transport-extsuffix-snd-r69": {
+   "run": "20261014T140641162793Z-transport-extsuffix-snd-r69",
+   "path": "live/runs/20261014T140641162793Z-transport-extsuffix-snd-r69/measurements.json"
+  },
+  "probe-ffprobe-transport-r71": {
+   "run": "20261014T141033155858Z-ffprobe-transport-r71",
+   "path": "live/runs/20261014T141033155858Z-ffprobe-transport-r71/measurements.json"
+  }
+ }
+}
