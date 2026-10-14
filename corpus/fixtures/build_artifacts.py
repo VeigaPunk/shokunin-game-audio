@@ -189,6 +189,45 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_posttable_r68_probe():
+    out = OUT.parent / "live" / "round-68"
+    out.mkdir(parents=True, exist_ok=True)
+    # r68 post-table fallback family. posttable_nomatch.wav satisfies NO CHECK
+    # row of the autodetect table (formats.c:66-267: the 'u' @0 kills every
+    # offset-0 magic; no "ring.bin"@16, no FSSD@65+HCOM@128, 0x00@256 kills
+    # act's residual conjunct; not named *.snd so the ext-gated sndr row is
+    # dead). Detection returns NULL on every transport; what remains is the
+    # post-table path (formats.c:920-933): io_type==lsx_io_pipe is unreachable
+    # from {file, stdin_pipe, redirected_fd, fifo_path} (that arm is the '|'
+    # popen opener), so fallback classification is lsx_find_file_extension(path)
+    # — a NAME property. The .wav extension is part of this member's contract:
+    # named arms route to the wav reader (file via true rewind, fifo via the
+    # pending-buffer replay of the <=257-B prefetch — both yield the wav
+    # reader's 'RIFF header not found'); anonymous '-' arms have no extension
+    # and die 'can't determine type of  `-'' — seekable redirected_fd included,
+    # which is the falsification arm for a seekability reading of the fork.
+    b = bytearray(b"ufo-r68 post-table-fallback no-match member: no CHECK row\n")
+    b.extend((i * 7 + 3) & 0xFF for i in range(len(b), 512))
+    b[256] = 0x00                                   # belt: act conjunct dead
+    (out / "posttable_nomatch.wav").write_bytes(b)
+    # txw_piperefuse.wav: the tracked pin of the r66-boundary pipe-refusal
+    # class. txw chosen over smp on byte cost: detector magic 6 B ("LM8953")
+    # vs smp's 17 B ("SOUND SAMPLE DATA"), and a decode-positive txw member
+    # needs only its 32-B reader header + payload (128 B -> 64 samples) where
+    # smp needs 112-B HEADERSIZE + 4-B count + data + 215-B trailer (>=331 B).
+    # tx16w.c:90 gates on !seekable BEFORE any byte read: 'input must be a
+    # file, not a pipe'. Seekable arms count bytes, rewind, parse the header
+    # and decode rest = size-32 = 96 B -> 32 three-byte groups -> 64 12-bit
+    # samples (tx16w.c:96-99, 222-237); sample_rate byte 3 -> 1e5/6 Hz.
+    t = bytearray(128)
+    t[0:6] = b"LM8953"
+    t[22] = 0xC9                                    # format: non-looped
+    t[23] = 3                                       # sample_rate -> 16 kHz
+    for i in range(32, 128):
+        t[i] = (i * 5 + 1) & 0xFF                   # deterministic payload
+    (out / "txw_piperefuse.wav").write_bytes(t)
+
+
 def build_ui_dec_preempt_r66_probe():
     out = OUT.parent / "live" / "round-66"
     out.mkdir(parents=True, exist_ok=True)
@@ -960,8 +999,14 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-lengate-gsrt-25-r66", action="store_true")
     parser.add_argument("--probe-ui-lengate-hcom-131-r66", action="store_true")
     parser.add_argument("--probe-ui-lengate-hcom-132-r66", action="store_true")
+    parser.add_argument("--probe-transport-posttable-nomatch-r68", action="store_true")
+    parser.add_argument("--probe-transport-txw-piperefuse-r68", action="store_true")
     args = parser.parse_args()
-    if (args.probe_ui_dec_hcom_r66 or args.probe_ui_dec_act_r66
+    if (args.probe_transport_posttable_nomatch_r68
+            or args.probe_transport_txw_piperefuse_r68):
+        main()
+        build_ui_posttable_r68_probe()
+    elif (args.probe_ui_dec_hcom_r66 or args.probe_ui_dec_act_r66
             or args.probe_ui_lengate_gsrt_24_r66 or args.probe_ui_lengate_gsrt_25_r66
             or args.probe_ui_lengate_hcom_131_r66 or args.probe_ui_lengate_hcom_132_r66):
         main()

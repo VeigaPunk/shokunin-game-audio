@@ -1,0 +1,18 @@
+=== member: probes/txw_min.wav (fifo name: txw_min.wav) ===
+--- file: sox -V6 probes/txw_min.wav -n stat
+exit=0
+sox INFO formats: detected file format type `txw'
+Samples read:               378
+--- stdin_pipe: cat probes/txw_min.wav | sox -V6 - -n stat
+exit=2
+sox INFO formats: detected file format type `txw'
+sox FAIL formats: can't open input  `-': input must be a file, not a pipe
+--- redirected_fd: sox -V6 - -n stat < probes/txw_min.wav
+exit=0
+sox INFO formats: detected file format type `txw'
+Samples read:               378
+--- fifo_path: sox -V6 /tmp/r68critic-fifo-dFR6/txw_min.wav -n stat (writer: write once, linger 1.0s)
+exit=2
+sox INFO formats: detected file format type `txw'
+sox FAIL formats: can't open input file `/tmp/r68critic-fifo-dFR6/txw_min.wav': input must be a file, not a pipe
+

@@ -1,0 +1,14 @@
+=== member: probes/nomatch_zeros_600.wav (fifo name: nomatch_zeros_600.wav) ===
+--- file: sox -V6 probes/nomatch_zeros_600.wav -n stat
+exit=2
+sox FAIL formats: can't open input file `probes/nomatch_zeros_600.wav': RIFF header not found
+--- stdin_pipe: cat probes/nomatch_zeros_600.wav | sox -V6 - -n stat
+exit=2
+sox FAIL formats: can't determine type of  `-'
+--- redirected_fd: sox -V6 - -n stat < probes/nomatch_zeros_600.wav
+exit=2
+sox FAIL formats: can't determine type of  `-'
+--- fifo_path: sox -V6 /tmp/r68critic-fifo-K8sU/nomatch_zeros_600.wav -n stat (writer: write once, linger 1.0s)
+exit=2
+sox FAIL formats: can't open input file `/tmp/r68critic-fifo-K8sU/nomatch_zeros_600.wav': RIFF header not found
+

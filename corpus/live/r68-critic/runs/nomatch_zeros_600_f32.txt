@@ -1,0 +1,14 @@
+=== member: probes/nomatch_zeros_600.f32 (fifo name: nomatch_zeros_600.f32) ===
+--- file: sox -V6 probes/nomatch_zeros_600.f32 -n stat
+exit=0
+Samples read:               150
+--- stdin_pipe: cat probes/nomatch_zeros_600.f32 | sox -V6 - -n stat
+exit=2
+sox FAIL formats: can't determine type of  `-'
+--- redirected_fd: sox -V6 - -n stat < probes/nomatch_zeros_600.f32
+exit=2
+sox FAIL formats: can't determine type of  `-'
+--- fifo_path: sox -V6 /tmp/r68critic-fifo-79Z4/nomatch_zeros_600.f32 -n stat (writer: write once, linger 1.0s)
+exit=0
+Samples read:               150
+

@@ -1,0 +1,18 @@
+=== member: probes/smp_min.wav (fifo name: smp_min.wav) ===
+--- file: sox -V6 probes/smp_min.wav -n stat
+exit=2
+sox INFO formats: detected file format type `smp'
+sox FAIL formats: can't open input file `probes/smp_min.wav': header is not version 2.1 
+--- stdin_pipe: cat probes/smp_min.wav | sox -V6 - -n stat
+exit=2
+sox INFO formats: detected file format type `smp'
+sox FAIL formats: can't open input  `-': input must be a file, not a pipe
+--- redirected_fd: sox -V6 - -n stat < probes/smp_min.wav
+exit=2
+sox INFO formats: detected file format type `smp'
+sox FAIL formats: can't open input  `-': header is not version 2.1 
+--- fifo_path: sox -V6 /tmp/r68critic-fifo-GUuI/smp_min.wav -n stat (writer: write once, linger 1.0s)
+exit=2
+sox INFO formats: detected file format type `smp'
+sox FAIL formats: can't open input file `/tmp/r68critic-fifo-GUuI/smp_min.wav': input must be a file, not a pipe
+
