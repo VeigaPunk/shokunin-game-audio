@@ -649,6 +649,7 @@ def ffprobe_leg(path_arg, label, data=None, stdin_path=None, feed=None):
         if not lines:
             return None
         t = re.sub(r"`[^']*'", "`<input>'", lines[-1])
+        t = re.sub(r" @ 0x[0-9a-fA-F]+", "", t)   # ASLR module tags
         return t.replace(probe_arg, "<input>")[-160:]
 
     ptail = _tail(perr)
