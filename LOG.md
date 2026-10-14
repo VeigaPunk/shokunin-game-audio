@@ -1182,3 +1182,22 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   D1/D2/D3 corrected at 77768fa. Ledger byte-identity: 84/85 shared modes
   identical; sole diff = fifo-hold transition-band jitter (measured, not
   drift). Bounded ffmpeg n9.0.1, this host. (Sol final, wave-10)
+
+## Round 72 — third decoder: libsndfile on the transport corpus (wave-11)
+
+- MOVE: `--probe-sndfile-transport-r72` — ctypes sf_open/sf_open_fd +
+  full-drain sf_readf_short verdicts on the canonical 9×4 matrix +
+  sndfile-info CLI leg (file arm only).
+- Claim under test corrected pre-land by critic+scout+boundary:
+  "sndfile-only .snd" falsified (sox accepts named arms too — joint
+  class); "ffmpeg superset" falsified (ffmpeg is the strictest set:
+  8 < sndfile 10 < sox 11-14); sox-only clause confirmed.
+- Measured: one fork (.snd named/anonymous = RAW|U-Law-500 vs reject);
+  txw recognized-then-refused tier unique; act/hcom transport-invariant;
+  no hold band under libsndfile (the r70 band was the SoX bridge's
+  open-#2 artifact — narrows r70's scope honestly).
+- Boundary measured: tier onset 12 B; .snd fallback opens 0-byte;
+  fallback case-insensitive; sniff consumes first 12 B (frames 512 vs
+  read 500).
+- Verdict: ADMIT-with-correction. Byte-stable ×2; prior rows untouched
+  (insertion-only). Sol final.

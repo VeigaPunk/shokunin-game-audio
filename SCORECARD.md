@@ -724,3 +724,11 @@ Non-author: verifier seat lost to free-model rate limits; operator adjudicator p
 | calibration | **unchanged** | insertion-only flag; prior 120-mode ledger untouched; byte-identity check armed for the report-last receipts |
 
 Sol (provisional): ADMIT — claim confirmed; operator-authored post-massacre; verifier pending post-reset. Bounded ffmpeg n9.0.1, this host.
+
+## Round 72 verdict — 2026-10-14
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | THIRD decoder runtime (libsndfile 1.2.2) on the canonical 9×4 matrix — 3-decoder verdict lattice established; .snd named/anonymous fork pinned; txw refuse-tier unique |
+| depth | **improved** | claim corrected by measurement before landing: sndfile-only class empty (joint with sox); ffmpeg strictest (not superset); hold-band shown SoX-bridge-specific; 12B tier onset + sniff-consumption measured |
+| calibration | **unchanged** | insertion-only; prior 121-mode rows untouched; r72 receipts byte-identical ×2 |
