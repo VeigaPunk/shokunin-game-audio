@@ -654,3 +654,13 @@ Non-author `reports/round-63/r63-verifier.md`: **86 fresh unique receipts**, 43 
 | calibration | **unchanged** | thresholds, format_failures, gate bounds all untouched; designed exit-1 failure shape preserved; verifier methodology caveat (relative-path compare artifact) recorded. |
 
 Non-author `reports/round-64/r64-verifier.md`: **AGREE on all four claims** — 92-cmd replay 44/48 exact, 86/86 + 6/6 receipts byte-identical, pair discriminators live, envelope-gate spot-checks, commits resolve. Sol `r64-adjudicator.md`: own reproduction of all six pair members (u8/11,520; s16le/5,760; s32le; NONE/exit-2; s64le/1,440). Bounded: this host's SoX_ng 14.8.0.1 + ffmpeg n9.0.1 only; non-extensible/float-GUID shapes unexercised; stdin+ffmpeg-bridge dead combination disclosed. No standards/fidelity/production inference. Work commit `4c12342`; report-last commit follows.
+
+## Round 65 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| coverage | **improved locally** | Autodetect surface grew from one pinned predicate to a measured total order — `wve ≺ gsrt ≺ hcom ≺ act ≺ wav` (boundary refined wve(80) at head); tracked collision family `corpus/live/round-65/pair_preempt_{act,gsrt,hcom,both}.wav` (sole signature-span diffs; `act` member byte-identical to r63 pair_route_84); `--probe-ui-preempt-*-r65` modes; designated ledger 86→96 (44 exit0/52 exit1); prior 92 receipts byte-identical. |
+| depth | **improved locally** | Detection ≠ accept decoupled: hcom-shaped RIFF decodes 9 samples natively (critic falsification of "preemptor ⇒ reader-fail"); `premature EOF` non-attributing (3 emitters); fd seekability is an invisible conjunct — gsrt decodes 11,076 on pipe where ffmpeg bridge dies (boundary); no-fallthrough proven on failed opens. |
+| calibration | **unchanged** | No thresholds or gate structure touched; ordering measured purely by detection lines + strace/execve counts. |
+
+Non-author `reports/round-65/r65-verifier.md`: **AGREE all five claims** — committed-state replay of all four tracked members, equivalent ledger re-run 96 commands (44/52) with 92/92 prior receipts byte-identical, sole-span `cmp -l` diffs exact, hcom-decode counterexample reproduced, zero tracked mutation observed. Sol `r65-adjudicator.md` admits no demonstrated scoped harm. Bounded to SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1 on this host; ordering is empirical detection-order on RIFF-family files. No standards-conformance, decoder-correctness, fidelity, audibility, production, rights, or promotion inference. Work commit `1b0d276`; report-last commit follows.
