@@ -4394,8 +4394,10 @@ def _capture_r77_link_delta(before, during):
 def _capture_r77_node_props(owner_pid=None):
     """The live pw-record node's own advertised target — recorded to
     demonstrate the provenance trap, never used as a verdict. Matched by
-    `application.process.id`, not by name alone — a concurrent seat's
-    pw-record node has the same application.name (r77 critic)."""
+    owning pid, not by name alone — a concurrent seat's pw-record node has
+    the same application.name (r77 critic). `application.process.id` lives
+    on the CLIENT object, not the node (and pw-record's client announces
+    itself as pw-cat); resolve node.props.client.id -> client.props."""
     out = {"nodes": []}
     try:
         proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
@@ -4403,12 +4405,22 @@ def _capture_r77_node_props(owner_pid=None):
     except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
         out["error"] = type(exc).__name__
         return out
+    client_pid = {}
+    for obj in dump:
+        if not str(obj.get("type", "")).endswith("Client"):
+            continue
+        cprops = ((obj.get("info") or {}).get("props") or {})
+        cpid = cprops.get("application.process.id")
+        if cpid is not None:
+            client_pid[str(obj.get("id"))] = str(cpid)
     for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
         props = ((node.get("info") or {}).get("props") or {})
         if props.get("application.name") != "pw-record":
             continue
         if owner_pid is not None and \
-                props.get("application.process.id") != str(owner_pid):
+                client_pid.get(str(props.get("client.id"))) != str(owner_pid):
             continue
         out["nodes"].append({"target_object": props.get("target.object"),
                              "stream_capture_sink":
@@ -4862,6 +4874,15 @@ def capture_source_lattice_r77_entry():
             continue
         if "blocked" in leg:
             continue   # named blockage row (no other sink / no source)
+        if leg.get("live_at_link_sample") and \
+                not leg.get("target_object_prop"):
+            # scribe r78-5.2: an empty dump on a live leg means the
+            # provenance witness read nothing — the fold's client->pid
+            # resolution must be exercised, not just recorded.
+            failures.append(
+                f"lattice {name}: live pw-record node absent from the "
+                "pid-matched pw-dump — provenance witness empty")
+            continue
         got = leg.get("consumed_nodes") or []
         # A concurrent seat's sink can appear on a shared host mid-run and
         # be consumed by a no-target capture. That is a CONFOUND, not this

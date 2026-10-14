@@ -98,3 +98,31 @@ topologically visible — scout `3e81acc7` measured default-follow,
 ~1–7 s, `alsa_tick_time` falsified), `unlinked_sustained_zeros`, JACK
 unshimmed path, parec `--fix-*` header mismatch, MIDI row, GStreamer
 `pipewiresrc` fallback equivalence (gst scout landed).
+
+## Fold-2 corrections (scribe r78 audit — findings 5.1–5.6)
+
+- **5.1 A/B provenance** — the pre-fold r76 run existed but lived only
+  in `/tmp/audio-prefold` (a detached worktree), so it was absent from
+  the audited record. Now preserved in-repo at
+  `corpus/live/r77-fold-prefold-ab/` with a NOTE. Its failure set
+  (`parec_no_device`, `arecord -D default`/`-D pipewire`) matches the
+  post-fold runs — the host-topology classification stands on artifact.
+- **5.2 fold regression FIXED** — the pid-owner pw-dump filter emptied
+  `target_object_prop` on all 12 cells: `application.process.id` lives
+  on the CLIENT object (pw-record's client announces as `pw-cat`), not
+  the node, and resolves via `node.client.id`; the value is a JSON int,
+  so an int-vs-str compare also filtered silently. Fixed to resolve
+  through `client.id` with str-cast, and the leaf is now fail-closed:
+  a live leg with an empty provenance witness FAILS.
+- **5.3 leaf semantics** — `confound_observed` broadened in the fold to
+  also mean "a named fallback class fired" (fallback_default_source);
+  semantics disclosed here rather than silently re-scoped.
+- **5.4 module ids** — pactl reuses ids across load/unload; "exact
+  module id" is exact-per-load, not instance-unique. The vacuity stays
+  closed via the unload-fired + pre-loss-consume asserts.
+- **5.5 seat ids** — the seat table above cites agent ids not present
+  in repo artifacts; authoritative citations are the report files
+  `reports/round-77/r77-{author,boundary,baseline,scribe,critic,
+  reviewer,verifier,simplifier}.md`.
+- **5.6 timestamps** — two r78 scout reports label local (-0300)
+  windows as "UTC"; off by 3 h, cosmetic.
