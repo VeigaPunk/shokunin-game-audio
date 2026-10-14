@@ -1269,3 +1269,29 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   zero-drift; integrator re-run post-fold 27/27 clean (failures: {}).
 - Verdict: ADMIT-corr (Sol, wave-14). Bounded pacat/libpulse 17.0,
   aplay -D null, ffplay lavf + SDL dummy, this host.
+
+## Round 76 — 2026-10-14 (wave-15)
+
+- MOVE: capture direction — pw-record/parecord/arecord/ffmpeg record
+  lattice (--probe-capture-r76: gate/bounded/sever/name/device/
+  roundtrip, six entries).
+- Landed `d566a31`: +1150/-3 insertion-only; named failure classes;
+  per-consumer TERM-finalize vs KILL-wound partition; rc-is-never-
+  verdict confirmed (rc=1 complete / rc=0 empty / rc=255 valid);
+  arecord -D null unpaced oracle (192044 B in ~0.02 s); parecord ~1.9 s
+  dead start; monitor roundtrip 960044 B with content witnesses.
+- Folds `18deef6`: zero-data vacuity closed (data_actual_zero is False
+  on all TERM checks — the round's real defect, found in the author's
+  own receipts); unchecked legs armed (ffmpeg_alsa_t, device-axis
+  sysdefault/plughw/hw); sever/gate coverage totality (absent legs
+  fail, early-exit = named dead start); fmt_absent class; scrub regex
+  fixed (seq:7); seat-neutral roundtrip scratch + real argv; D1-D9
+  simplifier deletions.
+- Verifier: AGREE all byte-level claims; DISAGREE on whole-receipt sha
+  (mechanism: pw-record monitor teardown lag contends for the card ->
+  host-state drift on inventory/device leaves; verdict surface stable);
+  N1-N3 new findings folded/noted.
+- Reviewer ADMIT-corr; critic all findings folded; baseline zero-drift;
+  simplifier D1-D9 byte-identical x8 passes.
+- Verdict: ADMIT-corr (Sol, wave-15). PipeWire 1.6.8/pacat 17.0-98/
+  alsa-utils 1.2.16/ffmpeg n9.0.1, this host.

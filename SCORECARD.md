@@ -764,3 +764,12 @@ Sol `r74-adjudicator.md`: ADMIT-corr — NOGENSEARCH gate measured, acm briefed-
 | calibration | **improved** | four critic/reviewer falsifications folded same-round (label honesty, vacuity guard, predicted-vs-measured -ss, dead regex anchor); verifier AGREE byte-identical ×5; post-fold integrator re-run clean |
 
 Sol `r75-adjudicator.md`: ADMIT-corr — consumer breadth landed with falsifications folded. Bounded: pacat/libpulse 17.0, aplay -D null, ffplay lavf + SDL dummy, this host. Work `db46fba`; folds `5f60747`.
+## Round 76 verdict — 2026-10-14
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | the RECORD direction armed: 6 entries over 4 capture consumers — gate/named-failure lattice, bounded ops, TERM/KILL sever wound classes, name axis, device axis, monitor roundtrip |
+| depth | **improved** | per-consumer wound partition measured at byte level (riff=8/data=0 reject vs 0x80000000 accept-and-lie vs 0xFFFFFFFF inflate); unpaced null oracle + parecord dead-start + 64KiB/256KiB flush granules; cross-decoder disagreement surface (alsa-utils predeclares requested duration) |
+| calibration | **improved** | zero-audio vacuity closed (D1 — the defect was live in landed receipts); 4 unchecked legs armed; coverage totality on sever/gate; canonical sha rescoped quiescent-host after verifier measured the teardown-contention mechanism |
+
+Sol `r76-adjudicator.md`: ADMIT-corr — capture lattice landed; the real defect (zero-audio TERM vacuity) and all unchecked-leg surfaces folded. Verifier AGREE on byte claims, N1-N3 folded/noted. Bounded: PipeWire 1.6.8 / pacat 17.0-98 / alsa-utils 1.2.16 / ffmpeg n9.0.1, this host. Work `d566a31` + folds `18deef6`.
