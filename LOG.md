@@ -1220,3 +1220,28 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   paced (4.03s/4s) and starved trickle blocks to EOF (~6s).
 - Verdict: ADMIT-with-correction (Sol, wave-12). wall_s leaves = measured
   realtime jitter; pins live on verdict signatures.
+
+## Round 74 — lavf no-seek demuxer sweep + pw-cat ops-2 (wave-13)
+
+- MOVE: `--probe-lavfsweep-r74` + ARM B ops-2. 7-member mpv sweep on
+  byte-deterministic generated members (hand-built iss/apc/acm headers,
+  ffmpeg-muxed adx; wav/aifc/dec_act controls) + pwcat_ops2 block.
+- Measured: the no-seek fork rule's real gate is AVFMT_NOGENSEARCH (the
+  generic-search fallback consumes the stream), not GENERIC_INDEX —
+  {iss, apc} -> output_rc forks, acm survives the failed refresh seek
+  with flush skipped (wound-level partition only, rc0 + identical PCM);
+  iss_multi -> truncation fork (constant-2-packet head loss, 4064 B);
+  adx/aifc/dec_act invariant; `mpv --start=2` position fork (192068 vs
+  384068 B decoded).
+- Ops-2: writerless fifo SIGTERM-immune -> -9; `--target 0` is
+  TERM-terminable rc124@4s (separate hang class); `--raw` kills the
+  name axis entirely (rc0 on .wav/.bin/.snd identical bytes);
+  private zero-sink daemon hangs -> -9 (recorded, not pinned).
+- Correction chain: critic F1 (acm counterexample, NOGENSEARCH gate) +
+  reviewer F1 (fork-kind conflation) folded as `fork_kind` lattice
+  {output_rc|wound|truncation|None}; stale falsified-claim comment at
+  :988 restated to adjudicated form.
+- Verifier AGREE 12/12 on committed tree; baseline zero-drift on
+  freeze 1ba8103 (120/121 mode-keyed, fifo-hold band only).
+- Verdict: ADMIT-corr (Sol, wave-13). Bounded mpv 0.41.0/lavf 63.1.101,
+  libpipewire 1.6.8, this host.

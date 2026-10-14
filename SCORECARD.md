@@ -744,3 +744,13 @@ Sol `r72-adjudicator.md`: ADMIT-with-correction — 3-decoder lattice verified w
 | calibration | **unchanged** | insertion-only (+466/-3); prior rows byte-stable; wall_s leaves = realtime jitter, pins on signatures |
 
 Sol `r73-adjudicator.md`: ADMIT-with-correction — member-local forks confirmed, class-polarity claim falsified as worded and restated. Bounded PipeWire 1.6.8 live daemon, mpv 0.41.0/lavf 63.1.101, this host. Work commit `febf34b`; report-last commit follows.
+
+## Round 74 verdict — 2026-11-01
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | lavf demuxer inventory measured past hcom: 4 new generated members (iss/apc/acm/adx hand-built + muxed) + 3 controls; the no-seek fork's real gate (NOGENSEARCH) now falsifiably pinned; --start=N position fork; pw-cat ops-2 hang taxonomy + raw-bypass |
+| depth | **improved** | three wound shapes distinguished: output_rc (probe drains all), truncation (2-packet constant), wound-only (NOGENSEARCH survives) — the seekable-bit axis is a 3-valued partition, not boolean |
+| calibration | **unchanged** | insertion-only (+544/-3 + folds); prior 120/121 modes byte-stable; byte-deterministic member generation; fork_kind honesty fold |
+
+Sol `r74-adjudicator.md`: ADMIT-corr — NOGENSEARCH gate measured, acm briefed-prediction falsified honestly. Verifier AGREE 12/12 on `168b165`. Bounded: mpv 0.41.0/lavf 63.1.101, libpipewire 1.6.8, this host.
