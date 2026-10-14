@@ -43,7 +43,7 @@ Earlier CHECKs that preempt: gsrt `ring.bin\0`@16, hcom `FSSD`@65 ∧ `HCOM`@128
 - Verifier caveat: the `00` receipt embeds the absolute canonical path in `sox_stderr` — byte-identity is a same-host property (same class r62-baseline flagged on `--probe-invalid`).
 - Simplifier nits: TSV `route=native` mislabels act-detected/ffmpeg-failed cells; builder comment "256 values x 11,588 positions" reads as cross-product (actual: separable 1-D sweeps — sufficient for a conjunctive predicate). Non-blocking.
 - Boundary: ffmpeg child exit status never reaped; one fd leaked per act-routed open — evidence-quality disclosures, claimed nowhere as gate behavior.
-- Integration: regenerable frozen baseline `tree/` and extracted upstream `src/` pruned; tarball retained for citation.
+- Integration: regenerable frozen baseline `tree/` and the extracted upstream `src/` pruned; no source tarball is committed — source citations re-verify against the upstream `sox_ng-14.8.0.1` tag (r64-reviewer re-fetched it independently and confirmed the cited lines).
 
 ## Per-axis verdicts
 

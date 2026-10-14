@@ -1,11 +1,12 @@
 # SoX_ng `act` autodetect predicate — byte-exact routing rule (round 63)
 
 - Source: round-63 seat evidence (`reports/round-63/r63-{author,scout,critic,
-  boundary,scribe,reviewer,baseline}.md`); upstream sox_ng-14.8.0.1 source
-  tarball `corpus/live/r63-boundary/sox_ng-14.8.0.1.tar.gz` (extract →
-  `src/formats.c` + `ffmpeg.c`; extracted tree pruned at integration as
-  derived-from-tarball); binary disasm receipts `corpus/live/r63-boundary/
-  disasm-act.txt` of `/usr/lib/libsox_ng.so.3.0.0` (r63-scout + r63-boundary).
+  boundary,scribe,reviewer,baseline}.md`); upstream sox_ng-14.8.0.1 source tag
+  (`sox_ng-14.8.0.1` on codeberg — `src/formats.c` + `ffmpeg.c`, fetched at
+  analysis time by r63-boundary and re-fetched independently by r64-reviewer;
+  no copy is committed — citations re-verify against the upstream tag); binary
+  disasm receipts `corpus/live/r63-boundary/disasm-act.txt` of
+  `/usr/lib/libsox_ng.so.3.0.0` (r63-scout + r63-boundary).
 - Verified at: 2026-10-13, host `/usr/bin/sox` SoX_ng v14.8.0.1
   (`pacman -Q sox` = 14.8.0.1-1, USING_FFMPEG build), ffmpeg/ffprobe n9.0.1.
 - Recheck when: SoX or ffmpeg version/build changes (the act row is
