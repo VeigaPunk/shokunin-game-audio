@@ -1153,3 +1153,32 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   close-before-deadline. No conformance/fidelity inference.
 - Per-axis verdicts (Sol `reports/round-70/r70-adjudicator.md`):
   ADMIT. Report-last commit follows.
+
+## Round 71 — 2026-10-14 (wave shokunin-train-20261101-w10, runtime expansion)
+
+- Declared move (coverage/runtime-breadth): second decoder runtime
+  (ffmpeg/ffprobe n9.0.1) on the tracked transport member set — claim:
+  ffmpeg verdicts track CONTENT probing, not the r68/r69 suffix/named
+  axis.
+- Operator substitution (author seat died to free-pool massacre):
+  measure_audio.py insertion-only — ffprobe_leg + ffmpeg_transport_matrix
+  (4 transports, per-process fifo writers) + ffprobe_transport_entry +
+  --probe-ffprobe-transport-r71 over 9 members (5 identical-byte suffix
+  members + r68 pair + dec_act/dec_hcom). New measurement keys only —
+  prior 120-mode ledger untouched.
+- Measured (receipt 20261014T140155796326Z): claim CONFIRMED — all 7
+  no-match members reject by content on all 4 transports (suffix plays
+  no role); dec_act/dec_hcom detect+decode transport-invariant. The
+  SoX named/suffix partition has no ffmpeg analogue on this set.
+- Self-caught artifact fixed pre-land: shared-fd consumed-offset made
+  redirected_fd fork (detect-ok/decode-fail); fresh-fd-per-leg fixed it —
+  `pipe:` over a seekable fd == over a true pipe on this build.
+- probe_score null on n9.0.1 (field absent in format dict) — recorded.
+- Own replay 0 forks, 0 fifo survivors; 121-mode ledger + byte-identity
+  check in corpus/live/r71-author/.
+- Remaining seats (baseline/scout/critic/boundary/scribe/simplifier/
+  reviewer/verifier) pending free-pool reset.
+- Verdict: ADMIT (claim confirmed). Verifier AGREE 3/3; verifier defects
+  D1/D2/D3 corrected at 77768fa. Ledger byte-identity: 84/85 shared modes
+  identical; sole diff = fifo-hold transition-band jitter (measured, not
+  drift). Bounded ffmpeg n9.0.1, this host. (Sol final, wave-10)

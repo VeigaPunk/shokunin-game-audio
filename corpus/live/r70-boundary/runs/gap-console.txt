@@ -1,0 +1,77 @@
+=== G1: true rescue (feed hold=0, late writer attach) ===
+G1        rescue2-d0.1-p0.3                  r0  au-magic  exit=2    wall=  0.402 wt=[('open', 0.0023), ('wrote', 0.0023), ('closed', 0.0023), ('r2open', 0.1002), ('r2closed', 0.4003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.1-p0.3                  r1  au-magic  exit=2    wall=  0.402 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029), ('r2open', 0.1002), ('r2closed', 0.4003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.1-p0.3                  r2  au-magic  exit=2    wall=  0.402 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029), ('r2open', 0.1002), ('r2closed', 0.4003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.1-p2.0                  r0  au-magic  exit=2    wall=  2.102 wt=[('open', 0.0026), ('wrote', 0.0026), ('closed', 0.0026), ('r2open', 0.1002), ('r2closed', 2.1002)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.1-p2.0                  r1  au-magic  exit=2    wall=  2.102 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029), ('r2open', 0.1003), ('r2closed', 2.1003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.1-p2.0                  r2  au-magic  exit=2    wall=  2.102 wt=[('open', 0.0025), ('wrote', 0.0025), ('closed', 0.0025), ('r2open', 0.1002), ('r2closed', 2.1003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p0.3                  r0  au-magic  exit=2    wall=  1.102 wt=[('open', 0.0027), ('wrote', 0.0027), ('closed', 0.0027), ('r2open', 0.8003), ('r2closed', 1.1003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p0.3                  r1  au-magic  exit=2    wall=  1.102 wt=[('open', 0.0022), ('wrote', 0.0022), ('closed', 0.0022), ('r2open', 0.8003), ('r2closed', 1.1003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p0.3                  r2  au-magic  exit=2    wall=  1.102 wt=[('open', 0.0027), ('wrote', 0.0027), ('closed', 0.0027), ('r2open', 0.8001), ('r2closed', 1.1002)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p2.0                  r0  au-magic  exit=2    wall=  2.802 wt=[('open', 0.0025), ('wrote', 0.0025), ('closed', 0.0025), ('r2open', 0.8002), ('r2closed', 2.8003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p2.0                  r1  au-magic  exit=2    wall=  2.802 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029), ('r2open', 0.8002), ('r2closed', 2.8003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d0.8-p2.0                  r2  au-magic  exit=2    wall=  2.802 wt=[('open', 0.0028), ('wrote', 0.0028), ('closed', 0.0028), ('r2open', 0.8003), ('r2closed', 2.8004)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d2.5-p0.3                  r0  au-magic  exit=2    wall=  2.802 wt=[('open', 0.0028), ('wrote', 0.0029), ('closed', 0.0029), ('r2open', 2.5003), ('r2closed', 2.8003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d2.5-p0.3                  r1  au-magic  exit=2    wall=  2.802 wt=[('open', 0.003), ('wrote', 0.003), ('closed', 0.003), ('r2open', 2.5002), ('r2closed', 2.8003)] err=can't find Sun/NeXT/DEC identifier
+G1        rescue2-d2.5-p0.3                  r2  au-magic  exit=2    wall=  2.802 wt=[('open', 0.0026), ('wrote', 0.0026), ('closed', 0.0026), ('r2open', 2.5002), ('r2closed', 2.8003)] err=can't find Sun/NeXT/DEC identifier
+=== G2: byte-feed anatomy (EPIPE window) ===
+G2        byte-h0-wt                         r0  blocked   exit=None wall=  7.009 wt=[('open', 0.0026), ('oserror', 0.5324, '[Errno 32] Broken pipe')] err=blocked: no verdict within 7.0 s
+G2        byte-h0-wt                         r1  blocked   exit=None wall=  7.007 wt=[('open', 0.0026), ('oserror', 0.5321, '[Errno 32] Broken pipe')] err=blocked: no verdict within 7.0 s
+G2        byte-h0-wt                         r2  blocked   exit=None wall=  7.005 wt=[('open', 0.0028), ('oserror', 0.5332, '[Errno 32] Broken pipe')] err=blocked: no verdict within 7.0 s
+G2        byte-h0-wt                         r3  blocked   exit=None wall=  7.009 wt=[('open', 0.0029), ('oserror', 0.5326, '[Errno 32] Broken pipe')] err=blocked: no verdict within 7.0 s
+G2        byte-h0-strace                     r0  blocked   exit=None wall=  7.008 wt=[('open', 0.0056), ('oserror', 0.5357, '[Errno 32] Broken pipe')] err=blocked: no verdict within 7.0 s
+G2        dribble-h0-wt                      r0  au-magic  exit=2    wall=  0.305 wt=[('open', 0.0028), ('wrote', 0.3035), ('closed', 0.3035)] err=can't find Sun/NeXT/DEC identifier
+G2        dribble-h0-wt                      r1  au-magic  exit=2    wall=  0.306 wt=[('open', 0.0027), ('wrote', 0.3034), ('closed', 0.3035)] err=can't find Sun/NeXT/DEC identifier
+G2        dribble-h0-wt                      r2  au-magic  exit=2    wall=  0.305 wt=[('open', 0.0029), ('wrote', 0.3037), ('closed', 0.3037)] err=can't find Sun/NeXT/DEC identifier
+G2        dribble-h0-wt                      r3  au-magic  exit=2    wall=  0.306 wt=[('open', 0.0028), ('wrote', 0.3036), ('closed', 0.3037)] err=can't find Sun/NeXT/DEC identifier
+G2        burst-stall-wt                     r0  au-magic  exit=2    wall=  1.204 wt=[('open', 0.0026), ('wrote', 1.2027), ('closed', 1.2027)] err=can't find Sun/NeXT/DEC identifier
+G2        burst-stall-wt                     r1  au-magic  exit=2    wall=  1.205 wt=[('open', 0.0026), ('wrote', 1.2027), ('closed', 1.2027)] err=can't find Sun/NeXT/DEC identifier
+=== G3: fresh rep-stability at the ragged edge ===
+G3        re-linger-h0.0                     r0  blocked   exit=None wall=  5.007 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r1  blocked   exit=None wall=  5.007 wt=[('open', 0.0027), ('wrote', 0.0027), ('closed', 0.0027)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r2  blocked   exit=None wall=  5.007 wt=[('open', 0.0025), ('wrote', 0.0025), ('closed', 0.0025)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r3  blocked   exit=None wall=  5.007 wt=[('open', 0.0022), ('wrote', 0.0023), ('closed', 0.0023)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r4  blocked   exit=None wall=  5.007 wt=[('open', 0.0031), ('wrote', 0.0031), ('closed', 0.0031)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r5  blocked   exit=None wall=  5.007 wt=[('open', 0.0029), ('wrote', 0.0029), ('closed', 0.0029)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r6  blocked   exit=None wall=  5.005 wt=[('open', 0.0031), ('wrote', 0.0031), ('closed', 0.0031)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.0                     r7  blocked   exit=None wall=  5.007 wt=[('open', 0.0028), ('wrote', 0.0028), ('closed', 0.0028)] err=blocked: no verdict within 5.0 s
+G3        re-linger-h0.02                    r0  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0026), ('wrote', 0.0026), ('closed', 0.0227)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r1  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0022), ('wrote', 0.0022), ('closed', 0.0223)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r2  au-magic  exit=2    wall=  0.023 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.0221)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r3  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0024), ('wrote', 0.0024), ('closed', 0.0224)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r4  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0025), ('wrote', 0.0027), ('closed', 0.0227)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r5  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0023), ('wrote', 0.0023), ('closed', 0.0224)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r6  au-magic  exit=2    wall=  0.023 wt=[('open', 0.0019), ('wrote', 0.0019), ('closed', 0.022)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.02                    r7  au-magic  exit=2    wall=  0.024 wt=[('open', 0.0025), ('wrote', 0.0025), ('closed', 0.0226)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r0  au-magic  exit=2    wall=  0.044 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.0421)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r1  au-magic  exit=2    wall=  0.044 wt=[('open', 0.0025), ('wrote', 0.0025), ('closed', 0.0425)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r2  au-magic  exit=2    wall=  0.044 wt=[('open', 0.0021), ('wrote', 0.0021), ('closed', 0.0422)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r3  au-magic  exit=2    wall=  0.044 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.0421)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r4  au-magic  exit=2    wall=  0.044 wt=[('open', 0.0021), ('wrote', 0.0021), ('closed', 0.0421)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r5  au-magic  exit=2    wall=  0.044 wt=[('open', 0.0022), ('wrote', 0.0022), ('closed', 0.0422)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r6  au-magic  exit=2    wall=  0.044 wt=[('open', 0.0023), ('wrote', 0.0023), ('closed', 0.0424)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.04                    r7  au-magic  exit=2    wall=  0.043 wt=[('open', 0.0021), ('wrote', 0.0022), ('closed', 0.0422)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r0  au-magic  exit=2    wall=  0.054 wt=[('open', 0.0021), ('wrote', 0.0021), ('closed', 0.0522)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r1  au-magic  exit=2    wall=  0.054 wt=[('open', 0.0022), ('wrote', 0.0022), ('closed', 0.0523)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r2  au-magic  exit=2    wall=  0.054 wt=[('open', 0.0023), ('wrote', 0.0023), ('closed', 0.0524)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r3  au-magic  exit=2    wall=  0.054 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.0521)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r4  au-magic  exit=2    wall=  0.054 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.0521)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r5  au-magic  exit=2    wall=  0.054 wt=[('open', 0.0021), ('wrote', 0.0021), ('closed', 0.0522)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r6  au-magic  exit=2    wall=  0.054 wt=[('open', 0.0024), ('wrote', 0.0024), ('closed', 0.0524)] err=can't find Sun/NeXT/DEC identifier
+G3        re-linger-h0.05                    r7  au-magic  exit=2    wall=  0.054 wt=[('open', 0.002), ('wrote', 0.002), ('closed', 0.052)] err=can't find Sun/NeXT/DEC identifier
+=== G4: edge holds under nice-19 CPU saturation ===
+    load1 under hogs: 0.68
+G4        load-edge-h0.02                    r0  blocked   exit=None wall=  6.012 wt=[('open', 0.0055), ('wrote', 0.0055), ('closed', 0.0256)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.02                    r1  blocked   exit=None wall=  6.010 wt=[('open', 0.0083), ('wrote', 0.0083), ('closed', 0.0284)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.02                    r2  blocked   exit=None wall=  6.009 wt=[('open', 0.0071), ('wrote', 0.0071), ('closed', 0.0272)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.02                    r3  blocked   exit=None wall=  6.010 wt=[('open', 0.0057), ('wrote', 0.0057), ('closed', 0.0258)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.05                    r0  blocked   exit=None wall=  6.010 wt=[('open', 0.0082), ('wrote', 0.0082), ('closed', 0.0583)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.05                    r1  blocked   exit=None wall=  6.011 wt=[('open', 0.0084), ('wrote', 0.0085), ('closed', 0.0585)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.05                    r2  blocked   exit=None wall=  6.012 wt=[('open', 0.0113), ('wrote', 0.0113), ('closed', 0.0614)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.05                    r3  blocked   exit=None wall=  6.013 wt=[('open', 0.0074), ('wrote', 0.0074), ('closed', 0.0575)] err=blocked: no verdict within 6.0 s
+G4        load-edge-h0.5                     r0  au-magic  exit=2    wall=  0.514 wt=[('open', 0.0098), ('wrote', 0.0106), ('closed', 0.5107)] err=can't find Sun/NeXT/DEC identifier
+G4        load-edge-h0.5                     r1  au-magic  exit=2    wall=  0.514 wt=[('open', 0.0101), ('wrote', 0.0107), ('closed', 0.5108)] err=can't find Sun/NeXT/DEC identifier
+G4        load-edge-h0.5                     r2  au-magic  exit=2    wall=  0.511 wt=[('open', 0.0066), ('wrote', 0.0066), ('closed', 0.5067)] err=can't find Sun/NeXT/DEC identifier
+G4        load-edge-h0.5                     r3  au-magic  exit=2    wall=  0.522 wt=[('open', 0.0066), ('wrote', 0.0067), ('closed', 0.5067)] err=can't find Sun/NeXT/DEC identifier
+orphan audit: 0 ffmpeg procs reference r70-boundary (must be 0)
+rows: 70 -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r70-boundary/runs/gap-legs.json

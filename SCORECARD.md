@@ -714,3 +714,13 @@ Non-author `reports/round-69/r69-verifier.md`: **AGREE 6/6** on `30bb86d` — in
 | calibration | **unchanged** | default 1.0s preserved (~20x margin over the zone); prior-119 rows byte-stable (probe replay identical on dec_act); additive flag only. |
 
 Non-author: verifier seat lost to free-model rate limits; operator adjudicator probe on `59a7440` + baseline's independent 10-rep ladder agree verbatim (blocked 10/10 @ h=0; exit-2 10/10 >=50ms; chunked all-stable). Sol `r70-adjudicator.md`: measured band + third-outcome refutation adopted. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; zone load-dependent; no conformance/fidelity/production inference. Work commit `59a7440`; report-last commit follows.
+
+## Round 71 verdict — 2026-10-14
+
+| axis | Sol verdict | evidence |
+|---|---|---|
+| coverage | **improved locally** | second decoder runtime under measurement: ffmpeg/ffprobe n9.0.1 on the 9-member transport corpus — new parallel receipt family (`ffprobe_*_r71_probe`), claim CONFIRMED content-vs-suffix |
+| depth | **improved locally** | named/suffix partition shown SoX-specific: no ffmpeg analogue; per-process fifo writer protocol discovered (consumer chains need fresh writers); fresh-fd-per-leg rule recorded |
+| calibration | **unchanged** | insertion-only flag; prior 120-mode ledger untouched; byte-identity check armed for the report-last receipts |
+
+Sol (provisional): ADMIT — claim confirmed; operator-authored post-massacre; verifier pending post-reset. Bounded ffmpeg n9.0.1, this host.
