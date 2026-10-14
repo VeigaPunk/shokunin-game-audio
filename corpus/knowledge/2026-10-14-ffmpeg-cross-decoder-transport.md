@@ -15,5 +15,5 @@ anonymous; suffix-dispatched post-table fallback) has NO ffmpeg analogue:
   a consumed offset reads EOF downstream.
 - `pipe:` over a seekable fd == `pipe:` over a true pipe on this build —
   redirected_fd is not a distinct ffmpeg transport class.
-- ffprobe `-show_entries format=probe_score` returns no probe_score key
+- ffprobe `-show_entries format=format_name,probe_score` returns a real score on successful detects (wav=99, hcom=100 on this corpus); the key is absent only when ffprobe rejects the input (exit 1, no format JSON)
   on n9.0.1 — recorded null.

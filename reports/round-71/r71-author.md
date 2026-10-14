@@ -57,7 +57,12 @@ protocol — the quadrant is **not** a distinct ffmpeg transport class
 
 - Receipt: `corpus/live/runs/20261014T140155796326Z-normal/measurements.json`
 - `corpus/live/r71-author/run_ledger.py` (121 modes), `compare_receipts.py`
-  (byte-identity vs r70 ledger).
+  (byte-identity vs r70 ledger, matched by mode identity).
+Ledger result: 84/85 shared modes byte-identical; the sole diff is
+fifo-hold-ladder's measured transition band (chunked h=0.05 jittered
+9x-ok/1x-blocked — the r70-measured nondeterminism, not drift). 36 modes
+in the flag chain had no r70-ledger row and now carry r71 receipts —
+coverage widened, no regression.
 - Runs: ~3min wall, 0 fifo survivors (per-process writer + reap).
 
 ## Unknowns for boundary/next-round
