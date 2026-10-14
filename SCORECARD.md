@@ -773,3 +773,13 @@ Sol `r75-adjudicator.md`: ADMIT-corr — consumer breadth landed with falsificat
 | calibration | **improved** | zero-audio vacuity closed (D1 — the defect was live in landed receipts); 4 unchecked legs armed; coverage totality on sever/gate; canonical sha rescoped quiescent-host after verifier measured the teardown-contention mechanism |
 
 Sol `r76-adjudicator.md`: ADMIT-corr — capture lattice landed; the real defect (zero-audio TERM vacuity) and all unchecked-leg surfaces folded. Verifier AGREE on byte claims, N1-N3 folded/noted. Bounded: PipeWire 1.6.8 / pacat 17.0-98 / alsa-utils 1.2.16 / ffmpeg n9.0.1, this host. Work `d566a31` + folds `18deef6`.
+
+## r77 — capture-source lattice + fallback law (wave-17)
+
+| axis | move | evidence |
+|---|---|---|
+| coverage | **improved** | 6 new probe entries: target-loss sustain, 12-row source lattice (incl. discriminating probe-owned sink), 5-reader severed-WAV matrix, arecord bound-derived headers, 2 GiB split sentinel, format conversion/refusal axis |
+| depth | **improved** | `stream.capture.sink` fallback law pinned (identity not silence); real target-loss transition measured (98→104→102 % + sink→fallback topology); 32×/5.05× reader inflation; usage_refusal vs bounded-capture rc=1 partition |
+| calibration | **improved** | 4-seat exclusivity-guard defect closed; N2 wall-leg vacuity armed (was rc-0 no-op on a dead sink); F5 +2048 MB RSS streaming fix; sink_gone source/sink enumeration vacuity armed; 18.6 % contention false-alarm class named |
+
+Sol `r77-adjudicator.md`: ADMIT-corr — fallback law + reader matrix + split sentinel armed; every consensus vacuity folded; r76 drift classified host-state (pre-fold HEAD repro + named contention class). Bounded: PipeWire 1.6.8, DualSense-default-source topology, this host. Work `65790f1` + fold `1a84ca7`.

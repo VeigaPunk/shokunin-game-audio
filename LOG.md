@@ -1295,3 +1295,40 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   simplifier D1-D9 byte-identical x8 passes.
 - Verdict: ADMIT-corr (Sol, wave-15). PipeWire 1.6.8/pacat 17.0-98/
   alsa-utils 1.2.16/ffmpeg n9.0.1, this host.
+
+## Round 77 — 2026-10-14 (wave-17)
+
+- MOVE: record-side frontier — capture-source/target lattice, the
+  stream.capture.sink fallback law, sustained capture across target
+  loss, five-reader severed-WAV matrix, arecord bound-derived headers,
+  2 GiB split sentinel (<name>-01.wav), format conversion vs
+  usage_refusal (--probe-capture-r77, six entries).
+- Landed `65790f1`: +1552/-2 insertion-only; fallback law pinned (sink
+  never captured without the prop; every unresolvable/default/source
+  name -> current default sink's monitor); sustained_after_target_loss;
+  reader matrix; 32x/5.05x inflation law; usage_refusal partition.
+- Folds `1a84ca7` (+336/-127): four-seat consensus defect closed
+  (exclusivity guard missed probe_capture_r77); N2 wall-leg vacuity
+  armed (fresh sink + exact module id -> real transition 98/104/102%
+  now measured); per-process sink names kill cross-seat collision;
+  prop_probe_sink row discriminates on single-sink hosts; F5 streaming
+  (bounded header/chunked/memmap; was +2048 MB RSS); sink_gone vacuity
+  armed; confounds honored (stale links, foreign clients via /proc);
+  fail-closed asserts on calibration/device-axis/format-refusal/
+  frame-bound bytes/sink teardown; carries_tone raw-fraction;
+  sha_match_control fails closed; noprop fallback named-class set.
+- Verifier: AGREE 8/8 headline claims (own-harness reproduction);
+  N1-N4 folded. Reviewer ACCEPT+F1/F5/F3 folded. Critic all folded.
+  Simplifier +56/-58 zero-diff batch + S6 vacuous check armed.
+  Baseline: 125/125 zero-drift both phases; roundtrip witness 18.6%
+  contention false-alarm class named.
+- Folded probe: 6/6 probes failures:{} under contention (receipt
+  20261014T210316456683Z). r76 regression: 3 host-state failures all
+  reproduced on pre-fold HEAD or match named contention classes —
+  environmental (DualSense default-source topology + seat load), not
+  fold regression.
+- FOUND (parked): ambience.wav in-place regeneration side-effect
+  (restored; read-only seeds is r78 work); ±1-frame drift claim
+  falsified by simplifier (<=8192 measured).
+- Verdict: ADMIT-corr (Sol, wave-17). PipeWire 1.6.8/pacat 17.0-98/
+  alsa-utils 1.2.16/ffmpeg n9.0.1, DualSense-source host topology.
