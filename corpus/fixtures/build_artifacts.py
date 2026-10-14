@@ -228,6 +228,41 @@ def build_ui_posttable_r68_probe():
     (out / "txw_piperefuse.wav").write_bytes(t)
 
 
+def build_ui_extsuffix_r69_probe():
+    out = OUT.parent / "live" / "round-69"
+    out.mkdir(parents=True, exist_ok=True)
+    # r69 EXTENSION-SUFFIX family: ONE no-match byte buffer renamed under
+    # five extensions. r68 pinned the named-vs-anonymous fork of the
+    # post-table fallback; this family sweeps the suffix sub-axis inside the
+    # named arm — identical bytes, and lsx_find_file_extension(path) alone
+    # selects the fallback handler (formats.c:925-929): wav -> wav reader
+    # ('RIFF header not found'), bin -> 'no handler for file extension',
+    # txw -> txw reader (its startread own-checks the LM8953 magic ->
+    # 'invalid filetype ID' on seekable, !seekable gate -> pipe refusal on
+    # fifo), f32 -> raw decode (128 samples), and snd -> the ONLY
+    # extension-parameterized CHECK row (formats.c:247-248 `if (ext &&
+    # !strcasecmp(ext,"snd")) CHECK(sndr,7,1,"",0,2,"\0")`) — under a .snd
+    # name DETECTION itself returns sndr (predicate \0\0@0 ^ \0@7), so the
+    # snd member is the first tracked member whose detection verdict — not
+    # just the decode verdict — forks on transport name. Under every other
+    # extension the row is skipped and detection stays NULL on identical
+    # bytes. Anonymous '-' arms carry no extension on any member ->
+    # 'can't determine type of  `-'' for all five.
+    # Buffer contract (512 B, same ramp as r68): b[0]=b[1]=b[7]=0 satisfies
+    # the sndr conjuncts; every other CHECK row stays dead — offset-0
+    # magics all start nonzero or mismatch (mpeg needs 01 BA @2-3, gxf
+    # needs 00 00 00 00 01 BC, au "\0ds." needs 'd'@1, sf \0\00x needs
+    # 1/2/3@1, apm needs \x20@1), ring.bin@16/FSSD@65/HCOM@128/\x84@256 all
+    # mismatch, wsaud needs {1,0x63}@11, every ftyp@4 variant needs 'f'.
+    b = bytearray((i * 7 + 3) & 0xFF for i in range(512))
+    b[0] = 0                                          # sndr conjunct 1
+    b[1] = 0                                          # sndr conjunct 1
+    b[7] = 0                                          # sndr conjunct 2 (@7)
+    b[256] = 0                                        # belt: act conjunct dead
+    for ext in ("wav", "bin", "txw", "f32", "snd"):
+        (out / f"extsuffix_nomatch.{ext}").write_bytes(b)
+
+
 def build_ui_dec_preempt_r66_probe():
     out = OUT.parent / "live" / "round-66"
     out.mkdir(parents=True, exist_ok=True)
@@ -1001,8 +1036,18 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-lengate-hcom-132-r66", action="store_true")
     parser.add_argument("--probe-transport-posttable-nomatch-r68", action="store_true")
     parser.add_argument("--probe-transport-txw-piperefuse-r68", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-wav-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-bin-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-txw-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-f32-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-snd-r69", action="store_true")
     args = parser.parse_args()
-    if (args.probe_transport_posttable_nomatch_r68
+    if (args.probe_transport_extsuffix_wav_r69 or args.probe_transport_extsuffix_bin_r69
+            or args.probe_transport_extsuffix_txw_r69 or args.probe_transport_extsuffix_f32_r69
+            or args.probe_transport_extsuffix_snd_r69):
+        main()
+        build_ui_extsuffix_r69_probe()
+    elif (args.probe_transport_posttable_nomatch_r68
             or args.probe_transport_txw_piperefuse_r68):
         main()
         build_ui_posttable_r68_probe()
