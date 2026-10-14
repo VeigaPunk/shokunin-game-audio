@@ -545,6 +545,186 @@ def fifo_hold_ladder_entry(member, path):
     return entry
 
 
+# r71 second-decoder runtime: ffmpeg n9.0.1 / ffprobe on the same members and
+# the same 4-transport matrix. Declared falsifiable claim: ffmpeg tracks
+# CONTENT probing, not the suffix axis -- it accepts members SoX
+# extension-rejects when content is parseable, and rejects by content where
+# SoX accepts by suffix. The member set reuses the tracked transport corpus:
+# r69's five identical-byte extension members isolate the suffix axis; the
+# r68 pair isolates post-table/no-match content; dec_act/dec_hcom are the
+# ffmpeg-bridge members whose SoX verdicts already route through ffmpeg.
+TRANSPORT_R71_MEMBERS = {
+    "posttable_nomatch": TRANSPORT_R68_MEMBERS["posttable_nomatch"],
+    "txw_piperefuse": TRANSPORT_R68_MEMBERS["txw_piperefuse"],
+    "dec_act": TRANSPORT_R67_MEMBERS["dec_act"],
+    "dec_hcom": TRANSPORT_R67_MEMBERS["dec_hcom"],
+    "extsuffix_wav": TRANSPORT_R69_MEMBERS["extsuffix_wav"],
+    "extsuffix_bin": TRANSPORT_R69_MEMBERS["extsuffix_bin"],
+    "extsuffix_txw": TRANSPORT_R69_MEMBERS["extsuffix_txw"],
+    "extsuffix_f32": TRANSPORT_R69_MEMBERS["extsuffix_f32"],
+    "extsuffix_snd": TRANSPORT_R69_MEMBERS["extsuffix_snd"],
+}
+TRANSPORT_R71_ARM_TIMEOUT_S = 15
+
+
+def ffprobe_leg(path_arg, label, data=None, stdin_path=None, feed=None):
+    """One bounded ffmpeg leg -> detection + decode verdict.
+
+    ffprobe reports the detection verdict (format_name + probe_score);
+    `ffmpeg -v error -i <in> -f null -` reports the decode verdict.
+    <in> is a path for named transports or `pipe:` for the anonymous
+    stdin transports. stderr tails keep ASLR/path normalization.
+
+    `feed` = (fifo_dir, filename, data, hold_s): when given, EACH of the
+    two subprocesses gets its own fifo + writer — the r71 fix for the
+    r67-analog defect where the second process opened the (already
+    writer-dead) fifo and blocked forever. transport_protocol records the
+    effective hold so an env override is never silent."""
+    kw = {"input": data} if data is not None else {}
+    # stdin_path: a SEEKABLE backing fd for the `pipe:` protocol — each
+    # subprocess must get a FRESH fd at offset 0 (an fh consumed by the
+    # ffprobe leg would leave ffmpeg reading EOF; measured r71 artifact).
+    if stdin_path is not None:
+        data = None
+
+    def run(argv, fifodata=None):
+        fh = open(stdin_path, "rb") if stdin_path is not None else None
+        if fifodata is None:
+            try:
+                proc = subprocess.run(argv, capture_output=True,
+                                      timeout=TRANSPORT_R71_ARM_TIMEOUT_S,
+                                      stdin=fh, **kw)
+                return (proc.stdout.decode(errors="replace"),
+                        proc.stderr.decode(errors="replace"),
+                        proc.returncode, None)
+            except subprocess.TimeoutExpired as exc:
+                err = exc.stderr or b""
+                return ((exc.stdout or b"").decode(errors="replace"),
+                        err.decode(errors="replace"), None,
+                        f"blocked: no verdict within {TRANSPORT_R71_ARM_TIMEOUT_S} s")
+            finally:
+                if fh is not None:
+                    fh.close()
+        tmp, fname, bytes_, hold = fifodata
+        fifo = Path(tmp) / fname
+        os.mkfifo(fifo)
+        writer = threading.Thread(target=fifo_feed, args=(fifo, bytes_, hold),
+                                  daemon=True)
+        writer.start()
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=TRANSPORT_R71_ARM_TIMEOUT_S)
+            return (proc.stdout.decode(errors="replace"),
+                    proc.stderr.decode(errors="replace"),
+                    proc.returncode, None)
+        except subprocess.TimeoutExpired as exc:
+            err = exc.stderr or b""
+            return ((exc.stdout or b"").decode(errors="replace"),
+                    err.decode(errors="replace"), None,
+                    f"blocked: no verdict within {TRANSPORT_R71_ARM_TIMEOUT_S} s")
+        finally:
+            writer.join(timeout=hold + 5)
+            reap_fifo_orphans(fifo)
+            fifo.unlink(missing_ok=True)
+
+    if feed is None:
+        probe_arg, fifodata = path_arg, None
+    else:
+        probe_arg, fifodata = str(Path(feed[0]) / feed[1]), feed
+    pout, perr, pcode, perr_msg = run(
+        ["ffprobe", "-v", "error", "-show_entries",
+         "format=format_name,probe_score", "-of", "json", probe_arg],
+        fifodata)
+    fmt, score = None, None
+    if pout.strip():
+        try:
+            j = json.loads(pout)
+            fmt = j.get("format", {}).get("format_name")
+            score = j.get("format", {}).get("probe_score")
+        except json.JSONDecodeError:
+            fmt = "json-parse-error"
+    ptail = perr.strip().splitlines()
+    ptail = re.sub(r"`[^']*'", "`<input>'", ptail[-1])[-160:] if ptail else None
+
+    dout, derr, dcode, derr_msg = run(
+        ["ffmpeg", "-v", "error", "-i", probe_arg, "-f", "null", "-"],
+        fifodata)
+    dtail = derr.strip().splitlines()
+    dtail = re.sub(r"`[^']*'", "`<input>'", dtail[-1])[-160:] if dtail else None
+
+    return {"input": label,
+            "ffprobe_format": fmt, "probe_score": score,
+            "ffprobe_exit": pcode, "ffprobe_error": perr_msg or ptail,
+            "ffmpeg_exit": dcode, "ffmpeg_error": derr_msg or dtail}
+
+
+def ffmpeg_transport_matrix(path, hold_s=None):
+    """The member's ffmpeg verdict on each of the four transports. The fifo
+    arm reuses the r67/r70 writer protocol (same fifo_feed + hold + reap) —
+    a fifo reader with no attached writer blocks at open() just like sox's
+    ffmpeg bridge."""
+    hold_s = fifo_writer_hold_s() if hold_s is None else hold_s
+    rel = str(path.relative_to(ROOT))
+    arms = {}
+    arms["file"] = ffprobe_leg(str(path), rel)
+    data = path.read_bytes()
+    arms["stdin_pipe"] = ffprobe_leg("pipe:", "pipe:", data=data)
+    arms["redirected_fd"] = ffprobe_leg("pipe:", "pipe:", stdin_path=str(path))
+    with tempfile.TemporaryDirectory(prefix="transport-r71-") as tmp:
+        arms["fifo_path"] = ffprobe_leg(None, path.name,
+                                        feed=(tmp, path.name, data, hold_s))
+    for transport, named, seekable in TRANSPORT_R67_ARMS:
+        arms[transport]["named"] = named
+        arms[transport]["seekable"] = seekable
+    return arms
+
+
+def ffprobe_transport_entry(member, path):
+    """r71 receipt entry: ffmpeg's per-transport verdict groups for one
+    member -- the cross-decoder partition. Groups key on the ffmpeg
+    detection+decode signature so a transport fork lands in the receipt,
+    and ffprobe_groups key on the detection signature alone (ffmpeg can
+    decode-diverge where ffprobe detection agrees)."""
+    arms = ffmpeg_transport_matrix(path)
+    groups, pgroups = [], []
+    for transport in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+        arm = arms[transport]
+        sig = (arm["ffprobe_format"], arm["ffmpeg_exit"], arm["ffmpeg_error"])
+        psig = (arm["ffprobe_format"], arm["ffprobe_exit"], arm["ffprobe_error"])
+        for group in groups:
+            if group[0] == sig:
+                group[1].append(transport); break
+        else:
+            groups.append((sig, [transport]))
+        for group in pgroups:
+            if group[0] == psig:
+                group[1].append(transport); break
+        else:
+            pgroups.append((psig, [transport]))
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "decoder": "ffmpeg/ffprobe",
+             "transport_axis": arms,
+             "transport_protocol": {"arm_timeout_s": TRANSPORT_R71_ARM_TIMEOUT_S,
+                                    "fifo_writer_hold_s": fifo_writer_hold_s(),
+                                    "fifo_feed": "one-shot write then writer lingers"},
+             "transport_verdict_groups": [
+                 {"transports": ts, "ffprobe_format": sig[0],
+                  "ffmpeg_exit": sig[1], "ffmpeg_error": sig[2]}
+                 for sig, ts in groups],
+             "ffprobe_verdict_groups": [
+                 {"transports": ts, "ffprobe_format": sig[0],
+                  "ffprobe_exit": sig[1], "ffprobe_error": sig[2]}
+                 for sig, ts in pgroups],
+             "transport_fork": len(groups) > 1,
+             "failures": []}
+    if entry["transport_fork"]:
+        desc = " vs ".join("/".join(ts) + "=" + (sig[2] or str(sig[0]))
+                           for sig, ts in groups)
+        entry["failures"].append(
+            f"transport: ffmpeg verdict forks across transports ({desc})")
+    return entry
+
+
 def transport_entry(member, path):
     """Receipt entry: transport axis matrix + verdict groups + fork pin."""
     arms = transport_matrix(path)
@@ -693,8 +873,9 @@ def main():
     parser.add_argument("--probe-transport-extsuffix-f32-r69", action="store_true")
     parser.add_argument("--probe-transport-extsuffix-snd-r69", action="store_true")
     parser.add_argument("--probe-fifo-hold-ladder-r70", action="store_true")
+    parser.add_argument("--probe-ffprobe-transport-r71", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -902,6 +1083,18 @@ def main():
         directory, filename = TRANSPORT_R67_MEMBERS[TRANSPORT_R70_MEMBER]
         measurements["fifo_hold_ladder_dec_act_r70_probe"] = fifo_hold_ladder_entry(
             TRANSPORT_R70_MEMBER, ROOT / "live" / directory / filename)
+    if args.probe_ffprobe_transport_r71:
+        # r71: SECOND DECODER runtime (ffmpeg n9.0.1/ffprobe) on the tracked
+        # transport member set — a NEW parallel ledger family, prior rows
+        # untouched. The falsifiable claim (content-probing vs the r68/r69
+        # suffix/named axis) is measured per-member: extsuffix_* carry
+        # identical bytes under five names (does ffmpeg care about the
+        # name at all?), posttable/txw carry post-table content, dec_* are
+        # the members whose SOX verdicts already cross the ffmpeg bridge.
+        for member, (directory, filename) in TRANSPORT_R71_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            measurements[f"ffprobe_{member}_r71_probe"] = ffprobe_transport_entry(
+                member, path)
     if (args.probe_transport_extsuffix_wav_r69 or args.probe_transport_extsuffix_bin_r69
             or args.probe_transport_extsuffix_txw_r69 or args.probe_transport_extsuffix_f32_r69
             or args.probe_transport_extsuffix_snd_r69):
