@@ -704,3 +704,13 @@ Non-author `reports/round-68/r68-verifier.md`: **AGREE 5/5** on `6c91040` — in
 | calibration | **unchanged** | additive members + flags; prior-114 receipts byte-identical (verifier); no predicate edits. |
 
 Non-author `reports/round-69/r69-verifier.md`: **AGREE 6/6** on `30bb86d` — independent 119-cmd replay position-identical, members byte-identical to rebuild, probes deterministic ×6, census reproduced. Sol `r69-adjudicator.md`: declared ≥3 claim confirmed at ≥6 groups; .snd detection-fork verified at byte level by 4 seats. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; `.mp3`/`.aptx`/`.dts` fifo hazards disclosed; census = coverage bookkeeping not deadness. No conformance/fidelity/production inference. Work commit `30bb86d`; report-last commit follows.
+
+## Round 70 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | `fifo_writer_hold_s` demoted from point constant to MEASURED transition band: oneshot {0 blocked → >=50ms stable} on this host; chunked feed lands 10/10 at h*=0 (binary-arm control) — strict binary-on-attach refuted; outcome space = attach x close-before-deadline. |
+| coverage | **improved locally** | `--probe-fifo-hold-ladder-r70` (6 holds x 2 feeds x 10 reps, per-cell verdict distributions); `fifo_feed` chunked variant; `reap_fifo_orphans` backstop on both fifo legs. |
+| calibration | **unchanged** | default 1.0s preserved (~20x margin over the zone); prior-119 rows byte-stable (probe replay identical on dec_act); additive flag only. |
+
+Non-author: verifier seat lost to free-model rate limits; operator adjudicator probe on `59a7440` + baseline's independent 10-rep ladder agree verbatim (blocked 10/10 @ h=0; exit-2 10/10 >=50ms; chunked all-stable). Sol `r70-adjudicator.md`: measured band + third-outcome refutation adopted. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; zone load-dependent; no conformance/fidelity/production inference. Work commit `59a7440`; report-last commit follows.

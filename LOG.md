@@ -1106,3 +1106,50 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   coverage improved locally (suffix sub-axis + census), depth improved
   locally (first detection-fork member + txw 3-way intersection), calibration
   unchanged. Work commit `30bb86d`; report-last follows.
+
+## Round 70 — devin host — depth/calibration: fifo_writer_hold_s measured as a transition band; chunked feed = binary-arm control
+
+- Declared (dispatch brief): pin `fifo_writer_hold_s=1.0` as a MEASURED
+  determinism bound — ladder {0,0.05,0.2,0.5,1.0,2.0}s on the dec_act
+  member (the arm needing the bridge's open #2) + one chunked-feed
+  variant; claim: rep-stable h* < 1.0s exists OR the verdict is binary
+  on writer-attached-at-open-#2 (h*=0 with a correctly blocking writer).
+  Per-cell verdict DISTRIBUTIONS in the receipt; all 119 prior ledger
+  rows + receipts byte-stable.
+- Wave `shokunin-train-20261014-w9`: leaf set
+  `reports/round-70/r70-{baseline,critic,reviewer,scout}.md` landed;
+  author / boundary / scribe / simplifier / verifier seats died to
+  free-model rate limits (5+ respawn attempts across seats). The
+  author's diff landed before dying; critic audited it + found 5
+  defects, all corrected at integration.
+- Work commit `59a7440`: measure_audio.py +252 — `fifo_writer_hold_s()`
+  env-param (default 1.0s preserved), `fifo_feed(hold_s, feed)` oneshot
+  + chunked, `fifo_hold_leg` (start_new_session + killpg),
+  `fifo_hold_ladder_entry` (6 holds x 2 feeds x 10 reps, per-cell
+  verdict distributions); build_artifacts.py +9
+  (`--probe-fifo-hold-ladder-r70` self-sufficient flag).
+- Measured (operator probe + baseline independent ladder): oneshot
+  h=0 -> 10/10 blocked (writer detaches before open #2, ffmpeg
+  grandchild dead-locks in openat); h>=0.05 -> 10/10 exit-2 au-magic;
+  transition zone (0, ~50ms] on this host — reported as
+  {max_divergent, min_stable} band per feed, never a scalar h*.
+  chunked feed: stable at EVERY hold incl. h*=0 — feed duration spans
+  the open window; refutes strict binary-on-attach (third outcome:
+  attach-through-delivery). Default 1.0s = ~20x margin.
+- Critic corrections integrated: wall_s floats removed from the
+  committed receipt (byte-identity discipline); point h* relabeled
+  `hold_transition_band_s` + load-zone semantics; /proc cmdline reap
+  backstops killpg (bridge grandchild escaped the group — critic's
+  5-min-survivor falsification); canonical transport_matrix fifo arm
+  gets the same reap (verdict-neutral).
+- Byte-stability: operator replay of dec_act transport probe vs r69
+  committed receipt — all 4 arms + verdict groups + fork pin identical.
+- Non-author verification: verifier seat never survived rate limits;
+  operator adjudicator probe run on `59a7440` produced the receipt
+  above; baseline independently measured the same ladder shape
+  (blocked 10/10 @ h=0; stable 10/10 >=50ms).
+- Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host;
+  the (0,~50ms] zone is load-dependent; outcome space = attach x
+  close-before-deadline. No conformance/fidelity inference.
+- Per-axis verdicts (Sol `reports/round-70/r70-adjudicator.md`):
+  ADMIT. Report-last commit follows.
