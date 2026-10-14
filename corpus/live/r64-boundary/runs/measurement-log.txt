@@ -1,0 +1,117 @@
+r64-boundary measurement log — SoX_ng 14.8.0.1 / ffmpeg n9.0.1 / Arch Linux
+All paths relative to corpus/live/r64-boundary/. Base family:
+../round-63/pair_route_84.wav sha256 cf5edecc… (fmt=40 EXTENSIBLE, 16-bit
+container, valid=17, mask=4, PCM GUID, 11,520 B deterministic payload,
+byte[256]=0x84 -> act route).
+
+=== S. wValidBitsPerSample sweep (39 variants, single field at offset 38) ===
+Generator gen_sweep.py; variants/s_valid_NNNNN.wav; SHAs variants/sweep-shas.txt.
+s_valid_00017.wav is byte-identical to pair_route_84 (cmp clean) — sanity anchor.
+All 39 detected 'act' (same forced route; payload byte 256 untouched).
+Full table: runs/sweep.tsv. Summary:
+
+  valid   codec        width  packets            sox samples  exit
+  0       pcm_s16le    2      8192+3328          5760         0   (valid=0 ignored)
+  1-8     pcm_u8       1      4096+4096+3328     11520        0   (sflags bit0 of ~1 clear -> UNSIGNED)
+  9-16    pcm_s16le    2      8192+3328          5760         0
+  17-24   pcm_s24le    3      8192+3328          3839         0   (2+1 residue bytes dropped)
+  25-32   pcm_s32le    4      11520              2880         0   (single packet, %4==0)
+  33-56   NONE         -      (demux ok, no dec) FAIL         2   au 'premature EOF'
+  57-64   pcm_s64le    8      11520              1440         0
+  65-65535 NONE        -                         FAIL         2   (bps>64 guard, lavf_utils.c:158)
+
+Boundary values pinned exactly at 0|1, 8|9, 16|17, 24|25, 32|33, 56|57, 64|65.
+pred_count = sum over packets of floor(size/width) == observed sox_samples on
+every decodable row (sweep.tsv cols pred_count vs sox_samples).
+ffprobe codec on NONE rows: codec_name=unknown, bits_per_sample=0.
+ffmpeg on s_valid_00033: 'Decoding requested, but no decoder found for: none'
+-> 'Error opening output file -' exit!=0 -> zero stdout (runs/probe-none-s64.txt).
+au intermediary uniform for all widths: .snd hdr offset 32, size 0xffffffff,
+encoding 3 (s16be), 48000/1ch; payload = samples*2 (runs/au-headers.txt;
+au_v*.bin kept: 23072/11552/7710/5792/2912 B for v1/16/17/25/57).
+
+=== A. stdin autodetect path (recon a) ===
+Source: open_read (formats.c:880-911) sets ft->fp=stdin for '-', then the SAME
+auto_detect_format(ft, NULL) runs lsx_readbuf_rewind AUTO_DETECT_SIZE=257
+(formats.c:61-69). Non-seekable stdin -> bytes stashed in pending_buffer
+(formats_i.c:178-215); seekable -> rewind() = in-buffer logical seek only.
+A1 cat pair_route_84 | sox - -n stat:
+  detected 'act'; FAIL '-': can't find Sun/NeXT/DEC identifier   exit 2
+  strace (runs/strace-stdin-pipe.txt):
+    parent dup2(3,0) = regurg pipe; regurg child (pid+1) read(0)=4096+4096+3396
+    = 11588 B (pending 257 + stdio-buffered 3839 + rest) -> writes all to pipe;
+    ffmpeg read(3)=11588 full wav, decode OK;
+    ffmpeg thread write(4, ".snd\0\0\0 \377\377\377\377\0\0\0\3\0\0\273\200...",32)=EPIPE,
+    SIGPIPE, exit 224.
+  MECHANISM: parent pending_count=257 never drained (the child drains only its
+  private copy) -> au's first lsx_readchars(4) (au.c:136 via formats_i.c:104-113
+  pending-first order) returns 'RIFF' -> wrong-magic fail -> xfclose pipe ->
+  ffmpeg dies mid-write. The .snd the au reader needed was sitting in the pipe.
+A2 sox - -n stat < pair_route_84 (seekable fd0):
+  FAIL '-': premature EOF   exit 2
+  strace (runs/strace-stdin-file.txt/-file2.txt):
+    is_seekable: lseek(0,0,SEEK_CUR)=0 -> true -> NO fork;
+    detection fread -> stdio prefetches read(0)=4096; rewind() -> glibc
+    normalizes lseek(0,4096,SEEK_SET) — fd offset stays at buffer window end;
+    ffmpeg dup(0)=3 (inherits offset 4096), read(3)=7492 B (11588-4096, payload
+    tail only, no RIFF header) -> probe fails -> exit 183 -> empty stdout ->
+    au read EOF -> 'premature EOF'. ffmpeg.c:52 comment 'ffmpeg rewinds it
+    anyway' is FALSE on n9.0.1 — no lseek(fd,0,SEEK_SET) ever issued by child.
+A4/A9 pair_route_00 via pipe/file stdin: detected 'wav' -> native reader ->
+  'number of valid bits exceeds the number of bits per sample' exit 2.
+  Same predicate + buffer on stdin; native read path from pending/FILE works.
+A5 cat pair_route_84 | sox -t act - -n stat  -> Samples read: 3839  exit 0
+A6 sox -t act - -n stat < pair_route_84      -> Samples read: 3839  exit 0
+A8 cat pair_route_84 | sox -t ffmpeg - -n stat -> Samples read: 3839 exit 0
+A7 cat pair_route_84 | sox -t wav - -n stat  -> FAIL valid-bits exit 2
+  => forced -t skips detection: no prefetch -> no pending poison (pipe mode)
+     and fd0 at offset 0 (file mode) -> bridge works. The stdin+autodetect+
+     ffmpeg combination is what breaks; detection itself is identical.
+
+=== B. goto-error / neither-parseable terminal ordering (recon b) ===
+nf_zeros.wav: RIFF+WAVE+512 zero bytes, 0x84@256 (no fmt/data at all).
+nf_chunk.wav: RIFF+WAVE+'JUNK' chunk+500 zeros, 0x84@256 (no fmt).
+B1/B3: sox -V6 -> 'detected file format type `act'' then
+  'FAIL formats: can't open input file `X': premature EOF'  exit 2.
+  NO 'au: found .snd' line — au died on the first 4-byte magic read of an
+  EMPTY pipe. Ordering: detect -> popen -> au-magic EOF -> open_read lsx_fail
+  (formats.c:962 wrapper) -> NULL -> 'FAIL formats' -> exit 2.
+B2 ffmpeg direct nf_zeros/nf_chunk exit 183: '[in#0] no 'fmt ' or 'XMA2' tag
+  found' / 'Error opening input: Invalid data' — invisible to sox
+  (runs/nf_zeros-ffmpeg-stderr.txt, nf_chunk-ffmpeg-stderr.txt).
+Indistinguishable-upstream-failure set (all -> au 'premature EOF' exit 2):
+  demux-open failure (nf_*), decoder absence (s_valid_33-56/65+),
+  ffmpeg binary absent (r63 noff), input-truncated (file-stdin A2),
+  and stub-emitted empty stdout (C-empty). Confirms: the byte stream on the
+  pipe is the whole contract; there is exactly one reader and zero fallback.
+
+=== C. second autodetect / pipe re-claim (recon c) ===
+PATH stub ffmpeg (runs/stub-bin/ffmpeg, execvp-confirmed by runs/stub-argv.log
+exact argv '-loglevel quiet -nostdin -strict -2 -i <file> -f au -'; stub ignores
+-i and emits chosen bytes):
+  payload_snd.bin   (.snd+24+1000+enc3+48000+1ch+1000B): 'au: found big-endian
+                    .snd'; 'header size 24 is too small' WARN; Samples 500 exit0
+  payload_wav.bin   (valid WAV bytes): FAIL 'can't find Sun/NeXT/DEC identifier'
+  payload_junk.bin  (206 B junk):      FAIL 'can't find Sun/NeXT/DEC identifier'
+  payload_empty.bin (0 B):             FAIL 'premature EOF'
+  payload_sndshort  (.snd+8 B only):   'au: found .snd' THEN 'premature EOF'
+                                       (magic claim ok, header-word read EOF)
+=> NO re-autodetection on the pipe: startread_ffmpeg tail-calls
+   lsx_au_format_fn()->startread unconditionally (ffmpeg.c:107); the au reader's
+   own 4-id magic check is the only gate. A valid wav on the pipe is refused —
+   the pipe cannot be re-claimed by any other reader. The input file's bytes
+   never reach the au reader (pipe carries ffmpeg's stdout).
+   Input-side exclusivity: act needs 'RIFF'@0; au needs '.snd'/variants@0 —
+   mutually exclusive; only PRE-act CHECKs can preempt (gsrt ring.bin\x00@16,
+   hcom FSSD@65+HCOM@128 — r63 demonstrated hcom reroute).
+
+=== P. landed boundary-family pairs (tracked corpus) ===
+pair_step_24.wav / pair_step_25.wav — interior width step (s24le|s32le):
+  15,356/11,520 f32 B = 3,839/2,880 samples; ffprobe pcm_s24le/pcm_s32le;
+  native -t wav rejects BOTH ('number of valid bits exceeds').
+pair_step_56.wav / pair_step_57.wav — non-monotone resurrection boundary
+  (NONE|s64le): FAIL premature EOF vs 5,760 B=1,440; ffprobe unknown/pcm_s64le;
+  native rejects both.
+SHAs (runs/../pair-verify.txt):
+  714998b8… pair_step_24  614845eb… pair_step_25
+  d4ee4431… pair_step_56  aa520464… pair_step_57

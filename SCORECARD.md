@@ -9,7 +9,7 @@ quality rubric; a row count is a measurement, not a score or verdict.
 | coverage | unmeasured | mint: no rounds yet | mint |
 | calibration | unmeasured | mint: no rounds yet | mint |
 
-planned: r62 (devin, ADMIT) — SoX 3,839 frame gap resolved as ffmpeg packet-residue (act-autodetect byte-256 0x84 → ffmpeg bridge → valid17→pcm_s24le → 8192+3328 packets → mod-3 tails dropped); valid24/32 family landed; 84-ledger + verifier byte-exact. Next: fixture hardening vs byte-256 act-collision fragility, a third valid-bits family (e.g. mask/GUID variation), or a distinct axis move.
+planned: r64 (devin, ADMIT) — valid-bits step-map pinned as tracked boundary pairs (u8|s16le|s24le|s32le|NONE|s64le, seven boundaries, envelope-gated). Next: stdin-detection dead-combination surface (boundary-measured, undrained pending_buffer EPIPE + prefetch offset loss), preemptor-collision controls (gsrt@16/hcom@65+128 on RIFF files), non-USING_FFMPEG build UNKNOWN (source-only), f24le promotion family. Prior: r62 — SoX 3,839 frame gap resolved as ffmpeg packet-residue (act-autodetect byte-256 0x84 → ffmpeg bridge → valid17→pcm_s24le → 8192+3328 packets → mod-3 tails dropped); valid24/32 family landed; 84-ledger + verifier byte-exact. Next: fixture hardening vs byte-256 act-collision fragility, a third valid-bits family (e.g. mask/GUID variation), or a distinct axis move.
 planned: round 1 declares the first falsifiable claim (see LOG.md).
 retired: none.
 
@@ -644,3 +644,13 @@ Non-author `reports/round-62/r62-verifier.md`: **84 fresh unique receipts**, 43 
 | calibration | **improved locally** | Routing now receipt-visible per probe (`sox_detected_format`/`sox_route` fields); native-reject (route-00→exit2) vs bridge-decode (route-84→exit1) calibrated on an unchanged gate. |
 
 Non-author `reports/round-63/r63-verifier.md`: **86 fresh unique receipts**, 43 exit0/43 exit1, **86/86 exits match and 86/86 receipts byte-identical** to committed counterparts; discernment both directions (0x42@256→wav, 0x84@257→wav). Verifier caveat: `00` receipt embeds absolute repo path in `sox_stderr` — same-host byte-identity property. Sol `r63-adjudicator.md` admits no demonstrated scoped harm. Bounded to SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1 on this host; the act row is `#if USING_FFMPEG`-only. No standards-conformance, decoder-correctness, fidelity, audibility, production, rights, or promotion inference. Work commit `1a97b0e`; report-last commit follows.
+
+## Round 64 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| depth | **improved locally** | valid-bits→codec reclassification resolved to an exact, source-attributed step map: `w=(V+7)>>3` → {1:u8, 2:s16le, 3:s24le, 4:s32le, 5–7:NONE, 8:s64le, >64:NONE} under the act-forced ffmpeg bridge; seven boundaries pinned (0|1, 8|9, 16|17, 24|25, 32|33, 56|57, 64|65); three independent sweeps converge (74+85+17+39 variants); envelope-gate precondition (`0xFFFE∧cbSize≥22∧PCM-GUID`) measured and carried; f24le promotion + named-undecodable 0-sample class + nb_channels factor disclosed; residue re-explained as alignment×width (lossless-3,840 counterexample). |
+| coverage | **improved locally** | tracked `pair_valid_{8,9,24,25,56,57}.wav` boundary pairs (sole byte-38 diffs, all byte-256=0x84 act-forced) + six `--probe-ui-extensible-valid-*-r64` modes; ledger 86→92 (44 exit0/48 exit1); prior-86 receipts byte-identical across three generations. |
+| calibration | **unchanged** | thresholds, format_failures, gate bounds all untouched; designed exit-1 failure shape preserved; verifier methodology caveat (relative-path compare artifact) recorded. |
+
+Non-author `reports/round-64/r64-verifier.md`: **AGREE on all four claims** — 92-cmd replay 44/48 exact, 86/86 + 6/6 receipts byte-identical, pair discriminators live, envelope-gate spot-checks, commits resolve. Sol `r64-adjudicator.md`: own reproduction of all six pair members (u8/11,520; s16le/5,760; s32le; NONE/exit-2; s64le/1,440). Bounded: this host's SoX_ng 14.8.0.1 + ffmpeg n9.0.1 only; non-extensible/float-GUID shapes unexercised; stdin+ffmpeg-bridge dead combination disclosed. No standards/fidelity/production inference. Work commit `4c12342`; report-last commit follows.
