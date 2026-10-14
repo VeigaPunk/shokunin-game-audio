@@ -694,3 +694,13 @@ Non-author `reports/round-67/r67-verifier.md`: **AGREE on all five claims** — 
 | calibration | **unchanged** | no predicate/threshold edits; additive members + two probe flags; prior-112 rows byte-identical (verifier-confirmed). |
 
 Non-author `reports/round-68/r68-verifier.md`: **AGREE 5/5** on `6c91040` — independent 114-cmd replay byte-identical across all rows, members identical to verbatim rebuild, 112 prior receipts byte-identical, probes deterministic ×5. Sol `r68-adjudicator.md`: falsification adopted as the finding; corrected named-axis mechanism is what the ledger encodes. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; serial-execution receipt stability; starved-fifo protocol artifact disclosed. No conformance/fidelity/production inference. Work commit `6c91040`; report-last commit follows.
+
+## Round 69 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| coverage | **improved locally** | Extension-suffix sub-axis tracked: 5 byte-identical members × 4 transports → ≥6 distinct named-arm verdicts (wav-verdict / bin-no-handler / txw 3-way / f32-decode / sndr-detect); dead-CHECK-row census: 5/130 rows ever first-match in ledger receipts (16+4 in all committed evidence); ledger 114→119 (49/70). |
+| depth | **improved locally** | `.snd` = first member where DETECTION itself forks on transport (ext-gated CHECK row formats.c:247-248 + b[0]=b[1]=b[7]=0 content contract; sole detection-fork across 4,929 receipts); `.txw` intersects reader-gate axis (3-group split); rate@2–3 selects decode vs verdict pin; census corrected to coverage-bookkeeping (wma sole dead-by-construction row). |
+| calibration | **unchanged** | additive members + flags; prior-114 receipts byte-identical (verifier); no predicate edits. |
+
+Non-author `reports/round-69/r69-verifier.md`: **AGREE 6/6** on `30bb86d` — independent 119-cmd replay position-identical, members byte-identical to rebuild, probes deterministic ×6, census reproduced. Sol `r69-adjudicator.md`: declared ≥3 claim confirmed at ≥6 groups; .snd detection-fork verified at byte level by 4 seats. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; `.mp3`/`.aptx`/`.dts` fifo hazards disclosed; census = coverage bookkeeping not deadness. No conformance/fidelity/production inference. Work commit `30bb86d`; report-last commit follows.

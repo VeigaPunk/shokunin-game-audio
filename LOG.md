@@ -1056,3 +1056,53 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Per-axis verdicts (Sol `reports/round-68/r68-adjudicator.md`): ADMIT —
   falsified claim recorded, corrected mechanism is what landed. Work commit
   `6c91040`; report-last follows.
+
+## Round 69 — devin host — coverage: extension-suffix dispatch + .snd detection fork + CHECK-row census
+
+- Declared (author dispatch brief): sweep the EXTENSION-SUFFIX sub-axis of the
+  r68 named-axis fork — identical no-match bytes under .wav/.bin/.txw/.f32/.snd
+  should route to different handlers; falsifiably, the named arm splits into
+  ≥3 distinct verdict groups by extension alone and the .snd member is the
+  first tracked member where DETECTION (not just decode) forks on transport
+  name; plus a dead-CHECK-row census over committed receipts; 114 prior
+  ledger rows byte-stable.
+- Wave `shokunin-train-20261014-w8`: 8-seat devin leaf set
+  `reports/round-69/r69-{scout,author,critic,reviewer,simplifier,scribe,baseline,boundary}.md`.
+- Measured outcome — declared claim **VERIFIED**: identical bytes yield ≥6
+  distinct named-arm verdicts (RIFF-verdict / no-handler / LM8953-verdict
+  +pipe-refusal / f32 decode / sndr-detected / boundary's extra groups);
+  `.snd` is the first member on record whose sox_detected_format differs
+  across transports ({file,fifo}=sndr vs {-}=NULL; 0/165 prior
+  transport_axis entries differed; verifier re-scanned all 4,929 receipts —
+  sole detection-fork member). `.txw` self-forks 3 ways; `.snd` decode
+  positivity is u16-BE rate@2–3 (4376→504 samples; 0→invalid rate value).
+- Author `reports/round-69/r69-author.md`: `build_artifacts.py` +46/−1
+  (5 byte-identical members `extsuffix_nomatch.{wav,bin,txw,f32,snd}`),
+  `measure_audio.py` +49/−3 (5 probe flags + census); ledger 114→119 rows
+  (49/70 exits), prior-114 byte-identical; probe receipts deterministic ×5
+  (verifier ×6).
+- Census: 130 active CHECK rows / 77 types; ledger receipts ever first-match
+  only {act, gsrt, hcom, txw, wav@RIFF}; all committed evidence: 16
+  recorded + 4 simulated-only; **108/130 rows never first-match** (scribe's
+  three-tier count; author's 125 counts dead types wholesale). Critic
+  correction: never-first-match ≠ dead — 28/31 crafted members on
+  "dead"-listed types detect; `wma` alone is dead-by-construction (identical
+  GUID to earlier `asf` row). Scout's RIFX/RF64 dead-verdict corrected
+  (r63-critic members carry those bytes + detect).
+- Edges: `.mp3` fifo arm racy (SIGTERM); `.aptx`/`.dts` fifo HANGS (ffmpeg
+  child blocks on writerless fifo — boundary strace); fifo basename dots
+  alter `lsx_find_file_extension`; `sndr` remains the table's only
+  ext-gated row; `.snd` needs b[0]=b[1]=b[7]=0 (r68 bytes would falsify it).
+- Simplifier: 14 delete-and-measure experiments — all members/pins
+  load-bearing (b[7]=0 removal collapses .snd to au dispatch; 512B keeps
+  rows byte-evaluated); no extraction warranted.
+- Non-author `reports/round-69/r69-verifier.md`: **AGREE 6/6** on `30bb86d` —
+  independent 119-cmd replay 49/70/0-UNPARSED, exits+failsums
+  position-identical; 106/119 fresh receipts byte-identical (13 diffs are
+  tail-slice path-embeds, post-path identical); members byte-identical to
+  independent rebuild; probes deterministic (6th copy identical ×5);
+  census independently reproduced.
+- Per-axis verdicts (Sol `reports/round-69/r69-adjudicator.md`): ADMIT —
+  coverage improved locally (suffix sub-axis + census), depth improved
+  locally (first detection-fork member + txw 3-way intersection), calibration
+  unchanged. Work commit `30bb86d`; report-last follows.
