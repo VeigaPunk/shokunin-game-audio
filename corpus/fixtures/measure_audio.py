@@ -1997,8 +1997,9 @@ FFPLAY_R75_ENV = {"SDL_AUDIODRIVER": "dummy"}
 
 def _consumer2_tail(text, probe_arg):
     """_consumer_tail plus determinism scrubbing for the r75 consumers:
-    single-quoted input names normalize wholesale (`Playing WAVE
-    '<abs-or-tmp-path>' -> '<input>') and any residual UNQUOTED
+    single-quoted PATHS normalize wholesale (`Playing WAVE
+    '<abs-or-tmp-path>' -> '<input>') while non-path quotes (a sample
+    spec) stay verbatim, and any residual UNQUOTED
     directory prefix before <input> (absolute member path, fifo
     mkdtemp dir — aplay/ffplay echo paths verbatim where
     _consumer_tail's relative probe_arg only covers the basename)
@@ -2006,13 +2007,18 @@ def _consumer2_tail(text, probe_arg):
     tail = _consumer_tail(text, probe_arg)
     if not tail:
         return tail
-    tail = re.sub(r"'[^']*'", "'<input>'", tail)
+    # Only quotes carrying a path separator collapse — `Using sample
+    # spec 's16le 2ch 44100Hz'` is a witness, not a host path
+    # (paired fix for the re-anchored Time: filter, critic C4c).
+    tail = re.sub(r"'[^']*[/\\][^']*'", "'<input>'", tail)
     tail = re.sub(r"\S+<input>", "<input>", tail)
     return tail
 
 
 _PACAT_RACY_TAIL = re.compile(
-    r"^(Time:.*Latency:|Playback stream drained\.|"
+    # The `Time:.*Latency:` alternative must consume the trailing usec
+    # field to EOL — un-anchored it matched nothing (critic C4a).
+    r"^(Time:.*Latency:[^\n]*|Playback stream drained\.|"
     r"Draining connection to server\.|Connected to device.*|"
     r"Stream started\..*)$")
 
@@ -2024,7 +2030,6 @@ def _paplay_fields(text):
     spec = re.search(r"Using sample spec '([^']+)'", text)
     err = None
     for pat in (r"open\(\): [^\n]+", r"Connection failure: [^\n]+",
-                r"pa_context_connect\(\) failed: [^\n]+",
                 r"Failed to open audio file\.?"):
         m = re.search(pat, text)
         if m:
@@ -2253,10 +2258,11 @@ def ffplay_leg(transport, path, data, hold_s, extra_opts=(),
         label = path.name
     leg = {"input": label, "exit_code": code}
     leg.update(_ffplay_fields(text))
-    leg["error"] = blocked or (
-        "invalid_data" if leg["ffplay_invalid"] else
-        "could_not_seek" if leg["could_not_seek"] else
-        None if leg["ffplay_detected"] else f"exit {code}")
+    # mpv-leg convention: `error` names block/nonzero-rc only; the
+    # invalid/seek detail lives in the dedicated `ffplay_invalid` /
+    # `could_not_seek` fields (rc is 0 even on invalid input —
+    # reviewer R3).
+    leg["error"] = blocked or (None if code == 0 else f"exit {code}")
     ftext = "\n".join(ln for ln in text.splitlines()
                       if not _FFPLAY_STATUS_TAIL.search(ln))
     tail = _consumer2_tail(ftext, label)
@@ -2306,6 +2312,29 @@ def consumer2_transport_entry(member, path):
                 {"transports": ts, "verdict": list(sig)}
                 for sig, ts in groups],
             "transport_fork": len(groups) > 1}
+        # Vacuity guard (critic C2): fork=0 is vacuous invariance only
+        # when every arm died on the SAME infrastructure wall —
+        # paplay's daemon `Connection failure`, an aplay device error,
+        # or an ffplay abort with no lavf verdict. Uniform CONTENT
+        # rejection (reject members score identical failures on all
+        # transports) is a real verdict, not a collapse.
+        def _infra_leg(a):
+            if consumer == "paplay":
+                return (a["pa_error"] or "").startswith(
+                    "Connection failure")
+            if consumer == "aplay":
+                return (a["alsa_error"] is not None
+                        and a["alsa_kind"] is None)
+            return (a["ffplay_detected"] is None
+                    and not a["ffplay_invalid"]
+                    and a["exit_code"] != 0)
+        consumers[consumer]["viable_legs"] = sum(
+            not _infra_leg(a) for a in arms.values())
+        if not consumers[consumer]["viable_legs"]:
+            failures.append(f"transport: {consumer} collapsed — all "
+                            "four arms hit the same infrastructure wall; "
+                            "the invariance verdict is vacuous "
+                            "(dead server/device)")
         if consumers[consumer]["transport_fork"]:
             desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
                                for sig, ts in groups)
@@ -2339,7 +2368,9 @@ def _nowriter_cell(argv, extra_env=None):
     per-consumer: paplay dies on TERM (rc -15), aplay catches TERM
     ('Aborted by signal Terminated') yet stays blocked (-9), ffplay's
     handler exits 123 while its read thread stays blocked in open()
-    (pw-cat ignores TERM -> -9, r74)."""
+    (pw-cat ignores TERM -> -9, r74). `alive_after_term1` is exactly
+    that — survival of ONE TERM; aplay dies to a second TERM (critic
+    C1), so the key is not a general TERM-immunity claim."""
     with tempfile.TemporaryDirectory(prefix="nowriter-r75-") as tmp:
         fifo = Path(tmp) / "nowriter.wav"
         os.mkfifo(fifo)
@@ -2374,9 +2405,14 @@ def _nowriter_cell(argv, extra_env=None):
             rec = {"argv": " ".join(argv + ["<fifo>"]),
                    "blocked": True, "wchan": wchan,
                    "sigterm_wait_s": CONSUMER_R75_SIGTERM_WAIT_S,
-                   "sigterm_immune": term_immune,
+                   "alive_after_term1": term_immune,
                    "exit_code": proc.returncode,
                    "waited_s": CONSUMER_R75_NOWRITER_WAIT_S}
+            # ffplay's periodic status line races the verdict for the
+            # tail slot — filter it here too (reviewer R2).
+            if "ffplay" in Path(argv[0]).name:
+                err = "\n".join(ln for ln in err.splitlines()
+                                if not _FFPLAY_STATUS_TAIL.search(ln))
             if err.strip():
                 rec["stderr_tail"] = _consumer2_tail(err, str(fifo))
             return rec
@@ -2462,7 +2498,7 @@ def consumers2_paplay_ops_entry():
     entry["fifo_no_writer"] = _nowriter_cell(["paplay"])
     for cell in ("gate_ordering_dead_fifo", "fifo_no_writer"):
         nw = entry[cell]
-        if not (nw.get("blocked") and nw.get("sigterm_immune") is False
+        if not (nw.get("blocked") and nw.get("alive_after_term1") is False
                 and nw.get("exit_code") == -signal.SIGTERM):
             failures.append(f"paplay: {cell} deviated from the measured "
                             "kill class (blocked, SIGTERM kills -> rc "
@@ -2664,7 +2700,7 @@ def consumers2_aplay_ops_entry():
     # (c) writerless fifo under -D null.
     entry["fifo_no_writer"] = _nowriter_cell(["aplay", "-D", "null"])
     nw = entry["fifo_no_writer"]
-    if not (nw.get("blocked") and nw.get("sigterm_immune")
+    if not (nw.get("blocked") and nw.get("alive_after_term1")
             and nw.get("exit_code") == -signal.SIGKILL):
         failures.append("aplay: writerless fifo deviated from the "
                         "measured kill class (blocked, TERM caught but "
@@ -2770,12 +2806,12 @@ def consumers2_ffplay_ops_entry():
                  str(member_path)], capture_output=True,
                 env=env, timeout=CONSUMER_R75_TIMEOUT_S)
             text = proc.stderr.decode(errors="replace")
-            detected = re.search(r"Input #0, ([^,\s]+), from", text)
+            ff = _ffplay_fields(text)
             sdl_err = re.search(r"(SDL[^:\n]*:[^\n]*|could not (?:open|"
                                 r"initialize)[^\n]*)", text)
             driver_legs[drv] = {
                 "exit_code": proc.returncode,
-                "ffplay_detected": detected.group(1) if detected else None,
+                "ffplay_detected": ff["ffplay_detected"],
                 "error": sdl_err.group(0).strip()[:120] if sdl_err else None,
                 # `ALSA lib ... underrun` diagnostics and the periodic
                 # status line are timing-dependent — dropped before the
@@ -2798,7 +2834,7 @@ def consumers2_ffplay_ops_entry():
         ["ffplay", "-nodisp", "-autoexit", "-v", "info"],
         extra_env=FFPLAY_R75_ENV)
     nw = entry["fifo_no_writer"]
-    if not (nw.get("blocked") and nw.get("sigterm_immune") is False
+    if not (nw.get("blocked") and nw.get("alive_after_term1") is False
             and nw.get("exit_code") == 123):
         failures.append("ffplay: writerless fifo deviated from the "
                         "measured kill class (blocked, SIGTERM -> "
@@ -2817,8 +2853,10 @@ def consumers2_ffplay_ops_entry():
         "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
         "cell": f"ffplay -ss {CONSUMER_R75_START_S} on a seeking wav",
         "predicted": ("file arm seeks (no 'could not seek'); stdin arm "
-                      "logs 'could not seek' and rescues by "
-                      "decode-discard — path fork, not extent fork"),
+                      "logs 'could not seek' then ends silently — zero "
+                      "status samples, ~0.16 s wall (the decode-discard "
+                      "rescue was predicted but measured false — a "
+                      "silent abort, r75 critic C3)"),
         "legs": pos}
     f_leg, s_leg = pos["file"], pos["stdin_pipe"]
     if not (f_leg["could_not_seek"] is False
@@ -2826,7 +2864,7 @@ def consumers2_ffplay_ops_entry():
             and f_leg["exit_code"] == 0 and s_leg["exit_code"] == 0):
         failures.append("ffplay: -ss position cell deviated from the "
                         "measured shape (seek ok on file / could-not-"
-                        "seek + decode-discard on stdin, rc=0 both)")
+                        "seek + silent abort on stdin, rc=0 both)")
     # (d) empty-writer fifo.
     with tempfile.TemporaryDirectory(prefix="ffplay-r75-") as tmp:
         fifo = Path(tmp) / "empty.wav"
@@ -2848,8 +2886,7 @@ def consumers2_ffplay_ops_entry():
             text = proc.stderr.decode(errors="replace")
             entry["fifo_empty_writer"] = {
                 "exit_code": proc.returncode,
-                "ffplay_invalid": ("Invalid data found when processing "
-                                   "input" in text),
+                "ffplay_invalid": _ffplay_fields(text)["ffplay_invalid"],
                 "stderr_tail": _consumer2_tail(
                     "\n".join(ln for ln in text.splitlines()
                               if not _FFPLAY_STATUS_TAIL.search(ln)),
