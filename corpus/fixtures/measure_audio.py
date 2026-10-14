@@ -2970,7 +2970,9 @@ def _capture_tail(text, label):
     if not tail:
         return tail
     tail = re.sub(r"node \d+", "node <n>", tail)
-    tail = re.sub(r"id=\d+ seq=\d+", "id=<n> seq=<n>", tail)
+    # r76 critic: the observed separator is 'seq:7', not 'seq=7' —
+    # the =-only pattern never fired; accept both.
+    tail = re.sub(r"id=\d+ seq[:=]\d+", "id=<n> seq=<n>", tail)
     return tail
 
 
@@ -3077,7 +3079,6 @@ def _capture_wav_inspect(path):
                 actual % CAPTURE_R76_FLUSH_GRANULE == 0)
             insp["data_256k_aligned"] = (
                 actual % CAPTURE_R76_FFMPEG_GRANULE == 0)
-            insp["data_4k_aligned"] = actual % 4096 == 0
     return insp
 
 
@@ -3111,6 +3112,10 @@ def _capture_parser_verdict(path, insp):
             if frame_bytes else 0
         if n == 0:
             cls = "honest_empty" if honest == 0 else "underreports"
+        elif not frame_bytes:
+            # fmt leaf absent -> honest frame count unknowable; a real
+            # frame count must not read "inflated" (r76 critic/reviewer)
+            cls = "fmt_absent"
         elif n == honest:
             cls = "honest"
         elif n > honest * 4:
@@ -3280,7 +3285,7 @@ def _capture_file_leg(argv, fname, tmp, timeout_s=CAPTURE_R76_TIMEOUT_S,
 
 def _capture_sever_cell(argv, fname, sig,
                         wait_s=CAPTURE_R76_SEVER_WAIT_S,
-                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S, env=None):
+                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S):
     """Spawn a file-writing capture, sever it mid-record, classify the
     wound: exit code, header-finalize class, and parser usability. A leg
     that exits BEFORE the sever (e.g. arecord hitting a held device)
@@ -3292,7 +3297,6 @@ def _capture_sever_cell(argv, fname, sig,
         proc = subprocess.Popen(argv + [str(out)],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                env={**os.environ, **(env or {})},
                                 start_new_session=True)
         early_rc = None
         try:
@@ -3350,7 +3354,7 @@ def capture_gate_r76_entry():
     inv = _capture_inventory()
     entry = {"probe": "capture consumer gate + enumeration surface",
              "inventory": inv}
-    src, mon, hw0 = _capture_leg_targets(inv)
+    src, mon, _ = _capture_leg_targets(inv)
     entry["viability"] = {
         "pulse_source": bool(inv["sources"]),
         "pw_target": bool(inv["sources"]),
@@ -3378,6 +3382,11 @@ def capture_gate_r76_entry():
             gate["pwrecord_monitor_alias"] = _capture_file_leg(
                 ["pw-record", "--target", mon, "-n",
                  str(CAPTURE_R76_NAME_FRAMES)], "gate_mon.wav", tmp)
+        else:
+            # r76 reviewer LOW-8: a conditional leg records an explicit
+            # blocked row — a dropped leg must never pass silently.
+            gate["pwrecord_monitor_alias"] = {
+                "blocked": "no monitor enumerated (no default_sink)"}
         # pacat record without -d — default source does NOT resolve
         text, rc, blocked = _capture_run(["parec", "--raw"], 10)
         cls, line = _capture_errclass(text)
@@ -3446,7 +3455,13 @@ def capture_gate_r76_entry():
     for name, (rc, cls) in expected.items():
         leg = gate.get(name)
         if leg is None:
+            # r76 critic: a leg the gate never ran must fail loudly —
+            # the gate's verdict coverage is itself pinned.
+            failures.append(f"gate {name}: leg absent — the expected "
+                            "map is the coverage contract")
             continue
+        if "blocked" in leg:
+            continue   # named blockage row (e.g. no monitor on host)
         if leg.get("exit_code") != rc or leg.get("error_class") != cls:
             failures.append(f"gate {name}: expected ({rc},{cls}) got "
                             f"({leg.get('exit_code')},"
@@ -3537,7 +3552,7 @@ def capture_bounded_r76_entry():
                 os.killpg(proc.pid, signal.SIGKILL)
                 proc.wait()
             err = proc.stderr.read().decode(errors="replace")
-            cls, line = _capture_errclass(err)
+            cls, _ = _capture_errclass(err)
             spec = re.search(r"sample spec(?:ification)? '([^']+)'",
                              err)
             legs["parec_byte_cap"] = {
@@ -3602,10 +3617,15 @@ def capture_bounded_r76_entry():
     leg = legs["parecord_term_bound"]
     if "blocked" not in leg:
         fin = leg.get("file", {})
+        # r76 critic D1: finalized+aligned is true on a zero-audio wav
+        # (parecord's ~1.9 s dead start inside a 2.5 s TERM window) —
+        # require a payload witness, not just a well-formed header.
         if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
-                and fin.get("data_64k_aligned")):
+                and fin.get("data_64k_aligned")
+                and fin.get("data_actual_zero") is False):
             failures.append("parecord TERM-bound deviated (expected rc=0 "
-                            "with a finalized 64-KiB-aligned header)")
+                            "with a finalized 64-KiB-aligned header "
+                            "carrying audio)")
     leg = legs["arecord_duration_null_unpaced"]
     if not (leg.get("exit_code") == 0
             and leg.get("file", {}).get("bytes") == 192044
@@ -3626,6 +3646,19 @@ def capture_bounded_r76_entry():
                 and fin.get("duration_bucket_s") in (0.75, 1.0, 1.25)):
             failures.append("ffmpeg -f pulse -t 1 deviated (expected "
                             "rc=0 finalized wav ~1.0 s)")
+    leg = legs["ffmpeg_alsa_t"]
+    # r76 verifier N1: the alsa bounded leg had NO check — a rc=251
+    # missing-file outcome passed silently. Expect the canonical
+    # capture (rc=0 finalized ~1.0 s) or a NAMED device failure —
+    # contention (alsa_busy) and a hard-open refusal are honest rows.
+    if "blocked" not in leg and leg.get("error_class") not in (
+            "alsa_busy", "ffmpeg_alsa", "ffmpeg_io"):
+        fin = leg.get("file", {})
+        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
+                and fin.get("duration_bucket_s") in (0.75, 1.0, 1.25)):
+            failures.append("ffmpeg -f alsa -t 1 deviated (expected "
+                            "rc=0 finalized wav ~1.0 s or a named "
+                            "device failure)")
     entry["failures"] = failures
     return entry
 
@@ -3640,7 +3673,7 @@ def capture_sever_r76_entry():
     failures = []
     inv = _capture_inventory()
     entry = {"probe": "capture sever classes — TERM/KILL mid-record"}
-    src, mon, hw0 = _capture_leg_targets(inv)
+    src, _, _ = _capture_leg_targets(inv)
     cells = {}
     tgt = src or "alsa_input.nonexistent-r76"
     for sig, tag in ((signal.SIGTERM, "term"), (signal.SIGKILL, "kill")):
@@ -3704,24 +3737,53 @@ def capture_sever_r76_entry():
                      "kill_rc": -signal.SIGKILL,
                      "kill_riff": "placeholder_8"},
         "ffmpeg": {"term_rc": 255, "term_final": True,
-                   "kill_rc": -signal.SIGKILL, "kill_riff": None},
+                   "kill_rc": -signal.SIGKILL},
         "arecord": {"term_rc": 1, "term_final": True,
                     "kill_rc": -signal.SIGKILL,
                     "kill_riff": "placeholder_80000000"}}
     for consumer, exp in expected.items():
         tcell = cells.get(f"{consumer}_term")
         kcell = cells.get(f"{consumer}_kill")
-        if not tcell or not kcell or "file" not in tcell:
+        if not tcell or not kcell:
+            # arecord absence is honest ONLY when a *_blockage entry
+            # recorded why (contention/no enumeration); absent without
+            # a recorded cause, or any other consumer missing a leg,
+            # voids the verification.
+            covered = consumer == "arecord" and (
+                entry.get(f"{consumer}_term_blockage") or
+                entry.get(f"{consumer}_kill_blockage"))
+            if not covered:
+                failures.append(f"{consumer} sever legs absent — the "
+                                "wound classes went unmeasured")
+            continue
+        if "blocked" in tcell or "blocked" in kcell:
+            continue   # named blockage (e.g. no source enumerated)
+        if "file" not in tcell or "file" not in kcell:
+            failures.append(f"{consumer} sever legs unmeasured (no file "
+                            "inspection — verification voided)")
             continue
         if tcell.get("early_exit_code") is not None or \
                 kcell.get("early_exit_code") is not None:
-            continue   # named early failure (e.g. device busy), recorded
+            # arecord busy legs are filtered before reaching `cells`; a
+            # surviving early-exit is a dead start, not a wound class.
+            failures.append(
+                f"{consumer} sever leg exited before the signal "
+                f"(term={tcell.get('early_exit_code')} "
+                f"kill={kcell.get('early_exit_code')}) — a dead start, "
+                "not a wound class")
+            continue
         fin = tcell["file"]
+        # r76 critic D1 / reviewer MEDIUM-1: finalized+aligned is TRUE on
+        # a zero-audio wav — a dead-start TERM must not satisfy the
+        # wound verdict. data_actual_zero is recorded per-cell.
         if not (tcell["exit_code"] == exp["term_rc"]
-                and fin.get("data_finalized") is exp["term_final"]):
+                and fin.get("data_finalized") is exp["term_final"]
+                and fin.get("data_actual_zero") is False):
             failures.append(
                 f"{consumer} TERM sever deviated (expected rc="
-                f"{exp['term_rc']} + finalized header)")
+                f"{exp['term_rc']} + finalized header carrying audio; "
+                f"got finalized={fin.get('data_finalized')} "
+                f"data_actual_zero={fin.get('data_actual_zero')})")
         kfin = kcell["file"]
         if kcell["exit_code"] != exp["kill_rc"]:
             failures.append(f"{consumer} KILL sever deviated (expected "
@@ -3771,7 +3833,7 @@ def capture_name_axis_r76_entry():
     failures = []
     inv = _capture_inventory()
     entry = {"probe": "capture output-name axis"}
-    src, mon, hw0 = _capture_leg_targets(inv)
+    src, mon, _ = _capture_leg_targets(inv)
     legs = {}
     with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
         tgt = src or "alsa_input.nonexistent-r76"
@@ -3825,10 +3887,10 @@ def capture_name_axis_r76_entry():
                     "blocked": "no monitor source or no pulse demuxer"}
     entry["legs"] = legs
     for leg in legs.values():
-        if "file" in leg and leg["file"].get("exists") is not False:
+        # r76 simplifier D7: _capture_out_kind already returns "missing"
+        # for an exists=False file leaf — the elif was unreachable.
+        if "file" in leg:
             leg["out_kind"] = _capture_out_kind(leg["file"])
-        elif leg.get("file"):
-            leg["out_kind"] = "missing"
     expected_kind = {
         "pwrecord_wav": "riff_wav", "pwrecord_raw": "raw_stream",
         "pwrecord_bin": "riff_wav", "pwrecord_rawflag_on_bin":
@@ -3894,9 +3956,12 @@ def capture_device_axis_r76_entry():
                 "blocked": "arecord -l enumerated no capture device"}
     entry["legs"] = legs
     for name in ("default", "pipewire"):
-        if legs[name].get("error_class") != "alsa_hwparams":
+        # r76 reviewer LOW-7: same contention carve-out as the bounded
+        # entry — a held device records alsa_busy, not a failure.
+        if legs[name].get("error_class") not in (
+                "alsa_hwparams", "alsa_busy"):
             failures.append(f"arecord -D {name}: expected the "
-                            "set_params:1462 capture block")
+                            "set_params:1462 capture block or a busy")
     if legs["null"].get("exit_code") != 0 or \
             legs["null"].get("file", {}).get("bytes") != 192044 or \
             legs["null"].get("wall_lt_0.5s") is not True:
@@ -3909,6 +3974,19 @@ def capture_device_axis_r76_entry():
             "alsa_channels", "alsa_busy"):
         failures.append("arecord hw -c 1 deviated (expected the "
                         "channels-count named failure or a busy)")
+    # r76 verifier N2: sysdefault/plughw/hw are WORKING capture routes
+    # (rc=0, exact paced 192044 B) — they were emitted but never
+    # checked, so a blocked-or-busy leg passed silently. Named
+    # contention (alsa_busy) stays an honest row.
+    for name in ("sysdefault", "plughw_first", "hw_first"):
+        leg = legs.get(name, {})
+        if "blocked" in leg or leg.get("error_class") == "alsa_busy":
+            continue
+        if not (leg.get("exit_code") == 0
+                and leg.get("file", {}).get("bytes") == 192044
+                and leg.get("wall_lt_0.5s") is False):
+            failures.append(f"arecord -D {name} deviated (expected "
+                            "paced exact 192044 B or a named busy)")
     entry["failures"] = failures
     return entry
 
@@ -3918,7 +3996,9 @@ def capture_roundtrip_r76_entry():
     sink while capturing its monitor; feed captured bytes back through
     two EXISTING detect legs (sox -V6 stat detect + aplay -D null
     content-magic) — do they land in the same verdict class as the
-    source member? A monitor-less host degrades to a named blocked."""
+    source member? A sink-less host or absent pacer member degrades to
+    a named blocked (r76 reviewer LOW-6 — the guard is sink+member,
+    not monitor enumeration)."""
     failures = []
     inv = _capture_inventory()
     entry = {"probe": "capture->playback roundtrip via sink monitor"}
@@ -3930,19 +4010,22 @@ def capture_roundtrip_r76_entry():
         entry["failures"] = failures
         return entry
     # the captured file feeds aplay_leg("file"), whose label is
-    # path.relative_to(ROOT) — the scratch dir must live under ROOT (the
-    # r76-author live dir), removed after the leg like every tmp dir.
-    scratch = ROOT / "live" / "r76-author"
+    # path.relative_to(ROOT) — the scratch dir must live under ROOT,
+    # removed after the leg like every tmp dir. r76 reviewer MEDIUM-2:
+    # the dir is seat-NEUTRAL (a replay from another seat's scope wrote
+    # into live/r76-author and labelled its evidence as such).
+    scratch = ROOT / "live" / "capture-r76-roundtrip"
     scratch.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="capture-r76-",
                                      dir=scratch) as tmp:
         cap = Path(tmp) / "roundtrip_capture.wav"
         frames = 240000  # 5.0 s at 48000 Hz stereo s16
+        rec_argv = ["pw-record", "-P", "stream.capture.sink=true",
+                    "--target", sink, "-n", str(frames),
+                    "--rate", "48000", "--channels", "2",
+                    "--format", "s16", str(cap)]
         rec = subprocess.Popen(
-            ["pw-record", "-P", "stream.capture.sink=true",
-             "--target", sink, "-n", str(frames), "--rate", "48000",
-             "--channels", "2", "--format", "s16", str(cap)],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            rec_argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             start_new_session=True)
         time.sleep(0.7)
         play = subprocess.run(
@@ -3954,11 +4037,13 @@ def capture_roundtrip_r76_entry():
             os.killpg(rec.pid, signal.SIGKILL)
             rec.wait()
         insp = _capture_wav_inspect(cap)
+        # r76 reviewer LOW-9: record the REAL argv with only the volatile
+        # values masked — a hand-paraphrased argv hides actual flags.
         entry["capture_leg"] = {
-            "argv": "pw-record -P stream.capture.sink=true --target "
-                    "<default-sink> -n 240000",
+            "argv": " ".join(rec_argv[:-1])
+                    .replace(sink, "<default-sink>") + " <out>",
             "exit_code": rec.returncode,
-            "player_argv": "pw-cat -p <pacer>",
+            "player_argv": "pw-cat -p " + member.name,
             "player_exit_code": play.returncode,
             "file": {"exists": insp.get("exists"),
                      "bytes": insp.get("bytes"),
@@ -3984,10 +4069,9 @@ def capture_roundtrip_r76_entry():
         # the existing detect legs on captured bytes vs the source member
         # (argv paths are ABSOLUTE — the leg's cwd is the caller's; the
         # receipt label stays the repo-relative form)
-        cap_rel = str(cap)
         mem_rel = str(member.relative_to(ROOT))
-        sox_cap = transport_leg(["sox", "-V6", cap_rel, "-n", "stat"],
-                                "live/r76-author/<tmp>/"
+        sox_cap = transport_leg(["sox", "-V6", str(cap), "-n", "stat"],
+                                "live/capture-r76-roundtrip/<tmp>/"
                                 "roundtrip_capture.wav")
         sox_mem = transport_leg(["sox", "-V6", str(member), "-n", "stat"],
                                 mem_rel)
