@@ -754,3 +754,13 @@ Sol `r73-adjudicator.md`: ADMIT-with-correction — member-local forks confirmed
 | calibration | **unchanged** | insertion-only (+544/-3 + folds); prior 120/121 modes byte-stable; byte-deterministic member generation; fork_kind honesty fold |
 
 Sol `r74-adjudicator.md`: ADMIT-corr — NOGENSEARCH gate measured, acm briefed-prediction falsified honestly. Verifier AGREE 12/12 on `168b165`. Bounded: mpv 0.41.0/lavf 63.1.101, libpipewire 1.6.8, this host.
+
+## Round 75 verdict — 2026-10-14
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | three playback consumers on the canonical matrix: paplay (pacat/libpulse daemon-gated), aplay (in-process ALSA), ffplay (lavf pull-model) — 27/27 verdict groups + per-consumer ops rows (daemon ordering, SDL axis, kill classes, -ss) |
+| depth | **improved** | four cross-consumer non-transfers pinned: pw-cat .snd axis absent on paplay, mpv seek fork absent on ffplay, aplay raw-accept invariant; input-open-before-connect ordering witness; per-consumer kill-class partition {-15 | -9 | 123} |
+| calibration | **improved** | four critic/reviewer falsifications folded same-round (label honesty, vacuity guard, predicted-vs-measured -ss, dead regex anchor); verifier AGREE byte-identical ×5; post-fold integrator re-run clean |
+
+Sol `r75-adjudicator.md`: ADMIT-corr — consumer breadth landed with falsifications folded. Bounded: pacat/libpulse 17.0, aplay -D null, ffplay lavf + SDL dummy, this host. Work `db46fba`; folds `5f60747`.

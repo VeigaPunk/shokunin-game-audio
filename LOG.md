@@ -1245,3 +1245,27 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   freeze 1ba8103 (120/121 mode-keyed, fifo-hold band only).
 - Verdict: ADMIT-corr (Sol, wave-13). Bounded mpv 0.41.0/lavf 63.1.101,
   libpipewire 1.6.8, this host.
+
+## Round 75 — consumer-class breadth: paplay + aplay + ffplay (wave-14 recovery)
+
+- MOVE: `--probe-consumers2-r75` — three playback consumers (pacat/
+  libpulse paplay, in-process ALSA aplay, lavf pull-model ffplay) on the
+  canonical 9-member × 4-transport matrix + per-consumer ops rows
+  (daemon gate ordering, SDL driver axis, writerless-fifo kill class,
+  device axis, -ss position cell).
+- Measured: 27/27 transport-invariant verdict groups; paplay's `.snd`
+  name axis does NOT transfer from pw-cat (sf_open_fd name-blind);
+  ffplay does NOT reproduce mpv's dec_hcom seek fork (avio seeks stay
+  0); aplay raw fallback invariant-accepts unmatched content.
+- Kill classes: paplay -15 on TERM, aplay catches TERM yet stays
+  blocked -> -9, ffplay TERM -> graceful 123 with read thread blocked;
+  paplay input-open precedes daemon connect (ordering cell).
+- Correction chain folded: alive_after_term1 rename (one-TERM scope),
+  vacuous-invariance guard (same-infra-wall collapse fails named),
+  -ss silent-abort prediction fix, _PACAT_RACY_TAIL Time: re-anchor +
+  path-only quote scrub, ffplay status filter in nowriter cell,
+  error-field convention, D1-D3 dedupe.
+- Verifier AGREE all claims (receipts byte-identical ×5); baseline
+  zero-drift; integrator re-run post-fold 27/27 clean (failures: {}).
+- Verdict: ADMIT-corr (Sol, wave-14). Bounded pacat/libpulse 17.0,
+  aplay -D null, ffplay lavf + SDL dummy, this host.
