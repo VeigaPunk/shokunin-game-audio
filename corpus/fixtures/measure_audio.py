@@ -3034,8 +3034,12 @@ def _capture_wav_inspect(path):
     insp = {"exists": path.exists()}
     if not insp["exists"]:
         return insp
-    data = path.read_bytes()
-    insp["bytes"] = len(data)
+    # r77 reviewer F5: the split-sentinel leg hands this a 2.1 GiB file —
+    # read the header region only; sizes come from stat, never payload.
+    size = path.stat().st_size
+    with path.open("rb") as fh:
+        data = fh.read(min(size, 65536))
+    insp["bytes"] = size
     insp["riff"] = data[:4] == b"RIFF" and data[8:12] == b"WAVE"
     if not insp["riff"]:
         # never record raw head bytes — a raw stream's first bytes are
@@ -3044,7 +3048,7 @@ def _capture_wav_inspect(path):
         return insp
     riff_sz = struct.unpack("<I", data[4:8])[0]
     insp["riff_size_field"] = (
-        "finalized" if riff_sz == len(data) - 8 else
+        "finalized" if riff_sz == size - 8 else
         "placeholder_8" if riff_sz == 8 else
         "placeholder_ff" if riff_sz == 0xFFFFFFFF else
         "placeholder_80000000" if riff_sz == 0x80000000 else "other")
@@ -3067,7 +3071,7 @@ def _capture_wav_inspect(path):
             pass
     for c in chunks:
         if c["id"] == "data":
-            actual = len(data) - (c["offset"] + 8)
+            actual = size - (c["offset"] + 8)
             insp["data_declared"] = c["declared"]
             insp["data_actual"] = actual
             insp["data_finalized"] = c["declared"] == actual
@@ -4209,17 +4213,24 @@ CAPTURE_R77_FORMAT_FRAMES = 4800        # 0.1 s — legality is the claim
 CAPTURE_R77_LOSS_FRAMES = 96000
 CAPTURE_R77_LOSS_UNLOAD_S = 0.6
 CAPTURE_R77_LOSS_LINK_AT = (0.3, 0.9)   # pre-unload / post-unload
-CAPTURE_R77_LOSS_BYTES = 44 + 96000 * 4   # -n is a FRAME bound
+CAPTURE_R77_LOSS_BYTES = 44 + CAPTURE_R77_LOSS_FRAMES * 4   # -n bound
 CAPTURE_R77_LOSS_SAMPLE_AT = (0.4, 0.9, 1.6, 2.6)
 CAPTURE_R77_LOSS_UNLOAD_WALL_S = 1.0
 CAPTURE_R77_LOSS_SEVER_S = 3.0
-CAPTURE_R77_NULL_SINK = "r77_loss_sink"
+# Per-run sink name — a fixed name lets a concurrent seat's unload kill
+# this probe's sink mid-leg (measured on this host: contended run unloads
+# another seat's identically-named sink). The pid keeps it unique.
+CAPTURE_R77_NULL_SINK = f"r77_loss_sink_{os.getpid()}"
 CAPTURE_R77_FRAMES_PER_SECOND = 48000   # frames/s at the pinned rate
 CAPTURE_R77_BYTES_PER_SECOND = 192000   # 48000 x 2ch x s16 — the -d oracle
 CAPTURE_R77_SPLIT_DATA_LIMIT = 0x80000000
 CAPTURE_R77_SPLIT_TOTAL_LIMIT = 0x80000000 + 44
-CAPTURE_R77_SPLIT_UNDER_FRAMES = 536870912 - 240000
-CAPTURE_R77_SPLIT_OVER_FRAMES = 536870912 + 240000
+CAPTURE_R77_SPLIT_LIMIT_FRAMES = CAPTURE_R77_SPLIT_DATA_LIMIT // 4
+CAPTURE_R77_SPLIT_MARGIN_FRAMES = 240000   # 0.5 s at the pinned frame size
+CAPTURE_R77_SPLIT_UNDER_FRAMES = \
+    CAPTURE_R77_SPLIT_LIMIT_FRAMES - CAPTURE_R77_SPLIT_MARGIN_FRAMES
+CAPTURE_R77_SPLIT_OVER_FRAMES = \
+    CAPTURE_R77_SPLIT_LIMIT_FRAMES + CAPTURE_R77_SPLIT_MARGIN_FRAMES
 CAPTURE_R77_SPLIT_BYTE_CAP = 2400000000   # hard watchdog ceiling (2.4 GB)
 CAPTURE_R77_SPLIT_WALL_CAP_S = 60.0
 CAPTURE_R77_SPLIT_SCRATCH = ROOT / "live" / "capture-r77-split"
@@ -4258,6 +4269,14 @@ def _capture_r77_sha256(path):
     return h.hexdigest()[:16]
 
 
+def _capture_r77_sha_pair(a, b):
+    """Byte-identity check that fails CLOSED on absence — None==None is
+    not a match (r77 critic)."""
+    if a is None or b is None:
+        return None
+    return a == b
+
+
 def _capture_r77_pcm_stats(path, insp):
     """The content witness — the only discriminator a silent fallback
     leaves inside the artifact. `nonzero_frac` is bucketed to 0.05 because
@@ -4276,18 +4295,33 @@ def _capture_r77_pcm_stats(path, insp):
     if fmt.get("tag") not in (1, 65534) or fmt.get("bits") != 16:
         st["unsupported"] = f"tag{fmt.get('tag')}/{fmt.get('bits')}b"
         return st
-    try:
-        pcm = np.frombuffer(path.read_bytes()[off:], dtype="<i2")
-    except ValueError:
+    payload = insp["bytes"] - off
+    if payload % 2:
         st["unsupported"] = "odd trailing byte"
         return st
-    if not len(pcm):
+    if not payload:
         return st
+    # memmap, not read_bytes: the split-sentinel payload is 2.1 GiB.
+    pcm = np.memmap(path, dtype="<i2", mode="r", offset=off,
+                    shape=payload // 2)
     mag = np.abs(pcm.astype(np.float64))
     st["peak"] = int(mag.max())
-    st["nonzero_frac"] = round(float((mag > 0).mean()) / 0.05) * 0.05
-    st["carries_tone"] = st["nonzero_frac"] > 0.05
+    raw_frac = float((mag > 0).mean())
+    st["nonzero_frac"] = round(raw_frac / 0.05) * 0.05
+    # compare the RAW fraction — the bucketed leaf has a dead zone at
+    # exactly 0.05 (r77 critic: nonzero_frac>=0.075 >raw>0.05 region).
+    st["carries_tone"] = raw_frac > 0.05
     return st
+
+
+def _capture_r77_reap(proc, timeout_s=CAPTURE_R77_TIMEOUT_S):
+    """Bounded wait, then KILL the whole process group — one escalation
+    policy for every r77 leg."""
+    try:
+        proc.wait(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
 
 
 def _capture_r77_link_producers():
@@ -4306,7 +4340,7 @@ def _capture_r77_link_producers():
     except (subprocess.TimeoutExpired, OSError) as exc:
         out["error"] = str(exc)[:120]
         return out
-    names, per_port, port = [], {}, None
+    per_port, port = {}, None
     for ln in text.splitlines():
         if not ln or not ln[0].isspace():
             # a new top-level entry: a port name, or a foreign node's name
@@ -4314,11 +4348,9 @@ def _capture_r77_link_producers():
                 else None
             continue
         if port and "|<-" in ln:
-            names.append(ln.split("|<-", 1)[1].strip())
-            per_port.setdefault(port, []).append(
-                ln.split("|<-", 1)[1].strip())
-    out["producers"] = sorted(set(names))
+            per_port.setdefault(port, []).append(ln.split("|<-", 1)[1].strip())
     out["per_port"] = {k: sorted(set(v)) for k, v in per_port.items()}
+    out["producers"] = sorted({p for v in out["per_port"].values() for p in v})
     # A stale link from a previous cell's node can survive ~2 s, so the
     # consumed node is the producer present on BOTH channels — the union
     # would silently admit a ghost as consumption.
@@ -4359,9 +4391,11 @@ def _capture_r77_link_delta(before, during):
     return out
 
 
-def _capture_r77_node_props():
+def _capture_r77_node_props(owner_pid=None):
     """The live pw-record node's own advertised target — recorded to
-    demonstrate the provenance trap, never used as a verdict."""
+    demonstrate the provenance trap, never used as a verdict. Matched by
+    `application.process.id`, not by name alone — a concurrent seat's
+    pw-record node has the same application.name (r77 critic)."""
     out = {"nodes": []}
     try:
         proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
@@ -4373,10 +4407,12 @@ def _capture_r77_node_props():
         props = ((node.get("info") or {}).get("props") or {})
         if props.get("application.name") != "pw-record":
             continue
+        if owner_pid is not None and \
+                props.get("application.process.id") != str(owner_pid):
+            continue
         out["nodes"].append({"target_object": props.get("target.object"),
                              "stream_capture_sink":
                                  props.get("stream.capture.sink")})
-    out["count"] = len(out["nodes"])
     return out
 
 
@@ -4392,8 +4428,9 @@ def _capture_r77_wait_clear(deadline_s=2.0):
     return None
 
 
-def _capture_r77_file_leg(argv, fname, tmp, exact_bytes=False):
-    """One bounded file-writing leg under the r77 class set."""
+def _capture_r77_file_leg(argv, fname, tmp):
+    """One bounded file-writing leg under the r77 class set. Every leg here
+    is exactly bounded (`-n <frames>`), so the byte count is a pinned leaf."""
     out = Path(tmp) / fname
     t0 = time.monotonic()
     text, rc, blocked = _capture_run(argv + [str(out)], CAPTURE_R77_TIMEOUT_S)
@@ -4406,7 +4443,7 @@ def _capture_r77_file_leg(argv, fname, tmp, exact_bytes=False):
     if line or blocked:
         leg["error"] = (line.replace(str(out), "<out>") if line else blocked)
     fin = {"exists": insp["exists"]}
-    if insp.get("bytes") is not None and (exact_bytes or insp["bytes"] == 0):
+    if insp.get("bytes") is not None:
         fin["bytes"] = insp["bytes"]
     if insp.get("riff"):
         fin["riff_size_field"] = insp["riff_size_field"]
@@ -4450,7 +4487,7 @@ def _capture_r77_readers(path, insp):
     `declared_echo` reader repeats."""
     fmt = insp.get("fmt") or {}
     frame_bytes = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
-    rate = fmt.get("rate") or 48000
+    rate = fmt.get("rate") or CAPTURE_R77_FRAMES_PER_SECOND
     honest = (insp.get("data_actual") or 0) // frame_bytes if frame_bytes else 0
     declared = (insp.get("data_declared") or 0) // frame_bytes \
         if frame_bytes else 0
@@ -4529,11 +4566,7 @@ def _capture_r77_sever_cell(argv, fname, sig, tmp,
     if early_rc is None:
         if proc.poll() is None:
             proc.send_signal(sig)
-        try:
-            proc.wait(timeout=CAPTURE_R77_KILL_WAIT_S)
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGKILL)
-            proc.wait()
+        _capture_r77_reap(proc, CAPTURE_R77_KILL_WAIT_S)
     err = proc.stderr.read().decode(errors="replace") \
         if proc.stderr else ""
     insp = _capture_wav_inspect(out)
@@ -4577,6 +4610,10 @@ CAPTURE_R77_LATTICE = (
     ("prop_default_sink_monitor", "default_sink_monitor", True,
      "default_sink", True),
     ("prop_other_sink", "other_sink", True, "other_sink", False),
+    # a sink THIS probe owns — discriminates "honor any real target" from
+    # "always consume the current default sink's monitor" even on a
+    # single-sink host where `prop_other_sink` is blocked (r77 critic).
+    ("prop_probe_sink", "probe_sink", True, "probe_sink", False),
     ("prop_source", "source", True, "default_sink", True),
     ("prop_default_token", "literal:default", True, "default_sink", True),
     ("prop_pulse_token", "literal:pulse", True, "default_sink", True),
@@ -4585,7 +4622,10 @@ CAPTURE_R77_LATTICE = (
     ("noprop_default_sink", "default_sink", False, "empty_wav", False),
     ("noprop_default_sink_monitor", "default_sink_monitor", False,
      "empty_wav", False),
-    ("noprop_source", "source", False, "source", False),
+    # source identity is the law; its SILENCE is host state — the fold
+    # run measured the DualSense mic live (peak 5998). exp_tone=None =
+    # "recorded, not asserted" and feeds default_source_is_silent.
+    ("noprop_source", "source", False, "source", None),
 )
 
 
@@ -4594,7 +4634,8 @@ def _capture_r77_lattice_targets(inv):
     other = next((s for s in inv["sinks"] if s != inv["default_sink"]), None)
     return {"default_sink": inv["default_sink"],
             "default_sink_monitor": mon,
-            "other_sink": other, "source": src}
+            "other_sink": other, "source": src,
+            "probe_sink": CAPTURE_R77_NULL_SINK}
 
 
 def _capture_r77_default_sink():
@@ -4613,7 +4654,7 @@ def _capture_r77_default_sink():
         return None
 
 
-def _capture_r77_lattice_cell(name, target, prop, tmp, member, sink):
+def _capture_r77_lattice_cell(name, target, prop, tmp, member):
     """One tone-anchored source-selection cell. The caller serializes these:
     two concurrent pw-record streams both appear in `pw-link -l` and would
     destroy the topology witness. The tone is played to the CURRENT default
@@ -4644,12 +4685,8 @@ def _capture_r77_lattice_cell(name, target, prop, tmp, member, sink):
     live = proc.poll() is None
     link = _capture_r77_link_delta(link_before,
                                    _capture_r77_link_producers())
-    dump = _capture_r77_node_props()
-    try:
-        proc.wait(timeout=CAPTURE_R77_TIMEOUT_S)
-    except subprocess.TimeoutExpired:
-        os.killpg(proc.pid, signal.SIGKILL)
-        proc.wait()
+    dump = _capture_r77_node_props(owner_pid=proc.pid)
+    _capture_r77_reap(proc)
     if player.poll() is None:
         player.terminate()
     try:
@@ -4663,8 +4700,6 @@ def _capture_r77_lattice_cell(name, target, prop, tmp, member, sink):
     shown = " ".join(argv[:-1])
     if target:
         shown = shown.replace(target, "<target>")
-    elif sink:
-        pass
     cell = {"target_arg": target, "capture_sink_prop": prop,
             "argv": shown + " <out>",
             "default_sink_at_cell": default_now,
@@ -4709,24 +4744,28 @@ def _capture_r77_foreign_clients():
     """Live pw-record / fixture clients NOT spawned by this run. The
     topology witness and the device axis are both invalid while another
     seat's capture is attached, so the receipt names the contention rather
-    than leaving a contended number looking like a clean one."""
+    than leaving a contended number looking like a clean one. Counted via
+    /proc comm + cmdline — `pgrep -f` also matches the shell WRAPPERS and
+    zombies that carry the string in argv (r77 verifier N4)."""
     out = {"pw_record": 0, "fixture_runs": 0, "own_pid": os.getpid()}
+    own = str(out["own_pid"])
     try:
-        proc = subprocess.run(["pgrep", "-a", "-f", "pw-record"],
-                              capture_output=True, timeout=10)
-        out["pw_record"] = sum(
-            1 for ln in proc.stdout.decode(errors="replace").splitlines()
-            if ln.strip())
-    except (subprocess.TimeoutExpired, OSError):
-        pass
-    try:
-        proc = subprocess.run(["pgrep", "-a", "-f", "measure_audio.py"],
-                              capture_output=True, timeout=10)
-        out["fixture_runs"] = sum(
-            1 for ln in proc.stdout.decode(errors="replace").splitlines()
-            if ln.strip() and str(out["own_pid"]) not in ln.split(None, 1)[0])
-    except (subprocess.TimeoutExpired, OSError):
-        pass
+        for pid_dir in Path("/proc").iterdir():
+            if not pid_dir.name.isdigit() or pid_dir.name == own:
+                continue
+            try:
+                comm = (pid_dir / "comm").read_text().strip()
+                if comm == "pw-record":
+                    out["pw_record"] += 1
+                elif comm.startswith("python") and \
+                        "measure_audio.py" in \
+                        (pid_dir / "cmdline").read_bytes() \
+                        .replace(b"\0", b" ").decode(errors="replace"):
+                    out["fixture_runs"] += 1
+            except (OSError, ValueError):
+                continue
+    except OSError:
+        out["proc_error"] = True
     out["host_is_quiet"] = (out["pw_record"] <= 1 and
                             out["fixture_runs"] == 0)
     return out
@@ -4759,7 +4798,7 @@ def capture_source_lattice_r77_entry():
                            "default_source": inv["default_source"],
                            "sinks": inv["sinks"], "sources": inv["sources"],
                            "monitors": inv["monitors"]},
-             "default_source_is_silent_on_this_host": True}
+             "default_source_is_silent_on_this_host": None}
     member = CAPTURE_R77_TONE_MEMBER
     if not inv["default_sink"] or not member.exists():
         entry["blocked"] = ("no default sink" if not inv["default_sink"]
@@ -4768,6 +4807,14 @@ def capture_source_lattice_r77_entry():
         return entry
     tg = _capture_r77_lattice_targets(inv)
     legs = {}
+    mid_lat, rc_lat, err_lat = _capture_r77_null_sink_load()
+    entry["probe_sink_load"] = {"module_id": mid_lat, "rc": rc_lat,
+                                "error": err_lat}
+    if mid_lat is None:
+        # the prop_probe_sink cell cannot run; mark it blocked, do not
+        # silently drop it.
+        legs["prop_probe_sink"] = {
+            "blocked": "pactl could not load a probe-owned null sink"}
     with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
         # warm-up: the default sink is SUSPENDED until something plays to
         # it, and the first cell would otherwise measure the wake latency
@@ -4782,6 +4829,8 @@ def capture_source_lattice_r77_entry():
                                    + member.name,
                            "exit_code": warm.returncode}
         for name, resolver, prop, _exp, _tone in CAPTURE_R77_LATTICE:
+            if name in legs:
+                continue   # already a named-blockage row (probe_sink load)
             if resolver is None:
                 target = None
             elif resolver.startswith("literal:"):
@@ -4794,12 +4843,17 @@ def capture_source_lattice_r77_entry():
                     "blocked": f"no {resolver} enumerated on this host"}
                 continue
             cleared = _capture_r77_wait_clear()
-            legs[name] = _capture_r77_lattice_cell(
-                name, target, prop, tmp, member, inv["default_sink"])
+            legs[name] = _capture_r77_lattice_cell(name, target, prop, tmp,
+                                                   member)
             if cleared is None:
                 legs[name]["stale_link_before_cell"] = True
             time.sleep(CAPTURE_R77_SETTLE_S)
+    if mid_lat is not None:
+        subprocess.run(["pactl", "unload-module", str(mid_lat)],
+                       capture_output=True, timeout=15)
     entry["legs"] = legs
+    entry["probe_sink_gone"] = CAPTURE_R77_NULL_SINK not in \
+        _capture_r77_sink_names()
     for name, resolver, _prop, exp_node, exp_tone in CAPTURE_R77_LATTICE:
         leg = legs.get(name)
         if leg is None:
@@ -4823,7 +4877,10 @@ def capture_source_lattice_r77_entry():
                 set(entry.get("contended_cells", [])) | {name})
             continue
         known = set(inv["sinks"]) | set(inv["sources"]) | set(inv["monitors"])
-        foreign = [n for n in got if n not in known]
+        # the probe's own sink is loaded mid-entry — after the inventory —
+        # so it is expected-but-unlisted, not foreign.
+        foreign = [n for n in got
+                   if n not in known and n != CAPTURE_R77_NULL_SINK]
         if foreign:
             leg["confound"] = (f"foreign node(s) {foreign} consumed — a "
                                "concurrent seat's artifact is live on this "
@@ -4831,28 +4888,55 @@ def capture_source_lattice_r77_entry():
             entry["confound_observed"] = True
             continue
         if exp_node == "empty_wav":
-            # a sink target without the prop never delivers audio: the
-            # honest shape is the 44-byte empty wav with `no_target_node`,
-            # NOT a missing file. The link table is NOT authoritative here
-            # — the failed node's link outlives the process by ~1-2 s and
-            # would otherwise be read as consumption (see link_after_exit).
-            if leg.get("file", {}).get("bytes") != 44:
+            # the pinned safety law: a sink target WITHOUT the prop must
+            # never consume the named sink. Two measured classes:
+            #  - `no_target_node`: resolution fails outright -> the
+            #    44-byte empty wav (author/canonical class).
+            #  - `fallback_default_source` (fold-run measured): when the
+            #    host's default SOURCE can serve, resolution failure
+            #    falls back to it — rc=1, a full bound of real audio,
+            #    consumed_nodes == [default_source]. The sink is still
+            #    never captured; what changed is the fallback's fate.
+            # Both keep the law; any third shape fails.
+            leg_bytes = leg.get("file", {}).get("bytes")
+            if leg.get("error_class") == "no_target_node":
+                if leg_bytes != 44:
+                    failures.append(
+                        f"lattice {name}: refusal class but got "
+                        f"{leg_bytes} bytes (rc={leg.get('exit_code')})")
+            elif got == [inv["default_source"]] and leg_bytes == \
+                    44 + CAPTURE_R77_LATTICE_FRAMES * 4:
+                leg["cell_class"] = "fallback_default_source"
+                entry["confound_observed"] = True
+                entry["fallback_source_cells"] = sorted(
+                    set(entry.get("fallback_source_cells", [])) | {name})
+            else:
                 failures.append(
-                    f"lattice {name}: expected the 44-byte empty wav, got "
-                    f"{leg.get('file', {}).get('bytes')} bytes "
+                    f"lattice {name}: sink target without the prop must "
+                    f"refuse (44 B / no_target_node) or fall back to the "
+                    f"default SOURCE — got cls={leg.get('error_class')} "
+                    f"bytes={leg_bytes} nodes={got} "
                     f"(rc={leg.get('exit_code')})")
-            if leg.get("error_class") != "no_target_node":
-                failures.append(f"lattice {name}: expected no_target_node, "
-                                f"got {leg.get('error_class')}")
             continue
         want = leg.get("default_sink_at_cell") if exp_node == "default_sink" \
             else tg.get(exp_node)
+        if leg.get("stale_link_before_cell") and got != [want]:
+            # A foreign link present at cell start can cancel this cell's
+            # own link in the differencing — an empty/wrong `got` under a
+            # polluted baseline is a confound, not a verdict.
+            leg["confound"] = (
+                "stale foreign link in the cell baseline — differencing "
+                "can cancel this cell's own link on a contended host")
+            entry["confound_observed"] = True
+            entry["contended_cells"] = sorted(
+                set(entry.get("contended_cells", [])) | {name})
+            continue
         if got != [want]:
             failures.append(f"lattice {name}: expected consumption of "
                             f"{exp_node} ({want}), got {got} "
                             f"(target_arg={leg.get('target_arg')!r})")
         tone = leg.get("content", {}).get("carries_tone")
-        if tone is not exp_tone:
+        if exp_tone is not None and tone is not exp_tone:
             failures.append(f"lattice {name}: tone witness expected "
                             f"{exp_tone}, got {tone} "
                             f"(peak={leg.get('content', {}).get('peak')})")
@@ -4863,6 +4947,16 @@ def capture_source_lattice_r77_entry():
     entry["default_sink_is_stable"] = len({t["default_sink_at_cell"]
                                           for t in entry["default_sink_trace"]}
                                          ) == 1
+    # measured, not asserted: `noprop_source` reads the real source — its
+    # carries_tone leaf is the silence witness. None when the leg blocked.
+    noprop = legs.get("noprop_source") or {}
+    if "blocked" not in noprop:
+        entry["default_source_is_silent_on_this_host"] = (
+            noprop.get("content", {}).get("carries_tone") is False)
+    if mid_lat is not None and entry.get("probe_sink_gone") is not True:
+        failures.append("lattice teardown: the probe-owned sink survived "
+                        "the unload — prop_probe_sink's consumption claim "
+                        "is unaudited")
     entry["failures"] = failures
     return entry
 
@@ -4885,6 +4979,7 @@ def capture_target_loss_r77_entry():
         entry["failures"] = failures
         return entry
     mid, rc, err = _capture_r77_null_sink_load()
+    mid2 = None
     entry["sink_load"] = {"module_id": mid, "exit_code": rc, "error": err}
     if mid is None:
         entry["blocked"] = "pactl could not load a probe-owned null sink"
@@ -4914,6 +5009,7 @@ def capture_target_loss_r77_entry():
             lpath = Path(tmp) / "loss_after.wav"
             l = _capture_r77_run(base_argv + [str(lpath)],
                                  unload_after_s=CAPTURE_R77_LOSS_UNLOAD_S,
+                                 unload_module_id=mid,
                                  sample_at=CAPTURE_R77_LOSS_LINK_AT)
             entry["bounded"] = {
                 "argv": " ".join(base_argv[:-1]).replace(
@@ -4928,16 +5024,24 @@ def capture_target_loss_r77_entry():
                                  (b.get("samples", []) +
                                   c.get("samples", []) +
                                   l.get("samples", []))),
-                "sha_match_control": (_capture_r77_sha256(cpath) ==
-                                      _capture_r77_sha256(lpath)),
-                "sha_match_dead_sink": (_capture_r77_sha256(bpath) ==
-                                        _capture_r77_sha256(lpath))}
+                "sha_match_control": _capture_r77_sha_pair(
+                    _capture_r77_sha256(cpath), _capture_r77_sha256(lpath)),
+                "sha_match_dead_sink": _capture_r77_sha_pair(
+                    _capture_r77_sha256(bpath), _capture_r77_sha256(lpath))}
+            # The bounded leg's unload already killed `mid` — the wall
+            # leg needs its OWN live sink or every sample reads the
+            # post-fallback state and the rate buckets measure nothing
+            # (r77 verifier N2: unloaded-empty-id rc-0 no-op).
+            mid2, rc2, err2 = _capture_r77_null_sink_load()
+            entry["sink_load_wall"] = {"module_id": mid2, "rc": rc2,
+                                       "error": err2}
             wpath = Path(tmp) / "loss_wall.wav"
             w = _capture_r77_run(
                 ["pw-record", "-P", "stream.capture.sink=true",
                  "--target", CAPTURE_R77_NULL_SINK, "--rate", "48000",
                  "--channels", "2", "--format", "s16", str(wpath)],
                 unload_after_s=CAPTURE_R77_LOSS_UNLOAD_WALL_S,
+                unload_module_id=mid2,
                 sever_after_s=CAPTURE_R77_LOSS_SEVER_S,
                 sample_at=CAPTURE_R77_LOSS_SAMPLE_AT)
             entry["wall_clock"] = {
@@ -4951,14 +5055,13 @@ def capture_target_loss_r77_entry():
                 "exit_code": w["exit_code"], "wall_s": w["wall_s"],
                 "file": _capture_r77_loss_leaf(wpath, w)}
     finally:
-        subprocess.run(["pactl", "unload-module", str(mid)],
-                       capture_output=True, timeout=15)
+        for m in (mid, mid2):
+            if m is not None:
+                subprocess.run(["pactl", "unload-module", str(m)],
+                               capture_output=True, timeout=15)
     entry["sink_gone"] = CAPTURE_R77_NULL_SINK not in \
         _capture_r77_sink_names()
-    bounded = entry.get("bounded")
-    if not bounded:
-        entry["failures"] = failures
-        return entry
+    bounded = entry["bounded"]
     for key in ("baseline", "fallback_control", "after_loss"):
         leaf = bounded[key]
         if leaf.get("exit_code") != 1 or \
@@ -4973,24 +5076,40 @@ def capture_target_loss_r77_entry():
             bounded["nodes_after"] != [bounded["fallback_node"]]:
         # a concurrent pw-record client merges into the same port names, so
         # the topology witness is only valid while this probe is the sole
-        # client. Name the contention instead of reading it as consumption.
-        if bounded.get("contended"):
+        # client. An EMPTY delta is the same artifact class: a stale
+        # baseline link cancels this run's own link in the differencing —
+        # `carries_tone` and exact bytes still prove delivery. Name the
+        # confound instead of reading it as consumption (r77 reviewer F1).
+        if bounded.get("contended") or not bounded["nodes_before"] or \
+                not bounded["nodes_after"]:
             entry["confound_observed"] = True
             entry["confound"] = (
-                "contended link table during the loss leg — node identity "
-                "and fallback byte-identity are not readable on a shared "
-                "host; the artifact-level law (rc / exact frames / "
-                "finalized) still holds")
+                "contended or stale-baseline link table during the loss "
+                "leg — node identity and fallback byte-identity are not "
+                "readable on a shared host; the artifact-level law (rc / "
+                "exact frames / finalized) still holds")
         else:
             failures.append(
                 f"target loss: expected the capture to consume the probe "
                 f"sink before the unload and {bounded['fallback_node']} "
                 f"after, got {bounded['nodes_before']} -> "
                 f"{bounded['nodes_after']}")
-    if not bounded.get("contended") and not bounded["sha_match_control"]:
-        failures.append("target loss: the post-loss artifact is NOT "
-                        "byte-identical to the FALLBACK node's own "
-                        "same-bound control — the re-link is not total")
+    # The byte-identity pin is only meaningful when the fallback node's own
+    # control is verified silence: two windows of REAL audio never match,
+    # so a live fallback is a confound, not a refutation (reviewer F1).
+    if not bounded.get("contended"):
+        fc = bounded["fallback_control"]
+        if fc.get("all_zero_payload") is not True:
+            entry["confound_observed"] = True
+            entry["fallback_content_confound"] = (
+                "fallback node's control capture is not verified silence "
+                "(all_zero_payload="
+                f"{fc.get('all_zero_payload')}) — byte-identity across "
+                "capture windows is unverifiable")
+        elif bounded["sha_match_control"] is not True:
+            failures.append("target loss: the post-loss artifact is NOT "
+                            "byte-identical to the FALLBACK node's own "
+                            "same-bound control — the re-link is not total")
     if not entry["sink_gone"]:
         failures.append("target loss: the probe sink survived the unload — "
                         "the leg measured nothing")
@@ -4998,6 +5117,35 @@ def capture_target_loss_r77_entry():
     if after < 95:
         failures.append(f"target loss: post-loss delivery rate "
                         f"{after}% of nominal — expected a sustained 100%")
+    # r77 verifier N2 fail-closed pins: the wall leg must have REALLY
+    # consumed the probe sink and the unload must have REALLY fired —
+    # `unload-module ""` is an rc-0 no-op that silently measured the
+    # post-fallback steady state instead of a loss transition.
+    wall = entry["wall_clock"]
+    unl = (wall.get("file") or {}).get("unloaded") or {}
+    if unl.get("exit_code") != 0:
+        failures.append(f"target loss wall leg: unload rc="
+                        f"{unl.get('exit_code')} — no real loss event "
+                        "(the leg measured the post-fallback state)")
+    w_contended = any(s.get("ambiguous") for s in wall.get("samples", []))
+    w_pre = _capture_r77_nodes_delta(wall, CAPTURE_R77_LOSS_SAMPLE_AT[0])
+    w_post = _capture_r77_nodes_delta(wall,
+                                      CAPTURE_R77_LOSS_SAMPLE_AT[-1])
+    entry["wall_clock"]["nodes_before"] = w_pre
+    entry["wall_clock"]["nodes_after"] = w_post
+    if not w_contended and w_pre:
+        if w_pre != [CAPTURE_R77_NULL_SINK]:
+            failures.append(f"target loss wall leg: pre-loss link "
+                            f"{w_pre} — expected the probe sink")
+        if w_post != [bounded["fallback_node"]]:
+            failures.append(f"target loss wall leg: post-loss link "
+                            f"{w_post} — expected the fallback node "
+                            f"{bounded['fallback_node']}")
+    elif not w_contended and not w_pre:
+        entry["confound_observed"] = True
+        entry["wall_confound"] = (
+            "empty wall-leg link delta — the differencing was blinded by "
+            "a stale baseline; the rate buckets still carry the law")
     entry["failures"] = failures
     return entry
 
@@ -5014,8 +5162,11 @@ def _capture_r77_nodes_delta(run, at_s):
 
 
 def _capture_r77_sink_names():
+    """SINK names. A `module-null-sink` creates the sink `X` and the monitor
+    SOURCE `X.monitor`, so enumerating sources can never contain the bare sink
+    name and the caller's `sink_gone` test would be vacuously true."""
     try:
-        proc = subprocess.run(["pactl", "list", "sources", "short"],
+        proc = subprocess.run(["pactl", "list", "sinks", "short"],
                               capture_output=True, timeout=10)
         return [ln.split()[1] for ln in
                 proc.stdout.decode(errors="replace").splitlines()
@@ -5038,10 +5189,12 @@ def _capture_r77_null_sink_load():
 
 
 def _capture_r77_run(argv, unload_after_s=None, sever_after_s=None,
-                     sample_at=()):
+                     sample_at=(), unload_module_id=None):
     """One pw-record run with optional mid-run module unload, byte sampling
     and a wall-clock sever. Every sample is a monotonic-clock offset from
-    spawn, so the rate buckets are derived, not asserted."""
+    spawn, so the rate buckets are derived, not asserted. The unload uses
+    the module id captured at load time — a name re-lookup could return ""
+    (rc-0 no-op, the leg silently measures nothing) or a foreign module."""
     out = Path(argv[-1])
     link_baseline = _capture_r77_link_producers()
     t0 = time.monotonic()
@@ -5064,9 +5217,11 @@ def _capture_r77_run(argv, unload_after_s=None, sever_after_s=None,
                             "ambiguous": lk["ambiguous"]})
         elif kind == "unload":
             try:
-                p = subprocess.run(["pactl", "unload-module",
-                                    str(_capture_r77_null_sink_id())],
-                                   capture_output=True, timeout=15)
+                p = subprocess.run(
+                    ["pactl", "unload-module",
+                     str(unload_module_id if unload_module_id is not None
+                         else _capture_r77_null_sink_id())],
+                    capture_output=True, timeout=15)
                 unloaded = {"exit_code": p.returncode,
                             "error": p.stderr.decode(errors="replace")[:120]
                             or None}
@@ -5074,14 +5229,10 @@ def _capture_r77_run(argv, unload_after_s=None, sever_after_s=None,
                 unloaded = {"exit_code": None, "error": str(exc)[:120]}
         elif kind == "sever" and proc.poll() is None:
             proc.send_signal(signal.SIGTERM)
-    try:
-        proc.wait(timeout=CAPTURE_R77_TIMEOUT_S)
-    except subprocess.TimeoutExpired:
-        os.killpg(proc.pid, signal.SIGKILL)
-        proc.wait()
+    _capture_r77_reap(proc)
     return {"exit_code": proc.returncode, "unloaded": unloaded,
             "samples": samples, "wall_s": round(time.monotonic() - t0, 2),
-            "link_baseline": link_baseline,
+            # drained (bounded pipe), not recorded
             "stderr": proc.stderr.read().decode(errors="replace")}
 
 
@@ -5104,7 +5255,9 @@ def _capture_r77_loss_leaf(path, run):
     leaf = {"exit_code": run["exit_code"], "exists": insp.get("exists"),
             "bytes": insp.get("bytes"),
             "data_finalized": insp.get("data_finalized"),
-            "data_actual_zero": insp.get("data_actual") == 0,
+            # a missing data chunk is UNKNOWN, not "non-zero payload".
+            "data_actual_zero": (None if insp.get("data_actual") is None
+                                 else insp.get("data_actual") == 0),
             "data_declared_field": insp.get("data_declared_field"),
             "sha256_16": _capture_r77_sha256(path),
             "unloaded": run.get("unloaded")}
@@ -5118,7 +5271,14 @@ def _capture_r77_all_zero(path, insp):
                 if c["id"] == "data"), None)
     if off is None:
         return None
-    return not any(path.read_bytes()[off:])
+    with path.open("rb") as fh:
+        fh.seek(off)
+        while True:
+            block = fh.read(1 << 22)
+            if not block:
+                return True
+            if any(block):
+                return False
 
 
 def _capture_r77_rate_buckets(samples):
@@ -5165,6 +5325,15 @@ def capture_readers_r77_entry():
             "synthetic": "96000 frames, 2ch, 48000 Hz, s16",
             "expected_frames": 96000,
             "readers": _capture_r77_readers(cal, insp)}
+        # a miscalibrated reader matrix silently poisons every wound
+        # comparison below — assert the calibration legs, don't just
+        # record them (r77 critic: a 2x-wrong soxi reported "wrong 12/12").
+        for rd, rdv in entry["unit_calibration"]["readers"].items():
+            if not isinstance(rdv, dict):
+                continue
+            if rdv.get("value") != 96000 or rdv.get("verdict") != "honest":
+                failures.append(f"unit calibration {rd}: expected "
+                                f"96000 frames / honest, got {rdv}")
         wounds = {}
         if mon:
             wounds["pw_record_monitor"] = (
@@ -5216,7 +5385,7 @@ def capture_readers_r77_entry():
                         12 * CAPTURE_R77_FRAMES_PER_SECOND
                 if name == "arecord_unbounded" and tag == "kill":
                     cells[key]["declared_bound_frames"] = \
-                        CAPTURE_R77_SPLIT_DATA_LIMIT // 4
+                        CAPTURE_R77_SPLIT_LIMIT_FRAMES
         entry["wounds"] = cells
         entry["reader_honesty"] = _capture_r77_reader_honesty(cells)
     for key, cell in entry.get("wounds", {}).items():
@@ -5325,6 +5494,8 @@ def capture_arecord_sever_r77_entry():
         entry["failures"] = failures
         return entry
     entry["frames_per_second"] = CAPTURE_R77_FRAMES_PER_SECOND
+    plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
+    devices = tuple(d for d in (hw0, plug, "sysdefault") if d)
     legs = {}
     with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
         for label, extra, sig, wait_s in (
@@ -5341,10 +5512,7 @@ def capture_arecord_sever_r77_entry():
                 ("s300k_kill", ("-s", "300000"), signal.SIGKILL, 0.5)):
             legs["bound_" + label] = _capture_r77_arecord_cell(
                 label, extra, sig, wait_s, tmp, hw0)
-        plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
-        for dev in (hw0, plug, "sysdefault"):
-            if not dev:
-                continue
+        for dev in devices:
             tag = re.sub(r"\W+", "_", dev)
             for wait_s in (0.5, 1.0, 1.5, 2.5):
                 # a released ALSA device is not immediately re-acquirable
@@ -5368,10 +5536,11 @@ def capture_arecord_sever_r77_entry():
     entry["legs"] = legs
     # (a) the bound-derived declaration: `-d N` pre-declares N seconds of
     # frames, `-s S` pre-declares S frames, unbounded pre-declares 2 GiB.
-    for label, want in (("bound_d3_kill_early", 3 * 48000),
-                        ("bound_d5_kill_early", 5 * 48000),
-                        ("bound_d12_kill_early", 12 * 48000),
-                        ("bound_d12_kill_late", 12 * 48000),
+    fps = CAPTURE_R77_FRAMES_PER_SECOND
+    for label, want in (("bound_d3_kill_early", 3 * fps),
+                        ("bound_d5_kill_early", 5 * fps),
+                        ("bound_d12_kill_early", 12 * fps),
+                        ("bound_d12_kill_late", 12 * fps),
                         ("bound_s300k_kill", 300000)):
         leg = legs.get(label)
         if leg is None:
@@ -5409,15 +5578,36 @@ def capture_arecord_sever_r77_entry():
                             f"actual={fin.get('data_actual')})")
     # (b) the device axis — every device, every wall time. The sweep is a
     # table, so an absent cell is a coverage hole, not a silent skip.
-    plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
-    dev_tags = [re.sub(r"\W+", "_", d)
-                for d in (hw0, plug, "sysdefault") if d]
+    dev_tags = [re.sub(r"\W+", "_", d) for d in devices]
     device_legs = [f"term_{t}_w{w}" for t in dev_tags
                    for w in ("0_5", "1_0", "1_5", "2_5")]
     device_legs += [f"kill_{t}_w2_5" for t in dev_tags]
     for key in device_legs:
         if key not in legs:
             failures.append(f"arecord device axis {key}: leg absent")
+    # r77 critic: a PRESENT device leg is not yet a verdict — the sweep
+    # must assert the artifact exists and lands in a named header class,
+    # or a zero-file leg silently passes (this is r76's D1 class).
+    for key in device_legs:
+        leg = legs.get(key)
+        if leg is None or leg.get("error_class") in (
+                "alsa_busy", "alsa_read_eintr"):
+            continue   # named carve-out classes
+        if leg.get("early_exit_code") is not None:
+            failures.append(f"arecord device axis {key}: early exit "
+                            f"{leg['early_exit_code']} — a dead start is "
+                            "not a wound verdict")
+            continue
+        fin = leg.get("file", {})
+        if fin.get("exists") is not True:
+            failures.append(f"arecord device axis {key}: no output file — "
+                            "a sever cell without a file is not a verdict")
+        elif key.startswith("term_") and \
+                fin.get("data_finalized") is not True and \
+                fin.get("riff_size_field") != "placeholder_80000000":
+            failures.append(f"arecord device axis {key}: TERM neither "
+                            f"finalized nor eintr-class, riff="
+                            f"{fin.get('riff_size_field')}")
     eintr_cells = []
     for key, leg in legs.items():
         if not key.startswith("term_") or "device" not in leg:
@@ -5543,7 +5733,7 @@ def capture_split_sentinel_r77_entry():
     if under.get("requested_path_exists") is not True:
         failures.append("split undershoot: the requested path must exist "
                         "below the limit")
-    if under.get("siblings") and list(under["siblings"]) != ["rot.wav"]:
+    if list(under.get("siblings") or {}) != ["rot.wav"]:
         failures.append(f"split undershoot: unexpected rotation siblings "
                         f"{list(under['siblings'])}")
     if cross.get("requested_path_exists") is not False:
@@ -5622,7 +5812,7 @@ def capture_format_axis_r77_entry():
                 ["pw-record", "--target", tgt, "-n",
                  str(CAPTURE_R77_FORMAT_FRAMES), "--rate", "48000",
                  "--channels", "2", "--format", "s16", *extra],
-                f"fmt_{name}.wav", tmp, exact_bytes=True)
+                f"fmt_{name}.wav", tmp)
             leg["requested"] = list(extra)
             leg["expected_fmt"] = expect
             legs[name] = leg
@@ -5630,7 +5820,7 @@ def capture_format_axis_r77_entry():
             leg = _capture_r77_file_leg(
                 ["pw-record", "--target", tgt, "-n",
                  str(CAPTURE_R77_FORMAT_FRAMES), *extra],
-                f"ref_{name}.wav", tmp, exact_bytes=True)
+                f"ref_{name}.wav", tmp)
             leg["requested"] = list(extra)
             legs[name] = leg
     entry["legs"] = legs
@@ -5654,9 +5844,22 @@ def capture_format_axis_r77_entry():
                                 f"got {got.get(key)}")
         if fin.get("data_finalized") is not True:
             failures.append(f"format {name}: expected a finalized header")
-    if legs.get("baseline", {}).get("file", {}).get("bytes") != 19244:
-        failures.append("format baseline: expected the exact 44 + 4800 x 4 "
-                        f"= 19244 B, got "
+        # the -n bound is FRAME-denominated: the DATA payload scales with
+        # channels x bits, NOT with rate (rate only changes wall
+        # duration). Compare data_actual, not file bytes — non-PCM and
+        # extensible headers add fact/fmt-tail chunks (measured +44 on
+        # float tags, +36 on 6ch extensible), which is header shape, not
+        # payload. The expect dicts carry only CHANGED fields — merge the
+        # documented defaults (2ch / s16 / 48k).
+        want_data = CAPTURE_R77_FORMAT_FRAMES * \
+            expect.get("channels", 2) * expect.get("bits", 16) // 8
+        if fin.get("data_actual") != want_data:
+            failures.append(f"format {name}: expected {want_data} B of "
+                            f"frame payload (frame-bound x fmt), got "
+                            f"data_actual={fin.get('data_actual')}")
+    baseline_bytes = 44 + CAPTURE_R77_FORMAT_FRAMES * 4   # 2ch x s16
+    if legs.get("baseline", {}).get("file", {}).get("bytes") != baseline_bytes:
+        failures.append(f"format baseline: expected {baseline_bytes} B, got "
                         f"{legs.get('baseline', {}).get('file', {}).get('bytes')}")
     for name, _extra in CAPTURE_R77_FORMAT_REFUSALS:
         leg = legs.get(name)
@@ -5666,6 +5869,12 @@ def capture_format_axis_r77_entry():
         if leg.get("error_class") != "usage_refusal":
             failures.append(f"format refusal {name}: expected usage_refusal, "
                             f"got {leg.get('error_class')}")
+        # usage refusal shares rc=1 with the bounded-capture success — the
+        # discriminating pair is (usage_refusal, no file); pin rc anyway
+        # so an upstream exit-code change is a declared diff, not silent.
+        if leg.get("exit_code") != 1:
+            failures.append(f"format refusal {name}: expected rc=1, got "
+                            f"{leg.get('exit_code')}")
         if leg.get("file", {}).get("exists") is not False:
             failures.append(f"format refusal {name}: a refused argument "
                             "must leave NO file at all")
@@ -5798,7 +6007,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
