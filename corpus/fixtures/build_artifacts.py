@@ -189,6 +189,37 @@ def build_ui_channel_probe():
             wav.writeframes(data)
 
 
+def build_ui_preempt_r65_probe():
+    out = OUT.parent / "live" / "round-65"
+    out.mkdir(parents=True, exist_ok=True)
+    # r63 pinned SoX_ng's act CHECK row (RIFF@0 AND file[256]==0x84) as one
+    # first-match-wins table row. Two earlier rows can also hold on a RIFF
+    # file: gsrt "ring.bin\0"@16 (the 9-byte C literal, NUL compared) and
+    # hcom "FSSD"@65 AND "HCOM"@128. r65 measured the collision ordering
+    # (corpus/live/r65-author/results.tsv): each preemptor claims the file
+    # over act, and gsrt claims it over hcom when all signatures are
+    # present. This family puts the same valid17 fixture behind each
+    # signature: "act" is the uncollided control (byte-identical to
+    # round-63/pair_route_84.wav), "gsrt"/"hcom" add exactly one signature,
+    # "both" adds both. Every member keeps 0x84@256 — the only variable is
+    # the signature span.
+    values = [round(8191 * (.25*math.sin(2*math.pi*920*i/RATE) + .10*math.sin(2*math.pi*1380*i/RATE))) for i in range(5760)]
+    data = struct.pack("<" + "h"*len(values), *values)
+    guid = bytes.fromhex("0100000000001000800000aa00389b71")
+    fmt = struct.pack("<HHIIHHHHI", 0xfffe, 1, RATE, RATE*2, 2, 16, 22, 17, 0x4) + guid
+    riff = b"WAVEfmt " + struct.pack("<I", len(fmt)) + fmt + b"data" + struct.pack("<I", len(data)) + data
+    blob = bytearray(b"RIFF" + struct.pack("<I", len(riff)) + riff)
+    blob[256] = 0x84
+    for name, edits in (("act", ()),
+                        ("gsrt", ((16, b"ring.bin\x00"),)),
+                        ("hcom", ((65, b"FSSD"), (128, b"HCOM"))),
+                        ("both", ((16, b"ring.bin\x00"), (65, b"FSSD"), (128, b"HCOM")))):
+        variant = bytearray(blob)
+        for off, sig in edits:
+            variant[off:off+len(sig)] = sig
+        (out / f"pair_preempt_{name}.wav").write_bytes(variant)
+
+
 def build_ui_validbits_steps_r64_probe():
     out = OUT.parent / "live" / "round-64"
     out.mkdir(parents=True, exist_ok=True)
@@ -820,8 +851,16 @@ if __name__ == "__main__":
     parser.add_argument("--probe-ui-extensible-valid-25-r64", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-56-r64", action="store_true")
     parser.add_argument("--probe-ui-extensible-valid-57-r64", action="store_true")
+    parser.add_argument("--probe-ui-preempt-act-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-gsrt-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-hcom-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-both-r65", action="store_true")
     args = parser.parse_args()
-    if (args.probe_ui_extensible_valid_8_r64 or args.probe_ui_extensible_valid_9_r64
+    if (args.probe_ui_preempt_act_r65 or args.probe_ui_preempt_gsrt_r65
+            or args.probe_ui_preempt_hcom_r65 or args.probe_ui_preempt_both_r65):
+        main()
+        build_ui_preempt_r65_probe()
+    elif (args.probe_ui_extensible_valid_8_r64 or args.probe_ui_extensible_valid_9_r64
             or args.probe_ui_extensible_valid_24_r64 or args.probe_ui_extensible_valid_25_r64
             or args.probe_ui_extensible_valid_56_r64 or args.probe_ui_extensible_valid_57_r64):
         main()
