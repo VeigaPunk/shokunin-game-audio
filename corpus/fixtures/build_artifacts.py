@@ -1041,8 +1041,15 @@ if __name__ == "__main__":
     parser.add_argument("--probe-transport-extsuffix-txw-r69", action="store_true")
     parser.add_argument("--probe-transport-extsuffix-f32-r69", action="store_true")
     parser.add_argument("--probe-transport-extsuffix-snd-r69", action="store_true")
+    parser.add_argument("--probe-fifo-hold-ladder-r70", action="store_true")
     args = parser.parse_args()
-    if (args.probe_transport_extsuffix_wav_r69 or args.probe_transport_extsuffix_bin_r69
+    if args.probe_fifo_hold_ladder_r70:
+        # r70 ladders the fifo writer hold on the r66 dec_act member — the
+        # member family is rebuilt byte-deterministically so the probe is
+        # self-sufficient on a fresh tree; no new fixtures.
+        main()
+        build_ui_dec_preempt_r66_probe()
+    elif (args.probe_transport_extsuffix_wav_r69 or args.probe_transport_extsuffix_bin_r69
             or args.probe_transport_extsuffix_txw_r69 or args.probe_transport_extsuffix_f32_r69
             or args.probe_transport_extsuffix_snd_r69):
         main()
