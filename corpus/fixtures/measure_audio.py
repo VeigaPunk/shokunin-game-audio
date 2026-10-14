@@ -1449,7 +1449,7 @@ def consumer_ops_entry():
 # the demuxer-only formats; ffmpeg lavfi synth where a muxer exists) so
 # the arm is self-sufficient on a fresh tree.
 LAVF_R74_DIR = "round-74"
-LAVF_R74_EXTENT_TIMEOUT_S = 20
+LAVF_R74_EXTENT_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S  # one bound, declared in the protocol block
 LAVF_R74_START_S = 2.0
 # Position-fork cell pacer: the r73 4.0 s wav (seekable demuxer + pcm
 # seek hack) — `mpv --start=2` predicts {file,redirected_fd} -> ~2.0 s of
