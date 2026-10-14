@@ -1013,3 +1013,46 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Sharpenings absorbed: boundary refined the contract to child-resolvability (not the named×seekable proxy — fifo+dead-writer hangs, early-EOF flips detection at len gates); critic pinned the verdict-tuple reading ({exit,samples}-only → 2-member fork set) and bounded receipt stability to serial execution (non-atomic `build_artifacts.py` disclosed, unfixed).
 - Non-author `reports/round-67/r67-verifier.md`: **AGREE 5/5** — 10 receipts byte-identical to author's; partition verbatim; fifo linger stability ×3; 112 rows + prior-102 byte-identical.
 - Per-axis verdict (Sol `reports/round-67/r67-adjudicator.md`): **ADMIT** — coverage **improved locally** (10×4 matrix receipt-level pinned), depth **improved locally** (detection-invariant / decode-forks + fork-locus attribution), calibration **unchanged**. Bounded: single host/toolchain; serial-execution receipt stability; fifo legs under pinned linger. Work commit `366fcc1`; report-last follows.
+
+## Round 68 — devin host — depth: post-table fallback + pipe-refusal member
+
+- Declared (author dispatch brief): pin the POST-TABLE FALLBACK path — claimed
+  falsifiably that a no-CHECK-match member forks on transport seekability
+  ({file,redirected_fd} vs {stdin_pipe,fifo_path}), with seekable transports
+  retrying/re-reading for fallback classification and pipe transports losing
+  the ≤257 prefetch bytes; plus land ONE tracked txw/smp pipe-refusal member;
+  112 prior ledger rows + receipts byte-stable.
+- Wave `shokunin-train-20261014-w7`: 8-seat devin leaf set
+  `reports/round-68/r68-{scout,author,critic,reviewer,simplifier,scribe,baseline,boundary}.md`.
+  Frozen baseline 112/112 rows (49/63 exits, 99 byte-identical + 13
+  path-embedded-equal receipts, drift zero) at `bd5e1fe`; r68-reviewer audit
+  of the r67 committed state SURVIVES on all items.
+- Measured outcome — declared claim **FALSIFIED as stated** (four seats
+  convergent: scout 13×8 matrix, critic 6×4 + strace, boundary 19-arm 229-leg
+  matrix, scribe on the landed r67 machinery): post-table verdicts partition
+  on the NAMED axis `{file,fifo_path}` vs `{stdin_pipe,redirected_fd}` via
+  extension dispatch (formats.c ~910-933); `ft->seekable` is never consulted;
+  the redirected-fd rewind succeeds and changes nothing; prefetch bytes are
+  pending-buffer replayed, not consumed. The predicted seekable partition is
+  realized instead by the txw member (`txw` detected ×4; {file,redir} decode
+  vs {pipe,fifo} `input must be a file, not a pipe` — reader gate tx16w.c:90).
+- Author `reports/round-68/r68-author.md`: `build_artifacts.py` +46/−1
+  (`build_ui_posttable_r68_probe` — both members byte-identical to
+  independent rebuilds), `measure_audio.py` +34/−3 (two probe flags +
+  members); ledger 112→114 rows (49/65 exits), prior-112 pairs zero
+  mismatches; probe receipts deterministic ×3 (verifier: ×5 copies each).
+- Edges: `.snd` name gates a CHECK row → detection itself forks on namedness
+  (first counterexample to r67's detection-invariance); `|cmd` assume-sox
+  and `--magic` are post-table verdict classes off the 4-arm set;
+  extension-less member names would embed tmp paths in receipts
+  (simplifier-demonstrated: mkdtemp nonce in `error` field).
+- Simplifier: all 9 deletion candidates load-bearing; `.wav` extension on
+  posttable_nomatch proven load-bearing (nonce hazard); no extraction
+  warranted (r68 arm reuses the single r67 runner).
+- Non-author `reports/round-68/r68-verifier.md`: **AGREE 5/5** on `6c91040` —
+  independent 114-cmd replay 49/65/0-UNPARSED, all receipts byte-identical,
+  112 prior rows byte-identical to r67 committed, members byte-identical to
+  verbatim rebuild, seed untouched.
+- Per-axis verdicts (Sol `reports/round-68/r68-adjudicator.md`): ADMIT —
+  falsified claim recorded, corrected mechanism is what landed. Work commit
+  `6c91040`; report-last follows.

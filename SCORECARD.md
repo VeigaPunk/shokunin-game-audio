@@ -684,3 +684,13 @@ Non-author `reports/round-66/r66-verifier.md`: **AGREE on all five claims** — 
 | calibration | **unchanged** | No threshold/predicate edits; additive axis. |
 
 Non-author `reports/round-67/r67-verifier.md`: **AGREE on all five claims** — 10 replayed receipts byte-identical to author's, fork/invariant partition verbatim incl. distinct non-seekable gsrt error strings, fifo linger pin re-verified across 3 runs, 112-row ledger + prior-102 byte-identical, 0 UNPARSED. Sol `r67-adjudicator.md` reproduced the dec-act 3-group fork, preempt-gsrt 2-group fork, and dec-hcom invariance on the committed tree. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; receipt byte-stability claimed for serial ledger execution only (non-atomic `build_artifacts.py` rebuild race disclosed); fifo legs deterministic under the pinned linger, residual extreme-load race disclosed. No conformance/fidelity/production inference. Work commit `366fcc1`; report-last commit follows.
+
+## Round 68 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| coverage | **improved locally** | Post-table fallback path now tracked: `posttable_nomatch` (no CHECK row → name-resolved extension dispatch) + `txw_piperefuse` (reader-level `!seekable` gate) members; ledger 112→114 (49 exit0/65 exit1); 5 post-table verdict classes enumerated incl. `|cmd` assume-sox + `--magic` off-ledger classes. |
+| depth | **improved locally** | Declared seekability-fork claim **falsified-as-stated** (four-seat convergence): post-table resolves on NAMED-resolvability (`{file,fifo_path}` vs `{stdin_pipe,redirected_fd}` — `ft->seekable` never read on this path; prefetch bytes pending-buffer-replayed not consumed); genuine seekable fork pinned inside the txw reader (`{file,redirected_fd}` decode-64 vs pipes refuse). `.snd` ext-gated CHECK row = first detection-fork counterexample to r67 invariance. |
+| calibration | **unchanged** | no predicate/threshold edits; additive members + two probe flags; prior-112 rows byte-identical (verifier-confirmed). |
+
+Non-author `reports/round-68/r68-verifier.md`: **AGREE 5/5** on `6c91040` — independent 114-cmd replay byte-identical across all rows, members identical to verbatim rebuild, 112 prior receipts byte-identical, probes deterministic ×5. Sol `r68-adjudicator.md`: falsification adopted as the finding; corrected named-axis mechanism is what the ledger encodes. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; serial-execution receipt stability; starved-fifo protocol artifact disclosed. No conformance/fidelity/production inference. Work commit `6c91040`; report-last commit follows.
