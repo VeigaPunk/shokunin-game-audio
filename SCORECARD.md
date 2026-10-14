@@ -674,3 +674,13 @@ Non-author `reports/round-65/r65-verifier.md`: **AGREE all five claims** — com
 | calibration | **unchanged** | No threshold/gate edits; ordering and gates measured purely by detection lines + decode counts. |
 
 Non-author `reports/round-66/r66-verifier.md`: **AGREE on all five claims** — independent constructions confirm the {gsrt,hcom} set + geometric exclusion both directions; six tracked members re-detected exactly; full 102-command ledger replay 102/102 exits + receipts byte-identical; prior-96 byte-identical on independent runs. Sol `r66-adjudicator.md` reproduced all six tracked members + own wve construction. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; ordering empirical on the RIFF family; wve reach claim scoped to non-RIFF carriers. No conformance/fidelity/production inference. Work commit `014b532`; report-last commit follows.
+
+## Round 67 verdict — 2026-10-14
+
+| axis | Sol verdict | before → after evidence |
+|---|---|---|
+| coverage | **improved locally** | Transport added as a first-class measured axis: single parameterized `transport_leg`/`transport_matrix` over {file, stdin_pipe, redirected_fd, fifo_path}; complete 10-member × 4-transport matrix → 112-row ledger (49 exit0/63 exit1, 0 UNPARSED); prior-102 receipts byte-identical. |
+| depth | **improved locally** | Detection proven transport-invariant (`sox_detected_format` identical ×40 cells); decode-stage fork set measured exactly = {preempt_act, preempt_gsrt, preempt_both, dec_act, lengate_gsrt_25}; fork locus attributed — native gsrt reader on the seekable bit, act/ffmpeg bridge on child-side name resolvability (boundary refinement over the named×seekable proxy); fifo determinism under pinned 1.0s writer-linger. |
+| calibration | **unchanged** | No threshold/predicate edits; additive axis. |
+
+Non-author `reports/round-67/r67-verifier.md`: **AGREE on all five claims** — 10 replayed receipts byte-identical to author's, fork/invariant partition verbatim incl. distinct non-seekable gsrt error strings, fifo linger pin re-verified across 3 runs, 112-row ledger + prior-102 byte-identical, 0 UNPARSED. Sol `r67-adjudicator.md` reproduced the dec-act 3-group fork, preempt-gsrt 2-group fork, and dec-hcom invariance on the committed tree. Bounded: SoX_ng 14.8.0.1 USING_FFMPEG + ffmpeg n9.0.1, this host; receipt byte-stability claimed for serial ledger execution only (non-atomic `build_artifacts.py` rebuild race disclosed); fifo legs deterministic under the pinned linger, residual extreme-load race disclosed. No conformance/fidelity/production inference. Work commit `366fcc1`; report-last commit follows.

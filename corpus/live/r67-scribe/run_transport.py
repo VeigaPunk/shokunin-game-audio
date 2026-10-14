@@ -120,6 +120,8 @@ def run_fifo(path: Path, fifo_path: Path):
     wr = open(fifo_path, "wb")
     cat = subprocess.Popen(["cat", str(path)], stdout=wr,
                            stderr=subprocess.DEVNULL)
+    # cat owns a dup of wr now — close ours so sox sees EOF when cat exits.
+    wr.close()
     timed_out = False
     try:
         _out, err = p.communicate(timeout=TIMEOUT)
@@ -139,7 +141,6 @@ def run_fifo(path: Path, fifo_path: Path):
         except subprocess.TimeoutExpired:
             cat.kill()
             cat.wait()
-        wr.close()
     return p.returncode, err, timed_out
 
 

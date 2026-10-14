@@ -1,0 +1,70 @@
+# r67-scout fork map: signature=(detected, exit, samples, normalized-error)
+# transports: file pipe(-) redir(-) dspipe(/dev/stdin|pipe) dsredir(/dev/stdin<file) fifo fifo+hold popen(|cat)
+
+pair_route_84            det=act   groups=3
+    file,dsredir                           -> exit=0 samples=3839 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_route_00            det=wav   groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=2 samples=- err=number of valid bits exceeds the number of bits per sample
+pair_valid_8             det=act   groups=3
+    file,dsredir                           -> exit=0 samples=11520 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_valid_9             det=act   groups=3
+    file,dsredir                           -> exit=0 samples=5760 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_valid_24            det=act   groups=3
+    file,dsredir                           -> exit=0 samples=3839 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_valid_25            det=act   groups=3
+    file,dsredir                           -> exit=0 samples=2880 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_valid_56            det=act   groups=2
+    file,redir,dsredir                     -> exit=2 samples=- err=premature EOF
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+pair_valid_57            det=act   groups=3
+    file,dsredir                           -> exit=0 samples=1440 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_preempt_act         det=act   groups=3
+    file,dsredir                           -> exit=0 samples=3839 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_preempt_gsrt        det=gsrt  groups=2
+    file,redir,dsredir                     -> exit=2 samples=- err=premature EOF
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=invalid format for this file type
+pair_preempt_hcom        det=hcom  groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=2 samples=- err=bad compression type
+pair_preempt_both        det=gsrt  groups=2
+    file,redir,dsredir                     -> exit=2 samples=- err=premature EOF
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=invalid format for this file type
+pair_dec_hcom            det=hcom  groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=0 samples=9 err=None
+pair_dec_act             det=act   groups=3
+    file,dsredir                           -> exit=0 samples=278 err=None
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=can't find Sun/NeXT/DEC identifier
+    redir                                  -> exit=2 samples=- err=premature EOF
+pair_lengate_gsrt_24     det=wav   groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=2 samples=- err=fmt chunk not found
+pair_lengate_gsrt_25     det=gsrt  groups=2
+    file,redir,dsredir                     -> exit=2 samples=- err=premature EOF
+    pipe,dspipe,fifo,fifoh,popen           -> exit=2 samples=- err=invalid/missing file name in header
+pair_lengate_hcom_131    det=wav   groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=0 samples=43 err=None
+pair_lengate_hcom_132    det=hcom  groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=2 samples=- err=premature EOF
+ui                       det=wav   groups=1
+    file,pipe,redir,dspipe,dsredir,fifo,fifoh,popen -> exit=0 samples=5760 err=None
+nodetect_bin             det=-     groups=1
+    file                                   -> exit=2 samples=- err=?
+nodetect_wav             det=-     groups=1
+    file                                   -> exit=2 samples=- err=?
+nodetect                 det=-     groups=4
+    pipe                                   -> exit=2 samples=- err=sox FAIL formats: can't determine type of  `-'
+    fifowav                                -> exit=2 samples=- err=RIFF header not found
+    fifobin                                -> exit=2 samples=- err=sox FAIL formats: no-handler-ext
+    popen                                  -> exit=2 samples=- err=can't find sox file format identifier
