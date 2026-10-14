@@ -746,28 +746,34 @@ class _SF_FORMAT_INFO(ctypes.Structure):
                 ("extension", ctypes.c_char_p)]
 
 
-_SNDFILE = ctypes.CDLL("libsndfile.so.1")
-_SNDFILE.sf_version_string.restype = ctypes.c_char_p
-_SNDFILE.sf_open.restype = ctypes.c_void_p
-_SNDFILE.sf_open.argtypes = [ctypes.c_char_p, ctypes.c_int,
-                             ctypes.POINTER(_SF_INFO)]
-_SNDFILE.sf_open_fd.restype = ctypes.c_void_p
-_SNDFILE.sf_open_fd.argtypes = [ctypes.c_int, ctypes.c_int,
-                                ctypes.POINTER(_SF_INFO), ctypes.c_int]
-_SNDFILE.sf_close.argtypes = [ctypes.c_void_p]
-_SNDFILE.sf_strerror.restype = ctypes.c_char_p
-_SNDFILE.sf_strerror.argtypes = [ctypes.c_void_p]
-_SNDFILE.sf_error_str.restype = ctypes.c_char_p
-_SNDFILE.sf_error_str.argtypes = [ctypes.c_void_p, ctypes.c_char_p,
-                                 ctypes.c_size_t]
-_SNDFILE.sf_format_check.argtypes = [ctypes.POINTER(_SF_INFO)]
-_SNDFILE.sf_command.restype = ctypes.c_int
-_SNDFILE.sf_command.argtypes = [ctypes.c_void_p, ctypes.c_int,
-                               ctypes.c_void_p, ctypes.c_int]
-_SNDFILE.sf_readf_short.restype = ctypes.c_int64
-_SNDFILE.sf_readf_short.argtypes = [ctypes.c_void_p,
-                                   ctypes.POINTER(ctypes.c_short),
-                                   ctypes.c_int64]
+try:
+    _SNDFILE = ctypes.CDLL("libsndfile.so.1")
+except OSError:
+    # Host without libsndfile: the r72 legs record a blocked verdict and
+    # every other fixture mode still imports + runs.
+    _SNDFILE = None
+if _SNDFILE is not None:
+    _SNDFILE.sf_version_string.restype = ctypes.c_char_p
+    _SNDFILE.sf_open.restype = ctypes.c_void_p
+    _SNDFILE.sf_open.argtypes = [ctypes.c_char_p, ctypes.c_int,
+                                 ctypes.POINTER(_SF_INFO)]
+    _SNDFILE.sf_open_fd.restype = ctypes.c_void_p
+    _SNDFILE.sf_open_fd.argtypes = [ctypes.c_int, ctypes.c_int,
+                                    ctypes.POINTER(_SF_INFO), ctypes.c_int]
+    _SNDFILE.sf_close.argtypes = [ctypes.c_void_p]
+    _SNDFILE.sf_strerror.restype = ctypes.c_char_p
+    _SNDFILE.sf_strerror.argtypes = [ctypes.c_void_p]
+    _SNDFILE.sf_error_str.restype = ctypes.c_char_p
+    _SNDFILE.sf_error_str.argtypes = [ctypes.c_void_p, ctypes.c_char_p,
+                                      ctypes.c_size_t]
+    _SNDFILE.sf_format_check.argtypes = [ctypes.POINTER(_SF_INFO)]
+    _SNDFILE.sf_command.restype = ctypes.c_int
+    _SNDFILE.sf_command.argtypes = [ctypes.c_void_p, ctypes.c_int,
+                                   ctypes.c_void_p, ctypes.c_int]
+    _SNDFILE.sf_readf_short.restype = ctypes.c_int64
+    _SNDFILE.sf_readf_short.argtypes = [ctypes.c_void_p,
+                                        ctypes.POINTER(ctypes.c_short),
+                                        ctypes.c_int64]
 _SFM_READ = 0x10
 _SFC_GET_FORMAT_MAJOR_COUNT = 0x1030
 _SFC_GET_FORMAT_MAJOR = 0x1031
@@ -792,11 +798,15 @@ def _sndfile_format_names():
             "subs": enum(_SFC_GET_FORMAT_SUBTYPE_COUNT, _SFC_GET_FORMAT_SUBTYPE)}
 
 
-_SNDFILE_NAMES = _sndfile_format_names()
+_SNDFILE_NAMES = (_sndfile_format_names() if _SNDFILE is not None
+                  else {"majors": {}, "subs": {}})
 
 
 def _sndfile_verdict(snd, info):
-    """Detection + full-drain decode verdict for one opened handle."""
+    """Detection + decode verdict for one opened handle. Decode is a
+    single sf_readf_short drain with a 65536-frame cap — equal to a full
+    drain on this corpus (largest member = 500 frames), not a proof of
+    drain semantics past the cap."""
     if not snd:
         return {"format_hex": None, "format_name": None, "format_check": None,
                 "frames": None, "samplerate": None, "channels": None,
@@ -824,6 +834,12 @@ def _sndfile_verdict(snd, info):
 def _sndfile_leg(transport, path, data, hold_s):
     """One libsndfile leg, in-process (ctypes) so the anonymous arms use
     sf_open_fd honestly (a /dev/stdin path would be a NAMED open)."""
+    if _SNDFILE is None:
+        return {"format_hex": None, "format_name": None,
+                "format_check": None, "frames": None, "samplerate": None,
+                "channels": None, "sf_seekable": None, "read_frames": None,
+                "error": "blocked: libsndfile unavailable on host",
+                "error_str": None}
     class _Timeout(Exception):
         pass
     def _alarm(signum, frame):
@@ -891,10 +907,21 @@ def _sndfile_leg(transport, path, data, hold_s):
 
 def sndfile_transport_entry(member, path):
     """r72 receipt entry: THIRD DECODER (libsndfile) on the canonical
-    member x transport matrix. Decode verdict = sf_readf_short full drain;
-    detection = the sf_open'ed SF_INFO format + name table. The receipt
-    records the measured 4-class decoder partition; a transport fork lands
-    as a failure per the r67 convention."""
+    member x transport matrix. Decode verdict = one sf_readf_short drain
+    (65536-frame cap, equal to full drain on this corpus); detection =
+    the sf_open'ed SF_INFO format + name table. The receipt records the
+    measured decoder partition; a transport fork lands as a failure per
+    the r67 convention."""
+    if _SNDFILE is None:
+        return {"path": str(path.relative_to(ROOT)), "pair_member": member,
+                "decoder": "libsndfile unavailable",
+                "transport_axis": {},
+                "transport_protocol": {"runtime": "blocked: libsndfile "
+                                                  "unavailable on host"},
+                "sndfile_info_cli": None,
+                "transport_verdict_groups": [],
+                "transport_fork": False,
+                "failures": ["runtime: libsndfile unavailable on host"]}
     hold_s = fifo_writer_hold_s()
     data = path.read_bytes()
     arms = {t: _sndfile_leg(t, path, data, hold_s)
