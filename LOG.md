@@ -1332,3 +1332,20 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   falsified by simplifier (<=8192 measured).
 - Verdict: ADMIT-corr (Sol, wave-17). PipeWire 1.6.8/pacat 17.0-98/
   alsa-utils 1.2.16/ffmpeg n9.0.1, DualSense-source host topology.
+
+## round 78 — playback-direction lattice + capture zeros/parec (measure_audio.py)
+
+- MOVE (d9aa6f9): --probe-capture-r78, 8 entries / 60+ legs — target
+  lattice, default-follow, target loss, props/env matrix, class-segv
+  envelopes, aplay axis, unlinked-zeros capture, parec monitor fix.
+- FOLDS (a005e1e): tap-witness bound/ran provenance; per-run tone
+  frequencies; spawn-time default.audio.sink metadata oracle;
+  pw-link port-readiness gates on fresh sinks/monitors; stall legs
+  bimodal envelope (stall_realization: stalled|runthrough|other);
+  named confounds default_reasserted/pactl_unmeasured/setup
+  misroute/alsa_busy/foreign-node; coverage_blocked surfaced.
+- VERIFIED: probe #8 failures:{} (receipt 20261015T055701745739Z);
+  #4/#5 invalidated by disclosed sibling contention (r80 unload-module
+  lifecycle scout, r81 gst client); #6 port-readiness fails folded.
+- Seats: scout, author(Sol), boundary, baseline, critic, reviewer,
+  simplifier, verifier, scribe; fold+adjudicator swe-2. ADMIT-corr.
