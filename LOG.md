@@ -1377,3 +1377,11 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Seats: scout/boundary×2/baseline/author/critic/reviewer/simplifier/
   verifier/verifier2/scribe/fold; adjudicator orchestrator. ADMIT-corr.
   Commits 6aa03e6 + 07c0671 + this.
+- ROUND 83 (2026-10-15): pw-cat/pw-record arg lattice. ADMIT-with-findings
+  at a151a226 (+2426/-3, 7 entries / 128 legs). Verifier VERIFIED on frozen
+  bytes (normal sha byte-identical, 128/128 x2); critic ADMIT-with-findings
+  (F1-F3 latent: min-count gates, substring-unload foreign kill, env
+  hermeticity); reviewer PASS (5 corrections live re-measured); simplifier
+  PASS (T1-T7 -8 queued); scribe boundary-INTACT, author stamp-defect.
+- LAWS: malformed-prop 2-class lattice; -i/-o/-P empty SIGSEGV family;
+  -d transport delay; uint32 wrap; resample |x| artifact; MONO=0.5(L+R).

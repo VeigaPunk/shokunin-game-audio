@@ -843,3 +843,13 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | Two scout falsifications folded: hex constant `0x7FFFF000`→`0x7FFF0024`/`0x7FFF0000` (freeze predicate now PINS the corrected constants — reviewer F1 dead-acceptance criterion closed); `num-buffers` exact on pulse record path. Claim corrections on record (exit-count 6/8; truncated wavenc klass). Simplifier S1–S9+L1 proven-folded; dead leg p8 removed; vacuous assertions made substantive (e3/e8/e9 real out_paths). Work `07c0671`. |
 
 `r81-adjudicator.md` (orchestrator): ADMIT-corr — eleven seat reports on record; all gate findings folded or named. Non-author verification: `r81-verifier.md` VERIFIED-WITH-RESERVATIONS on `6aa03e6` (transient reds = sibling-lane contention, `normal` byte-identity exonerated); `r81-verifier2.md` VERIFIED on folded `07c0671` (54 legs, corrected constants pinned, `normal` sha 7-way identical). Deferred: reviewer F2 dont-reconnect fixture framing (mechanism scout covers); comm-keyed quiet-check blind spot; 5/12 shipped configs unmeasured (second-PipeWire refusal, shared host). Bounded: PipeWire 1.6.8 / GStreamer 1.28.6 / WirePlumber 0.5.17 / Python 3.14.7, this host; capture-r78 follow leg contention-sensitive by construction. Work `6aa03e6` + fold `07c0671`; record `f91c7d0` + this commit.
+
+## Round 83 verdict — 2026-10-15
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | `--probe-pwcat-r83` armed: 7 entries / 128 legs over the pw-cat/pw-record arg lattice (malformed-prop two-class split rc-255 vs rc-1, empty-arg SIGSEGV family rc=-11 x5, `-d` transport delay measured ~1.0 s, `-l` precedence + uint32 wrap 4294967056, resample full-wave `|x|` artifact, MONO fold-down). Verifier byte-identical `normal` sha, 128/128 x2 + critic third green replay. Work `a151a226`. |
+| depth | **improved** | Boundary-corrected pre-authoring (falsified claims never entered rows); `-d 1.0` delta re-measured live by reviewer at 1.0425 s vs 0.105 ctl; resample artifact re-witnessed by two seats (octave 3175.8/3162.5 dominant, fundamental destroyed). |
+| calibration | **improved** | Three latent defects proven-live and queued (empty-transport false-green, substring unload foreign kill, env non-hermeticity); envelope slack 2-4x flagged; author citation defect (red-run stamp) corrected on record; T1-T7 -8 patch proven and queued. Work `a151a226` + fold queue. |
+
+| r83 | audio | pw-cat/pw-record arg lattice | ADMIT-with-findings | a151a226 |
