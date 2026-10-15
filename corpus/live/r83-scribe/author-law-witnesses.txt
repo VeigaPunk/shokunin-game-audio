@@ -1,0 +1,77 @@
+# r83 scribe receipt — author claim -> witness rows (committed receipts, both green runs)
+===== run1 (mode=probe-pwcat-r83)
+law2 rc=255 props_syntax_error legs (8): ['err_0_0', 'err_0_1', 'err_1_0', 'err_1_1', 'err_2_0', 'err_2_1', 'err_3_0', 'err_3_1']
+law2 pw-cat/pw-record rc=1 legs (6): ['pc_err_0', 'pc_err_1', 'pc_err_noval', 'pr_err_0', 'pr_err_1', 'pr_land']
+law2 error_class census: {None: 16, 'props_syntax_error': 8, 'pwcat_props_syntax_error': 5}
+law3 rc=-11 legs (18): ['segv_i_empty_0', 'segv_i_empty_1', 'segv_i_empty_2', 'segv_i_space_0', 'segv_i_space_1', 'segv_i_space_2', 'segv_o_empty_0', 'segv_o_empty_1', 'segv_o_empty_2', 'segv_o_space', 'segv_pc_empty_0', 'segv_pc_empty_1', 'segv_pc_empty_2', 'segv_pc_space', 'segv_pr_empty_0', 'segv_pr_empty_1', 'segv_pr_empty_2', 'segv_pr_space']
+law3 control ctl_lb rc=-9 killed_at_bound=True
+law4 node.latency per leg:
+   l5           node.latency=240/48000
+   l5_r2        node.latency=240/48000
+   l2_5         node.latency=96/48000
+   l10000       node.latency=480000/48000
+   lneg5        node.latency=4294967056/48000
+   lneg5_r2     node.latency=4294967056/48000
+   l0           node.latency=None
+   labc         node.latency=None
+   d025         node.latency=4000/48000
+   d10          node.latency=16000/48000
+   dneg1        node.latency=None
+   dabc         node.latency=None
+   d0           node.latency=None
+   ld_order     node.latency=240/48000
+   dl_order     node.latency=240/48000
+   g_group      node.latency=None
+law5 onset_summary: {"ctl_median_s": 0.1, "ctl_transports": [0.0934, 0.1, 0.1054], "d025_transports": [0.3918, 0.3516], "d10_deltas_vs_ctl": [1.0429, 0.9997, 0.9934], "d10_transports": [1.1429, 1.0997, 1.0934], "envelopes": {"control_max_s": 0.5, "d025_delta_s": [0.08, 0.6], "d10_delta_s": [0.75, 1.45]}, "l1000_transports": [0.1348, 0.0973], "method": "transport = first_nonsilent_tap_sample - (t_feed_spawn - t_tap_spawn); feed/record startup cancels in the delta"}
+law6 matrix_summary: {"c1_audio_legs": 2, "control_full_amp_median": 8191.0, "control_tone_arms": 3, "m_alone_realized_arms": ["stable_mono", "unmeasured", "stable_mono"], "mono_ratio_envelope": [0.42, 0.58]}
+law6 named_outcomes: ["c1_mono_1: tap carried no audio \u2014 the band pin is unmeasured on this leg", "m_alone arm realization: ['stable_mono', 'unmeasured', 'stable_mono'] \u2014 the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+law7 remix legs (props -> stream.dont-remix effective): {"m1_ndr_0": ["node.dont-remix=true"], "m1_ndr_1": ["node.dont-remix=true"], "m2_sdr_0": ["stream.dont-remix=true"], "m2_sdr_1": ["stream.dont-remix=true"], "m2_sdr_2": ["stream.dont-remix=true"], "m3_upmix": ["channelmix.upmix=false"], "m4_cmdis": ["channelmix.disabled=true"], "w1_widen": ["channelmix.stereo-widen=1.0"], "w2_method": ["channelmix.upmix-method=simple"], "d3_sdr_0": ["stream.dont-remix=true"], "d3_sdr_1": ["stream.dont-remix=true"], "p0_passive": ["node.passive=true"]}
+law8 s4_peaks_0 tap_stats: {"bytes": 576044, "channels": [{"all_zero": false, "amp_at_1500": 13.5, "amp_at_1994": 3177.9, "amp_at_3000": 15.3, "amp_at_997": 0.1, "max": 8192, "mean": 4452.65, "min": 0, "neg_frac": 0.0, "peak_abs": 8192, "zero_frac": 0.1462}, {"all_zero": false, "amp_at_1500": 17.2, "amp_at_1994": 0.0, "amp_at_3000": 3178.6, "amp_at_997": 0.1, "max": 8191, "mean": 4452.48, "min": 0, "neg_frac": 0.0, "peak_abs": 8191, "zero_frac": 0.1519}], "exists": true, "rate": 48000, "settled_frames": 129600}
+law8 artifact_outcome: "full_wave_abs_octave"
+law8 resample_summary: {"artifact_class": "peaks_abs_octave_artifact", "clean_amp_median": 8172.5}
+law9 failopen serials: {"nsa": 201022, "nsb": 201033}
+law9 n_empty outcome: "failopen_foreign_sink"
+invariants: sinks_gone per entry: {"pwcat_props_parse_r83_probe": {"r83a_ns_a_2305712": true, "r83a_ns_b_2305712": true}, "pwcat_empty_props_segv_r83_probe": {"r83a_ns_a_2305712": true, "r83a_ns_b_2305712": true}, "pwcat_latency_props_r83_probe": {"r83a_ns_a_2305712": true, "r83a_ns_b_2305712": true}, "pwcat_channel_matrix_r83_probe": {"r83a_ns_a_2305712": true, "r83a_ns_b_2305712": true}, "pwcat_remix_props_r83_probe": {"r83a_ns_b_2305712": true, "r83a_ns_m_2305712": true}, "pwcat_resample_props_r83_probe": {"r83a_ns_b_2305712": true, "r83a_ns44_2305712": true}, "pwcat_failopen_args_r83_probe": {"r83a_ns_a_2305712": true, "r83a_ns_b_2305712": true}}
+invariants: own_nodes_after per entry: {"pwcat_props_parse_r83_probe": [], "pwcat_empty_props_segv_r83_probe": [], "pwcat_latency_props_r83_probe": [], "pwcat_channel_matrix_r83_probe": [], "pwcat_remix_props_r83_probe": [], "pwcat_resample_props_r83_probe": [], "pwcat_failopen_args_r83_probe": []}
+invariants: failures per entry: {"pwcat_props_parse_r83_probe": [], "pwcat_empty_props_segv_r83_probe": [], "pwcat_latency_props_r83_probe": [], "pwcat_channel_matrix_r83_probe": [], "pwcat_remix_props_r83_probe": [], "pwcat_resample_props_r83_probe": [], "pwcat_failopen_args_r83_probe": []}
+invariants: unload witness sample (entry 1): {"r83a_ns_a_2305712": {"captured": 536870921, "exit_code": 0, "recycled": false, "stderr_tail": null, "verified_index": 536870921}, "r83a_ns_b_2305712": {"captured": 536870926, "exit_code": 0, "recycled": false, "stderr_tail": null, "verified_index": 536870926}}
+coverage_blocked occurrences: 0
+
+===== run2 (mode=probe-pwcat-r83)
+law2 rc=255 props_syntax_error legs (8): ['err_0_0', 'err_0_1', 'err_1_0', 'err_1_1', 'err_2_0', 'err_2_1', 'err_3_0', 'err_3_1']
+law2 pw-cat/pw-record rc=1 legs (6): ['pc_err_0', 'pc_err_1', 'pc_err_noval', 'pr_err_0', 'pr_err_1', 'pr_land']
+law2 error_class census: {None: 16, 'props_syntax_error': 8, 'pwcat_props_syntax_error': 5}
+law3 rc=-11 legs (18): ['segv_i_empty_0', 'segv_i_empty_1', 'segv_i_empty_2', 'segv_i_space_0', 'segv_i_space_1', 'segv_i_space_2', 'segv_o_empty_0', 'segv_o_empty_1', 'segv_o_empty_2', 'segv_o_space', 'segv_pc_empty_0', 'segv_pc_empty_1', 'segv_pc_empty_2', 'segv_pc_space', 'segv_pr_empty_0', 'segv_pr_empty_1', 'segv_pr_empty_2', 'segv_pr_space']
+law3 control ctl_lb rc=-9 killed_at_bound=True
+law4 node.latency per leg:
+   l5           node.latency=240/48000
+   l5_r2        node.latency=240/48000
+   l2_5         node.latency=96/48000
+   l10000       node.latency=480000/48000
+   lneg5        node.latency=4294967056/48000
+   lneg5_r2     node.latency=4294967056/48000
+   l0           node.latency=None
+   labc         node.latency=None
+   d025         node.latency=4000/48000
+   d10          node.latency=16000/48000
+   dneg1        node.latency=None
+   dabc         node.latency=None
+   d0           node.latency=None
+   ld_order     node.latency=240/48000
+   dl_order     node.latency=240/48000
+   g_group      node.latency=None
+law5 onset_summary: {"ctl_median_s": 0.1054, "ctl_transports": [0.084, 0.1054, 0.1056], "d025_transports": [0.3981, 0.3547], "d10_deltas_vs_ctl": [1.0429, 0.9999, 0.9992], "d10_transports": [1.1483, 1.1053, 1.1046], "envelopes": {"control_max_s": 0.5, "d025_delta_s": [0.08, 0.6], "d10_delta_s": [0.75, 1.45]}, "l1000_transports": [0.1057, 0.1053], "method": "transport = first_nonsilent_tap_sample - (t_feed_spawn - t_tap_spawn); feed/record startup cancels in the delta"}
+law6 matrix_summary: {"c1_audio_legs": 3, "control_full_amp_median": 8191.0, "control_tone_arms": 3, "m_alone_realized_arms": ["stable_mono", "stable_mono", "stable_mono"], "mono_ratio_envelope": [0.42, 0.58]}
+law6 named_outcomes: ["m_alone arm realization: ['stable_mono', 'stable_mono', 'stable_mono'] \u2014 the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+law7 remix legs (props -> stream.dont-remix effective): {"m1_ndr_0": ["node.dont-remix=true"], "m1_ndr_1": ["node.dont-remix=true"], "m2_sdr_0": ["stream.dont-remix=true"], "m2_sdr_1": ["stream.dont-remix=true"], "m2_sdr_2": ["stream.dont-remix=true"], "m3_upmix": ["channelmix.upmix=false"], "m4_cmdis": ["channelmix.disabled=true"], "w1_widen": ["channelmix.stereo-widen=1.0"], "w2_method": ["channelmix.upmix-method=simple"], "d3_sdr_0": ["stream.dont-remix=true"], "d3_sdr_1": ["stream.dont-remix=true"], "p0_passive": ["node.passive=true"]}
+law8 s4_peaks_0 tap_stats: {"bytes": 576044, "channels": [{"all_zero": false, "amp_at_1419": 0.1, "amp_at_1922": 0.0, "amp_at_2838": 3168.6, "amp_at_3844": 0.1, "max": 8192, "mean": 4452.6, "min": 0, "neg_frac": 0.0, "peak_abs": 8192, "zero_frac": 0.1463}, {"all_zero": false, "amp_at_1419": 0.0, "amp_at_1922": 0.0, "amp_at_2838": 0.0, "amp_at_3844": 3153.4, "max": 8191, "mean": 4452.68, "min": 0, "neg_frac": 0.0, "peak_abs": 8191, "zero_frac": 0.1462}], "exists": true, "rate": 48000, "settled_frames": 129600}
+law8 artifact_outcome: "full_wave_abs_octave"
+law8 resample_summary: {"artifact_class": "peaks_abs_octave_artifact", "clean_amp_median": 8172.5}
+law9 failopen serials: {"nsa": 204263, "nsb": 204274}
+law9 n_empty outcome: "failopen_foreign_sink"
+invariants: sinks_gone per entry: {"pwcat_props_parse_r83_probe": {"r83a_ns_a_2535010": true, "r83a_ns_b_2535010": true}, "pwcat_empty_props_segv_r83_probe": {"r83a_ns_a_2535010": true, "r83a_ns_b_2535010": true}, "pwcat_latency_props_r83_probe": {"r83a_ns_a_2535010": true, "r83a_ns_b_2535010": true}, "pwcat_channel_matrix_r83_probe": {"r83a_ns_a_2535010": true, "r83a_ns_b_2535010": true}, "pwcat_remix_props_r83_probe": {"r83a_ns_b_2535010": true, "r83a_ns_m_2535010": true}, "pwcat_resample_props_r83_probe": {"r83a_ns_b_2535010": true, "r83a_ns44_2535010": true}, "pwcat_failopen_args_r83_probe": {"r83a_ns_a_2535010": true, "r83a_ns_b_2535010": true}}
+invariants: own_nodes_after per entry: {"pwcat_props_parse_r83_probe": [], "pwcat_empty_props_segv_r83_probe": [], "pwcat_latency_props_r83_probe": [], "pwcat_channel_matrix_r83_probe": [], "pwcat_remix_props_r83_probe": [], "pwcat_resample_props_r83_probe": [], "pwcat_failopen_args_r83_probe": []}
+invariants: failures per entry: {"pwcat_props_parse_r83_probe": [], "pwcat_empty_props_segv_r83_probe": [], "pwcat_latency_props_r83_probe": [], "pwcat_channel_matrix_r83_probe": [], "pwcat_remix_props_r83_probe": [], "pwcat_resample_props_r83_probe": [], "pwcat_failopen_args_r83_probe": []}
+invariants: unload witness sample (entry 1): {"r83a_ns_a_2535010": {"captured": 536870926, "exit_code": 0, "recycled": false, "stderr_tail": null, "verified_index": 536870926}, "r83a_ns_b_2535010": {"captured": 536870921, "exit_code": 0, "recycled": false, "stderr_tail": null, "verified_index": 536870921}}
+coverage_blocked occurrences: 0
+

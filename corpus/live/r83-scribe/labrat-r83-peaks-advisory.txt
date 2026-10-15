@@ -1,0 +1,81 @@
+# r83 scribe receipt — frozen-probeParent labrat dispatch (advisory, L2, read-only)
+
+Dispatched: 2026-10-15 ~22:14Z by the r83 scribe seat (frozen probeParent, exactly
+one labrat allowed). Hypothesis handed to the probe: the retained scout bytes
+`corpus/live/r83-scout/raw/PK44_{1,2}.wav` support the boundary's full-wave |x| +
+octave-dominant + ~1/12 forced-zero class and refute the scout's "half-wave,
+fundamental still verifies (amp@1k=12882)" claim; plus a cross-check on the
+boundary's own taps and a reconciliation of the author's 14.6% zero fraction.
+
+Seat capability disclosure (from the labrat itself): that seat had **no exec/shell
+tool** (find_file_by_name / grep / read only), so it could not recompute bytes. Its
+output is a static (receipt + source) audit. Byte-level re-derivation was therefore
+done by the scribe seat itself and is recorded in `scout-and-peaks.txt`.
+
+Net value: independent confirmation, from source alone, that the scout's
+`fft_at()` path (r83_probe.py:391-406, `setpos(min(n-1, int(0.5*rate)))` on a
+24000-frame file -> `take == 1` frame) yields `goertzel_amp` over n=1 == `2*|x|`,
+i.e. the recorded `amp_detail` 12882.0 = 2*6441 and the "baseline" 11450.0 = 2*5725
+are single-sample values, not amplitudes. It also flagged that the scout receipt
+schema stores no mean/min/zero statistics (the prose numbers are not in the receipt).
+
+Verbatim labrat report follows.
+
+---
+
+I have no execution tool in this seat (only `find_file_by_name`, `grep`, `read`), so I could not run Python against the WAV bytes. Instead I performed a byte-level-free audit using the committed receipts and probe source, which turns out to resolve most of the dispute. Report below.
+
+# UFO-FSD labrat — round-83 peaks-artifact custody probe (static-only)
+
+**Constraint disclosure:** this seat was dispatched without a shell/exec tool. No Python was run; no scratch files were created (nothing to clean up). All numbers below are quoted directly from committed receipts / retained probe source, with arithmetic checks I could do by hand. Byte-level items requiring recompute are marked UNDECIDABLE.
+
+## 1. Hypothesis verdicts
+
+| H | Verdict | Key numbers / evidence |
+|---|---------|------------------------|
+| H1 | UNDECIDABLE | sha256 cannot be computed without exec. Both PK44 files exist (24000 fr, 48 kHz, s16 stereo per prompt). Missing evidence: the two files' hashes. |
+| H2 | SUPPORTED (full-wave |x|, not half-wave clamp) — by receipt arithmetic | Boundary receipt `s4-resample.json` S4_peaks legs: `min=[0,0]`, `neg_frac=0.0`, `mean=[3168.41,3168.31]` over the whole 144000-frame file (incl. ~48770-frame silent head → tone-region mean ≈ 3168·144000/95230 ≈ 4790, matching the recorded `dom` DC amp 4790.8 = Hann-window DC ≈ mean·(N/window-norm)). Half-wave rectified sine would give mean ≈ A/π ≈ 2607 (tone region), rms ≈ A/2 = 4096·√(tone frac). Observed rms 4514.9 ≈ 5793·√0.917·√0.66 (|x| rms A/√2 derated by ~8% zeros and head silence) — matches full-wave, not half-wave. Author's committed receipt independently records `artifact_outcome: "full_wave_abs_octave"`, min 0, neg_frac 0.0, mean 4452.65/4452.48. |
+| H3 | PARTIALLY SUPPORTED / UNDECIDABLE for PK44 bytes | Boundary receipt records a **run-length** histogram, not a gap histogram: `zero_run_hist={"1":7539,"2":198,"43648":1,"5122":1}` — i.e. zeros are mostly isolated single samples (plus leading/trailing silence runs of 43648/5122). ~7935 zeros over ~95230 tone frames ≈ **8.3%** ≈ 1/12. The scout's "12×1187, 13×549" (sum 1736) is consistent with a **gap** histogram (~1736 intervals ≈ zeros on 24000 fr), not a run histogram; cannot be verified on PK44 bytes here. Note: scout's own receipt schema records **no** mean/min/zero stats at all — the scout's claim rests on numbers not in its committed receipt. |
+| H4 | SUPPORTED (fundamental destroyed, octave dominates) | Boundary receipt: `amp_at` (Goertzel) at 1000 = 1.9/0.0 vs clean-baseline 8191.3; `dom` bin = 0.0 Hz amp 4790.8 (DC of the rectified wave dominates the Hann spectrum — the receipt's `class` is `foreign@0.0Hz`). Author receipt: `amp_at_997=0.1`, `amp_at_1994=3177.9` (ch0 octave), `amp_at_3000=3178.6` (ch1). The scout's `amp_detail` 12882 is **reproducibly explained as a bug**: scout `fft_at()` (r83_probe.py:391-406) does `setpos(min(n-1, 0.5·48000))` on a 24000-frame file → reads **exactly 1 frame**, and `goertzel_amp` over n=1 returns 2·|x| = 2·6441 ≈ **12882**. Corroboration: the clean-leg "baseline" in the same column is 11450 = 2·5725, also a single-sample value, not a true amplitude. Under any legitimate convention (Hann 2·|rfft|/N, unwindowed FFT, proper Goertzel) |sin| has **zero** fundamental energy — 12882 cannot arise. |
+| H5 | SUPPORTED at receipt level | S4_peaks_mon, S4_peaks_ld1_mon, S4_peaks_ld2_mon in the committed receipt have **byte-identical stat blocks**: mean 3168.41/3168.31, min 0, max 8191, rms 4514.9, neg_frac 0.0, dom 4790.8@0Hz, amp@1k=1.9, identical zero_run_hist. Under-load stats are statistically identical to quiet (as recorded). Byte-identity of the files themselves not verified (no exec). |
+| H6 | PARTIALLY RESOLVED | Author's tap is 576044 B = 144000 stereo frames; `settled_frames: 129600` (0.3 s skipped). zero_frac 0.1462/0.1519 over settled frames does **not** equal 8.3% (1/12) seen in boundary's equivalent leg (≈8.3% of tone region, ≈5.5% of whole file). The author's tap bytes are **not retained** (only stats), so whether the extra ~6 pp is windowing, a run-length counting difference, or a genuinely different cadence on the pw-cat path (vs pw-record monitor tap) is UNDECIDABLE. Missing evidence: the author's tap WAV bytes. |
+
+## 2. Per-file statistics (all quoted from committed receipts; PK44 items from prompt only)
+
+| file | frames/ch/rate | min/max | mean | neg_frac | zero runs | dom bin | amp@f / @2f |
+|---|---|---|---|---|---|---|---|
+| S4_peaks_mon (boundary) | 144000/2/48k | 0 / 8191 | 3168.41/3168.31 | 0.0 | {1:7539,2:198,43648:1,5122:1} | 0.0 Hz, 4790.8 | Goertzel @1k=1.9 (ch0), @1.5k=17.3 (ch1); author-method octave ≈3178 |
+| S4_peaks_ld1_mon | identical block | identical | identical | 0.0 | identical | identical | identical |
+| S4_peaks_ld2_mon | identical block | identical | identical | 0.0 | identical | identical | identical |
+| S4b_peaks_matched_mon (48k source, peaks) | 144000/2/48k | -8192/8192 | 0.0 | 0.3134 | {1:3967,…} | 1000/1500 Hz | 8191.3/8191.4 (clean — peaks is a no-op at matched rate) |
+| author s4_peaks_0 tap (stats only, bytes gone) | 144000 settled 129600 | 0/8192·8191 | 4452.65/4452.48 | 0.0 | n/a | n/a | @997=0.1, @1994=3177.9, @3000=3178.6 |
+| PK44_1/2 (scout) | 24000/2/48k | not recorded in scout receipt | ~4383 (claims) | n/a | n/a | n/a | scout amp_detail 12882 = 1-frame Goertzel artifact |
+
+## 3. Commands/snippets run
+None — no exec capability in this seat. All figures above are verbatim from:
+`corpus/live/r83-boundary/receipts/s4-resample.json` (legs S4_peaks, S4_peaks_ld1, S4_peaks_ld2, S4b_peaks_matched, S1b_disable_matched, S0, S5, S6), `corpus/live/r83-scout/receipts/p5-resample.json` (leg S4_peaks, amp_detail 12882), `corpus/live/r83-author/measurements-run1.json` lines 21394-21428, `corpus/live/r83-scout/r83_probe.py` lines 347-406 (the 1-frame Goertzel path), `corpus/live/r83-boundary/r83b_probe.py` lines 293-384 (reference method).
+
+## 4. Anomalies / counter-evidence
+- **File-name mismatch in the prompt:** `S4_peaks_matched_mon.wav` does not exist; the actual file is `S4b_peaks_matched_mon.wav`.
+- **Scout "12×1187, 13×549" cannot be a run-length histogram** — the boundary method's run histogram shows zeros occur only as isolated samples (len 1) or rare pairs (len 2). It is consistent with a gap histogram, but the scout receipt stores no such histogram; its provenance is unverifiable.
+- **Scout's receipt schema lacks mean/min/neg_frac/zero stats entirely** — the "mean +4383.3" claim is not in `p5-resample.json`.
+- Boundary's reported "amp@1k=0.9" vs receipt Goertzel 1.9: different statistic (Hann-FFT bin vs Goertzel), same conclusion; not a discrepancy.
+- Clean-control asymmetry: `neg_frac` on normal legs is ~0.31-0.33 (not 0.5), because s16 zero samples + quantization; irrelevant to H2 since the peaks legs show min=0 exactly.
+
+## 5. What I did NOT test
+- No sha256 of PK44_1/PK44_2 (H1 undecidable).
+- No direct histogram/zero-fraction/FFT on the PK44 or S4 WAV bytes (no exec); all S4 numbers are receipt-quoted, not re-derived.
+- No reconciliation of author's 14.6% on its own tap bytes (not retained — confirmed absent from corpus tree).
+- No live audio, no PipeWire objects, no scratch writes (none needed; cleanup status: nothing to remove).
+
+**Bottom line for the audit:** every committed number available supports the full-wave |x| + octave-dominant class (boundary and author agree; author's receipt literally says `full_wave_abs_octave`). The scout's half-wave claim and "fundamental verifies at 12882" are both explained by a demonstrable 1-frame Goertzel bug in the scout's own `fft_at`, and its mean/zero-cadence claims exist only in prose, not in its receipt.
+
+---
+
+Scribe note on the labrat's H1/H3/H6 "UNDECIDABLE" items: the scribe seat re-derived
+those byte-level numbers directly (see `scout-and-peaks.txt`) — PK44_1/2 sha256
+`2ba24ad428a4bdca22785f9fac18aab8973cd98e89fb057ef577a46cb31f3d16` (byte-identical),
+tone-region zero fraction 0.0833, gap histogram 12×1233 / 13×549, run histogram
+1×1737 / 2×46, mean 4383.29/4382.43, Hann-2|X|/N ch1 @3000 = 1592.9. The labrat's
+"12882 = 2·|x| of one frame" explanation is confirmed at byte level: `a[2143] =
+[6441, 1737]` and `2·|a[2143]| = [12882, 3474]`, exactly the receipt's `amp_detail`.

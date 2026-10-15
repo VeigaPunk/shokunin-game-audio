@@ -1,0 +1,84 @@
+# r83 scribe receipt — scout evidence custody + peaks-artifact byte re-derivation
+scout tree: files=21 bytes=504795 tracked=0
+  p1_args.py                                    7140 acaa8af2545601442873dcd71c8fbc90825c8b9fdd2d2009ff80866be63cedb8
+  p2_filter.py                                  3038 bf5cae4b093fe1246c7159e9c3e78a3d8a42e543c709fb1e398fead165fe29c8
+  p3_midi.py                                    5468 978b587bde7b14a823da5f916c7ca30aa5b58c6c470adf3188deb62caaac5a37
+  p4_remix.py                                   5289 5002b76189cd4e0a7378bf463f2a863ef9e33853786987707e80164a65218847
+  p5_resample.py                                5216 f4ee037ba3bd3054541484d1af838895af0899431697f70b160db70e2110470f
+  r83_probe.py                                 16912 c6cd1cea8943e6b84512e32e605b0e6b43650d1470345b4b201bcf2280111843
+  scratch/aseq_out.txt                           235 979c2ef97f281a1e745e20310da05ec6ba41c32445292b29bd9e90275e4c70f3
+  scratch/mididump_err.txt                         0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  scratch/mididump_out.txt                       154 3538372a26b7e40221b71eb0e6d23179a466dd3bfc65427bfb99217b2bf62c1f
+  scratch/mplay_bare.txt                         134 70a9c3505198487810c0bbd4ded06f29b8b865fc3e93d4631d1768234a7a5cce
+  scratch/mplay_err.txt                            0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  scratch/mplay_out.txt                            0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  scratch/r83_note.mid                            42 3589b5c73ea951668e5bf449808dd7d00021c4e227946b426b5d35e47261708b
+  raw/PK44_1.wav                               96044 2ba24ad428a4bdca22785f9fac18aab8973cd98e89fb057ef577a46cb31f3d16
+  raw/PK44_2.wav                               96044 2ba24ad428a4bdca22785f9fac18aab8973cd98e89fb057ef577a46cb31f3d16
+  receipts/p1-args.json                       121977 c46ab1166596b308997060496c1ac503d170479dd1e9984419592d26613bb39f
+  receipts/p2-filter.json                       6506 646d17a782d7fe5b68d68172c4949fed4eced87e0b65646c3883d80d81637045
+  receipts/p3-midi.json                        47207 0dcdc3020ac441264fcc3ae9a25e98921b37f3d6646b23abaec625df58f64287
+  receipts/p4-remix.json                       39204 2e49a5e0f40e1a4cd797d234278fc94f956dded8f08b97efcd650a223f40267e
+  receipts/p5-resample.json                    20920 eda20526083d34b3882d1e411ce9ad8155bdb8fb133ebfc9433f2a5aa648fc57
+  __pycache__/r83_probe.cpython-314.pyc        33265 96b21c2111e86a09a418310300940bf157cac3f181962e37bd3d823f9cfa23b9
+
+scout receipts leg census:
+  p1-args: keys=['content_legs', 'legs', 'sinks', 'unloads'] legs=36 content_legs=5 lb_legs=0
+    p1 rc census: {"-11": 1, "-9": 35}
+    p1 legs with rc=-11: ["S7_empty"]
+  p2-filter: keys=['binaries', 'checked', 'factories', 'filter_factories', 'fs_pw_filter', 'man_pw_filter', 'modules', 'path_entries', 'pkg_owner', 'pkg_pipewire_audio_bins', 'pkg_pipewire_bins', 'pw_cli_help_has_list_modules', 'pw_cli_ls_module', 'spa_inspect_filter', 'spa_lib_dirs', 'which_pw_filter'] legs=0 content_legs=0 lb_legs=0
+  p3-midi: keys=['bridge_post_edges', 'bridge_pre', 'legs', 'm2_file', 'm3_file', 'smf', 'smf_bytes'] legs=8 content_legs=0 lb_legs=0
+    p3 legs rc: {"M1_dump_bare": -9, "M2_dump_file": 255, "M3_dump_pin": 255, "M4_play_bridge": 1, "M5_play_t0": -9, "M6_play_nofile": 1, "M7_dump_ump": -9, "M8_play_garbage": 1}
+  p4-remix: keys=['legs', 'sinks', 'unloads'] legs=19 content_legs=0 lb_legs=0
+  p5-resample: keys=['lb_legs', 'legs', 'sinks', 'unloads'] legs=7 content_legs=0 lb_legs=3
+    p5 S0_44_into_48    rc=-9 frames=24000 bytes=96044 peak=[8192, 8191] amp_at=[{"1000": 8191.9, "1500": 0.1}, {"1000": 0.0, "1500": 8191.9}] amp_detail={"ch0": [11450.0, null], "ch1": [null, 6532.0]}
+    p5 S1_resample_off  rc=-9 frames=24000 bytes=96044 peak=[0, 0] amp_at=[{"1000": 0.0, "1500": 0.0}, {"1000": 0.0, "1500": 0.0}] amp_detail={"ch0": [0.0, null], "ch1": [null, 0.0]}
+    p5 S2_q0            rc=-9 frames=24000 bytes=96044 peak=[8190, 8188] amp_at=[{"1000": 8190.3, "1500": 0.0}, {"1000": 0.0, "1500": 8188.6}] amp_detail={"ch0": [11448.0, null], "ch1": [null, 6530.0]}
+    p5 S3_q14           rc=-9 frames=24000 bytes=96044 peak=[8192, 8191] amp_at=[{"1000": 8191.9, "1500": 0.1}, {"1000": 0.0, "1500": 8192.0}] amp_detail={"ch0": [11450.0, null], "ch1": [null, 6532.0]}
+    p5 S4_peaks         rc=-9 frames=24000 bytes=96044 peak=[8192, 8192] amp_at=[{"1000": 2.0, "1500": 14.1}, {"1000": 0.0, "1500": 17.2}] amp_detail={"ch0": [12882.0, null], "ch1": [null, 3474.0]}
+    p5 S5_rate_flag     rc=-9 frames=24000 bytes=96044 peak=[8192, 8191] amp_at=[{"1000": 8191.9, "1500": 0.1}, {"1000": 0.0, "1500": 8191.9}] amp_detail={"ch0": [11450.0, null], "ch1": [null, 6532.0]}
+    p5 S6_48_into_44    rc=-9 frames=24000 bytes=96044 peak=[8192, 8192] amp_at=[{"1000": 8191.9, "1500": 0.0}, {"1000": 0.0, "1500": 8192.0}] amp_detail={"ch0": [12998.0, null], "ch1": [null, 3196.0]}
+
+PK44 byte re-derivation (retained scout reps):
+  PK44_1.wav: frames=24000 rate=48000 sha256=2ba24ad428a4bdca22785f9fac18aab8973cd98e89fb057ef577a46cb31f3d16
+    mean/ch=[4383.29, 4382.43] rms/ch=[5310.73, 5310.09] min/max=0/8192 neg_frac=0.0000
+    tone region=2048..23999 zero_frac(tone)=0.0833 zero_frac(whole)=0.1615
+    gap histogram top=[(12, 1233), (13, 549), (2057, 1)]
+    run-length histogram top=[(1, 1737), (2, 46), (2048, 1)]
+    hann 2|X|/N ch0 @1000=0.9 @2000=1481.5 | ch1 @1500=8.6 @3000=1592.9
+    scout fft_at (retained code) ch0@1000=2788.0 -> receipt amp_detail ch0=12882.0
+  PK44_2.wav: frames=24000 rate=48000 sha256=2ba24ad428a4bdca22785f9fac18aab8973cd98e89fb057ef577a46cb31f3d16
+    mean/ch=[4383.29, 4382.43] rms/ch=[5310.73, 5310.09] min/max=0/8192 neg_frac=0.0000
+    tone region=2048..23999 zero_frac(tone)=0.0833 zero_frac(whole)=0.1615
+    gap histogram top=[(12, 1233), (13, 549), (2057, 1)]
+    run-length histogram top=[(1, 1737), (2, 46), (2048, 1)]
+    hann 2|X|/N ch0 @1000=0.9 @2000=1481.5 | ch1 @1500=8.6 @3000=1592.9
+    scout fft_at (retained code) ch0@1000=2788.0 -> receipt amp_detail ch0=12882.0
+  discriminating frames for amp_detail: a[2143]=[6441.0, 1737.0] -> 2*|x| = [12882.0, 3474.0]  (receipt records ch0=12882.0 ch1=3474.0)
+  a[23999] (frame a correct fft_at window would read) = [1394.0, 2078.0] -> 2*|x| = [2788.0, 4156.0]
+  scout report prose numbers vs retained bytes: mean +4383.3/+4382.4 -> retained 4383.29/4382.43 (match); gap histogram 12x1187/13x549 -> retained 12x1233/13x549 (13 bucket exact, 12 bucket -46 = #2-sample runs)
+
+cross-seat artifact re-derivation (same leg class, three independent taps):
+  boundary raw/S4_peaks_mon.wav: frames=144000 sha256=2fe8505786479c51b1e11b2aae307b09301ca27371f87f6af398094b30104510
+    tone-start=5122 zero_frac(tone)=0.3714 gap_top=[(12, 5356), (13, 2380), (5132, 1), (8, 1)] run_top=[(1, 7539), (2, 198), (5122, 1), (43648, 1)]
+    settled(0.3s+) mean/ch=[3177.35, 3177.3] zero_frac=0.3921
+    hann 2|X|/N ch0 @1000=1.0 @2000=1592.4 | ch1 @1500=8.6 @3000=1592.9
+  boundary raw/S4_peaks_ld1_mon.wav: frames=144000 sha256=2fe8505786479c51b1e11b2aae307b09301ca27371f87f6af398094b30104510
+    tone-start=5122 zero_frac(tone)=0.3714 gap_top=[(12, 5356), (13, 2380), (5132, 1), (8, 1)] run_top=[(1, 7539), (2, 198), (5122, 1), (43648, 1)]
+    settled(0.3s+) mean/ch=[3177.35, 3177.3] zero_frac=0.3921
+    hann 2|X|/N ch0 @1000=1.0 @2000=1592.4 | ch1 @1500=8.6 @3000=1592.9
+  author dev /tmp/r83a_dev/r_s4_peaks.wav: frames=120000 sha256=75de551de4dc0c0b3881c41924e45796aeaaef865bdb868ca25cb54a4a810581
+    tone-start=23554 zero_frac(tone)=0.0833 gap_top=[(12, 5424), (13, 2411), (23564, 1)] run_top=[(1, 7636), (2, 200), (23554, 1)]
+    settled(0.3s+) mean/ch=[4375.75, 4375.59] zero_frac=0.1628
+    hann 2|X|/N ch0 @997=0.0 @1994=0.0 | ch1 @1500=8.6 @3000=1592.9
+  author receipt tap_stats (bytes NOT retained): {"bytes": 576044, "channels": [{"all_zero": false, "amp_at_1500": 13.5, "amp_at_1994": 3177.9, "amp_at_3000": 15.3, "amp_at_997": 0.1, "max": 8192, "mean": 4452.65, "min": 0, "neg_frac": 0.0, "peak_abs": 8192, "zero_frac": 0.1462}, {"all_zero": false, "amp_at_1500": 17.2, "amp_at_1994": 0.0, "amp_at_3000": 3178.6, "amp_at_997": 0.1, "max": 8191, "mean": 4452.48, "min": 0, "neg_frac": 0.0, "peak_abs": 8191, "zero_frac": 0.1519}], "exists": true, "rate": 48000, "settled_frames": 129600}
+
+C3/C4 windowed re-derivation (boundary §2 'author cell wrong'):
+  C3 -m '[ MONO ]' alone: frames=144000 tone-start=7169
+    tone+0.0-1.0s hann ch0@1k=2047.8 @1.5k=2047.8 goertzel ch0@1k=4095.6 @1.5k=4095.6
+    tone+0.5-1.5s hann ch0@1k=1267.1 @1.5k=2046.6 goertzel ch0@1k=2190.1 @1.5k=4095.6
+    tone+1.0-2.0s hann ch0@1k=1306.8 @1.5k=1966.5 goertzel ch0@1k=1822.5 @1.5k=3329.7
+  C4 -c 1 -m '[ MONO ]': frames=144000 tone-start=6145
+    tone+0.0-1.0s hann ch0@1k=2047.8 @1.5k=2047.8 goertzel ch0@1k=4095.6 @1.5k=4095.6
+    tone+0.5-1.5s hann ch0@1k=2047.8 @1.5k=2047.8 goertzel ch0@1k=4095.6 @1.5k=4095.6
+    tone+1.0-2.0s hann ch0@1k=2044.1 @1.5k=2047.0 goertzel ch0@1k=3814.2 @1.5k=3940.0

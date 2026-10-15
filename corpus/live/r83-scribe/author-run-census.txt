@@ -1,0 +1,44 @@
+# r83 scribe receipt — author run census (canonical corpus/live/runs/*-pwcat-r83) + seat copies
+canonical dir                          pid  legs n_fail sha256[:16]      seat copy
+20261015T212812356289Z-pwcat-r83   1271909   126     13 ec9c4b0450bd3147 
+20261015T215017582814Z-pwcat-r83   1799801   128     17 9a1114b0cdb3ffdc 
+20261015T220105801638Z-pwcat-r83   2305712   128      0 4e56f4b023585ceb measurements-run1.json
+20261015T220645473277Z-pwcat-r83   2535010   128      0 4ce6812fe563799c measurements-run2.json
+
+per-entry leg counts (canonical dir -> entry: legs):
+  20261015T212812356289Z-pwcat-r83: {"pwcat_channel_matrix_r83_probe": 11, "pwcat_empty_props_segv_r83_probe": 19, "pwcat_failopen_args_r83_probe": 8, "pwcat_latency_props_r83_probe": 26, "pwcat_props_parse_r83_probe": 29, "pwcat_remix_props_r83_probe": 18, "pwcat_resample_props_r83_probe": 15}
+  20261015T215017582814Z-pwcat-r83: {"pwcat_channel_matrix_r83_probe": 13, "pwcat_empty_props_segv_r83_probe": 19, "pwcat_failopen_args_r83_probe": 8, "pwcat_latency_props_r83_probe": 26, "pwcat_props_parse_r83_probe": 29, "pwcat_remix_props_r83_probe": 18, "pwcat_resample_props_r83_probe": 15}
+  20261015T220105801638Z-pwcat-r83: {"pwcat_channel_matrix_r83_probe": 13, "pwcat_empty_props_segv_r83_probe": 19, "pwcat_failopen_args_r83_probe": 8, "pwcat_latency_props_r83_probe": 26, "pwcat_props_parse_r83_probe": 29, "pwcat_remix_props_r83_probe": 18, "pwcat_resample_props_r83_probe": 15}
+  20261015T220645473277Z-pwcat-r83: {"pwcat_channel_matrix_r83_probe": 13, "pwcat_empty_props_segv_r83_probe": 19, "pwcat_failopen_args_r83_probe": 8, "pwcat_latency_props_r83_probe": 26, "pwcat_props_parse_r83_probe": 29, "pwcat_remix_props_r83_probe": 18, "pwcat_resample_props_r83_probe": 15}
+
+per-entry failures, non-green runs:
+  20261015T212812356289Z-pwcat-r83 (13 failures):
+    pwcat_props_parse_r83_probe: 5
+      - land_space: input node never published
+      - land_brace: input node never published
+      - land_json: input node never published
+    pwcat_channel_matrix_r83_probe: 3
+      - ctl_stereo_0: tap carried no tag-tone windows — the passthrough control is absent
+      - ctl_stereo_1: tap carried no tag-tone windows — the passthrough control is absent
+      - matrix: the stereo control produced no full-amp reference — ratio pins unmeasured
+    pwcat_resample_props_r83_probe: 5
+      - s4_peaks_0: not the full-wave artifact — ch1 octave absent (0.0); ch1 octave not dominant (0.0 vs 0.1)
+      - s4_peaks_1: not the full-wave artifact — ch1 octave absent (0.0); ch1 octave not dominant (0.0 vs 0.1)
+      - s4_peaks_2: not the full-wave artifact — ch1 octave absent (0.0); ch1 octave not dominant (0.0 vs 0.1)
+  20261015T215017582814Z-pwcat-r83 (17 failures):
+    pwcat_channel_matrix_r83_probe: 16
+      - c1_mono_0 @0.35s ch0 1208Hz amp 0.0 outside the 0.5*(L+R) band [3440,4751]
+      - c1_mono_0 @0.35s ch0 1711Hz amp 0.0 outside the 0.5*(L+R) band [3440,4751]
+      - c1_mono_0 @0.35s ch1 1208Hz amp 0.0 outside the 0.5*(L+R) band [3440,4751]
+    pwcat_failopen_args_r83_probe: 1
+      - n_empty: output consumers ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] != [r93b_in] — the -n '' fail-open arm fails
+
+report-cited receipt stamps: run1 = 21:50:17Z, run2 = 22:06:45Z (reports/round-83/r83-author.md)
+seat-copy shas:
+  corpus/live/r83-author/measurements-run1.json: 4e56f4b023585ceb319021ddef2774a3c7650d8f46837f828acc2aea96ae3f19 bytes=782699
+  corpus/live/r83-author/measurements-run2.json: 4ce6812fe563799caa8faded872144200aa979e6f4084f6279280ef51b3d9d66 bytes=782809
+committed-tree copies (git archive a151a226):
+  measurements-run1.json: 4e56f4b023585ceb319021ddef2774a3c7650d8f46837f828acc2aea96ae3f19
+  measurements-run2.json: 4ce6812fe563799caa8faded872144200aa979e6f4084f6279280ef51b3d9d66
+
+tracked status of canonical run dirs: 0 tracked files (0 = host-worktree-only)
