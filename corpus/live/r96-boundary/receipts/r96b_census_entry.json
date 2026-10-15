@@ -1,0 +1,193 @@
+{
+ "default_meta": {
+  "default.audio.sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default.configured.audio.sink": "{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }",
+  "default.configured.audio.source": "{\"name\":\"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\"}"
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+ "foreign_modules_r9xb": [],
+ "git_head": "51a98e54",
+ "git_status_uno": "",
+ "hogs_alive": [],
+ "loadavg": {
+  "l1": 61.06,
+  "l15": 80.97,
+  "l5": 74.03,
+  "nproc": 32
+ },
+ "modules_short": [
+  "1\tlibpipewire-module-rt\t{",
+  "            nice.level    = -11",
+  "            rt.prio       = 88",
+  "            #rt.time.soft = -1",
+  "            #rt.time.hard = -1",
+  "            #rlimits.enabled = true",
+  "            rtportal.enabled = false",
+  "            #rtkit.enabled = true",
+  "            #uclamp.min = 0",
+  "            #uclamp.max = 1024",
+  "        }\t",
+  "2\tlibpipewire-module-protocol-native\t{",
+  "            # List of server Unix sockets, and optionally permissions",
+  "            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]",
+  "        }\t",
+  "4\tlibpipewire-module-profiler\t{",
+  "            #profile.interval.ms = 0",
+  "        }\t",
+  "6\tlibpipewire-module-metadata\t\t",
+  "8\tlibpipewire-module-spa-device-factory\t\t",
+  "10\tlibpipewire-module-spa-node-factory\t\t",
+  "12\tlibpipewire-module-client-node\t\t",
+  "14\tlibpipewire-module-client-device\t\t",
+  "16\tlibpipewire-module-portal\t\t",
+  "17\tlibpipewire-module-access\t{",
+  "            # Socket-specific access permissions",
+  "            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }",
+  "",
+  "            # Deprecated legacy mode (not socket-based),",
+  "            # for now enabled by default if access.socket is not specified",
+  "            #access.legacy = true",
+  "        }\t",
+  "18\tlibpipewire-module-adapter\t\t",
+  "20\tlibpipewire-module-link-factory\t{",
+  "            #allow.link.passive = false",
+  "\t}\t",
+  "22\tlibpipewire-module-session-manager\t\t",
+  "536870912\tmodule-always-sink\t\t",
+  "536870913\tmodule-device-manager\t\t",
+  "536870914\tmodule-device-restore\t\t",
+  "536870915\tmodule-stream-restore\t\t"
+ ],
+ "pactl_info": "Server String: /run/user/1000/pulse/native\nLibrary Protocol Version: 35\nServer Protocol Version: 35\nIs Local: yes\nClient Index: 144670\nTile Size: 65472\nUser Name: vgpnk\nHost Name: plazir27\nServer Name: PulseAudio (on PipeWire 1.6.8)\nServer Version: 15.0.0\nDefault Sample Specification: float32le 2ch 48000Hz\nDefault Channel Map: front-left,front-right\nDefault Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nDefault Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nCookie: 17ac:13e6\n",
+ "procs_foreign_lanes": [
+  {
+   "cmd": "bash corpus/live/r90-author/hunt_greens.sh ",
+   "pid": 1804584
+  },
+  {
+   "cmd": "python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs7 ",
+   "pid": 2957295
+  },
+  {
+   "cmd": "bash -c sleep 200; cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary; tail -c 1600 runs/b2.log; ls receipts/ ",
+   "pid": 2965710
+  },
+  {
+   "cmd": "pipewire -c /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/conf/pw/r97b-pipewire.conf ",
+   "pid": 3238581
+  },
+  {
+   "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout && python3 - <<'EOF'\np=\"r99_probe.py\"; s=open(p).read()\ns = s.replace('''def sink_args(dest_ip=\"127.0.0.1\", dest_port=46100, fmt=\"S16BE\", minp",
+   "pid": 3239963
+  },
+  {
+   "cmd": "/usr/bin/python3 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/probes/killseat.py ",
+   "pid": 3266187
+  },
+  {
+   "cmd": "godot --headless --path corpus/live/r90-author/runs7/20261015T204954579556Z/scratch --script res://input_lattice.gd -- --arm=echo_edge ",
+   "pid": 3266513
+  }
+ ],
+ "procs_r96b": [],
+ "pw_nodes_foreign_r9": [],
+ "pw_nodes_r96b": [],
+ "restore_rows": {
+  "exists": true,
+  "path": "/home/vgpnk/.local/state/wireplumber/stream-properties",
+  "sample": [],
+  "tag_rows": 0,
+  "total_rows": 4656
+ },
+ "seat_modules": [],
+ "seat_sinks": [],
+ "seat_sources": [],
+ "settings_meta": {
+  "clock.allowed-rates": "[ 48000 ]",
+  "clock.force-quantum": "0",
+  "clock.force-rate": "0",
+  "clock.max-quantum": "2048",
+  "clock.min-quantum": "32",
+  "clock.quantum": "1024",
+  "clock.rate": "48000",
+  "log.level": "2"
+ },
+ "sinks": [
+  {
+   "driver": "PipeWire",
+   "index": 61,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "sample_specification": "s16le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 62,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 63,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 60843,
+   "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  }
+ ],
+ "sources": [
+  {
+   "driver": "PipeWire",
+   "index": 61,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "sample_specification": "s16le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 62,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 63,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 64,
+   "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "sample_specification": "s24le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 65,
+   "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "sample_specification": "s24le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  },
+  {
+   "driver": "PipeWire",
+   "index": 60843,
+   "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor",
+   "sample_specification": "s32le 2ch 48000Hz",
+   "state": "SUSPENDED"
+  }
+ ],
+ "stage": "entry",
+ "ts": 1792097586.7643325,
+ "utc": "2026-10-15T20:53:06Z"
+}

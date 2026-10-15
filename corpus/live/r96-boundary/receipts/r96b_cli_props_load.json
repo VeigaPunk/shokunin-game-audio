@@ -1,0 +1,2282 @@
+{
+ "battery": "r96b_cli",
+ "finished": 1792098626.8857236,
+ "group": "props",
+ "loadavg_start": {
+  "l1": 114.15,
+  "l15": 83.25,
+  "l5": 92.59,
+  "nproc": 32
+ },
+ "receipts": {
+  "e_client_name": {
+   "leg": "e_client_name",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--client-name=r96b_client",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.54,
+      "l15": 82.88,
+      "l5": 91.74,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160504,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_client",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160491
+       }
+      ],
+      "loadavg": {
+       "l1": 112.54,
+       "l15": 82.65,
+       "l5": 91.18,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160491,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":true,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":-1.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"2\",\"audio.position\":\"[FL,FR]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-298628-22\",\"node.link-group\":\"filter-chain-298628-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"206\",\"object.id\":\"45\",\"object.serial\":\"160491\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160504,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160503\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_client\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"308630\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_client\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160504\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_client\"}}]",
+      "stdout_bytes": 3116,
+      "timed_out": false,
+      "wall_s": 0.0099
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6209
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--client-name=r96b_client",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.54,
+      "l15": 82.88,
+      "l5": 91.74,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160524,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_client",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160491
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160513
+       }
+      ],
+      "loadavg": {
+       "l1": 113.54,
+       "l15": 82.88,
+       "l5": 91.74,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160491,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"2\",\"audio.position\":\"[FL,FR]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-298628-22\",\"node.link-group\":\"filter-chain-298628-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"206\",\"object.id\":\"45\",\"object.serial\":\"160491\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160513,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160512\",\"sink\":160475,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/st_fl05_fr005.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/st_fl05_fr005.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"100\",\"object.id\":\"192\",\"object.serial\":\"160513\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}},{\"index\":160524,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160523\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_client\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"321390\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_client\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160524\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_client\"}}]",
+      "stdout_bytes": 4734,
+      "timed_out": false,
+      "wall_s": 0.0226
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6617
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--client-name=r96b_client",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.54,
+      "l15": 82.88,
+      "l5": 91.74,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160534,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_client",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 2,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160491
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160513
+       }
+      ],
+      "loadavg": {
+       "l1": 113.54,
+       "l15": 82.88,
+       "l5": 91.74,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160491,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"2\",\"audio.position\":\"[FL,FR]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-298628-22\",\"node.link-group\":\"filter-chain-298628-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"206\",\"object.id\":\"45\",\"object.serial\":\"160491\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160513,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160512\",\"sink\":160475,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/st_fl05_fr005.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/st_fl05_fr005.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"100\",\"object.id\":\"192\",\"object.serial\":\"160513\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}},{\"index\":160534,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160533\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_client\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"333070\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_client\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160534\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_client\"}}]",
+      "stdout_bytes": 4734,
+      "timed_out": false,
+      "wall_s": 0.0116
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.666
+    }
+   ]
+  },
+  "e_envprop_vs_cli": {
+   "leg": "e_envprop_vs_cli",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=application.name=r96b_cli",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_PROP": "application.name=r96b_env",
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 112.54,
+      "l15": 82.65,
+      "l5": 91.18,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160454,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_cli",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160388
+       },
+       {
+        "app": "r98bstream",
+        "client.api": null,
+        "index": 160446
+       }
+      ],
+      "loadavg": {
+       "l1": 111.89,
+       "l15": 82.45,
+       "l5": 90.69,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160388,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-213959-22\",\"node.link-group\":\"filter-chain-213959-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"210\",\"object.serial\":\"160388\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160446,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160445\",\"sink\":159741,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r98b_run\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"DSP\",\"application.name\":\"r98bstream\",\"state.restore-props\":\"false\",\"media.class\":\"Stream/Output/Audio\",\"target.object\":\"r98b_ns\",\"media.name\":\"r98b_run\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160446\",\"node.driver-id\":\"217\",\"module-stream-restore.id\":\"sink-input-by-media-role:DSP\"}},{\"index\":160454,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160453\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_cli\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"272781\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_cli\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"154\",\"object.id\":\"160\",\"object.serial\":\"160454\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_cli\"}}]",
+      "stdout_bytes": 4242,
+      "timed_out": false,
+      "wall_s": 0.0167
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6599
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=application.name=r96b_cli",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_PROP": "application.name=r96b_env",
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 112.54,
+      "l15": 82.65,
+      "l5": 91.18,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160465,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_cli",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 112.54,
+       "l15": 82.65,
+       "l5": 91.18,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160465,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160464\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_cli\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"283787\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_cli\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"154\",\"object.id\":\"160\",\"object.serial\":\"160465\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_cli\"}}]",
+      "stdout_bytes": 1727,
+      "timed_out": false,
+      "wall_s": 0.0213
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6669
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=application.name=r96b_cli",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_PROP": "application.name=r96b_env",
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 112.54,
+      "l15": 82.65,
+      "l5": 91.18,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160483,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_cli",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 2,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 112.54,
+       "l15": 82.65,
+       "l5": 91.18,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160483,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160482\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"application.name\":\"r96b_cli\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"296292\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_cli\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160483\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:r96b_cli\"}}]",
+      "stdout_bytes": 1725,
+      "timed_out": false,
+      "wall_s": 0.0149
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6588
+    }
+   ]
+  },
+  "e_props": {
+   "leg": "e_props",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.role=game",
+      "--property=application.name=r96b_prop",
+      "--property=zzz.invented=42",
+      "--stream-name=r96b_streamname",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 110.76,
+      "l15": 81.9,
+      "l5": 89.39,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160293,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_prop",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_streamname",
+        "media.role": "game",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.invented": "42"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       }
+      ],
+      "loadavg": {
+       "l1": 110.3,
+       "l15": 81.72,
+       "l5": 88.94,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":true,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160293,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160292\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.role\":\"game\",\"application.name\":\"r96b_prop\",\"zzz.invented\":\"42\",\"media.name\":\"r96b_streamname\",\"application.process.id\":\"139758\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_prop\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"100\",\"object.id\":\"148\",\"object.serial\":\"160293\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:game\"}}]",
+      "stdout_bytes": 2961,
+      "timed_out": false,
+      "wall_s": 0.0211
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6598
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.role=game",
+      "--property=application.name=r96b_prop",
+      "--property=zzz.invented=42",
+      "--stream-name=r96b_streamname",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 110.76,
+      "l15": 81.9,
+      "l5": 89.39,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160309,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_prop",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_streamname",
+        "media.role": "game",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.invented": "42"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       }
+      ],
+      "loadavg": {
+       "l1": 110.76,
+       "l15": 81.9,
+       "l5": 89.39,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160309,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160308\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.role\":\"game\",\"application.name\":\"r96b_prop\",\"zzz.invented\":\"42\",\"media.name\":\"r96b_streamname\",\"application.process.id\":\"150739\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_prop\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"249\",\"object.id\":\"160\",\"object.serial\":\"160309\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:game\"}}]",
+      "stdout_bytes": 2984,
+      "timed_out": false,
+      "wall_s": 0.0169
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6175
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.role=game",
+      "--property=application.name=r96b_prop",
+      "--property=zzz.invented=42",
+      "--stream-name=r96b_streamname",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 110.76,
+      "l15": 81.9,
+      "l5": 89.39,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160325,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_prop",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_streamname",
+        "media.role": "game",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.invented": "42"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 2,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160316
+       }
+      ],
+      "loadavg": {
+       "l1": 110.76,
+       "l15": 81.9,
+       "l5": 89.39,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160316,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160315\",\"sink\":160262,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160316\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}},{\"index\":160325,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160324\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.role\":\"game\",\"application.name\":\"r96b_prop\",\"zzz.invented\":\"42\",\"media.name\":\"r96b_streamname\",\"application.process.id\":\"161614\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_prop\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"249\",\"object.id\":\"160\",\"object.serial\":\"160325\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:game\"}}]",
+      "stdout_bytes": 4460,
+      "timed_out": false,
+      "wall_s": 0.0163
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6096
+    }
+   ]
+  },
+  "e_props_dup": {
+   "leg": "e_props_dup",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.role=first",
+      "--property=media.role=second",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.71,
+      "l15": 82.28,
+      "l5": 90.3,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160364,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "media.role": "second",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 111.34,
+       "l15": 82.1,
+       "l5": 89.86,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160364,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160363\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.role\":\"second\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"200003\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160364\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:second\"}}]",
+      "stdout_bytes": 1733,
+      "timed_out": false,
+      "wall_s": 0.0114
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6135
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.role=first",
+      "--property=media.role=second",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.71,
+      "l15": 82.28,
+      "l5": 90.3,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160375,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "media.role": "second",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 111.71,
+       "l15": 82.28,
+       "l5": 90.3,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160375,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160374\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.role\":\"second\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"211466\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160375\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:second\"}}]",
+      "stdout_bytes": 1733,
+      "timed_out": false,
+      "wall_s": 0.0106
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6713
+    }
+   ]
+  },
+  "e_props_empty": {
+   "leg": "e_props_empty",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=zzz.empty=",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.71,
+      "l15": 82.28,
+      "l5": 90.3,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160398,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.empty": ""
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160388
+       }
+      ],
+      "loadavg": {
+       "l1": 111.71,
+       "l15": 82.28,
+       "l5": 90.3,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160388,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":true,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-213959-22\",\"node.link-group\":\"filter-chain-213959-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"210\",\"object.serial\":\"160388\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160398,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160397\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"zzz.empty\":\"\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"223061\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160398\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 3007,
+      "timed_out": false,
+      "wall_s": 0.0126
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6575
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=zzz.empty=",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.89,
+      "l15": 82.45,
+      "l5": 90.69,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160420,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.empty": ""
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160388
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160411
+       }
+      ],
+      "loadavg": {
+       "l1": 111.71,
+       "l15": 82.28,
+       "l5": 90.3,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160388,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-213959-22\",\"node.link-group\":\"filter-chain-213959-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"210\",\"object.serial\":\"160388\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160411,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160410\",\"sink\":160380,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"150\",\"object.id\":\"160\",\"object.serial\":\"160411\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}},{\"index\":160420,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160419\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"zzz.empty\":\"\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"234666\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160420\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 4508,
+      "timed_out": false,
+      "wall_s": 0.0181
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6627
+    }
+   ]
+  },
+  "e_props_malformed": {
+   "leg": "e_props_malformed",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=noequals",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 110.76,
+      "l15": 81.9,
+      "l5": 89.39,
+      "nproc": 32
+     },
+     "my_streams": [],
+     "rc": 1,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160316
+       }
+      ],
+      "loadavg": {
+       "l1": 110.76,
+       "l15": 81.9,
+       "l5": 89.39,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160316,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160315\",\"sink\":160262,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160316\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}}]",
+      "stdout_bytes": 2776,
+      "timed_out": false,
+      "wall_s": 0.0125
+     },
+     "stderr": "Invalid property 'noequals'\n",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 0.3776
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=noequals",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.34,
+      "l15": 82.1,
+      "l5": 89.86,
+      "nproc": 32
+     },
+     "my_streams": [],
+     "rc": 1,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       }
+      ],
+      "loadavg": {
+       "l1": 111.34,
+       "l15": 82.1,
+       "l5": 89.86,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}}]",
+      "stdout_bytes": 1300,
+      "timed_out": false,
+      "wall_s": 0.009
+     },
+     "stderr": "Invalid property 'noequals'\n",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 0.3741
+    }
+   ]
+  },
+  "e_props_order": {
+   "leg": "e_props_order",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--stream-name=r96b_streamname",
+      "--property=zzz.invented=42",
+      "--property=application.name=r96b_prop",
+      "--property=media.role=game",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.34,
+      "l15": 82.1,
+      "l5": 89.86,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160339,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_prop",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_streamname",
+        "media.role": "game",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.invented": "42"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       }
+      ],
+      "loadavg": {
+       "l1": 111.34,
+       "l15": 82.1,
+       "l5": 89.86,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160339,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160338\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.name\":\"r96b_streamname\",\"zzz.invented\":\"42\",\"application.name\":\"r96b_prop\",\"media.role\":\"game\",\"application.process.id\":\"177262\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_prop\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160339\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:game\"}}]",
+      "stdout_bytes": 2982,
+      "timed_out": false,
+      "wall_s": 0.0142
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6547
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--stream-name=r96b_streamname",
+      "--property=zzz.invented=42",
+      "--property=application.name=r96b_prop",
+      "--property=media.role=game",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.34,
+      "l15": 82.1,
+      "l5": 89.86,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160354,
+       "mute": false,
+       "props": {
+        "application.name": "r96b_prop",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_streamname",
+        "media.role": "game",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns",
+        "zzz.invented": "42"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160287
+       }
+      ],
+      "loadavg": {
+       "l1": 111.34,
+       "l15": 82.1,
+       "l5": 89.86,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160287,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-125678-22\",\"node.link-group\":\"filter-chain-125678-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"168\",\"object.serial\":\"160287\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160354,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160353\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.name\":\"r96b_streamname\",\"zzz.invented\":\"42\",\"application.name\":\"r96b_prop\",\"media.role\":\"game\",\"application.process.id\":\"188151\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"r96b_prop\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160354\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-media-role:game\"}}]",
+      "stdout_bytes": 2982,
+      "timed_out": false,
+      "wall_s": 0.0173
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6574
+    }
+   ]
+  },
+  "e_restore_off": {
+   "leg": "e_restore_off",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=state.restore-props=false",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.9,
+      "l15": 83.07,
+      "l5": 92.17,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160544,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160491
+       }
+      ],
+      "loadavg": {
+       "l1": 113.54,
+       "l15": 82.88,
+       "l5": 91.74,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160491,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"2\",\"audio.position\":\"[FL,FR]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-298628-22\",\"node.link-group\":\"filter-chain-298628-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"206\",\"object.id\":\"45\",\"object.serial\":\"160491\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160544,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160543\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"346539\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160544\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 3151,
+      "timed_out": false,
+      "wall_s": 0.0211
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6682
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=state.restore-props=false",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.9,
+      "l15": 83.07,
+      "l5": 92.17,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160554,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160491
+       }
+      ],
+      "loadavg": {
+       "l1": 113.9,
+       "l15": 83.07,
+       "l5": 92.17,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160491,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 2ch 48000Hz\",\"channel_map\":\"front-left,front-right\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"2\\\"  format.channel_map = \\\"\\\\\\\"front-left,front-right\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"front-left\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"},\"front-right\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"2\",\"audio.position\":\"[FL,FR]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-298628-22\",\"node.link-group\":\"filter-chain-298628-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"206\",\"object.id\":\"45\",\"object.serial\":\"160491\",\"node.driver-id\":\"108\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160554,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160553\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"358793\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"61\",\"object.serial\":\"160554\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 3151,
+      "timed_out": false,
+      "wall_s": 0.046
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6662
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=state.restore-props=false",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 113.9,
+      "l15": 83.07,
+      "l5": 92.17,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160568,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 2,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 113.9,
+       "l15": 83.07,
+       "l5": 92.17,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160568,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160567\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav\",\"application.process.id\":\"371084\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"69\",\"object.id\":\"100\",\"object.serial\":\"160568\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 1741,
+      "timed_out": false,
+      "wall_s": 0.01
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6572
+    }
+   ],
+   "rows_after": {
+    "exists": true,
+    "path": "/home/vgpnk/.local/state/wireplumber/stream-properties",
+    "sample": [
+     "Output/Audio:application.name:r96b_smoke_res={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_smoke_cork={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg2={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_dbg3={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_prop={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}"
+    ],
+    "tag_rows": 13,
+    "total_rows": 4684
+   },
+   "rows_before": {
+    "exists": true,
+    "path": "/home/vgpnk/.local/state/wireplumber/stream-properties",
+    "sample": [
+     "Output/Audio:application.name:r96b_smoke_res={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_smoke_cork={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg2={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_dbg3={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_prop={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}"
+    ],
+    "tag_rows": 13,
+    "total_rows": 4684
+   }
+  },
+  "e_restore_off_record": {
+   "leg": "e_restore_off_record",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--record",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "-d",
+      "r96b_ns.monitor",
+      "--property=state.restore-props=false"
+     ],
+     "env_extra": {},
+     "loadavg": {
+      "l1": 114.15,
+      "l15": 83.25,
+      "l5": 92.59,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160610,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "pacat",
+        "node.latency": "96000/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": null,
+       "sink_latency_usec": null,
+       "sink_name": null,
+       "source": 144766,
+       "source_latency_usec": 0.0,
+       "source_name": "r96b_ns.monitor"
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "source-outputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 114.15,
+       "l15": 83.25,
+       "l5": 92.59,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160610,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160609\",\"source\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"source_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"pacat\",\"application.process.id\":\"397721\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"96000/48000\",\"target.object\":\"r96b_ns\",\"stream.capture.sink\":\"true\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Input/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"210\",\"object.id\":\"241\",\"object.serial\":\"160610\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.fragsize\":\"192000\",\"module-stream-restore.id\":\"source-output-by-application-name:pacat\"}}]",
+      "stdout_bytes": 1639,
+      "timed_out": false,
+      "wall_s": 0.0111
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 0.6354
+    },
+    {
+     "argv": [
+      "pacat",
+      "--record",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "-d",
+      "r96b_ns.monitor",
+      "--property=state.restore-props=false"
+     ],
+     "env_extra": {},
+     "loadavg": {
+      "l1": 114.15,
+      "l15": 83.25,
+      "l5": 92.59,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160621,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "pacat",
+        "node.latency": "96000/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": null,
+       "sink_latency_usec": null,
+       "sink_name": null,
+       "source": 144766,
+       "source_latency_usec": 0.0,
+       "source_name": "r96b_ns.monitor"
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "source-outputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 114.15,
+       "l15": 83.25,
+       "l5": 92.59,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160621,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160620\",\"source\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"source_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"pacat\",\"application.process.id\":\"403319\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"96000/48000\",\"target.object\":\"r96b_ns\",\"stream.capture.sink\":\"true\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Input/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"210\",\"object.id\":\"241\",\"object.serial\":\"160621\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.fragsize\":\"192000\",\"module-stream-restore.id\":\"source-output-by-application-name:pacat\"}}]",
+      "stdout_bytes": 1639,
+      "timed_out": false,
+      "wall_s": 0.0101
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 0.6336
+    },
+    {
+     "argv": [
+      "pacat",
+      "--record",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "-d",
+      "r96b_ns.monitor",
+      "--property=state.restore-props=false"
+     ],
+     "env_extra": {},
+     "loadavg": {
+      "l1": 114.15,
+      "l15": 83.25,
+      "l5": 92.59,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160644,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "pacat",
+        "node.latency": "96000/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.corked": "false",
+        "state.restore-props": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": null,
+       "sink_latency_usec": null,
+       "sink_name": null,
+       "source": 144766,
+       "source_latency_usec": 0.0,
+       "source_name": "r96b_ns.monitor"
+      }
+     ],
+     "rc": 0,
+     "rep": 2,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 1,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "source-outputs"
+      ],
+      "foreign": [],
+      "loadavg": {
+       "l1": 114.15,
+       "l15": 83.25,
+       "l5": 92.59,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160644,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160643\",\"source\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":0,\"value_percent\":\"0%\",\"db\":\"-inf dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"source_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"state.restore-props\":\"false\",\"application.name\":\"pacat\",\"media.name\":\"pacat\",\"application.process.id\":\"408389\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"96000/48000\",\"target.object\":\"r96b_ns\",\"stream.capture.sink\":\"true\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Input/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"210\",\"object.id\":\"241\",\"object.serial\":\"160644\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.fragsize\":\"192000\",\"module-stream-restore.id\":\"source-output-by-application-name:pacat\"}}]",
+      "stdout_bytes": 1639,
+      "timed_out": false,
+      "wall_s": 0.0115
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 0.6732
+    }
+   ],
+   "rows_after": {
+    "exists": true,
+    "path": "/home/vgpnk/.local/state/wireplumber/stream-properties",
+    "sample": [
+     "Output/Audio:application.name:r96b_smoke_res={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_smoke_cork={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg2={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_dbg3={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_prop={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}"
+    ],
+    "tag_rows": 13,
+    "total_rows": 4684
+   },
+   "rows_before": {
+    "exists": true,
+    "path": "/home/vgpnk/.local/state/wireplumber/stream-properties",
+    "sample": [
+     "Output/Audio:application.name:r96b_smoke_res={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_smoke_cork={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}",
+     "Output/Audio:application.name:r96b_dbg2={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_dbg3={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}",
+     "Output/Audio:application.name:r96b_prop={\"volume\":1.000000, \"mute\":false, \"channelVolumes\":[1.000000, 1.000000]}"
+    ],
+    "tag_rows": 13,
+    "total_rows": 4684
+   }
+  },
+  "e_stream_vs_media": {
+   "leg": "e_stream_vs_media",
+   "results": [
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.name=r96b_fromprop",
+      "--stream-name=r96b_fromflag",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.89,
+      "l15": 82.45,
+      "l5": 90.69,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160430,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_fromflag",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 0,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 3,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160388
+       },
+       {
+        "app": "pw-play",
+        "client.api": null,
+        "index": 160411
+       }
+      ],
+      "loadavg": {
+       "l1": 111.89,
+       "l15": 82.45,
+       "l5": 90.69,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160388,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-213959-22\",\"node.link-group\":\"filter-chain-213959-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"210\",\"object.serial\":\"160388\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160411,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160410\",\"sink\":160380,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"application.name\":\"pw-play\",\"node.name\":\"pw-play\",\"media.format\":\"WAV (Microsoft)\",\"node.rate\":\"1/48000\",\"node.latency\":\"4800/48000\",\"media.type\":\"Audio\",\"media.category\":\"Playback\",\"media.role\":\"music\",\"media.filename\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"media.name\":\"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-boundary/scratch/tone_1000_050.wav\",\"target.object\":\"r93b_in\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"node.loop.class\":\"main\",\"node.async\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"main-loop\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"150\",\"object.id\":\"160\",\"object.serial\":\"160411\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-role:music\"}},{\"index\":160430,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160429\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.name\":\"r96b_fromflag\",\"application.name\":\"pacat\",\"application.process.id\":\"246942\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160430\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 4417,
+      "timed_out": false,
+      "wall_s": 0.0171
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6695
+    },
+    {
+     "argv": [
+      "pacat",
+      "--playback",
+      "--raw",
+      "--rate=48000",
+      "--format=s16le",
+      "--channels=1",
+      "--property=media.name=r96b_fromprop",
+      "--stream-name=r96b_fromflag",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-boundary/scratch/tone1k5.wav"
+     ],
+     "env_extra": {
+      "PULSE_SINK": "r96b_ns"
+     },
+     "loadavg": {
+      "l1": 111.89,
+      "l15": 82.45,
+      "l5": 90.69,
+      "nproc": 32
+     },
+     "my_streams": [
+      {
+       "buffer_latency_usec": 0.0,
+       "corked": false,
+       "index": 160440,
+       "mute": false,
+       "props": {
+        "application.name": "pacat",
+        "application.process.binary": "pacat",
+        "client.api": "pipewire-pulse",
+        "media.name": "r96b_fromflag",
+        "node.latency": "8192/48000",
+        "node.rate": "1/48000",
+        "pulse.attr.maxlength": "4194304",
+        "pulse.attr.minreq": "1920",
+        "pulse.attr.prebuf": "190082",
+        "pulse.attr.tlength": "192000",
+        "pulse.corked": "false",
+        "target.object": "r96b_ns"
+       },
+       "resample_method": "PipeWire",
+       "sample_specification": "s16le 1ch 48000Hz",
+       "sink": 144766,
+       "sink_latency_usec": 0.0,
+       "sink_name": "r96b_ns",
+       "source": null,
+       "source_latency_usec": null,
+       "source_name": null
+      }
+     ],
+     "rc": 0,
+     "rep": 1,
+     "session_default_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo.99",
+     "snapshot_meta": {
+      "all_count": 2,
+      "argv": [
+       "pactl",
+       "-f",
+       "json",
+       "list",
+       "sink-inputs"
+      ],
+      "foreign": [
+       {
+        "app": null,
+        "client.api": null,
+        "index": 160388
+       }
+      ],
+      "loadavg": {
+       "l1": 111.89,
+       "l15": 82.45,
+       "l5": 90.69,
+       "nproc": 32
+      },
+      "rc": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stdout": "[{\"index\":160388,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":null,\"sink\":4294967295,\"sample_specification\":\"float32le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"float32ne\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"node.name\":\"r93b_fc_out\",\"node.autoconnect\":\"false\",\"audio.channels\":\"1\",\"audio.position\":\"[MONO]\",\"device.description\":\"r93b_fc\",\"node.group\":\"filter-chain-213959-22\",\"node.link-group\":\"filter-chain-213959-22\",\"node.virtual\":\"true\",\"resample.prefill\":\"true\",\"resample.disable\":\"true\",\"media.name\":\"r93b_fc output\",\"stream.is-live\":\"true\",\"node.want-driver\":\"true\",\"node.trigger\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"9\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"45\",\"object.id\":\"210\",\"object.serial\":\"160388\",\"node.driver-id\":\"69\",\"module-stream-restore.id\":\"sink-input-by-media-name:r93b_fc output\"}},{\"index\":160440,\"driver\":\"PipeWire\",\"owner_module\":null,\"client\":\"160439\",\"sink\":144766,\"sample_specification\":\"s16le 1ch 48000Hz\",\"channel_map\":\"mono\",\"format\":\"pcm, format.sample_format = \\\"\\\\\\\"s16le\\\\\\\"\\\"  format.rate = \\\"48000\\\"  format.channels = \\\"1\\\"  format.channel_map = \\\"\\\\\\\"mono\\\\\\\"\\\"\",\"corked\":false,\"mute\":false,\"volume\":{\"mono\":{\"value\":65536,\"value_percent\":\"100%\",\"db\":\"0.00 dB\"}},\"balance\":0.00,\"buffer_latency_usec\":0.00,\"sink_latency_usec\":0.00,\"resample_method\":\"PipeWire\",\"properties\":{\"client.api\":\"pipewire-pulse\",\"pulse.server.type\":\"unix\",\"media.name\":\"r96b_fromflag\",\"application.name\":\"pacat\",\"application.process.id\":\"259417\",\"application.process.user\":\"vgpnk\",\"application.process.host\":\"plazir27\",\"application.process.binary\":\"pacat\",\"application.language\":\"en_US.UTF-8\",\"window.x11.display\":\":0\",\"application.process.machine_id\":\"432d02b544a5459ebbff9c42ec68334d\",\"application.process.session_id\":\"2\",\"pulse.corked\":\"false\",\"node.rate\":\"1/48000\",\"node.latency\":\"8192/48000\",\"target.object\":\"r96b_ns\",\"stream.is-live\":\"true\",\"node.name\":\"pacat\",\"node.want-driver\":\"true\",\"node.autoconnect\":\"true\",\"media.class\":\"Stream/Output/Audio\",\"port.group\":\"stream.0\",\"adapt.follower.spa-node\":\"\",\"object.register\":\"false\",\"factory.id\":\"7\",\"clock.quantum-limit\":\"8192\",\"node.loop.name\":\"data-loop.0\",\"library.name\":\"audioconvert/libspa-audioconvert\",\"client.id\":\"54\",\"object.id\":\"63\",\"object.serial\":\"160440\",\"node.driver-id\":\"106\",\"pulse.attr.maxlength\":\"4194304\",\"pulse.attr.tlength\":\"192000\",\"pulse.attr.prebuf\":\"190082\",\"pulse.attr.minreq\":\"1920\",\"module-stream-restore.id\":\"sink-input-by-application-name:pacat\"}}]",
+      "stdout_bytes": 2939,
+      "timed_out": false,
+      "wall_s": 0.0148
+     },
+     "stderr": "",
+     "stdout": "",
+     "timed_out": false,
+     "wall_s": 1.6651
+    }
+   ]
+  }
+ },
+ "seat_sink": "r96b_ns",
+ "seat_sink_index": 144766,
+ "started": 1792098586.4172933,
+ "tag": "load"
+}
