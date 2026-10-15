@@ -1,0 +1,49 @@
+{
+ "stream_props_ptime20_fc960_consistent": {
+  "core_up": false,
+  "msg": "core died rc=-8",
+  "ptime": null,
+  "framecount": null,
+  "node_latency": null,
+  "log": [
+   "[I][18:57:58.610203] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b63c2e95b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"127.0.0.1\" destination.port = 46200 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99b_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true rtp.ptime = 20 rtp.framecount = 960 } }",
+   "[W][18:57:58.610473] mod.rtp-sink | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 0.000000 should be an integer multiple of rtp.ptime 0.000000"
+  ]
+ },
+ "stream_props_ptime20_fc480_inconsistent": {
+  "core_up": true,
+  "msg": "core up",
+  "ptime": 20,
+  "framecount": 480,
+  "node_latency": "960/48000",
+  "log": [
+   "[I][18:57:59.540693] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55e71d494010: set output/input latency 0.000000-0.000000 0-0 0-0",
+   "[I][18:57:59.540825] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000",
+   "[I][18:57:59.543915] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000"
+  ]
+ },
+ "stream_props_ptime20_only": {
+  "core_up": true,
+  "msg": "core up",
+  "ptime": 20,
+  "framecount": 960,
+  "node_latency": "960/48000",
+  "log": [
+   "[I][18:58:01.082871] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55f6c4ce1da0: set output/input latency 0.000000-0.000000 0-0 0-0",
+   "[I][18:58:01.082993] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000",
+   "[I][18:58:01.087133] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000"
+  ]
+ },
+ "module_args_ptime20_fc480_inconsistent": {
+  "core_up": true,
+  "msg": "core up",
+  "ptime": 1.0,
+  "framecount": 48,
+  "node_latency": "48/48000",
+  "log": [
+   "[I][18:58:02.631591] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x56502728efa0: set output/input latency 0.000000-0.000000 0-0 0-0",
+   "[I][18:58:02.631724] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000",
+   "[I][18:58:02.633219] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000"
+  ]
+ }
+}

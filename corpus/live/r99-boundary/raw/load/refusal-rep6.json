@@ -1,0 +1,68 @@
+{
+ "cell": "refusal",
+ "rep": 6,
+ "pass": "load",
+ "loadavg_start": [
+  123.64,
+  115.79,
+  108.54
+ ],
+ "procs_running_start": 120,
+ "t_start": 1792100955.9214976,
+ "case": "tiny_mtu_wp",
+ "with_wp": true,
+ "core_up": true,
+ "msg": "core+wp up",
+ "node": {
+  "id": 30,
+  "state": "running",
+  "n_in": 2,
+  "n_out": 2,
+  "props": {
+   "media.class": "Audio/Sink",
+   "media.name": "RTP Session with plazir27",
+   "node.always-process": true,
+   "node.autoconnect": true,
+   "node.description": "plazir27",
+   "node.driver-id": 26,
+   "node.latency": "48/48000",
+   "node.loop.name": "data-loop.0",
+   "node.name": "r99b_sink",
+   "node.network": true,
+   "node.rate": "1/48000",
+   "node.virtual": false,
+   "node.want-driver": true,
+   "rtp.channels": 2,
+   "rtp.destination.ip": "127.0.0.1",
+   "rtp.destination.port": 46200,
+   "rtp.dscp": 34,
+   "rtp.framecount": 48,
+   "rtp.media": "audio",
+   "rtp.mime": "L16",
+   "rtp.payload": 127,
+   "rtp.ptime": 1.0,
+   "rtp.rate": 48000,
+   "rtp.sender-ts-offset": 1655787826,
+   "rtp.source.ip": "0.0.0.0",
+   "rtp.ssrc": 4214838327,
+   "rtp.ttl": 1
+  }
+ },
+ "udp_sockets": [
+  "0 0 127.0.0.1:34263 127.0.0.1:46200 users:((\"pipewire\",pid=1955332,fd=38))"
+ ],
+ "log_tail": [
+  "[I][18:49:16.589010] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818627ea20 disconnected",
+  "[I][18:49:16.613118] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818628b3e0 disconnected",
+  "[W][18:49:16.657062] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+  "[I][18:49:18.133273] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818628b3e0 disconnected"
+ ],
+ "ok": true,
+ "t_end": 1792100959.0119748,
+ "wall_s": 3.09,
+ "loadavg_end": [
+  123.19,
+  115.82,
+  108.59
+ ]
+}

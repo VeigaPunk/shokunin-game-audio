@@ -1,0 +1,88 @@
+{
+ "cell": "src_unicast",
+ "rep": 0,
+ "pass": "quiet",
+ "loadavg_start": [
+  108.33,
+  105.67,
+  99.89
+ ],
+ "procs_running_start": 107,
+ "t_start": 1792100139.3480341,
+ "core_up": true,
+ "msg": "core+wp up",
+ "arm": "same-port",
+ "udp_sockets": [
+  "0 0 127.0.0.1:46202 127.0.0.1:46202 users:((\"pipewire\",pid=1086717,fd=42))"
+ ],
+ "send": "{\"sent\": 2500, \"bytes\": 510000, \"dest\": [\"127.0.0.1\", 46202], \"from_port\": 46202, \"ts0\": 1000000}",
+ "src_props": {
+  "id": 30,
+  "state": "running",
+  "n_in": 0,
+  "n_out": 2,
+  "props": {
+   "audio.channels": 2,
+   "audio.format": "S16BE",
+   "audio.rate": 48000,
+   "media.class": "Audio/Source",
+   "media.name": "RTP Session with plazir27",
+   "net.header": 28,
+   "net.mtu": 1280,
+   "node.always-process": true,
+   "node.autoconnect": true,
+   "node.description": "plazir27",
+   "node.driver-id": 26,
+   "node.latency": "2325/48000",
+   "node.loop.name": "data-loop.0",
+   "node.name": "r99b_src_u",
+   "node.network": true,
+   "node.rate": "1/48000",
+   "node.virtual": false,
+   "node.want-driver": true,
+   "rtp.channels": 2,
+   "rtp.media": "audio",
+   "rtp.mime": "L16",
+   "rtp.payload": 127,
+   "rtp.rate": 48000,
+   "rtp.receiver-ts-offset": 2876736597,
+   "rtp.receiving": true,
+   "rtp.source.ip": "127.0.0.1",
+   "rtp.source.port": 46202,
+   "rtp.ssrc": 0,
+   "sess.latency.msec": 100
+  }
+ },
+ "wav": {
+  "bytes": 917548,
+  "frames": 229376,
+  "rate": 48000,
+  "channels": 2,
+  "peak_l": 0.5,
+  "peak_r": 0.5,
+  "goertzel_L": {
+   "440": 61.1,
+   "997": 803483336.1,
+   "2000": 10.8
+  },
+  "goertzel_R": {
+   "440": 61.1,
+   "997": 803483336.1,
+   "2000": 10.8
+  }
+ },
+ "witness": [
+  "[I][18:35:39.838874] pw.node      | [     impl-node.c: 1243 check_properties()] 0x560e83368fe0: async 0 -> 1",
+  "[I][18:35:39.879338] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (30.0.0 -> 37.0.0) (r99b_src_u) -> (pw-record) async:0:0:1:001a:001a:1",
+  "[I][18:35:39.879474] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (30.1.0 -> 37.1.0) (r99b_src_u) -> (pw-record) async:0:0:1:001a:001a:1",
+  "[I][18:35:41.118735] mod.rtp-source | [         audio.c:  378 rtp_audio_receive()] sync to timestamp:1419230699 seq:0 ts_offset:2876736597 SSRC:4009738393 target:4650 direct:0"
+ ],
+ "ok": true,
+ "t_end": 1792100146.2087042,
+ "wall_s": 6.861,
+ "loadavg_end": [
+  108.46,
+  105.75,
+  99.94
+ ]
+}

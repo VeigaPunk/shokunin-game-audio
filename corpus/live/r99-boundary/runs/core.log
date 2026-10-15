@@ -1,0 +1,386 @@
+[I][18:58:13.987797] pw.context   | [      pipewire.c:  592 pw_init()] version 1.6.8
+[I][18:58:13.991252] pw.conf      | [          conf.c:  420 conf_load()] 0x560f6b554730: loaded config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' with 6 items
+[I][18:58:13.991374] pw.conf      | [          conf.c:  420 conf_load()] 0x560f6b5596b0: loaded config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf.d/10-r99b.conf' with 2 items
+[I][18:58:13.991431] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.properties'
+[I][18:58:13.991463] pw.conf      | [          conf.c: 1119 pw_conf_section_for_each()] handle override '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf.d/10-r99b.conf' section 'context.properties'
+[I][18:58:13.991485] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.properties.rules'
+[I][18:58:13.991507] pw.context   | [       context.c:  473 pw_context_new()] 0x560f6b5535b0: parsed 6 context.properties items
+[I][18:58:13.991554] pw.context   | [       context.c:  272 setup_data_loops()] created data loop 'data-loop.0'
+[I][18:58:13.991577] pw.context   | [       context.c:  275 setup_data_loops()] created 1 data-loops
+[I][18:58:13.997422] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.spa-libs'
+[I][18:58:13.997527] pw.context   | [       context.c:  567 pw_context_new()] 0x560f6b5535b0: parsed 10 context.spa-libs items
+[I][18:58:13.997555] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.modules'
+[I][18:58:13.997587] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-protocol-native args:{
+            # List of server Unix sockets, and optionally permissions
+            #sockets = [ { name = "pipewire-0" }, { name = "pipewire-0-manager" } ]
+        }
+[I][18:58:13.997758] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x560f6b565480: Listening on 'pipewire-0'
+[I][18:58:13.997837] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x560f6b565480: Listening on 'pipewire-0-manager'
+[I][18:58:13.997866] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-protocol-native
+[I][18:58:13.997889] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-metadata args:(null)
+[I][18:58:13.997962] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-metadata
+[I][18:58:13.997988] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-spa-device-factory args:(null)
+[I][18:58:13.998046] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-spa-device-factory
+[I][18:58:13.998080] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-spa-node-factory args:(null)
+[I][18:58:13.998134] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-spa-node-factory
+[I][18:58:13.998158] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-client-node args:(null)
+[I][18:58:13.998220] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-client-node
+[I][18:58:13.998241] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-client-device args:(null)
+[I][18:58:13.998300] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-client-device
+[I][18:58:13.998328] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-access args:{
+            # Socket-specific access permissions
+            #access.socket = { pipewire-0 = "default", pipewire-0-manager = "unrestricted" }
+
+            # Deprecated legacy mode (not socket-based),
+            # for now enabled by default if access.socket is not specified
+            #access.legacy = true
+        }
+[I][18:58:13.998530] mod.access   | [ module-access.c:  357 parse_args()] Using backward-compatible legacy access mode.
+[I][18:58:13.998573] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-access
+[I][18:58:13.998594] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-adapter args:(null)
+[I][18:58:13.998650] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-adapter
+[I][18:58:13.998674] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-link-factory args:{
+            #allow.link.passive = false
+	}
+[I][18:58:13.998730] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-link-factory
+[I][18:58:13.998750] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-session-manager args:(null)
+[I][18:58:13.998814] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-session-manager
+[I][18:58:13.998833] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-x11-bell args:{
+            #sink.name = "@DEFAULT_SINK@"
+            #sample.name = "bell-window-system"
+            #x11.display = null
+            #x11.xauthority = null
+        }
+[I][18:58:13.998875] pw.module    | [   impl-module.c:  261 pw_context_load_module()] No module "libpipewire-module-x11-bell" was found
+[I][18:58:13.998900] pw.conf      | [          conf.c:  604 load_module()] 0x560f6b5535b0: skipping unavailable module libpipewire-module-x11-bell
+[I][18:58:13.998925] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-jackdbus-detect args:{
+            #jack.library     = libjack.so.0
+            #jack.server      = null
+            #jack.client-name = PipeWire
+            #jack.connect     = true
+            #tunnel.mode      = duplex  # source|sink|duplex
+            source.props = {
+                #audio.channels = 2
+		#midi.ports = 1
+                #audio.position = [ FL FR ]
+                # extra sink properties
+            }
+            sink.props = {
+                #audio.channels = 2
+		#midi.ports = 1
+                #audio.position = [ FL FR ]
+                # extra sink properties
+            }
+        }
+[I][18:58:13.998982] pw.module    | [   impl-module.c:  261 pw_context_load_module()] No module "libpipewire-module-jackdbus-detect" was found
+[I][18:58:13.999004] pw.conf      | [          conf.c:  604 load_module()] 0x560f6b5535b0: skipping unavailable module libpipewire-module-jackdbus-detect
+[I][18:58:13.999022] pw.conf      | [          conf.c: 1119 pw_conf_section_for_each()] handle override '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf.d/10-r99b.conf' section 'context.modules'
+[I][18:58:13.999045] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560f6b5535b0: name:libpipewire-module-rtp-sink args:{ destination.ip = "127.0.0.1" destination.port = 46250 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = "S16BE" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = "r99b_sink" media.class = "Audio/Sink" node.virtual = false node.always-process = true rtp.ptime = 20 } }
+[I][18:58:13.999225] mod.protocol-native | [  local-socket.c:   72 try_connect()] connecting to 'pipewire-0' runtime_dir:/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/run
+[I][18:58:13.999287] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'(null)' class:'(null)'
+[I][18:58:13.999314] pw.context   | [       context.c:  287 data_loop_start()] starting data loop data-loop.0
+[I][18:58:13.999381] default      | [        thread.c:  161 impl_acquire_rt()] acquire_rt thread:0x7f149dbfe6c0 prio:-1 not implemented
+[I][18:58:13.999414] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x560f6b55cdd8 created queue 0x560f6b591ec0 idx:0 0x7f149f14abc0
+[I][18:58:13.999445] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225103257290
+[I][18:58:13.999496] mod.rtp-sink | [         audio.c:  884 setup_ptp_sender()] AES67 driver group not specified, no separate sender configured
+[I][18:58:14.002368] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'(null)' class:'(null)'
+[I][18:58:14.002398] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225106341282
+[I][18:58:14.002423] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225106341282
+[I][18:58:14.002465] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.002488] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225106431992
+[I][18:58:14.002619] spa.audioadapter | [  audioadapter.c: 2193 impl_init()] 0x560f6b5a9818: loaded converter audio.convert, hnd 0x7f149e4df010, convert 0x7f149e4df028
+[I][18:58:14.002656] spa.audioadapter | [  audioadapter.c: 1254 follower_convert_port_info()] new EnumFormat from converter
+[I][18:58:14.002682] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x560f6b57fda0: set output/input latency 0.000000-0.000000 0-0 0-0
+[I][18:58:14.002711] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.002730] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225106673842
+[I][18:58:14.002776] pw.node      | [     impl-node.c: 1216 check_properties()] 0x560f6b5bb140: sync group '(null)'->'group.sync.0'
+[I][18:58:14.002798] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000
+[I][18:58:14.002822] pw.node      | [     impl-node.c: 1303 check_properties()] (r99b_sink-0) rate:0/0 -> 1/48000
+[I][18:58:14.002855] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-0) creating -> suspended
+[I][18:58:14.002925] mod.rtp-sink | [module-rtp-sink.:  680 pipewire__module_init()] Successfully loaded module-rtp-sink
+[I][18:58:14.002945] pw.conf      | [          conf.c:  615 load_module()] 0x560f6b5535b0: loaded module libpipewire-module-rtp-sink
+[I][18:58:14.002965] pw.context   | [       context.c:  571 pw_context_new()] 0x560f6b5535b0: parsed 13 context.modules items
+[I][18:58:14.002987] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.objects'
+[I][18:58:14.003022] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'(null)' class:'(null)'
+[I][18:58:14.003042] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225106985342
+[I][18:58:14.003063] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225106985342
+[I][18:58:14.003092] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.003117] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225107060712
+[I][18:58:14.003143] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.003163] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225107106482
+[I][18:58:14.003200] pw.node      | [     impl-node.c: 1189 check_properties()] 0x560f6b5c2fb0: group '(null)'->'pipewire.dummy'
+[I][18:58:14.003227] pw.node      | [     impl-node.c: 1216 check_properties()] 0x560f6b5c2fb0: sync group '(null)'->'sync.dummy'
+[I][18:58:14.003254] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-26) creating -> suspended
+[I][18:58:14.003277] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:register active node
+[I][18:58:14.003307] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'(null)' class:'(null)'
+[I][18:58:14.003326] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225107269152
+[I][18:58:14.003345] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225107269152
+[I][18:58:14.003364] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.003383] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225107326372
+[I][18:58:14.003408] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.003426] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225107369432
+[I][18:58:14.003455] pw.node      | [     impl-node.c: 1189 check_properties()] 0x560f6b5c4a00: group '(null)'->'pipewire.freewheel'
+[I][18:58:14.003475] pw.node      | [     impl-node.c: 1216 check_properties()] 0x560f6b5c4a00: sync group '(null)'->'sync.dummy'
+[I][18:58:14.003501] pw.node      | [     impl-node.c:  509 node_update_state()] (Freewheel-Driver-27) creating -> suspended
+[I][18:58:14.003522] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:register active node
+[I][18:58:14.003544] pw.context   | [       context.c:  576 pw_context_new()] 0x560f6b5535b0: parsed 2 context.objects items
+[I][18:58:14.003564] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/conf/pw/r99b-pipewire.conf' section 'context.exec'
+[I][18:58:14.003587] pw.context   | [       context.c:  579 pw_context_new()] 0x560f6b5535b0: parsed 0 context.exec items
+[I][18:58:14.003611] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:log.level type: value:3
+[I][18:58:14.003634] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.rate type: value:48000
+[I][18:58:14.003655] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.allowed-rates type: value:[ 48000 ]
+[I][18:58:14.003676] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.quantum type: value:1024
+[I][18:58:14.003694] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.min-quantum type: value:32
+[I][18:58:14.003712] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.max-quantum type: value:2048
+[I][18:58:14.003733] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.force-quantum type: value:0
+[I][18:58:14.006584] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x560f6b5be850: add id:0 key:clock.force-rate type: value:0
+[I][18:58:14.006620] default      | [      pipewire.c:  129 main()] start main loop
+[I][18:58:14.006653] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b565e80: security label not available
+[I][18:58:14.006729] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5c6e00 has trusted pid 2391359
+[I][18:58:14.006765] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5c6e00 'unrestricted' access granted
+[I][18:58:14.006792] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5c6e00: set default permissions 00000000 -> 000001c8
+[I][18:58:14.006829] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.006850] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225110793295
+[I][18:58:14.006891] pw.node      | [     impl-node.c: 1216 check_properties()] 0x560f6b5dcd40: sync group '(null)'->'group.sync.0'
+[I][18:58:14.006917] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000
+[I][18:58:14.006937] pw.node      | [     impl-node.c: 1303 check_properties()] (r99b_sink-0) rate:0/0 -> 1/48000
+[I][18:58:14.006994] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-30) creating -> suspended
+[I][18:58:14.007026] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node activate
+[I][18:58:14.007032] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (r99b_sink-30) -> change driver (r99b_sink-30 -> Dummy-Driver-26)
+[I][18:58:14.007045] pw.context   | [       context.c: 1761 pw_context_recalc_graph()] (Dummy-Driver-26) new quantum:1024->512
+[I][18:58:14.007064] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-26) suspended -> running
+[I][18:58:14.202378] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b565e80: security label not available
+[I][18:58:14.202470] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5e09f0 has trusted pid 2391424
+[I][18:58:14.202505] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5e09f0 'unrestricted' access granted
+[I][18:58:14.202531] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5e09f0: set default permissions 00000000 -> 000001c8
+[I][18:58:14.203180] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x560f6b565480: connection_data: client 0x560f6b5e09f0 disconnected
+[I][18:58:14.218213] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b566360: security label not available
+[I][18:58:14.218348] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5e09f0 has trusted pid 2391428
+[I][18:58:14.218389] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5e09f0 'unrestricted' access granted
+[I][18:58:14.218413] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5e09f0: set default permissions 00000000 -> 000001c8
+[I][18:58:14.223445] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b566360: security label not available
+[I][18:58:14.223513] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5ed3b0 has trusted pid 2391429
+[I][18:58:14.223530] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5ed3b0 'unrestricted' access granted
+[I][18:58:14.223539] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5ed3b0: set default permissions 00000000 -> 000001c8
+[I][18:58:14.252638] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x560f6b565480: connection_data: client 0x560f6b5ed3b0 disconnected
+[I][18:58:14.309678] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5c6e00: set default permissions 000001c8 -> 000001fe
+[I][18:58:14.309721] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5e09f0: set default permissions 000001c8 -> 000001c8
+[I][18:58:14.309837] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node flags changed
+[I][18:58:14.309958] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node flags changed
+[I][18:58:14.310082] spa.audioadapter | [  audioadapter.c:  512 negotiate_buffers()] 0x560f6b5a9818: buffers:1, blocks:1, size:49152, stride:4 align:16 0:0
+[I][18:58:14.310103] spa.audioconvert | [  audioconvert.c: 2085 setup_in_convert()] 0x7f149e4df010: Spa:Enum:AudioFormat:F32P/2@48000->Spa:Enum:AudioFormat:F32P/2@48000
+[I][18:58:14.310112] spa.audioconvert | [  audioconvert.c: 1274 ensure_tmp()] resize ports 0 -> 2
+[I][18:58:14.310118] spa.audioconvert | [  audioconvert.c: 2254 setup_channelmix()] in  FL FR (0000000000000018)
+[I][18:58:14.310124] spa.audioconvert | [  audioconvert.c: 2256 setup_channelmix()] out FL FR (0000000000000018)
+[I][18:58:14.310129] spa.audioconvert | [  audioconvert.c: 2259 setup_channelmix()] 0x7f149e4df010: Spa:Enum:AudioFormat:F32P/2@48000->Spa:Enum:AudioFormat:F32P/2@48000 00000018:00000018
+[I][18:58:14.310142][channelmix-ops.c:  179 match_mix()] matched channel 1 (1.000000)
+[I][18:58:14.310154][channelmix-ops.c:  179 match_mix()] matched channel 2 (1.000000)
+[I][18:58:14.310159][channelmix-ops.c:  270 make_matrix()] unassigned downmix 00000000 00000000
+[I][18:58:14.310164][channelmix-ops.c:  597 make_matrix()] unassigned upmix 00000000 lfe:0.000000
+[I][18:58:14.310169][channelmix-ops.c:  751 make_matrix()]      FL    FR    
+[I][18:58:14.310173][channelmix-ops.c:  753 make_matrix()] 000 FL   1.000          1.000000
+[I][18:58:14.310181][channelmix-ops.c:  753 make_matrix()] 001 FR         1.000    1.000000
+[I][18:58:14.310189] spa.audioconvert | [  audioconvert.c: 2303 setup_resample()] 0x7f149e4df010: Spa:Enum:AudioFormat:F32P/2@48000->Spa:Enum:AudioFormat:F32P/2@48000
+[I][18:58:14.310401] spa.resample | [resample-native.:  575 resample_native_init()] native 0x7f149e515d70: c:0.870000 q:4 w:0 in:48000 out:48000 gcd:48000 n_taps:56 n_phases:256 features:000fcbdb:00018000
+[I][18:58:14.310409] spa.audioconvert | [  audioconvert.c: 2378 setup_out_convert()] 0x7f149e4df010: Spa:Enum:AudioFormat:F32P/2@48000->Spa:Enum:AudioFormat:S16BE/2@48000
+[I][18:58:14.310415] spa.audioconvert | [  audioconvert.c: 1247 ensure_tmp()] resize tmp 0 -> 49152
+[I][18:58:14.310978] mod.rtp-sink | [        stream.c:  410 stream_start()] stream started
+[I][18:58:14.311036] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-30) suspended -> running
+[I][18:58:14.311098] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-30) suspended -> running
+[I][18:58:14.317783] mod.rtp-sink | [         audio.c:  710 rtp_audio_process_capture()] (re)sync to timestamp:922820175 seq:63491 ts_offset:1281716565 ts_align:922820175 SSRC:804081426
+[W][18:58:14.348376] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused
+[I][18:58:14.663574] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b565e80: security label not available
+[I][18:58:14.664218] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5ed3b0 has trusted pid 2391658
+[I][18:58:14.664246] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5ed3b0 'unrestricted' access granted
+[I][18:58:14.664255] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5ed3b0: set default permissions 00000000 -> 000001c8
+[I][18:58:14.664284] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'main-loop' class:'main'
+[I][18:58:14.664297] pw.context   | [       context.c:  811 pw_context_acquire_loop()] 0x560f6b5535b0: using main loop num-data-loops:1
+[I][18:58:14.664316] pw.node      | [     impl-node.c: 1216 check_properties()] 0x560f6b6a5e10: sync group '(null)'->'group.sync.0'
+[I][18:58:14.664321] pw.node      | [     impl-node.c: 1243 check_properties()] 0x560f6b6a5e10: async 0 -> 1
+[I][18:58:14.664326] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_play_ax-0) latency:0/0 -> 4800/48000
+[I][18:58:14.664331] pw.node      | [     impl-node.c: 1303 check_properties()] (r99b_play_ax-0) rate:0/0 -> 1/48000
+[I][18:58:14.664395] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_play_ax-45) creating -> suspended
+[I][18:58:14.664433] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node activate
+[I][18:58:14.673017] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5ed3b0: set default permissions 000001c8 -> 000001fe
+[I][18:58:14.682430] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node flags changed
+[I][18:58:14.687575] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (45.0.0 -> 30.0.0) (r99b_play_ax) -> (r99b_sink) async:0:1:0:001a:001a:1
+[I][18:58:14.687605] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 46: 0x560f6b6aaa30 set input cap 0x7ffff0805da0 0
+[I][18:58:14.687613] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][18:58:14.687619] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (40), flags 00000000
+[I][18:58:14.687623] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][18:58:14.687627] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 40: 0x560f6b6229f0 set output cap 0x7ffff0805da0 0
+[I][18:58:14.687632] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][18:58:14.687637] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (46), flags 00000000
+[I][18:58:14.687640] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][18:58:14.687645] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 46: set input latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.687656] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 40: set output latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.687663] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 46: 0x560f6b6aaa30 set input tag 0x7ffff0805da0
+[I][18:58:14.687667] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][18:58:14.687671] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][18:58:14.687675] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][18:58:14.687680] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 40: 0x560f6b6229f0 set output tag 0x7ffff0805da0
+[I][18:58:14.687684] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 512, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][18:58:14.687688] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][18:58:14.687692] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][18:58:14.687701] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:info (2), flags 00000000
+[I][18:58:14.687712] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Struct: size 464
+[I][18:58:14.687716] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       Int 6
+[I][18:58:14.687721] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.format"
+[I][18:58:14.687724] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "WAV (Microsoft)"
+[I][18:58:14.687729] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.type"
+[I][18:58:14.687732] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Audio"
+[I][18:58:14.687736] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.category"
+[I][18:58:14.687739] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Playback"
+[I][18:58:14.687743] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.role"
+[I][18:58:14.687747] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Music"
+[I][18:58:14.687750] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.filename"
+[I][18:58:14.687754] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/scratch/tone997_s16_48k_st.wav"
+[I][18:58:14.687758] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.name"
+[I][18:58:14.687761] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/scratch/tone997_s16_48k_st.wav"
+[I][18:58:14.687793] pw.link      | [     impl-link.c: 1605 pw_context_create_link()] (45.1.0 -> 30.1.0) (r99b_play_ax) -> (r99b_sink) async:0:1:0:001a:001a:1
+[I][18:58:14.687798] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 47: 0x560f6b6ad020 set input cap 0x7ffff0805da0 0
+[I][18:58:14.687802] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][18:58:14.687806] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (41), flags 00000000
+[I][18:58:14.687810] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][18:58:14.687815] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 41: 0x560f6b623c70 set output cap 0x7ffff0805da0 0
+[I][18:58:14.687819] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()] Object: size 24, type Spa:Pod:Object:PeerParam (262158), id Spa:Enum:ParamId:PeerCapability (20)
+[I][18:58:14.687823] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]   Prop: key unknown (47), flags 00000000
+[I][18:58:14.687827] pw.port      | [     impl-port.c: 2028 pw_impl_port_recalc_capability()]     None
+[I][18:58:14.687830] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 47: set input latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.687835] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 41: set output latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.687840] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 47: 0x560f6b6ad020 set input tag 0x7ffff0805da0
+[I][18:58:14.687844] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 32, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][18:58:14.687849] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][18:58:14.687853] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 0        (Spa:Enum:Direction:Input)
+[I][18:58:14.687859] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 41: 0x560f6b623c70 set output tag 0x7ffff0805da0
+[I][18:58:14.687865] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()] Object: size 512, type Spa:Pod:Object:Param:Tag (262157), id Spa:Enum:ParamId:Tag (17)
+[I][18:58:14.687871] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:direction (1), flags 00000000
+[I][18:58:14.687875] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Id 1        (Spa:Enum:Direction:Output)
+[I][18:58:14.687878] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]   Prop: key Spa:Pod:Object:Param:Tag:info (2), flags 00000000
+[I][18:58:14.687882] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]     Struct: size 464
+[I][18:58:14.687886] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       Int 6
+[I][18:58:14.687890] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.format"
+[I][18:58:14.687894] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "WAV (Microsoft)"
+[I][18:58:14.687897] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.type"
+[I][18:58:14.687901] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Audio"
+[I][18:58:14.687905] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.category"
+[I][18:58:14.687908] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Playback"
+[I][18:58:14.687912] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.role"
+[I][18:58:14.687916] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "Music"
+[I][18:58:14.687919] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.filename"
+[I][18:58:14.687923] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/scratch/tone997_s16_48k_st.wav"
+[I][18:58:14.687927] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "media.name"
+[I][18:58:14.687933] pw.port      | [     impl-port.c: 1968 pw_impl_port_recalc_tag()]       String "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-boundary/scratch/tone997_s16_48k_st.wav"
+[I][18:58:14.687954] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x560f6b6aec90: output:1 -> input:1
+[I][18:58:14.687959] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) init -> negotiating (configure-configure)
+[I][18:58:14.687969] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][18:58:14.687973] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][18:58:14.687977] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.687981] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][18:58:14.687984] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][18:58:14.687988] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.687994] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][18:58:14.687998] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][18:58:14.688002] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.688008] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][18:58:14.688022] pw.link      | [     impl-link.c:  435 do_negotiate()] 0x560f6b6b01f0: output:1 -> input:1
+[I][18:58:14.688026] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) init -> negotiating (configure-configure)
+[I][18:58:14.688032] pw.link      | [     impl-link.c:  543 do_negotiate()] Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)
+[I][18:58:14.688036] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000
+[I][18:58:14.688040] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.688043] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 1        (Spa:Enum:MediaType:audio)
+[I][18:58:14.688047] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000
+[I][18:58:14.688051] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.688055] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 2        (Spa:Enum:MediaSubtype:dsp)
+[I][18:58:14.688067] pw.link      | [     impl-link.c:  543 do_negotiate()]   Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000
+[I][18:58:14.688083] pw.link      | [     impl-link.c:  543 do_negotiate()]     Choice: type Spa:Enum:Choice:None, flags 00000000 20 4
+[I][18:58:14.688087] pw.link      | [     impl-link.c:  543 do_negotiate()]       Id 518      (Spa:Enum:AudioFormat:F32P)
+[I][18:58:14.688123] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x560f6b57fda0: set output/input latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.688233] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.688242] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225792185281
+[I][18:58:14.688362] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x560f6b5535b0: looking for name:'data-loop.0' class:'(null)'
+[I][18:58:14.688370] pw.context   | [       context.c:  782 acquire_data_loop()] 0x560f6b5535b0: using name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:14.700168] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) negotiating -> allocating (ready-ready)
+[I][18:58:14.700223] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) negotiating -> allocating (ready-ready)
+[I][18:58:14.703192] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) allocating -> paused (paused-paused)
+[I][18:58:14.703205] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:link prepared
+[I][18:58:14.703214] pw.node      | [     impl-node.c: 1052 pw_impl_node_set_driver()] (r99b_play_ax-45) -> change driver (r99b_play_ax-45 -> Dummy-Driver-26)
+[I][18:58:14.703228] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 46: keep input latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.703235] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 40: keep output latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.703239] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 47: keep input latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.703243] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 41: keep output latency 1.000000-1.000000 0-0 0-0
+[I][18:58:14.703254] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (45.0.0 -> 30.0.0) activated
+[I][18:58:14.703257] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) paused -> active (paused-paused)
+[I][18:58:14.703264] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) allocating -> paused (paused-paused)
+[I][18:58:14.703272] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:link prepared
+[I][18:58:14.703284] pw.link      | [     impl-link.c:  824 pw_impl_link_activate()] (45.1.0 -> 30.1.0) activated
+[I][18:58:14.703288] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) paused -> active (paused-paused)
+[I][18:58:14.706313] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_play_ax-45) suspended -> running
+[I][18:58:14.984497] pw.node      | [     impl-node.c: 1394 debug_xrun_graph()] (Dummy-Driver-26) graph xrun not-triggered (0 suppressed)
+[I][18:58:14.984537] pw.node      | [     impl-node.c: 1404 debug_xrun_graph()] (Dummy-Driver-26) xrun state:0x7f149f027008 pending:1/2 s:19226062884698 a:19226062895828 f:19226062896068 waiting:11130 process:240 status:triggered
+[I][18:58:14.984546] pw.node      | [     impl-node.c: 1404 debug_xrun_graph()] (r99b_sink-30) xrun state:0x7f149f025008 pending:0/1 s:19226088431254 a:19226062889268 f:19226062895268 waiting:18446744073684009630 process:6000 status:triggered
+[I][18:58:14.984557] pw.node      | [     impl-node.c: 1574 node_on_fd_events()] (r99b_sink-30) client missed 1 wakeups
+[I][18:58:15.249166] pw.node      | [     impl-node.c: 1574 node_on_fd_events()] (r99b_sink-30) client missed 1 wakeups
+[W][18:58:15.249550] mod.rtp-sink | [         audio.c:  694 rtp_audio_process_capture()] timestamp: expected 922863183 != actual 922864207
+[I][18:58:15.249591] mod.rtp-sink | [         audio.c:  710 rtp_audio_process_capture()] (re)sync to timestamp:922864207 seq:63535 ts_offset:1281716565 ts_align:1792 SSRC:804081426
+[I][18:58:15.289333] pw.node      | [     impl-node.c: 1574 node_on_fd_events()] (r99b_sink-30) client missed 1 wakeups
+[I][18:58:15.522313] pw.node      | [     impl-node.c: 1574 node_on_fd_events()] (r99b_sink-30) client missed 1 wakeups
+[W][18:58:15.522358] mod.rtp-sink | [         audio.c:  694 rtp_audio_process_capture()] timestamp: expected 922877007 != actual 922878031
+[I][18:58:15.522365] mod.rtp-sink | [         audio.c:  710 rtp_audio_process_capture()] (re)sync to timestamp:922878031 seq:63548 ts_offset:1281716565 ts_align:1344 SSRC:804081426
+[I][18:58:15.707800] pw.node      | [     impl-node.c: 1574 node_on_fd_events()] (r99b_sink-30) client missed 1 wakeups
+[I][18:58:16.864107] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x560f6b565480: connection_data: client 0x560f6b5ed3b0 disconnected
+[I][18:58:16.864144] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r99b_play_ax-45) destroy
+[I][18:58:16.864159] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (45.0.0 -> 30.0.0) deactivated
+[I][18:58:16.864164] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) active -> paused (paused-paused)
+[I][18:58:16.864176] pw.link      | [     impl-link.c: 1010 pw_impl_link_deactivate()] (45.1.0 -> 30.1.0) deactivated
+[I][18:58:16.864180] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) active -> paused (paused-paused)
+[I][18:58:16.864188] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) paused -> negotiating (paused-ready)
+[I][18:58:16.864193] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:2 reason:link unprepared
+[I][18:58:16.864210] pw.link      | [     impl-link.c:  112 link_update_state()] (45.0.0 -> 30.0.0) negotiating -> init (configure-ready)
+[I][18:58:16.864216] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) paused -> negotiating (paused-ready)
+[I][18:58:16.864221] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:2 reason:link unprepared
+[I][18:58:16.864229] pw.link      | [     impl-link.c:  112 link_update_state()] (45.1.0 -> 30.1.0) negotiating -> init (configure-ready)
+[I][18:58:16.864233] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_play_ax-45) running -> suspended
+[I][18:58:16.864247] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (45.0.0 -> 30.0.0) destroy
+[I][18:58:16.864266] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 40: 0x560f6b6229f0 set output cap (nil) 0
+[I][18:58:16.864272] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 40: set output latency 0.000000-0.000000 0-0 0-0
+[I][18:58:16.864282] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 40: 0x560f6b6229f0 set output tag (nil)
+[I][18:58:16.864310] pw.link      | [     impl-link.c: 1754 pw_impl_link_destroy()] (45.1.0 -> 30.1.0) destroy
+[I][18:58:16.864318] pw.port      | [     impl-port.c: 2020 pw_impl_port_recalc_capability()] port 41: 0x560f6b623c70 set output cap (nil) 0
+[I][18:58:16.864322] pw.port      | [     impl-port.c: 1889 pw_impl_port_recalc_latency()] port 41: set output latency 0.000000-0.000000 0-0 0-0
+[I][18:58:16.864328] pw.port      | [     impl-port.c: 1960 pw_impl_port_recalc_tag()] port 41: 0x560f6b623c70 set output tag (nil)
+[I][18:58:16.864347] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:1 reason:active node destroy
+[I][18:58:16.864352] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node destroy
+[I][18:58:16.864556] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x560f6b57fda0: set output/input latency 0.000000-0.000000 0-0 0-0
+[W][18:58:17.143054] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (1 suppressed) sendmsg() failed: Connection refused
+[I][18:58:17.385966] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x560f6b566360: security label not available
+[I][18:58:17.386062] mod.access   | [ module-access.c:  199 context_check_access()] client 0x560f6b5ed3b0 has trusted pid 2392649
+[I][18:58:17.386111] mod.access   | [ module-access.c:  243 context_check_access()] 0x560f6b572fd0: client 0x560f6b5ed3b0 'unrestricted' access granted
+[I][18:58:17.386137] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5ed3b0: set default permissions 00000000 -> 000001c8
+[I][18:58:17.390183] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x560f6b5ed3b0: set default permissions 000001c8 -> 000001fe
+[I][18:58:17.394744] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x560f6b565480: connection_data: client 0x560f6b5ed3b0 disconnected
+[I][18:58:17.398668] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x560f6b5525d8 created queue 0x560f6b692890 idx:0 0x7f149f14abc0
+[I][18:58:17.398721] default      | [      pipewire.c:  131 main()] leave main loop
+[I][18:58:17.398758] mod.rtp-sink | [        stream.c:  436 stream_stop()] closing connection as part of stopping the stream
+[I][18:58:17.398880] mod.rtp-sink | [        stream.c:  468 stream_stop()] stream stopped
+[I][18:58:17.398919] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-30) running -> suspended
+[I][18:58:17.398958] mod.rtp-sink | [        stream.c:  481 on_stream_state_changed()] stream disconnected
+[I][18:58:17.398980] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r99b_sink-30) destroy
+[I][18:58:17.399086] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:17.399167] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r99b_sink-30) destroy
+[I][18:58:17.399190] pw.node      | [     impl-node.c:  509 node_update_state()] (r99b_sink-30) running -> suspended
+[I][18:58:17.399243] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:1 reason:active node destroy
+[I][18:58:17.399264] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node destroy
+[I][18:58:17.399304] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:17.399362] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (Dummy-Driver-26) destroy
+[I][18:58:17.400269] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-26) running -> suspended
+[I][18:58:17.400354] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:1 reason:active node destroy
+[I][18:58:17.400384] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node destroy
+[I][18:58:17.400420] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:17.400453] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (Freewheel-Driver-27) destroy
+[I][18:58:17.400475] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:1 reason:active node destroy
+[I][18:58:17.400493] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x560f6b5535b0: busy:0 reason:node destroy
+[I][18:58:17.400521] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:17.400578] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:19225792313651
+[I][18:58:17.401002] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x560f6b55cdd8 destroyed queue 0x560f6b591ec0 idx:0
+[I][18:58:17.401066] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x560f6b5525d8 destroyed queue 0x560f6b692890 idx:0

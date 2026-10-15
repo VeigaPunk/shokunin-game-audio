@@ -1,0 +1,67 @@
+{
+ "cell": "refusal",
+ "rep": 5,
+ "pass": "quiet",
+ "loadavg_start": [
+  120.81,
+  109.35,
+  102.07
+ ],
+ "procs_running_start": 110,
+ "t_start": 1792100316.2185776,
+ "case": "bad_ifname_wp",
+ "with_wp": true,
+ "core_up": true,
+ "msg": "core+wp up",
+ "node": {
+  "id": 30,
+  "state": "suspended",
+  "n_in": 2,
+  "n_out": 2,
+  "props": {
+   "media.class": "Audio/Sink",
+   "media.name": "RTP Session with plazir27",
+   "node.always-process": true,
+   "node.autoconnect": true,
+   "node.description": "plazir27",
+   "node.driver-id": 26,
+   "node.latency": "48/48000",
+   "node.loop.name": "data-loop.0",
+   "node.name": "r99b_sink",
+   "node.network": true,
+   "node.rate": "1/48000",
+   "node.virtual": false,
+   "node.want-driver": true,
+   "rtp.channels": 2,
+   "rtp.destination.ip": "127.0.0.1",
+   "rtp.destination.port": 46200,
+   "rtp.dscp": 34,
+   "rtp.framecount": 48,
+   "rtp.media": "audio",
+   "rtp.mime": "L16",
+   "rtp.payload": 127,
+   "rtp.ptime": 1.0,
+   "rtp.rate": 48000,
+   "rtp.sender-ts-offset": 2651624343,
+   "rtp.source.ip": "0.0.0.0",
+   "rtp.ssrc": 2439627045,
+   "rtp.ttl": 1
+  }
+ },
+ "udp_sockets": [],
+ "log_tail": [
+  "[E][18:38:36.941553] mod.rtp-sink | [        stream.c:  484 on_stream_state_changed()] stream error: Can't make socket: No such device",
+  "[E][18:38:36.941588] pw.core      | [     impl-core.c:  221 core_error()] 0x55c8b1b435b0: error -19 for resource 2: Can't make socket: No such device",
+  "[E][18:38:36.941593] mod.client-node | [   client-node.c: 1266 client_node_resource_error()] 0x55c8b1bcc5b0: error seq:34 -19 (Can't make socket: No such device)",
+  "[W][18:38:36.942593] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Bad file descriptor",
+  "[I][18:38:38.406619] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55c8b1b55610: connection_data: client 0x55c8b1bce300 disconnected"
+ ],
+ "ok": true,
+ "t_end": 1792100319.2892308,
+ "wall_s": 3.071,
+ "loadavg_end": [
+  120.34,
+  109.44,
+  102.14
+ ]
+}

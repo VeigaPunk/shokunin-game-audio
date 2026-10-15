@@ -1,0 +1,37 @@
+{
+ "probe": "r99b confinement: 20 s windows, enp7s0 tx_packets+tx_bytes",
+ "idle1": {
+  "sec": 20,
+  "pkts": 12322,
+  "bytes": 9314741
+ },
+ "module_lo": {
+  "sec": 20,
+  "pkts": 9914,
+  "bytes": 7279712,
+  "rtp_emitted": 19588,
+  "rtp_sizes": [
+   204
+  ],
+  "rtp_bytes_if_egressed": 3995952,
+  "node": "r99b_sink_lan2 dest 239.255.42.99:46230 local.ifname=lo"
+ },
+ "idle2": {
+  "sec": 20,
+  "pkts": 11003,
+  "bytes": 9388475
+ },
+ "synthetic_lo_3000pkts": {
+  "sec": 5,
+  "delta_pkts": 3193,
+  "matched_idle_per_8s": [
+   4991,
+   5332,
+   4997
+  ],
+  "recv_lo": 3000,
+  "recv_en": 3000,
+  "note": "SO_BINDTODEVICE(lo)+IP_MULTICAST_IF(127.0.0.1); delta is BELOW the matched idle rate"
+ },
+ "interpretation": "19588 multicast RTP packets were emitted; the enp7s0 window that contains them is below both bracketing idle windows (9914 vs 12322/11003 packets and 7.28 vs 9.31/9.39 MB). If the stream had egressed, +19588 packets / +4.0 MB would appear. The local copy is still delivered to sockets joined on ANY interface of this host (loopback of the lo-bound send), which is why an enp7s0-joined receiver sees the stream with the host's own LAN address as peer."
+}

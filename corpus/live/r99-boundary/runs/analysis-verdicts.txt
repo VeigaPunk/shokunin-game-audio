@@ -1,0 +1,31 @@
+id           verdict                                        claim
+C1           CONFIRMED                                      34 modules / 10 network-capable / roc-zeroconf-snapcast absent / no man pages
+C2           CONFIRMED                                      sink props with explicit 1 ms ptime: 204 B L16 stream, send_*/monitor_* ports
+C2b          FALSIFIED                                      the sink *defaults* are a 1 ms / 48-frame L16 stream
+C3           CONFIRMED                                      sink socket = connected UDP with an ephemeral source port
+C3b          CONFIRMED                                      two sinks on one destination coexist
+C4           CONFIRMED                                      wire: 204 B, V=2, PT=127, seq+1, one size
+C4b          CONFIRMED                                      ts-delta set is {48,80,96,112,128,144}
+C5           CONFIRMED                                      tone survives the wire sample-exact (peak 0.499969, 997 dominant)
+C6           CONFIRMED                                      native end-to-end sink->mcast(lo)->source->pw-record carries the tone
+C7           CONFIRMED                                      local.ifname=lo keeps the multicast send off the LAN
+C8           CONFIRMED                                      source.port=0 is a hard init error (rc 234)
+C8b          CONFIRMED                                      unicast source = connected socket; only packets from source.port accepted
+C9           CONFIRMED                                      packetization table (6 cells)
+C9b          FALSIFIED                                      50/100 cell is capped at 2048 B on the wire
+C10          CONFIRMED                                      refusals: 3 init-EINVAL classes kill the core; bad ifname / tiny mtu load fine
+C10b         CONFIRMED                                      'loads fine' measured without a session manager
+C11          CONFIRMED                                      rtp.receiving=true is faked at init; ts offset random per load
+C12          FALSIFIED                                      crafted RTP with arbitrary ts -> silence (clock-gating mechanism)
+C12b         CONFIRMED                                      sess.ts-offset at module-arg level repairs a crafted sender
+C13          CONFIRMED                                      rtp-sap: no node, joins the group, listener + send timer
+C14          CONFIRMED                                      S24BE is supported (no S24LE/S32/F32)
+C15          CONFIRMED / MEASURED                           load invariance of the deterministic cells
+C16          CONFIRMED                                      rtp.ptime/rtp.framecount: module args ignored; stream.props consistent pair kills the daemon
+C10c         FALSIFIED                                      refusals are module-init -EINVAL or nothing at all (dichotomy)
+AX-GRAPH     CONFIRMED                                      private-core daemon module vs client-side pw-cli vs shared graph
+AX-QUANTUM   MEASURED                                       quantum axis: does the ts lattice track quantum/64?
+AX-RATE      MEASURED                                       rate axis: module audio.rate / core clock.rate 44100
+AX-ORDER     MEASURED                                       module-arg order, duplicate keys, ptime in stream.props
+AX-FLAGORDER CONFIRMED                                      pw-play --target before vs after the file
+AX-RELINK    MEASURED                                       player start/kill/restart timing

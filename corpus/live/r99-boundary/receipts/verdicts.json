@@ -1,0 +1,3991 @@
+[
+ {
+  "id": "C1",
+  "claim": "34 modules / 10 network-capable / roc-zeroconf-snapcast absent / no man pages",
+  "verdict": "CONFIRMED",
+  "detail": {
+   "census": {
+    "t": 1792100168.7511358,
+    "loadavg": [
+     107.66,
+     105.79,
+     100.11
+    ],
+    "whoami_host": "plazir27",
+    "network_capable_modules": [
+     "libpipewire-module-avb.so",
+     "libpipewire-module-netjack2-driver.so",
+     "libpipewire-module-netjack2-manager.so",
+     "libpipewire-module-pipe-tunnel.so",
+     "libpipewire-module-pulse-tunnel.so",
+     "libpipewire-module-rtp-sap.so",
+     "libpipewire-module-rtp-sink.so",
+     "libpipewire-module-rtp-source.so",
+     "libpipewire-module-vban-recv.so",
+     "libpipewire-module-vban-send.so"
+    ],
+    "native_module_count": "34",
+    "packages": [
+     "pipewire 1:1.6.8-1",
+     "pipewire-audio 1:1.6.8-1",
+     "error: package 'pipewire-zeroconf' was not found",
+     "error: package 'roc-toolkit' was not found",
+     "error: package 'snapcast' was not found",
+     "error: package 'jack-trip' was not found"
+    ],
+    "absent_tools": [
+     "rc=1"
+    ],
+    "man_pages": [
+     "No manual entry for pipewire-rtp-sink",
+     "No manual entry for pipewire-rtp-source",
+     "No manual entry for pipewire-rtp-sap"
+    ],
+    "avahi": [
+     "active",
+     "avahi 1:0.9rc5-1"
+    ],
+    "toolchain": [
+     "[I][18:36:08.942833] pw.context   | [      pipewire.c:  592 pw_init()] version 1.6.8",
+     "pipewire",
+     "pipewire 1:1.6.8-1",
+     "wireplumber 0.5.17-1"
+    ],
+    "module_file_sha256": {
+     "rtp-sink": "caf2f47f185b0e63867b202e2e0ea2655afd57ac202b5c9bd3802d1b90a1d9d5",
+     "rtp-source": "469f43820b0866412d276f8a82ef86b7eb0a66f6155718a24a0c9e43064192bd",
+     "rtp-sap": "85436e60da7767f092011570935cb56ed721d9fcf2cbc9bf3a17ff384deab26b"
+    }
+   }
+  }
+ },
+ {
+  "id": "C2",
+  "claim": "sink props with explicit 1 ms ptime: 204 B L16 stream, send_*/monitor_* ports",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "bad": {},
+     "n_in": 2,
+     "n_out": 2,
+     "ssrc": 3853257915,
+     "ts_offset": 1605565170
+    },
+    {
+     "bad": {},
+     "n_in": 2,
+     "n_out": 2,
+     "ssrc": 2373054877,
+     "ts_offset": 779945673
+    }
+   ],
+   "expected": {
+    "rtp.ptime": 1.0,
+    "rtp.framecount": 48,
+    "rtp.mime": "L16",
+    "rtp.payload": 127,
+    "net.mtu": 1280,
+    "net.header": 28,
+    "rtp.dscp": 34,
+    "rtp.ttl": 1,
+    "node.network": true,
+    "media.class": "Audio/Sink",
+    "rtp.rate": 48000,
+    "rtp.channels": 2,
+    "rtp.destination.port": 46200,
+    "rtp.destination.ip": "127.0.0.1"
+   }
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "bad": {},
+     "n_in": 2,
+     "n_out": 2,
+     "ssrc": 1413422080,
+     "ts_offset": 3867869579
+    },
+    {
+     "bad": {},
+     "n_in": 2,
+     "n_out": 2,
+     "ssrc": 2034099140,
+     "ts_offset": 1007080673
+    }
+   ],
+   "expected": {
+    "rtp.ptime": 1.0,
+    "rtp.framecount": 48,
+    "rtp.mime": "L16",
+    "rtp.payload": 127,
+    "net.mtu": 1280,
+    "net.header": 28,
+    "rtp.dscp": 34,
+    "rtp.ttl": 1,
+    "node.network": true,
+    "media.class": "Audio/Sink",
+    "rtp.rate": 48000,
+    "rtp.channels": 2,
+    "rtp.destination.port": 46200,
+    "rtp.destination.ip": "127.0.0.1"
+   }
+  }
+ },
+ {
+  "id": "C2b",
+  "claim": "the sink *defaults* are a 1 ms / 48-frame L16 stream",
+  "verdict": "FALSIFIED",
+  "quiet": {
+   "verdict": "FALSIFIED",
+   "measured": [
+    {
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "n": 465
+    },
+    {
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "n": 454
+    }
+   ],
+   "true_default": "6.458333 ms / 310 frames / 1252 B",
+   "note": "scout \u00a71.2 says the sink *defaults* are 1 ms/48 frames; the module defaults are 2/20"
+  },
+  "load": {
+   "verdict": "FALSIFIED",
+   "measured": [
+    {
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "n": 462
+    },
+    {
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "n": 462
+    }
+   ],
+   "true_default": "6.458333 ms / 310 frames / 1252 B",
+   "note": "scout \u00a71.2 says the sink *defaults* are 1 ms/48 frames; the module defaults are 2/20"
+  }
+ },
+ {
+  "id": "C3",
+  "claim": "sink socket = connected UDP with an ephemeral source port",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    "0 0 127.0.0.1:48464 127.0.0.1:46200 users:((\"pipewire\",pid=1069927,fd=41))",
+    "0 0 127.0.0.1:57921 127.0.0.1:46200 users:((\"pipewire\",pid=1073407,fd=38))",
+    "0 0 127.0.0.1:56900 127.0.0.1:46200 users:((\"pipewire\",pid=1077368,fd=41))"
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    "0 0 127.0.0.1:53332 127.0.0.1:46200 users:((\"pipewire\",pid=1847302,fd=41))",
+    "0 0 127.0.0.1:44448 127.0.0.1:46200 users:((\"pipewire\",pid=1850091,fd=41))",
+    "0 0 127.0.0.1:55642 127.0.0.1:46200 users:((\"pipewire\",pid=1852719,fd=41))"
+   ]
+  }
+ },
+ {
+  "id": "C3b",
+  "claim": "two sinks on one destination coexist",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "ssrcs": [
+      "1c033acf",
+      "d1afb0a5"
+     ],
+     "sizes": [
+      204
+     ],
+     "n": 6087,
+     "socks": [
+      "0 0 127.0.0.1:51099 127.0.0.1:46201 users:((\"pipewire\",pid=1050859,fd=52))",
+      "0 0 127.0.0.1:37248 127.0.0.1:46201 users:((\"pipewire\",pid=1050859,fd=51))"
+     ],
+     "props_a": "running",
+     "props_b": "running"
+    },
+    {
+     "ssrcs": [
+      "96908567",
+      "b9ea5ce3"
+     ],
+     "sizes": [
+      204
+     ],
+     "n": 6093,
+     "socks": [
+      "0 0 127.0.0.1:46694 127.0.0.1:46201 users:((\"pipewire\",pid=1061053,fd=52))",
+      "0 0 127.0.0.1:47145 127.0.0.1:46201 users:((\"pipewire\",pid=1061053,fd=51))"
+     ],
+     "props_a": "running",
+     "props_b": "running"
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "ssrcs": [
+      "395bdf15",
+      "3d5e7990"
+     ],
+     "sizes": [
+      204
+     ],
+     "n": 6538,
+     "socks": [
+      "0 0 127.0.0.1:34935 127.0.0.1:46201 users:((\"pipewire\",pid=1831262,fd=52))",
+      "0 0 127.0.0.1:35743 127.0.0.1:46201 users:((\"pipewire\",pid=1831262,fd=51))"
+     ],
+     "props_a": "running",
+     "props_b": "running"
+    },
+    {
+     "ssrcs": [
+      "6ea45e43",
+      "828f9064"
+     ],
+     "sizes": [
+      204
+     ],
+     "n": 6657,
+     "socks": [
+      "0 0 127.0.0.1:37067 127.0.0.1:46201 users:((\"pipewire\",pid=1840603,fd=51))",
+      "0 0 127.0.0.1:42207 127.0.0.1:46201 users:((\"pipewire\",pid=1840603,fd=52))"
+     ],
+     "props_a": "running",
+     "props_b": "running"
+    }
+   ]
+  }
+ },
+ {
+  "id": "C4",
+  "claim": "wire: 204 B, V=2, PT=127, seq+1, one size",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "sizes": [
+      204
+     ],
+     "pt": 127,
+     "ver": 2,
+     "seq_deltas": [
+      1
+     ],
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3439584008
+     ],
+     "pps": 929.7
+    },
+    {
+     "sizes": [
+      204
+     ],
+     "pt": 127,
+     "ver": 2,
+     "seq_deltas": [
+      1
+     ],
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3439291066
+     ],
+     "pps": 828.0
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "sizes": [
+      204
+     ],
+     "pt": 127,
+     "ver": 2,
+     "seq_deltas": [
+      1
+     ],
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3409373870
+     ],
+     "pps": 929.7
+    },
+    {
+     "sizes": [
+      204
+     ],
+     "pt": 127,
+     "ver": 2,
+     "seq_deltas": [
+      1
+     ],
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3409081727
+     ],
+     "pps": 938.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "C4b",
+  "claim": "ts-delta set is {48,80,96,112,128,144}",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "measured": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176
+     ],
+     "report_subset_ok": true,
+     "extra": [
+      160,
+      176
+     ]
+    },
+    {
+     "measured": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176
+     ],
+     "report_subset_ok": true,
+     "extra": [
+      160,
+      176
+     ]
+    }
+   ],
+   "note": "the report's set is a subset of the measured set (160/176 were omitted)"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "measured": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176
+     ],
+     "report_subset_ok": true,
+     "extra": [
+      160,
+      176
+     ]
+    },
+    {
+     "measured": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176
+     ],
+     "report_subset_ok": true,
+     "extra": [
+      160,
+      176
+     ]
+    }
+   ],
+   "note": "the report's set is a subset of the measured set (160/176 were omitted)"
+  }
+ },
+ {
+  "id": "C5",
+  "claim": "tone survives the wire sample-exact (peak 0.499969, 997 dominant)",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "peaks_ok": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40957349.5,
+     "g440": 6702.6,
+     "ratio": 6110.7,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 125384,
+      "nonzero_frac": 0.8028,
+      "longest_zero_run": 24369,
+      "tone_exact_frac_of_nonzero": 0.837,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 1288677.5,
+     "g440": 7848.1,
+     "ratio": 164.2,
+     "exact": true,
+     "payload": {
+      "frames": 139104,
+      "nonzero": 99300,
+      "nonzero_frac": 0.7139,
+      "longest_zero_run": 24416,
+      "tone_exact_frac_of_nonzero": 1.0,
+      "candidates": 1
+     }
+    }
+   ],
+   "dominance_ok": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40957349.5,
+     "g440": 6702.6,
+     "ratio": 6110.7,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 125384,
+      "nonzero_frac": 0.8028,
+      "longest_zero_run": 24369,
+      "tone_exact_frac_of_nonzero": 0.837,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 1288677.5,
+     "g440": 7848.1,
+     "ratio": 164.2,
+     "exact": true,
+     "payload": {
+      "frames": 139104,
+      "nonzero": 99300,
+      "nonzero_frac": 0.7139,
+      "longest_zero_run": 24416,
+      "tone_exact_frac_of_nonzero": 1.0,
+      "candidates": 1
+     }
+    }
+   ],
+   "rows": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40957349.5,
+     "g440": 6702.6,
+     "ratio": 6110.7,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 125384,
+      "nonzero_frac": 0.8028,
+      "longest_zero_run": 24369,
+      "tone_exact_frac_of_nonzero": 0.837,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 1288677.5,
+     "g440": 7848.1,
+     "ratio": 164.2,
+     "exact": true,
+     "payload": {
+      "frames": 139104,
+      "nonzero": 99300,
+      "nonzero_frac": 0.7139,
+      "longest_zero_run": 24416,
+      "tone_exact_frac_of_nonzero": 1.0,
+      "candidates": 1
+     }
+    }
+   ],
+   "note": "peak equality is the sample-exactness witness; 997 dominance is fill-dependent"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "peaks_ok": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 85882423.4,
+     "g440": 457.7,
+     "ratio": 187639.1,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 130773,
+      "nonzero_frac": 0.8373,
+      "longest_zero_run": 20720,
+      "tone_exact_frac_of_nonzero": 0.0215,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40607956.5,
+     "g440": 8143.5,
+     "ratio": 4986.5,
+     "exact": false,
+     "payload": {
+      "frames": 157680,
+      "nonzero": 127154,
+      "nonzero_frac": 0.8064,
+      "longest_zero_run": 24673,
+      "tone_exact_frac_of_nonzero": 0.1574,
+      "candidates": 1
+     }
+    }
+   ],
+   "dominance_ok": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 85882423.4,
+     "g440": 457.7,
+     "ratio": 187639.1,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 130773,
+      "nonzero_frac": 0.8373,
+      "longest_zero_run": 20720,
+      "tone_exact_frac_of_nonzero": 0.0215,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40607956.5,
+     "g440": 8143.5,
+     "ratio": 4986.5,
+     "exact": false,
+     "payload": {
+      "frames": 157680,
+      "nonzero": 127154,
+      "nonzero_frac": 0.8064,
+      "longest_zero_run": 24673,
+      "tone_exact_frac_of_nonzero": 0.1574,
+      "candidates": 1
+     }
+    }
+   ],
+   "rows": [
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 85882423.4,
+     "g440": 457.7,
+     "ratio": 187639.1,
+     "exact": false,
+     "payload": {
+      "frames": 156192,
+      "nonzero": 130773,
+      "nonzero_frac": 0.8373,
+      "longest_zero_run": 20720,
+      "tone_exact_frac_of_nonzero": 0.0215,
+      "candidates": 1
+     }
+    },
+    {
+     "peak_l": 0.499969,
+     "peak_r": 0.499969,
+     "g997": 40607956.5,
+     "g440": 8143.5,
+     "ratio": 4986.5,
+     "exact": false,
+     "payload": {
+      "frames": 157680,
+      "nonzero": 127154,
+      "nonzero_frac": 0.8064,
+      "longest_zero_run": 24673,
+      "tone_exact_frac_of_nonzero": 0.1574,
+      "candidates": 1
+     }
+    }
+   ],
+   "note": "peak equality is the sample-exactness witness; 997 dominance is fill-dependent"
+  }
+ },
+ {
+  "id": "C6",
+  "claim": "native end-to-end sink->mcast(lo)->source->pw-record carries the tone",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "tone_present_every_rep": [
+    {
+     "frames": 255008,
+     "peak": 0.580841,
+     "g997": 5606875.3,
+     "g440": 27188.2,
+     "ratio": 206.2,
+     "tap_n": 3921
+    },
+    {
+     "frames": 247104,
+     "peak": 0.584717,
+     "g997": 11704249.1,
+     "g440": 21630.1,
+     "ratio": 541.1,
+     "tap_n": 3990
+    }
+   ],
+   "dominant_reps": 2,
+   "reps": 2,
+   "rows": [
+    {
+     "frames": 255008,
+     "peak": 0.580841,
+     "g997": 5606875.3,
+     "g440": 27188.2,
+     "ratio": 206.2,
+     "tap_n": 3921
+    },
+    {
+     "frames": 247104,
+     "peak": 0.584717,
+     "g997": 11704249.1,
+     "g440": 21630.1,
+     "ratio": 541.1,
+     "tap_n": 3990
+    }
+   ],
+   "note": "peak present in every rep; 997 dominance degrades when the fill fraction drops"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "tone_present_every_rep": [
+    {
+     "frames": 173408,
+     "peak": 0.581757,
+     "g997": 10723321.2,
+     "g440": 12346.8,
+     "ratio": 868.5,
+     "tap_n": 3286
+    },
+    {
+     "frames": 200320,
+     "peak": 0.569244,
+     "g997": 27291.9,
+     "g440": 4289.1,
+     "ratio": 6.4,
+     "tap_n": 3099
+    }
+   ],
+   "dominant_reps": 1,
+   "reps": 2,
+   "rows": [
+    {
+     "frames": 173408,
+     "peak": 0.581757,
+     "g997": 10723321.2,
+     "g440": 12346.8,
+     "ratio": 868.5,
+     "tap_n": 3286
+    },
+    {
+     "frames": 200320,
+     "peak": 0.569244,
+     "g997": 27291.9,
+     "g440": 4289.1,
+     "ratio": 6.4,
+     "tap_n": 3099
+    }
+   ],
+   "note": "peak present in every rep; 997 dominance degrades when the fill fraction drops"
+  }
+ },
+ {
+  "id": "C7",
+  "claim": "local.ifname=lo keeps the multicast send off the LAN",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "idle": [
+    1627,
+    1188,
+    1879
+   ],
+   "idle_max": 1879,
+   "mcast_lo": {
+    "delta": 2166,
+    "emitted": 7200,
+    "recv_en": 7203
+   },
+   "mcast_en": {
+    "delta": 10171,
+    "emitted": 0,
+    "recv_en": 0
+   },
+   "strong_20s": {
+    "probe": "r99b confinement: 20 s windows, enp7s0 tx_packets+tx_bytes",
+    "idle1": {
+     "sec": 20,
+     "pkts": 12322,
+     "bytes": 9314741
+    },
+    "module_lo": {
+     "sec": 20,
+     "pkts": 9914,
+     "bytes": 7279712,
+     "rtp_emitted": 19588,
+     "rtp_sizes": [
+      204
+     ],
+     "rtp_bytes_if_egressed": 3995952,
+     "node": "r99b_sink_lan2 dest 239.255.42.99:46230 local.ifname=lo"
+    },
+    "idle2": {
+     "sec": 20,
+     "pkts": 11003,
+     "bytes": 9388475
+    },
+    "synthetic_lo_3000pkts": {
+     "sec": 5,
+     "delta_pkts": 3193,
+     "matched_idle_per_8s": [
+      4991,
+      5332,
+      4997
+     ],
+     "recv_lo": 3000,
+     "recv_en": 3000,
+     "note": "SO_BINDTODEVICE(lo)+IP_MULTICAST_IF(127.0.0.1); delta is BELOW the matched idle rate"
+    },
+    "interpretation": "19588 multicast RTP packets were emitted; the enp7s0 window that contains them is below both bracketing idle windows (9914 vs 12322/11003 packets and 7.28 vs 9.31/9.39 MB). If the stream had egressed, +19588 packets / +4.0 MB would appear. The local copy is still delivered to sockets joined on ANY interface of this host (loopback of the lo-bound send), which is why an enp7s0-joined receiver sees the stream with the host's own LAN address as peer."
+   },
+   "strong_ok": true,
+   "control": true,
+   "note": "the enp7s0-joined receiver also sees the local loopback copy of a lo-bound send (peer = this host's LAN address); egress is judged by the tx counter"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "idle": [
+    7820,
+    5933,
+    5155
+   ],
+   "idle_max": 7820,
+   "mcast_lo": {
+    "delta": 9022,
+    "emitted": 5478,
+    "recv_en": 5455
+   },
+   "mcast_en": {
+    "delta": 13910,
+    "emitted": 0,
+    "recv_en": 0
+   },
+   "strong_20s": {
+    "probe": "r99b confinement: 20 s windows, enp7s0 tx_packets+tx_bytes",
+    "idle1": {
+     "sec": 20,
+     "pkts": 12322,
+     "bytes": 9314741
+    },
+    "module_lo": {
+     "sec": 20,
+     "pkts": 9914,
+     "bytes": 7279712,
+     "rtp_emitted": 19588,
+     "rtp_sizes": [
+      204
+     ],
+     "rtp_bytes_if_egressed": 3995952,
+     "node": "r99b_sink_lan2 dest 239.255.42.99:46230 local.ifname=lo"
+    },
+    "idle2": {
+     "sec": 20,
+     "pkts": 11003,
+     "bytes": 9388475
+    },
+    "synthetic_lo_3000pkts": {
+     "sec": 5,
+     "delta_pkts": 3193,
+     "matched_idle_per_8s": [
+      4991,
+      5332,
+      4997
+     ],
+     "recv_lo": 3000,
+     "recv_en": 3000,
+     "note": "SO_BINDTODEVICE(lo)+IP_MULTICAST_IF(127.0.0.1); delta is BELOW the matched idle rate"
+    },
+    "interpretation": "19588 multicast RTP packets were emitted; the enp7s0 window that contains them is below both bracketing idle windows (9914 vs 12322/11003 packets and 7.28 vs 9.31/9.39 MB). If the stream had egressed, +19588 packets / +4.0 MB would appear. The local copy is still delivered to sockets joined on ANY interface of this host (loopback of the lo-bound send), which is why an enp7s0-joined receiver sees the stream with the host's own LAN address as peer."
+   },
+   "strong_ok": true,
+   "control": true,
+   "note": "the enp7s0-joined receiver also sees the local loopback copy of a lo-bound send (peer = this host's LAN address); egress is judged by the tx counter"
+  }
+ },
+ {
+  "id": "C8",
+  "claim": "source.port=0 is a hard init error (rc 234)",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "core_up": false,
+     "invalid": true,
+     "ctx_fail": true,
+     "mandatory": true
+    },
+    {
+     "core_up": false,
+     "invalid": true,
+     "ctx_fail": true,
+     "mandatory": true
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "core_up": false,
+     "invalid": true,
+     "ctx_fail": true,
+     "mandatory": true
+    },
+    {
+     "core_up": false,
+     "invalid": true,
+     "ctx_fail": true,
+     "mandatory": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "C8b",
+  "claim": "unicast source = connected socket; only packets from source.port accepted",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "arm": "same-port",
+     "peak": 0.5,
+     "g997": 803483336.1,
+     "g440": 61.1,
+     "ratio": 13150300.1,
+     "sync": true,
+     "socks": [
+      "0 0 127.0.0.1:46202 127.0.0.1:46202 users:((\"pipewire\",pid=1086717,fd=42))"
+     ]
+    },
+    {
+     "arm": "foreign-port",
+     "peak": 0.0,
+     "g997": 0.0,
+     "g440": 0.0,
+     "ratio": null,
+     "sync": false,
+     "socks": [
+      "0 0 127.0.0.1:46202 127.0.0.1:46202 users:((\"pipewire\",pid=1094505,fd=42))"
+     ]
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "arm": "same-port",
+     "peak": 0.499969,
+     "g997": 833444758.2,
+     "g440": 37.4,
+     "ratio": 22284619.2,
+     "sync": true,
+     "socks": [
+      "0 0 127.0.0.1:46202 127.0.0.1:46202 users:((\"pipewire\",pid=1859242,fd=42))"
+     ]
+    },
+    {
+     "arm": "foreign-port",
+     "peak": 0.0,
+     "g997": 0.0,
+     "g440": 0.0,
+     "ratio": null,
+     "sync": false,
+     "socks": [
+      "0 0 127.0.0.1:46202 127.0.0.1:46202 users:((\"pipewire\",pid=1864911,fd=42))"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "C9",
+  "claim": "packetization table (6 cells)",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "mtu1280_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "mtu200_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "mtu8000_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "default_pmin2",
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "expect_ptime": 6.458333,
+     "expect_fc": 310,
+     "ok": true
+    },
+    {
+     "case": "pmin10",
+     "ptime": 10.0,
+     "framecount": 480,
+     "sizes": [
+      1932
+     ],
+     "expect_ptime": 10.0,
+     "expect_fc": 480,
+     "ok": true
+    },
+    {
+     "case": "pmin50",
+     "ptime": 50.0,
+     "framecount": 2400,
+     "sizes": [
+      9612
+     ],
+     "expect_ptime": 50.0,
+     "expect_fc": 2400,
+     "ok": true
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "mtu1280_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "mtu200_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "mtu8000_p1",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "expect_ptime": 1.0,
+     "expect_fc": 48,
+     "ok": true
+    },
+    {
+     "case": "default_pmin2",
+     "ptime": 6.458333,
+     "framecount": 310,
+     "sizes": [
+      1252
+     ],
+     "expect_ptime": 6.458333,
+     "expect_fc": 310,
+     "ok": true
+    },
+    {
+     "case": "pmin10",
+     "ptime": 10.0,
+     "framecount": 480,
+     "sizes": [
+      1932
+     ],
+     "expect_ptime": 10.0,
+     "expect_fc": 480,
+     "ok": true
+    },
+    {
+     "case": "pmin50",
+     "ptime": 50.0,
+     "framecount": 2400,
+     "sizes": [
+      9612
+     ],
+     "expect_ptime": 50.0,
+     "expect_fc": 2400,
+     "ok": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "C9b",
+  "claim": "50/100 cell is capped at 2048 B on the wire",
+  "verdict": "FALSIFIED",
+  "quiet": {
+   "verdict": "FALSIFIED",
+   "rows": [
+    {
+     "sizes": [
+      9612
+     ],
+     "n": 51,
+     "frames": 122400
+    }
+   ],
+   "corrected": "the wire packet is 12 + 2400*4 = 9612 B; the scout's 2048 was its own recvfrom(2048) tap buffer"
+  },
+  "load": {
+   "verdict": "FALSIFIED",
+   "rows": [
+    {
+     "sizes": [
+      9612
+     ],
+     "n": 51,
+     "frames": 122400
+    }
+   ],
+   "corrected": "the wire packet is 12 + 2400*4 = 9612 B; the scout's 2048 was its own recvfrom(2048) tap buffer"
+  }
+ },
+ {
+  "id": "C10",
+  "claim": "refusals: 3 init-EINVAL classes kill the core; bad ifname / tiny mtu load fine",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "bad_dest_ip",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:38:27.842968] pw.conf      | [          conf.c:  607 load_module()] 0x55fcd21ff5b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:38:27.843269] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_format_f32le",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:38:28.747082] pw.conf      | [          conf.c:  607 load_module()] 0x5647f18fa5b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:38:28.759603] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_media",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:38:29.659305] pw.conf      | [          conf.c:  607 load_module()] 0x55a2a3cbc5b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:38:29.662567] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_ifname_nowp",
+     "core_up": true,
+     "msg": "core up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[I][18:38:30.769624] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x56181c425610: connection_data: client 0x56181c4a0bb0 disconnected",
+      "[I][18:38:32.279655] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x56181c425610: connection_data: client 0x56181c4a0bb0 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_nowp",
+     "core_up": true,
+     "msg": "core up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[I][18:38:33.821306] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55e5f532e480: connection_data: client 0x55e5f53a9a20 disconnected",
+      "[I][18:38:35.336774] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55e5f532e480: connection_data: client 0x55e5f53a9a20 disconnected"
+     ]
+    },
+    {
+     "case": "bad_ifname_wp",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[W][18:38:36.942593] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Bad file descriptor",
+      "[I][18:38:38.406619] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55c8b1b55610: connection_data: client 0x55c8b1bce300 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_wp",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[W][18:38:40.020644] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+      "[I][18:38:41.515945] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x56426eff6480: connection_data: client 0x56426f071a20 disconnected"
+     ]
+    },
+    {
+     "case": "s24be",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[I][18:38:47.246312] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55597a8a05d0: connection_data: client 0x55597a919260 disconnected",
+      "[W][18:38:47.390626] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (764 suppressed) sendmsg() failed: Connection refused"
+     ]
+    }
+   ],
+   "hard_refusals_ok": true,
+   "soft_loads_ok": true
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "bad_dest_ip",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:49:04.423067] pw.conf      | [          conf.c:  607 load_module()] 0x55aa49c435b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:49:04.423316] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_format_f32le",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:49:05.335341] pw.conf      | [          conf.c:  607 load_module()] 0x565194ad95b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:49:05.338568] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_media",
+     "core_up": false,
+     "msg": "core died rc=234",
+     "node_state": null,
+     "socks": 0,
+     "log": [
+      "[E][18:49:06.232557] pw.conf      | [          conf.c:  607 load_module()] 0x55a2668b85b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+      "[E][18:49:06.235741] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+     ]
+    },
+    {
+     "case": "bad_ifname_nowp",
+     "core_up": true,
+     "msg": "core up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[I][18:49:07.344887] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x561fc7572610: connection_data: client 0x561fc75edbb0 disconnected",
+      "[I][18:49:08.859472] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x561fc7572610: connection_data: client 0x561fc75edbb0 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_nowp",
+     "core_up": true,
+     "msg": "core up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[I][18:49:10.400748] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x5562feb6b480: connection_data: client 0x5562febe6a20 disconnected",
+      "[I][18:49:11.922390] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x5562feb6b480: connection_data: client 0x5562febe6a20 disconnected"
+     ]
+    },
+    {
+     "case": "bad_ifname_wp",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[W][18:49:13.546738] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Bad file descriptor",
+      "[I][18:49:15.045434] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x556c56550610: connection_data: client 0x556c565d8570 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_wp",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[W][18:49:16.657062] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+      "[I][18:49:18.133273] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818628b3e0 disconnected"
+     ]
+    },
+    {
+     "case": "s24be",
+     "core_up": true,
+     "msg": "core+wp up",
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[I][18:49:21.214368] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x561a89f5f5d0: connection_data: client 0x561a89fd8260 disconnected",
+      "[W][18:49:23.996051] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (746 suppressed) sendmsg() failed: Connection refused"
+     ]
+    }
+   ],
+   "hard_refusals_ok": true,
+   "soft_loads_ok": true
+  }
+ },
+ {
+  "id": "C10b",
+  "claim": "'loads fine' measured without a session manager",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "bad_ifname_wp",
+     "core_up": true,
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[E][18:38:36.941593] mod.client-node | [   client-node.c: 1266 client_node_resource_error()] 0x55c8b1bcc5b0: error seq:34 -19 (Can't make socket: No such device)",
+      "[W][18:38:36.942593] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Bad file descriptor",
+      "[I][18:38:38.406619] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55c8b1b55610: connection_data: client 0x55c8b1bce300 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_wp",
+     "core_up": true,
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[I][18:38:39.984275] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x56426eff6480: connection_data: client 0x56426f071a20 disconnected",
+      "[W][18:38:40.020644] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+      "[I][18:38:41.515945] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x56426eff6480: connection_data: client 0x56426f071a20 disconnected"
+     ]
+    },
+    {
+     "case": "s24be",
+     "core_up": true,
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[I][18:38:44.616116] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55597a8a05d0: connection_data: client 0x55597a919260 disconnected",
+      "[I][18:38:47.246312] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x55597a8a05d0: connection_data: client 0x55597a919260 disconnected",
+      "[W][18:38:47.390626] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (764 suppressed) sendmsg() failed: Connection refused"
+     ]
+    }
+   ],
+   "driven": [
+    {
+     "core_up": true,
+     "state_pre": "suspended",
+     "state_during": "running",
+     "state_after": "running",
+     "socks": 0,
+     "bindtodevice_err": true,
+     "stream_err": true
+    }
+   ],
+   "note": "the module loads and the node is created; the SO_BINDTODEVICE failure surfaces only when a session manager drives the stream"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "case": "bad_ifname_wp",
+     "core_up": true,
+     "node_state": "suspended",
+     "socks": 0,
+     "log": [
+      "[E][18:49:13.545514] mod.client-node | [   client-node.c: 1266 client_node_resource_error()] 0x556c565c75b0: error seq:34 -19 (Can't make socket: No such device)",
+      "[W][18:49:13.546738] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Bad file descriptor",
+      "[I][18:49:15.045434] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x556c56550610: connection_data: client 0x556c565d8570 disconnected"
+     ]
+    },
+    {
+     "case": "tiny_mtu_wp",
+     "core_up": true,
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[I][18:49:16.613118] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818628b3e0 disconnected",
+      "[W][18:49:16.657062] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+      "[I][18:49:18.133273] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x558186203480: connection_data: client 0x55818628b3e0 disconnected"
+     ]
+    },
+    {
+     "case": "s24be",
+     "core_up": true,
+     "node_state": "running",
+     "socks": 1,
+     "log": [
+      "[W][18:49:19.783374] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (0 suppressed) sendmsg() failed: Connection refused",
+      "[I][18:49:21.214368] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x561a89f5f5d0: connection_data: client 0x561a89fd8260 disconnected",
+      "[W][18:49:23.996051] mod.rtp-sink | [module-rtp-sink.:  311 stream_send_packet()] (746 suppressed) sendmsg() failed: Connection refused"
+     ]
+    }
+   ],
+   "driven": [
+    {
+     "core_up": true,
+     "state_pre": "suspended",
+     "state_during": "running",
+     "state_after": "running",
+     "socks": 0,
+     "bindtodevice_err": true,
+     "stream_err": true
+    }
+   ],
+   "note": "the module loads and the node is created; the SO_BINDTODEVICE failure surfaces only when a session manager drives the stream"
+  }
+ },
+ {
+  "id": "C11",
+  "claim": "rtp.receiving=true is faked at init; ts offset random per load",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "receiving": true,
+     "ts_offset": 1888845953,
+     "state": "suspended",
+     "sync": []
+    },
+    {
+     "receiving": true,
+     "ts_offset": 2119152644,
+     "state": "suspended",
+     "sync": []
+    }
+   ],
+   "distinct_ts_offsets": 2,
+   "note": "rtp.receiving=true on a source that has never seen a packet; ts offset random per load"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "receiving": true,
+     "ts_offset": 2408521541,
+     "state": "suspended",
+     "sync": []
+    },
+    {
+     "receiving": true,
+     "ts_offset": 448550046,
+     "state": "suspended",
+     "sync": []
+    }
+   ],
+   "distinct_ts_offsets": 2,
+   "note": "rtp.receiving=true on a source that has never seen a packet; ts offset random per load"
+  }
+ },
+ {
+  "id": "C12",
+  "claim": "crafted RTP with arbitrary ts -> silence (clock-gating mechanism)",
+  "verdict": "FALSIFIED",
+  "quiet": {
+   "verdict": "FALSIFIED",
+   "rows": {
+    "unicast_scout_shape": [
+     {
+      "tap_n": 2500,
+      "peak": 0.0,
+      "sync": false,
+      "proc_rows": [
+       "2669: 00000000:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41799181 2 0000000037c41b20 0",
+       "2669: 632AFFEF:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41780884 2 00000000f03244dd 0"
+      ]
+     },
+     {
+      "tap_n": 2500,
+      "peak": 0.0,
+      "sync": false,
+      "proc_rows": [
+       "2669: 00000000:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41814323 2 0000000037c41b20 0",
+       "2669: 632AFFEF:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41816314 2 00000000ecd645f2 0"
+      ]
+     }
+    ],
+    "mcast_correct_path": [
+     {
+      "tap_n": 2500,
+      "peak": 0.5,
+      "g997": 802957347.0,
+      "g440": 26.8,
+      "sync": true,
+      "proc_rows": [
+       "2659: 632AFFEF:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41781616 2 000000003db61c5e 0",
+       "2659: 00000000:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41782576 2 000000003d6243e8 0"
+      ]
+     },
+     {
+      "tap_n": 2500,
+      "peak": 0.5,
+      "g997": 792284228.0,
+      "g440": 74.4,
+      "sync": true,
+      "proc_rows": [
+       "2659: 00000000:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41786413 2 00000000d85e56c8 0",
+       "2659: 632AFFEF:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 41783264 2 00000000064176de 0"
+      ]
+     }
+    ]
+   },
+   "note": "the scout's crafted arms sent unicast to 127.0.0.1 while the source socket was bound to the multicast group -> the silence was a delivery artifact, not clock gating"
+  },
+  "load": {
+   "verdict": "FALSIFIED",
+   "rows": {
+    "unicast_scout_shape": [
+     {
+      "tap_n": 2500,
+      "peak": 0.0,
+      "sync": false,
+      "proc_rows": [
+       "2669: 00000000:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42768005 2 00000000318eca07 0",
+       "2669: 632AFFEF:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42803277 2 00000000e6f783d4 0"
+      ]
+     },
+     {
+      "tap_n": 2500,
+      "peak": 0.0,
+      "sync": false,
+      "proc_rows": [
+       "2669: 00000000:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42789505 2 00000000c4328d78 0",
+       "2669: 632AFFEF:B485 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42789504 2 0000000001956f6f 0"
+      ]
+     }
+    ],
+    "mcast_correct_path": [
+     {
+      "tap_n": 2500,
+      "peak": 0.499969,
+      "g997": 808972808.3,
+      "g440": 50.4,
+      "sync": true,
+      "proc_rows": [
+       "2659: 00000000:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42798733 2 00000000871109fd 0",
+       "2659: 632AFFEF:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42798732 2 00000000f911d54c 0"
+      ]
+     },
+     {
+      "tap_n": 2500,
+      "peak": 0.499969,
+      "g997": 791421666.4,
+      "g440": 32.1,
+      "sync": true,
+      "proc_rows": [
+       "2659: 00000000:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42753463 2 00000000add81481 0",
+       "2659: 632AFFEF:B47B 00000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 42800176 2 000000005be51c79 0"
+      ]
+     }
+    ]
+   },
+   "note": "the scout's crafted arms sent unicast to 127.0.0.1 while the source socket was bound to the multicast group -> the silence was a delivery artifact, not clock gating"
+  }
+ },
+ {
+  "id": "C12b",
+  "claim": "sess.ts-offset at module-arg level repairs a crafted sender",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "delta": 0,
+     "ts_offset_arg": 947200,
+     "peak": 0.499969,
+     "g997": 849800517.0,
+     "sync": true
+    },
+    {
+     "delta": -1024,
+     "ts_offset_arg": 946176,
+     "peak": 0.499969,
+     "g997": 796136591.5,
+     "sync": true
+    },
+    {
+     "delta": 1024,
+     "ts_offset_arg": 948224,
+     "peak": 0.5,
+     "g997": 851924470.3,
+     "sync": true
+    },
+    {
+     "delta": -2048,
+     "ts_offset_arg": 945152,
+     "peak": 0.499969,
+     "g997": 802265891.1,
+     "sync": true
+    },
+    {
+     "delta": 2048,
+     "ts_offset_arg": 949248,
+     "peak": 0.5,
+     "g997": 852541524.4,
+     "sync": true
+    }
+   ],
+   "note": "sess.ts-offset as a module arg; a repaired crafted sender proves the mechanism is not needed for a correctly-delivered stream"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "delta": 0,
+     "ts_offset_arg": 947200,
+     "peak": 0.5,
+     "g997": 830660293.5,
+     "sync": true
+    },
+    {
+     "delta": -1024,
+     "ts_offset_arg": 946176,
+     "peak": 0.5,
+     "g997": 795192344.1,
+     "sync": true
+    },
+    {
+     "delta": 1024,
+     "ts_offset_arg": 948224,
+     "peak": 0.499969,
+     "g997": 852982805.0,
+     "sync": true
+    },
+    {
+     "delta": -2048,
+     "ts_offset_arg": 945152,
+     "peak": 0.499969,
+     "g997": 797223367.6,
+     "sync": true
+    },
+    {
+     "delta": 2048,
+     "ts_offset_arg": 949248,
+     "peak": 0.5,
+     "g997": 857863050.2,
+     "sync": true
+    }
+   ],
+   "note": "sess.ts-offset as a module arg; a repaired crafted sender proves the mechanism is not needed for a correctly-delivered stream"
+  }
+ },
+ {
+  "id": "C13",
+  "claim": "rtp-sap: no node, joins the group, listener + send timer",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "arm": "no-ifname-default-group",
+     "core_up": true,
+     "nodes": [
+      "Dummy-Driver",
+      "Freewheel-Driver"
+     ],
+     "rtp_nodes": [],
+     "tx_delta": 1038,
+     "join_log": [
+      "[I][18:38:49.079711] mod.rtp-sap  | [module-rtp-sap.c:  519 make_recv_socket()] join IPv4 group: 239.255.255.255 iface:0"
+     ]
+    },
+    {
+     "arm": "ifname-lo",
+     "core_up": true,
+     "nodes": [
+      "Dummy-Driver",
+      "Freewheel-Driver"
+     ],
+     "rtp_nodes": [],
+     "tx_delta": 889,
+     "join_log": [
+      "[I][18:38:54.644446] mod.rtp-sap  | [module-rtp-sap.c:  519 make_recv_socket()] join IPv4 group: 239.255.42.98 iface:1"
+     ]
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "arm": "no-ifname-default-group",
+     "core_up": true,
+     "nodes": [
+      "Dummy-Driver",
+      "Freewheel-Driver"
+     ],
+     "rtp_nodes": [],
+     "tx_delta": 2004,
+     "join_log": [
+      "[I][18:49:25.669224] mod.rtp-sap  | [module-rtp-sap.c:  519 make_recv_socket()] join IPv4 group: 239.255.255.255 iface:0"
+     ]
+    },
+    {
+     "arm": "ifname-lo",
+     "core_up": true,
+     "nodes": [
+      "Dummy-Driver",
+      "Freewheel-Driver"
+     ],
+     "rtp_nodes": [],
+     "tx_delta": 3478,
+     "join_log": [
+      "[I][18:49:31.234499] mod.rtp-sap  | [module-rtp-sap.c:  519 make_recv_socket()] join IPv4 group: 239.255.42.98 iface:1"
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "C14",
+  "claim": "S24BE is supported (no S24LE/S32/F32)",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "core_up": true,
+     "sizes": [
+      300
+     ],
+     "pt": 127,
+     "n": 2138
+    }
+   ],
+   "expected_wire": "12 + 48*6 = 300 B (S24BE, 2ch)"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "core_up": true,
+     "sizes": [
+      300
+     ],
+     "pt": 127,
+     "n": 1854
+    }
+   ],
+   "expected_wire": "12 + 48*6 = 300 B (S24BE, 2ch)"
+  }
+ },
+ {
+  "id": "C15",
+  "claim": "load invariance of the deterministic cells",
+  "verdict": "CONFIRMED / MEASURED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "cell": "sink_p1",
+     "quiet": [
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "lattice",
+     "quiet": [
+      [
+       "default_pmin2",
+       [
+        1252
+       ],
+       6.458333,
+       310,
+       null
+      ],
+      [
+       "mtu1280_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu200_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu8000_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "pmin10",
+       [
+        1932
+       ],
+       10.0,
+       480,
+       null
+      ],
+      [
+       "pmin50",
+       [
+        9612
+       ],
+       50.0,
+       2400,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "default_pmin2",
+       [
+        1252
+       ],
+       6.458333,
+       310,
+       null
+      ],
+      [
+       "mtu1280_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu200_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu8000_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "pmin10",
+       [
+        1932
+       ],
+       10.0,
+       480,
+       null
+      ],
+      [
+       "pmin50",
+       [
+        9612
+       ],
+       50.0,
+       2400,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "src_unicast",
+     "quiet": [
+      [
+       "foreign-port",
+       [],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "same-port",
+       [],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "load": [
+      [
+       "foreign-port",
+       [],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "same-port",
+       [],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "crafted_mcast",
+     "quiet": [
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ],
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "load": [
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ],
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "crafted_unicast",
+     "quiet": [
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ]
+     ],
+     "load": [
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "e2e_native",
+     "quiet": [
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.580841
+      ],
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.584717
+      ]
+     ],
+     "load": [
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.580841
+      ],
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.584717
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "axis_quantum",
+     "quiet": [
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "axis_rate",
+     "quiet": [
+      [
+       "core_rate44100",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "module_rate44100",
+       [
+        188
+       ],
+       0.997732,
+       44,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "core_rate44100",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "module_rate44100",
+       [
+        188
+       ],
+       0.997732,
+       44,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "axis_order",
+     "quiet": [
+      [
+       "dup_min_ptime_1_then_20",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "ptime_in_stream_props",
+       [],
+       null,
+       null,
+       null
+      ],
+      [
+       "reversed",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "dup_min_ptime_1_then_20",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "ptime_in_stream_props",
+       [],
+       null,
+       null,
+       null
+      ],
+      [
+       "reversed",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    }
+   ]
+  },
+  "load": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "cell": "sink_p1",
+     "quiet": [
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "sink_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "lattice",
+     "quiet": [
+      [
+       "default_pmin2",
+       [
+        1252
+       ],
+       6.458333,
+       310,
+       null
+      ],
+      [
+       "mtu1280_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu200_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu8000_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "pmin10",
+       [
+        1932
+       ],
+       10.0,
+       480,
+       null
+      ],
+      [
+       "pmin50",
+       [
+        9612
+       ],
+       50.0,
+       2400,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "default_pmin2",
+       [
+        1252
+       ],
+       6.458333,
+       310,
+       null
+      ],
+      [
+       "mtu1280_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu200_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "mtu8000_p1",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "pmin10",
+       [
+        1932
+       ],
+       10.0,
+       480,
+       null
+      ],
+      [
+       "pmin50",
+       [
+        9612
+       ],
+       50.0,
+       2400,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "src_unicast",
+     "quiet": [
+      [
+       "foreign-port",
+       [],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "same-port",
+       [],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "load": [
+      [
+       "foreign-port",
+       [],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "same-port",
+       [],
+       null,
+       null,
+       0.499969
+      ]
+     ],
+     "identical": false
+    },
+    {
+     "cell": "crafted_mcast",
+     "quiet": [
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ],
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.5
+      ]
+     ],
+     "load": [
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.499969
+      ],
+      [
+       "crafted_mcast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.499969
+      ]
+     ],
+     "identical": false
+    },
+    {
+     "cell": "crafted_unicast",
+     "quiet": [
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ]
+     ],
+     "load": [
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ],
+      [
+       "crafted_unicast",
+       [
+        204
+       ],
+       null,
+       null,
+       0.0
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "e2e_native",
+     "quiet": [
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.580841
+      ],
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.584717
+      ]
+     ],
+     "load": [
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.569244
+      ],
+      [
+       "e2e_native",
+       [
+        204
+       ],
+       1.0,
+       48,
+       0.581757
+      ]
+     ],
+     "identical": false
+    },
+    {
+     "cell": "axis_quantum",
+     "quiet": [
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "axis_quantum",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "axis_rate",
+     "quiet": [
+      [
+       "core_rate44100",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "module_rate44100",
+       [
+        188
+       ],
+       0.997732,
+       44,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "core_rate44100",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "module_rate44100",
+       [
+        188
+       ],
+       0.997732,
+       44,
+       null
+      ]
+     ],
+     "identical": true
+    },
+    {
+     "cell": "axis_order",
+     "quiet": [
+      [
+       "dup_min_ptime_1_then_20",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "ptime_in_stream_props",
+       [],
+       null,
+       null,
+       null
+      ],
+      [
+       "reversed",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "load": [
+      [
+       "dup_min_ptime_1_then_20",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ],
+      [
+       "ptime_in_stream_props",
+       [],
+       null,
+       null,
+       null
+      ],
+      [
+       "reversed",
+       [
+        204
+       ],
+       1.0,
+       48,
+       null
+      ]
+     ],
+     "identical": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "C16",
+  "claim": "rtp.ptime/rtp.framecount: module args ignored; stream.props consistent pair kills the daemon",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "module_args_ignored": {
+    "core_up": true,
+    "msg": "core up",
+    "ptime": 1.0,
+    "framecount": 48,
+    "node_latency": "48/48000",
+    "log": [
+     "[I][18:58:02.631591] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x56502728efa0: set output/input latency 0.000000-0.000000 0-0 0-0",
+     "[I][18:58:02.631724] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000",
+     "[I][18:58:02.633219] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000"
+    ]
+   },
+   "consistent_pair": {
+    "core_up": false,
+    "msg": "core died rc=-8",
+    "ptime": null,
+    "framecount": null,
+    "node_latency": null,
+    "log": [
+     "[I][18:57:58.610203] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b63c2e95b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"127.0.0.1\" destination.port = 46200 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99b_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true rtp.ptime = 20 rtp.framecount = 960 } }",
+     "[W][18:57:58.610473] mod.rtp-sink | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 0.000000 should be an integer multiple of rtp.ptime 0.000000"
+    ]
+   },
+   "inconsistent_pair": {
+    "core_up": true,
+    "msg": "core up",
+    "ptime": 20,
+    "framecount": 480,
+    "node_latency": "960/48000",
+    "log": [
+     "[I][18:57:59.540693] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55e71d494010: set output/input latency 0.000000-0.000000 0-0 0-0",
+     "[I][18:57:59.540825] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000",
+     "[I][18:57:59.543915] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000"
+    ]
+   },
+   "wire_inconsistent": {
+    "core_up": true,
+    "props": {
+     "node.latency": "960/48000",
+     "rtp.channels": 2,
+     "rtp.destination.ip": "127.0.0.1",
+     "rtp.destination.port": 46250,
+     "rtp.dscp": 34,
+     "rtp.framecount": 480,
+     "rtp.media": "audio",
+     "rtp.mime": "L16",
+     "rtp.payload": 127,
+     "rtp.ptime": 20,
+     "rtp.rate": 48000,
+     "rtp.sender-ts-offset": 3969151602,
+     "rtp.source.ip": "0.0.0.0",
+     "rtp.ssrc": 1152150760,
+     "rtp.ttl": 1
+    },
+    "sizes": [
+     3852
+    ],
+    "n": 127,
+    "ts_deltas": [
+     960
+    ]
+   },
+   "wire_only": {
+    "core_up": true,
+    "props": {
+     "node.latency": "960/48000",
+     "rtp.channels": 2,
+     "rtp.destination.ip": "127.0.0.1",
+     "rtp.destination.port": 46250,
+     "rtp.dscp": 34,
+     "rtp.framecount": 960,
+     "rtp.media": "audio",
+     "rtp.mime": "L16",
+     "rtp.payload": 127,
+     "rtp.ptime": 20,
+     "rtp.rate": 48000,
+     "rtp.sender-ts-offset": 1281716565,
+     "rtp.source.ip": "0.0.0.0",
+     "rtp.ssrc": 804081426,
+     "rtp.ttl": 1
+    },
+    "sizes": [
+     3852
+    ],
+    "n": 122,
+    "ts_deltas": [
+     960,
+     1856,
+     3372151665
+    ]
+   },
+   "note": "rtp.ptime/rtp.framecount are read from stream.props, not from the module args"
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "module_args_ignored": {
+    "core_up": true,
+    "msg": "core up",
+    "ptime": 1.0,
+    "framecount": 48,
+    "node_latency": "48/48000",
+    "log": [
+     "[I][18:58:02.631591] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x56502728efa0: set output/input latency 0.000000-0.000000 0-0 0-0",
+     "[I][18:58:02.631724] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000",
+     "[I][18:58:02.633219] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 48/48000"
+    ]
+   },
+   "consistent_pair": {
+    "core_up": false,
+    "msg": "core died rc=-8",
+    "ptime": null,
+    "framecount": null,
+    "node_latency": null,
+    "log": [
+     "[I][18:57:58.610203] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b63c2e95b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"127.0.0.1\" destination.port = 46200 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99b_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true rtp.ptime = 20 rtp.framecount = 960 } }",
+     "[W][18:57:58.610473] mod.rtp-sink | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 0.000000 should be an integer multiple of rtp.ptime 0.000000"
+    ]
+   },
+   "inconsistent_pair": {
+    "core_up": true,
+    "msg": "core up",
+    "ptime": 20,
+    "framecount": 480,
+    "node_latency": "960/48000",
+    "log": [
+     "[I][18:57:59.540693] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55e71d494010: set output/input latency 0.000000-0.000000 0-0 0-0",
+     "[I][18:57:59.540825] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000",
+     "[I][18:57:59.543915] pw.node      | [     impl-node.c: 1272 check_properties()] (r99b_sink-0) latency:0/0 -> 960/48000"
+    ]
+   },
+   "wire_inconsistent": {
+    "core_up": true,
+    "props": {
+     "node.latency": "960/48000",
+     "rtp.channels": 2,
+     "rtp.destination.ip": "127.0.0.1",
+     "rtp.destination.port": 46250,
+     "rtp.dscp": 34,
+     "rtp.framecount": 480,
+     "rtp.media": "audio",
+     "rtp.mime": "L16",
+     "rtp.payload": 127,
+     "rtp.ptime": 20,
+     "rtp.rate": 48000,
+     "rtp.sender-ts-offset": 3969151602,
+     "rtp.source.ip": "0.0.0.0",
+     "rtp.ssrc": 1152150760,
+     "rtp.ttl": 1
+    },
+    "sizes": [
+     3852
+    ],
+    "n": 127,
+    "ts_deltas": [
+     960
+    ]
+   },
+   "wire_only": {
+    "core_up": true,
+    "props": {
+     "node.latency": "960/48000",
+     "rtp.channels": 2,
+     "rtp.destination.ip": "127.0.0.1",
+     "rtp.destination.port": 46250,
+     "rtp.dscp": 34,
+     "rtp.framecount": 960,
+     "rtp.media": "audio",
+     "rtp.mime": "L16",
+     "rtp.payload": 127,
+     "rtp.ptime": 20,
+     "rtp.rate": 48000,
+     "rtp.sender-ts-offset": 1281716565,
+     "rtp.source.ip": "0.0.0.0",
+     "rtp.ssrc": 804081426,
+     "rtp.ttl": 1
+    },
+    "sizes": [
+     3852
+    ],
+    "n": 122,
+    "ts_deltas": [
+     960,
+     1856,
+     3372151665
+    ]
+   },
+   "note": "rtp.ptime/rtp.framecount are read from stream.props, not from the module args"
+  }
+ },
+ {
+  "id": "C10c",
+  "claim": "refusals are module-init -EINVAL or nothing at all (dichotomy)",
+  "verdict": "FALSIFIED",
+  "quiet": {
+   "verdict": "FALSIFIED",
+   "sigfpe_case": {
+    "core_up": false,
+    "msg": "core died rc=-8",
+    "ptime": null,
+    "framecount": null,
+    "node_latency": null,
+    "log": [
+     "[I][18:57:58.610203] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b63c2e95b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"127.0.0.1\" destination.port = 46200 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99b_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true rtp.ptime = 20 rtp.framecount = 960 } }",
+     "[W][18:57:58.610473] mod.rtp-sink | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 0.000000 should be an integer multiple of rtp.ptime 0.000000"
+    ]
+   },
+   "note": "a third refusal class exists: a *consistent* rtp.ptime/rtp.framecount pair in stream.props leaves psamples=0 and the daemon dies with SIGFPE (rc=-8), not -EINVAL"
+  },
+  "load": {
+   "verdict": "FALSIFIED",
+   "sigfpe_case": {
+    "core_up": false,
+    "msg": "core died rc=-8",
+    "ptime": null,
+    "framecount": null,
+    "node_latency": null,
+    "log": [
+     "[I][18:57:58.610203] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b63c2e95b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"127.0.0.1\" destination.port = 46200 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99b_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true rtp.ptime = 20 rtp.framecount = 960 } }",
+     "[W][18:57:58.610473] mod.rtp-sink | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 0.000000 should be an integer multiple of rtp.ptime 0.000000"
+    ]
+   },
+   "note": "a third refusal class exists: a *consistent* rtp.ptime/rtp.framecount pair in stream.props leaves psamples=0 and the daemon dies with SIGFPE (rc=-8), not -EINVAL"
+  }
+ },
+ {
+  "id": "AX-GRAPH",
+  "claim": "private-core daemon module vs client-side pw-cli vs shared graph",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "pwcli_private": [
+    {
+     "during": true,
+     "after": false,
+     "recv_n": 1485
+    }
+   ],
+   "shared_graph": [
+    {
+     "pre": [],
+     "during": [
+      {
+       "type": "PipeWire:Interface:Node",
+       "id": 241,
+       "name": "r99b_sink_sh"
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 77,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 101,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 126,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 156,
+       "name": null
+      }
+     ],
+     "post": [],
+     "recv_n": 4081
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "pwcli_private": [
+    {
+     "during": true,
+     "after": false,
+     "recv_n": 1374
+    }
+   ],
+   "shared_graph": [
+    {
+     "pre": [],
+     "during": [
+      {
+       "type": "PipeWire:Interface:Node",
+       "id": 126,
+       "name": "r99b_sink_sh"
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 71,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 201,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 152,
+       "name": null
+      },
+      {
+       "type": "PipeWire:Interface:Port",
+       "id": 150,
+       "name": null
+      }
+     ],
+     "post": [],
+     "recv_n": 1080
+    }
+   ]
+  }
+ },
+ {
+  "id": "AX-QUANTUM",
+  "claim": "quantum axis: does the ts lattice track quantum/64?",
+  "verdict": "MEASURED",
+  "quiet": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "quantum": 256,
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3427533213
+     ],
+     "sizes": [
+      204
+     ],
+     "ptime": 1.0
+    },
+    {
+     "quantum": 4096,
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3427273517
+     ],
+     "sizes": [
+      204
+     ],
+     "ptime": 1.0
+    }
+   ],
+   "note": "does the ts-delta lattice track quantum/64?"
+  },
+  "load": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "quantum": 256,
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3396974605
+     ],
+     "sizes": [
+      204
+     ],
+     "ptime": 1.0
+    },
+    {
+     "quantum": 4096,
+     "ts_deltas": [
+      48,
+      80,
+      96,
+      112,
+      128,
+      144,
+      160,
+      176,
+      3396717370
+     ],
+     "sizes": [
+      204
+     ],
+     "ptime": 1.0
+    }
+   ],
+   "note": "does the ts-delta lattice track quantum/64?"
+  }
+ },
+ {
+  "id": "AX-RATE",
+  "claim": "rate axis: module audio.rate / core clock.rate 44100",
+  "verdict": "MEASURED",
+  "quiet": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "arm": "module_rate44100",
+     "rtp.rate": 44100,
+     "ptime": 0.997732,
+     "framecount": 44,
+     "sizes": [
+      188
+     ],
+     "ts_deltas": [
+      44,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      82,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      94,
+      99,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      109,
+      111,
+      113,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      123,
+      125,
+      127,
+      128,
+      130,
+      131,
+      132,
+      133,
+      134,
+      137,
+      138,
+      142,
+      146,
+      148,
+      149,
+      152,
+      161,
+      162,
+      163,
+      164,
+      165,
+      167
+     ]
+    },
+    {
+     "arm": "core_rate44100",
+     "rtp.rate": 48000,
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "ts_deltas": [
+      48,
+      54,
+      57,
+      62,
+      64,
+      67,
+      69,
+      72,
+      76,
+      78,
+      79,
+      82,
+      83,
+      87,
+      90,
+      91,
+      92,
+      93,
+      94,
+      99,
+      100,
+      103,
+      106,
+      110,
+      115,
+      116,
+      117,
+      119,
+      121,
+      124,
+      125,
+      126,
+      134,
+      137,
+      139,
+      142,
+      147,
+      148,
+      152,
+      154,
+      159,
+      160,
+      161,
+      164,
+      165,
+      166,
+      171,
+      173,
+      174,
+      175,
+      176,
+      181,
+      183,
+      184,
+      185,
+      186,
+      187,
+      191,
+      192,
+      193,
+      194,
+      196,
+      197,
+      199,
+      201,
+      202,
+      205,
+      209,
+      213,
+      214,
+      220,
+      225,
+      228,
+      229,
+      242,
+      244,
+      245,
+      259,
+      263,
+      264,
+      265,
+      266,
+      267,
+      290,
+      297,
+      300,
+      302,
+      309,
+      311,
+      312,
+      313,
+      314,
+      315,
+      317,
+      323,
+      330,
+      341,
+      348,
+      349,
+      364,
+      385,
+      403,
+      406,
+      451,
+      453,
+      474,
+      517,
+      525,
+      592,
+      594,
+      617,
+      649,
+      657,
+      674,
+      682,
+      733,
+      781,
+      801,
+      861,
+      990,
+      995,
+      1010,
+      3426758847
+     ]
+    }
+   ]
+  },
+  "load": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "arm": "module_rate44100",
+     "rtp.rate": 44100,
+     "ptime": 0.997732,
+     "framecount": 44,
+     "sizes": [
+      188
+     ],
+     "ts_deltas": [
+      44,
+      63,
+      69,
+      71,
+      73,
+      76,
+      81,
+      84,
+      85,
+      88,
+      89,
+      91,
+      94,
+      96,
+      97,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      109,
+      110,
+      112,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      122,
+      124,
+      125,
+      126,
+      130,
+      131,
+      132,
+      133,
+      134,
+      139,
+      140,
+      141,
+      142,
+      144,
+      145,
+      146,
+      148,
+      149,
+      150,
+      151,
+      152,
+      155,
+      156,
+      157,
+      158,
+      160,
+      161,
+      162,
+      163,
+      169,
+      171,
+      3469471410
+     ]
+    },
+    {
+     "arm": "core_rate44100",
+     "rtp.rate": 48000,
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "ts_deltas": [
+      48,
+      57,
+      59,
+      64,
+      65,
+      67,
+      78,
+      80,
+      81,
+      90,
+      92,
+      93,
+      117,
+      119,
+      122,
+      130,
+      137,
+      159,
+      161,
+      163,
+      165,
+      167,
+      170,
+      174,
+      175,
+      176,
+      181,
+      183,
+      184,
+      186,
+      187,
+      188,
+      194,
+      195,
+      196,
+      198,
+      205,
+      229,
+      232,
+      239,
+      242,
+      244,
+      247,
+      248,
+      249,
+      255,
+      264,
+      265,
+      266,
+      267,
+      269,
+      294,
+      312,
+      313,
+      314,
+      315,
+      316,
+      320,
+      321,
+      322,
+      325,
+      326,
+      328,
+      332,
+      339,
+      376,
+      405,
+      406,
+      441,
+      446,
+      453,
+      454,
+      465,
+      476,
+      508,
+      509,
+      510,
+      579,
+      643,
+      663,
+      678,
+      685,
+      730,
+      733,
+      769,
+      783,
+      1148,
+      1167,
+      1660,
+      1690,
+      1707,
+      1993
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "AX-ORDER",
+  "claim": "module-arg order, duplicate keys, ptime in stream.props",
+  "verdict": "MEASURED",
+  "quiet": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "arm": "reversed",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "n": 2052
+    },
+    {
+     "arm": "dup_min_ptime_1_then_20",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "n": 2389
+    },
+    {
+     "arm": "ptime_in_stream_props",
+     "ptime": null,
+     "framecount": null,
+     "sizes": null,
+     "n": null
+    }
+   ]
+  },
+  "load": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "arm": "reversed",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "n": 1741
+    },
+    {
+     "arm": "dup_min_ptime_1_then_20",
+     "ptime": 1.0,
+     "framecount": 48,
+     "sizes": [
+      204
+     ],
+     "n": 2084
+    },
+    {
+     "arm": "ptime_in_stream_props",
+     "ptime": null,
+     "framecount": null,
+     "sizes": null,
+     "n": null
+    }
+   ]
+  }
+ },
+ {
+  "id": "AX-FLAGORDER",
+  "claim": "pw-play --target before vs after the file",
+  "verdict": "CONFIRMED",
+  "quiet": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "args_first": true,
+     "target_n": 2254,
+     "other_n": 2257,
+     "target_peak": 0.499969,
+     "other_peak": 0.0
+    },
+    {
+     "args_first": false,
+     "target_n": 2271,
+     "other_n": 2293,
+     "target_peak": 0.499969,
+     "other_peak": 0.0
+    }
+   ]
+  },
+  "load": {
+   "verdict": "CONFIRMED",
+   "rows": [
+    {
+     "args_first": true,
+     "target_n": 2304,
+     "other_n": 2343,
+     "target_peak": 0.499969,
+     "other_peak": 0.0
+    },
+    {
+     "args_first": false,
+     "target_n": 2528,
+     "other_n": 2520,
+     "target_peak": 0.499969,
+     "other_peak": 0.0
+    }
+   ]
+  }
+ },
+ {
+  "id": "AX-RELINK",
+  "claim": "player start/kill/restart timing",
+  "verdict": "MEASURED",
+  "quiet": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "t_play1": 1.002,
+     "t_kill": 4.503,
+     "t_play2": 7.505,
+     "t_kill2": 11.012,
+     "n": 10717,
+     "first_pkt": 0.0008715900003153365,
+     "last_pkt": 12.000101678997453,
+     "gap_count": 40,
+     "tone_series": {
+      "packets": 10717,
+      "tone_packets": 5109,
+      "episodes": [
+       [
+        0.979,
+        0.99
+       ],
+       [
+        0.993,
+        0.998
+       ],
+       [
+        1.0,
+        1.008
+       ],
+       [
+        1.011,
+        1.015
+       ],
+       [
+        1.017,
+        1.197
+       ],
+       [
+        1.2,
+        1.201
+       ],
+       [
+        1.205,
+        1.418
+       ],
+       [
+        1.424,
+        1.431
+       ],
+       [
+        1.434,
+        1.49
+       ],
+       [
+        1.492,
+        1.495
+       ],
+       [
+        1.497,
+        1.525
+       ],
+       [
+        1.528,
+        1.528
+       ]
+      ],
+      "n_episodes": 143,
+      "first_tone": 0.979,
+      "last_tone": 10.465,
+      "last_tone_before_kill": 3.963,
+      "silence_tail_s": 0.54,
+      "first_tone_after_restart": 7.505,
+      "relock_s": 0.0
+     }
+    },
+    {
+     "t_play1": 1.008,
+     "t_kill": 4.514,
+     "t_play2": 7.515,
+     "t_kill2": 11.019,
+     "n": 8605,
+     "first_pkt": 0.0051332129987713415,
+     "last_pkt": 12.002307134000148,
+     "gap_count": 40,
+     "tone_series": {
+      "packets": 8605,
+      "tone_packets": 2328,
+      "episodes": [
+       [
+        0.857,
+        0.857
+       ],
+       [
+        0.866,
+        0.866
+       ],
+       [
+        0.874,
+        0.874
+       ],
+       [
+        0.88,
+        0.882
+       ],
+       [
+        0.887,
+        0.898
+       ],
+       [
+        0.898,
+        0.904
+       ],
+       [
+        0.91,
+        0.916
+       ],
+       [
+        0.919,
+        0.928
+       ],
+       [
+        0.931,
+        0.94
+       ],
+       [
+        0.941,
+        0.945
+       ],
+       [
+        0.951,
+        0.958
+       ],
+       [
+        0.958,
+        0.968
+       ]
+      ],
+      "n_episodes": 269,
+      "first_tone": 0.857,
+      "last_tone": 10.177,
+      "last_tone_before_kill": 2.134,
+      "silence_tail_s": 2.38,
+      "first_tone_after_restart": 7.516,
+      "relock_s": 0.001
+     }
+    }
+   ]
+  },
+  "load": {
+   "verdict": "MEASURED",
+   "rows": [
+    {
+     "t_play1": 1.005,
+     "t_kill": 4.506,
+     "t_play2": 7.511,
+     "t_kill2": 11.014,
+     "n": 10846,
+     "first_pkt": 0.00044706000335281715,
+     "last_pkt": 12.002247863001685,
+     "gap_count": 40,
+     "tone_series": {
+      "packets": 10846,
+      "tone_packets": 4921,
+      "episodes": [
+       [
+        0.959,
+        0.959
+       ],
+       [
+        0.965,
+        0.965
+       ],
+       [
+        0.971,
+        0.971
+       ],
+       [
+        0.977,
+        0.977
+       ],
+       [
+        0.983,
+        0.983
+       ],
+       [
+        0.993,
+        0.997
+       ],
+       [
+        0.997,
+        0.997
+       ],
+       [
+        1.003,
+        1.003
+       ],
+       [
+        1.006,
+        1.01
+       ],
+       [
+        1.013,
+        1.021
+       ],
+       [
+        1.021,
+        1.05
+       ],
+       [
+        1.054,
+        1.054
+       ]
+      ],
+      "n_episodes": 193,
+      "first_tone": 0.959,
+      "last_tone": 10.424,
+      "last_tone_before_kill": 3.918,
+      "silence_tail_s": 0.588,
+      "first_tone_after_restart": 7.512,
+      "relock_s": 0.001
+     }
+    },
+    {
+     "t_play1": 1.004,
+     "t_kill": 4.506,
+     "t_play2": 7.507,
+     "t_kill2": 11.008,
+     "n": 9004,
+     "first_pkt": 0.003117142001428874,
+     "last_pkt": 12.000186290002603,
+     "gap_count": 40,
+     "tone_series": {
+      "packets": 9004,
+      "tone_packets": 2883,
+      "episodes": [
+       [
+        0.991,
+        0.992
+       ],
+       [
+        0.994,
+        1.163
+       ],
+       [
+        1.172,
+        1.172
+       ],
+       [
+        1.177,
+        1.198
+       ],
+       [
+        1.198,
+        1.204
+       ],
+       [
+        1.205,
+        1.21
+       ],
+       [
+        1.216,
+        1.222
+       ],
+       [
+        1.222,
+        1.225
+       ],
+       [
+        1.228,
+        1.23
+       ],
+       [
+        1.24,
+        1.243
+       ],
+       [
+        1.252,
+        1.261
+       ],
+       [
+        1.261,
+        1.266
+       ]
+      ],
+      "n_episodes": 244,
+      "first_tone": 0.991,
+      "last_tone": 9.287,
+      "last_tone_before_kill": 3.714,
+      "silence_tail_s": 0.792,
+      "first_tone_after_restart": 7.509,
+      "relock_s": 0.002
+     }
+    }
+   ]
+  }
+ }
+]
