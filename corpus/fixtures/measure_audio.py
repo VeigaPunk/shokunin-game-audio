@@ -14176,6 +14176,2141 @@ def gst_autodetect_r81_entry():
     return entry
 
 
+# ==========================================================================
+# r82: the FFMPEG/FFPROBE/FFPLAY <-> PIPEWIRE ledger — --probe-ffmpeg-r82.
+#
+# A NEW parallel ledger family; prior rows untouched and every r76-r81
+# guard inherited (seat-owned r82ff_*/r82ffx_* names, name-verified module
+# index unloads — a bare captured index is never fired — never
+# set-default-*, process-group ownership, wall + byte + element bounds in
+# the loop that owns the pgid). Surface facts are the r82 scout's
+# THIS-HOST measurements (ffmpeg/ffprobe/ffplay n9.0.1 built
+# --enable-libpulse with NO pipewire indev; PipeWire 1.6.8; libpulse
+# 17.0+r98 protocol 35; WirePlumber 0.5.17), re-armed verbatim:
+#   DEVICES. `ffmpeg -devices` lists pulse/alsa/jack/oss/sndio and NO
+#     pipewire device; `-f pipewire -i x` is rc=234 EINVAL `Unknown input
+#     format`; `-sources pipewire` is rc=0 with an EMPTY list while
+#     `-sources pulse`/`-sinks pulse` enumerate the live graph (the `*`
+#     default marker may DISAGREE with `pactl info` — recorded, never
+#     gated; its provenance was not established by the scout).
+#   VALIDATION ASYMMETRY. The capture side resolves the source name at
+#     connect: a bogus source, a bare sink name, and `default` are rc=251
+#     EIO in ~1 s (the `default` cell is BIMODAL — one scout rep hung and
+#     was SIGKILLed; the fixture arms the {eio_251, hang_killed} envelope
+#     and records the realization). The playback side NEVER validates: a
+#     bogus sink, a source name, a `<sink>.monitor` name, `default`, and
+#     `@DEFAULT_SINK@` are all rc=0; `target.object` keeps the literal
+#     written value (except @DEFAULT_SINK@ which lands RESOLVED) while
+#     WirePlumber silently routes to the current default — measured via a
+#     bounded monitor tap carrying the tag tone.
+#   PROPS. Pulse-path nodes default to node.name=application.name=
+#     Lavf63.1.101 (the libpulse app name), media.name `record` (indev) or
+#     the output URL tail (outdev); `-name`/`-stream_name` override.
+#     PIPEWIRE_PROPS `stream.capture.sink=true` lands; `node.name=` in the
+#     same env is OVERRIDDEN on the pulse path but LANDS on the
+#     pipewire-alsa plugin path — the split is pinned on both sides.
+#   BUFFER LATTICE. Outdev -buffer_size/-buffer_duration/-prebuf/-minreq
+#     land as pulse.attr.tlength/prebuf/minreq with libpulse's derived
+#     clamp/floor values; indev -fragment_size lands as fragsize + a
+#     recomputed node.latency. Options placed AFTER `-i` are SILENTLY
+#     swallowed (props unchanged, no warning) — except the deprecated
+#     `-frame_size`, which is a pre-`-i` deprecation note and a post-`-i`
+#     ffmpeg_sched SIGABRT.
+#   TARGET LOSS — NO SPLIT (unlike r81's gst law): BOTH directions
+#     re-link to the leg-time default within ~0.3 s (scout 0.22/0.27 s
+#     means over 3 reps each; armed bound 0.8 s) and keep running.
+#   EXIT MAP. 187 access-denied (outdev bad server), 222 ERANGE (AVOption
+#     bounds), 234 EINVAL (unknown format), 251 EIO (unresolvable source,
+#     busy or unopenable ALSA pcm), 253 ESRCH (indev bad server), -6
+#     SIGABRT (libpulse assertion / ffmpeg_sched assertion).
+#   FFPLAY DUAL PERSONALITY. Auto driver -> SDL's NATIVE pipewire client
+#     (no client.api, media.role=Game, node.async); SDL_AUDIODRIVER=
+#     pulseaudio -> a pipewire-pulse node with pulse.attr.* — and there
+#     PULSE_SINK is IGNORED while ffmpeg's own `-f pulse` honors it
+#     (client-specific env law, both authorities pinned).
+#   FFPROBE. `-f pulse -i <sink>.monitor` returns rc=0 in ~1 s with
+#     pcm_s16le/48k/2ch and an EPOCH-CLASS start_pts (wall-clock PTS).
+#   ALSA SPLIT. `hw:C,D` is independent per direction: busy -> 251
+#     `Device or resource busy` (capture AND playback), free -> rc=0 even
+#     while PipeWire holds the card's playback subdevice; `-i pipewire`
+#     and unknown PCMs are 251 `cannot set parameters`/`Unknown PCM`;
+#     `-i default` resolves through the pipewire plugin (env node.name
+#     lands) on the scout's host — armed as an envelope since the same
+#     invocation also measured 251 `cannot set parameters` once;
+#     -sample_rate 12345 silently clamps to a hardware rate (44100
+#     measured).
+# Contention (mandatory): every routing leg targets the seat-owned null
+#   sink r82ff_ns_<pid> or is read-only; taps on the shared default sink
+#   monitor are bounded pw-record runs and are DECLARED in each entry's
+#   contamination leaf (the tag tone is audible on the default sink for
+#   the legs whose claim is content-level fallback — the scout's own
+#   measurement; it is never left running).
+FFPW_R82_PID = os.getpid()
+FFPW_R82_NS = f"r82ff_ns_{FFPW_R82_PID}"      # seat-owned null sink
+FFPW_R82_TAG = f"r82ff_{FFPW_R82_PID}"        # stream/node/tap name prefix
+FFPW_R82_XTAG = f"r82ffx_{FFPW_R82_PID}"      # PIPEWIRE_PROPS-set names
+FFPW_R82_OUT_NAME = f"r82ff-play-{FFPW_R82_PID}"   # outdev URL -> media.name
+FFPW_R82_WALL_S = 6.0
+FFPW_R82_BYTE_CAP = 8 * 1024 * 1024
+FFPW_R82_LOSS_EVENT_S = 1.2          # unload at +1.2 s (scout verbatim)
+FFPW_R82_LOSS_WALL_S = 6.5           # playback tone 3.6 s + slack
+FFPW_R82_CAP_LOSS_WALL_S = 9.0       # -t 5.0 capture + slack
+FFPW_R82_RELINK_BOUND_S = 0.8        # scout mean ~0.22-0.27 s; wider arm
+FFPW_R82_TONE_L_HZ = 1210.0          # distinct from the r78 1k/1.5k tag
+FFPW_R82_TONE_R_HZ = 1780.0          # so a foreign same-pair probe can
+FFPW_R82_TONE_AMP = 8192             # never read as `mine`
+FFPW_R82_BOGUS_SINK = "no_such_sink_r82"
+FFPW_R82_BOGUS_SOURCE = "no_such_source_r82"
+FFPW_R82_BOGUS_PCM = "no_such_pcm_r82"
+FFPW_R82_BAD_SERVER = "unix:/nonexistent-r82ff"
+FFPW_R82_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")   # ffplay emits \x1b[2K
+FFPW_R82_FFPLAY = "ffplay"
+FFPW_R82_PROP_KEEP = re.compile(
+    r"^(node\.|stream\.|target\.|media\.|application\.|client\.|"
+    r"object\.|pulse\.|port\.|clock\.|library\.|factory\.|adapt\.|"
+    r"device\.|api\.)")
+FFPW_R82_PROP_DROP = {
+    "object.id", "object.serial", "node.driver-id", "factory.id",
+    "client.id", "stream.is-live", "application.language",
+    "application.process.id", "application.process.host",
+    "application.process.machine-id", "application.process.session-id",
+    "application.process.user", "window.x11.display", "pulse.corked"}
+
+# ffmpeg-local stderr classes — a separate tuple, same rule as every prior
+# family: never prepended into a shared table. Ordered most-specific first.
+_FFPW_R82_ERR_CLASSES = (
+    ("ff_unknown_format", r"Unknown (?:input|output) format: '[^']*'"),
+    ("ff_libpulse_assert", r"Assertion 'pa_[^'\n]*' failed[^\n]*"),
+    ("ff_sched_assert", r"Assertion enc->sq_idx[^\n]*failed[^\n]*"),
+    ("ff_alsa_busy", r"Device or resource busy"),
+    ("ff_alsa_params", r"cannot set parameters[^\n]*"),
+    ("ff_alsa_unknown_pcm", r"Unknown PCM [^\n ]*"),
+    ("ff_no_such_process", r"No such process"),
+    ("ff_access_denied", r"Cannot connect context: Access denied"),
+    ("ff_pulse_sink_info",
+     r"(?:pa_context_get_sink_info_by_name failed|"
+     r"Updating sink info failed)"),
+    ("ff_option_range",
+     r"(?:out of range \[|Numerical result out of range)"),
+    ("ff_io_error", r"Input/output error"),
+    ("other_error", r"(?i)\berror\b[^\n]*"),
+)
+
+
+def _ffpw_r82_errclass(text):
+    """First matching named class on an ffmpeg-family stderr."""
+    for name, pat in _FFPW_R82_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _ffpw_r82_graph():
+    """pw-dump -> {nodes, links, clients} with the r82 prop filter
+    (pulse.attr.*, media.role, application.process.binary are kept — the
+    props ARE the claim for this family)."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, links, clients = {}, [], {}
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "class": props.get("media.class"),
+                "desc": props.get("node.description"),
+                "client_id": props.get("client.id"),
+                "state": info.get("state"),
+                "props": {k: v for k, v in props.items()
+                          if FFPW_R82_PROP_KEEP.match(k)
+                          and k not in FFPW_R82_PROP_DROP}}
+        elif t.endswith("Link"):
+            links.append({"out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id")})
+        elif t.endswith("Client"):
+            clients[o["id"]] = {
+                "name": props.get("client.name"),
+                "application_name": props.get("application.name"),
+                "binary": props.get("application.process.binary"),
+                "pid": props.get("application.process.id")}
+    return {"nodes": nodes, "links": links, "clients": clients}
+
+
+def _ffpw_r82_sample(procs, out_path, el):
+    """One timeline sample: main-proc liveness, artifact size, and every
+    spawned process's node (client-joined by pid — name-alias-proof) with
+    link endpoints. `watch` procs (taps, pumps) appear as nodes with a
+    `src` label so the pump's own re-link is witnessed in-place."""
+    g = _ffpw_r82_graph()
+    s = {"t": round(el, 3),
+         "live": procs["main"].poll() is None,
+         "live_map": {k: p.poll() is None for k, p in procs.items()},
+         "size": (Path(out_path).stat().st_size
+                  if out_path and Path(out_path).exists() else None),
+         "nodes": []}
+    if "error" in g:
+        s["graph_error"] = g["error"]
+        return s
+    for label, p in procs.items():
+        for nid, n in _gst_r81_our_nodes(g, p.pid):
+            cl = dict(g["clients"].get(n.get("client_id")) or {})
+            cl.pop("pid", None)      # volatile — the join already happened
+            s["nodes"].append({
+                "id": nid, "src": label, "name": n.get("name"),
+                "class": n.get("class"), "desc": n.get("desc"),
+                "client_id": n.get("client_id"), "state": n.get("state"),
+                "props": n.get("props"), "client": cl or None,
+                "consumers": _gst_r81_consumers(g, nid),
+                "producers": _gst_r81_producers(g, nid)})
+    return s
+
+
+def _ffpw_r82_last_node(leg, src="main", require_linked=False):
+    """The last sample's node leaf for `src` — the verdict surface."""
+    for s in reversed(leg.get("samples") or []):
+        for nd in (s.get("nodes") or []):
+            if src and nd.get("src") != src:
+                continue
+            if require_linked and not (nd.get("consumers") or
+                                       nd.get("producers")):
+                continue
+            return nd
+    return None
+
+
+def _ffpw_r82_kill_watch(proc, label):
+    """Timed-event kill for a watch proc (the pump) — SIGKILL its pgid."""
+    if proc is None:
+        return {"missing": label}
+    if proc.poll() is not None:
+        return {"already_exited": proc.returncode}
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+        return {"sigkilled": True}
+    except OSError as exc:
+        return {"error": str(exc)[:120]}
+
+
+def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
+                  watch=None, wall_cap=FFPW_R82_WALL_S,
+                  byte_cap=FFPW_R82_BYTE_CAP, sample_at=(0.4, 0.9),
+                  timeline=None, events=(), want_stdout=False):
+    """One bounded ffmpeg/ffprobe/ffplay/pw-record leg, triple-bounded in
+    the pgid-owning loop: the element bound (-t/-n/-re EOF) rides inside
+    argv, the wall cap SIGKILLs the pgid, the byte cap rides the same
+    tick. env_extra supports value=None to REMOVE an inherited var (the
+    SDL_AUDIODRIVER/PULSE_SINK hygiene for ffplay legs). Events:
+    unload_module goes through the name-verified unload against OUR sink
+    name; kill_watch SIGKILLs a named watch proc's group."""
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        for k, v in env_extra.items():
+            if v is None:
+                env.pop(k, None)
+            else:
+                env[k] = v
+    if out_path:
+        Path(out_path).unlink(missing_ok=True)
+    watch = dict(watch or {})
+    rec = {"name": name, "env_extra": env_extra or None,
+           "samples": [], "fired": []}
+    if watch:
+        rec["watch_argv"] = {k: " ".join(str(a) for a in
+                                       (getattr(p, "args", None) or []))
+                             for k, p in watch.items()}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=(subprocess.PIPE if want_stdout
+                          else subprocess.DEVNULL),
+            stderr=subprocess.PIPE, start_new_session=True, env=env)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:120]
+        return rec
+    procs = {"main": proc}
+    procs.update(watch)
+    t0 = time.monotonic()
+    ev = sorted(events, key=lambda e: e[0])
+    due = [] if timeline else list(sample_at)
+    next_tl = timeline
+    killed = None
+    while True:
+        el = time.monotonic() - t0
+        if proc.poll() is not None:
+            break
+        while ev and el >= ev[0][0]:
+            _, kind, arg = ev.pop(0)
+            when = round(el, 3)
+            try:
+                if kind == "unload_module":
+                    res = _gst_r81_unload_own(arg, sink_name=FFPW_R82_NS)
+                elif kind == "kill_watch":
+                    res = _ffpw_r82_kill_watch(procs.get(arg), arg)
+                else:
+                    res = {"unknown_event": kind}
+            except Exception as exc:                 # defensive: event must not kill the loop
+                res = {"exc": repr(exc)[:160]}
+            rec["fired"].append({"at": when, "kind": kind, "result": res})
+        if timeline:
+            if el >= next_tl:
+                rec["samples"].append(_ffpw_r82_sample(procs, out_path, el))
+                next_tl += timeline
+        elif due and el >= due[0]:
+            rec["samples"].append(
+                _ffpw_r82_sample(procs, out_path, due.pop(0)))
+        if out_path and Path(out_path).exists() and \
+                Path(out_path).stat().st_size > byte_cap:
+            killed = f"bytecap:{Path(out_path).stat().st_size}"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        if el > wall_cap:
+            killed = "wallcap"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        time.sleep(0.008)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    err = FFPW_R82_ANSI.sub(
+        "", proc.stderr.read().decode(errors="replace"))
+    cls, hit = _ffpw_r82_errclass(err)
+    shown = " ".join(argv)
+    for token, mark in ((str(out_path), "<out>"), (ctx.get("tmp"), "<tmp>")):
+        if token:
+            shown = shown.replace(str(token), mark)
+    rec.update({"argv": shown,
+                "exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed": killed,
+                "stderr_head": err.strip().splitlines()[:3],
+                "stderr": err[:3000],
+                "error_class": cls, "error_hit": hit,
+                "out_file": str(out_path) if out_path else None,
+                "out": (_gst_r81_wav_inspect(out_path)
+                        if out_path else None)})
+    if want_stdout:
+        rec["stdout"] = FFPW_R82_ANSI.sub(
+            "", (proc.stdout.read() or b"").decode(errors="replace"))[:6000]
+    return rec
+
+
+def _ffpw_r82_shot(argv, env_extra=None, timeout_s=12.0):
+    """A read-only instant command (devices/sources/sinks/-h/ffprobe
+    listing) — subprocess timeout is the bound; no stream ever opens."""
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        for k, v in env_extra.items():
+            if v is None:
+                env.pop(k, None)
+            else:
+                env[k] = v
+    try:
+        proc = subprocess.run(argv, capture_output=True,
+                              timeout=timeout_s, env=env)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"argv": " ".join(argv), "rc": None,
+                "error": type(exc).__name__ + ": " + str(exc)[:120]}
+    err = FFPW_R82_ANSI.sub("", proc.stderr.decode(errors="replace"))
+    cls, hit = _ffpw_r82_errclass(err)
+    return {"argv": " ".join(str(a) for a in argv), "rc": proc.returncode,
+            "out": FFPW_R82_ANSI.sub(
+                "", proc.stdout.decode(errors="replace"))[:6000],
+            "err": err[:3000], "stderr_head": err.strip().splitlines()[:3],
+            "error_class": cls, "error_hit": hit}
+
+
+def _ffpw_r82_device_rows(text):
+    """`ffmpeg -devices` -> {device_name: 'DE'/'D.'/'.E'} (flags
+    normalized, spaces folded)."""
+    rows = {}
+    for ln in text.splitlines():
+        m = re.match(r"^ ([DE. ])([DE. ]) (\S+)\s+(.+)$", ln)
+        if not m:
+            continue
+        name = m.group(3)
+        if name in ("=", "---") or name.startswith("---"):
+            continue
+        rows[name] = ((m.group(1) if m.group(1) != " " else ".") +
+                      (m.group(2) if m.group(2) != " " else "."))
+    return rows
+
+
+def _ffpw_r82_enum_rows(text):
+    """`ffmpeg -sources|-sinks <dev>` -> (row_names, starred_names)."""
+    rows, star = [], []
+    for ln in text.splitlines():
+        m = re.match(r"^\s*(\*)?\s*(\S+)\s+\[", ln)
+        if m:
+            rows.append(m.group(2))
+            if m.group(1):
+                star.append(m.group(2))
+    return rows, star
+
+
+def _ffpw_r82_write_tone(path, seconds):
+    """The r82 tag tone: L 1210 Hz / R 1780 Hz at amp 8192 with +-30 LSB
+    uniform dither — a pair DISTINCT from the r78 1k/1.5k tag so a foreign
+    probe's tone can never read as `mine` at the 6% window tolerance, and
+    the dither defeats the mpegts-misprobe edge the scout noted on a pure
+    S16 stereo tone (the r82 ffplay legs probe the file positionally)."""
+    n = int(48000 * seconds)
+    t = np.arange(n) / 48000
+    rng = np.random.default_rng(0x82FF ^ (FFPW_R82_PID & 0xFFFF))
+    dith = rng.integers(-30, 31, n)
+    left = np.clip(FFPW_R82_TONE_AMP *
+                   np.sin(2 * np.pi * FFPW_R82_TONE_L_HZ * t) + dith,
+                   -32768, 32767).astype("<i2")
+    right = np.clip(FFPW_R82_TONE_AMP *
+                    np.sin(2 * np.pi * FFPW_R82_TONE_R_HZ * t) + dith,
+                    -32768, 32767).astype("<i2")
+    pcm = np.empty(n * 2, dtype="<i2")
+    pcm[0::2], pcm[1::2] = left, right
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(48000)
+        w.writeframes(pcm.tobytes())
+
+
+def _ffpw_r82_tone_windows(path):
+    """The r78 window classifier re-pointed at the r82 pair (1210/1780 Hz
+    within 6%, amp>=the r78 floor): `mine` means BOTH channels carry the
+    tag, `audio` means any signal — the only statement that survives a
+    shared default sink."""
+    path = Path(path) if path else None
+    insp = (_capture_wav_inspect(path) if path is not None
+            else {"exists": False})
+    pcm = (_playback_r78_pcm_array(path, insp) if path is not None
+           else None)
+    out = {"exists": insp.get("exists"), "bytes": insp.get("bytes"),
+           "windows": [], "mine_spans": []}
+    if pcm is None:
+        out["unsupported"] = "no s16 stereo data chunk"
+        return out
+    rate = (insp.get("fmt") or {}).get("rate") or 48000
+    win = max(64, int(rate * PLAYBACK_R78_TONE_WINDOW_S))
+    han = np.hanning(win)
+    freq_axis = np.fft.rfftfreq(win, 1.0 / rate)
+    tol_l = FFPW_R82_TONE_L_HZ * PLAYBACK_R78_TONE_TOL
+    tol_r = FFPW_R82_TONE_R_HZ * PLAYBACK_R78_TONE_TOL
+    spans, cur = [], None
+    for i in range(len(pcm) // win):
+        seg = pcm[i * win:(i + 1) * win].astype(np.float64) * han[:, None]
+        fl, al = _playback_r78_domfreq(seg[:, 0], freq_axis)
+        fr, ar = _playback_r78_domfreq(seg[:, 1], freq_axis)
+        at = round(i * PLAYBACK_R78_TONE_WINDOW_S, 2)
+        mine = (abs(fl - FFPW_R82_TONE_L_HZ) <= tol_l and
+                abs(fr - FFPW_R82_TONE_R_HZ) <= tol_r and
+                al >= PLAYBACK_R78_TONE_AMP_MIN and
+                ar >= PLAYBACK_R78_TONE_AMP_MIN)
+        audio = max(al, ar) >= PLAYBACK_R78_TONE_AUDIO_MIN
+        out["windows"].append({"at_s": at, "f_l": int(fl), "a_l": int(al),
+                               "f_r": int(fr), "a_r": int(ar),
+                               "mine": bool(mine), "audio": bool(audio)})
+        if mine:
+            cur = [at, at + PLAYBACK_R78_TONE_WINDOW_S] if cur is None \
+                else [cur[0], at + PLAYBACK_R78_TONE_WINDOW_S]
+        elif cur is not None:
+            spans.append([round(x, 2) for x in cur])
+            cur = None
+    if cur is not None:
+        spans.append([round(x, 2) for x in cur])
+    out["mine_spans"] = spans
+    out["mine_windows"] = sum(1 for w in out["windows"] if w["mine"])
+    out["audio_windows"] = sum(1 for w in out["windows"] if w["audio"])
+    out["zero_windows"] = sum(1 for w in out["windows"] if not w["audio"])
+    out["peak_l"] = max((w["a_l"] for w in out["windows"]), default=0)
+    out["peak_r"] = max((w["a_r"] for w in out["windows"]), default=0)
+    out["carries_tone"] = (out["mine_windows"] >=
+                           PLAYBACK_R78_CARRIES_TONE_WINDOWS)
+    return out
+
+
+def _ffpw_r82_unload_own(module_id):
+    """Name-verified unload of OUR null sink — the args string must carry
+    sink_name=<FFPW_R82_NS>; a bare captured index is never fired."""
+    return _gst_r81_unload_own(module_id, sink_name=FFPW_R82_NS)
+
+
+def _ffpw_r82_ns_ensure(loads):
+    """(Re)load the seat-owned null sink if absent, with the r79 port +
+    monitor-source readiness gates (a record spawned in the enumeration
+    gap binds the live default and hangs to its bound)."""
+    if FFPW_R82_NS in (_capture_r77_sink_names() or []):
+        leaf = {"present": True,
+                "module_id": _gst_r81_sink_module_index(FFPW_R82_NS),
+                "sink_seen": True}
+    else:
+        leaf = _loopback_r79_sinks_load([FFPW_R82_NS])[FFPW_R82_NS]
+    loads[FFPW_R82_NS] = leaf
+    return leaf
+
+
+def _ffpw_r82_teardown(entry, failures, loads):
+    """Every own module unloaded by name-verified index, then the
+    witnesses: probe sinks gone from pactl and no r82ff_<pid>/r82ffx_<pid>
+    node surviving (foreign r82ff names from other lanes are NOT counted —
+    ownership is pid-keyed)."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unloads", {})[tag] = _ffpw_r82_unload_own(
+            (leaf or {}).get("module_id"))
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if FFPW_R82_TAG in n or FFPW_R82_XTAG in n
+                      or n == FFPW_R82_NS)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r82-tagged nodes survived: {rest}")
+
+
+def _ffpw_r82_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    if loads is not None:
+        for leaf in loads.values():
+            _ffpw_r82_unload_own((leaf or {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+def _ffpw_r82_entry_head(probe):
+    """Shared entry preamble: inventory, oracle, contention census."""
+    inv = _capture_inventory()
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]}}
+
+
+def _ffpw_r82_tap(target, path, seconds, tag):
+    """Bounded monitor tap on a SINK name (the capture.sink prop
+    authorizes the monitor ports). rc=1 at the -n bound is success."""
+    return _playback_r78_tap(target, str(path), int(seconds * 48000), tag)
+
+
+def _ffpw_r82_pump(tone, target, tag):
+    """The tag-tone pump: ffmpeg -re loop of the tag tone into `target`
+    via the pulse outdev — itself an ffmpeg pulse playback node (its own
+    re-link is witnessed when the sink is destroyed)."""
+    argv = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-re", "-stream_loop", "-1", "-f", "wav", "-i", str(tone),
+            "-f", "pulse", "-name", tag, "-device", target,
+            FFPW_R82_OUT_NAME]
+    return subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL, start_new_session=True)
+
+
+def _ffpw_r82_reap_watch(watch, timeout_s=4.0):
+    """Reap the watch procs (taps end at their -n bound; the pump was
+    killed by the timed event); record each rc."""
+    out = {}
+    for label, proc in (watch or {}).items():
+        _capture_r77_reap(proc, timeout_s)
+        leaf = {"exit_code": proc.returncode}
+        try:
+            err = FFPW_R82_ANSI.sub(
+                "", proc.stderr.read().decode(errors="replace"))
+            if err.strip():
+                leaf["stderr_head"] = err.strip().splitlines()[:2]
+        except Exception:
+            pass
+        out[label] = leaf
+    return out
+
+
+def _ffpw_r82_prop_check(failures, lname, nd, want):
+    """Assert exact node-prop values; every mismatch names the prop."""
+    props = (nd or {}).get("props") or {}
+    for k, v in want.items():
+        if props.get(k) != v:
+            failures.append(f"{lname}: prop {k}={props.get(k)!r} "
+                            f"!= pinned {v!r}")
+
+
+def _ffpw_r82_default_sink(entry):
+    return entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+
+
+# --------------------------------------------------------------------------
+# (1) DEVICE SURFACES — the device/format lattice.
+# --------------------------------------------------------------------------
+def ffpw_device_surfaces_r82_entry():
+    """(1) The device lattice verbatim: `ffmpeg -devices` lists pulse/
+    alsa/jack/oss/sndio and NO pipewire device row; `-f pipewire -i x` is
+    rc=234 EINVAL `Unknown input format`; `-sources pipewire` is rc=0 with
+    zero rows while `-sources pulse`/`-sinks pulse` enumerate the live
+    graph — the `*` default marker is recorded against `pactl info` as
+    agree/disagree/no_star, never gated (its provenance is the scout's
+    open honesty item). `-h muxer=pulse`/`-h demuxer=pulse` pin the
+    option table including the Lavf63.1.101/record/48000/2 defaults."""
+    failures = []
+    legs = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg device surfaces — no pipewire device row (rc=234 "
+        "EINVAL forced), -sources pipewire empty, -sources/-sinks pulse "
+        "live, `*` marker discord recorded, -h option table")
+    if shutil.which("ffmpeg") is None:
+        return _ffpw_r82_block(entry, failures, "ffmpeg binary absent")
+    for rep in range(2):
+        legs[f"d0_devices_r{rep}"] = _ffpw_r82_shot(
+            ["ffmpeg", "-hide_banner", "-devices"])
+    legs["d1_forced_pipewire"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-nostdin", "-f", "pipewire", "-i", "x"])
+    legs["d2_sources_pipewire"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sources", "pipewire"])
+    legs["d3_sources_pulse"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sources", "pulse"])
+    legs["d4_sinks_pulse"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sinks", "pulse"])
+    legs["d5_muxer_help"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-h", "muxer=pulse"])
+    legs["d6_demuxer_help"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-h", "demuxer=pulse"])
+    entry["legs"] = legs
+    # ---- d0: the audio device lattice, stable across the two reps ----
+    rows_seen = []
+    for rep in range(2):
+        leg = legs[f"d0_devices_r{rep}"]
+        rows = _ffpw_r82_device_rows(leg.get("out") or "")
+        leg["audio_rows"] = {k: v for k, v in rows.items()
+                             if k in ("alsa", "pulse", "jack", "oss",
+                                      "sndio", "pipewire", "lavfi")}
+        rows_seen.append(rows)
+    rows = rows_seen[0]
+    want_flags = {"alsa": "DE", "pulse": "DE", "jack": "D.", "oss": "DE",
+                  "sndio": "DE"}
+    for dev, flags in want_flags.items():
+        if rows.get(dev) != flags:
+            failures.append(f"devices: {dev} flags {rows.get(dev)!r} "
+                            f"!= pinned {flags!r}")
+    if "pipewire" in rows:
+        failures.append("devices: a pipewire device row EXISTS — the "
+                        "build-gained-a-device realization (falsifies "
+                        "the scout lattice)")
+    if any(rows.get(d) is None for d in want_flags):
+        failures.append("devices: a pinned audio device row is missing "
+                        f"entirely — {rows_seen[0]}")
+    if rows_seen[0] != rows_seen[1]:
+        failures.append("devices: rep-to-rep drift in the device table")
+    # ---- d1: forcing the absent indev is rc=234 EINVAL ----
+    leg = legs["d1_forced_pipewire"]
+    if leg.get("rc") != 234 or leg.get("error_class") != "ff_unknown_format":
+        failures.append(f"forced pipewire: rc={leg.get('rc')} "
+                        f"cls={leg.get('error_class')} — expected rc=234 "
+                        "EINVAL `Unknown input format`")
+    # ---- d2/d3/d4: the enumeration channels ----
+    leg = legs["d2_sources_pipewire"]
+    rows_pw, _star = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_pw
+    if leg.get("rc") != 0:
+        failures.append(f"sources pipewire: rc={leg.get('rc')} != 0")
+    if rows_pw:
+        failures.append(f"sources pipewire: rows listed for an absent "
+                        f"indev — {rows_pw}")
+    leg = legs["d3_sources_pulse"]
+    rows_s, star_s = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_s
+    leg["starred"] = star_s
+    if leg.get("rc") != 0 or not rows_s:
+        failures.append(f"sources pulse: rc={leg.get('rc')} rows="
+                        f"{len(rows_s)} — expected rc=0 with live rows")
+    leg = legs["d4_sinks_pulse"]
+    rows_k, star_k = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_k
+    leg["starred"] = star_k
+    if leg.get("rc") != 0 or not rows_k:
+        failures.append(f"sinks pulse: rc={leg.get('rc')} rows="
+                        f"{len(rows_k)} — expected rc=0 with live rows")
+    # the honest discord leaf: `*` vs the pactl default — recorded, not gated
+    default = _ffpw_r82_default_sink(entry)
+    leg["star_vs_pactl"] = (
+        "no_star" if not star_k else
+        "agree" if star_k == [default] else "disagree")
+    # ---- d5/d6: the option tables ----
+    for lname, want_opts, want_defs in (
+            ("d5_muxer_help",
+             ("server", "name", "stream_name", "device", "buffer_size",
+              "buffer_duration", "prebuf", "minreq"),
+             ()),
+            ("d6_demuxer_help",
+             ("server", "name", "stream_name", "sample_rate", "channels",
+              "frame_size", "fragment_size", "wallclock"),
+             (('name', 'Lavf63.1.101'), ('stream_name', 'record'),
+              ('sample_rate', '48000'), ('channels', '2')))):
+        leg = legs[lname]
+        text = (leg.get("out") or "") + (leg.get("err") or "")
+        if leg.get("rc") != 0:
+            failures.append(f"{lname}: rc={leg.get('rc')} != 0")
+            continue
+        got = {}
+        for opt in want_opts:
+            m = re.search(rf"^\s+-{opt}\s+(.*)$", text, re.M)
+            got[opt] = (m.group(1).strip()[:110] if m else None)
+        leg["options"] = got
+        for opt, line in got.items():
+            if line is None:
+                failures.append(f"{lname}: option -{opt} absent from "
+                                "the help table")
+        for opt, default in want_defs:
+            line = got.get(opt) or ""
+            if f'default "{default}"' not in line and \
+                    f"default {default}" not in line:
+                failures.append(f"{lname}: -{opt} default not pinned as "
+                                f"{default!r} — line {line!r}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) CAPTURE LATTICE — the STRICT side: source-name validation at connect.
+# --------------------------------------------------------------------------
+def ffpw_capture_lattice_r82_entry():
+    """(2) Capture validates the target name at connect — with ONE
+    permissive hole: `<ns>.monitor` links (producers==[ns], target.object
+    lands with `.monitor` STRIPPED, stream.capture.sink prop published),
+    a bare sink name / bogus source / `<default-sink>` are rc=251 EIO in
+    well under a second even with the capture.sink prop, `default` is
+    the BIMODAL {eio_251, hang_killed} cell (x3 reps),
+    @DEFAULT_MONITOR@/@DEFAULT_SOURCE@ resolve and link the real
+    defaults, -name/-stream_name rename the node while PIPEWIRE_PROPS
+    node.name is overridden to Lavf63.1.101 (stream.capture.sink still
+    lands), and a real source captures directly. The hole (r82-boundary):
+    any UNRESOLVABLE name ending in `.monitor` is rc=0 and silently
+    falls back to the default sink's monitor — literal target.object,
+    producers=[default]. The pulse indev never clamps: `-sample_rate
+    12345` publishes node.rate=1/12345 verbatim. Bogus `-server` is
+    rc=253 ESRCH."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg capture lattice — source validated at connect (251 EIO "
+        "bogus/bare-sink/sink-name; `default` bimodal), aliases resolve, "
+        "name-vs-env override split, spec legs")
+    ctx = {}
+    prop = "{ stream.capture.sink=true }"
+    base = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-y", "-f", "pulse"]
+    pump = None
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        defsrc = entry["inventory"]["default_source"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-cap-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 3.0)
+            pump = _ffpw_r82_pump(tone, FFPW_R82_NS,
+                                  f"{FFPW_R82_TAG}_pump")
+            time.sleep(0.4)     # let the pump link before the legs sample it
+            watch = {"pump": pump}
+
+            def _cap(name, pre, src, post=None, env=None, wall=None,
+                     w=watch, tone=False):
+                out = str(Path(tmp) / f"{name}.wav")
+                leg = _ffpw_r82_leg(
+                    name,
+                    base + list(pre) + ["-i", src] + list(post or []) +
+                    ["-t", "2.0", "-c:a", "pcm_s16le", out],
+                    ctx, env_extra=env, out_path=out,
+                    watch=w, wall_cap=wall or FFPW_R82_WALL_S)
+                if tone:
+                    tw = _ffpw_r82_tone_windows(out)   # inside the tmpdir
+                    leg["tone"] = {"carries_tone": tw.get("carries_tone"),
+                                   "mine_windows": tw.get("mine_windows"),
+                                   "mine_spans": tw.get("mine_spans"),
+                                   "peak_l": tw.get("peak_l")}
+                return leg
+
+            legs["c0_ns_monitor"] = _cap(
+                "c0_ns_monitor", [], FFPW_R82_NS + ".monitor",
+                env={"PIPEWIRE_PROPS":
+                     f"{{ stream.capture.sink=true }}"}, tone=True)
+            legs["c1_bare_sink"] = _cap(
+                "c1_bare_sink", [], FFPW_R82_NS, env={"PIPEWIRE_PROPS": prop})
+            legs["c2_bogus_src"] = _cap(
+                "c2_bogus_src", [], FFPW_R82_BOGUS_SOURCE)
+            # c3: the bimodal `default` cell — 3 reps, envelope-armed
+            for rep in range(3):
+                legs[f"c3_default_r{rep}"] = _cap(
+                    f"c3_default_r{rep}", [], "default", w=None,
+                    wall=5.0)
+            legs["c4_defmon_alias"] = _cap(
+                "c4_defmon_alias", [], "@DEFAULT_MONITOR@",
+                env={"PIPEWIRE_PROPS": prop})
+            if defsrc:
+                legs["c5_defsrc_alias"] = _cap(
+                    "c5_defsrc_alias", [], "@DEFAULT_SOURCE@")
+            legs["c6_named"] = _cap(
+                "c6_named",
+                ["-name", f"{FFPW_R82_TAG}_capname",
+                 "-stream_name", f"{FFPW_R82_TAG} cap stream"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            legs["c7_env_props"] = _cap(
+                "c7_env_props", [], FFPW_R82_NS + ".monitor",
+                env={"PIPEWIRE_PROPS":
+                     f"{{ node.name={FFPW_R82_XTAG}_cap "
+                     f"stream.capture.sink=true }}"})
+            legs["c8_spec_44k1"] = _cap(
+                "c8_spec_44k1", ["-sample_rate", "44100", "-channels", "1"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            if defsrc:
+                legs["c9_real_source"] = _cap(
+                    "c9_real_source", [], defsrc)
+            legs["c10_weird_ch7"] = _cap(
+                "c10_weird_ch7", ["-channels", "7"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            legs["c11_bad_server"] = _cap(
+                "c11_bad_server", ["-server", FFPW_R82_BAD_SERVER],
+                "default", w=None)
+            legs["c12_sink_name"] = _cap(
+                "c12_sink_name", [], default or "<none>",
+                env={"PIPEWIRE_PROPS": prop})
+            # c13: the boundary's captured-facing fallback — an
+            # unresolvable name ending in `.monitor` does NOT refuse; it
+            # silently lands on the default sink's monitor (the `.monitor`
+            # suffix bypasses the name lookup). So "capture validates" is
+            # not universal: only the bare/source/sink-name forms are.
+            legs["c13_bogus_monitor"] = _cap(
+                "c13_bogus_monitor", [],
+                f"no_such_thing_{FFPW_R82_PID}.monitor")
+            # c14: the pulse path does NOT clamp — `-sample_rate 12345`
+            # publishes node.rate=1/12345 (contrast a6's ALSA
+            # nearest-supported clamp to 44100).
+            legs["c14_rate_passthrough"] = _cap(
+                "c14_rate_passthrough", ["-sample_rate", "12345"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+    finally:
+        if pump is not None and pump.poll() is None:
+            os.killpg(pump.pid, signal.SIGKILL)
+        if pump is not None:
+            _capture_r77_reap(pump, 3)
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+
+    def _refusal(name, want_rc=251, want_class="ff_io_error"):
+        leg = legs.get(name) or {}
+        if leg.get("exit_code") != want_rc or \
+                leg.get("error_class") != want_class:
+            failures.append(f"cap {name}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != "
+                            f"{want_rc}/{want_class}")
+        if leg.get("wall_s") is not None and leg["wall_s"] > 4.0 and \
+                not leg.get("killed"):
+            failures.append(f"cap {name}: refusal took {leg['wall_s']}s "
+                            "— outside the ~1 s envelope")
+        out = leg.get("out") or {}
+        if out.get("exists") and (out.get("bytes") or 0) > 44:
+            failures.append(f"cap {name}: a refused capture must not "
+                            f"produce audio — {out}")
+
+    # ---- c0: the pinned success shape ----
+    leg = legs.get("c0_ns_monitor") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c0: leg failed — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c0", nd, {
+            "node.name": "Lavf63.1.101",
+            "application.name": "Lavf63.1.101",
+            "media.name": "record",
+            "media.class": "Stream/Input/Audio",
+            "target.object": FFPW_R82_NS,
+            "stream.capture.sink": True,
+            "client.api": "pipewire-pulse",
+            "node.rate": "1/48000",
+            "node.latency": "2400/48000",
+            "pulse.attr.fragsize": 9600})
+        if nd.get("producers") != [FFPW_R82_NS]:
+            failures.append(f"cap c0: producers {nd.get('producers')} "
+                            "!= [<ns>]")
+        w = leg.get("tone") or {}
+        if not w.get("carries_tone"):
+            failures.append("cap c0: the pump's tag tone never landed in "
+                            "the captured wav (mine_windows "
+                            f"{w.get('mine_windows')})")
+    # ---- refusals ----
+    for lname in ("c1_bare_sink", "c2_bogus_src", "c12_sink_name"):
+        _refusal(lname)
+    # ---- c3: the bimodal `default` cell ----
+    seen = []
+    for rep in range(3):
+        leg = legs.get(f"c3_default_r{rep}") or {}
+        rc, killed, cls = (leg.get("exit_code"), leg.get("killed"),
+                           leg.get("error_class"))
+        if rc == 251 and cls == "ff_io_error":
+            seen.append("eio_251")
+        elif killed == "wallcap" or (rc is not None and rc < 0):
+            seen.append("hang_killed")
+        else:
+            seen.append(f"unexpected:rc{rc}/{cls}")
+            failures.append(f"cap c3_default_r{rep}: outside the "
+                            f"{{eio_251, hang_killed}} envelope — rc={rc} "
+                            f"cls={cls} killed={killed}")
+    entry["c3_default_realizations"] = seen
+    # ---- c4/c5: the resolving aliases ----
+    leg = legs.get("c4_defmon_alias") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c4: leg failed — rc={leg.get('exit_code')}")
+    elif default:
+        props = nd.get("props") or {}
+        if props.get("target.object") != default:
+            failures.append(f"cap c4: @DEFAULT_MONITOR@ target.object "
+                            f"{props.get('target.object')!r} != the "
+                            f"resolved default sink {default!r}")
+        if nd.get("producers") != [default]:
+            failures.append(f"cap c4: producers {nd.get('producers')} "
+                            "!= [default sink]")
+    if defsrc:
+        leg = legs.get("c5_defsrc_alias") or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"cap c5: leg failed — rc="
+                            f"{leg.get('exit_code')}")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != defsrc:
+                failures.append(f"cap c5: @DEFAULT_SOURCE@ target.object "
+                                f"{props.get('target.object')!r} != "
+                                f"{defsrc!r}")
+            if nd.get("producers") != [defsrc]:
+                failures.append(f"cap c5: producers {nd.get('producers')} "
+                                "!= [default source]")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "c5_defsrc_alias: no pactl default source")
+    # ---- c6: -name/-stream_name rename the node ----
+    leg = legs.get("c6_named") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c6: leg failed — rc={leg.get('exit_code')}")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c6", nd, {
+            "node.name": f"{FFPW_R82_TAG}_capname",
+            "application.name": f"{FFPW_R82_TAG}_capname",
+            "media.name": f"{FFPW_R82_TAG} cap stream"})
+    # ---- c7: PIPEWIRE_PROPS node.name is overridden; capture.sink lands
+    leg = legs.get("c7_env_props") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c7: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.name") != "Lavf63.1.101":
+            failures.append(f"cap c7: env node.name was NOT overridden — "
+                            f"node.name={props.get('node.name')!r}")
+        if props.get("stream.capture.sink") is not True:
+            failures.append("cap c7: env stream.capture.sink did not land")
+    # ---- c8: spec rewrite ----
+    leg = legs.get("c8_spec_44k1") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0:
+        failures.append(f"cap c8: rc={leg.get('exit_code')} != 0")
+    else:
+        if out.get("rate") != 44100 or out.get("ch") != 1:
+            failures.append(f"cap c8: wav spec {out} != 44100/1ch")
+        if nd is not None:
+            _ffpw_r82_prop_check(failures, "cap c8", nd, {
+                "node.rate": "1/44100", "node.latency": "2205/44100",
+                "pulse.attr.fragsize": 4410})
+    # ---- c9: a real source captures directly ----
+    if defsrc:
+        leg = legs.get("c9_real_source") or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"cap c9: leg failed — rc="
+                            f"{leg.get('exit_code')}")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != defsrc or \
+                    nd.get("producers") != [defsrc]:
+                failures.append(f"cap c9: direct source capture did not "
+                                f"bind {defsrc} — target="
+                                f"{props.get('target.object')!r} "
+                                f"producers={nd.get('producers')}")
+    # ---- c10: the 7-channel spec ----
+    leg = legs.get("c10_weird_ch7") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or out.get("ch") != 7:
+        failures.append(f"cap c10: rc={leg.get('exit_code')} ch="
+                        f"{out.get('ch')} — expected rc=0 7ch wav")
+    elif nd is not None:
+        _ffpw_r82_prop_check(failures, "cap c10", nd, {
+            "pulse.attr.fragsize": 33600,
+            "pulse.attr.maxlength": 4194302})
+    # ---- c11: bad server on the indev is ESRCH ----
+    leg = legs.get("c11_bad_server") or {}
+    if leg.get("exit_code") != 253 or \
+            leg.get("error_class") != "ff_no_such_process":
+        failures.append(f"cap c11: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 253/"
+                        "ff_no_such_process")
+    # ---- c13: the `.monitor`-suffix permissive hole (r82-boundary) ----
+    leg = legs.get("c13_bogus_monitor") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c13: the bogus-.monitor leg REFUSED — "
+                        f"rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} (the permissive hole "
+                        "closed?)")
+    else:
+        props = nd.get("props") or {}
+        want_lit = f"no_such_thing_{FFPW_R82_PID}"
+        if props.get("target.object") != want_lit:
+            failures.append(f"cap c13: target.object "
+                            f"{props.get('target.object')!r} != the "
+                            f"literal (.monitor-stripped) {want_lit!r}")
+        if props.get("stream.capture.sink") is not True:
+            failures.append("cap c13: stream.capture.sink not set on the "
+                            "fallback capture")
+        if default and nd.get("producers") != [default]:
+            failures.append(f"cap c13: producers {nd.get('producers')} "
+                            "!= [default sink] — where did it land?")
+    # ---- c14: no pulse-side clamp (vs a6's ALSA clamp) ----
+    leg = legs.get("c14_rate_passthrough") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c14: rc={leg.get('exit_code')} — the "
+                        "weird-rate pulse capture failed")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c14", nd, {
+            "node.rate": "1/12345",
+            "node.latency": "617/12345",
+            "pulse.attr.fragsize": 2468})
+        if out.get("rate") != 12345:
+            failures.append(f"cap c14: wav rate {out.get('rate')} != "
+                            "12345 — the pulse path clamped (ALSA-style "
+                            "negotiation reached the indev?)")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) PLAYBACK LATTICE — the PERMISSIVE side: no validation, silent re-route.
+# --------------------------------------------------------------------------
+def ffpw_playback_lattice_r82_entry():
+    """(3) Playback validates only the EMPTY string: every non-empty name
+    form is rc=0 with `target.object` keeping the literal written value
+    while WirePlumber re-routes to the leg-time default — measured by
+    the two bounded monitor taps (the shared-default tap carries the tag
+    tone, the probe-sink tap stays clean). `-device ""` is the single
+    refusal: rc=187 `pa_context_get_sink_info_by_name failed`, no node,
+    no tone. `@DEFAULT_SINK@` lands RESOLVED (the one non-literal),
+    `default` stays literal, `-device` absent means no target.object at
+    all. PULSE_SINK is honored on ffmpeg's pulse path; a bad `-server`
+    is rc=187 access-denied; -name/-stream_name rename; PIPEWIRE_PROPS
+    target.object on the outdev is the freshly-measured env-routing
+    cell."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg playback lattice — no target validation (rc=0 bogus/"
+        "source/monitor/default/alias), literal target.object + silent "
+        "re-route to default (monitor-tap witnessed), PULSE_SINK "
+        "honored, -server 187")
+    entry["contamination"] = {
+        "shared_default_tone": True,
+        "note": "fallback legs play the bounded (~2.2 s) tag tone through "
+                "the CURRENT default sink — the scout's own content-level "
+                "witness for silent re-route; taps are bounded pw-record "
+                "runs reaped at each leg",
+        "legs": ["p1_bogus", "p2_src_name", "p3_monitor_name",
+                 "p4_default_kw", "p5_alias", "p8_no_device"]}
+    ctx = {}
+    base = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-re", "-f", "wav", "-i"]
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        defsrc = entry["inventory"]["default_source"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-play-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 2.2)
+
+            def _play(name, out_opts, env=None, taps=True, wall=None):
+                argv = base + [str(tone), "-f", "pulse"] + \
+                    list(out_opts) + [FFPW_R82_OUT_NAME]
+                watch = {}
+                paths = {}
+                if taps:
+                    tp = Path(tmp)
+                    ns_p = tp / f"{name}_ns.wav"
+                    df_p = tp / f"{name}_def.wav"
+                    watch["tap_ns"] = _ffpw_r82_tap(
+                        FFPW_R82_NS, ns_p, 3.4,
+                        f"{FFPW_R82_TAG}_tns_{name}")
+                    if default:
+                        watch["tap_def"] = _ffpw_r82_tap(
+                            default, df_p, 3.4,
+                            f"{FFPW_R82_TAG}_tdef_{name}")
+                    paths = {"tap_ns": ns_p, "tap_def": df_p}
+                leg = _ffpw_r82_leg(
+                    name, argv, ctx, env_extra=env, watch=watch,
+                    wall_cap=wall or FFPW_R82_WALL_S,
+                    sample_at=(0.4, 0.9, 1.6))
+                leg["taps"] = _ffpw_r82_reap_watch(watch)
+                for label, path in paths.items():
+                    if Path(path).exists():
+                        w = _ffpw_r82_tone_windows(path)
+                        leg["taps"].setdefault(label, {})["tone"] = {
+                            "carries_tone": w.get("carries_tone"),
+                            "mine_windows": w.get("mine_windows"),
+                            "mine_spans": w.get("mine_spans"),
+                            "peak_l": w.get("peak_l"),
+                            "audio_windows": w.get("audio_windows")}
+                return leg
+
+            legs["p0_honor"] = _play("p0_honor", ["-device", FFPW_R82_NS])
+            legs["p1_bogus"] = _play("p1_bogus",
+                                     ["-device", FFPW_R82_BOGUS_SINK])
+            if defsrc:
+                legs["p2_src_name"] = _play("p2_src_name",
+                                            ["-device", defsrc])
+            legs["p3_monitor_name"] = _play(
+                "p3_monitor_name", ["-device", FFPW_R82_NS + ".monitor"])
+            legs["p4_default_kw"] = _play("p4_default_kw",
+                                          ["-device", "default"])
+            legs["p5_alias"] = _play("p5_alias",
+                                     ["-device", "@DEFAULT_SINK@"])
+            legs["p6_env_sink"] = _play(
+                "p6_env_sink", [], env={"PULSE_SINK": FFPW_R82_NS})
+            legs["p7_env_vs_flag"] = _play(
+                "p7_env_vs_flag", ["-device", "default"],
+                env={"PULSE_SINK": FFPW_R82_NS})
+            legs["p8_no_device"] = _play("p8_no_device", [])
+            legs["p9_bad_server"] = _play(
+                "p9_bad_server", ["-server", FFPW_R82_BAD_SERVER,
+                                  "-device", FFPW_R82_NS], taps=False)
+            legs["p10_named"] = _play(
+                "p10_named", ["-device", FFPW_R82_NS,
+                              "-name", f"{FFPW_R82_TAG}_playname",
+                              "-stream_name",
+                              f"{FFPW_R82_TAG} play stream"])
+            legs["p11_env_target"] = _play(
+                "p11_env_target", [],
+                env={"PIPEWIRE_PROPS":
+                     f"{{ target.object={FFPW_R82_NS} }}"})
+            # p12: the ONE string that does get validated — the boundary's
+            # falsification of "never validates" as a universal law:
+            # `-device ""` dies at header-write with rc=187
+            # `pa_context_get_sink_info_by_name failed` (no node, no
+            # tone — a REFUSAL, not a fallback).
+            legs["p12_empty_device"] = _play(
+                "p12_empty_device", ["-device", ""])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry)
+
+    def _tap_tone(leg, label):
+        return ((leg.get("taps") or {}).get(label) or {}).get("tone") or {}
+
+    # ---- the two routing shapes ----
+    def _landed_on(name, sink, want_target, taps=True):
+        leg = legs.get(name) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"play {name}: leg failed — "
+                            f"rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+            return
+        props = nd.get("props") or {}
+        if want_target == "<absent>":
+            if props.get("target.object") is not None:
+                failures.append(f"play {name}: bare playback must not "
+                                f"publish target.object — got "
+                                f"{props.get('target.object')!r}")
+        elif props.get("target.object") != want_target:
+            failures.append(f"play {name}: target.object "
+                            f"{props.get('target.object')!r} != "
+                            f"{want_target!r}")
+        if nd.get("consumers") != [sink]:
+            failures.append(f"play {name}: consumers "
+                            f"{nd.get('consumers')} != [{sink}]")
+        if not taps:
+            return
+        tdef = _tap_tone(leg, "tap_def")
+        tns = _tap_tone(leg, "tap_ns")
+        if sink == FFPW_R82_NS:
+            if not tns.get("carries_tone"):
+                failures.append(f"play {name}: the probe-sink tap never "
+                                "carried the tag tone")
+            if tdef.get("carries_tone"):
+                failures.append(f"play {name}: the tag tone LEAKED to "
+                                "the shared default sink")
+        else:
+            if not tdef.get("carries_tone"):
+                failures.append(f"play {name}: the shared-default tap "
+                                "never carried the tag tone — the "
+                                "silent re-route claim is unproven")
+            if tns.get("carries_tone"):
+                failures.append(f"play {name}: the tag tone landed on "
+                                "the PROBE sink — not a fallback")
+
+    _landed_on("p0_honor", FFPW_R82_NS, FFPW_R82_NS)
+    nd = _ffpw_r82_last_node(legs.get("p0_honor") or {})
+    if nd is not None:
+        _ffpw_r82_prop_check(failures, "play p0", nd, {
+            "node.name": "Lavf63.1.101",
+            "application.name": "Lavf63.1.101",
+            "media.name": FFPW_R82_OUT_NAME,
+            "media.class": "Stream/Output/Audio",
+            "client.api": "pipewire-pulse",
+            "node.rate": "1/48000",
+            "node.latency": "8192/48000",
+            "node.want-driver": True,
+            "pulse.attr.tlength": 384000,
+            "pulse.attr.prebuf": 380164,
+            "pulse.attr.minreq": 3840,
+            "pulse.attr.maxlength": 4194304})
+    if default:
+        _landed_on("p1_bogus", default, FFPW_R82_BOGUS_SINK)
+        if defsrc:
+            _landed_on("p2_src_name", default, defsrc)
+        _landed_on("p3_monitor_name", default, FFPW_R82_NS + ".monitor")
+        _landed_on("p4_default_kw", default, "default")
+        _landed_on("p5_alias", default, default)
+        _landed_on("p8_no_device", default, "<absent>")
+        # p6: PULSE_SINK honored -> lands on OUR sink
+        _landed_on("p6_env_sink", FFPW_R82_NS, FFPW_R82_NS)
+        # p7: -device vs PULSE_SINK — the precedence cell, armed with the
+        # freshly measured winner (recorded either way).
+        leg = legs.get("p7_env_vs_flag") or {}
+        nd = _ffpw_r82_last_node(leg)
+        cons = (nd or {}).get("consumers") or []
+        entry["p7_env_vs_flag_winner"] = (
+            "device_flag" if cons == [default] else
+            "env_pulse_sink" if cons == [FFPW_R82_NS] else
+            f"other:{cons}")
+        if leg.get("exit_code") != 0 or nd is None or \
+                cons not in ([default], [FFPW_R82_NS]):
+            failures.append(f"play p7: rc={leg.get('exit_code')} "
+                            f"consumers={cons} — outside the "
+                            "{device,env} envelope")
+        # p11: PIPEWIRE_PROPS target.object on the outdev — fresh cell.
+        leg = legs.get("p11_env_target") or {}
+        nd = _ffpw_r82_last_node(leg)
+        cons = (nd or {}).get("consumers") or []
+        tgt = ((nd or {}).get("props") or {}).get("target.object")
+        entry["p11_env_target"] = {"consumers": cons,
+                                   "target.object": tgt}
+        if leg.get("exit_code") != 0:
+            failures.append(f"play p11: rc={leg.get('exit_code')} != 0")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "default-sink routing legs: no pactl default sink")
+    # ---- p9: bad server on the outdev is access-denied 187 ----
+    leg = legs.get("p9_bad_server") or {}
+    if leg.get("exit_code") != 187 or \
+            leg.get("error_class") != "ff_access_denied":
+        failures.append(f"play p9: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 187/"
+                        "ff_access_denied")
+    # ---- p10: -name/-stream_name rename the playback node ----
+    leg = legs.get("p10_named") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"play p10: leg failed — rc={leg.get('exit_code')}")
+    else:
+        _ffpw_r82_prop_check(failures, "play p10", nd, {
+            "node.name": f"{FFPW_R82_TAG}_playname",
+            "application.name": f"{FFPW_R82_TAG}_playname",
+            "media.name": f"{FFPW_R82_TAG} play stream",
+            "target.object": FFPW_R82_NS})
+    # ---- p12: `-device ""` — the single validated string (rc=187) ----
+    leg = legs.get("p12_empty_device") or {}
+    if leg.get("exit_code") != 187 or \
+            leg.get("error_class") != "ff_pulse_sink_info":
+        failures.append(f"play p12: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 187/"
+                        "ff_pulse_sink_info — the empty-string refusal "
+                        "changed class")
+    nd = _ffpw_r82_last_node(leg)
+    if nd is not None:
+        failures.append("play p12: an empty `-device` still published a "
+                        "stream node — refusal weakened to fallback?")
+    tdef = _tap_tone(leg, "tap_def")
+    tns = _tap_tone(leg, "tap_ns")
+    if tdef.get("carries_tone") or tns.get("carries_tone"):
+        failures.append("play p12: the refused leg still moved the tag "
+                        "tone — not a hard refusal")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) BUFFER KNOBS — the pulse.attr lattice + position sensitivity.
+# --------------------------------------------------------------------------
+def ffpw_buffer_knobs_r82_entry():
+    """(4) The outdev knobs land as pulse.attr.* with libpulse's derived
+    clamp/floor values (buffer_size 16384 -> tlength 16384/prebuf 12548/
+    latency 2176; buffer_duration wins over buffer_size; minreq 512 ->
+    1024; buffer_size 1 -> floor 3072/2052/1024/latency 256). The indev
+    -fragment_size lands as fragsize + recomputed node.latency; options
+    placed AFTER `-i` are silently swallowed (fragsize stays 9600, wav
+    keeps 48k/2ch, no warning) EXCEPT deprecated `-frame_size` — a
+    pre-`-i` deprecation note and a post-`-i` ffmpeg_sched SIGABRT."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg buffer lattice — outdev pulse.attr mapping with libpulse "
+        "derivations, indev fragsize/latency, position-sensitive swallow "
+        "vs deprecation vs SIGABRT")
+    ctx = {}
+    prop = "{ stream.capture.sink=true }"
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        with tempfile.TemporaryDirectory(prefix="r82ff-buf-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 2.2)
+            base = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                    "-nostdin", "-re", "-f", "wav", "-i", str(silence),
+                    "-f", "pulse", "-device", FFPW_R82_NS]
+
+            def _bout(name, opts):
+                return _ffpw_r82_leg(
+                    name, base + list(opts) + [FFPW_R82_OUT_NAME], ctx,
+                    sample_at=(0.4, 0.9, 1.6))
+
+            legs["b0_default"] = _bout("b0_default", [])
+            legs["b1_bufsize"] = _bout("b1_bufsize",
+                                       ["-buffer_size", "16384"])
+            legs["b2_bufdur"] = _bout("b2_bufdur",
+                                      ["-buffer_duration", "500"])
+            legs["b3_prebuf"] = _bout("b3_prebuf", ["-prebuf", "8192"])
+            legs["b4_minreq"] = _bout("b4_minreq", ["-minreq", "512"])
+            legs["b5_all"] = _bout(
+                "b5_all", ["-buffer_size", "32768", "-buffer_duration",
+                           "200", "-prebuf", "16384", "-minreq", "1024"])
+            legs["b6_bufsize_1"] = _bout("b6_bufsize_1",
+                                         ["-buffer_size", "1"])
+
+            cbase = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-y", "-f", "pulse"]
+
+            def _cap(name, pre, post):
+                out = str(Path(tmp) / f"{name}.wav")
+                argv = cbase + list(pre) + \
+                    ["-i", FFPW_R82_NS + ".monitor"] + list(post) + \
+                    ["-t", "2.0", "-c:a", "pcm_s16le", out]
+                return _ffpw_r82_leg(
+                    name, argv, ctx, out_path=out,
+                    env_extra={"PIPEWIRE_PROPS": prop})
+
+            legs["ci0_default"] = _cap("ci0_default", [], [])
+            legs["ci1_frag_before"] = _cap(
+                "ci1_frag_before", ["-fragment_size", "2048"], [])
+            legs["ci2_frag_big_before"] = _cap(
+                "ci2_frag_big_before", ["-fragment_size", "65536"], [])
+            legs["ci3_framesize_before"] = _cap(
+                "ci3_framesize_before", ["-frame_size", "8192"], [])
+            legs["ci4_frag_after"] = _cap(
+                "ci4_frag_after", [], ["-fragment_size", "2048"])
+            legs["ci5_framesize_after"] = _cap(
+                "ci5_framesize_after", [], ["-frame_size", "8192"])
+            legs["ci6_spec_after"] = _cap(
+                "ci6_spec_after", [],
+                ["-sample_rate", "44100", "-channels", "1"])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- the outdev attr map ----
+    want_b = {
+        "b0_default": {"pulse.attr.tlength": 384000,
+                       "pulse.attr.prebuf": 380164,
+                       "pulse.attr.minreq": 3840,
+                       "node.latency": "8192/48000"},
+        "b1_bufsize": {"pulse.attr.tlength": 16384,
+                       "pulse.attr.prebuf": 12548,
+                       "pulse.attr.minreq": 3840,
+                       "node.latency": "2176/48000"},
+        "b2_bufdur": {"pulse.attr.tlength": 96000,
+                      "pulse.attr.prebuf": 92164,
+                      "pulse.attr.minreq": 3840,
+                      "node.latency": "8192/48000"},
+        "b3_prebuf": {"pulse.attr.tlength": 384000,
+                      "pulse.attr.prebuf": 8192,
+                      "pulse.attr.minreq": 3840},
+        "b4_minreq": {"pulse.attr.tlength": 384000,
+                      "pulse.attr.prebuf": 382980,
+                      "pulse.attr.minreq": 1024,
+                      "node.latency": "8192/48000"},
+        "b5_all": {"pulse.attr.tlength": 38400,
+                   "pulse.attr.prebuf": 16384,
+                   "pulse.attr.minreq": 1024},
+        "b6_bufsize_1": {"pulse.attr.tlength": 3072,
+                         "pulse.attr.prebuf": 2052,
+                         "pulse.attr.minreq": 1024,
+                         "node.latency": "256/48000"}}
+    for lname, want in want_b.items():
+        leg = legs.get(lname) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"buf {lname}: leg failed — "
+                            f"rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+            continue
+        _ffpw_r82_prop_check(failures, f"buf {lname}", nd, want)
+        if nd.get("consumers") != [FFPW_R82_NS]:
+            failures.append(f"buf {lname}: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- the indev position sensitivity ----
+    want_ci = {
+        "ci0_default": (9600, "2400/48000"),
+        "ci1_frag_before": (2048, "512/48000"),
+        "ci2_frag_big_before": (65536, "16384/48000"),
+        "ci3_framesize_before": (9600, "2400/48000"),
+        "ci4_frag_after": (9600, "2400/48000"),
+        "ci6_spec_after": (9600, "2400/48000")}
+    for lname, (frag, lat) in want_ci.items():
+        leg = legs.get(lname) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0:
+            failures.append(f"buf {lname}: rc={leg.get('exit_code')} "
+                            f"!= 0 (cls={leg.get('error_class')})")
+            continue
+        if nd is not None:
+            _ffpw_r82_prop_check(failures, f"buf {lname}", nd, {
+                "pulse.attr.fragsize": frag, "node.latency": lat})
+        out = leg.get("out") or {}
+        if lname == "ci6_spec_after":
+            # swallowed: the wav keeps the INDEV spec, not the asked one
+            # (the boundary's "post-`-i` -ac/-ar land" is about the
+            # ENCODER spellings, not the demuxer names used here)
+            if out.get("rate") != 48000 or out.get("ch") != 2:
+                failures.append(f"buf ci6: post-`-i` spec was NOT "
+                                f"swallowed — wav {out}")
+    leg = legs.get("ci3_framesize_before") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if "deprecated" not in err_text:
+        failures.append("buf ci3: pre-`-i` -frame_size must print the "
+                        f"deprecation note — {leg.get('stderr_head')}")
+    leg = legs.get("ci4_frag_after") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if "deprecated" in err_text or leg.get("error_class"):
+        failures.append("buf ci4: post-`-i` -fragment_size must be "
+                        f"silent — {leg.get('stderr_head')}")
+    leg = legs.get("ci5_framesize_after") or {}
+    if leg.get("exit_code") != -6 or \
+            leg.get("error_class") != "ff_sched_assert":
+        failures.append(f"buf ci5: post-`-i` -frame_size must be the "
+                        f"ffmpeg_sched SIGABRT — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) TARGET LOSS — BOTH directions re-link (the ffmpeg-specific law, a
+# deliberate divergence from r81's gst capture-freeze).
+# --------------------------------------------------------------------------
+def ffpw_target_loss_r82_entry():
+    """(5) Under seat-owned-sink destruction the ffmpeg streams RE-LINK:
+    playback's consumers go [ns] -> [default] within ~0.3 s (scout mean
+    0.22 s, armed bound 0.8 s) and the process exits cleanly at input
+    EOF; capture's producers re-link [ns] -> [default] and the artifact
+    keeps GROWING to its -t bound (finalized wav — the opposite of r81's
+    wavenc-streaming freeze). A same-event pw-record control re-links too
+    (WirePlumber-generic). Unload fires by the name-verified index; the
+    pump's own playback re-link is witnessed inside the capture legs."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg target loss — BOTH directions re-link to the leg-time "
+        "default (playback exits rc=0 at EOF, capture artifact keeps "
+        "growing); pw-record control re-links; ffmpeg-vs-gst split noted")
+    entry["contamination"] = {
+        "shared_default_tone": True,
+        "note": "post-unlink the re-linked streams carry the tag tone to "
+                "the shared default sink for the remaining bounded "
+                "window (the re-link's own content witness)"}
+    ctx = {}
+    try:
+        with tempfile.TemporaryDirectory(prefix="r82ff-loss-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 3.6)
+            default = None
+            for rep in range(3):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen"):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t1_r{rep}", loads)
+                default = _ffpw_r82_default_sink(entry)
+                watch = {}
+                paths = {}
+                if default:
+                    df_p = Path(tmp) / f"t1_r{rep}_def.wav"
+                    watch["tap_def"] = _ffpw_r82_tap(
+                        default, df_p, 5.0,
+                        f"{FFPW_R82_TAG}_tdef_t1{rep}")
+                    paths["tap_def"] = df_p
+                legs[f"t1_play_r{rep}"] = _ffpw_r82_leg(
+                    f"t1_play_r{rep}",
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-re", "-f", "wav", "-i", str(tone),
+                     "-f", "pulse", "-device", FFPW_R82_NS,
+                     FFPW_R82_OUT_NAME],
+                    ctx, watch=watch, timeline=0.2,
+                    wall_cap=FFPW_R82_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+                legs[f"t1_play_r{rep}"]["taps"] = _ffpw_r82_reap_watch(watch)
+                for label, path in paths.items():
+                    if Path(path).exists():
+                        w = _ffpw_r82_tone_windows(path)
+                        legs[f"t1_play_r{rep}"]["taps"][label]["tone"] = {
+                            "carries_tone": w.get("carries_tone"),
+                            "mine_spans": w.get("mine_spans")}
+            for rep in range(3):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t2_r{rep}", loads)
+                default = _ffpw_r82_default_sink(entry)
+                pump = _ffpw_r82_pump(tone, FFPW_R82_NS,
+                                      f"{FFPW_R82_TAG}_pump{rep}")
+                cap = str(Path(tmp) / f"t2_r{rep}.wav")
+                legs[f"t2_cap_r{rep}"] = _ffpw_r82_leg(
+                    f"t2_cap_r{rep}",
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-y", "-f", "pulse", "-i",
+                     FFPW_R82_NS + ".monitor",
+                     "-t", "5.0", "-c:a", "pcm_s16le", cap],
+                    ctx,
+                    env_extra={"PIPEWIRE_PROPS":
+                               "{ stream.capture.sink=true }"},
+                    out_path=cap, watch={"pump": pump}, timeline=0.2,
+                    wall_cap=FFPW_R82_CAP_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id")),
+                            (2.0, "kill_watch", "pump")])
+                _capture_r77_reap(pump, 3)
+                w = _ffpw_r82_tone_windows(cap)
+                legs[f"t2_cap_r{rep}"]["cap_tone"] = {
+                    "mine_windows": w.get("mine_windows"),
+                    "mine_spans": w.get("mine_spans")}
+            for rep in range(2):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t3_r{rep}", loads)
+                cap = str(Path(tmp) / f"t3_r{rep}.wav")
+                legs[f"t3_pwrec_r{rep}"] = _ffpw_r82_leg(
+                    f"t3_pwrec_r{rep}",
+                    ["pw-record", "-P", "stream.capture.sink=true",
+                     "-P", f"node.name={FFPW_R82_TAG}_pwrec{rep}",
+                     "--target", FFPW_R82_NS, "-n", "250000", cap],
+                    ctx, out_path=cap, timeline=0.2,
+                    wall_cap=FFPW_R82_CAP_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry) or \
+        entry["inventory"]["default_sink"]
+
+    def _unload_at(leg):
+        for f in leg.get("fired") or []:
+            if f.get("kind") == "unload_module":
+                return f.get("at"), (f.get("result") or {})
+        return None, {}
+
+    def _relink(leg, key):
+        """(t, names) of the first post-unload sample whose main node has
+        non-empty consumers/producers — plus the pre-unlink witness."""
+        unl_at, res = _unload_at(leg)
+        pre, relink = None, None
+        for s in leg.get("samples") or []:
+            nd = next((n for n in (s.get("nodes") or [])
+                       if n.get("src") == "main"), None)
+            if nd is None:
+                continue
+            names = nd.get(key) or []
+            if unl_at is not None and s["t"] < unl_at:
+                if names:
+                    pre = (s["t"], names)
+            elif unl_at is not None and relink is None and names:
+                relink = (s["t"], names)
+        return unl_at, res, pre, relink
+
+    # ---- t1: playback re-links and exits clean at EOF ----
+    for rep in range(3):
+        lname = f"t1_play_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "consumers")
+        if leg.get("exit_code") != 0:
+            failures.append(f"loss {lname}: the player must exit rc=0 at "
+                            f"EOF — rc={leg.get('exit_code')} "
+                            f"killed={leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        if pre is None or pre[1] != [FFPW_R82_NS]:
+            failures.append(f"loss {lname}: no pre-unload sample shows "
+                            f"consumers==[<ns>] — pre={pre}")
+        if relink is None:
+            failures.append(f"loss {lname}: the playback stream never "
+                            "re-linked — the ffmpeg law fails")
+        else:
+            if relink[0] - (unl_at or 0) > FFPW_R82_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at +"
+                                f"{relink[0] - (unl_at or 0):.3f}s — "
+                                f"beyond the {FFPW_R82_RELINK_BOUND_S}s "
+                                "armed bound")
+            if default and relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked consumers "
+                                f"{relink[1]} != [default]")
+        tap = ((legs.get(lname) or {}).get("taps") or {}).get(
+            "tap_def", {}).get("tone") or {}
+        if default and tap:
+            # the tag tone must appear on the shared default AFTER the
+            # unload (the re-link's own content witness)
+            post_mine = [s for s in (tap.get("mine_spans") or [])
+                         if s[0] >= (unl_at or 0) - 0.2]
+            if not post_mine:
+                failures.append(f"loss {lname}: the default-monitor tap "
+                                "never carried the tag tone post-unlink")
+    # ---- t2: capture re-links and the artifact keeps growing ----
+    for rep in range(3):
+        lname = f"t2_cap_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "producers")
+        if leg.get("exit_code") != 0:
+            failures.append(f"loss {lname}: bounded capture must exit "
+                            f"rc=0 at its -t bound — rc="
+                            f"{leg.get('exit_code')} "
+                            f"killed={leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        if pre is None or pre[1] != [FFPW_R82_NS]:
+            failures.append(f"loss {lname}: no pre-unload sample shows "
+                            f"producers==[<ns>] — pre={pre}")
+        if relink is None:
+            failures.append(f"loss {lname}: the capture never re-linked "
+                            "— the ffmpeg law fails")
+        else:
+            if relink[0] - (unl_at or 0) > FFPW_R82_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at +"
+                                f"{relink[0] - (unl_at or 0):.3f}s")
+            if default and relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked producers "
+                                f"{relink[1]} != [default]")
+        post_sizes = [s.get("size") for s in (leg.get("samples") or [])
+                      if unl_at is not None and s["t"] >= unl_at and
+                      s.get("size") is not None]
+        if len(post_sizes) >= 2 and post_sizes[-1] <= post_sizes[0]:
+            failures.append(f"loss {lname}: the artifact STOPPED growing "
+                            f"after the unload — sizes {post_sizes[:3]}"
+                            f"..{post_sizes[-2:]} (gst-freeze shape)")
+        out = leg.get("out") or {}
+        if out.get("riff") != "finalized":
+            failures.append(f"loss {lname}: bounded capture must leave "
+                            f"a finalized wav — {out}")
+        # the pump's own playback re-link, witnessed inside this leg
+        pump_re = None
+        for s in leg.get("samples") or []:
+            if unl_at is not None and s["t"] < unl_at:
+                continue
+            for nd in (s.get("nodes") or []):
+                if nd.get("src") == "pump" and nd.get("consumers"):
+                    pump_re = (s["t"], nd["consumers"])
+                    break
+            if pump_re:
+                break
+        leg["pump_relinked_to"] = pump_re[1] if pump_re else None
+    # ---- t3: the pw-record control re-links too ----
+    for rep in range(2):
+        lname = f"t3_pwrec_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "producers")
+        if relink is None:
+            failures.append(f"loss {lname}: the pw-record control did "
+                            "NOT re-link — the client-specificity claim "
+                            "loses its positive control")
+        elif default and relink[1] != [default]:
+            failures.append(f"loss {lname}: control re-linked to "
+                            f"{relink[1]} != [default]")
+        if relink is not None and unl_at is not None and \
+                relink[0] - unl_at > FFPW_R82_RELINK_BOUND_S:
+            failures.append(f"loss {lname}: control re-link at +"
+                            f"{relink[0] - unl_at:.3f}s")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) EXIT CLASSES — the typed rc map.
+# --------------------------------------------------------------------------
+def ffpw_error_classes_r82_entry():
+    """(6) The typed rc map: AVOption bound violations are rc=222 ERANGE
+    at option-set time; hostile values that pass the AVOption check reach
+    libpulse and SIGABRT (-6) on `pa_channels_valid`/`pa_sample_spec_
+    valid`; an unreachable `-server` on the indev is rc=253 ESRCH
+    `No such process`. Each leg carries its verbatim stderr class."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg exit classes — 222 ERANGE option bounds, -6 libpulse "
+        "asserts, 253 ESRCH bad server")
+    ctx = {}
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        base = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                "-nostdin", "-y", "-f", "pulse"]
+        out_t = ["-t", "1.0", "-c:a", "pcm_s16le"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-err-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            mon = FFPW_R82_NS + ".monitor"
+            legs["e1_rate0"] = _ffpw_r82_leg(
+                "e1_rate0", base + ["-sample_rate", "0", "-i", "default"]
+                + out_t + [str(Path(tmp) / "e1.wav")], ctx)
+            legs["e2_ch0"] = _ffpw_r82_leg(
+                "e2_ch0", base + ["-channels", "0", "-i", "default"]
+                + out_t + [str(Path(tmp) / "e2.wav")], ctx)
+            legs["e3_frag_neg"] = _ffpw_r82_leg(
+                "e3_frag_neg", base + ["-fragment_size", "-2", "-i",
+                                       "default"] + out_t
+                + [str(Path(tmp) / "e3.wav")], ctx)
+            legs["e4_ch99"] = _ffpw_r82_leg(
+                "e4_ch99", base + ["-channels", "99", "-i", mon] + out_t
+                + [str(Path(tmp) / "e4.wav")], ctx)
+            legs["e5_rate999999"] = _ffpw_r82_leg(
+                "e5_rate999999",
+                base + ["-sample_rate", "999999", "-i", mon] + out_t
+                + [str(Path(tmp) / "e5.wav")], ctx)
+            legs["e6_bad_server_in"] = _ffpw_r82_leg(
+                "e6_bad_server_in",
+                base + ["-server", FFPW_R82_BAD_SERVER, "-i", "default"]
+                + out_t + [str(Path(tmp) / "e6.wav")], ctx)
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    want = {"e1_rate0": (222, "ff_option_range", "sample_rate"),
+            "e2_ch0": (222, "ff_option_range", "channels"),
+            "e3_frag_neg": (222, "ff_option_range", "fragment_size"),
+            "e4_ch99": (-6, "ff_libpulse_assert", "pa_channels_valid"),
+            "e5_rate999999": (-6, "ff_libpulse_assert", "pa_sample_spec"),
+            "e6_bad_server_in": (253, "ff_no_such_process",
+                                 "No such process")}
+    for lname, (rc, cls, hit) in want.items():
+        leg = legs.get(lname) or {}
+        if leg.get("exit_code") != rc or leg.get("error_class") != cls:
+            failures.append(f"err {lname}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != {rc}/{cls}")
+        if hit not in ((leg.get("stderr") or "") +
+                       (leg.get("error_hit") or "")):
+            failures.append(f"err {lname}: stderr missing the pinned "
+                            f"token {hit!r} — {leg.get('stderr_head')}")
+        out = leg.get("out") or {}
+        if out.get("exists") and (out.get("bytes") or 0) > 44:
+            failures.append(f"err {lname}: a refused leg must not "
+                            f"produce audio — {out}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) ALSA SPLIT — the in-process ALSA surface.
+# --------------------------------------------------------------------------
+def ffpw_alsa_split_r82_entry():
+    """(7) The ALSA lattice: `hw:C,D` is busy->251 `Device or resource
+    busy` in BOTH directions (arecord/aplay holders), independent per
+    direction (rc=0 capture while PipeWire holds the card's playback
+    subdevice — the holder is an ffmpeg -f pulse silence pump witnessed
+    in the graph); `-i pipewire` and unknown PCMs are 251 `cannot set
+    parameters`/`Unknown PCM`; `-i default` under PIPEWIRE_PROPS is the
+    envelope cell (scout: rc=0 via the pipewire plugin with the env
+    node.name LANDING — the pulse-path override split — plus one
+    historical 251 params realization, so both are admitted and the
+    realization is recorded); `-sample_rate 12345` clamps silently to a
+    hardware rate (44100 measured)."""
+    failures = []
+    legs = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg alsa split — hw busy 251 both directions, subdevice "
+        "independence under a PW-held playback, pipewire/bogus pcm 251, "
+        "default-plugin envelope, rate clamp")
+    inv_devs = entry["inventory"]["alsa_capture_devices"] or []
+    if not inv_devs:
+        return _ffpw_r82_block(
+            entry, failures, "no ALSA capture device enumerated")
+    cap_dev = f"hw:{inv_devs[0]['card']},{inv_devs[0]['device']}"
+    entry["alsa_dev"] = cap_dev
+    pcm = _playback_r78_pcm_map()
+    sinks_on_card = sorted(
+        n for n, m in (pcm.get("map") or {}).items()
+        if m.get("media_class") == "Audio/Sink" and
+        m.get("aplay_device") and
+        m["aplay_device"].startswith(f"hw:{inv_devs[0]['card']},"))
+    entry["card_sinks"] = sinks_on_card
+    ctx = {}
+    base_in = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+               "-nostdin", "-y", "-f", "alsa"]
+    try:
+        with tempfile.TemporaryDirectory(prefix="r82ff-alsa-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 3.0)
+            # a0: capture busy — arecord holds the same hw dev
+            hold = subprocess.Popen(
+                ["arecord", "-D", cap_dev, "-t", "raw", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-d", "4", "/dev/null"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            out = str(Path(tmp) / "a0.wav")
+            legs["a0_hw_busy_cap"] = _ffpw_r82_leg(
+                "a0_hw_busy_cap",
+                base_in + ["-i", cap_dev, "-t", "1.0", "-c:a",
+                           "pcm_s16le", out],
+                ctx, out_path=out, wall_cap=5.0)
+            _capture_r77_reap(hold, 5)
+            # a1: playback busy — aplay holds the same hw dev
+            hold = subprocess.Popen(
+                ["aplay", "-D", cap_dev, "-t", "raw", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-d", "4", "/dev/zero"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            legs["a1_hw_busy_play"] = _ffpw_r82_leg(
+                "a1_hw_busy_play",
+                ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                 "-nostdin", "-re", "-f", "wav", "-i", str(silence),
+                 "-f", "alsa", cap_dev],
+                ctx, wall_cap=5.0)
+            _capture_r77_reap(hold, 5)
+            # a2: PW holds the card's playback subdevice — capture still rc=0
+            if sinks_on_card:
+                holder = subprocess.Popen(
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-re", "-stream_loop", "-1", "-f", "wav",
+                     "-i", str(silence), "-f", "pulse", "-name",
+                     f"{FFPW_R82_TAG}_hold", "-device", sinks_on_card[0],
+                     FFPW_R82_OUT_NAME],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    start_new_session=True)
+                time.sleep(0.6)
+                out = str(Path(tmp) / "a2.wav")
+                legs["a2_hw_free_pwheld"] = _ffpw_r82_leg(
+                    "a2_hw_free_pwheld",
+                    base_in + ["-i", cap_dev, "-t", "1.5", "-c:a",
+                               "pcm_s16le", out],
+                    ctx, out_path=out, watch={"holder": holder},
+                    wall_cap=6.0)
+                if holder.poll() is None:
+                    os.killpg(holder.pid, signal.SIGKILL)
+                _capture_r77_reap(holder, 3)
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "a2_hw_free_pwheld: no Audio/Sink maps to the capture "
+                    "card — PW-held independence unmeasured")
+            # a3: the pipewire pcm name is refused
+            legs["a3_pipewire_pcm"] = _ffpw_r82_leg(
+                "a3_pipewire_pcm",
+                base_in + ["-i", "pipewire", "-t", "0.5", "-c:a",
+                           "pcm_s16le", str(Path(tmp) / "a3.wav")],
+                ctx, wall_cap=5.0)
+            legs["a4_bogus_pcm"] = _ffpw_r82_leg(
+                "a4_bogus_pcm",
+                base_in + ["-i", FFPW_R82_BOGUS_PCM, "-t", "0.5", "-c:a",
+                           "pcm_s16le", str(Path(tmp) / "a4.wav")],
+                ctx, wall_cap=5.0)
+            # a5: the envelope cell — `default` under env props
+            out = str(Path(tmp) / "a5.wav")
+            legs["a5_default_plugin"] = _ffpw_r82_leg(
+                "a5_default_plugin",
+                base_in + ["-i", "default", "-t", "1.5", "-c:a",
+                           "pcm_s16le", out],
+                ctx, out_path=out,
+                env_extra={"PIPEWIRE_PROPS":
+                           f"{{ node.name={FFPW_R82_XTAG}_alsa }}"},
+                wall_cap=6.0)
+            # a6: the silent rate clamp on the raw device
+            out = str(Path(tmp) / "a6.wav")
+            legs["a6_clamp_12345"] = _ffpw_r82_leg(
+                "a6_clamp_12345",
+                base_in + ["-sample_rate", "12345", "-i", cap_dev,
+                           "-t", "1.5", "-c:a", "pcm_s16le", out],
+                ctx, out_path=out, wall_cap=6.0)
+    finally:
+        pass
+    entry["legs"] = legs
+    # ---- busy cells ----
+    for lname in ("a0_hw_busy_cap", "a1_hw_busy_play"):
+        leg = legs.get(lname) or {}
+        if leg.get("exit_code") != 251 or \
+                leg.get("error_class") != "ff_alsa_busy":
+            failures.append(f"alsa {lname}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != "
+                            "251/ff_alsa_busy")
+    # ---- independence under a PW-held playback subdevice ----
+    leg = legs.get("a2_hw_free_pwheld")
+    if leg is not None:
+        if leg.get("exit_code") != 0:
+            failures.append(f"alsa a2: capture under a PW-held playback "
+                            f"must be rc=0 — rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+        out = leg.get("out") or {}
+        if out.get("riff") != "finalized" or (out.get("bytes") or 0) < 1000:
+            failures.append(f"alsa a2: the independent capture must "
+                            f"finalize real audio — {out}")
+        holder_nd = _ffpw_r82_last_node(leg, src="holder")
+        leg["holder_consumers"] = (holder_nd or {}).get("consumers")
+    # ---- refusal cells ----
+    leg = legs.get("a3_pipewire_pcm") or {}
+    if leg.get("exit_code") != 251 or \
+            leg.get("error_class") != "ff_alsa_params":
+        failures.append(f"alsa a3: `-i pipewire` must be 251 "
+                        f"cannot-set-parameters — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    leg = legs.get("a4_bogus_pcm") or {}
+    if leg.get("exit_code") != 251 or \
+            leg.get("error_class") != "ff_alsa_unknown_pcm":
+        failures.append(f"alsa a4: bogus pcm must be 251 Unknown PCM — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    # ---- a5: the `default` envelope ----
+    leg = legs.get("a5_default_plugin") or {}
+    nd = _ffpw_r82_last_node(leg)
+    props = (nd or {}).get("props") or {}
+    if leg.get("exit_code") == 0:
+        entry["a5_realization"] = "plugin_rc0"
+        if nd is None:
+            failures.append("alsa a5: rc=0 but NO pw node — `default` "
+                            "resolved off-Plugin (unwitnessed path)")
+        else:
+            if props.get("node.name") != f"{FFPW_R82_XTAG}_alsa":
+                failures.append(f"alsa a5: PIPEWIRE_PROPS node.name did "
+                                f"NOT land on the alsa path — "
+                                f"{props.get('node.name')!r} (the "
+                                "pulse-path override split fails)")
+            app = props.get("application.name") or ""
+            if "PipeWire ALSA" not in app:
+                failures.append(f"alsa a5: node landed without the "
+                                f"PipeWire-ALSA backend name — {app!r}")
+    elif leg.get("exit_code") == 251 and \
+            leg.get("error_class") == "ff_alsa_params":
+        entry["a5_realization"] = "params_251"
+    else:
+        entry["a5_realization"] = f"unexpected:rc{leg.get('exit_code')}"
+        failures.append(f"alsa a5: outside the {{plugin_rc0, "
+                        f"params_251}} envelope — rc="
+                        f"{leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')}")
+    # ---- a6: the silent clamp ----
+    leg = legs.get("a6_clamp_12345") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or out.get("rate") in (None, 12345):
+        failures.append(f"alsa a6: expected rc=0 with a CLAMPED rate — "
+                        f"rc={leg.get('exit_code')} wav rate="
+                        f"{out.get('rate')}")
+    entry["a6_clamped_rate"] = out.get("rate")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (8) FFPLAY/FFPROBE — the sibling binaries' own personalities.
+# --------------------------------------------------------------------------
+def ffpw_ffplay_ffprobe_r82_entry():
+    """(8) ffplay's dual personality: auto driver -> SDL's NATIVE
+    pipewire client (no client.api, media.role=Game, node.async,
+    latency 2048/48000); SDL_AUDIODRIVER=pulseaudio -> a pipewire-pulse
+    node (client.api, media.name `Audio Stream`, tlength 6144, latency
+    512/48000) where PULSE_SINK is IGNORED (still lands on the default —
+    the client-specific env law; ffmpeg's own -f pulse honored it in the
+    playback lattice). ffprobe `-f pulse -i <sink>.monitor` is rc=0 in
+    ~1 s reporting pcm_s16le/48k/2ch with an epoch-class wall-clock
+    start_pts. The ffplay legs feed SILENCE — only routing/props are the
+    verdict, nothing is made audible."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffplay/ffprobe — SDL native-vs-pulse dual personality, "
+        "PULSE_SINK ignored under SDL's pulse driver, ffprobe live "
+        "indev + wall-clock PTS")
+    for tool in ("ffplay", "ffprobe", "ffmpeg"):
+        if shutil.which(tool) is None:
+            return _ffpw_r82_block(entry, failures,
+                                   f"{tool} binary absent")
+    ctx = {}
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        with tempfile.TemporaryDirectory(prefix="r82ff-ffp-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 2.2)
+            # NOTE: -nostdin is NOT an ffplay option (option-parser
+            # collision -> rc=1 `Failed to set value ... for option
+            # 'nostdin'` — the scout's recorded harness artifact); the
+            # real legs omit it.
+            fbase = ["ffplay", "-hide_banner", "-loglevel", "warning",
+                     "-nodisp", "-autoexit"]
+            legs["f0_ffplay_native"] = _ffpw_r82_leg(
+                "f0_ffplay_native", fbase + [str(silence)], ctx,
+                env_extra={"SDL_AUDIODRIVER": None,
+                           "PULSE_SINK": None},
+                sample_at=(0.5, 1.1, 1.7), wall_cap=8.0)
+            legs["f1_ffplay_sdl_pulse"] = _ffpw_r82_leg(
+                "f1_ffplay_sdl_pulse", fbase + [str(silence)], ctx,
+                env_extra={"SDL_AUDIODRIVER": "pulseaudio",
+                           "PULSE_SINK": FFPW_R82_NS},
+                sample_at=(0.5, 1.1, 1.7), wall_cap=8.0)
+            legs["f2_ffprobe_live"] = _ffpw_r82_leg(
+                "f2_ffprobe_live",
+                ["ffprobe", "-hide_banner", "-v", "error",
+                 "-show_streams", "-f", "pulse", "-i",
+                 FFPW_R82_NS + ".monitor"],
+                ctx, want_stdout=True, wall_cap=8.0)
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry)
+    # ---- f0: the native SDL client ----
+    leg = legs.get("f0_ffplay_native") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"ffp f0: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        _ffpw_r82_prop_check(failures, "ffp f0", nd, {
+            "node.name": "ffplay",
+            "application.name": "ffplay",
+            "media.name": "ffplay",
+            "media.role": "Game",
+            "media.class": "Stream/Output/Audio",
+            "node.async": True,
+            "node.latency": "2048/48000"})
+        if props.get("client.api") is not None:
+            failures.append(f"ffp f0: the native client must NOT carry "
+                            f"client.api — got {props.get('client.api')!r}")
+        if default and nd.get("consumers") != [default]:
+            failures.append(f"ffp f0: consumers {nd.get('consumers')} "
+                            "!= [default]")
+    # ---- f1: SDL's pulse driver — PULSE_SINK ignored ----
+    leg = legs.get("f1_ffplay_sdl_pulse") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"ffp f1: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        _ffpw_r82_prop_check(failures, "ffp f1", nd, {
+            "client.api": "pipewire-pulse",
+            "media.name": "Audio Stream",
+            "node.name": "ffplay",
+            "application.name": "ffplay",
+            "pulse.attr.tlength": 6144,
+            "pulse.attr.prebuf": 4100,
+            "pulse.attr.minreq": 2048,
+            "node.latency": "512/48000"})
+        if default:
+            if props.get("target.object") != default:
+                failures.append(f"ffp f1: PULSE_SINK was honored — "
+                                f"target.object={props.get('target.object')!r} "
+                                "instead of the default sink (the "
+                                "ignore-law is falsified)")
+            if nd.get("consumers") != [default]:
+                failures.append(f"ffp f1: consumers "
+                                f"{nd.get('consumers')} != [default]")
+    # ---- f2: ffprobe live indev ----
+    leg = legs.get("f2_ffprobe_live") or {}
+    text = leg.get("stdout") or ""
+    fields = dict(re.findall(r"^(\w+)=([^\n]*)$", text, re.M))
+    if leg.get("exit_code") != 0:
+        failures.append(f"ffp f2: rc={leg.get('exit_code')} != 0 — "
+                        f"{leg.get('stderr_head')}")
+    else:
+        for k, v in (("codec_name", "pcm_s16le"), ("sample_rate", "48000"),
+                     ("channels", "2")):
+            if fields.get(k) != v:
+                failures.append(f"ffp f2: {k}={fields.get(k)!r} != {v!r}")
+        try:
+            start = float(fields.get("start_time") or "nan")
+            leg["start_time_epoch_s"] = start
+            if not (abs(start - time.time()) < 7200):
+                failures.append(f"ffp f2: start_time {start} is not "
+                                "wall-clock class (epoch PTS claim "
+                                "fails)")
+        except (TypeError, ValueError):
+            failures.append("ffp f2: start_time missing/not numeric — "
+                            "the wall-clock PTS witness is absent")
+        if leg.get("wall_s") is not None and leg["wall_s"] > 4.0:
+            failures.append(f"ffp f2: the ~1 s bounded probe ran "
+                            f"{leg['wall_s']}s")
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -14298,6 +16433,7 @@ def main():
     parser.add_argument("--probe-consumers-r73", action="store_true")
     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
     parser.add_argument("--probe-consumers2-r75", action="store_true")
+    parser.add_argument("--probe-ffmpeg-r82", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
     parser.add_argument("--probe-module-r80", action="store_true")
     parser.add_argument("--probe-capture-r79", action="store_true")
@@ -14305,7 +16441,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -14596,6 +16732,37 @@ def main():
             path = ROOT / "live" / directory / filename
             measurements[f"consumer2_{member}_r75_probe"] = \
                 consumer2_transport_entry(member, path)
+    if args.probe_ffmpeg_r82:
+        # r82: FFMPEG/FFPROBE/FFPLAY <-> PIPEWIRE frontier — the device
+        # lattice (no pipewire device; forced rc=234), the capture-vs-
+        # playback validation asymmetry (source resolved at connect:
+        # 251 EIO / `default` bimodal; playback never validates: literal
+        # target.object + WirePlumber silent re-route witnessed by
+        # bounded monitor taps), the pulse.attr buffer lattice with its
+        # position-sensitive swallow/deprecation/SIGABRT, the
+        # BOTH-directions re-link under target loss (the ffmpeg-specific
+        # law — no r81-style freeze), the typed exit map, the ALSA split,
+        # and the ffplay/ffprobe sibling personalities. A NEW parallel
+        # ledger family, prior rows untouched; the r76-r81 guards are
+        # inherited (name-verified unloads, seat-owned r82ff_* names,
+        # never set-default-*, triple-bounded captures inside the
+        # pgid-owning loop).
+        measurements["ffpw_device_surfaces_r82_probe"] = \
+            ffpw_device_surfaces_r82_entry()
+        measurements["ffpw_capture_lattice_r82_probe"] = \
+            ffpw_capture_lattice_r82_entry()
+        measurements["ffpw_playback_lattice_r82_probe"] = \
+            ffpw_playback_lattice_r82_entry()
+        measurements["ffpw_buffer_knobs_r82_probe"] = \
+            ffpw_buffer_knobs_r82_entry()
+        measurements["ffpw_target_loss_r82_probe"] = \
+            ffpw_target_loss_r82_entry()
+        measurements["ffpw_error_classes_r82_probe"] = \
+            ffpw_error_classes_r82_entry()
+        measurements["ffpw_alsa_split_r82_probe"] = \
+            ffpw_alsa_split_r82_entry()
+        measurements["ffpw_ffplay_ffprobe_r82_probe"] = \
+            ffpw_ffplay_ffprobe_r82_entry()
     if args.probe_gst_r81:
         # r81: GST<->PIPEWIRE frontier — the GStreamer clients' element
         # lattice, the node/Client naming crossover, the routing vectors
@@ -15188,7 +17355,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -15208,7 +17375,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

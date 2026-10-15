@@ -1,0 +1,21 @@
+=== pre-battery state 2026-10-15T19:33:23Z ===
+61	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink	PipeWire	s16le 2ch 48000Hz	SUSPENDED
+62	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+63	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+60843	alsa_output.pci-0000_01_00.1.hdmi-stereo	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+85595	r93s_in	PipeWire	float32le 1ch 48000Hz	IDLE
+85600	r93s_fc_in	PipeWire	float32le 1ch 48000Hz	RUNNING
+---
+61	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor	PipeWire	s16le 2ch 48000Hz	SUSPENDED
+62	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+63	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+64	alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source	PipeWire	s24le 2ch 48000Hz	SUSPENDED
+65	alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source	PipeWire	s24le 2ch 48000Hz	SUSPENDED
+60843	alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+85595	r93s_in.monitor	PipeWire	float32le 1ch 48000Hz	IDLE
+85600	r93s_fc_in.monitor	PipeWire	float32le 1ch 48000Hz	RUNNING
+---
+nodes: ['Dummy-Driver', 'Freewheel-Driver', 'Midi-Bridge', 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source', 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source', 'alsa_output.pci-0000_01_00.1.hdmi-stereo', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink', 'bluez_midi.server', 'r93s_fc_in', 'r93s_fc_out', 'r93s_in', 'r93s_rec']
+2994537 pw-record --format f32 --channels 1 -P node.name=r93s_rec -P node.autoconnect=false /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout/scratch/modes_only_global_r0_post.wav
+2994940 [pw-play] <defunct>
+3003514 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && OUT=corpus/live/r82-author && { echo "=== pre-battery state $(date -u +%FT%TZ) ==="; pactl list sinks short; echo ---; pactl list sources short; echo ---; pw-dump | python3 -c " import json,sys d=json.load(sys.stdin) ns=[o['info']['props'].get('node.name') for o in d if str(o.get('type','')).endswith('Node')] print('nodes:',sorted(n for n in ns if n)) "; pgrep -af "measure_audio|ffmpeg|ffplay|gst-launch|pw-record|pw-play" || echo "no foreign procs"; } > $OUT/pre-state.txt 2>&1; head -30 $OUT/pre-state.txt; chmod +x $OUT/battery.sh
