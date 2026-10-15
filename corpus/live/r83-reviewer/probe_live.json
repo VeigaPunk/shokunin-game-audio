@@ -1,0 +1,394 @@
+{
+ "probe": "r83-reviewer-live",
+ "pid": 3699317,
+ "ns": [
+  "r83r_ns_a_3699317",
+  "r83r_ns_b_3699317",
+  "r83r_ns44_3699317"
+ ],
+ "tone_pair": [
+  1208.0,
+  1711.0
+ ],
+ "legs": {
+  "drop_silent": {
+   "argv": "pw-loopback -n r83r_3699317_drop_silent -C r83r_ns_a_3699317 -i }{ garbage -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_drop_silent",
+   "wall_s": 2.202,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "media.name": null,
+    "bogus.prop": null
+   }
+  },
+  "err_i_hard": {
+   "argv": "pw-loopback -n r83r_3699317_err_i -C r83r_ns_a_3699317 -i a=b }{ c=d -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_err_i",
+   "wall_s": 0.0,
+   "exit_code": 255,
+   "signal": null,
+   "killed_at_bound": false,
+   "stderr_head": [
+    "error: syntax error in --capture-props: Mismatched bracket",
+    "line:     1 | a=b }{ c=d",
+    "column:   5 |-----^"
+   ],
+   "stderr_full": "error: syntax error in --capture-props: Mismatched bracket\nline:     1 | a=b }{ c=d\ncolumn:   5 |-----^     \n",
+   "nodes_after": []
+  },
+  "err_o_hard": {
+   "argv": "pw-loopback -n r83r_3699317_err_o -C r83r_ns_a_3699317 -i stream.capture.sink=true -o media.name= -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_err_o",
+   "wall_s": 0.0,
+   "exit_code": 255,
+   "signal": null,
+   "killed_at_bound": false,
+   "stderr_head": [
+    "error: syntax error in --playback-props: Expected object value",
+    "line:     1 | media.name=",
+    "column:  12 |------------"
+   ],
+   "stderr_full": "error: syntax error in --playback-props: Expected object value\nline:     1 | media.name=\ncolumn:  12 |------------\n",
+   "nodes_after": []
+  },
+  "pc_err_hard": {
+   "argv": "pw-cat -p -P a=b }{ c=d -P node.name=r83r_3699317_pc_err --target r83r_ns_b_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/tag48.wav",
+   "leg": "r83r_3699317_pc_err",
+   "wall_s": 0.008,
+   "exit_code": 1,
+   "signal": null,
+   "killed_at_bound": false,
+   "stderr_head": [
+    "error: syntax error in --properties: Mismatched bracket",
+    "line:     1 | a=b }{ c=d",
+    "column:   5 |-----^     "
+   ],
+   "stderr_full": "error: syntax error in --properties: Mismatched bracket\nline:     1 | a=b }{ c=d\ncolumn:   5 |-----^     \npw-cat [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role                      Set media role (default Music)\n      --targ",
+   "nodes_after": []
+  },
+  "pr_err_hard": {
+   "argv": "pw-record -P a=b }{ c=d -P node.name=r83r_3699317_pr_err --target r83r_ns_a_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/pr_err.wav",
+   "leg": "r83r_3699317_pr_err",
+   "wall_s": 0.0,
+   "exit_code": 1,
+   "signal": null,
+   "killed_at_bound": false,
+   "stderr_head": [
+    "error: syntax error in --properties: Mismatched bracket",
+    "line:     1 | a=b }{ c=d",
+    "column:   5 |-----^     "
+   ],
+   "stderr_full": "error: syntax error in --properties: Mismatched bracket\nline:     1 | a=b }{ c=d\ncolumn:   5 |-----^     \npw-record [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role                      Set media role (default Music)\n      --t",
+   "nodes_after": []
+  },
+  "segv_lb_i_empty": {
+   "argv": "pw-loopback -n r83r_3699317_ie -C r83r_ns_a_3699317 -i  -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_lb_i_empty",
+   "wall_s": 0.116,
+   "exit_code": -11,
+   "signal": "SIGSEGV",
+   "killed_at_bound": false,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": []
+  },
+  "segv_lb_i_space": {
+   "argv": "pw-loopback -n r83r_3699317_is -C r83r_ns_a_3699317 -i   -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_lb_i_space",
+   "wall_s": 0.066,
+   "exit_code": -11,
+   "signal": "SIGSEGV",
+   "killed_at_bound": false,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": []
+  },
+  "segv_lb_o_empty": {
+   "argv": "pw-loopback -n r83r_3699317_oe -C r83r_ns_a_3699317 -i stream.capture.sink=true -o  -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_lb_o_empty",
+   "wall_s": 0.066,
+   "exit_code": -11,
+   "signal": "SIGSEGV",
+   "killed_at_bound": false,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": []
+  },
+  "segv_pc_empty": {
+   "argv": "pw-cat -p -P  -P node.name=r83r_3699317_pe --target r83r_ns_b_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/tag48.wav",
+   "leg": "r83r_3699317_pc_empty",
+   "wall_s": 0.114,
+   "exit_code": -11,
+   "signal": "SIGSEGV",
+   "killed_at_bound": false,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": []
+  },
+  "segv_pr_empty": {
+   "argv": "pw-record -P  -P node.name=r83r_3699317_re --target r83r_ns_a_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/re.wav",
+   "leg": "r83r_3699317_pr_empty",
+   "wall_s": 0.114,
+   "exit_code": -11,
+   "signal": "SIGSEGV",
+   "killed_at_bound": false,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": []
+  },
+  "lat_l5": {
+   "argv": "pw-loopback -n r83r_3699317_lat_l5 -C r83r_ns_a_3699317 -i stream.capture.sink=true -P r83r_ns_b_3699317 -l 5",
+   "leg": "r83r_3699317_lat_l5",
+   "wall_s": 2.002,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "node.latency": null,
+    "node.group": null
+   },
+   "output_props": {
+    "node.latency": null,
+    "node.group": null
+   }
+  },
+  "lat_lneg5": {
+   "argv": "pw-loopback -n r83r_3699317_lat_lneg5 -C r83r_ns_a_3699317 -i stream.capture.sink=true -P r83r_ns_b_3699317 -l -5",
+   "leg": "r83r_3699317_lat_lneg5",
+   "wall_s": 2.001,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "node.latency": null,
+    "node.group": null
+   },
+   "output_props": {
+    "node.latency": null,
+    "node.group": null
+   }
+  },
+  "lat_d025": {
+   "argv": "pw-loopback -n r83r_3699317_lat_d025 -C r83r_ns_a_3699317 -i stream.capture.sink=true -P r83r_ns_b_3699317 -d 0.25",
+   "leg": "r83r_3699317_lat_d025",
+   "wall_s": 2.002,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "node.latency": null,
+    "node.group": null
+   },
+   "output_props": {
+    "node.latency": null,
+    "node.group": null
+   }
+  },
+  "lat_group": {
+   "argv": "pw-loopback -n r83r_3699317_lat_group -C r83r_ns_a_3699317 -i stream.capture.sink=true -P r83r_ns_b_3699317 -g r83r_grp_3699317",
+   "leg": "r83r_3699317_lat_group",
+   "wall_s": 2.003,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "node.latency": null,
+    "node.group": null
+   },
+   "output_props": {
+    "node.latency": null,
+    "node.group": null
+   }
+  },
+  "lat_none": {
+   "argv": "pw-loopback -n r83r_3699317_lat_none -C r83r_ns_a_3699317 -i stream.capture.sink=true -P r83r_ns_b_3699317",
+   "leg": "r83r_3699317_lat_none",
+   "wall_s": 2.001,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "input_props": {
+    "node.latency": null,
+    "node.group": null
+   },
+   "output_props": {
+    "node.latency": null,
+    "node.group": null
+   }
+  },
+  "onset_ctl": {
+   "leg": "onset_ctl",
+   "extra": [],
+   "linked": true,
+   "feed_lead_s": 0.1508,
+   "onset_s": 0.25602,
+   "transport_s": 0.1052
+  },
+  "onset_d10": {
+   "leg": "onset_d10",
+   "extra": [
+    "-d",
+    "1.0"
+   ],
+   "linked": true,
+   "feed_lead_s": 0.151,
+   "onset_s": 1.29869,
+   "transport_s": 1.1477
+  },
+  "peaks_up": {
+   "argv": "pw-cat -p -P resample.peaks=true -P node.name=r83r_3699317_peaks_up --target r83r_ns_b_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/tag44.wav",
+   "leg": "r83r_3699317_peaks_up",
+   "wall_s": 3.004,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "tap_stats": [
+    {
+     "min": 0,
+     "max": 8191,
+     "mean": 4490.46,
+     "neg_frac": 0.0,
+     "zero_frac": 0.139,
+     "amp_at_1208": 0.1,
+     "amp_at_2416": 3175.8
+    },
+    {
+     "min": 0,
+     "max": 8192,
+     "mean": 4490.53,
+     "neg_frac": 0.0,
+     "zero_frac": 0.1389,
+     "amp_at_1711": 0.0,
+     "amp_at_3422": 3162.5
+    }
+   ]
+  },
+  "peaks_matched": {
+   "argv": "pw-cat -p -P resample.peaks=true -P node.name=r83r_3699317_peaks_matched --target r83r_ns_b_3699317 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/tag48.wav",
+   "leg": "r83r_3699317_peaks_matched",
+   "wall_s": 3.003,
+   "exit_code": -9,
+   "signal": "SIGKILL",
+   "killed_at_bound": true,
+   "stderr_head": [],
+   "stderr_full": "",
+   "nodes_after": [],
+   "tap_stats": [
+    {
+     "min": -8192,
+     "max": 8192,
+     "mean": 0.43,
+     "neg_frac": 0.4645,
+     "zero_frac": 0.0709,
+     "amp_at_1208": 8172.5,
+     "amp_at_2416": 0.0
+    },
+    {
+     "min": -8192,
+     "max": 8192,
+     "mean": 0.55,
+     "neg_frac": 0.4647,
+     "zero_frac": 0.0707,
+     "amp_at_1711": 8172.5,
+     "amp_at_3422": 0.0
+    }
+   ]
+  }
+ },
+ "host": {
+  "loadavg": [
+   "101.73",
+   "82.22",
+   "87.50"
+  ],
+  "nproc": 32,
+  "pipewire": "PulseAudio (on PipeWire 1.6.8)",
+  "pactl_lib": "35",
+  "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+  "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29",
+  "modules_before": 44,
+  "py": "3.14.7",
+  "numpy": "2.5.3",
+  "pw_cli": "pw-cli\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8"
+ },
+ "sink_loads": {
+  "r83r_ns_a_3699317": {
+   "module_id": 536870924,
+   "rc": 0,
+   "waited_s": 0.016
+  },
+  "r83r_ns_b_3699317": {
+   "module_id": 536870929,
+   "rc": 0,
+   "waited_s": 0.011
+  },
+  "r83r_ns44_3699317": {
+   "module_id": 536870923,
+   "rc": 0,
+   "waited_s": 0.009
+  }
+ },
+ "onset_delta_s": 1.0425,
+ "cli_mutex": {
+  "rc": 2,
+  "stderr_head": [
+   "usage: measure_audio_a151a226.py [-h] [--probe-failing] [--probe-slope]",
+   "                                 [--probe-flat] [--probe-layer-flat]"
+  ]
+ },
+ "leftover_procs": [],
+ "unloads": {
+  "r83r_ns_a_3699317": {
+   "verified_index": 536870924,
+   "captured": 536870924,
+   "recycled": false,
+   "exit_code": 0,
+   "stderr_tail": null
+  },
+  "r83r_ns_b_3699317": {
+   "verified_index": 536870929,
+   "captured": 536870929,
+   "recycled": false,
+   "exit_code": 0,
+   "stderr_tail": null
+  },
+  "r83r_ns44_3699317": {
+   "verified_index": 536870923,
+   "captured": 536870923,
+   "recycled": false,
+   "exit_code": 0,
+   "stderr_tail": null
+  }
+ },
+ "sinks_gone": {
+  "r83r_ns_a_3699317": true,
+  "r83r_ns_b_3699317": true,
+  "r83r_ns44_3699317": true
+ },
+ "own_nodes_after": [],
+ "modules_after": 44,
+ "default_sink_after": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+}

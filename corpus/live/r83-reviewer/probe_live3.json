@@ -1,0 +1,98 @@
+{
+ "probe": "r83-reviewer-live3",
+ "pid": 3853856,
+ "legs": {
+  "crash_lb_i_empty": {
+   "argv": "pw-loopback -C r83r3_ns_a_3853856 -i  -P r83r3_ns_b_3853856",
+   "killed_at_bound": false,
+   "exit_code": -11,
+   "stderr_head": [],
+   "new_nodes_any_name": {
+    "r83a_3512630_d0_ctl_1_tap": "Stream/Input/Audio"
+   },
+   "tagged_new_nodes": []
+  },
+  "crash_lb_o_empty": {
+   "argv": "pw-loopback -C r83r3_ns_a_3853856 -i stream.capture.sink=true -o  -P r83r3_ns_b_3853856",
+   "killed_at_bound": false,
+   "exit_code": -11,
+   "stderr_head": [],
+   "new_nodes_any_name": {
+    "r83a_3512630_d0_ctl_1": "Stream/Output/Audio"
+   },
+   "tagged_new_nodes": []
+  },
+  "crash_pc_empty": {
+   "argv": "pw-cat -p -P  --target r83r3_ns_b_3853856 /dev/null",
+   "killed_at_bound": false,
+   "exit_code": -11,
+   "stderr_head": [],
+   "new_nodes_any_name": {},
+   "tagged_new_nodes": []
+  },
+  "crash_pr_empty": {
+   "argv": "pw-record -P  --target r83r3_ns_a_3853856 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-reviewer/tmp/x.wav",
+   "killed_at_bound": false,
+   "exit_code": -11,
+   "stderr_head": [],
+   "new_nodes_any_name": {},
+   "tagged_new_nodes": []
+  },
+  "drop_default_name": {
+   "argv": "pw-loopback -C r83r3_ns_a_3853856 -i }{ garbage -P r83r3_ns_b_3853856",
+   "killed_at_bound": true,
+   "exit_code": -9,
+   "stderr_head": [],
+   "new_nodes_any_name": {
+    "r83a_3570543_m1_ndr_0_tap": "Stream/Input/Audio",
+    "r83a_3570543_m1_ndr_0": "Stream/Output/Audio",
+    "r83a_3512630_d3_sdr_0_tap": "Stream/Input/Audio",
+    "r83a_3512630_d3_sdr_0": "Stream/Output/Audio"
+   },
+   "tagged_new_nodes": []
+  },
+  "err_default_name": {
+   "argv": "pw-loopback -C r83r3_ns_a_3853856 -i a=b }{ c=d -P r83r3_ns_b_3853856",
+   "killed_at_bound": false,
+   "exit_code": 255,
+   "stderr_head": [
+    "error: syntax error in --capture-props: Mismatched bracket",
+    "line:     1 | a=b }{ c=d"
+   ],
+   "new_nodes_any_name": {},
+   "tagged_new_nodes": []
+  }
+ },
+ "sink_loads": {
+  "r83r3_ns_a_3853856": {
+   "module_id": 536870929,
+   "rc": 0
+  },
+  "r83r3_ns_b_3853856": {
+   "module_id": 536870923,
+   "rc": 0
+  }
+ },
+ "leftover_procs": [],
+ "unloads": {
+  "r83r3_ns_a_3853856": {
+   "verified_index": 536870929,
+   "captured": 536870929,
+   "recycled": false,
+   "exit_code": 0,
+   "stderr_tail": null
+  },
+  "r83r3_ns_b_3853856": {
+   "verified_index": 536870923,
+   "captured": 536870923,
+   "recycled": false,
+   "exit_code": 0,
+   "stderr_tail": null
+  }
+ },
+ "sinks_gone": {
+  "r83r3_ns_a_3853856": true,
+  "r83r3_ns_b_3853856": true
+ },
+ "own_nodes_after": []
+}
