@@ -1,0 +1,805 @@
+{
+ "contention_before": {
+  "procs": [
+   {
+    "pid": 2424679,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout && cat > run_all3.sh <<'EOF'\n#!/bin/bash\ncd \"$(dirname \"$0\")\"\nfor st in edge modes passthrough l2gcheck ctlgrammar labels2; do\n  echo \"=== $st $(date -u +%H:%M:%S) ===\"\n  python3 probes/r93driver.py \"$st\" 3 > \"runs/$st.log"
+   },
+   {
+    "pid": 2760773,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r94-boundary && bash run_matrix.sh all > runs/matrix.log 2>&1; echo \"MATRIX_DONE rc=$?\""
+   },
+   {
+    "pid": 2815933,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && { echo \"control_start=$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before > corpus/live/r89-simplifier/battery-control.stdout 2> corpus/live/r89-simplifier/battery-contr"
+   },
+   {
+    "pid": 2816058,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && { echo \"control_start=$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before > corpus/live/r89-simplifier/battery-control.stdout 2> corpus/live/r89-simplifier/battery-contr"
+   },
+   {
+    "pid": 2816059,
+    "cmd": "tee corpus/live/r89-simplifier/battery-timing.txt"
+   },
+   {
+    "pid": 2816069,
+    "cmd": "python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before"
+   },
+   {
+    "pid": 2910416,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r90-boundary && cat > run_all.sh <<'EOF'\n#!/bin/bash\ncd \"$(dirname \"$0\")\"\nfor st in s1 s2 s3 s4 s5 s6; do\n  echo \"=== $st start $(date -u +%H:%M:%S) ===\"\n  python3 r90b_probe.py \"$st\" 3 > \"runs/$st.log\" 2>&1\n  echo \"=== $st rc=$? $("
+   },
+   {
+    "pid": 3098151,
+    "cmd": "bash -c sleep 150; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r94-boundary && tail -8 runs/rc-summary.txt; echo \"--- counts ---\"; for d in runs/quiet runs/load runs/ff30 runs/ff60 runs/ff120 runs/ff120load runs/ab; do [ -d \"$d\" ] && echo \"$d: $(ls $d/*.out 2>/dev/null | wc -l)"
+   },
+   {
+    "pid": 3103245,
+    "cmd": "bash -c sleep 240; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && cat corpus/live/r89-simplifier/battery-timing.txt; echo; wc -l < corpus/live/r89-simplifier/battery-control.stdout; wc -l < corpus/live/r89-simplifier/battery-folded.stdout 2>/dev/null || echo \"folded not started\"; tail -1 c"
+   },
+   {
+    "pid": 3136696,
+    "cmd": "python3 probes/r93driver.py l2gcheck 3"
+   },
+   {
+    "pid": 3137643,
+    "cmd": "python3 r90b_probe.py s6 3"
+   },
+   {
+    "pid": 3152982,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-scout && chmod +x run_cells.sh && bash run_cells.sh 2>&1"
+   },
+   {
+    "pid": 3158035,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r95-boundary && (bash run_matrix.sh load && bash run_matrix.sh ff30 && bash run_matrix.sh ff120 && bash run_matrix.sh ff1 && bash run_matrix.sh thr && bash run_matrix.sh label) 2>&1"
+   },
+   {
+    "pid": 3158084,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r95-boundary && (bash run_matrix.sh load && bash run_matrix.sh ff30 && bash run_matrix.sh ff120 && bash run_matrix.sh ff1 && bash run_matrix.sh thr && bash run_matrix.sh label) 2>&1"
+   },
+   {
+    "pid": 3176488,
+    "cmd": "pw-play --target r89b_ns /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone48.wav"
+   },
+   {
+    "pid": 3176564,
+    "cmd": "pw-play --target r89b_ns44 --rate 44100 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone44.wav"
+   },
+   {
+    "pid": 3179769,
+    "cmd": "bash -c sleep 180; cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout && cat runs/battery3.log"
+   },
+   {
+    "pid": 3188363,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && mkdir -p corpus/live/r90-author/runs1 && python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs1 > corpus/live/r90-author/battery-rep1.stdout 2> corpus/live/r90-author/battery-rep1.stderr; echo \"EXIT=$?\" && tail -5 c"
+   },
+   {
+    "pid": 3188530,
+    "cmd": "python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs1"
+   },
+   {
+    "pid": 3215075,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout && timeout 280 python3 probes/c3_restart.py 3 > runs/c3.out 2>&1; echo \"RC=$?\"; python3 -c \"\nimport json\nd=json.load(open('receipts/c3_restart.json'))\nfor rep in d['reps']:\n    print('--- rep',rep['rep'])\n    for s in rep["
+   },
+   {
+    "pid": 3215435,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection && mkdir -p dbg2 && echo \"=== shot arm, fixed2 child (direct) ===\" && timeout 30 /usr/bin/blender -b -P scratch/r91_child_fixed2.py -- shot dbg2 2>&1 | grep -E \"^M shot\" && echo \"=== full godot arm, fixed2 scrat"
+   },
+   {
+    "pid": 3216331,
+    "cmd": "pw-record --format f32 --channels 1 -P node.name=r93s_ref -P node.autoconnect=false /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout/scratch/l2gcheck_m70_r2_ref.wav"
+   },
+   {
+    "pid": 3216335,
+    "cmd": "pw-record --format f32 --channels 1 -P node.name=r93s_rec -P node.autoconnect=false /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout/scratch/l2gcheck_m70_r2_post.wav"
+   },
+   {
+    "pid": 3219761,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_0 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219762,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_1 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219764,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_2 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219765,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_3 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3220301,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r89-verify/probes && timeout -s KILL 300 python3 rederive.py 2>&1 | tee rederive-out.txt"
+   },
+   {
+    "pid": 3220635,
+    "cmd": "sh -c -- \"/bin/sh\" \"-c\" \"timeout -s KILL 15 \"/usr/bin/blender\" -b -P \"/home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py\" -- shot \"/home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_shot\" > "
+   },
+   {
+    "pid": 3220644,
+    "cmd": "/bin/sh -c timeout -s KILL 15 /usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- shot /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_shot > /home/vgpnk/Projects"
+   },
+   {
+    "pid": 3220647,
+    "cmd": "timeout -s KILL 15 /usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- shot /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_shot"
+   },
+   {
+    "pid": 3220651,
+    "cmd": "/usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- shot /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_shot"
+   },
+   {
+    "pid": 3221945,
+    "cmd": "timeout -s KILL 25 godot --headless --path proj --script res://r95b_order.gd -- --arm=layers --k=1"
+   },
+   {
+    "pid": 3221947,
+    "cmd": "godot --headless --path proj --script res://r95b_order.gd -- --arm=layers --k=1"
+   },
+   {
+    "pid": 3221958,
+    "cmd": "bash /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/probes/up.sh wp"
+   },
+   {
+    "pid": 3222207,
+    "cmd": "godot --headless --path corpus/live/r90-author/runs1/20261015T201456662267Z/scratch --script res://tween_flash.gd --"
+   },
+   {
+    "pid": 3222325,
+    "cmd": "pw-play --target r90b_ra -P application.name=r90b_cr3l -P node.name=r90b_cr3l /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r90-boundary/r90b_sil48.wav"
+   },
+   {
+    "pid": 3222367,
+    "cmd": "godot --headless --path /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r89-verify/proj --script res://v89_probe.gd -- --sub=seg"
+   },
+   {
+    "pid": 3222368,
+    "cmd": "godot --headless --path corpus/live/r89-simplifier/runs-before/20261015T201037827701Z/scratch --script res://descendant_pipe_probe.gd -- --spawn-forge-release"
+   }
+  ],
+  "foreign_prefix_nodes": [
+   "r89b_ns",
+   "r89b_ns44",
+   "r89b_ns_b",
+   "r90b_cr3l",
+   "r90b_ra",
+   "r90b_rb",
+   "r90b_rc",
+   "r93s_fc_in",
+   "r93s_fc_out",
+   "r93s_in",
+   "r93s_rec",
+   "r93s_ref",
+   "r96s_ns"
+  ],
+  "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "loadavg": "146.45 94.82 63.03 114/2318 3222926"
+ },
+ "default_sink_initial": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "set_default_rc": 0,
+ "default_sink_now": "r87b_ns",
+ "h_garbage": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_garb",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_garb",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.985,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_garb:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_garb:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.67,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_garb:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_garb:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "h_mon": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_mon",
+   "--target",
+   "r87b_ns.monitor",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_mon",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.031,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_mon:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_mon:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.738,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_mon:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_mon:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "h_own": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_own",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_own",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.964,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_own:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_own:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.688,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_own:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_own:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "restore_rc": 0,
+ "default_sink_restored": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "h_garbage_restored": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_garb2",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_garb2",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.984,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_garb2:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bh_garb2:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.676,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_garb2:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bh_garb2:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "suspend": {
+  "errors": [
+   "unsupported type PipeWire:Interface:SecurityContext",
+   "unsupported type PipeWire:Interface:Profiler"
+  ],
+  "state": {
+   "id": 125,
+   "serial": 118652,
+   "class": "Audio/Sink",
+   "state": "suspended",
+   "client": 138
+  }
+ },
+ "h_own_suspended": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_susp",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_susp",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.958,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_susp:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_susp:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.661,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_susp:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_susp:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "resume": {
+  "errors": [
+   "unsupported type PipeWire:Interface:SecurityContext",
+   "unsupported type PipeWire:Interface:Profiler",
+   "send-command: unknown node command type: Resume"
+  ],
+  "state": {
+   "id": 125,
+   "serial": 118652,
+   "class": "Audio/Sink",
+   "state": "idle",
+   "client": 138
+  }
+ },
+ "h_own_resumed": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bh_res",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bh_res",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.009,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_res:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_res:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.661,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bh_res:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bh_res:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "contention_after": {
+  "procs": [
+   {
+    "pid": 2424679,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout && cat > run_all3.sh <<'EOF'\n#!/bin/bash\ncd \"$(dirname \"$0\")\"\nfor st in edge modes passthrough l2gcheck ctlgrammar labels2; do\n  echo \"=== $st $(date -u +%H:%M:%S) ===\"\n  python3 probes/r93driver.py \"$st\" 3 > \"runs/$st.log"
+   },
+   {
+    "pid": 2760773,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r94-boundary && bash run_matrix.sh all > runs/matrix.log 2>&1; echo \"MATRIX_DONE rc=$?\""
+   },
+   {
+    "pid": 2815933,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && { echo \"control_start=$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before > corpus/live/r89-simplifier/battery-control.stdout 2> corpus/live/r89-simplifier/battery-contr"
+   },
+   {
+    "pid": 2816058,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && { echo \"control_start=$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before > corpus/live/r89-simplifier/battery-control.stdout 2> corpus/live/r89-simplifier/battery-contr"
+   },
+   {
+    "pid": 2816059,
+    "cmd": "tee corpus/live/r89-simplifier/battery-timing.txt"
+   },
+   {
+    "pid": 2816069,
+    "cmd": "python3 corpus/fixtures/run_battery.py --runs corpus/live/r89-simplifier/runs-before"
+   },
+   {
+    "pid": 2910416,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r90-boundary && cat > run_all.sh <<'EOF'\n#!/bin/bash\ncd \"$(dirname \"$0\")\"\nfor st in s1 s2 s3 s4 s5 s6; do\n  echo \"=== $st start $(date -u +%H:%M:%S) ===\"\n  python3 r90b_probe.py \"$st\" 3 > \"runs/$st.log\" 2>&1\n  echo \"=== $st rc=$? $("
+   },
+   {
+    "pid": 3098151,
+    "cmd": "bash -c sleep 150; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r94-boundary && tail -8 runs/rc-summary.txt; echo \"--- counts ---\"; for d in runs/quiet runs/load runs/ff30 runs/ff60 runs/ff120 runs/ff120load runs/ab; do [ -d \"$d\" ] && echo \"$d: $(ls $d/*.out 2>/dev/null | wc -l)"
+   },
+   {
+    "pid": 3103245,
+    "cmd": "bash -c sleep 240; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && cat corpus/live/r89-simplifier/battery-timing.txt; echo; wc -l < corpus/live/r89-simplifier/battery-control.stdout; wc -l < corpus/live/r89-simplifier/battery-folded.stdout 2>/dev/null || echo \"folded not started\"; tail -1 c"
+   },
+   {
+    "pid": 3137643,
+    "cmd": "python3 r90b_probe.py s6 3"
+   },
+   {
+    "pid": 3152982,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-scout && chmod +x run_cells.sh && bash run_cells.sh 2>&1"
+   },
+   {
+    "pid": 3158035,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r95-boundary && (bash run_matrix.sh load && bash run_matrix.sh ff30 && bash run_matrix.sh ff120 && bash run_matrix.sh ff1 && bash run_matrix.sh thr && bash run_matrix.sh label) 2>&1"
+   },
+   {
+    "pid": 3158084,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r95-boundary && (bash run_matrix.sh load && bash run_matrix.sh ff30 && bash run_matrix.sh ff120 && bash run_matrix.sh ff1 && bash run_matrix.sh thr && bash run_matrix.sh label) 2>&1"
+   },
+   {
+    "pid": 3176488,
+    "cmd": "pw-play --target r89b_ns /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone48.wav"
+   },
+   {
+    "pid": 3176564,
+    "cmd": "pw-play --target r89b_ns44 --rate 44100 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone44.wav"
+   },
+   {
+    "pid": 3179769,
+    "cmd": "bash -c sleep 180; cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout && cat runs/battery3.log"
+   },
+   {
+    "pid": 3188363,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin && mkdir -p corpus/live/r90-author/runs1 && python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs1 > corpus/live/r90-author/battery-rep1.stdout 2> corpus/live/r90-author/battery-rep1.stderr; echo \"EXIT=$?\" && tail -5 c"
+   },
+   {
+    "pid": 3188530,
+    "cmd": "python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs1"
+   },
+   {
+    "pid": 3215075,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout && timeout 280 python3 probes/c3_restart.py 3 > runs/c3.out 2>&1; echo \"RC=$?\"; python3 -c \"\nimport json\nd=json.load(open('receipts/c3_restart.json'))\nfor rep in d['reps']:\n    print('--- rep',rep['rep'])\n    for s in rep["
+   },
+   {
+    "pid": 3219761,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_0 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219762,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_1 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219764,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_2 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3219765,
+    "cmd": "bash -c while :; do dd if=/dev/zero of=/tmp/r90b_io_3 bs=1M count=64 conv=fdatasync 2>/dev/null; done"
+   },
+   {
+    "pid": 3223719,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r96-scout && cat > run_loadtest.sh <<'EOF'\n#!/usr/bin/env bash\n# r96-scout load-stability driver: 3 reps of all 13 cells under own-hog load.\n# Only this script's own `yes` PIDs are killed (never `pkill -x yes`).\nset -u\ncd \"$(d"
+   },
+   {
+    "pid": 3223752,
+    "cmd": "pw-play --target r89b_ns /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone48.wav"
+   },
+   {
+    "pid": 3223818,
+    "cmd": "pw-play --target r89b_ns44 --rate 44100 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary/r89b_tone44.wav"
+   },
+   {
+    "pid": 3228613,
+    "cmd": "python3 probes/r93driver.py ctlgrammar 3"
+   },
+   {
+    "pid": 3231408,
+    "cmd": "godot --headless --path corpus/live/r90-author/runs1/20261015T201456662267Z/scratch --export-debug Linux/X11 /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r90-author/runs1/20261015T201456662267Z/scratch/out/fixture.x86_64"
+   },
+   {
+    "pid": 3234751,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-boundary && python3 r89b_probe.py idlewatch 2>&1"
+   },
+   {
+    "pid": 3234944,
+    "cmd": "python3 r89b_probe.py idlewatch"
+   },
+   {
+    "pid": 3237105,
+    "cmd": "sh -c -- \"/bin/sh\" \"-c\" \"timeout -s KILL 15 \"/usr/bin/blender\" -b -P \"/home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py\" -- rdet \"/home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_rdet\" > "
+   },
+   {
+    "pid": 3237107,
+    "cmd": "/bin/sh -c timeout -s KILL 15 /usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- rdet /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_rdet > /home/vgpnk/Projects"
+   },
+   {
+    "pid": 3237108,
+    "cmd": "timeout -s KILL 15 /usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- rdet /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_rdet"
+   },
+   {
+    "pid": 3237110,
+    "cmd": "/usr/bin/blender -b -P /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91_child.py -- rdet /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/live/bpy-dissection/scratch-fixed2/r91bt_render_rdet"
+   },
+   {
+    "pid": 3237779,
+    "cmd": "timeout -s KILL 25 godot --headless --path proj --script res://r95b_order.gd -- --arm=celloff --off=0 --offy=1000"
+   },
+   {
+    "pid": 3237781,
+    "cmd": "godot --headless --path proj --script res://r95b_order.gd -- --arm=celloff --off=0 --offy=1000"
+   },
+   {
+    "pid": 3238069,
+    "cmd": "bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r96-scout && pw-metadata -n default 2>/dev/null | grep -Ei 'default\\.(audio|video)' ; echo \"--- repeat fallback leg now:\"; PULSE_SINK=no_such_r96s paplay scratch/tone1k5_quiet.wav & PA=$!; sleep 0.4; pactl -f json list sink-inputs |"
+   },
+   {
+    "pid": 3238073,
+    "cmd": "pw-play -P application.name=r90b_vt3l -P node.name=r90b_vt3lb /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r90-boundary/r90b_sil48.wav"
+   },
+   {
+    "pid": 3238118,
+    "cmd": "paplay scratch/tone1k5_quiet.wav"
+   },
+   {
+    "pid": 3238729,
+    "cmd": "godot --headless --path corpus/live/r89-simplifier/runs-before/20261015T201037827701Z/scratch --script res://descendant_pipe_probe.gd -- --spawn-errforge-release"
+   },
+   {
+    "pid": 3238873,
+    "cmd": "dd if=/dev/zero of=/tmp/r90b_io_0 bs=1M count=64 conv=fdatasync"
+   },
+   {
+    "pid": 3238900,
+    "cmd": "dd if=/dev/zero of=/tmp/r90b_io_2 bs=1M count=64 conv=fdatasync"
+   },
+   {
+    "pid": 3238910,
+    "cmd": "dd if=/dev/zero of=/tmp/r90b_io_3 bs=1M count=64 conv=fdatasync"
+   },
+   {
+    "pid": 3238921,
+    "cmd": "dd if=/dev/zero of=/tmp/r90b_io_1 bs=1M count=64 conv=fdatasync"
+   }
+  ],
+  "foreign_prefix_nodes": [
+   "r89b_ns",
+   "r89b_ns44",
+   "r89b_ns_b",
+   "r90b_ra",
+   "r90b_rb",
+   "r90b_vt3lb",
+   "r93s_in",
+   "r96s_ns"
+  ],
+  "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "loadavg": "146.36 97.29 64.35 157/2379 3239055"
+ }
+}

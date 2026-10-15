@@ -1,0 +1,1303 @@
+{
+ "sinks": {
+  "r87b_ns": {
+   "id": 125,
+   "serial": 118652,
+   "module_idx": 536870926
+  },
+  "r87b_ns2": {
+   "id": 121,
+   "serial": 118670,
+   "module_idx": 536870926
+  }
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "refs": {
+  "ns_id": 125,
+  "ns_serial": "118652",
+  "ns2_id": 121,
+  "ns2_serial": "118670",
+  "src": {
+   "id": 64,
+   "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "class": "Audio/Source",
+   "serial": 64,
+   "client": 33
+  },
+  "hdmi": {
+   "id": 175,
+   "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "class": "Audio/Sink",
+   "serial": 60843,
+   "client": 33
+  },
+  "scout_stale_serial": 41546
+ },
+ "p_own": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_own",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_own",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.941,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_own:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_own:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.655,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_own:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_own:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_cat_flag": {
+  "argv": [
+   "pw-cat",
+   "--playback",
+   "-P",
+   "node.name=r87bp_catflag",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_catflag",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.942,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_catflag:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_catflag:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.647,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_catflag:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_catflag:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_cat_noflag": {
+  "argv": [
+   "pw-cat",
+   "-P",
+   "node.name=r87bp_catnf",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_catnf",
+  "rc": 1,
+  "stderr": "ump\", (default none)\n  -n, --sample-count COUNT              Stop after COUNT samples\n\n  -p, --playback                        Playback mode\n  -r, --record                          Recording mode\n  -m, --midi                            Midi mode\n  -d, --dsd                             DSD mode\n  -s, --sysex                           SysEx mode\n  -c, --midi-clip                       MIDI clip mode",
+  "snaps": [
+   {
+    "at": 0.952,
+    "node_present": false,
+    "state": null,
+    "media_class": null,
+    "ports": [],
+    "links": {}
+   },
+   {
+    "at": 1.651,
+    "node_present": false,
+    "state": null,
+    "media_class": null,
+    "ports": [],
+    "links": {}
+   }
+  ]
+ },
+ "p_garbage": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_garb",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_garb",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.967,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_garb:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_garb:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.645,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_garb:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_garb:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_pb1": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_pb1",
+   "-P",
+   "target.object=r87b_no_such_target",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_pb1",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.949,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb1:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_pb1:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.659,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb1:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_pb1:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_pb2": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_pb2",
+   "-P",
+   "target.object=r87b_ns",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_pb2",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.943,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb2:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_pb2:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.662,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb2:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_pb2:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_pb3": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_pb3",
+   "-P",
+   "target.object=r87b_ns2",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_pb3",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.947,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb3:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bp_pb3:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.64,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pb3:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bp_pb3:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_nt": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_nt",
+   "-P",
+   "node.target=r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_nt",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.96,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_nt:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_nt:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.64,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_nt:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_nt:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_zero": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_zero",
+   "--target",
+   "0",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_zero",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.961,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {}
+   },
+   {
+    "at": 1.647,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {}
+   }
+  ]
+ },
+ "p_mon": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_mon",
+   "--target",
+   "r87b_ns.monitor",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_mon",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.946,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_mon:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_mon:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.653,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_mon:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_mon:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_mon_capsink": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_moncs",
+   "-P",
+   "stream.capture.sink=true",
+   "--target",
+   "r87b_ns.monitor",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_moncs",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.938,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_moncs:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_moncs:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.668,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_moncs:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_moncs:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_src_name": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_src",
+   "--target",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_src",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.946,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_src:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_src:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.643,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_src:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_src:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_src_serial": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_srcser",
+   "--target",
+   "64",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_srcser",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.949,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_srcser:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_srcser:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.658,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_srcser:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_srcser:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_serial": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_ser",
+   "--target",
+   "118652",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_ser",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.942,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_ser:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_ser:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.662,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_ser:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_ser:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_objid": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_oid",
+   "--target",
+   "125",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_oid",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.942,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_oid:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_oid:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.664,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_oid:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_oid:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_objid_hdmi": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_oidh",
+   "--target",
+   "175",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_oidh",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.938,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_oidh:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_oidh:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.684,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_oidh:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_oidh:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_serial_stale": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_stale",
+   "--target",
+   "41546",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_stale",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.953,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_stale:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_stale:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.659,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_stale:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_stale:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_env_props": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_env",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_env",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.95,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_env:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_env:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.649,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_env:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_env:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_env_nobrace": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_envnb",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_envnb",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.946,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_envnb:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_envnb:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.659,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_envnb:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_envnb:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_env_vs_prop": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_envvp",
+   "-P",
+   "target.object=r87b_ns2",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_envvp",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.952,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_envvp:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_envvp:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.654,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_envvp:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_envvp:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_prop_serial": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_pser",
+   "-P",
+   "target.object=118652",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_pser",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.938,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pser:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_pser:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.652,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_pser:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bp_pser:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_prop_objid": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_poid",
+   "-P",
+   "target.object=125",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_poid",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.94,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_poid:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_poid:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.658,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_poid:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_poid:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_empty": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_empty",
+   "--target",
+   "",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_empty",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.939,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_empty:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_empty:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.646,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_empty:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_empty:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_mediarole": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_mr",
+   "--media-role",
+   "Communication",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_mr",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.934,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_mr:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_mr:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.639,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_mr:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_mr:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "p_capsink_prop": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bp_cs",
+   "-P",
+   "stream.capture.sink=true",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bp_cs",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.949,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_cs:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_cs:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.639,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87bp_cs:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bp_cs:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "collision": {
+  "objects_while_colliding": [
+   {
+    "id": 125,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 116,
+    "class": "Stream/Output/Audio"
+   }
+  ],
+  "coll_rc": 1,
+  "coll_err": "",
+  "p_coll": {
+   "argv": [
+    "pw-play",
+    "-P",
+    "node.name=r87bp_coll",
+    "--target",
+    "r87b_ns",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+   ],
+   "node_name": "r87bp_coll",
+   "rc": 1,
+   "stderr": "",
+   "snaps": [
+    {
+     "at": 0.939,
+     "node_present": true,
+     "state": "running",
+     "media_class": "Stream/Output/Audio",
+     "ports": [],
+     "links": {
+      "r87bp_coll:output_FL": [
+       "r87b_ns:playback_FL",
+       "r87b_ns:playback_FL"
+      ],
+      "r87bp_coll:output_FR": [
+       "r87b_ns:playback_FR",
+       "r87b_ns:playback_FR"
+      ]
+     }
+    },
+    {
+     "at": 1.644,
+     "node_present": true,
+     "state": "running",
+     "media_class": "Stream/Output/Audio",
+     "ports": [],
+     "links": {
+      "r87bp_coll:output_FL": [
+       "r87b_ns:playback_FL",
+       "r87b_ns:playback_FL"
+      ],
+      "r87bp_coll:output_FR": [
+       "r87b_ns:playback_FR",
+       "r87b_ns:playback_FR"
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

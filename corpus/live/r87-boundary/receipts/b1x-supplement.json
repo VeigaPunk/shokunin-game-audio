@@ -1,0 +1,695 @@
+{
+ "m_dsd": {
+  "rc": 1,
+  "out": "",
+  "err": "dsdfile: can't read dsd file '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav': Invalid argument\nerror: open failed: Invalid argument\npw-cat [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role  "
+ },
+ "m_clip": {
+  "rc": 1,
+  "out": "",
+  "err": "midiclip: can't read midi file '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/r87b.mid': Invalid argument\nerror: open failed: Invalid argument\npw-cat [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role"
+ },
+ "m_sysex": {
+  "rc": "timeout",
+  "out": "",
+  "err": ""
+ },
+ "ports": {
+  "rec_long": {
+   "argv": [
+    "pw-cat",
+    "--record",
+    "-P",
+    "node.name=r87bsp_recl",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "r87b_ns",
+    "-n",
+    "96000",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/runs/sp_recl.wav"
+   ],
+   "present": true,
+   "class": "Stream/Input/Audio",
+   "ports": [
+    {
+     "name": "input_FL",
+     "direction": "in"
+    },
+    {
+     "name": "input_FR",
+     "direction": "in"
+    },
+    {
+     "name": "monitor_FL",
+     "direction": "out"
+    },
+    {
+     "name": "monitor_FR",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/runs/sp_recl.wav\n"
+  },
+  "midi_p": {
+   "argv": [
+    "pw-cat",
+    "-m",
+    "-p",
+    "-P",
+    "node.name=r87bsp_mp",
+    "--target",
+    "0",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/r87b.mid"
+   ],
+   "present": true,
+   "class": "Stream/Output/Midi",
+   "ports": [
+    {
+     "name": "output_1",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  },
+  "midi_r": {
+   "argv": [
+    "pw-cat",
+    "-m",
+    "-r",
+    "-P",
+    "node.name=r87bsp_mr",
+    "--target",
+    "0",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/runs/sp_mr.mid"
+   ],
+   "present": true,
+   "class": "Stream/Input/Midi",
+   "ports": [
+    {
+     "name": "input_1",
+     "direction": "in"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  },
+  "sysex": {
+   "argv": [
+    "pw-cat",
+    "-s",
+    "-p",
+    "-P",
+    "node.name=r87bsp_sx",
+    "--target",
+    "0",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/r87b.mid"
+   ],
+   "present": true,
+   "class": "Stream/Output/Midi",
+   "ports": [
+    {
+     "name": "output_1",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  },
+  "ump_midi_p": {
+   "argv": [
+    "pw-cat",
+    "-M",
+    "ump",
+    "-m",
+    "-p",
+    "-P",
+    "node.name=r87bsp_ump",
+    "--target",
+    "0",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/r87b.mid"
+   ],
+   "present": true,
+   "class": "Stream/Output/Midi",
+   "ports": [
+    {
+     "name": "output_1",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  },
+  "p_then_r": {
+   "argv": [
+    "pw-cat",
+    "-p",
+    "-r",
+    "-P",
+    "node.name=r87bsp_pr",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "r87b_ns",
+    "-n",
+    "96000",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/runs/sp_pr.wav"
+   ],
+   "present": true,
+   "class": "Stream/Input/Audio",
+   "ports": [
+    {
+     "name": "input_FL",
+     "direction": "in"
+    },
+    {
+     "name": "input_FR",
+     "direction": "in"
+    },
+    {
+     "name": "monitor_FL",
+     "direction": "out"
+    },
+    {
+     "name": "monitor_FR",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/runs/sp_pr.wav\n"
+  },
+  "play_own": {
+   "argv": [
+    "pw-play",
+    "-P",
+    "node.name=r87bsp_own",
+    "--target",
+    "r87b_ns",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+   ],
+   "present": true,
+   "class": "Stream/Output/Audio",
+   "ports": [
+    {
+     "name": "output_FL",
+     "direction": "out"
+    },
+    {
+     "name": "output_FR",
+     "direction": "out"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  }
+ },
+ "mdump_bare": {
+  "alive_after_1.2s": true,
+  "filter_nodes": [
+   {
+    "id": 160,
+    "name": "midi-dump",
+    "client": null
+   },
+   {
+    "id": 211,
+    "name": "midi-dump",
+    "client": 160
+   }
+  ],
+  "pwlink_rc": 0,
+  "aplaymidi_rc": 0,
+  "rc": 0,
+  "stdout": "  12: track: 0 sec:0.N Note On    (channel  1): note   C4, velocity  96\n 781: track: 0 sec:2.N Note Off   (channel  1): note   C4, velocity   0\n 653: track: 0 sec:3.N Note On    (channel  1): note   E4, velocity  96\n 525: track: 0 sec:4.N Note Off   (channel  1): note   E4, velocity   0\n",
+  "stderr": ""
+ },
+ "mdump_env": {
+  "alive_after_1.2s": true,
+  "filter_nodes": [
+   {
+    "id": 160,
+    "name": "r87b_mdump",
+    "client": null
+   },
+   {
+    "id": 211,
+    "name": "r87b_mdump",
+    "client": 160
+   }
+  ],
+  "pwlink_rc": 0,
+  "aplaymidi_rc": 0,
+  "rc": 0,
+  "stdout": " 969: track: 0 sec:0.N Note On    (channel  1): note   C4, velocity  96\n 717: track: 0 sec:2.N Note Off   (channel  1): note   C4, velocity   0\n 589: track: 0 sec:3.N Note On    (channel  1): note   E4, velocity  96\n 461: track: 0 sec:4.N Note Off   (channel  1): note   E4, velocity   0\n",
+  "stderr": ""
+ },
+ "x_env_swap": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_envswap",
+   "-P",
+   "target.object=r87b_ns",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_envswap",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.05,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envswap:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_envswap:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.642,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envswap:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_envswap:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "x_env_garbage": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_envgarb",
+   "-P",
+   "target.object=r87b_ns",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_envgarb",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.056,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envgarb:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bx_envgarb:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.674,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envgarb:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r87bx_envgarb:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "x_env_vs_nodetarget": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_envnt",
+   "-P",
+   "node.target=r87b_ns",
+   "--target",
+   "r87b_no_such_target",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_envnt",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.062,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envnt:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_envnt:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.668,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_envnt:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_envnt:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "x_prop_twice": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_ptwice",
+   "-P",
+   "target.object=r87b_ns",
+   "-P",
+   "target.object=r87b_ns2",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_ptwice",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.05,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_ptwice:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_ptwice:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.651,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_ptwice:output_FL": [
+      "r87b_ns2:playback_FL",
+      "r87b_ns2:playback_FL"
+     ],
+     "r87bx_ptwice:output_FR": [
+      "r87b_ns2:playback_FR",
+      "r87b_ns2:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "x_zero_prop": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_zprop",
+   "-P",
+   "target.object=r87b_ns",
+   "--target",
+   "0",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_zprop",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.068,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {}
+   },
+   {
+    "at": 1.655,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {}
+   }
+  ]
+ },
+ "x_auto_false": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_auto",
+   "-P",
+   "node.autoconnect=false",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_auto",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.058,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {}
+   },
+   {
+    "at": 1.696,
+    "node_present": true,
+    "state": "suspended",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {}
+   }
+  ]
+ },
+ "x_nt_vs_flag": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r87bx_ntvf",
+   "-P",
+   "node.target=r87b_ns2",
+   "--target",
+   "r87b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-boundary/gen/tone.wav"
+  ],
+  "node_name": "r87bx_ntvf",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 1.06,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_ntvf:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bx_ntvf:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   },
+   {
+    "at": 1.671,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [
+     {
+      "name": "output_FL",
+      "direction": "out"
+     },
+     {
+      "name": "output_FR",
+      "direction": "out"
+     }
+    ],
+    "links": {
+     "r87bx_ntvf:output_FL": [
+      "r87b_ns:playback_FL",
+      "r87b_ns:playback_FL"
+     ],
+     "r87bx_ntvf:output_FR": [
+      "r87b_ns:playback_FR",
+      "r87b_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ }
+}

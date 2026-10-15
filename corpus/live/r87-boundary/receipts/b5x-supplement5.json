@@ -1,0 +1,57 @@
+{
+ "cn_default": {
+  "pod": "create-node adapter { factory.name=\"support.null-audio-sink\" node.name=\"r87b_sess\" media.class=\"Audio/Sink\" }",
+  "present_while_session": true,
+  "live_id": 102,
+  "rc": 0,
+  "present_after_quit": false,
+  "proxy_lines": [
+   "1 = @proxy:3",
+   "remote 0: error id:119 seq:236 res:-116 (Stale file handle): no global 206 any more",
+   "remote 0: error id:0 seq:242 res:-2 (No such file or directory): unknown resource 119 op:7"
+  ],
+  "error_lines": []
+ },
+ "cn_badfactory": {
+  "pod": "create-node nonexistent_factory_r87b {}",
+  "present_while_session": false,
+  "live_id": null,
+  "rc": 0,
+  "present_after_quit": false,
+  "proxy_lines": [
+   "1 = @proxy:3",
+   "remote 0: error id:3 seq:4 res:-2 (No such file or directory): unknown factory name nonexistent_factory_r87b"
+  ],
+  "error_lines": []
+ },
+ "cn_missing_factory": {
+  "pod": "create-node adapter { node.name=\"r87b_nof\" media.class=\"Audio/Sink\" }",
+  "present_while_session": false,
+  "live_id": null,
+  "rc": 0,
+  "present_after_quit": false,
+  "proxy_lines": [
+   "1 = @proxy:3",
+   "remote 0: error id:3 seq:4 res:-22 (Invalid argument): usage: factory.name=<factory-name> (library.name=<library-name>) node.name=<string>"
+  ],
+  "error_lines": []
+ },
+ "destroy_sink": {
+  "module_idx": 536870924,
+  "node_id": 102,
+  "module_before": 536870924,
+  "errors": [
+   "unsupported type PipeWire:Interface:SecurityContext",
+   "unsupported type PipeWire:Interface:Profiler",
+   "info: unknown global '102'"
+  ],
+  "node_after": false,
+  "module_after": null,
+  "mod_lines_r87b_kill": []
+ },
+ "remote_stall": {
+  "rc": "timeout",
+  "elapsed_s": 10.02,
+  "err": ""
+ }
+}
