@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-boundary/r85b_probe.py", line 1396, in <module>
+    b9()
+    ~~^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-boundary/r85b_probe.py", line 811, in b9
+    diffs = [ogg_pair_diff(d0 / f"det_{e}_r0.{e}", d0 / f"det_{e}_r{r}.{e}") for r in range(1, 4)]
+             ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-boundary/r85b_probe.py", line 348, in ogg_pair_diff
+    a, b = Path(pa).read_bytes(), Path(pb).read_bytes()
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-boundary/runs/b9/det_oga_r0.oga'
