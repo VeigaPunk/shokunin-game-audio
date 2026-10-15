@@ -1,0 +1,240 @@
+{
+ "ts0": {
+  "send": "{\"sent\": 3000, \"bytes\": 612000, \"host\": \"127.0.0.1\", \"port\": 46101, \"from_port\": 50351}",
+  "tap": {
+   "n": 3000,
+   "peers": [
+    "127.0.0.1:50351"
+   ],
+   "port": 46101,
+   "group": "239.255.42.99",
+   "ifname": "lo",
+   "seconds": 6.0,
+   "sizes": [
+    204
+   ],
+   "hdr_hex": "807f00000000000099c0ffee",
+   "rtp": {
+    "version": 2,
+    "pt": 127,
+    "seq0": 0,
+    "ts0": 0,
+    "ssrc": "99c0ffee",
+    "marker": 0
+   },
+   "seq_deltas": [
+    1
+   ],
+   "ts_deltas": [
+    48
+   ],
+   "inter_arrival": [
+    5e-05,
+    0.00013,
+    0.001,
+    0.00099,
+    0.001,
+    0.00101,
+    0.00101,
+    0.00099,
+    0.001,
+    0.00099,
+    0.00101,
+    0.00099,
+    0.00242,
+    0.0,
+    0.00053,
+    0.00106,
+    0.00166,
+    0.00033,
+    0.001,
+    0.00239,
+    0.0,
+    0.0006,
+    0.00101,
+    0.00098,
+    0.001,
+    0.00101,
+    0.00099,
+    0.00231,
+    0.0,
+    0.00068
+   ],
+   "first_t": 1.5085599300000467,
+   "last_t": 4.505815701000756,
+   "content": {
+    "frames": 144000,
+    "peak_l": 0.499969,
+    "peak_r": 0.499969,
+    "goertzel_L": {
+     "440": 0.0,
+     "997": 1295820587.1,
+     "2000": 0.0
+    },
+    "goertzel_R": {
+     "440": 0.0,
+     "997": 1295820587.1,
+     "2000": 0.0
+    }
+   }
+  },
+  "src_props": {
+   "id": 31,
+   "state": "suspended",
+   "n_in": 0,
+   "n_out": 2,
+   "props": {
+    "node.autoconnect": true,
+    "node.description": "plazir27",
+    "node.latency": "2325/48000",
+    "node.loop.name": "data-loop.0",
+    "node.name": "r99s_src",
+    "node.network": true,
+    "node.rate": "1/48000",
+    "node.virtual": false,
+    "node.want-driver": true,
+    "rtp.channels": 2,
+    "rtp.media": "audio",
+    "rtp.mime": "L16",
+    "rtp.payload": 127,
+    "rtp.rate": 48000,
+    "rtp.receiver-ts-offset": 4005960651,
+    "rtp.receiving": true,
+    "rtp.source.ip": "239.255.42.99",
+    "rtp.source.port": 46101,
+    "rtp.ssrc": 0
+   }
+  },
+  "wav": null,
+  "log": [
+   "[I][17:50:51.811762] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x565218eb5510: name:libpipewire-module-rtp-source args:{ source.ip = \"239.255.42.99\" source.port = 46101 local.ifname = \"lo\" sess.latency.msec = 100 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99s_src\" media.class = \"Audio/Source\" node.virtual = false  } }",
+   "[D][17:50:51.811773] pw.module    | [   impl-module.c:  175 pw_context_load_module()] trying to load module: libpipewire-module-rtp-source (/usr/lib/pipewire-0.3/libpipewire-module-rtp-source.so) args({ source.ip = \"239.255.42.99\" source.port = 46101 local.ifname = \"lo\" sess.latency.msec = 100 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99s_src\" media.class = \"Audio/Source\" node.virtual = false  } })",
+   "[I][17:50:51.811983] mod.rtp-source | [module-rtp-sourc: 1007 pipewire__module_init()] using IGMP check interval of 5 second(s)",
+   "[I][17:50:51.811990] mod.rtp-source | [module-rtp-sourc: 1012 pipewire__module_init()] using IGMP deadline of 30 second(s)",
+   "[D][17:50:51.812139] mod.rtp-source | [        stream.c:  783 rtp_stream_new()] possible / actual max buffer size: 4194304 / 4194304",
+   "[W][17:50:51.812148] mod.rtp-source | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 100.000000 should be an integer multiple of rtp.ptime 6.458333",
+   "[I][17:50:51.816603] mod.rtp-source | [module-rtp-sourc: 1066 pipewire__module_init()] Successfully loaded module-rtp-source",
+   "[D][17:50:51.816612] pw.module    | [   impl-module.c:  255 pw_context_load_module()] 0x565218ec62f0: loaded module: libpipewire-module-rtp-source",
+   "[I][17:50:51.816617] pw.conf      | [          conf.c:  615 load_module()] 0x565218eb5510: loaded module libpipewire-module-rtp-source"
+  ]
+ },
+ "ts1000000": {
+  "send": "{\"sent\": 2999, \"bytes\": 611796, \"host\": \"127.0.0.1\", \"port\": 46101, \"from_port\": 45706}",
+  "tap": {
+   "n": 2999,
+   "peers": [
+    "127.0.0.1:45706"
+   ],
+   "port": 46101,
+   "group": "239.255.42.99",
+   "ifname": "lo",
+   "seconds": 6.0,
+   "sizes": [
+    204
+   ],
+   "hdr_hex": "807f0000000f424099c0ffee",
+   "rtp": {
+    "version": 2,
+    "pt": 127,
+    "seq0": 0,
+    "ts0": 1000000,
+    "ssrc": "99c0ffee",
+    "marker": 0
+   },
+   "seq_deltas": [
+    1
+   ],
+   "ts_deltas": [
+    48
+   ],
+   "inter_arrival": [
+    0.00289,
+    0.0,
+    0.00291,
+    0.0,
+    0.0,
+    0.00017,
+    0.00102,
+    0.00098,
+    0.00367,
+    0.0,
+    0.0,
+    0.00034,
+    0.00547,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0005,
+    0.001,
+    0.001,
+    0.001,
+    0.001,
+    0.001,
+    0.001,
+    0.00101,
+    0.00099,
+    0.00188,
+    0.00136,
+    0.0,
+    0.00215
+   ],
+   "first_t": 1.5301939949986263,
+   "last_t": 4.528960284998902,
+   "content": {
+    "frames": 143952,
+    "peak_l": 0.499969,
+    "peak_r": 0.499969,
+    "goertzel_L": {
+     "440": 0.0,
+     "997": 1294917214.9,
+     "2000": 0.0
+    },
+    "goertzel_R": {
+     "440": 0.0,
+     "997": 1294917214.9,
+     "2000": 0.0
+    }
+   }
+  },
+  "src_props": {
+   "id": 31,
+   "state": "suspended",
+   "n_in": 0,
+   "n_out": 2,
+   "props": {
+    "node.autoconnect": true,
+    "node.description": "plazir27",
+    "node.latency": "2325/48000",
+    "node.loop.name": "data-loop.0",
+    "node.name": "r99s_src",
+    "node.network": true,
+    "node.rate": "1/48000",
+    "node.virtual": false,
+    "node.want-driver": true,
+    "rtp.channels": 2,
+    "rtp.media": "audio",
+    "rtp.mime": "L16",
+    "rtp.payload": 127,
+    "rtp.rate": 48000,
+    "rtp.receiver-ts-offset": 3111173924,
+    "rtp.receiving": true,
+    "rtp.source.ip": "239.255.42.99",
+    "rtp.source.port": 46101,
+    "rtp.ssrc": 0
+   }
+  },
+  "wav": null,
+  "log": [
+   "[I][17:51:03.363432] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x562f005f1510: name:libpipewire-module-rtp-source args:{ source.ip = \"239.255.42.99\" source.port = 46101 local.ifname = \"lo\" sess.latency.msec = 100 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99s_src\" media.class = \"Audio/Source\" node.virtual = false  } }",
+   "[D][17:51:03.363469] pw.module    | [   impl-module.c:  175 pw_context_load_module()] trying to load module: libpipewire-module-rtp-source (/usr/lib/pipewire-0.3/libpipewire-module-rtp-source.so) args({ source.ip = \"239.255.42.99\" source.port = 46101 local.ifname = \"lo\" sess.latency.msec = 100 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99s_src\" media.class = \"Audio/Source\" node.virtual = false  } })",
+   "[I][17:51:03.363843] mod.rtp-source | [module-rtp-sourc: 1007 pipewire__module_init()] using IGMP check interval of 5 second(s)",
+   "[I][17:51:03.363866] mod.rtp-source | [module-rtp-sourc: 1012 pipewire__module_init()] using IGMP deadline of 30 second(s)",
+   "[D][17:51:03.364239] mod.rtp-source | [        stream.c:  783 rtp_stream_new()] possible / actual max buffer size: 4194304 / 4194304",
+   "[W][17:51:03.364262] mod.rtp-source | [        stream.c:  889 rtp_stream_new()] sess.latency.msec 100.000000 should be an integer multiple of rtp.ptime 6.458333",
+   "[I][17:51:03.367031] mod.rtp-source | [module-rtp-sourc: 1066 pipewire__module_init()] Successfully loaded module-rtp-source",
+   "[D][17:51:03.367040] pw.module    | [   impl-module.c:  255 pw_context_load_module()] 0x562f006022f0: loaded module: libpipewire-module-rtp-source",
+   "[I][17:51:03.367044] pw.conf      | [          conf.c:  615 load_module()] 0x562f005f1510: loaded module libpipewire-module-rtp-source"
+  ]
+ }
+}

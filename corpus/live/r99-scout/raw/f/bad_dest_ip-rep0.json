@@ -1,0 +1,15 @@
+{
+ "case": "bad_dest_ip",
+ "rep": 0,
+ "core_up": true,
+ "msg": "core up",
+ "module_globals": [],
+ "node": null,
+ "udp_sockets": [],
+ "core_log_tail": [
+  "[I][17:52:49.083133] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x564d3c7e05b0: name:libpipewire-module-rtp-sink args:{ destination.ip = \"999.1.2.3\" destination.port = 46100 sess.min-ptime = 1 sess.max-ptime = 1 audio.format = \"S16BE\" audio.rate = 48000 audio.channels = 2 stream.props = { node.name = \"r99s_sink\" media.class = \"Audio/Sink\" node.virtual = false node.always-process = true  } }",
+  "[E][17:52:49.388676] mod.rtp-sink | [module-rtp-sink.:  612 pipewire__module_init()] invalid destination.ip 999.1.2.3: Invalid argument",
+  "[E][17:52:49.388759] pw.conf      | [          conf.c:  607 load_module()] 0x564d3c7e05b0: could not load mandatory module \"libpipewire-module-rtp-sink\": Invalid argument",
+  "[E][17:52:49.389049] default      | [      pipewire.c:  124 main()] failed to create context: Invalid argument"
+ ]
+}

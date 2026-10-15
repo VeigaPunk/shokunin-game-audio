@@ -1,0 +1,147 @@
+[I][17:56:25.866840] pw.context   | [      pipewire.c:  592 pw_init()] version 1.6.8
+[I][17:56:25.869745] pw.conf      | [          conf.c:  420 conf_load()] 0x563a978aa730: loaded config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' with 6 items
+[I][17:56:25.869826] pw.conf      | [          conf.c:  420 conf_load()] 0x563a978af6b0: loaded config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf.d/10-r99s.conf' with 2 items
+[I][17:56:25.869876] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.properties'
+[I][17:56:25.869902] pw.conf      | [          conf.c: 1119 pw_conf_section_for_each()] handle override '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf.d/10-r99s.conf' section 'context.properties'
+[I][17:56:25.869923] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.properties.rules'
+[I][17:56:25.869947] pw.context   | [       context.c:  473 pw_context_new()] 0x563a978a95b0: parsed 6 context.properties items
+[I][17:56:25.869997] pw.context   | [       context.c:  272 setup_data_loops()] created data loop 'data-loop.0'
+[I][17:56:25.870016] pw.context   | [       context.c:  275 setup_data_loops()] created 1 data-loops
+[I][17:56:25.870188] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.spa-libs'
+[I][17:56:25.870252] pw.context   | [       context.c:  567 pw_context_new()] 0x563a978a95b0: parsed 10 context.spa-libs items
+[I][17:56:25.870277] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.modules'
+[I][17:56:25.870305] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-protocol-native args:{
+            # List of server Unix sockets, and optionally permissions
+            #sockets = [ { name = "pipewire-0" }, { name = "pipewire-0-manager" } ]
+        }
+[I][17:56:25.870483] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x563a978bb370: Listening on 'pipewire-0'
+[I][17:56:25.870541] mod.protocol-native | [module-protocol-: 1482 add_server()] 0x563a978bb370: Listening on 'pipewire-0-manager'
+[I][17:56:25.870564] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-protocol-native
+[I][17:56:25.870588] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-metadata args:(null)
+[I][17:56:25.870652] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-metadata
+[I][17:56:25.870676] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-spa-device-factory args:(null)
+[I][17:56:25.870723] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-spa-device-factory
+[I][17:56:25.870746] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-spa-node-factory args:(null)
+[I][17:56:25.870799] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-spa-node-factory
+[I][17:56:25.870822] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-client-node args:(null)
+[I][17:56:25.870881] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-client-node
+[I][17:56:25.870903] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-client-device args:(null)
+[I][17:56:25.870957] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-client-device
+[I][17:56:25.870986] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-access args:{
+            # Socket-specific access permissions
+            #access.socket = { pipewire-0 = "default", pipewire-0-manager = "unrestricted" }
+
+            # Deprecated legacy mode (not socket-based),
+            # for now enabled by default if access.socket is not specified
+            #access.legacy = true
+        }
+[I][17:56:25.871170] mod.access   | [ module-access.c:  357 parse_args()] Using backward-compatible legacy access mode.
+[I][17:56:25.871196] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-access
+[I][17:56:25.871219] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-adapter args:(null)
+[I][17:56:25.871276] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-adapter
+[I][17:56:25.871298] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-link-factory args:{
+            #allow.link.passive = false
+	}
+[I][17:56:25.871352] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-link-factory
+[I][17:56:25.871376] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-session-manager args:(null)
+[I][17:56:25.871439] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-session-manager
+[I][17:56:25.871462] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-x11-bell args:{
+            #sink.name = "@DEFAULT_SINK@"
+            #sample.name = "bell-window-system"
+            #x11.display = null
+            #x11.xauthority = null
+        }
+[I][17:56:25.871497] pw.module    | [   impl-module.c:  261 pw_context_load_module()] No module "libpipewire-module-x11-bell" was found
+[I][17:56:25.871518] pw.conf      | [          conf.c:  604 load_module()] 0x563a978a95b0: skipping unavailable module libpipewire-module-x11-bell
+[I][17:56:25.871546] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-jackdbus-detect args:{
+            #jack.library     = libjack.so.0
+            #jack.server      = null
+            #jack.client-name = PipeWire
+            #jack.connect     = true
+            #tunnel.mode      = duplex  # source|sink|duplex
+            source.props = {
+                #audio.channels = 2
+		#midi.ports = 1
+                #audio.position = [ FL FR ]
+                # extra sink properties
+            }
+            sink.props = {
+                #audio.channels = 2
+		#midi.ports = 1
+                #audio.position = [ FL FR ]
+                # extra sink properties
+            }
+        }
+[I][17:56:25.871603] pw.module    | [   impl-module.c:  261 pw_context_load_module()] No module "libpipewire-module-jackdbus-detect" was found
+[I][17:56:25.871624] pw.conf      | [          conf.c:  604 load_module()] 0x563a978a95b0: skipping unavailable module libpipewire-module-jackdbus-detect
+[I][17:56:25.871645] pw.conf      | [          conf.c: 1119 pw_conf_section_for_each()] handle override '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf.d/10-r99s.conf' section 'context.modules'
+[I][17:56:25.871669] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x563a978a95b0: name:libpipewire-module-rtp-sap args:{ sap.ip = "239.255.255.255" sap.port = 9875 net.loop = false }
+[I][17:56:25.871734] mod.rtp-sap  | [module-rtp-sap.c: 2114 pipewire__module_init()] using IGMP deadline of 45 second(s)
+[I][17:56:25.871785] mod.protocol-native | [  local-socket.c:   72 try_connect()] connecting to 'pipewire-0' runtime_dir:/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/run
+[I][17:56:25.871819] mod.rtp-sap  | [module-rtp-sap.c: 1803 start_sap()] starting SAP send timer
+[I][17:56:25.871847] mod.rtp-sap  | [module-rtp-sap.c:  519 make_recv_socket()] join IPv4 group: 239.255.255.255 iface:0
+[I][17:56:25.871900] mod.rtp-sap  | [module-rtp-sap.c:  576 make_recv_socket()] receiver socket up and running
+[I][17:56:25.871926] mod.rtp-sap  | [module-rtp-sap.c: 1859 start_sap()] starting SAP listener on 239.255.255.255
+[I][17:56:25.871946] mod.rtp-sap  | [module-rtp-sap.c: 2182 pipewire__module_init()] Successfully loaded module-rtp-sap
+[I][17:56:25.871964] pw.conf      | [          conf.c:  615 load_module()] 0x563a978a95b0: loaded module libpipewire-module-rtp-sap
+[I][17:56:25.871988] pw.context   | [       context.c:  571 pw_context_new()] 0x563a978a95b0: parsed 13 context.modules items
+[I][17:56:25.872009] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.objects'
+[I][17:56:25.872038] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'(null)' class:'(null)'
+[I][17:56:25.872060] pw.context   | [       context.c:  287 data_loop_start()] starting data loop data-loop.0
+[I][17:56:25.872128] default      | [        thread.c:  161 impl_acquire_rt()] acquire_rt thread:0x7f4101af36c0 prio:-1 not implemented
+[I][17:56:25.872164] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x563a978b2b88 created queue 0x563a978e7db0 idx:0 0x7f410263cbc0
+[I][17:56:25.872185] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976003541
+[I][17:56:25.872208] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:15516976003541
+[I][17:56:25.872234] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'data-loop.0' class:'(null)'
+[I][17:56:25.872255] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976198071
+[I][17:56:25.872284] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'data-loop.0' class:'(null)'
+[I][17:56:25.872303] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976246911
+[I][17:56:25.872342] pw.node      | [     impl-node.c: 1189 check_properties()] 0x563a978f1620: group '(null)'->'pipewire.dummy'
+[I][17:56:25.872365] pw.node      | [     impl-node.c: 1216 check_properties()] 0x563a978f1620: sync group '(null)'->'sync.dummy'
+[I][17:56:25.872396] pw.node      | [     impl-node.c:  509 node_update_state()] (Dummy-Driver-26) creating -> suspended
+[I][17:56:25.872416] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:0 reason:register active node
+[I][17:56:25.872445] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'(null)' class:'(null)'
+[I][17:56:25.872462] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976405821
+[I][17:56:25.872483] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:15516976405821
+[I][17:56:25.872502] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'data-loop.0' class:'(null)'
+[I][17:56:25.872519] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976463061
+[I][17:56:25.872541] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x563a978a95b0: looking for name:'data-loop.0' class:'(null)'
+[I][17:56:25.872561] pw.context   | [       context.c:  782 acquire_data_loop()] 0x563a978a95b0: using name:'data-loop.0' class:'data.rt' last_used:15516976504371
+[I][17:56:25.872591] pw.node      | [     impl-node.c: 1189 check_properties()] 0x563a978f2ad0: group '(null)'->'pipewire.freewheel'
+[I][17:56:25.872616] pw.node      | [     impl-node.c: 1216 check_properties()] 0x563a978f2ad0: sync group '(null)'->'sync.dummy'
+[I][17:56:25.872641] pw.node      | [     impl-node.c:  509 node_update_state()] (Freewheel-Driver-27) creating -> suspended
+[I][17:56:25.872663] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:0 reason:register active node
+[I][17:56:25.872686] pw.context   | [       context.c:  576 pw_context_new()] 0x563a978a95b0: parsed 2 context.objects items
+[I][17:56:25.872707] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r99-scout/conf/pw/r99s-pipewire.conf' section 'context.exec'
+[I][17:56:25.872727] pw.context   | [       context.c:  579 pw_context_new()] 0x563a978a95b0: parsed 0 context.exec items
+[I][17:56:25.872751] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:log.level type: value:3
+[I][17:56:25.872770] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.rate type: value:48000
+[I][17:56:25.872792] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.allowed-rates type: value:[ 48000 ]
+[I][17:56:25.872812] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.quantum type: value:1024
+[I][17:56:25.872831] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.min-quantum type: value:32
+[I][17:56:25.872852] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.max-quantum type: value:2048
+[I][17:56:25.872875] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.force-quantum type: value:0
+[I][17:56:25.872894] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x563a978d4ee0: add id:0 key:clock.force-rate type: value:0
+[I][17:56:25.872917] default      | [      pipewire.c:  129 main()] start main loop
+[I][17:56:25.872945] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x563a978bbd70: security label not available
+[I][17:56:25.873020] mod.access   | [ module-access.c:  199 context_check_access()] client 0x563a978f5010 has trusted pid 3416776
+[I][17:56:25.873052] mod.access   | [ module-access.c:  243 context_check_access()] 0x563a978c8ec0: client 0x563a978f5010 'unrestricted' access granted
+[I][17:56:25.873079] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x563a978f5010: set default permissions 00000000 -> 000001c8
+[I][17:56:26.075907] mod.protocol-native | [module-protocol-:  630 client_new()] server 0x563a978bbd70: security label not available
+[I][17:56:26.076033] mod.access   | [ module-access.c:  199 context_check_access()] client 0x563a9790bc90 has trusted pid 3416848
+[I][17:56:26.076081] mod.access   | [ module-access.c:  243 context_check_access()] 0x563a978c8ec0: client 0x563a9790bc90 'unrestricted' access granted
+[I][17:56:26.076113] pw.client    | [   impl-client.c:  748 pw_impl_client_update_permissions()] 0x563a9790bc90: set default permissions 00000000 -> 000001c8
+[I][17:56:26.076503] mod.protocol-native | [module-protocol-:  467 handle_client_error()] 0x563a978bb370: connection_data: client 0x563a9790bc90 disconnected
+[I][17:56:29.108919] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x563a978a85d8 created queue 0x563a9790e9b0 idx:0 0x7f410263cbc0
+[I][17:56:29.109149] default      | [      pipewire.c:  131 main()] leave main loop
+[W][17:56:29.109193] pw.core      | [          core.c:  199 destroy_proxy()] 0x563a978ba260: leaked proxy 0x563a978d0720 id:2
+[I][17:56:29.109264] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (Dummy-Driver-26) destroy
+[I][17:56:29.109303] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:1 reason:active node destroy
+[I][17:56:29.109341] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:0 reason:node destroy
+[I][17:56:29.109383] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:15516976504371
+[I][17:56:29.109431] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (Freewheel-Driver-27) destroy
+[I][17:56:29.109457] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:1 reason:active node destroy
+[I][17:56:29.109476] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x563a978a95b0: busy:0 reason:node destroy
+[I][17:56:29.109505] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:15516976504371
+[I][17:56:29.115583] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x563a978b2b88 destroyed queue 0x563a978e7db0 idx:0
+[I][17:56:29.115661] spa.loop     | [          loop.c:  216 loop_queue_destroy()] 0x563a978a85d8 destroyed queue 0x563a9790e9b0 idx:0
