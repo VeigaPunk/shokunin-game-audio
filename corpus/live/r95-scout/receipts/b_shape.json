@@ -1,0 +1,1700 @@
+{
+ "_stage": "b_shape",
+ "_ts": "2026-10-15T19:42:49Z",
+ "reps": [
+  {
+   "dur": 1.649,
+   "graph": {
+    "clients": {
+     "128": {
+      "application.name": "r95jack",
+      "application.process.binary": "r95jack",
+      "client.api": "jack",
+      "client.name": "r95s_shape",
+      "pipewire.sec.pid": 603085
+     }
+    },
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "112": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95s_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95s_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     },
+     "165": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95s_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95s_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     }
+    },
+    "ports": {
+     "85": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 112,
+      "object.path": "r95s_ns:monitor_0",
+      "port.alias": "r95s_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "96": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 165,
+      "object.path": "r95s_shape:output_1",
+      "port.alias": "r95s_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     },
+     "104": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 165,
+      "object.path": "r95s_shape:input_0",
+      "port.alias": "r95s_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "114": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 165,
+      "object.path": "r95s_shape:output_0",
+      "port.alias": "r95s_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "129": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 112,
+      "object.path": "r95s_ns:playback_0",
+      "port.alias": "r95s_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "155": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 165,
+      "object.path": "r95s_shape:output_2",
+      "port.alias": "r95s_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     },
+     "170": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 165,
+      "object.path": "r95s_shape:output_3",
+      "port.alias": "r95s_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 71,
+     "dsp_type": 67,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "Lavf63.1.101:output_FL",
+      "Lavf63.1.101:output_FR",
+      "pw-cat/r83b_s3_M0:output_FL",
+      "pw-cat/r83b_s3_M0:output_FR",
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r85b_mix Audio/Sink sink:playback_FL",
+      "r85b_mix Audio/Sink sink:playback_FR",
+      "r85b_mix Audio/Sink sink:monitor_FL",
+      "r85b_mix Audio/Sink sink:monitor_FR",
+      "r83b_nsb Audio/Sink sink:playback_FL",
+      "r83b_nsb Audio/Sink sink:playback_FR",
+      "r83b_nsb Audio/Sink sink:monitor_FL",
+      "r83b_nsb Audio/Sink sink:monitor_FR",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r82ff_ns_413896 Audio/Sink sink:playback_FL",
+      "r82ff_ns_413896 Audio/Sink sink:playback_FR"
+     ],
+     "inputs": 30,
+     "outputs": 41,
+     "pattern_r95s": 7,
+     "pattern_r95s_list": [
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r95s_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95s_shape",
+    "client_name_size": 257,
+    "client_pid": 603085,
+    "client_uuid": "8590026102",
+    "cpu_load": 0.065044,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 11095150513,
+    "lat_in": {
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95s_shape:in",
+     "out": "r95s_shape:out",
+     "outm": "r95s_shape:outm",
+     "outp": "r95s_shape:outp",
+     "outt": "r95s_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "rt_prio": -148075622,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "nullsink_module": 536870917,
+   "rc": 0,
+   "rep": 0,
+   "residue_after": {
+    "modules": [],
+    "nodes": {},
+    "procs": []
+   },
+   "stderr": "",
+   "top": [
+    {
+     "err": "W/Q",
+     "id": "ID",
+     "name": "ERR",
+     "quant": "QUANT",
+     "rate": "RATE",
+     "status": "S"
+    },
+    {
+     "err": "---",
+     "id": "29",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "110",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "208",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "163",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "181",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "115",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "56",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "154",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "94",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "112",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "165",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  },
+  {
+   "dur": 1.635,
+   "graph": {
+    "clients": {
+     "104": {
+      "application.name": "r95jack",
+      "application.process.binary": "r95jack",
+      "client.api": "jack",
+      "client.name": "r95s_shape",
+      "pipewire.sec.pid": 612967
+     }
+    },
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "96": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95s_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95s_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     },
+     "137": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95s_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95s_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     }
+    },
+    "ports": {
+     "90": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 137,
+      "object.path": "r95s_shape:output_0",
+      "port.alias": "r95s_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "112": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 96,
+      "object.path": "r95s_ns:playback_0",
+      "port.alias": "r95s_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "114": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 96,
+      "object.path": "r95s_ns:monitor_0",
+      "port.alias": "r95s_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "123": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 137,
+      "object.path": "r95s_shape:output_3",
+      "port.alias": "r95s_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "147": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 137,
+      "object.path": "r95s_shape:output_2",
+      "port.alias": "r95s_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     },
+     "171": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 137,
+      "object.path": "r95s_shape:input_0",
+      "port.alias": "r95s_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "210": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 137,
+      "object.path": "r95s_shape:output_1",
+      "port.alias": "r95s_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 71,
+     "dsp_type": 67,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "Lavf63.1.101:output_FL",
+      "Lavf63.1.101:output_FR",
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "pw-play/r85b_m1_p0:output_FL",
+      "pw-play/r85b_m1_p0:output_FR",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r85b_mix Audio/Sink sink:playback_FL",
+      "r85b_mix Audio/Sink sink:playback_FR",
+      "r85b_mix Audio/Sink sink:monitor_FL",
+      "r85b_mix Audio/Sink sink:monitor_FR",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r83b_nsb Audio/Sink sink:playback_FL",
+      "r83b_nsb Audio/Sink sink:playback_FR",
+      "r83b_nsb Audio/Sink sink:monitor_FL",
+      "r83b_nsb Audio/Sink sink:monitor_FR",
+      "r82ff_ns_413896 Audio/Sink sink:playback_FL",
+      "r82ff_ns_413896 Audio/Sink sink:playback_FR"
+     ],
+     "inputs": 30,
+     "outputs": 41,
+     "pattern_r95s": 7,
+     "pattern_r95s_list": [
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r95s_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95s_shape",
+    "client_name_size": 257,
+    "client_pid": 612967,
+    "client_uuid": "8590026205",
+    "cpu_load": 0.073262,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 11097832858,
+    "lat_in": {
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95s_shape:in",
+     "out": "r95s_shape:out",
+     "outm": "r95s_shape:outm",
+     "outp": "r95s_shape:outp",
+     "outt": "r95s_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "rt_prio": 77,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "nullsink_module": 536870917,
+   "rc": 0,
+   "rep": 1,
+   "residue_after": {
+    "modules": [],
+    "nodes": {},
+    "procs": []
+   },
+   "stderr": "",
+   "top": [
+    {
+     "err": "W/Q",
+     "id": "ID",
+     "name": "ERR",
+     "quant": "QUANT",
+     "rate": "RATE",
+     "status": "S"
+    },
+    {
+     "err": "---",
+     "id": "29",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "110",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "208",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "163",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "181",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "115",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "94",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "150",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "199",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "111",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "190",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "158",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "96",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "137",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "97",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  },
+  {
+   "dur": 1.63,
+   "graph": {
+    "clients": {
+     "154": {
+      "application.name": "r95jack",
+      "application.process.binary": "r95jack",
+      "client.api": "jack",
+      "client.name": "r95s_shape",
+      "pipewire.sec.pid": 623853
+     }
+    },
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "96": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95s_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95s_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     },
+     "97": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95s_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95s_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null
+     }
+    },
+    "ports": {
+     "56": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 97,
+      "object.path": "r95s_shape:input_0",
+      "port.alias": "r95s_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "90": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 96,
+      "object.path": "r95s_ns:monitor_0",
+      "port.alias": "r95s_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "100": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 97,
+      "object.path": "r95s_shape:output_2",
+      "port.alias": "r95s_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     },
+     "127": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 97,
+      "object.path": "r95s_shape:output_1",
+      "port.alias": "r95s_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     },
+     "128": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 97,
+      "object.path": "r95s_shape:output_3",
+      "port.alias": "r95s_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "206": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 97,
+      "object.path": "r95s_shape:output_0",
+      "port.alias": "r95s_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "210": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 96,
+      "object.path": "r95s_ns:playback_0",
+      "port.alias": "r95s_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 71,
+     "dsp_type": 67,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "pw-play/r85b_m1_p0:output_FL",
+      "pw-play/r85b_m1_p0:output_FR",
+      "Lavf63.1.101:output_FL",
+      "Lavf63.1.101:output_FR",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r85b_mix Audio/Sink sink:playback_FL",
+      "r85b_mix Audio/Sink sink:playback_FR",
+      "r85b_mix Audio/Sink sink:monitor_FL",
+      "r85b_mix Audio/Sink sink:monitor_FR",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r95s_shape:in",
+      "r83b_nsb Audio/Sink sink:playback_FL",
+      "r83b_nsb Audio/Sink sink:playback_FR",
+      "r83b_nsb Audio/Sink sink:monitor_FL",
+      "r83b_nsb Audio/Sink sink:monitor_FR",
+      "r82ff_ns_413896 Audio/Sink sink:playback_FL"
+     ],
+     "inputs": 30,
+     "outputs": 41,
+     "pattern_r95s": 7,
+     "pattern_r95s_list": [
+      "r95s_shape:out",
+      "r95s_shape:outp",
+      "r95s_shape:outt",
+      "r95s_shape:outm",
+      "r95s_ns Audio/Sink sink:playback_MONO",
+      "r95s_ns Audio/Sink sink:monitor_MONO",
+      "r95s_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95s_shape",
+    "client_name_size": 257,
+    "client_pid": 623853,
+    "client_uuid": "8590026257",
+    "cpu_load": 0.084647,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 11100538603,
+    "lat_in": {
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95s_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95s_shape:in",
+     "out": "r95s_shape:out",
+     "outm": "r95s_shape:outm",
+     "outp": "r95s_shape:outp",
+     "outt": "r95s_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "rt_prio": -2108530118,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "nullsink_module": 536870917,
+   "rc": 0,
+   "rep": 2,
+   "residue_after": {
+    "modules": [],
+    "nodes": {},
+    "procs": []
+   },
+   "stderr": "",
+   "top": [
+    {
+     "err": "W/Q",
+     "id": "ID",
+     "name": "ERR",
+     "quant": "QUANT",
+     "rate": "RATE",
+     "status": "S"
+    },
+    {
+     "err": "---",
+     "id": "29",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "110",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "208",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "163",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "181",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "115",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "94",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "150",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "190",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "155",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "96",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "97",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "199",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "129",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "118",
+     "name": "0",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  }
+ ],
+ "sweep_after": {
+  "killed": [],
+  "unloaded": []
+ }
+}

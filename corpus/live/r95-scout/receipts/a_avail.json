@@ -1,0 +1,252 @@
+{
+ "_stage": "a_avail",
+ "_ts": "2026-10-15T19:52:41Z",
+ "config_shas": [
+  "77a3a26091c63a50db4b222487c72974b00c85d1d77024a98a3304e1e870d14e  /usr/share/pipewire/jack.conf",
+  "9f6268e435de80893c756e2b6a7d7f93b403fe0e7758cde16b01e56374c9d8e6  /usr/bin/pw-jack"
+ ],
+ "jack_conf_options": [
+  "jack.default-as-system",
+  "jack.fill-aliases",
+  "jack.filter-char",
+  "jack.filter-name",
+  "jack.fix-midi-events",
+  "jack.flag-midi2",
+  "jack.global-buffer-size",
+  "jack.locked-process",
+  "jack.max-client-ports",
+  "jack.merge-monitor",
+  "jack.other-connect-mode",
+  "jack.properties",
+  "jack.rules",
+  "jack.self-connect-mode",
+  "jack.short-name",
+  "jack.show-midi",
+  "jack.show-monitor",
+  "jack.writable-input"
+ ],
+ "ldd": [
+  "linux-vdso.so.1 (0x00007f35d5617000)",
+  "\tlibjack.so.0 => /usr/lib/libjack.so.0 (0x00007f35d5598000)",
+  "\tlibm.so.6 => /usr/lib/libm.so.6 (0x00007f35d5461000)",
+  "\tlibc.so.6 => /usr/lib/libc.so.6 (0x00007f35d5200000)",
+  "\tlibpipewire-0.3.so.0 => /usr/lib/libpipewire-0.3.so.0 (0x00007f35d5130000)",
+  "\t/lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f35d5619000)",
+  "\tlibgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0x00007f35d5432000)"
+ ],
+ "libjack": {
+  "path": "/usr/lib/libjack.so.0.3.1608",
+  "sha256": "34bbb09aceb7de3a9fab69684db97ff7e1d08b1d1b5ea32727691b6d91c9ce6d",
+  "size": 243912
+ },
+ "man_pages": [
+  "/usr/share/man/man1/pw-jack.1.gz",
+  "No manual entry for pipewire-jack"
+ ],
+ "packages": {
+  "jack": "pipewire-jack 1:1.6.8-1",
+  "jack2": "error: package 'jack2' was not found",
+  "pipewire": "pipewire 1:1.6.8-1",
+  "pipewire-jack": "pipewire-jack 1:1.6.8-1"
+ },
+ "post_state": {
+  "defaults": {
+   "Default Sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "Default Source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+  },
+  "module_count": 29
+ },
+ "pre_state": {
+  "defaults": {
+   "Default Sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "Default Source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+  },
+  "metadata_objects": [
+   {
+    "id": 31,
+    "name": "settings",
+    "rows": [
+     {
+      "key": "clock.rate",
+      "subject": 0,
+      "type": "",
+      "value": 48000
+     },
+     {
+      "key": "clock.quantum",
+      "subject": 0,
+      "type": "",
+      "value": 1024
+     },
+     {
+      "key": "clock.force-quantum",
+      "subject": 0,
+      "type": "",
+      "value": 0
+     },
+     {
+      "key": "clock.force-rate",
+      "subject": 0,
+      "type": "",
+      "value": 0
+     }
+    ]
+   },
+   {
+    "id": 34,
+    "name": "schema-sm-settings",
+    "rows": []
+   },
+   {
+    "id": 36,
+    "name": "sm-settings",
+    "rows": []
+   },
+   {
+    "id": 39,
+    "name": "default",
+    "rows": [
+     {
+      "key": "default.audio.sink",
+      "subject": 0,
+      "type": "Spa:String:JSON",
+      "value": {
+       "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+      }
+     }
+    ]
+   }
+  ],
+  "module_count": 29,
+  "node_count": 0
+ },
+ "settings_metadata": {
+  "0:clock.allowed-rates": {
+   "type": "",
+   "value": "[ 48000 ]"
+  },
+  "0:clock.force-quantum": {
+   "type": "",
+   "value": "0"
+  },
+  "0:clock.force-rate": {
+   "type": "",
+   "value": "0"
+  },
+  "0:clock.max-quantum": {
+   "type": "",
+   "value": "2048"
+  },
+  "0:clock.min-quantum": {
+   "type": "",
+   "value": "32"
+  },
+  "0:clock.quantum": {
+   "type": "",
+   "value": "1024"
+  },
+  "0:clock.rate": {
+   "type": "",
+   "value": "48000"
+  },
+  "0:log.level": {
+   "type": "",
+   "value": "2"
+  }
+ },
+ "sweep_after": {
+  "killed": [
+   [
+    1976971,
+    "pw-play -P node.name=r84b_ta -P media.role=Music --target r84b_ns /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-boundary/tmp/tone_long9.wav"
+   ],
+   [
+    1978682,
+    "pw-record -P stream.capture.sink=true -P node.name=r85b_m2_t2 --target r85b_mix --rate 48000 --channels 2 --format s16 -n 192000 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-boundary/runs/b3/mix/m2/r2/mon.wav"
+   ],
+   [
+    1983988,
+    "pw-record -P stream.capture.sink=true -P node.name=r79lb_1875167_c01_sink_tap --target r79lb_ns_b_1875167 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-1yaouaj4/tap_c01_sink.wav"
+   ],
+   [
+    1988084,
+    "pw-cat -p -P node.name=r79lb_1875167_c01_sink_feed --target r79lb_ns_a_1875167 /tmp/capture-r79-play-1yaouaj4/tag_tone.wav"
+   ],
+   [
+    1993253,
+    "pw-play --target r93s_in /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r93-scout/scratch/silence.wav"
+   ]
+  ],
+  "unloaded": []
+ },
+ "symbols": {
+  "declared_in_headers": 218,
+  "declared_not_exported": [
+   "jack_adapter_pull_and_push",
+   "jack_adapter_push_and_pull",
+   "jack_client_activate",
+   "jack_create_adapter",
+   "jack_destroy_adapter",
+   "jack_error",
+   "jack_error_callback",
+   "jack_finish",
+   "jack_flush_adapter",
+   "jack_info",
+   "jack_info_callback",
+   "jack_initialize",
+   "jack_log",
+   "jack_net_master_close",
+   "jack_net_master_open",
+   "jack_net_master_recv",
+   "jack_net_master_recv_slice",
+   "jack_net_master_send",
+   "jack_net_master_send_slice",
+   "jack_net_slave_activate",
+   "jack_net_slave_close",
+   "jack_net_slave_deactivate",
+   "jack_net_slave_is_active",
+   "jack_net_slave_open",
+   "jack_port_t",
+   "jack_set_net_buffer_size_callback",
+   "jack_set_net_error_callback",
+   "jack_set_net_process_callback",
+   "jack_set_net_restart_callback",
+   "jack_set_net_sample_rate_callback",
+   "jack_set_net_shutdown_callback",
+   "jack_set_net_slave_buffer_size_callback",
+   "jack_set_net_slave_error_callback",
+   "jack_set_net_slave_process_callback",
+   "jack_set_net_slave_restart_callback",
+   "jack_set_net_slave_sample_rate_callback",
+   "jack_set_net_slave_shutdown_callback",
+   "jack_slist_alloc",
+   "jack_slist_append",
+   "jack_slist_copy",
+   "jack_slist_find",
+   "jack_slist_free",
+   "jack_slist_free_1",
+   "jack_slist_last",
+   "jack_slist_length",
+   "jack_slist_next",
+   "jack_slist_prepend",
+   "jack_slist_remove",
+   "jack_slist_remove_link",
+   "jack_slist_sort",
+   "jack_slist_sort_merge",
+   "jack_uuid_to_string"
+  ],
+  "declared_not_exported_count": 52,
+  "exported": 168
+ },
+ "which": {
+  "jack_connect": null,
+  "jack_control": null,
+  "jack_disconnect": null,
+  "jack_lsp": null,
+  "jackd": null,
+  "jackdbus": null,
+  "pw-jack": "/usr/bin/pw-jack",
+  "pw-metadata": "/usr/bin/pw-metadata",
+  "pw-top": "/usr/bin/pw-top"
+ }
+}
