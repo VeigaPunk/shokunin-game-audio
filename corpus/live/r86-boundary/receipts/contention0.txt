@@ -1,0 +1,34 @@
+=== yes storm identity ===
+    PID    PPID ELAPSED COMMAND
+2316230    1537     207 yes
+2316231    1537     207 yes
+2316232    1537     207 yes
+2316233    1537     207 yes
+--- cwd/environ of one yes ---
+lrwxrwxrwx 1 vgpnk vgpnk 0 Oct 15 17:05 /proc/2316230/cwd -> /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+[redacted-line-removed-by-seat]
+--- count/start spread ---
+     32 Thu Oct 15 17:02:34 2026
+     16 Thu Oct 15 17:02:42 2026
+=== other seat-ish procs ===
+     21   12493 [kprobe-optimizer]
+2311735     219 python3 run_battery.py --godot /usr/bin/godot --runs /tmp/r93batt_full2
+2389450      25 python3 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/fixtures/measure_audio.py --probe-module-r80
+2395355       2 pw-record -P stream.capture.sink=true -P node.name=r80md_2389450_play_dm_tap --target r80md_2389450_dm_a -n 326400 --rate 48000 --channels 2 --format s16 /tmp/module-r80-topo-93qm37it/tap_move_dontmove.wav
+2395442       2 pw-cat -p -P node.name=r80md_2389450_play_dm -P node.dont-move=true --target r80md_2389450_dm_a /tmp/module-r80-topo-93qm37it/tag_tone.wav
+2396002       0 bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-scout && cp probes/discover.gd proj/ && for arm in census advance finish; do echo "=== $arm"; timeout -s KILL 25 godot --headless --path proj --script res://discover.gd -- --arm=$arm 2>runs/disc-$arm.err | head -5; echo "rc=$? err=$(wc -c < runs/disc-$arm.err)"; done
+=== coredumpctl ===
+Thu 2026-10-15 17:00:47 -03 2278712 1000 1000 SIGSEGV present      /usr/bin/blender                                                           21.7M
+Thu 2026-10-15 17:01:03 -03 2282706 1000 1000 SIGABRT present      /usr/bin/godot                                                                5M
+Thu 2026-10-15 17:01:07 -03 2286523 1000 1000 SIGABRT present      /usr/bin/godot                                                                5M
+Thu 2026-10-15 17:01:09 -03 2287162 1000 1000 SIGABRT present      /usr/bin/godot                                                                5M
+Thu 2026-10-15 17:01:27 -03 2292124 1000 1000 SIGABRT present      /usr/bin/godot                                                                5M
+Thu 2026-10-15 17:01:50 -03 2300600 1000 1000 SIGSEGV present      /usr/bin/blender                                                           21.6M
+=== core count ===
+3446
+=== disk ===
+Filesystem        Size  Used Avail Use% Mounted on
+/dev/mapper/root  930G  128G  801G  14% /
+/dev/mapper/root  930G  128G  801G  14% /

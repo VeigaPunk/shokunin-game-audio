@@ -1,0 +1,289 @@
+{
+ "stage": "b3",
+ "host_start": {
+  "load": [
+   "56.41",
+   "46.18",
+   "40.87"
+  ],
+  "t": "2026-10-15T17:08:48-0300",
+  "yes": 32,
+  "r86b_procs": "4"
+ },
+ "ids": {
+  "node": 181
+ },
+ "inventory": {
+  "cmd": "pw-metadata -l",
+  "rc": 0,
+  "out": "Found \"settings\" metadata 31\nFound \"schema-sm-settings\" metadata 34\nFound \"persistent-sm-settings\" metadata 35\nFound \"sm-settings\" metadata 36\nFound \"sm-objects\" metadata 37\nFound \"default-profile\" metadata 38\nFound \"default\" metadata 39\nFound \"filters\" metadata 41\nFound \"route-settings\" metadata 42\n",
+  "err": "",
+  "secs": 0.008
+ },
+ "bogus_store": {
+  "cmd": "pw-metadata -n bogus_store_r86b",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.007
+ },
+ "bare_equals_default": {
+  "bare": {
+   "cmd": "pw-metadata",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }' type:'Spa:String:JSON'\nupdate: id:0 key:'default.configured.audio.source' value:'{\"name\":\"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\"}' type:'Spa:String:JSON'\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\n",
+   "err": "",
+   "secs": 0.007
+  },
+  "default": {
+   "cmd": "pw-metadata -n default",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }' type:'Spa:String:JSON'\nupdate: id:0 key:'default.configured.audio.source' value:'{\"name\":\"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\"}' type:'Spa:String:JSON'\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\n",
+   "err": "",
+   "secs": 0.008
+  }
+ },
+ "subject0_read": {
+  "cmd": "pw-metadata -n default 0",
+  "rc": 0,
+  "out": "Found \"default\" metadata 39\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }' type:'Spa:String:JSON'\nupdate: id:0 key:'default.configured.audio.source' value:'{\"name\":\"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\"}' type:'Spa:String:JSON'\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\n",
+  "err": "",
+  "secs": 0.008
+ },
+ "subject0_keys": [
+  "default.audio.sink",
+  "default.configured.audio.sink",
+  "default.configured.audio.source"
+ ],
+ "seat_subject0_key_absent": {
+  "cmd": "pw-metadata -n default 0 r86b_absent_key",
+  "rc": 0,
+  "out": "Found \"default\" metadata 39\n",
+  "err": "",
+  "secs": 0.007
+ },
+ "cycle": [
+  {
+   "op": "write",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1 V1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nset property: id:181 key:r86b_k1 value:V1 type:(null)\n",
+    "err": "",
+    "secs": 0.008
+   }
+  },
+  {
+   "op": "read",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nupdate: id:181 key:'r86b_k1' value:'V1' type:'(null)'\n",
+    "err": "",
+    "secs": 0.009
+   }
+  },
+  {
+   "op": "overwrite",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1 V2",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nset property: id:181 key:r86b_k1 value:V2 type:(null)\n",
+    "err": "",
+    "secs": 0.009
+   }
+  },
+  {
+   "op": "read",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nupdate: id:181 key:'r86b_k1' value:'V2' type:'(null)'\n",
+    "err": "",
+    "secs": 0.006
+   }
+  },
+  {
+   "op": "write_typed",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1 V3 Spa:String",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nset property: id:181 key:r86b_k1 value:V3 type:Spa:String\n",
+    "err": "",
+    "secs": 0.01
+   }
+  },
+  {
+   "op": "read",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\nupdate: id:181 key:'r86b_k1' value:'V3' type:'Spa:String'\n",
+    "err": "",
+    "secs": 0.015
+   }
+  },
+  {
+   "op": "read_absent",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_nokey",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\n",
+    "err": "",
+    "secs": 0.007
+   }
+  },
+  {
+   "op": "del",
+   "r": {
+    "cmd": "pw-metadata -n default -d 181 r86b_k1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\ndelete property: id:181 key:r86b_k1\n",
+    "err": "",
+    "secs": 0.009
+   }
+  },
+  {
+   "op": "read_after_del",
+   "r": {
+    "cmd": "pw-metadata -n default 181 r86b_k1",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\n",
+    "err": "",
+    "secs": 0.008
+   }
+  },
+  {
+   "op": "del_absent",
+   "r": {
+    "cmd": "pw-metadata -n default -d 181 r86b_nokey",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\ndelete property: id:181 key:r86b_nokey\n",
+    "err": "",
+    "secs": 0.006
+   }
+  },
+  {
+   "op": "subject0_del_seatkey_absent",
+   "r": {
+    "cmd": "pw-metadata -n default -d 0 r86b_absent_key",
+    "rc": 0,
+    "out": "Found \"default\" metadata 39\ndelete property: id:0 key:r86b_absent_key\n",
+    "err": "",
+    "secs": 0.009
+   }
+  }
+ ],
+ "dead_subject": {
+  "write": {
+   "cmd": "pw-metadata -n default 99997 r86b_dead D1",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nset property: id:99997 key:r86b_dead value:D1 type:(null)\n",
+   "err": "",
+   "secs": 0.007
+  },
+  "read": {
+   "cmd": "pw-metadata -n default 99997 r86b_dead",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\n",
+   "err": "",
+   "secs": 0.009
+  },
+  "read_all": {
+   "cmd": "pw-metadata -n default 99997",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\n",
+   "err": "",
+   "secs": 0.007
+  }
+ },
+ "multi": {
+  "w1": {
+   "cmd": "pw-metadata -n default 181 r86b_m1 A",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nset property: id:181 key:r86b_m1 value:A type:(null)\n",
+   "err": "",
+   "secs": 0.007
+  },
+  "w2": {
+   "cmd": "pw-metadata -n default 181 r86b_m2 B",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nset property: id:181 key:r86b_m2 value:B type:(null)\n",
+   "err": "",
+   "secs": 0.01
+  },
+  "read_all": {
+   "cmd": "pw-metadata -n default 181",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\nupdate: id:181 key:'r86b_m1' value:'A' type:'(null)'\nupdate: id:181 key:'r86b_m2' value:'B' type:'(null)'\n",
+   "err": "",
+   "secs": 0.008
+  },
+  "del_subject": {
+   "cmd": "pw-metadata -n default -d 181",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\ndelete properties: id:181\n",
+   "err": "",
+   "secs": 0.006
+  },
+  "read_all_after": {
+   "cmd": "pw-metadata -n default 181",
+   "rc": 0,
+   "out": "Found \"default\" metadata 39\n",
+   "err": "",
+   "secs": 0.008
+  }
+ },
+ "m_all": {
+  "out_lines": 4,
+  "head": "Found \"default\" metadata 39\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }' type:'Spa:String:JSON'\nupdate: id:0 key:'default.configured.audio.source' value:'{\"name\":\"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\"}' type:'Spa:String:JSON'\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Gener\n...[truncated 60 chars]",
+  "err": "",
+  "rc": -9
+ },
+ "m_subj": {
+  "out_lines": 1,
+  "head": "Found \"default\" metadata 39\n",
+  "err": "",
+  "rc": -9
+ },
+ "stores_read": {
+  "settings": {
+   "cmd": "pw-metadata -n settings",
+   "rc": 0,
+   "out": "Found \"settings\" metadata 31\nupdate: id:0 key:'log.level' value:'2' type:''\nupdate: id:0 key:'clock.rate' value:'48000' type:''\nupdate: id:0 key:'clock.allowed-rates' value:'[ 48000 ]' type:''\nupdate: id:0 key:'clock.quantum' value:'1024' type:''\nupdate: id:0 key:'clock.min-quantum' value:'32' type:''\nupdate: id:0 key:'clock.max-quantum' value:'2048' type:''\nupdate: id:0 key:'clock.force-quantum' value:'0' type:''\nupdate: id:0 key:'clock.force-rate' value:'0' type:''\n",
+   "err": "",
+   "secs": 0.013
+  },
+  "filters": {
+   "cmd": "pw-metadata -n filters",
+   "rc": 0,
+   "out": "Found \"filters\" metadata 41\n",
+   "err": "",
+   "secs": 0.005
+  },
+  "sm-objects": {
+   "cmd": "pw-metadata -n sm-objects",
+   "rc": 0,
+   "out": "Found \"sm-objects\" metadata 37\n",
+   "err": "",
+   "secs": 0.012
+  },
+  "route-settings": {
+   "cmd": "pw-metadata -n route-settings",
+   "rc": 0,
+   "out": "Found \"route-settings\" metadata 42\n",
+   "err": "",
+   "secs": 0.013
+  }
+ },
+ "host_end": {
+  "load": [
+   "56.41",
+   "46.18",
+   "40.87"
+  ],
+  "t": "2026-10-15T17:08:51-0300",
+  "yes": 48,
+  "r86b_procs": "4"
+ }
+}

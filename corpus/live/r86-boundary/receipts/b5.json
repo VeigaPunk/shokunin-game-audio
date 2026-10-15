@@ -1,0 +1,160 @@
+{
+ "stage": "b5",
+ "host_start": {
+  "load": [
+   "73.67",
+   "58.00",
+   "46.22"
+  ],
+  "t": "2026-10-15T17:11:24-0300",
+  "yes": 64,
+  "r86b_procs": "4"
+ },
+ "core_count_before": {
+  "cmd": "bash -lc coredumpctl list --no-pager 2>/dev/null | wc -l",
+  "rc": 0,
+  "out": "3470\n",
+  "err": "",
+  "secs": 1.227
+ },
+ "batch_clean": [
+  {
+   "cmd": "pw-top -b -n 2",
+   "rc": 0,
+   "out": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nC   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge\nC   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server\nC   61      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nC   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nC   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nC   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nC   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nC  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nC  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nC  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nC  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nC  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nC   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nC  142      0      0    ---     ---   ---   ---     0                  r89b_ns\nC  239      0      0    ---     ---   ---   ---     0                  r89b_ns44\nC  197      0      0    ---     ---   ---   ---     0                  r86b_a\nC   98      0      0    ---     ---   ---   ---     0                  r86b_b\nC  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nC   87      0      0    ---     ---   ---   ---     0                  r82ff_ns_2737990\nC  130      0      0    ---     ---   ---   ---     0                  r93s_in\nC  180      0      0    ---     ---   ---   ---     0                  r93s_fc_in\nC   59      0      0    ---     ---   ---   ---     0                  r93s_fc_out\nC  206      0      0    ---     ---   ---   ---     0                  r89b_ns_b\nC  202      0      0    ---     ---   ---   ---     0                  pw-play\nC   56      0      0    ---     ---   ---   ---     0                  r93s_rec\nC  238      0      0    ---     ---   ---   ---     0                  pw-play\nC  146      0      0    ---     ---   ---   ---     0                  r90b_ns_a\nC  222      0      0    ---     ---   ---   ---     0                  r90b_ns_b\nC  100      0      0    ---     ---   ---   ---     0                  Lavf63.1.101\nC  162      0      0    ---     ---   ---   ---     0                  paplay\nS   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nI   29      0      0   0.0us   0.0us  ???   ???     0                  Dummy-Driver\nS   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nI   46      0      0   0.0us   0.0us  ???   ???     0                  Midi-Bridge\nI   49      0      0   0.0us   0.0us  ???   ???     0                  bluez_midi.server\nR   61      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nS   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nS   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nS   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nS   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nS  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nS  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nS  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nS  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nS  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nS   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nI  142      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns\nI  239      0      0   0.0us   0.0us  ???   ???     0     F32P 2 44100 r89b_ns44\nS  197      0      0    ---     ---   ---   ---     0                  r86b_a\nS   98      0      0    ---     ---   ---   ---     0                  r86b_b\nS  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nR   87      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r82ff_ns_2737990\nR  130   2048  48000   6.0ms   5.4us  0.14  0.00    0     F32P 1 48000 r93s_in\nR  180      0      0   5.8ms  10.0us  0.14  0.00    0         F32P 1 0  + r93s_fc_in\nR   59      0      0   2.5us 202.7us  0.00  0.00    0         F32P 1 0  + r93s_fc_out\nR   56      0  48000   5.8us  38.6us  0.00  0.00    0    F32LE 1 48000  = r93s_rec\nR  238   4800  48000  17.8us  11.2us  0.00  0.00    0    F32LE 1 48000  = pw-play\nR  206      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns_b\nR  202      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 pw-play\nR  146      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_a\nR  222      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_b\nR  100      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 Lavf63.1.101\nR  162      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 paplay\n",
+   "err": "",
+   "secs": 0.02,
+   "n_lines": 66,
+   "head": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   -\n...[truncated 5684 chars]"
+  },
+  {
+   "cmd": "pw-top -b -n 2",
+   "rc": 0,
+   "out": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nC   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge\nC   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server\nC   61      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nC   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nC   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nC   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nC   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nC  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nC  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nC  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nC  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nC  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nC   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nC  142      0      0    ---     ---   ---   ---     0                  r89b_ns\nC  239      0      0    ---     ---   ---   ---     0                  r89b_ns44\nC  197      0      0    ---     ---   ---   ---     0                  r86b_a\nC   98      0      0    ---     ---   ---   ---     0                  r86b_b\nC  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nC   87      0      0    ---     ---   ---   ---     0                  r82ff_ns_2737990\nC  130      0      0    ---     ---   ---   ---     0                  r93s_in\nC  180      0      0    ---     ---   ---   ---     0                  r93s_fc_in\nC   59      0      0    ---     ---   ---   ---     0                  r93s_fc_out\nC  206      0      0    ---     ---   ---   ---     0                  r89b_ns_b\nC  202      0      0    ---     ---   ---   ---     0                  pw-play\nC   56      0      0    ---     ---   ---   ---     0                  r93s_rec\nC  238      0      0    ---     ---   ---   ---     0                  pw-play\nC  146      0      0    ---     ---   ---   ---     0                  r90b_ns_a\nC  222      0      0    ---     ---   ---   ---     0                  r90b_ns_b\nC  100      0      0    ---     ---   ---   ---     0                  Lavf63.1.101\nC  162      0      0    ---     ---   ---   ---     0                  paplay\nS   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nI   29      0      0   0.0us   0.0us  ???   ???     0                  Dummy-Driver\nS   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nI   46      0      0   0.0us   0.0us  ???   ???     0                  Midi-Bridge\nI   49      0      0   0.0us   0.0us  ???   ???     0                  bluez_midi.server\nR   61   2048  48000  36.5us  11.6us  0.00  0.00    1    S16LE 2 48000 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nR  162   8192  48000  15.0us  14.2us  0.00  0.00    0    S16LE 1 48000  + paplay\nS   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nS   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nS   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nS   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nS  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nS  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nS  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nS  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nS  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nS   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nI  142      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns\nI  239      0      0   0.0us   0.0us  ???   ???     0     F32P 2 44100 r89b_ns44\nS  197      0      0    ---     ---   ---   ---     0                  r86b_a\nS   98      0      0    ---     ---   ---   ---     0                  r86b_b\nS  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nR   87      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r82ff_ns_2737990\nR  130      0      0   0.0us   0.0us  ???   ???     0     F32P 1 48000 r93s_in\nR  180      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_in\nR   59      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_out\nR  206      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns_b\nR  202      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 pw-play\nR   56      0      0   0.0us   0.0us  ???   ???     0    F32LE 1 48000 r93s_rec\nR  238      0      0   0.0us   0.0us  ???   ???     0    F32LE 1 48000 pw-play\nR  146      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_a\nR  222      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_b\nR  100      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 Lavf63.1.101\n",
+   "err": "",
+   "secs": 0.017,
+   "n_lines": 66,
+   "head": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   -\n...[truncated 5675 chars]"
+  },
+  {
+   "cmd": "pw-top -b -n 2",
+   "rc": 0,
+   "out": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nC   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge\nC   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server\nC   61      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nC   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nC   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nC   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nC   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nC  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nC  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nC  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nC  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nC  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nC   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nC  142      0      0    ---     ---   ---   ---     0                  r89b_ns\nC  239      0      0    ---     ---   ---   ---     0                  r89b_ns44\nC  197      0      0    ---     ---   ---   ---     0                  r86b_a\nC   98      0      0    ---     ---   ---   ---     0                  r86b_b\nC  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nC   87      0      0    ---     ---   ---   ---     0                  r82ff_ns_2737990\nC  130      0      0    ---     ---   ---   ---     0                  r93s_in\nC  180      0      0    ---     ---   ---   ---     0                  r93s_fc_in\nC   59      0      0    ---     ---   ---   ---     0                  r93s_fc_out\nC  206      0      0    ---     ---   ---   ---     0                  r89b_ns_b\nC  202      0      0    ---     ---   ---   ---     0                  pw-play\nC   56      0      0    ---     ---   ---   ---     0                  r93s_rec\nC  238      0      0    ---     ---   ---   ---     0                  pw-play\nC  146      0      0    ---     ---   ---   ---     0                  r90b_ns_a\nC  222      0      0    ---     ---   ---   ---     0                  r90b_ns_b\nC  100      0      0    ---     ---   ---   ---     0                  Lavf63.1.101\nC  162      0      0    ---     ---   ---   ---     0                  paplay\nS   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nI   29      0      0   0.0us   0.0us  ???   ???     0                  Dummy-Driver\nS   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nI   46      0      0   0.0us   0.0us  ???   ???     0                  Midi-Bridge\nI   49      0      0   0.0us   0.0us  ???   ???     0                  bluez_midi.server\nR   61      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nS   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nS   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nS   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nS   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nS  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nS  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nS  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nS  125      0      0    ---     ---   ---   ---     0                  r87b_ns\nS  121      0      0    ---     ---   ---   ---     0                  r87b_ns2\nS   95      0      0    ---     ---   ---   ---     0                  r98s_ns\nI  142      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns\nI  239      0      0   0.0us   0.0us  ???   ???     0     F32P 2 44100 r89b_ns44\nS  197      0      0    ---     ---   ---   ---     0                  r86b_a\nS   98      0      0    ---     ---   ---   ---     0                  r86b_b\nS  163      0      0    ---     ---   ---   ---     0                  r96s_ns2\nR   87      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r82ff_ns_2737990\nR  130   2048  48000 288.0us   4.5us  0.01  0.00    0     F32P 1 48000 r93s_in\nR  180      0      0  97.3us   7.3us  0.00  0.00    0         F32P 1 0  + r93s_fc_in\nR   59      0      0   1.5us 179.2us  0.00  0.00    0         F32P 1 0  + r93s_fc_out\nR   56      0  48000  30.9us  27.1us  0.00  0.00    0    F32LE 1 48000  = r93s_rec\nR  238   4800  48000  18.1us  13.3us  0.00  0.00    0    F32LE 1 48000  = pw-play\nR  206      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r89b_ns_b\nR  202      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 pw-play\nI  146      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_a\nI  222      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r90b_ns_b\nR  100      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 Lavf63.1.101\nR  162      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 paplay\n",
+   "err": "",
+   "secs": 0.018,
+   "n_lines": 66,
+   "head": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   -\n...[truncated 5684 chars]"
+  }
+ ],
+ "tui_term": [
+  {
+   "raw_rc": -6,
+   "shell_rc": 134,
+   "err_tail": "'source->loop == &impl->loop' failed at ../pipewire/spa/plugins/support/loop.c:189 remove_from_poll()\n",
+   "out_bytes": 5351,
+   "load": {
+    "load": [
+     "75.30",
+     "58.60",
+     "46.48"
+    ],
+    "t": "2026-10-15T17:11:27-0300",
+    "yes": 48,
+    "r86b_procs": "4"
+   }
+  },
+  {
+   "raw_rc": -6,
+   "shell_rc": 134,
+   "err_tail": "'source->loop == &impl->loop' failed at ../pipewire/spa/plugins/support/loop.c:189 remove_from_poll()\n",
+   "out_bytes": 5349,
+   "load": {
+    "load": [
+     "75.30",
+     "58.60",
+     "46.48"
+    ],
+    "t": "2026-10-15T17:11:29-0300",
+    "yes": 65,
+    "r86b_procs": "4"
+   }
+  }
+ ],
+ "tui_kill": {
+  "raw_rc": -9,
+  "shell_rc": 137,
+  "err_tail": ""
+ },
+ "batch_term": [
+  {
+   "raw_rc": 0,
+   "shell_rc": 0,
+   "err_tail": "",
+   "out_lines": 230,
+   "load": {
+    "load": [
+     "76.56",
+     "59.14",
+     "46.71"
+    ],
+    "t": "2026-10-15T17:11:31-0300",
+    "yes": 64,
+    "r86b_procs": "4"
+   }
+  },
+  {
+   "raw_rc": 0,
+   "shell_rc": 0,
+   "err_tail": "",
+   "out_lines": 230,
+   "load": {
+    "load": [
+     "76.56",
+     "59.14",
+     "46.71"
+    ],
+    "t": "2026-10-15T17:11:33-0300",
+    "yes": 64,
+    "r86b_procs": "5"
+   }
+  },
+  {
+   "raw_rc": 0,
+   "shell_rc": 0,
+   "err_tail": "",
+   "out_lines": 317,
+   "load": {
+    "load": [
+     "76.56",
+     "59.14",
+     "46.71"
+    ],
+    "t": "2026-10-15T17:11:35-0300",
+    "yes": 64,
+    "r86b_procs": "5"
+   }
+  }
+ ],
+ "batch_int": {
+  "raw_rc": 0,
+  "shell_rc": 0,
+  "err_tail": ""
+ },
+ "core_count_after": {
+  "cmd": "bash -lc coredumpctl list --no-pager 2>/dev/null | wc -l",
+  "rc": 0,
+  "out": "3473\n",
+  "err": "",
+  "secs": 1.464
+ },
+ "host_end": {
+  "load": [
+   "77.87",
+   "59.70",
+   "46.96"
+  ],
+  "t": "2026-10-15T17:11:38-0300",
+  "yes": 64,
+  "r86b_procs": "5"
+ }
+}

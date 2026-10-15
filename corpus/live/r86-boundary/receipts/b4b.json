@@ -1,0 +1,194 @@
+{
+ "stage": "b4b",
+ "host_start": {
+  "load": [
+   "71.63",
+   "55.18",
+   "44.73"
+  ],
+  "t": "2026-10-15T17:10:35-0300",
+  "yes": 32,
+  "r86b_procs": "4"
+ },
+ "create": {
+  "a": {
+   "cmd": "pactl load-module module-null-sink sink_name=r86b_a",
+   "rc": 0,
+   "out": "536870920\n",
+   "err": "",
+   "secs": 0.008
+  },
+  "b": {
+   "cmd": "pactl load-module module-null-sink sink_name=r86b_b",
+   "rc": 0,
+   "out": "536870919\n",
+   "err": "",
+   "secs": 0.013
+  }
+ },
+ "mod_lines": {
+  "cmd": "bash -lc pactl list short modules | grep -E 'r86b_[ab]' || true",
+  "rc": 0,
+  "out": "536870919\tmodule-null-sink\tsink_name=r86b_b\t\n536870920\tmodule-null-sink\tsink_name=r86b_a\t\n",
+  "err": "",
+  "secs": 0.03
+ },
+ "ports": {
+  "out_a": {
+   "cmd": "bash -lc pw-link -o | grep -F 'r86b_a:' || true",
+   "rc": 0,
+   "out": "r86b_a:monitor_FL\nr86b_a:monitor_FR\n",
+   "err": "",
+   "secs": 0.038
+  },
+  "in_b": {
+   "cmd": "bash -lc pw-link -i | grep -F 'r86b_b:' || true",
+   "rc": 0,
+   "out": "r86b_b:playback_FL\nr86b_b:playback_FR\n",
+   "err": "",
+   "secs": 0.035
+  }
+ },
+ "link_create": {
+  "cmd": "pw-link r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.011
+ },
+ "link_dup": {
+  "cmd": "pw-link r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 255,
+  "out": "",
+  "err": "failed to link ports: File exists\n",
+  "secs": 0.011
+ },
+ "links_after_dup": {
+  "cmd": "bash -lc pw-link -l | grep -F 'r86b_a' || true",
+  "rc": 0,
+  "out": "r86b_a:monitor_FL\n  |<- r86b_a:monitor_FL\n",
+  "err": "",
+  "secs": 0.034
+ },
+ "link_bogus": {
+  "cmd": "pw-link r86b_a:nope_r86b r86b_b:playback_FL",
+  "rc": 255,
+  "out": "",
+  "err": "failed to link ports: No such file or directory\n",
+  "secs": 0.012
+ },
+ "link_ids": {
+  "cmd": "pw-link -I",
+  "rc": 255,
+  "out": "",
+  "err": "-I option needs one or more of -l, -i or -o\n",
+  "secs": 0.003
+ },
+ "link_ids_mine": {
+  "cmd": "bash -lc pw-link -I | grep -E 'r86b_a|r86b_b' || true",
+  "rc": 0,
+  "out": "",
+  "err": "-I option needs one or more of -l, -i or -o\n",
+  "secs": 0.025
+ },
+ "latency_t": {
+  "cmd": "bash -lc pw-link -t | grep -F 'r86b_a' || true",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.032
+ },
+ "verbose_v": {
+  "cmd": "bash -lc pw-link -v | grep -F 'r86b_a' | head -8 || true",
+  "rc": 0,
+  "out": "",
+  "err": "missing output and input port names to connect\n",
+  "secs": 0.027
+ },
+ "usage": {
+  "cmd": "pw-link",
+  "rc": 255,
+  "out": "",
+  "err": "pw-link : PipeWire port and link manager.\nGeneric: pw-link [options]\n  -h, --help                            Show this help\n      --version                         Show version\n  -r, --remote=NAME                     Remote daemon name\nList: pw-link [options] [out-pattern] [in-pattern]\n  -o, --output                          List output ports\n  -i, --input                           List input ports\n  -l, --links                           List links\n  -t, --latency                         List port latencies\n  -m, --monitor                         Monitor links and ports\n  -I, --id                              List IDs\n  -v, --verbose                         Verbose port properties\nConnect: pw-link [options] output input\n  -L, --linger                          Linger (default, unless -m is used)\n  -P, --passive                         Passive link\n  -p, --props=PROPS                     Properties as JSON object\n  -w, --wait                            Wait until link creation attempt\nDisconnect: pw-link -d [options] output input\n            pw-link -d [options] link-id\n  -d, --disconnect                      Disconnect ports\nmissing output and input port names to connect\n",
+  "secs": 0.004
+ },
+ "disc_ports": {
+  "cmd": "pw-link -d r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.009
+ },
+ "after_disc": {
+  "cmd": "bash -lc pw-link -l | grep -F 'r86b_a' || true",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.03
+ },
+ "link_props": {
+  "cmd": "pw-link -p { \"link.passive\": true } r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "secs": 0.008
+ },
+ "ids_after_props": {
+  "cmd": "bash -lc pw-link -I | grep -E 'r86b_a|r86b_b' || true",
+  "rc": 0,
+  "out": "",
+  "err": "-I option needs one or more of -l, -i or -o\n",
+  "secs": 0.029
+ },
+ "disc_id": "no id found",
+ "after_disc_id": {
+  "cmd": "bash -lc pw-link -l | grep -F 'r86b_a' || true",
+  "rc": 0,
+  "out": "r86b_a:monitor_FL\n  |<- r86b_a:monitor_FL\n",
+  "err": "",
+  "secs": 0.029
+ },
+ "link_passive_flag": {
+  "cmd": "pw-link -P r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 255,
+  "out": "",
+  "err": "failed to link ports: File exists\n",
+  "secs": 0.009
+ },
+ "after_passive": {
+  "cmd": "bash -lc pw-link -l | grep -F 'r86b_a' || true",
+  "rc": 0,
+  "out": "r86b_a:monitor_FL\n  |<- r86b_a:monitor_FL\n",
+  "err": "",
+  "secs": 0.029
+ },
+ "link_wait": {
+  "cmd": "pw-link -w r86b_a:monitor_FL r86b_b:playback_FL",
+  "rc": 255,
+  "out": "",
+  "err": "failed to link ports: File exists\n",
+  "secs": 0.009
+ },
+ "monitor_bounded": {
+  "cmd": "timeout -s KILL 1.5 pw-link -m",
+  "rc": 255,
+  "out": "",
+  "err": "missing output and input port names to connect\n",
+  "secs": 0.008
+ },
+ "monitor_out": {
+  "head": "",
+  "lines": 0,
+  "rc": 255
+ },
+ "host_end": {
+  "load": [
+   "70.06",
+   "55.13",
+   "44.77"
+  ],
+  "t": "2026-10-15T17:10:38-0300",
+  "yes": 32,
+  "r86b_procs": "4"
+ }
+}

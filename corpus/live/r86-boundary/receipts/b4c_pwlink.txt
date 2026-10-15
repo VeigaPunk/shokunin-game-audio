@@ -1,0 +1,104 @@
+=== pw-link mode lattice 2026-10-15T17:11:00-03:00 ===
+--- pw-link -l -I
+  68 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+ 244   |->  189 r82ff_2737990_tdef_p11_env_target:input_FL
+  69 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
+ 145   |->  243 r82ff_2737990_tdef_p11_env_target:input_FR
+  66 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL
+ 116   |<-  104 paplay:output_FL
+rc=0
+--- pw-link -o -I
+  48 Midi-Bridge:Midi Through: Port-0 (capture)
+  51 bluez_midi.server:out
+  68 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+  69 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
+  72 alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FL
+  73 alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FR
+rc=0
+--- pw-link -l -v
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+  alsa:acp:Audio:10:playback:monitor_0
+  USB Audio #3:monitor_FL
+  |-> r82ff_2737990_tdef_p11_env_target:input_FL
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
+  alsa:acp:Audio:10:playback:monitor_1
+rc=0
+--- pw-link -l -t
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+    input  latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+    output latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+  |-> r82ff_2737990_tdef_p11_env_target:input_FL
+    input  latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+    output latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+rc=0
+--- pw-link -m
+missing output and input port names to connect
+rc=0
+--- pw-link -ml
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
++  |-> r82ff_2737990_tdef_p11_env_target:input_FL
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
++  |-> r82ff_2737990_tdef_p11_env_target:input_FR
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL
++  |<- paplay:output_FL
+rc=0
+--- pw-link -m -l
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
++  |-> r82ff_2737990_tdef_p11_env_target:input_FL
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
++  |-> r82ff_2737990_tdef_p11_env_target:input_FR
++alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL
++  |<- paplay:output_FL
+rc=0
+--- pw-link --monitor
+missing output and input port names to connect
+rc=0
+--- recreate + latency/verbose with live link
+failed to link ports: File exists
+rc(create)=255
+--- pw-link -l -I
+  68 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+ 244   |->  189 r82ff_2737990_tdef_p11_env_target:input_FL
+  69 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
+ 145   |->  243 r82ff_2737990_tdef_p11_env_target:input_FR
+  66 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL
+ 116   |<-  104 paplay:output_FL
+rc=0
+--- pw-link -l -t
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+    input  latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+    output latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+  |-> r82ff_2737990_tdef_p11_env_target:input_FL
+    input  latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+    output latency:  { quantum=[ 0.000000 0.000000 ], rate=[ 0 0 ], ns=[ 0 0 ] }
+rc=0
+--- pw-link -l -v
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL
+  alsa:acp:Audio:10:playback:monitor_0
+  USB Audio #3:monitor_FL
+  |-> r82ff_2737990_tdef_p11_env_target:input_FL
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR
+  alsa:acp:Audio:10:playback:monitor_1
+rc=0
+LID=68
+--- disconnect by link id
+failed to unlink ports: No such file or directory
+rc(d -LID)=255
+2
+--- duplicate EEXIST reps
+rep1 rc=255 err=failed to link ports: File exists
+rep2 rc=0 err=
+rep3 rc=0 err=
+--- passive -P
+rc(-P)=0
+r86b_a:monitor_FL
+  |-> r86b_b:playback_FL
+--
+--- wait -w
+rc(-w)=0
+--- props bogus
+rc(props-bogus)=0
+--- props valid passive
+rc(props-valid)=0
+--- final links mine
+0

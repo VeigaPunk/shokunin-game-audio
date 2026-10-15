@@ -1,0 +1,22 @@
+monitor forms (bounded):
+  -l -m  : {'rc': 'TIMEOUT', 'out': '+Midi-Bridge:Midi Through: Port-0 (capture)\n+  |-> r87bmr:input_1\n+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n+  |<- paplay:output_FL\n+a', 'err': ''}
+  -ml    : {'rc': 'TIMEOUT', 'out': '+Midi-Bridge:Midi Through: Port-0 (capture)\n+  |-> r87bmr:input_1\n+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n+  |<- paplay:output_FL\n+a', 'err': ''}
+
+create/dup:
+  cleanup: {'rc': 255, 'out': '', 'err': 'failed to unlink ports: No such file or directory'}
+  create : {'rc': 0, 'out': '', 'err': ''} has: True
+  dup    : {'rc': 255, 'out': '', 'err': 'failed to link ports: File exists'}
+  -l -I  : {'rc': 0, 'out': '48 Midi-Bridge:Midi Through: Port-0 (capture)\n 118   |->  146 r87bmr:input_1\n  66 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n 178   |<- ', 'err': ''}
+  candidates: [103, 159, 161]
+  -d 103 -> rc=255 err='failed to unlink ports: No such file or directory' has_after=True
+  -d 159 -> rc=0 err='' has_after=False
+
+flags (link absent each time):
+  -P                               rc=0 err='' has_link=True
+  -w                               rc=0 err='' has_link=True
+  -p { "link.passive": true }      rc=0 err='' has_link=True
+  -p { "zzz_r86b": 1 }             rc=0 err='' has_link=True
+  -L                               rc=0 err='' has_link=True
+  -p garbage                       rc=0 err='' has_link=True
+
+final has_link: False
