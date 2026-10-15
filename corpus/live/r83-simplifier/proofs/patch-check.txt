@@ -1,0 +1,10 @@
+== r83-simplifier patch-check ==
+-- 1. against the COMMIT-PINNED blob (a151a226:corpus/fixtures/measure_audio.py, sha 26431adf…) via patch(1) --
+   see differential.txt D0: 'patch -p1 applied clean' + 'patched copy == folded copy (sha256)'
+-- 2. git apply --check against the LIVE working tree --
+   clean (rc=0)
+-- 3. git apply --numstat --
+8	16	corpus/fixtures/measure_audio.py
+-- 4. r83 block identity, working tree vs a151a226 --
+   identical=True (2388 lines both) -- see proofs/sha256.txt
+NOT APPLIED. The tracked fixture is untouched by this seat.

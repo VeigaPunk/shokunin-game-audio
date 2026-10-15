@@ -1,0 +1,206 @@
+== defs in block ==
+   16428- 16434  _pwcat_r83_errclass
+   16437- 16473  _pwcat_r83_graph
+   16476- 16483  _pwcat_r83_find
+   16486- 16499  _pwcat_r83_edges
+   16502- 16505  _pwcat_r83_consumers
+   16508- 16511  _pwcat_r83_producers
+   16514- 16545  _pwcat_r83_ns_load
+   16548- 16552  _pwcat_r83_unload_own
+   16555- 16590  _pwcat_r83_teardown
+   16593- 16601  _pwcat_r83_block
+   16604- 16615  _pwcat_r83_entry_head
+   16618- 16620  _pwcat_r83_default_sink
+   16623- 16625  _pwcat_r83_write_tone
+   16628- 16643  _pwcat_r83_write_tone44
+   16646- 16657  _pwcat_r83_write_mono
+   16660- 16668  _pwcat_r83_amp_at
+   16671- 16703  _pwcat_r83_channel_stats
+   16706- 16726  _pwcat_r83_windows
+   16729- 16740  _pwcat_r83_first_nonsilent
+   16743- 16750  _pwcat_r83_feed
+   16753- 16763  _pwcat_r83_default_now
+   16766- 16778  _pwcat_r83_wait_node
+   16781- 16822  _pwcat_r83_shot
+   16825- 16967  _pwcat_r83_lb_leg
+   16970- 17043  _pwcat_r83_play_leg
+   17046- 17100  _pwcat_r83_rec_leg
+   17103- 17166  _pwcat_r83_onset_leg
+   17169- 17183  _pwcat_r83_check_props
+   17186- 17195  _pwcat_r83_check_segv
+   17198- 17211  _pwcat_r83_check_rc
+   17214- 17220  _pwcat_r83_last_node
+   17227- 17461  pwcat_props_parse_r83_entry
+   17467- 17563  pwcat_empty_props_segv_r83_entry
+   17571- 17749  pwcat_latency_props_r83_entry
+   17755- 18012  pwcat_channel_matrix_r83_entry
+   18018- 18280  pwcat_remix_props_r83_entry
+   18286- 18514  pwcat_resample_props_r83_entry
+   18372- 18377  ch_amp
+   18520- 18700  pwcat_failopen_args_r83_entry
+
+== module-level block constants: load census (whole file) ==
+  PWCAT_R83_PID                    def@ 16384 loads=6 stores=1 live
+      load lines: [16385, 16386, 16387, 16388, 16389, 16390]
+  PWCAT_R83_NS_A                   def@ 16385 loads=29 stores=1 live
+      load lines: [17052, 17112, 17150, 17249, 17483, 17593, 17777, 18536, 17266, 17610, 17794, 18552, 17264, 17265, 17496, 17497, 17500, 17536, 17548, 17608, 17609, 17792, 17793, 18549, 18550, 17507, 17513, 17520, 17531]
+  PWCAT_R83_NS_B                   def@ 16386 loads=37 stores=1 live
+      load lines: [16977, 17113, 17146, 17249, 17483, 17593, 17777, 18536, 18039, 18307, 17266, 17610, 17794, 18059, 18327, 18552, 17264, 17265, 17496, 17497, 17502, 17538, 17543, 17608, 17609, 17792, 17793, 18057, 18058, 18325, 18326, 18549, 18550, 17508, 17515, 17521, 17526]
+  PWCAT_R83_NS_M                   def@ 16387 loads=4 stores=1 live
+      load lines: [18040, 18059, 18057, 18058]
+  PWCAT_R83_NS_44                  def@ 16388 loads=4 stores=1 live
+      load lines: [18308, 18327, 18325, 18326]
+  PWCAT_R83_PREFIX                 def@ 16389 loads=37 stores=1 live
+      load lines: [16847, 16978, 17053, 17110, 16953, 17030, 18104, 17331, 17539, 17544, 17550, 16583, 17288, 17325, 17329, 17337, 17378, 17509, 17516, 17522, 17527, 17533, 17535, 17542, 17547, 17290, 17291, 17292, 17315, 17323, 17335, 17506, 17512, 17519, 17525, 17530, 17313]
+  PWCAT_R83_GRP                    def@ 16390 loads=2 stores=1 live
+      load lines: [17628, 17672]
+  PWCAT_R83_TONE_S                 def@ 16391 loads=7 stores=1 live
+      load lines: [17261, 17605, 17789, 18053, 18054, 18321, 18322]
+  PWCAT_R83_LEG_S                  def@ 16392 loads=9 stores=1 live
+      load lines: [16827, 16979, 17263, 17495, 17607, 17791, 18056, 18324, 18548]
+  PWCAT_R83_LINK_WAIT_S            def@ 16393 loads=3 stores=1 live
+      load lines: [16766, 17126, 16878]
+  PWCAT_R83_ONSET_TAP_S            def@ 16394 loads=2 stores=1 live
+      load lines: [17151, 17146]
+  PWCAT_R83_ONSET_FEED_GAP_S       def@ 16395 loads=1 stores=1 live
+      load lines: [17148]
+  PWCAT_R83_TRANSPORT_MAX_S        def@ 16399 loads=4 stores=1 live
+      load lines: [17686, 17695, 17736, 17699]
+  PWCAT_R83_D10_DELTA_S            def@ 16400 loads=4 stores=1 live
+      load lines: [17682, 17712, 17713, 17716]
+  PWCAT_R83_D025_DELTA_S           def@ 16401 loads=4 stores=1 live
+      load lines: [17684, 17725, 17726, 17729]
+  PWCAT_R83_MONO_RATIO             def@ 16402 loads=4 stores=1 live
+      load lines: [17896, 18215, 17890, 18161]
+  PWCAT_R83_PROP_KEEP              def@ 16403 loads=1 stores=1 live
+      load lines: [16458]
+  PWCAT_R83_PROP_DROP              def@ 16407 loads=1 stores=1 live
+      load lines: [16459]
+  _PWCAT_R83_ERR_CLASSES           def@ 16418 loads=1 stores=1 live
+      load lines: [16430]
+
+== call-site census per block helper ==
+  _pwcat_r83_errclass            sites=  4 params=['text']
+      never-supplied-by-name: []
+      site lines: [16808, 16946, 17023, 17091]
+  _pwcat_r83_graph               sites=  8 params=[]
+      never-supplied-by-name: []
+      site lines: [16809, 17004, 17077, 16896, 17127, 16775, 18117, 18129]
+  _pwcat_r83_find                sites=  9 params=['g', 'name']
+      never-supplied-by-name: []
+      site lines: [16775, 17006, 17079, 16899, 16923, 18119, 16901, 16910, 16914]
+  _pwcat_r83_edges               sites=  4 params=['g', 'tag']
+      never-supplied-by-name: []
+      site lines: [16904, 17007, 16504, 16510]
+  _pwcat_r83_consumers           sites=  6 params=['g', 'tag']
+      never-supplied-by-name: []
+      site lines: [16907, 17008, 17130, 16925, 18120, 18131]
+  _pwcat_r83_producers           sites=  5 params=['g', 'tag']
+      never-supplied-by-name: []
+      site lines: [16905, 17010, 17080, 17129, 16920]
+  _pwcat_r83_ns_load             sites=  7 params=['name', 'extra_args']
+      never-supplied-by-name: []
+      site lines: [17250, 17484, 17594, 17778, 18041, 18309, 18537]
+  _pwcat_r83_unload_own          sites=  2 params=['module_id', 'sink_name']
+      never-supplied-by-name: []
+      site lines: [16562, 16598]
+  _pwcat_r83_teardown            sites=  7 params=['entry', 'failures', 'loads']
+      never-supplied-by-name: []
+      site lines: [17459, 17561, 17747, 18010, 18278, 18512, 18698]
+  _pwcat_r83_block               sites= 14 params=['entry', 'failures', 'msg', 'loads']
+      never-supplied-by-name: []
+      site lines: [17246, 17590, 18036, 18304, 18534, 17253, 17480, 17487, 17597, 17775, 17781, 18044, 18312, 18540]
+  _pwcat_r83_entry_head          sites=  7 params=['probe']
+      never-supplied-by-name: []
+      site lines: [17240, 17475, 17584, 17769, 18031, 18298, 18530]
+  _pwcat_r83_default_sink        sites=  1 params=['entry']
+      never-supplied-by-name: []
+      site lines: [18553]
+  _pwcat_r83_write_tone          sites=  7 params=['path', 'seconds']
+      never-supplied-by-name: []
+      site lines: [17261, 17498, 17605, 17789, 18053, 18321, 18551]
+  _pwcat_r83_write_tone44        sites=  1 params=['path', 'seconds']
+      never-supplied-by-name: []
+      site lines: [18322]
+  _pwcat_r83_write_mono          sites=  1 params=['path', 'seconds']
+      never-supplied-by-name: []
+      site lines: [18054]
+  _pwcat_r83_amp_at              sites=  2 params=['seg', 'rate', 'freq']
+      never-supplied-by-name: []
+      site lines: [16699, 16724]
+  _pwcat_r83_channel_stats       sites=  1 params=['path', 'freqs', 'skip_s']
+      never-supplied-by-name: ['skip_s']
+      site lines: [17039]
+  _pwcat_r83_windows             sites=  3 params=['path', 'freqs', 'ws', 'skip_s']
+      never-supplied-by-name: ['ws']
+      site lines: [17864, 17904, 17951]
+  _pwcat_r83_first_nonsilent     sites=  4 params=['path', 'thresh']
+      never-supplied-by-name: ['thresh']
+      site lines: [17158, 17862, 17902, 17949]
+  _pwcat_r83_feed                sites=  2 params=['target', 'tag', 'ctx']
+      never-supplied-by-name: []
+      site lines: [17150, 16893]
+  _pwcat_r83_default_now         sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [16918]
+  _pwcat_r83_wait_node           sites=  1 params=['name', 'timeout_s']
+      never-supplied-by-name: ['timeout_s']
+      site lines: [16873]
+  _pwcat_r83_shot                sites= 12 params=['argv', 'ctx', 'tag', 'timeout_s']
+      never-supplied-by-name: []
+      site lines: [17327, 17534, 17540, 17545, 17321, 17333, 17504, 17510, 17517, 17523, 17528, 17311]
+  _pwcat_r83_lb_leg              sites= 20 params=['name', 'tail', 'ctx']
+      never-supplied-by-name: []
+      site lines: [17281, 17286, 17302, 17499, 17626, 17800, 17830, 17838, 17846, 18559, 18574, 17278, 17622, 17807, 17815, 17823, 18564, 18569, 17299, 18583]
+  _pwcat_r83_play_leg            sites= 23 params=['name', 'ctx']
+      never-supplied-by-name: []
+      site lines: [17317, 17344, 18075, 18078, 18081, 18083, 18087, 18100, 18339, 18343, 18353, 18356, 18360, 18364, 18367, 18062, 18066, 18071, 18092, 18096, 18330, 18334, 18348]
+  _pwcat_r83_rec_leg             sites=  1 params=['name', 'ctx']
+      never-supplied-by-name: []
+      site lines: [17339]
+  _pwcat_r83_onset_leg           sites=  4 params=['name', 'ctx', 'extra']
+      never-supplied-by-name: []
+      site lines: [17631, 17634, 17637, 17640]
+  _pwcat_r83_check_props         sites= 14 params=['failures', 'lname', 'node_leaf', 'want', 'absent']
+      never-supplied-by-name: []
+      site lines: [17366, 17376, 17450, 17454, 18255, 17360, 17400, 17654, 17660, 17669, 18000, 17404, 17407, 18246]
+  _pwcat_r83_check_segv          sites=  1 params=['failures', 'lname', 'leg']
+      never-supplied-by-name: []
+      site lines: [17559]
+  _pwcat_r83_check_rc            sites=  4 params=['failures', 'lname', 'leg', 'rc', 'cls', 'hit_part']
+      never-supplied-by-name: []
+      site lines: [17443, 17437, 17447, 17416]
+  _pwcat_r83_last_node           sites=  9 params=['leg', 'wname']
+      never-supplied-by-name: []
+      site lines: [17370, 17359, 17368, 17378, 17392, 17652, 17659, 17671, 18002]
+  pwcat_props_parse_r83_entry    sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19145]
+  pwcat_empty_props_segv_r83_entry sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19147]
+  pwcat_latency_props_r83_entry  sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19149]
+  pwcat_channel_matrix_r83_entry sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19151]
+  pwcat_remix_props_r83_entry    sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19153]
+  pwcat_resample_props_r83_entry sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19155]
+  ch_amp                         sites= 10 params=['leg', 'ch', 'f']
+      never-supplied-by-name: []
+      site lines: [18155, 18384, 18169, 18229, 18230, 18182, 18198, 18198, 18210, 18220]
+  pwcat_failopen_args_r83_entry  sites=  1 params=[]
+      never-supplied-by-name: []
+      site lines: [19157]
+
+== parameter use census (Load vs Store inside the def) ==
+
+== write-only locals inside block defs ==
+  _pwcat_r83_lb_leg              ftag                     stores=[16939] loads=0
+
+== done ==

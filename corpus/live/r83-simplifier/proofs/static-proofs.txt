@@ -1,0 +1,46 @@
+== S1: `ftag` is a write-only loop variable in _pwcat_r83_lb_leg ==
+PASS  S1 ftag: 1 Store / 0 Load inside _pwcat_r83_lb_leg  (0/1)
+PASS  S1 ftag loads exist only OUTSIDE the r83 block (fold must be context-anchored)  (load lines [9183, 9137, 9137, 9139])
+
+== S2: `(leaf or {})` guards are dead at both sites ==
+PASS  S2 _pwcat_r83_ns_load returns `leaf` on every path  (['leaf', 'leaf'])
+PASS  S2 every `leaf = ...` in _pwcat_r83_ns_load is a dict literal  (2 assignments)
+PASS  S2 _pwcat_r83_teardown: call sites enumerated (7)
+PASS  S2 _pwcat_r83_block: call sites enumerated (14)
+PASS  S2 all 7 sink loads come from _pwcat_r83_ns_load  (7)
+PASS  S2 exactly 2 `(leaf or {})` guard sites (both folded)
+
+== S3: _pwcat_r83_rec_leg's `extra` is never supplied ==
+PASS  S3 `extra` is a keyword-only param of rec_leg  (['props', 'extra', 'frames', 'sink', 'sample_at', 'timeout_s'])
+PASS  S3 exactly 1 call site  (1)
+PASS  S3 the sole call site passes no `extra` (2 positional, kw-only after)  (kwargs=['props', 'sink', 'frames', 'sample_at'])
+PASS  S3 `*extra` is a shared spelling across families -> the fold must be context-anchored  (14 occurrences file-wide)
+PASS  S3 play_leg's `extra` is live (contrast)  (Loads=2)
+
+== S4: `cons[0] == nsb` subsumed by `cons[0] in own_names` ==
+PASS  S4 own_names = {nsa, nsb} defined once  (['own_names = {nsa, nsb}'])
+PASS  S4 both subsumed occurrences present in the base
+PASS  S4 surviving conditions keep the own_names membership test
+
+== S5: `if c.get("min") is None: continue` is unreachable ==
+PASS  S5 every channel leaf literal in _pwcat_r83_channel_stats carries `min`  (['min', 'max', 'mean', 'peak_abs', 'zero_frac', 'neg_frac', 'all_zero'])
+PASS  S5 `channels` has exactly one producer (out["channels"] = chans)  (1)
+PASS  S5 tap_stats has exactly one producer  (1)
+
+== S6: dm_move move_rc / move_skipped are mutually exclusive ==
+PASS  S6 move_rc set only in the entry_found branch, move_skipped only in the else  (17 lines inspected)
+
+== S7: no OTHER dead store / never-supplied knob in the block ==
+PASS  S7 write-only locals in the r83 block == exactly [ftag]  ([('_pwcat_r83_lb_leg', 'ftag', [16939])])
+PASS  S7 defaulted-but-never-supplied knobs == the documented set (only rec_leg.extra is a dead EXPRESSION)  ({'_pwcat_r83_channel_stats': ['skip_s'], '_pwcat_r83_windows': ['ws'], '_pwcat_r83_first_nonsilent': ['thresh'], '_pwcat_r83_wait_node': ['timeout_s'], '_pwcat_r83_lb_leg': ['feed_at'], '_pwcat_r83_play_leg': ['sample_at'], '_pwcat_r83_rec_leg': ['extra', 'timeout_s']})
+
+== S8: `tapf` initial binding is a dead store in both legs ==
+PASS  S8 _playback_r78_tap's only return is subprocess.Popen(...) (never None) -> `tap is not None` implies its branch ran  (1 returns)
+PASS  S8 _pwcat_r83_lb_leg: tapf Stores == [init, branch]  ([16853, 16855])
+PASS  S8 _pwcat_r83_lb_leg: no tapf Load before the init  ([])
+PASS  S8 _pwcat_r83_lb_leg: every post-init tapf Load is below the assigning branch guard at 16854  ([16856, 16965, 16964])
+PASS  S8 _pwcat_r83_play_leg: tapf Stores == [init, branch]  ([16982, 16984])
+PASS  S8 _pwcat_r83_play_leg: no tapf Load before the init  ([])
+PASS  S8 _pwcat_r83_play_leg: every post-init tapf Load is below the assigning branch guard at 16983  ([16985, 17040, 17037, 17036])
+
+RESULT: ALL STATIC PROOFS PASS

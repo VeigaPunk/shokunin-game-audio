@@ -1,0 +1,35 @@
+== r83-simplifier custody (re-derived at report time) ==
+
+-- commit pin --
+a151a226 (r83 author)  git blob 27fe971077f64de3a6339fba10294fa2d61d666b
+
+-- 1. the committed fixture (the analysis base) --
+26431adf29ab122bbf1f55ef03c9aa47bf9825c61654562d9a421117434f5eea  a151a226:corpus/fixtures/measure_audio.py
+26431adf29ab122bbf1f55ef03c9aa47bf9825c61654562d9a421117434f5eea  corpus/live/r83-simplifier/proofs/base-measure_audio.py
+
+-- 2. the working tree fixture (NOW CARRIES A SIBLING SEAT'S UNCOMMITTED r82 FOLD) --
+7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  corpus/fixtures/measure_audio.py
+    drift: 198	77	corpus/fixtures/measure_audio.py
+    r83 block identity, working tree vs a151a226: identical=True (2388 lines both)
+
+-- 3. the folded copy --
+6e394434940797b25a275697a2b58b0e230a391c583ddc0502c35d8e503883e4  corpus/live/r83-simplifier/folded/measure_audio.py
+    19803 lines (base 19811; net -8)
+
+-- 4. the patch (NOT APPLIED) --
+b969518cfc67f7eb643588d61bc125b0e988828843c5a115c5cf3e7863a1ef65  corpus/live/r83-simplifier/r83-simplifier.patch
+    12 hunks, +10/-18, net -8 lines
+
+-- 5. the pinned r83 author receipts (unchanged, read-only) --
+4e56f4b023585ceb319021ddef2774a3c7650d8f46837f828acc2aea96ae3f19  corpus/live/r83-author/measurements-run1.json
+4ce6812fe563799caa8faded872144200aa979e6f4084f6279280ef51b3d9d66  corpus/live/r83-author/measurements-run2.json
+
+-- 6. HEAD at report time --
+2b22123321473e3208352094dd3bd7908c3f03aa
+
+-- 7. tracked-write proof --
+    this seat's writes: corpus/live/r83-simplifier/** and reports/round-83/r83-simplifier.md only
+    git status --porcelain (fixture/reports/r83-author paths):
+       M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+       M corpus/fixtures/measure_audio.py
+      ?? reports/round-83/r83-critic.md

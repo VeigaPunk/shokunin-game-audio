@@ -1,0 +1,73 @@
+== D0: patch re-application is byte-identical to the folded copy ==
+PASS  patch -p1 applied clean  (rc=0 patching file corpus/fixtures/measure_audio.py)
+PASS  patched copy == folded copy (sha256)  6e394434940797b2 == 6e394434940797b2
+PASS  base copy == committed fixture sha  26431adf29ab122b
+
+== D1: import both copies from the scratch dir ==
+PASS  both modules import (bytecode disabled)
+
+== D2: _pwcat_r83_rec_leg end-to-end differential (stubbed spawn) ==
+PASS  D2 rec_leg cell: the ONLY key delta is extra_argv  (Δ=['extra_argv'])
+PASS  D2 rec_leg cell['argv'] identical  (pw-record -P stream.capture.sink=true -P media.name=R83RECV )
+PASS  D2 rec_leg cell['error_class'] identical  (None)
+PASS  D2 rec_leg cell['error_hit'] identical  (None)
+PASS  D2 rec_leg cell['exit_code'] identical  (0)
+PASS  D2 rec_leg cell['killed_at_bound'] identical  (False)
+PASS  D2 rec_leg cell['name'] identical  (pr_land)
+PASS  D2 rec_leg cell['out'] identical  ({'exists': False})
+PASS  D2 rec_leg cell['props_argv'] identical  (['stream.capture.sink=true', 'media.name=R83RECV bogus.prop=)
+PASS  D2 rec_leg cell['sample'] identical  ({'node': None, 'producers': [], 'live': False})
+PASS  D2 rec_leg cell['signal'] identical  (None)
+PASS  D2 rec_leg cell['stderr_tail'] identical  (None)
+PASS  D2 rec_leg cell['tag'] identical  (r83a_4100380_pr_land)
+PASS  D2 rec_leg cell['wall_s'] present and numeric in both (timing value, excluded from equality)  (0.001 / 0.0)
+PASS  D2 DISCLOSED surface delta: base extra_argv=[] leaf removed in folded  (base=[])
+PASS  D2 the redacted argv is byte-identical (the folded slot was always empty)  (pw-record -P stream.capture.sink=true -P media.name=R83RECV bogus.prop…)
+PASS  D2 base `extra` was a real knob (never exercised by any call site)  (extra_argv=['--rate', '44100'])
+PASS  D2 removed surface documented: folded rec_leg extra= -> TypeError (the sole call site never passed it)
+
+== D3: `ftag` fold — the feed-reap loop differential ==
+PASS  D3 feed reap: identical `feeds` leaf  ({'r83a_4100380_t1_feed': {'exit_code': 0}})
+PASS  D3 feed reap: the loopback is killed at bound in both  (True/True)
+PASS  D3 identical spawn sequence (loopback + feed argv)  ([['pw-loopback', '-n', 'r83a_4100380_t1'], ['pw-cat', '-p', '-P']])
+PASS  D3 identical killpg calls (only the loopback pgid)  ([(900000, <Signals.SIGKILL: 9>)])
+PASS  D3 lb_leg cell keys identical  (Δ=[])
+PASS  D3 lb_leg cell identical on the verdict surface (timing keys excluded: wall_s/port_waits/at_s)  (volatile-only diff: ['wall_s'])
+
+== D4: dm_move verdict arms — reachability differential ==
+PASS  D4 dm_move verdicts identical over 4 synthetic legs  ({'moved_ok': 0, 'moved_bad': 1, 'moved_rc': 1, 'skipped': 0})
+PASS  D4 the removed `move never fired` arm is silent in BOTH copies (unreachable diagnostic)  ([])
+PASS  D4 the surviving rc / consumer arms still fire and the clean case stays silent
+
+== D5: subsumed-predicate differential (p_empty / n_empty) ==
+PASS  D5 p_empty condition identical over 18 (consumers, class) cells  (17/18 fire)
+PASS  D5 n_empty condition identical over 18 cells  (1/18 ok)
+PASS  D5 both surviving conditions are non-degenerate (each arm realized)
+
+== D6: `min is None` guard differential (channel stats) ==
+PASS  D6 channel_stats dicts identical on a real tone  (chans=2)
+PASS  D6 every channel leaf carries `min` (the guard's input contract)
+PASS  D6 missing-file path identical  ({'exists': False, 'bytes': None, 'unsupported': 'no s16 stereo data chunk'})
+
+== D8: `tapf` init fold — tapped-leg differential (stubbed spawn) ==
+PASS  D8 lb_leg: the `tap` leaf is produced by BOTH copies  (base keys=['bound_producers', 'bound_to_target', 'exit_code', 'ran', 'stderr_tail', 'target', 'windows'])
+PASS  D8 lb_leg tapped cell identical on the verdict surface  ([])
+PASS  D8 lb_leg cell keys identical  (Δ=[])
+PASS  D8 play_leg tapped cell identical on the verdict surface  ([])
+PASS  D8 play_leg cell keys identical  (Δ=[])
+PASS  D8 base: untapped lb_leg produces no tap leaf (tapf never read)  (['argv', 'error_class', 'error_hit', 'exit_code', 'feeds', 'killed_at_bound']…)
+PASS  D8 fold: untapped lb_leg produces no tap leaf (tapf never read)  (['argv', 'error_class', 'error_hit', 'exit_code', 'feeds', 'killed_at_bound']…)
+
+== D7: AST / literal census re-run on the folded copy ==
+  base block lines 16315-18702 (2387 lines) / folded block lines 16315-18694 (2379 lines)
+PASS  folded r83 block: no `ftag` Load anywhere  (base block: [])
+PASS  folded r83 block: no `(leaf or {})` guard left (base had 2)
+PASS  folded: both subsumed nsb predicates gone
+PASS  folded: dead `min` guard gone
+PASS  folded: unreachable dm_move diagnostic gone
+PASS  folded: dm_move arm collapsed to the single live guard
+PASS  folded: rec_leg has one fewer keyword-only parameter  (6 -> 5)
+PASS  folded: the block AST has strictly fewer nodes  (16404 -> 16332)
+PASS  folded: net -8 lines inside the r83 block  (2387 -> 2379)
+
+RESULT: ALL DIFFERENTIAL CHECKS PASS

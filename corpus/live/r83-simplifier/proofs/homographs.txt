@@ -1,0 +1,19 @@
+Census: the fold's naive FIRST-LINE anchors are file-wide homographs.
+Every replacement therefore carries enough surrounding context to match
+EXACTLY ONCE (fold-apply.txt: 13/13 '1 match').
+
+  2 occurrence(s)  T1  'for ftag, f in feeds.items()'     at [9179, 16939]
+  8 occurrence(s)  T2  '(leaf or {})'                     at [11861, 11978, 12867, 12900, 14669, 14701, 16563, 16599]
+  2 occurrence(s)  T3c '*extra' in an argv splice         at [16991, 17058]
+  1 occurrence(s)  T3d '"extra_argv": list(extra)'        at [17066]
+  1 occurrence(s)  T4a 'cons[0] == nsb'                   at [18640]
+  1 occurrence(s)  T5  'if c.get("min") is None'          at [18437]
+  1 occurrence(s)  T6  'if leg.get("move_rc") is None:'   at [18259]
+  4 occurrence(s)  T7  'tap = tapf = None'                at [6568, 9213, 16853, 16982]
+
+=> TWO naive anchors actually ABORTED the fold with '2 matches' during
+   construction and were re-anchored:
+     T1  (9179 in another family IS live: fired.append({... 'tag': ftag}))
+     T3c (16991 is _pwcat_r83_play_leg's LIVE extra=('--rate','48000') slot)
+   T7 needed anchoring across 4 file-wide occurrences (2 in other families).
+   T2's two-line anchor disambiguates against 6 other (leaf or {}) sites.

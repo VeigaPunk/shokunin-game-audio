@@ -1,0 +1,116 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -16560,7 +16560,7 @@
+     foreign seat's."""
+     for tag, leaf in (loads or {}).items():
+         entry.setdefault("unloads", {})[tag] = _pwcat_r83_unload_own(
+-            (leaf or {}).get("module_id"), tag)
++            leaf.get("module_id"), tag)
+     sinks_now = _capture_r77_sink_names_strict()
+     if sinks_now is None:
+         entry["sinks_gone"] = "reader_error"
+@@ -16596,7 +16596,7 @@
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+         entry.setdefault("unloads", {})[tag] = _pwcat_r83_unload_own(
+-            (leaf or {}).get("module_id"), tag)
++            leaf.get("module_id"), tag)
+     entry["failures"] = failures
+     return entry
+ 
+@@ -16850,7 +16850,7 @@
+             "watched_nodes": names}
+     if feed_sink is not None and feed_sink not in ctx["own_sinks"]:
+         raise ValueError(f"feed sink {feed_sink!r} is not probe-owned")
+-    tap = tapf = None
++    tap = None
+     if tap_target is not None:
+         tapf = Path(ctx["tmp"]) / f"r83a_tap_{name}.wav"
+         tap = _playback_r78_tap(tap_target, tapf,
+@@ -16936,7 +16936,7 @@
+         killed = True
+         os.killpg(proc.pid, signal.SIGKILL)
+         proc.wait()
+-    for ftag, f in feeds.items():
++    for f in feeds.values():
+         if f.poll() is None:
+             os.killpg(f.pid, signal.SIGKILL)
+         f.wait()
+@@ -16979,7 +16979,7 @@
+     bound_s = bound_s if bound_s is not None else PWCAT_R83_LEG_S
+     cell = {"name": name, "tag": tag, "props_argv": list(props),
+             "extra_argv": list(extra), "sink": sink}
+-    tap = tapf = None
++    tap = None
+     if tap_seconds:
+         tapf = Path(ctx["tmp"]) / f"r83a_{name}_tap.wav"
+         tap = _playback_r78_tap(sink, tapf, int(48000 * tap_seconds),
+@@ -17043,10 +17043,10 @@
+     return cell
+ 
+ 
+-def _pwcat_r83_rec_leg(name, ctx, *, props=(), extra=(), frames=96000,
++def _pwcat_r83_rec_leg(name, ctx, *, props=(), frames=96000,
+                        sink=None, sample_at=1.0, timeout_s=8.0):
+     """One pw-record leg: `pw-record [-P prop]* -P node.name=<tag>
+-    [extra] --target <sink> -n <frames> --rate 48000 --channels 2
++    --target <sink> -n <frames> --rate 48000 --channels 2
+     --format s16 <out.wav>` with a mid-run props sample. rc=1 at the
+     -n bound is the normal end-of-record."""
+     sink = sink or PWCAT_R83_NS_A
+@@ -17055,7 +17055,7 @@
+     argv = ["pw-record"]
+     for p in props:
+         argv += ["-P", p]
+-    argv += ["-P", f"node.name={tag}", *extra, "--target", sink,
++    argv += ["-P", f"node.name={tag}", "--target", sink,
+              "-n", str(frames), "--rate", "48000", "--channels", "2",
+              "--format", "s16", str(out)]
+     shown = " ".join(argv)
+@@ -17063,7 +17063,7 @@
+         if tok:
+             shown = shown.replace(tok, "<n>")
+     cell = {"name": name, "tag": tag, "argv": shown,
+-            "props_argv": list(props), "extra_argv": list(extra)}
++            "props_argv": list(props)}
+     try:
+         proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.PIPE,
+@@ -18256,11 +18256,7 @@
+                 failures, "dm_move",
+                 (leg.get("pre_move") or {}).get("node"),
+                 want={"node.dont-move": True})
+-            if leg.get("move_rc") is None:
+-                if not leg.get("move_skipped"):
+-                    failures.append("dm_move: the move never fired "
+-                                    "and no skip was recorded")
+-            else:
++            if leg.get("move_rc") is not None:
+                 if leg["move_rc"] != 0:
+                     failures.append(
+                         f"dm_move: move-sink-input rc="
+@@ -18434,8 +18430,6 @@
+                         continue
+                     marks = []
+                     for ci, c in enumerate(chans[:2]):
+-                        if c.get("min") is None:
+-                            continue
+                         # the artifact doubles EACH channel's OWN freq
+                         f0 = (fl, fr)[ci]
+                         if c["min"] < -64 or c["neg_frac"] > 0.01:
+@@ -18637,7 +18631,6 @@
+                 leg["failopen_target_is_default"] = (
+                     cons == [d0] or cons == [s.get("default_sink_now")])
+                 if len(cons) != 1 or cons[0] in own_names or \
+-                        cons[0] == nsb or \
+                         ccls.get(cons[0]) not in ("Audio/Sink",):
+                     failures.append(
+                         f"p_empty_{rep}: output consumers {cons} "
+@@ -18665,7 +18658,6 @@
+                     cons == [d0] or
+                     cons == [s.get("default_sink_now")])
+                 ok = (len(cons) == 1 and cons[0] not in own_names and
+-                      cons[0] != nsb and
+                       ccls.get(cons[0]) == "Audio/Sink")
+                 leg["outcome"] = (
+                     "failopen_foreign_sink" if ok else

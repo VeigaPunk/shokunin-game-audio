@@ -1,0 +1,54 @@
+== rigorous per-parameter supply census (r83 block helpers) ==
+  _pwcat_r83_channel_stats
+      sites=1  star-args=False
+      defaulted-but-never-supplied: ['skip_s']
+      supplied counts: {'freqs': 1, 'path': 1}
+  _pwcat_r83_windows
+      sites=3  star-args=False
+      defaulted-but-never-supplied: ['ws']
+      supplied counts: {'freqs': 3, 'path': 3, 'skip_s': 3}
+  _pwcat_r83_first_nonsilent
+      sites=4  star-args=False
+      defaulted-but-never-supplied: ['thresh']
+      supplied counts: {'path': 4}
+  _pwcat_r83_wait_node
+      sites=1  star-args=False
+      defaulted-but-never-supplied: ['timeout_s']
+      supplied counts: {'name': 1}
+  _pwcat_r83_lb_leg
+      sites=20  star-args=False
+      defaulted-but-never-supplied: ['feed_at']
+      supplied counts: {'bound_s': 20, 'ctx': 20, 'feed_sink': 7, 'n_value': 1, 'name': 20, 'node_names': 2, 'probe_absent': 1, 'probe_default': 3, 'sample_at': 14, 'tail': 20, 'tap_seconds': 7, 'tap_target': 7, 'wait_mode': 4}
+  _pwcat_r83_play_leg
+      sites=23  star-args=False
+      defaulted-but-never-supplied: ['sample_at']
+      supplied counts: {'bound_s': 23, 'ctx': 23, 'extra': 1, 'name': 23, 'props': 18, 'sink': 23, 'tap_seconds': 21, 'tone': 15}
+  _pwcat_r83_rec_leg
+      sites=1  star-args=False
+      defaulted-but-never-supplied: ['extra', 'timeout_s']
+      supplied counts: {'ctx': 1, 'frames': 1, 'name': 1, 'props': 1, 'sample_at': 1, 'sink': 1}
+
+== structurally constant / trivially-true-if branch census ==
+  _pwcat_r83_errclass@16432: bare-name test 'm'
+  _pwcat_r83_teardown@16585: bare-name test 'rest'
+  _pwcat_r83_shot@16788: bare-name test 'tok'
+  _pwcat_r83_lb_leg@16863: bare-name test 'tok'
+  _pwcat_r83_lb_leg@16917: bare-name test 'probe_default'
+  _pwcat_r83_lb_leg@16922: bare-name test 'feeds'
+  _pwcat_r83_play_leg@16983: bare-name test 'tap_seconds'
+  _pwcat_r83_play_leg@16995: bare-name test 'tok'
+  _pwcat_r83_rec_leg@17063: bare-name test 'tok'
+  _pwcat_r83_onset_leg@17117: bare-name test 'tok'
+  _pwcat_r83_check_rc@17207: bare-name test 'hit_part'
+  _pwcat_r83_last_node@17218: bare-name test 'nd'
+  pwcat_props_parse_r83_entry@17382: bare-name test 'seen'
+  pwcat_remix_props_r83_entry@18156: bare-name test 'a'
+  pwcat_resample_props_r83_entry@18385: bare-name test 'a'
+  pwcat_resample_props_r83_entry@18467: bare-name test 'marks'
+
+== `while` / `for` with constant bounds ==
+
+== dict-literal keys written into leg/cell/entry (evidence leaves) ==
+  (informational only; see report §3)
+
+== done ==

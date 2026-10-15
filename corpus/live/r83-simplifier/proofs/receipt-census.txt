@@ -1,0 +1,38 @@
+[PASS] A legs == 128 per run: {'run1': 128, 'run2': 128}
+[PASS] A zero failures on every entry: {'run1': ['[]'], 'run2': ['[]']}
+[PASS] B every non-onset leg has exit_code (+killed_at_bound): []  (onset legs: 10/run)
+[PASS] C lb_leg tap bound_producers present: {'run1': 13, 'run2': 13}
+[PASS] C lb_leg bound_producers non-empty (the leaf is realizable): []
+[PASS] C lb_leg bound_to_target always True: []
+[PASS] C play_leg sample.tap_producers leaf present: {'run1': 34, 'run2': 34}
+[PASS] C play_leg tap_producers non-null somewhere: [('pwcat_remix_props_r83_probe', 'm0_ctl_0', ['r83a_ns_b_2305712']), ('pwcat_remix_props_r83_probe', 'm0_ctl_1', ['r83a_ns_b_2305712']), ('pwcat_remix_props_r83_probe', 'm1_ndr_0', ['r83a_ns_b_2305712']), ('pwcat_remix_props_r83_probe', 'm1_ndr_1', ['r83a_ns_b_2305712'])]
+[PASS] D feed leaves present in both runs: {'run1': 13, 'run2': 13}
+[PASS] D probe_default realized: {'run1': 5, 'run2': 5}
+[PASS] E probe_absent realized: {'run1': 1, 'run2': 1}
+
+== F. never-fired verdict arms (0-hit counts across both runs) ==
+  F1 props_parse: a leg that exited early: {'run1': 14, 'run2': 14}
+  F2 segv: non-SIGSEGV leg: {'run1': 1, 'run2': 1}
+  F3 segv: nodes published: {'run1': 0, 'run2': 0}
+  F4 latency: onset unmeasured: {'run1': 0, 'run2': 0}
+  F5 latency: unlinked onset leg: {'run1': 0, 'run2': 0}
+  F6 matrix: silent control: {'run1': 0, 'run2': 0}
+  F7 matrix: c1 deviating: {'run1': 0, 'run2': 0}
+  F8 matrix: m_alone unmeasured: {'run1': 1, 'run2': 0}
+  F9 remix: move skipped: {'run1': 0, 'run2': 0}
+  F10 resample: deviating artifact: {'run1': 0, 'run2': 0}
+  F11 resample: non-upsample artifact: {'run1': 0, 'run2': 0}
+  F12 failopen: nodes not seen: {'run1': 0, 'run2': 0}
+  F13 resample: unsupported tap_stats: {'run1': 0, 'run2': 0}
+[PASS] G error classes realized in both runs: {'run1': {'props_syntax_error': 8, 'pwcat_props_syntax_error': 5}, 'run2': {'props_syntax_error': 8, 'pwcat_props_syntax_error': 5}}
+[PASS] H run1 serials read: {'nsa': 201022, 'nsb': 201033}
+[PASS] H run1 sinks_gone all true: {'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True}
+[PASS] H run1 own_nodes_after empty: []
+[PASS] H run2 serials read: {'nsa': 204263, 'nsb': 204274}
+[PASS] H run2 sinks_gone all true: {'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True}
+[PASS] H run2 own_nodes_after empty: []
+[PASS] I run1 onset_summary has ctl_median + d10 deltas: ctl_median=0.1 d10_deltas=[1.0429, 0.9997, 0.9934] d025=[0.3918, 0.3516] l1000=[0.1348, 0.0973]
+[PASS] I run2 onset_summary has ctl_median + d10 deltas: ctl_median=0.1054 d10_deltas=[1.0429, 0.9999, 0.9992] d025=[0.3981, 0.3547] l1000=[0.1057, 0.1053]
+
+== summary ==
+  predicates: 20  FAIL: []

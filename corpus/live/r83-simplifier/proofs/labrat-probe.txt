@@ -1,0 +1,60 @@
+r83-simplifier — probeParent dispatch: exactly ONE read-only ufo-labrat
+======================================================================
+agent id   : 7efed093
+profile    : ufo-labrat (read/grep only; no exec, no write)
+dispatched : by the frozen probeParent seat (this r83-simplifier seat)
+task       : falsify six dead-code claims (T1-T6) + hunt for a seventh item
+verbatim   : the completion payload is reproduced below unedited
+line-number caveat (added by this seat, not the probe): the probe read the
+MOVING working tree, which now carries a sibling seat's uncommitted r82
+fold ahead of the r83 block. Its line numbers are therefore offset from the
+a151a226 pin (offset varied +94...+118 while the probe ran). Mapping is by
+CONTENT, not by number: its 17034 = pinned 16939 (T1); its 16657/16693 =
+pinned 16563/16599 (T2); its 17447-17451 = pinned 17339-17343 (T3 sole call
+site); its 18735/18763/18687 = pinned 18640/18668/18605 (T4); its
+18532-18533 = pinned 18437-18438 (T5); its 18341-18344 = pinned 18259-18262
+(T6); its 16948/17077 = pinned 16853/16982 (T7). Every content-level claim
+below was independently re-derived by this seat from the pinned blob
+(static-proofs.txt S1-S8) before being folded into the patch.
+
+----------------------------------------------------------------------
+## Probe result
+
+**T1 — NOT-FALSIFIED.** Current line **17034** is `for ftag, f in feeds.items():`; `ftag` has no load in the body. Replacing with `for f in feeds.values():` preserves process handling.
+Strongest attempted counterexample: the live line-9179 use belongs to another family; within r83, the feed key is reconstructed only for the separate `cell["feeds"]` comprehension at 17038–17039, which correctly uses `k`, not `ftag`.
+
+**T2 — NOT-FALSIFIED.** The `(leaf or {})` fallbacks are currently at **16657** and **16693**, not 16563/16599. Every populated `loads` value is a `_pwcat_r83_ns_load()` return, and every return path from that helper constructs a dict. I found no caller mutating `loads[nm]` to `None` or another non-dict.
+
+**T3 — NOT-FALSIFIED, with disclosure.** `_pwcat_r83_rec_leg` is called only at **17447–17451**, with no `extra=`. Its `*extra` argv splice and `"extra_argv": list(extra)` are therefore always inert/empty. Deleting them does remove the `extra_argv` receipt leaf from `pr_land`, as disclosed. Note `_pwcat_r83_play_leg.extra` is separately live at **18442–18445** for `--rate 48000`.
+
+**T4 — NOT-FALSIFIED.** Current line **18735** has `cons[0] == nsb` after `cons[0] in own_names`; current **18763** has `cons[0] != nsb` after `cons[0] not in own_names`. Since `own_names = {nsa, nsb}` at **18687**, both `nsb` checks are strictly subsumed.
+
+**T5 — NOT-FALSIFIED.** The guard is currently **18532–18533**. All `s4_peaks_*` `tap_stats` originate in `_pwcat_r83_play_leg` at **17134–17137**, which calls `_pwcat_r83_channel_stats`; the only channel-leaf construction gives literal `"min": int(c.min())` at **16786**. If `"channels"` exists, its leaves always have `"min"`.
+
+**T6 — NOT-FALSIFIED.** Current guard is **18341–18344**. `move_rc` is assigned only under `if si.get("entry_found"):` at **18205–18213**; the sole `else` assigns nonempty `move_skipped` at **18214–18216**. Thus `move_rc is None` implies `move_skipped` truthy.
+
+## Additional dead item
+
+- **Dead store:** the `tapf = None` component of `tap = tapf = None` in `_pwcat_r83_lb_leg` (**16948**) and `_pwcat_r83_play_leg` (**17077**). Every `tapf` read is dominated by assignment inside the corresponding `if tap_target is not None` / `if tap_seconds:` branch. `tap = None` itself is still needed.
+
+## Factual corrections
+
+The cited whole-file line numbers are stale against this checkout: T2, T4, T5, and T6 shifted as noted above. Your code reasoning itself appears accurate.
+
+**Cleanup:** none; read-only probe, no files or processes created.
+----------------------------------------------------------------------
+
+DISPOSITION by this seat
+------------------------
+T1..T6 : all six NOT-FALSIFIED; the probe's independent static census agrees
+         with the pinned-blob analysis. Nothing was dropped.
+T7     : ACCEPTED as a new item. Re-derived here from the pinned blob
+         (static-proofs.txt S8): in both legs `tapf` has exactly 2 Stores and
+         no Load before the init; every post-init Load sits under
+         `if tap is not None:`; `_playback_r78_tap` has exactly ONE return,
+         `subprocess.Popen(...)`, so it can never be None. Folded into the
+         patch as T7 (2 sites, net 0 lines) and covered by differential D8.
+line numbers : the probe's offsets are the moving-tree artifact documented
+         above; no content claim depended on them.
+cleanup  : the probe created no file and no process. The single dispatch
+         satisfies the probeParent budget (exactly one descendant).
