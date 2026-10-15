@@ -1,0 +1,13 @@
+CMD: ffmpeg -hide_banner -loglevel warning -nostdin -y -f alsa -channels 0 -i hw:0,0 -t 1.0 -c:a pcm_s16le /tmp/r82w-spot/a7.wav
+rc=8
+--- stderr:
+Option channels not found.
+Error opening input file hw:0,0.
+Error opening input files: Option not found
+--- control (pulse indev -channels 0, expect 222 ERANGE):
+rc=222
+[Pulse indev @ 0x55e83f1ba140] Value 0.000000 for parameter 'channels' out of range [1 - 2.14748e+09]
+[Pulse indev @ 0x55e83f1ba140] Error setting option channels to value 0.
+[in#0 @ 0x55e83f1b99c0] Error opening input: Numerical result out of range
+Error opening input file default.
+Error opening input files: Numerical result out of range
