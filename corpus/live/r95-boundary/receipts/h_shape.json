@@ -1,0 +1,1882 @@
+{
+ "_cond": "h",
+ "_stage": "shape",
+ "_ts": "2026-10-15T21:00:42Z",
+ "cond": "h",
+ "foreign_start": {
+  "counts": {
+   "game-dev": 4,
+   "godot": 4,
+   "r90a": 0,
+   "r92b": 2,
+   "r97b": 1,
+   "r99": 3,
+   "run_battery": 2,
+   "shm_probe": 0,
+   "yes": 48
+  },
+  "rows": [
+   [
+    2014946,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/fixtures && for i in $(seq 1 50); do L=$(cut -d' ' -f1 /proc/loadavg); if [ \"${L%.*}\" -lt 30 ]; then echo \"$(da"
+   ],
+   [
+    2014946,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/fixtures && for i in $(seq 1 50); do L=$(cut -d' ' -f1 /proc/loadavg); if [ \"${L%.*}\" -lt 30 ]; then echo \"$(da"
+   ],
+   [
+    2014946,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin/corpus/fixtures && for i in $(seq 1 50); do L=$(cut -d' ' -f1 /proc/loadavg); if [ \"${L%.*}\" -lt 30 ]; then echo \"$(da"
+   ],
+   [
+    3370829,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && chmod +x run_matrix.sh && (for m in quiet load ff30 ff60 ff120; do echo \"=== BATCH $m $(da"
+   ],
+   [
+    3370829,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && chmod +x run_matrix.sh && (for m in quiet load ff30 ff60 ff120; do echo \"=== BATCH $m $(da"
+   ],
+   [
+    3370856,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && chmod +x run_matrix.sh && (for m in quiet load ff30 ff60 ff120; do echo \"=== BATCH $m $(da"
+   ],
+   [
+    3370856,
+    "bash -c cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && chmod +x run_matrix.sh && (for m in quiet load ff30 ff60 ff120; do echo \"=== BATCH $m $(da"
+   ],
+   [
+    3467681,
+    "python3 corpus/fixtures/run_battery.py --runs corpus/live/r90-author/runs9"
+   ],
+   [
+    3482661,
+    "pipewire -c /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/conf/pw/r97b-pipewire.conf"
+   ],
+   [
+    3493204,
+    "bash -c sleep 100; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && tail -3 runs/matrix.log; ls runs/ | tr '\\n' ' '; echo; tail -2 runs/ff30/rc-sum"
+   ],
+   [
+    3493204,
+    "bash -c sleep 100; cd /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r99-boundary && tail -3 runs/matrix.log; ls runs/ | tr '\\n' ' '; echo; tail -2 runs/ff30/rc-sum"
+   ],
+   [
+    3500356,
+    "pw-record --channels 1 -P node.name=r92b_ref -P node.autoconnect=false /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/ir-f32file_ref_ir-f32file_0_0.w"
+   ],
+   [
+    3500364,
+    "pw-record --channels 1 -P node.name=r92b_rec -P node.autoconnect=false /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/ir-f32file_out_ir-f32file_0_0.w"
+   ],
+   [
+    3502640,
+    "timeout -s KILL 45 godot --headless --fixed-fps 60 --path proj --script res://audio_lattice.gd -- --arm=peak_calib"
+   ],
+   [
+    3502641,
+    "godot --headless --fixed-fps 60 --path proj --script res://audio_lattice.gd -- --arm=peak_calib"
+   ],
+   [
+    3503230,
+    "godot --headless --path corpus/live/r90-author/runs9/20261015T205931926096Z/scratch --script res://slider_adjust.gd -- --repeat-right --focus-restore"
+   ]
+  ]
+ },
+ "hogs": 14,
+ "loadavg_start": {
+  "last_pid": "3503282",
+  "load1": 79.45263671875,
+  "load15": 77.39794921875,
+  "load5": 74.1767578125,
+  "procs": "82/1894"
+ },
+ "reps": 3,
+ "reps_data": [
+  {
+   "dur": 1.652,
+   "graph": {
+    "all_node_count": 19,
+    "clients": {
+     "105": {
+      "application.name": "r95bjack",
+      "application.process.binary": "r95bjack",
+      "client.api": "jack",
+      "client.name": "r95b_shape",
+      "pipewire.sec.pid": 3503348
+     }
+    },
+    "foreign_nodes": [
+     "Dummy-Driver",
+     "Freewheel-Driver",
+     "Midi-Bridge",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "bluez_midi.server",
+     "r92b_fc_in",
+     "r92b_fc_out",
+     "r92b_in",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in",
+     "r96b_ns"
+    ],
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.allowed-rates",
+        "subject": 0,
+        "type": "",
+        "value": "[ 48000 ]"
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.configured.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       },
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "124": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95b_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95b_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150912,
+      "target.object": null
+     },
+     "196": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95b_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95b_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150918,
+      "target.object": null
+     }
+    },
+    "ports": {
+     "98": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 196,
+      "object.path": "r95b_shape:output_3",
+      "port.alias": "r95b_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "143": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 196,
+      "object.path": "r95b_shape:input_0",
+      "port.alias": "r95b_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "151": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 124,
+      "object.path": "r95b_ns:playback_0",
+      "port.alias": "r95b_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "152": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 196,
+      "object.path": "r95b_shape:output_0",
+      "port.alias": "r95b_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "159": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 196,
+      "object.path": "r95b_shape:output_2",
+      "port.alias": "r95b_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     },
+     "200": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 196,
+      "object.path": "r95b_shape:output_1",
+      "port.alias": "r95b_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     },
+     "201": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 124,
+      "object.path": "r95b_ns:monitor_0",
+      "port.alias": "r95b_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 35,
+     "dsp_type": 31,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r96b_ns Audio/Sink sink:playback_MONO",
+      "r96b_ns Audio/Sink sink:monitor_MONO",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r95b_shape:in",
+      "r92b_in Audio/Sink sink:playback_MONO",
+      "r92b_in Audio/Sink sink:monitor_MONO",
+      "Midi-Bridge:Midi Through: Port-0 (capture)",
+      "BLE MIDI 1:out",
+      "Midi-Bridge:Midi Through: Port-0 (playback)",
+      "BLE MIDI 1:in"
+     ],
+     "inputs": 14,
+     "outputs": 21,
+     "pattern_r95b": 7,
+     "pattern_r95b_list": [
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r95b_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95b_shape",
+    "client_name_size": 257,
+    "client_pid": 3503348,
+    "client_uuid": "8590085511",
+    "cpu_load": 0.047657,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 15767729357,
+    "lat_in": {
+     "aliases": [],
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "aliases": [],
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "aliases": [],
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95b_shape:in",
+     "out": "r95b_shape:out",
+     "outm": "r95b_shape:outm",
+     "outp": "r95b_shape:outp",
+     "outt": "r95b_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "resolve": [
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:out"
+     },
+     {
+      "aliases": [],
+      "flags": 6,
+      "found": true,
+      "name": "r95b_shape:outp"
+     },
+     {
+      "aliases": [],
+      "flags": 18,
+      "found": true,
+      "name": "r95b_shape:outt"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:outm"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:playback_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:monitor_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_shape:in"
+     }
+    ],
+    "rt_prio": -1816968102,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "loadavg": {
+    "last_pid": "3504161",
+    "load1": 79.45263671875,
+    "load15": 77.39794921875,
+    "load5": 74.1767578125,
+    "procs": "82/1839"
+   },
+   "nullsink_module": 536870929,
+   "rc": 0,
+   "rep": 0,
+   "stderr": "",
+   "top": [
+    {
+     "err": "---",
+     "id": "29",
+     "name": "Dummy-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "Freewheel-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "Midi-Bridge",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "bluez_midi.server",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "106",
+     "name": "r96b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "113",
+     "name": "r93b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "225",
+     "name": "r92b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "192",
+     "name": "r92b_fc_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "162",
+     "name": "r92b_fc_out",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "r95b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "196",
+     "name": "r95b_shape",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  },
+  {
+   "dur": 1.638,
+   "graph": {
+    "all_node_count": 17,
+    "clients": {
+     "152": {
+      "application.name": "r95bjack",
+      "application.process.binary": "r95bjack",
+      "client.api": "jack",
+      "client.name": "r95b_shape",
+      "pipewire.sec.pid": 3504575
+     }
+    },
+    "foreign_nodes": [
+     "Dummy-Driver",
+     "Freewheel-Driver",
+     "Midi-Bridge",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "bluez_midi.server",
+     "r92b_in",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in",
+     "r96b_ns"
+    ],
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.allowed-rates",
+        "subject": 0,
+        "type": "",
+        "value": "[ 48000 ]"
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.configured.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       },
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "98": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95b_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95b_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150937,
+      "target.object": null
+     },
+     "143": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95b_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95b_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150944,
+      "target.object": null
+     }
+    },
+    "ports": {
+     "113": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 143,
+      "object.path": "r95b_shape:output_1",
+      "port.alias": "r95b_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     },
+     "134": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 143,
+      "object.path": "r95b_shape:input_0",
+      "port.alias": "r95b_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "137": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 143,
+      "object.path": "r95b_shape:output_0",
+      "port.alias": "r95b_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "151": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 98,
+      "object.path": "r95b_ns:playback_0",
+      "port.alias": "r95b_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "159": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 98,
+      "object.path": "r95b_ns:monitor_0",
+      "port.alias": "r95b_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "206": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 143,
+      "object.path": "r95b_shape:output_3",
+      "port.alias": "r95b_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "211": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 143,
+      "object.path": "r95b_shape:output_2",
+      "port.alias": "r95b_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 40,
+     "dsp_type": 36,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "r93b_fc:output_MONO",
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r96b_ns Audio/Sink sink:playback_MONO",
+      "r96b_ns Audio/Sink sink:monitor_MONO",
+      "r93b_in Audio/Sink sink:playback_MONO",
+      "r93b_in Audio/Sink sink:monitor_MONO",
+      "r95b_shape:in",
+      "r93b_fc:playback_MONO",
+      "r93b_fc:monitor_MONO",
+      "r92b_in Audio/Sink sink:playback_MONO",
+      "r92b_in Audio/Sink sink:monitor_MONO",
+      "Midi-Bridge:Midi Through: Port-0 (capture)",
+      "BLE MIDI 1:out",
+      "Midi-Bridge:Midi Through: Port-0 (playback)",
+      "BLE MIDI 1:in"
+     ],
+     "inputs": 16,
+     "outputs": 24,
+     "pattern_r95b": 7,
+     "pattern_r95b_list": [
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r95b_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95b_shape",
+    "client_name_size": 257,
+    "client_pid": 3504575,
+    "client_uuid": "8590085537",
+    "cpu_load": 0.046056,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 15770312985,
+    "lat_in": {
+     "aliases": [],
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "aliases": [],
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "aliases": [],
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95b_shape:in",
+     "out": "r95b_shape:out",
+     "outm": "r95b_shape:outm",
+     "outp": "r95b_shape:outp",
+     "outt": "r95b_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "resolve": [
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:out"
+     },
+     {
+      "aliases": [],
+      "flags": 6,
+      "found": true,
+      "name": "r95b_shape:outp"
+     },
+     {
+      "aliases": [],
+      "flags": 18,
+      "found": true,
+      "name": "r95b_shape:outt"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:outm"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:playback_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:monitor_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_shape:in"
+     }
+    ],
+    "rt_prio": -1214389862,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "loadavg": {
+    "last_pid": "3505272",
+    "load1": 79.73681640625,
+    "load15": 77.42822265625,
+    "load5": 74.3232421875,
+    "procs": "88/1843"
+   },
+   "nullsink_module": 536870922,
+   "rc": 0,
+   "rep": 1,
+   "stderr": "",
+   "top": [
+    {
+     "err": "---",
+     "id": "29",
+     "name": "Dummy-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "Freewheel-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "Midi-Bridge",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "bluez_midi.server",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "106",
+     "name": "r96b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "225",
+     "name": "r92b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "r93b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "98",
+     "name": "r95b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "143",
+     "name": "r95b_shape",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "162",
+     "name": "r93b_fc_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "129",
+     "name": "r93b_fc_out",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  },
+  {
+   "dur": 1.649,
+   "graph": {
+    "all_node_count": 19,
+    "clients": {
+     "134": {
+      "application.name": "r95bjack",
+      "application.process.binary": "r95bjack",
+      "client.api": "jack",
+      "client.name": "r95b_shape",
+      "pipewire.sec.pid": 3505778
+     }
+    },
+    "foreign_nodes": [
+     "Dummy-Driver",
+     "Freewheel-Driver",
+     "Midi-Bridge",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "bluez_midi.server",
+     "r92b_fc_in",
+     "r92b_fc_out",
+     "r92b_in",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in",
+     "r96b_ns"
+    ],
+    "metadata": [
+     {
+      "id": 31,
+      "name": "settings",
+      "rows": [
+       {
+        "key": "clock.rate",
+        "subject": 0,
+        "type": "",
+        "value": 48000
+       },
+       {
+        "key": "clock.allowed-rates",
+        "subject": 0,
+        "type": "",
+        "value": "[ 48000 ]"
+       },
+       {
+        "key": "clock.quantum",
+        "subject": 0,
+        "type": "",
+        "value": 1024
+       },
+       {
+        "key": "clock.force-quantum",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       },
+       {
+        "key": "clock.force-rate",
+        "subject": 0,
+        "type": "",
+        "value": 0
+       }
+      ]
+     },
+     {
+      "id": 34,
+      "name": "schema-sm-settings",
+      "rows": []
+     },
+     {
+      "id": 36,
+      "name": "sm-settings",
+      "rows": []
+     },
+     {
+      "id": 39,
+      "name": "default",
+      "rows": [
+       {
+        "key": "default.configured.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       },
+       {
+        "key": "default.audio.sink",
+        "subject": 0,
+        "type": "Spa:String:JSON",
+        "value": {
+         "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        }
+       }
+      ]
+     }
+    ],
+    "nodes": {
+     "98": {
+      "application.name": null,
+      "client.api": null,
+      "media.category": null,
+      "media.class": "Audio/Sink",
+      "media.role": null,
+      "node.always-process": null,
+      "node.description": "r95b_ns Audio/Sink sink",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": null,
+      "node.latency": null,
+      "node.name": "r95b_ns",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150973,
+      "target.object": null
+     },
+     "178": {
+      "application.name": null,
+      "client.api": "jack",
+      "media.category": "Duplex",
+      "media.class": null,
+      "media.role": "DSP",
+      "node.always-process": true,
+      "node.description": "r95b_shape",
+      "node.force-quantum": null,
+      "node.force-rate": null,
+      "node.group": "group.dsp.0",
+      "node.latency": null,
+      "node.name": "r95b_shape",
+      "node.nick": null,
+      "node.passive": null,
+      "node.pause-on-idle": null,
+      "object.serial": 150983,
+      "target.object": null
+     }
+    },
+    "ports": {
+     "84": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 178,
+      "object.path": "r95b_shape:input_0",
+      "port.alias": "r95b_shape:in",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "in",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "90": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 178,
+      "object.path": "r95b_shape:output_3",
+      "port.alias": "r95b_shape:outm",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outm",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "96": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 178,
+      "object.path": "r95b_shape:output_2",
+      "port.alias": "r95b_shape:outt",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outt",
+      "port.physical": null,
+      "port.terminal": true
+     },
+     "135": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 178,
+      "object.path": "r95b_shape:output_1",
+      "port.alias": "r95b_shape:outp",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "outp",
+      "port.physical": true,
+      "port.terminal": null
+     },
+     "152": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 98,
+      "object.path": "r95b_ns:playback_0",
+      "port.alias": "r95b_ns Audio/Sink sink:playback_MONO",
+      "port.direction": "in",
+      "port.extra": null,
+      "port.name": "playback_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "159": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 98,
+      "object.path": "r95b_ns:monitor_0",
+      "port.alias": "r95b_ns Audio/Sink sink:monitor_MONO",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "monitor_MONO",
+      "port.physical": null,
+      "port.terminal": null
+     },
+     "233": {
+      "format.dsp": "32 bit float mono audio",
+      "node.id": 178,
+      "object.path": "r95b_shape:output_0",
+      "port.alias": "r95b_shape:out",
+      "port.direction": "out",
+      "port.extra": null,
+      "port.name": "out",
+      "port.physical": null,
+      "port.terminal": null
+     }
+    }
+   },
+   "json": {
+    "census": {
+     "all": 44,
+     "dsp_type": 40,
+     "first40": [
+      "USB Audio Line Input:capture_FL",
+      "USB Audio Line Input:capture_FR",
+      "USB Audio Microphone:capture_FL",
+      "USB Audio Microphone:capture_FR",
+      "pw-play:output_MONO",
+      "r93b_fc:output_MONO",
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "r92b_fc:output_MONO",
+      "USB Audio S/PDIF Output:playback_FL",
+      "USB Audio S/PDIF Output:playback_FR",
+      "USB Audio S/PDIF Output:monitor_FL",
+      "USB Audio S/PDIF Output:monitor_FR",
+      "USB Audio Speakers:playback_FL",
+      "USB Audio Speakers:playback_FR",
+      "USB Audio Speakers:monitor_FL",
+      "USB Audio Speakers:monitor_FR",
+      "USB Audio Front Headphones:playback_FL",
+      "USB Audio Front Headphones:playback_FR",
+      "USB Audio Front Headphones:monitor_FL",
+      "USB Audio Front Headphones:monitor_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:playback_FR",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FL",
+      "GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]:monitor_FR",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r96b_ns Audio/Sink sink:playback_MONO",
+      "r96b_ns Audio/Sink sink:monitor_MONO",
+      "r93b_in Audio/Sink sink:playback_MONO",
+      "r93b_in Audio/Sink sink:monitor_MONO",
+      "r92b_fc:playback_MONO",
+      "r92b_fc:monitor_MONO",
+      "r93b_fc:playback_MONO",
+      "r93b_fc:monitor_MONO",
+      "r95b_shape:in",
+      "r92b_in Audio/Sink sink:playback_MONO",
+      "r92b_in Audio/Sink sink:monitor_MONO"
+     ],
+     "inputs": 17,
+     "outputs": 27,
+     "pattern_r95b": 7,
+     "pattern_r95b_list": [
+      "r95b_shape:out",
+      "r95b_shape:outp",
+      "r95b_shape:outt",
+      "r95b_shape:outm",
+      "r95b_ns Audio/Sink sink:playback_MONO",
+      "r95b_ns Audio/Sink sink:monitor_MONO",
+      "r95b_shape:in"
+     ],
+     "physical": 17
+    },
+    "client_name": "r95b_shape",
+    "client_name_size": 257,
+    "client_pid": 3505778,
+    "client_uuid": "8590085576",
+    "cpu_load": 0.0254,
+    "ensure_monitor_rc": 0,
+    "is_realtime": 1,
+    "jack_time_us": 15772951402,
+    "lat_in": {
+     "aliases": [],
+     "flags": 1,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:in",
+     "short": "in",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_out": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:out",
+     "short": "out",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outm": {
+     "aliases": [],
+     "flags": 2,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outm",
+     "short": "outm",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outp": {
+     "aliases": [],
+     "flags": 6,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outp",
+     "short": "outp",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "lat_outt": {
+     "aliases": [],
+     "flags": 18,
+     "lat_cap": [
+      0,
+      0
+     ],
+     "lat_play": [
+      0,
+      0
+     ],
+     "name": "r95b_shape:outt",
+     "short": "outt",
+     "total": 0,
+     "type": "32 bit float mono audio"
+    },
+    "max_rt_prio": 82,
+    "mode": "shape",
+    "monitoring_input": 1,
+    "monitoring_input_in": 0,
+    "out_connected": 0,
+    "out_connections": [],
+    "port_name_size": 513,
+    "ports": {
+     "in": "r95b_shape:in",
+     "out": "r95b_shape:out",
+     "outm": "r95b_shape:outm",
+     "outp": "r95b_shape:outp",
+     "outt": "r95b_shape:outt"
+    },
+    "request_monitor_in_rc": 0,
+    "request_monitor_rc": 0,
+    "resolve": [
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:out"
+     },
+     {
+      "aliases": [],
+      "flags": 6,
+      "found": true,
+      "name": "r95b_shape:outp"
+     },
+     {
+      "aliases": [],
+      "flags": 18,
+      "found": true,
+      "name": "r95b_shape:outt"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_shape:outm"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:playback_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 2,
+      "found": true,
+      "name": "r95b_ns Audio/Sink sink:monitor_MONO"
+     },
+     {
+      "aliases": [],
+      "flags": 1,
+      "found": true,
+      "name": "r95b_shape:in"
+     }
+    ],
+    "rt_prio": -1867974902,
+    "status": 0,
+    "version": "3.1.6.8 (using PipeWire 1.6.8)",
+    "version_ints": [
+     3,
+     1,
+     6,
+     8
+    ]
+   },
+   "links_while_running": [],
+   "loadavg": {
+    "last_pid": "3506628",
+    "load1": 79.73681640625,
+    "load15": 77.42822265625,
+    "load5": 74.3232421875,
+    "procs": "84/1815"
+   },
+   "nullsink_module": 536870922,
+   "rc": 0,
+   "rep": 2,
+   "stderr": "",
+   "top": [
+    {
+     "err": "---",
+     "id": "29",
+     "name": "Dummy-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "30",
+     "name": "Freewheel-Driver",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "46",
+     "name": "Midi-Bridge",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "49",
+     "name": "bluez_midi.server",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "61",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "62",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "63",
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "64",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "65",
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "175",
+     "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "106",
+     "name": "r96b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "124",
+     "name": "r93b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "162",
+     "name": "r93b_fc_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "129",
+     "name": "r93b_fc_out",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "225",
+     "name": "r92b_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "98",
+     "name": "r95b_ns",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "143",
+     "name": "r92b_fc_in",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "206",
+     "name": "r92b_fc_out",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    },
+    {
+     "err": "---",
+     "id": "178",
+     "name": "r95b_shape",
+     "quant": "0",
+     "rate": "0",
+     "status": "C"
+    }
+   ]
+  }
+ ],
+ "sweep_after": {
+  "killed": [],
+  "unloaded": []
+ }
+}
