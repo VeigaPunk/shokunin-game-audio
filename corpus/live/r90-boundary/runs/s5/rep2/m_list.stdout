@@ -1,0 +1,38 @@
++r89b_ns:playback_FL
++  |<- pw-play:output_FL
++r89b_ns:playback_FR
++  |<- pw-play:output_FR
++r98s_ns:playback_MONO
++  |<- r98s_drain:output_MONO
++r98s_drain:output_MONO
++  |-> r98s_ns:playback_MONO
++r93s_in:monitor_MONO
++  |-> r93s_fc_in:playback_MONO
++  |-> r93s_ref:input_MONO
++pw-play:output_FL
++  |-> r89b_ns:playback_FL
++pw-play:output_FR
++  |-> r89b_ns:playback_FR
++r93s_fc_in:playback_MONO
++  |<- r93s_in:monitor_MONO
++r93s_fc_out:output_MONO
++  |-> r93s_rec:input_MONO
++r93s_ref:input_MONO
++  |<- r93s_in:monitor_MONO
++r93s_rec:input_MONO
++  |<- r93s_fc_out:output_MONO
++r90b_la:monitor_FL
++  |-> r90b_lb:playback_FL
++r90b_lb:playback_FL
++  |<- r90b_la:monitor_FL
+*r93s_in:monitor_MONO
+-  |-> r93s_fc_in:playback_MONO
+-  |-> r93s_ref:input_MONO
+-r93s_fc_in:playback_MONO
+-  |<- r93s_in:monitor_MONO
+-r93s_fc_out:output_MONO
+-  |-> r93s_rec:input_MONO
+-r93s_ref:input_MONO
+-  |<- r93s_in:monitor_MONO
+-r93s_rec:input_MONO
+-  |<- r93s_fc_out:output_MONO

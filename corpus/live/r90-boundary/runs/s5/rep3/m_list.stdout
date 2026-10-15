@@ -1,0 +1,69 @@
++r87b_ns2:playback_FL
++  |<- r87by_ntonly:output_FL
++r87b_ns2:playback_FR
++  |<- r87by_ntonly:output_FR
++r98s_ns:playback_MONO
++  |<- pw-play:output_MONO
++r93s_in:monitor_MONO
++  |-> r93s_fc_in:playback_MONO
++  |-> r93s_ref:input_MONO
++r93s_fc_in:playback_MONO
++  |<- r93s_in:monitor_MONO
++r93s_fc_out:output_MONO
++  |-> r93s_rec:input_MONO
++r93s_ref:input_MONO
++  |<- r93s_in:monitor_MONO
++r93s_rec:input_MONO
++  |<- r93s_fc_out:output_MONO
++r90b_la:monitor_FL
++  |-> r90b_lb:playback_FL
++r90b_lb:playback_FL
++  |<- r90b_la:monitor_FL
++r87by_ntonly:output_FL
++  |-> r87b_ns2:playback_FL
++r87by_ntonly:output_FR
++  |-> r87b_ns2:playback_FR
++pw-play:output_MONO
++  |-> r98s_ns:playback_MONO
+*r98s_ns:monitor_MONO
++  |-> r98s_cap:input_MONO
+*r98s_ns:playback_MONO
+   |<- pw-play:output_MONO
+*r98s_cap:input_MONO
++  |<- r98s_ns:monitor_MONO
+*r98s_cap:input_MONO
+   |<- r98s_ns:monitor_MONO
+*r98s_ns:monitor_MONO
+   |-> r98s_cap:input_MONO
+*r98s_cap:input_MONO
+   |<- r98s_ns:monitor_MONO
+*r87b_ns2:playback_FL
+-  |<- r87by_ntonly:output_FL
+*r87b_ns2:playback_FR
+-  |<- r87by_ntonly:output_FR
+-r87by_ntonly:output_FL
+-  |-> r87b_ns2:playback_FL
+-r87by_ntonly:output_FR
+-  |-> r87b_ns2:playback_FR
+*r87b_ns2:playback_FL
++  |<- r87by_flagonly:output_FL
+*r87b_ns2:playback_FR
++  |<- r87by_flagonly:output_FR
++r87by_flagonly:output_FL
++  |-> r87b_ns2:playback_FL
++r87by_flagonly:output_FR
++  |-> r87b_ns2:playback_FR
+*r98s_ns:monitor_MONO
+-  |-> r98s_cap:input_MONO
+-r98s_cap:input_MONO
+-  |<- r98s_ns:monitor_MONO
+*r98s_ns:playback_MONO
+-  |<- pw-play:output_MONO
+-pw-play:output_MONO
+-  |-> r98s_ns:playback_MONO
+*r98s_ns:playback_MONO
++  |<- pw-play:output_MONO
+*pw-play:output_MONO
++  |-> r98s_ns:playback_MONO
+*pw-play:output_MONO
+   |-> r98s_ns:playback_MONO

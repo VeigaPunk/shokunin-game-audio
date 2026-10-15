@@ -1,0 +1,53 @@
+r87b_ns2:playback_FL
+  r87b_ns2:playback_0
+  r87b_ns2:playback_FL
+  |<- r87by_ntonly:output_FL
+r87b_ns2:playback_FR
+  r87b_ns2:playback_1
+  r87b_ns2:playback_FR
+  |<- r87by_ntonly:output_FR
+r98s_ns:playback_MONO
+  r98s_ns:playback_0
+  r98s_ns Audio/Sink sink:playback_MONO
+  |<- pw-play:output_MONO
+r93s_in:monitor_MONO
+  r93s_in:monitor_0
+  r93s_in Audio/Sink sink:monitor_MONO
+  |-> r93s_fc_in:playback_MONO
+  |-> r93s_ref:input_MONO
+r93s_fc_in:playback_MONO
+  r93s_fc_in:playback_0
+  r93s_fc:playback_MONO
+  |<- r93s_in:monitor_MONO
+r93s_fc_out:output_MONO
+  r93s_fc_out:output_0
+  r93s_fc:output_MONO
+  |-> r93s_rec:input_MONO
+r93s_ref:input_MONO
+  r93s_ref:input_0
+  r93s_ref:input_MONO
+  |<- r93s_in:monitor_MONO
+r93s_rec:input_MONO
+  r93s_rec:input_0
+  r93s_rec:input_MONO
+  |<- r93s_fc_out:output_MONO
+r90b_la:monitor_FL
+  r90b_la:monitor_0
+  r90b_la Audio/Sink sink:monitor_FL
+  |-> r90b_lb:playback_FL
+r90b_lb:playback_FL
+  r90b_lb:playback_0
+  r90b_lb Audio/Sink sink:playback_FL
+  |<- r90b_la:monitor_FL
+r87by_ntonly:output_FL
+  r87by_ntonly:output_0
+  r87by_ntonly:output_FL
+  |-> r87b_ns2:playback_FL
+r87by_ntonly:output_FR
+  r87by_ntonly:output_1
+  r87by_ntonly:output_FR
+  |-> r87b_ns2:playback_FR
+pw-play:output_MONO
+  pw-play:output_0
+  pw-play:output_MONO
+  |-> r98s_ns:playback_MONO
