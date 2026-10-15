@@ -1,0 +1,260 @@
+{
+ "argv": [
+  "gst-launch-1.0",
+  "-m",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r91b_gl",
+  "target-object=r91b_ns_gl20",
+  "stream-properties=props,stream.capture.sink=true",
+  "keepalive-time=20",
+  "num-buffers=1000000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/GL_m_keepalive20.wav"
+ ],
+ "bus_lines": [
+  "0:00:00.121479348    1606571    1606571 DEBUG                    bin gstbin.c:1207:gst_bin_add_func:<pipeline0> element \"pipewiresrc0\" can provide a clock",
+  "0:00:00.121512928    1606571    1606571 DEBUG                    bin gstbin.c:3692:gst_bin_handle_message_func:<pipeline0> [msg 0x55f489b2dc50] handling child pipewiresrc0 message of type clock-provide",
+  "0:00:00.141041729    1606571    1606571 DEBUG               pipeline gstpipeline.c:433:gst_pipeline_change_state:<pipeline0> selecting clock and base_time",
+  "0:00:00.141046079    1606571    1606571 DEBUG               pipeline gstpipeline.c:460:gst_pipeline_change_state:<pipeline0> Need to update clock.",
+  "0:00:00.141048459    1606571    1606571 DEBUG                    bin gstbin.c:764:gst_bin_provide_clock_func:<pipeline0> finding new clock",
+  "0:00:00.141121369    1606571    1606571 DEBUG                    bin gstbin.c:779:gst_bin_provide_clock_func:<pipeline0> found candidate clock 0x55f489db2b60 by element pipewiresrc0",
+  "0:00:00.141129009    1606571    1606571 DEBUG                    bin gstbin.c:820:gst_bin_provide_clock_func:<pipeline0> provided new clock <pipewireclock0> by provider <pipewiresrc0>",
+  "0:00:00.141137149    1606571    1606571 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 0, 1/48000 14377957683018 1305042 14377958988060",
+  "0:00:00.141162689    1606571    1606571 DEBUG                    bin gstbin.c:723:gst_bin_set_clock_func:<pipeline0> iterator done",
+  "0:00:00.141509560    1606571    1606571 DEBUG                basesrc gstbasesrc.c:3918:gst_base_src_set_playing:<pipewiresrc0> unschedule clock",
+  "0:00:00.141841641    1606571    1606701 DEBUG               pipeline gstpipeline.c:650:gst_pipeline_handle_message:<pipeline0> Used clock 'pipewireclock0' got lost",
+  "0:00:00.141847241    1606571    1606701 DEBUG                    bin gstbin.c:3692:gst_bin_handle_message_func:<pipeline0> [msg 0x7f22200039c0] handling child pipewiresrc0 message of type clock-lost",
+  "0:00:00.141850451    1606571    1606701 DEBUG                    bin gstbin.c:3831:gst_bin_handle_message_func:<pipeline0> Lost clock <pipewireclock0> provided by <pipewiresrc0>",
+  "0:00:00.144203705    1606571    1606706 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14377959864552 44855500 14377962053386",
+  "0:00:00.144217225    1606571    1606706 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14377959864552 44871200 14377962069086",
+  "0:00:00.144237775    1606571    1606706 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14377959864552 44891850 14377962089736",
+  "0:00:00.148112661    1606571    1606726 DEBUG               pipeline gstpipeline.c:433:gst_pipeline_change_state:<pipeline0> selecting clock and base_time",
+  "0:00:00.148117281    1606571    1606726 DEBUG               pipeline gstpipeline.c:460:gst_pipeline_change_state:<pipeline0> Need to update clock.",
+  "0:00:00.148119591    1606571    1606726 DEBUG                    bin gstbin.c:764:gst_bin_provide_clock_func:<pipeline0> finding new clock",
+  "0:00:00.148200161    1606571    1606726 DEBUG                    bin gstbin.c:779:gst_bin_provide_clock_func:<pipeline0> found candidate clock 0x55f489db2b60 by element pipewiresrc0",
+  "0:00:00.148208951    1606571    1606726 DEBUG                    bin gstbin.c:820:gst_bin_provide_clock_func:<pipeline0> provided new clock <pipewireclock0> by provider <pipewiresrc0>",
+  "0:00:00.148216461    1606571    1606726 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14377959864552 48869726 14377966067612",
+  "0:00:00.154303851    1606571    1606706 DEBUG               basesink gstbasesink.c:2786:gst_base_sink_do_sync:<filesink0> possibly waiting for clock to reach 0:00:00.043566158, adjusted 0:00:00.043566158",
+  "0:00:00.154306241    1606571    1606706 DEBUG               basesink gstbasesink.c:2396:gst_base_sink_wait_clock:<filesink0> sync disabled",
+  "0:00:00.154309371    1606571    1606706 DEBUG               basesink gstbasesink.c:2794:gst_base_sink_do_sync:<filesink0> clock returned 4, jitter  0:00:00.000000000"
+ ],
+ "elem_lines": 40,
+ "file_bytes": 135212,
+ "first_bytes": 0,
+ "gst_debug": "*:5",
+ "keepalive_lines": [],
+ "last_bytes": 135212,
+ "leg": "GL_m_keepalive20",
+ "popped_buffer_lines": 0,
+ "raw_log_bytes": 3941992,
+ "raw_log_sha256": "718b71df6b39de46e72f99b3f4faa884528975b583180cfba2225e55375d8edb",
+ "rc": -9,
+ "state_lines": [
+  "0:00:00.134611609    1606571    1606706 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state connecting",
+  "0:00:00.135014919    1606571    1606701 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused",
+  "0:00:00.140271638    1606571    1606701 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state streaming",
+  "0:00:00.141831981    1606571    1606701 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused",
+  "0:00:00.141922601    1606571    1606701 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state streaming",
+  "0:00:01.223165586    1606571    1606701 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused"
+ ],
+ "timeline": [
+  {
+   "bytes": null,
+   "t": 0.0
+  },
+  {
+   "bytes": null,
+   "t": 0.1
+  },
+  {
+   "bytes": 0,
+   "t": 0.2
+  },
+  {
+   "bytes": 0,
+   "t": 0.3
+  },
+  {
+   "bytes": 0,
+   "t": 0.4
+  },
+  {
+   "bytes": 0,
+   "t": 0.5
+  },
+  {
+   "bytes": 65580,
+   "t": 0.6
+  },
+  {
+   "bytes": 65580,
+   "t": 0.7
+  },
+  {
+   "bytes": 65580,
+   "t": 0.8
+  },
+  {
+   "bytes": 65580,
+   "t": 0.9
+  },
+  {
+   "bytes": 65580,
+   "t": 1.0
+  },
+  {
+   "bytes": 135212,
+   "t": 1.1
+  },
+  {
+   "bytes": 135212,
+   "t": 1.2
+  },
+  {
+   "bytes": 135212,
+   "t": 1.34
+  },
+  {
+   "bytes": 135212,
+   "t": 1.44
+  },
+  {
+   "bytes": 135212,
+   "t": 1.54
+  },
+  {
+   "bytes": 135212,
+   "t": 1.64
+  },
+  {
+   "bytes": 135212,
+   "t": 1.74
+  },
+  {
+   "bytes": 135212,
+   "t": 1.84
+  },
+  {
+   "bytes": 135212,
+   "t": 1.94
+  },
+  {
+   "bytes": 135212,
+   "t": 2.04
+  },
+  {
+   "bytes": 135212,
+   "t": 2.14
+  },
+  {
+   "bytes": 135212,
+   "t": 2.24
+  },
+  {
+   "bytes": 135212,
+   "t": 2.34
+  },
+  {
+   "bytes": 135212,
+   "t": 2.44
+  },
+  {
+   "bytes": 135212,
+   "t": 2.54
+  },
+  {
+   "bytes": 135212,
+   "t": 2.64
+  },
+  {
+   "bytes": 135212,
+   "t": 2.74
+  },
+  {
+   "bytes": 135212,
+   "t": 2.84
+  },
+  {
+   "bytes": 135212,
+   "t": 2.94
+  },
+  {
+   "bytes": 135212,
+   "t": 3.04
+  },
+  {
+   "bytes": 135212,
+   "t": 3.14
+  },
+  {
+   "bytes": 135212,
+   "t": 3.24
+  },
+  {
+   "bytes": 135212,
+   "t": 3.34
+  },
+  {
+   "bytes": 135212,
+   "t": 3.44
+  },
+  {
+   "bytes": 135212,
+   "t": 3.54
+  },
+  {
+   "bytes": 135212,
+   "t": 3.64
+  },
+  {
+   "bytes": 135212,
+   "t": 3.74
+  },
+  {
+   "bytes": 135212,
+   "t": 3.84
+  },
+  {
+   "bytes": 135212,
+   "t": 3.94
+  },
+  {
+   "bytes": 135212,
+   "t": 4.04
+  },
+  {
+   "bytes": 135212,
+   "t": 4.14
+  },
+  {
+   "bytes": 135212,
+   "t": 4.24
+  },
+  {
+   "bytes": 135212,
+   "t": 4.34
+  },
+  {
+   "bytes": 135212,
+   "t": 4.44
+  },
+  {
+   "bytes": 135212,
+   "t": 4.54
+  }
+ ],
+ "unload": {
+  "gone": true,
+  "ok": true,
+  "rc": 0,
+  "stderr": "",
+  "stdout": ""
+ },
+ "use_m": true
+}

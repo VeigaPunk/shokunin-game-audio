@@ -1,0 +1,259 @@
+{
+ "argv": [
+  "gst-launch-1.0",
+  "-m",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r91b_gl",
+  "target-object=r91b_ns_gl0",
+  "stream-properties=props,stream.capture.sink=true",
+  "num-buffers=1000000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/GL_m_keepalive0.wav"
+ ],
+ "bus_lines": [
+  "0:00:00.109095478    1599448    1599448 DEBUG                    bin gstbin.c:1207:gst_bin_add_func:<pipeline0> element \"pipewiresrc0\" can provide a clock",
+  "0:00:00.109125958    1599448    1599448 DEBUG                    bin gstbin.c:3692:gst_bin_handle_message_func:<pipeline0> [msg 0x556b6c53afe0] handling child pipewiresrc0 message of type clock-provide",
+  "0:00:00.128765940    1599448    1599448 DEBUG               pipeline gstpipeline.c:433:gst_pipeline_change_state:<pipeline0> selecting clock and base_time",
+  "0:00:00.128770371    1599448    1599448 DEBUG               pipeline gstpipeline.c:460:gst_pipeline_change_state:<pipeline0> Need to update clock.",
+  "0:00:00.128772811    1599448    1599448 DEBUG                    bin gstbin.c:764:gst_bin_provide_clock_func:<pipeline0> finding new clock",
+  "0:00:00.128849051    1599448    1599448 DEBUG                    bin gstbin.c:779:gst_bin_provide_clock_func:<pipeline0> found candidate clock 0x556b6c75ccf0 by element pipewiresrc0",
+  "0:00:00.128857181    1599448    1599448 DEBUG                    bin gstbin.c:820:gst_bin_provide_clock_func:<pipeline0> provided new clock <pipewireclock0> by provider <pipewiresrc0>",
+  "0:00:00.128884601    1599448    1599448 DEBUG                    bin gstbin.c:723:gst_bin_set_clock_func:<pipeline0> iterator done",
+  "0:00:00.129275141    1599448    1599448 DEBUG                basesrc gstbasesrc.c:3918:gst_base_src_set_playing:<pipewiresrc0> unschedule clock",
+  "0:00:00.129866352    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14373068120979 42882186 14373068336499",
+  "0:00:00.129886522    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14373068120979 42902986 14373068357299",
+  "0:00:00.135428481    1599448    1599677 DEBUG               pipeline gstpipeline.c:433:gst_pipeline_change_state:<pipeline0> selecting clock and base_time",
+  "0:00:00.138447686    1599448    1599652 DEBUG               basesink gstbasesink.c:2786:gst_base_sink_do_sync:<filesink0> possibly waiting for clock to reach 0:00:00.042882186, adjusted 0:00:00.042882186",
+  "0:00:00.138449966    1599448    1599652 DEBUG               basesink gstbasesink.c:2396:gst_base_sink_wait_clock:<filesink0> sync disabled",
+  "0:00:00.138452996    1599448    1599652 DEBUG               basesink gstbasesink.c:2794:gst_base_sink_do_sync:<filesink0> clock returned 4, jitter  0:00:00.000000000",
+  "0:00:00.138507866    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 2048, 1/48000 14373068120979 51523770 14373076978083",
+  "0:00:00.138569797    1599448    1599652 DEBUG               basesink gstbasesink.c:2786:gst_base_sink_do_sync:<filesink0> possibly waiting for clock to reach 0:00:00.044668139, adjusted 0:00:00.044668139",
+  "0:00:00.138571837    1599448    1599652 DEBUG               basesink gstbasesink.c:2396:gst_base_sink_wait_clock:<filesink0> sync disabled",
+  "0:00:00.138574507    1599448    1599652 DEBUG               basesink gstbasesink.c:2794:gst_base_sink_do_sync:<filesink0> clock returned 4, jitter  0:00:00.000000000",
+  "0:00:00.172409382    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 4096, 1/48000 14373110787645 85425007 14373110879319",
+  "0:00:00.173899364    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 4096, 1/48000 14373110787645 86915659 14373112369971",
+  "0:00:00.174385225    1599448    1599652 DEBUG          pipewireclock gstpipewireclock.c:54:gst_pipewire_clock_get_internal_time: 4096, 1/48000 14373110787645 87401860 14373112856172",
+  "0:00:00.174451875    1599448    1599652 DEBUG               basesink gstbasesink.c:2786:gst_base_sink_do_sync:<filesink0> possibly waiting for clock to reach 0:00:00.087334805, adjusted 0:00:00.087334805",
+  "0:00:00.174454225    1599448    1599652 DEBUG               basesink gstbasesink.c:2396:gst_base_sink_wait_clock:<filesink0> sync disabled",
+  "0:00:00.174457295    1599448    1599652 DEBUG               basesink gstbasesink.c:2794:gst_base_sink_do_sync:<filesink0> clock returned 4, jitter  0:00:00.000000000"
+ ],
+ "elem_lines": 40,
+ "file_bytes": 204844,
+ "first_bytes": 0,
+ "gst_debug": "*:5",
+ "keepalive_lines": [],
+ "last_bytes": 204844,
+ "leg": "GL_m_keepalive0",
+ "popped_buffer_lines": 0,
+ "raw_log_bytes": 4037750,
+ "raw_log_sha256": "1d459b6c69e2594375e3a0fc339a44bd556bc9478a702966b130571579d0b62b",
+ "rc": -9,
+ "state_lines": [
+  "0:00:00.117557362    1599448    1599652 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state connecting",
+  "0:00:00.118156813    1599448    1599644 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused",
+  "0:00:00.127557908    1599448    1599644 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state streaming",
+  "0:00:00.128630730    1599448    1599644 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused",
+  "0:00:00.129566292    1599448    1599644 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state streaming",
+  "0:00:01.226719691    1599448    1599644 DEBUG            pipewiresrc gstpipewiresrc.c:900:on_state_changed:<pipewiresrc0> got stream state paused"
+ ],
+ "timeline": [
+  {
+   "bytes": null,
+   "t": 0.0
+  },
+  {
+   "bytes": null,
+   "t": 0.1
+  },
+  {
+   "bytes": 0,
+   "t": 0.2
+  },
+  {
+   "bytes": 0,
+   "t": 0.3
+  },
+  {
+   "bytes": 0,
+   "t": 0.4
+  },
+  {
+   "bytes": 65580,
+   "t": 0.5
+  },
+  {
+   "bytes": 65580,
+   "t": 0.6
+  },
+  {
+   "bytes": 65580,
+   "t": 0.7
+  },
+  {
+   "bytes": 65580,
+   "t": 0.8
+  },
+  {
+   "bytes": 135212,
+   "t": 0.9
+  },
+  {
+   "bytes": 135212,
+   "t": 1.0
+  },
+  {
+   "bytes": 135212,
+   "t": 1.11
+  },
+  {
+   "bytes": 204844,
+   "t": 1.21
+  },
+  {
+   "bytes": 204844,
+   "t": 1.34
+  },
+  {
+   "bytes": 204844,
+   "t": 1.44
+  },
+  {
+   "bytes": 204844,
+   "t": 1.54
+  },
+  {
+   "bytes": 204844,
+   "t": 1.64
+  },
+  {
+   "bytes": 204844,
+   "t": 1.74
+  },
+  {
+   "bytes": 204844,
+   "t": 1.84
+  },
+  {
+   "bytes": 204844,
+   "t": 1.94
+  },
+  {
+   "bytes": 204844,
+   "t": 2.04
+  },
+  {
+   "bytes": 204844,
+   "t": 2.14
+  },
+  {
+   "bytes": 204844,
+   "t": 2.24
+  },
+  {
+   "bytes": 204844,
+   "t": 2.34
+  },
+  {
+   "bytes": 204844,
+   "t": 2.44
+  },
+  {
+   "bytes": 204844,
+   "t": 2.54
+  },
+  {
+   "bytes": 204844,
+   "t": 2.64
+  },
+  {
+   "bytes": 204844,
+   "t": 2.74
+  },
+  {
+   "bytes": 204844,
+   "t": 2.84
+  },
+  {
+   "bytes": 204844,
+   "t": 2.94
+  },
+  {
+   "bytes": 204844,
+   "t": 3.04
+  },
+  {
+   "bytes": 204844,
+   "t": 3.14
+  },
+  {
+   "bytes": 204844,
+   "t": 3.24
+  },
+  {
+   "bytes": 204844,
+   "t": 3.35
+  },
+  {
+   "bytes": 204844,
+   "t": 3.45
+  },
+  {
+   "bytes": 204844,
+   "t": 3.55
+  },
+  {
+   "bytes": 204844,
+   "t": 3.65
+  },
+  {
+   "bytes": 204844,
+   "t": 3.75
+  },
+  {
+   "bytes": 204844,
+   "t": 3.85
+  },
+  {
+   "bytes": 204844,
+   "t": 3.95
+  },
+  {
+   "bytes": 204844,
+   "t": 4.05
+  },
+  {
+   "bytes": 204844,
+   "t": 4.15
+  },
+  {
+   "bytes": 204844,
+   "t": 4.25
+  },
+  {
+   "bytes": 204844,
+   "t": 4.35
+  },
+  {
+   "bytes": 204844,
+   "t": 4.45
+  },
+  {
+   "bytes": 204844,
+   "t": 4.55
+  }
+ ],
+ "unload": {
+  "gone": true,
+  "ok": true,
+  "rc": 0,
+  "stderr": "",
+  "stdout": ""
+ },
+ "use_m": true
+}

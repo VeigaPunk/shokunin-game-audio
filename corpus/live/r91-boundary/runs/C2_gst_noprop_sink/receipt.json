@@ -1,0 +1,113 @@
+{
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r91b_c2",
+  "target-object=r91b_ns_connect",
+  "num-buffers=1000000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/C2_gst_noprop_sink.wav"
+ ],
+ "final_bytes": 0,
+ "leg": "C2_gst_noprop_sink",
+ "links_ever": false,
+ "log_head": "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found\nAdditional debug info:\n../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0\nERROR: pipeline doesn't want to preroll.\nFailed to set pipeline to PAUSED.\n",
+ "max_bytes": 0,
+ "node_props": null,
+ "node_state_last": null,
+ "post_links": [],
+ "rc": 255,
+ "sink_load": {
+  "idx": 536870926,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-null-sink",
+    "sink_name=r91b_ns_connect",
+    "node.description=r91b_r91b_ns_connect"
+   ],
+   "dur_s": 0.011,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870926\n",
+   "stdout_sha256": "1f55172cf4cac3502d5edfffb87d06fe2c9ae543680628c534989f5580c37f45",
+   "timed_out": false
+  },
+  "ok": true,
+  "row": [
+   {
+    "args": "sink_name=r91b_ns_connect node.description=r91b_r91b_ns_connect",
+    "index": 536870926,
+    "name": "module-null-sink"
+   }
+  ]
+ },
+ "src_load": null,
+ "target_nodes": [
+  {
+   "name": "r91b_ns_connect",
+   "state": "suspended"
+  }
+ ],
+ "target_present_in_dump": true,
+ "timeline": [
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 0.0
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 0.31
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 0.62
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 0.93
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 1.23
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 1.53
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 1.84
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 2.15
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 2.46
+  },
+  {
+   "bytes": 0,
+   "links": [],
+   "t": 2.78
+  }
+ ]
+}

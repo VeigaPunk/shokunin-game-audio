@@ -1,0 +1,415 @@
+{
+ "argv": [
+  "pw-record",
+  "-P",
+  "node.name=r91b_c4",
+  "--target",
+  "r91b_src_connect",
+  "-n",
+  "1000000",
+  "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/C4_pwrecord_noprop_source.wav"
+ ],
+ "final_bytes": 536620,
+ "leg": "C4_pwrecord_noprop_source",
+ "links_ever": true,
+ "log_head": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/C4_pwrecord_noprop_source.wav\n",
+ "max_bytes": 536620,
+ "node_props": {
+  "adapt.follower.spa-node": "",
+  "application.name": "pw-record",
+  "client.id": 176,
+  "clock.quantum-limit": 8192,
+  "factory.id": 9,
+  "library.name": "audioconvert/libspa-audioconvert",
+  "media.category": "Capture",
+  "media.class": "Stream/Input/Audio",
+  "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/C4_pwrecord_noprop_source.wav",
+  "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/C4_pwrecord_noprop_source.wav",
+  "media.role": "Music",
+  "media.type": "Audio",
+  "node.async": true,
+  "node.autoconnect": true,
+  "node.loop.class": "main",
+  "node.loop.name": "main-loop",
+  "node.name": "r91b_c4",
+  "node.rate": "1/48000",
+  "node.want-driver": true,
+  "object.id": 224,
+  "object.register": false,
+  "object.serial": 139164,
+  "port.group": "stream.0",
+  "stream.is-live": true,
+  "target.object": "r91b_src_connect"
+ },
+ "node_state_last": "suspended",
+ "post_links": [
+  "r91b_ns_connect:monitor_FL",
+  "  |-> input.r91b_src_connect:input_FL",
+  "r91b_ns_connect:monitor_FR",
+  "  |-> input.r91b_src_connect:input_FR",
+  "r91b_src_connect:capture_FL",
+  "  |-> r91b_c4:input_FL",
+  "r91b_src_connect:capture_FR",
+  "  |-> r91b_c4:input_FR"
+ ],
+ "rc": -9,
+ "sink_load": null,
+ "src_load": {
+  "idx": 536870923,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-remap-source",
+    "source_name=r91b_src_connect",
+    "master=r91b_ns_connect.monitor"
+   ],
+   "dur_s": 0.011,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870923\n",
+   "stdout_sha256": "546a0ae50baa28ae689d4e1109050191daf8f2bf269a911f3bfe4b36e49816ca",
+   "timed_out": false
+  }
+ },
+ "target_nodes": [
+  {
+   "name": "r91b_src_connect",
+   "state": "suspended"
+  }
+ ],
+ "target_present_in_dump": true,
+ "timeline": [
+  {
+   "bytes": 4140,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 0.0
+  },
+  {
+   "bytes": 57388,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 0.31
+  },
+  {
+   "bytes": 110636,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 0.59
+  },
+  {
+   "bytes": 163884,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 0.87
+  },
+  {
+   "bytes": 217132,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 1.14
+  },
+  {
+   "bytes": 270380,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 1.41
+  },
+  {
+   "bytes": 323628,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 1.7
+  },
+  {
+   "bytes": 380972,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 1.99
+  },
+  {
+   "bytes": 434220,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 2.26
+  },
+  {
+   "bytes": 487468,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 2.54
+  },
+  {
+   "bytes": 536620,
+   "links": [
+    "r91b_ns_connect:monitor_FL",
+    "  |-> input.r91b_src_connect:input_FL",
+    "r91b_ns_connect:monitor_FR",
+    "  |-> input.r91b_src_connect:input_FR",
+    "r91b_src_connect:capture_FL",
+    "  |-> r91b_c4:input_FL",
+    "r91b_src_connect:capture_FR",
+    "  |-> r91b_c4:input_FR",
+    "input.r91b_src_connect:input_FL",
+    "  |<- r91b_ns_connect:monitor_FL",
+    "input.r91b_src_connect:input_FR",
+    "  |<- r91b_ns_connect:monitor_FR",
+    "r91b_c4:input_FL",
+    "  |<- r91b_src_connect:capture_FL",
+    "r91b_c4:input_FR",
+    "  |<- r91b_src_connect:capture_FR"
+   ],
+   "node_state": "suspended",
+   "props": {
+    "node.dont-reconnect": null,
+    "node.target": null,
+    "stream.capture.sink": null,
+    "target.object": "r91b_src_connect"
+   },
+   "stream_state": "running",
+   "t": 2.81
+  }
+ ]
+}

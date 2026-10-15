@@ -1,0 +1,67 @@
+{
+ "default_sink": {
+  "argv": [
+   "pactl",
+   "get-default-sink"
+  ],
+  "dur_s": 0.012,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\n",
+  "stdout_sha256": "a88530d6f6a4225d742be7a29be739eb8ae4bb4029efe7f4e45163c1c027a038",
+  "timed_out": false
+ },
+ "default_source": {
+  "argv": [
+   "pactl",
+   "get-default-source"
+  ],
+  "dur_s": 0.009,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "r91b_src1\n",
+  "stdout_sha256": "f7e442bfe57202e12b81a5b3f4c9b923b65b10374231ce48896973921e628f9e",
+  "timed_out": false
+ },
+ "loadavg": "84.41 82.89 84.26 98/2055 1989618",
+ "modules_short": {
+  "argv": [
+   "pactl",
+   "list",
+   "modules",
+   "short"
+  ],
+  "dur_s": 0.007,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870916\tmodule-null-sink\tsink_name=r91b_ns2 node.description=r91b_r91b_ns2\t\n536870921\tmodule-null-sink\tsink_name=r82c_tgt\t\n536870922\tmodule-null-sink\tsink_name=r91b_ns1 node.description=r91b_r91b_ns1\t\n536870923\tmodule-remap-source\tsource_name=r91b_src1 master=r91b_ns1.monitor\t\n536870924\tmodule-null-sink\tsink_name=r92b_in channels=1\t\n536870926\tmodule-null-sink\tsink_name=r91b_ns_connect node.description=r91b_r91b_ns_connect\t\n536870929\tmodule-null-sink\tsink_name=r91b_qtest\t\n",
+  "stdout_sha256": "0840bb197d3097fa4c1e4d2b0a1daa805c34bfe478f6c3e53187f9efb842ed19",
+  "timed_out": false
+ },
+ "pw_dump_objects": 133,
+ "pw_link_l": {
+  "argv": [
+   "pw-link",
+   "-l"
+  ],
+  "dur_s": 0.013,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "r91b_ns1:monitor_FL\n  |-> input.r91b_src1:input_FL\nr91b_ns1:monitor_FR\n  |-> input.r91b_src1:input_FR\ninput.r91b_src1:input_FL\n  |<- r91b_ns1:monitor_FL\ninput.r91b_src1:input_FR\n  |<- r91b_ns1:monitor_FR\nr92b_in:monitor_MONO\n  |-> r92b_ref:input_MONO\nr92b_ref:input_MONO\n  |<- r92b_in:monitor_MONO\n",
+  "stdout_sha256": "2e36c1cb3d5bcb55b1b8be5632341c38babc4d73d9d8318be054ddbd84275e30",
+  "timed_out": false
+ },
+ "r91b_residue": [
+  "r91b_qtest",
+  "r91b_ns_connect",
+  "r91b_ns1",
+  "r91b_ns2",
+  "r91b_src1"
+ ],
+ "tag": "exit",
+ "when": "2026-10-15T20:41:45Z"
+}

@@ -1,0 +1,100 @@
+{
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r91b_b9",
+  "target-object=r91b_ns1",
+  "num-buffers=1000000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/B9_noprop_sink_target.wav"
+ ],
+ "child_env": {},
+ "classify": {
+  "bytes_at_unload": null,
+  "bytes_first_post": null,
+  "bytes_last_post": null,
+  "exit_rc": 255,
+  "flat_post": false,
+  "frozen_final": false,
+  "grows_post": false,
+  "head": {
+   "head_hex": "",
+   "too_short": 0
+  },
+  "killed": null,
+  "post_growth": null,
+  "samples": 1
+ },
+ "first_state_drop": null,
+ "leg": "B9_noprop_sink_target_r0",
+ "manual_t": null,
+ "name": "B9_noprop_sink_target",
+ "node_props_at_connect": null,
+ "post_unload_links": [],
+ "rep": 0,
+ "resumed_after_manual": null,
+ "run": {
+  "argv": [
+   "gst-launch-1.0",
+   "-q",
+   "pipewiresrc",
+   "client-name=gst_r91b_b9",
+   "target-object=r91b_ns1",
+   "num-buffers=1000000",
+   "!",
+   "audio/x-raw,format=S16LE,rate=48000,channels=2",
+   "!",
+   "wavenc",
+   "!",
+   "filesink",
+   "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-boundary/tmp/B9_noprop_sink_target.wav"
+  ],
+  "byte_cap_bytes": 4194304,
+  "child_env": {},
+  "combined_log_head": "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found\nAdditional debug info:\n../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0\nERROR: pipeline doesn't want to preroll.\nFailed to set pipeline to PAUSED.\n",
+  "combined_log_len": 316,
+  "combined_log_sha256": "b46ee0295f66b4c97d714f21467d6b4e916e4fdcc06d6eef4bd208f21d38816c",
+  "elapsed_s": 0.06,
+  "killed": null,
+  "rc": 255,
+  "timeline": [
+   {
+    "file_bytes": 0,
+    "links_relevant": [
+     "r91b_ns_res2:monitor_FL",
+     "  |-> gst_r91b_resume:input_FL",
+     "r91b_ns_res2:monitor_FR",
+     "  |-> gst_r91b_resume:input_FR",
+     "r91b_ns_res2:playback_FL",
+     "  |<- r91b_tone_rl:output_FL",
+     "r91b_ns_res2:playback_FR",
+     "  |<- r91b_tone_rl:output_FR",
+     "r91b_tone_rl:output_FL",
+     "  |-> r91b_ns_res2:playback_FL",
+     "r91b_tone_rl:output_FR",
+     "  |-> r91b_ns_res2:playback_FR",
+     "gst_r91b_resume:input_FL",
+     "  |<- r91b_ns_res2:monitor_FL",
+     "gst_r91b_resume:input_FR",
+     "  |<- r91b_ns_res2:monitor_FR"
+    ],
+    "t": 0.0
+   }
+  ],
+  "unload_at": 1.2,
+  "unload_result": null,
+  "unload_t": null,
+  "wall_cap_s": 5.0
+ },
+ "state_seq": [
+  null
+ ],
+ "unload_result": null,
+ "unload_t": null
+}
