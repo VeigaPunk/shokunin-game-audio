@@ -1,0 +1,442 @@
+{
+ "checks": [
+  {
+   "claim": "7 in / 7 out / 7 notify, exact names",
+   "from_receipts": true,
+   "id": "C1.port_table",
+   "match": true,
+   "note": "",
+   "report_says": "n_input:7 n_output:7 n_notify:7"
+  },
+  {
+   "claim": "own reference matches <=1e-5 dB, 6 amplitudes",
+   "from_receipts": {
+    "deltas": [
+     0.0,
+     1e-06
+    ],
+    "n": 18
+   },
+   "id": "C3.amp_exact",
+   "match": true,
+   "note": "",
+   "report_says": "max |delta| <= 1e-5"
+  },
+  {
+   "claim": "amp 0.5 Momentary = -9.024196",
+   "from_receipts": [
+    -9.024196
+   ],
+   "id": "C3.amp_050",
+   "match": true,
+   "note": "",
+   "report_says": [
+    -9.024196
+   ]
+  },
+  {
+   "claim": "all 7 input ports read the same Momentary",
+   "from_receipts": {
+    "n_legs": 21,
+    "values": [
+     -9.024196
+    ]
+   },
+   "id": "C4.portmap_mom",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "n_legs": 21,
+    "values": [
+     -9.024196
+    ]
+   }
+  },
+  {
+   "claim": "FL tone + FR silence -> Momentary -inf",
+   "from_receipts": {
+    "fl_tone_fr_silence": null,
+    "n_inf": [
+     387,
+     388
+    ]
+   },
+   "id": "C6.fl_silence_inf",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "fl_tone_fr_silence": null
+   }
+  },
+  {
+   "claim": "FL 0.5 + FR 0.05 -> -19.024195 (dB mean)",
+   "from_receipts": [
+    -19.024195
+   ],
+   "id": "C5.mix_dbmean",
+   "match": true,
+   "note": "",
+   "report_says": [
+    -19.024195
+   ]
+  },
+  {
+   "claim": "gating Momentary byte-stable 3/3",
+   "from_receipts": [
+    -9.024196
+   ],
+   "id": "C7.gate_mom_byte_stable",
+   "match": true,
+   "note": "",
+   "report_says": [
+    -9.024196
+   ]
+  },
+  {
+   "claim": "gated Global ~ -9.64",
+   "from_receipts": [
+    -9.645606,
+    -9.63839
+   ],
+   "id": "C7.gate_global",
+   "match": true,
+   "note": "spread 0.0072",
+   "report_says": "~-9.64"
+  },
+  {
+   "claim": "use-histogram agrees within 0.04 dB",
+   "from_receipts": {
+    "default": [
+     -9.645606,
+     -9.63839
+    ],
+    "hist": [
+     -9.68326,
+     -9.660108
+    ],
+    "max_abs_diff": 0.0449
+   },
+   "id": "C7.gate_histogram",
+   "match": false,
+   "note": "",
+   "report_says": "<=0.04 dB"
+  },
+  {
+   "claim": "Window-only: 241/241 NaN, 3/3 reps",
+   "from_receipts": {
+    "counts": [
+     [
+      241,
+      241
+     ],
+     [
+      242,
+      242
+     ]
+    ]
+   },
+   "id": "C8.window_only_nan",
+   "match": true,
+   "note": "line count varies with leg timing",
+   "report_says": {
+    "counts": [
+     [
+      241,
+      241
+     ]
+    ]
+   }
+  },
+  {
+   "claim": "Peak: In FL 0.5 / DUAL MONO 0.0 / stereo 0.2",
+   "from_receipts": {
+    "peak_mono_dual_Peak_r0": 0.0,
+    "peak_mono_dual_TruePeak_r0": 0.0,
+    "peak_mono_fl_Peak_r0": 0.5,
+    "peak_mono_fl_TruePeak_r0": 0.5
+   },
+   "id": "C9.peaks",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "peak_mono_dual_Peak_r0": 0.0,
+    "peak_mono_dual_TruePeak_r0": 0.0,
+    "peak_mono_fl_Peak_r0": 0.5,
+    "peak_mono_fl_TruePeak_r0": 0.5
+   }
+  },
+  {
+   "claim": "max-window absent -> NaN only",
+   "from_receipts": {
+    "null": null
+   },
+   "id": "C10.window_default_nan",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "null": null
+   }
+  },
+  {
+   "claim": "max-window=2.0 -> -9.024196",
+   "from_receipts": -9.024196,
+   "id": "C10.window_2s",
+   "match": true,
+   "note": "",
+   "report_says": -9.024196
+  },
+  {
+   "claim": "burst+5s silence: default ~-9.83 (no eviction)",
+   "from_receipts": {
+    "spread": 0.025784,
+    "values": [
+     -9.843719,
+     -9.836872,
+     -9.829486,
+     -9.817935
+    ]
+   },
+   "id": "C11.history_no_evict",
+   "match": true,
+   "note": "",
+   "report_says": "~-9.83"
+  },
+  {
+   "claim": "two bursts: default -11.49..-11.56 vs 2.0s -15.5x",
+   "from_receipts": {
+    "cap2": [
+     -15.665262,
+     -15.538132
+    ],
+    "default": [
+     -11.558731,
+     -11.492739
+    ]
+   },
+   "id": "C11b.hist2_evict",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "cap2": "~-15.5",
+    "default": [
+     -11.492739
+    ]
+   }
+  },
+  {
+   "claim": "target 0 -> 2.945159 (3/3)",
+   "from_receipts": [
+    2.945159
+   ],
+   "id": "C12.gain_target0",
+   "match": true,
+   "note": "",
+   "report_says": [
+    2.945159
+   ]
+  },
+  {
+   "claim": "digital silence -> 1.0 (3/3)",
+   "from_receipts": [
+    1.0
+   ],
+   "id": "C12.gain_silence",
+   "match": true,
+   "note": "",
+   "report_says": [
+    1.0
+   ]
+  },
+  {
+   "claim": "target -100 clamped -> 0.000932 (6/6 across two arms)",
+   "from_receipts": {
+    "ctlgrammar": [
+     0.000932
+    ],
+    "implied_global": [
+     -40.7559,
+     -27.4443
+    ],
+    "l2gcheck_gain_tail": [
+     0.000932,
+     0.000944
+    ],
+    "lufs2gain_arm": [
+     0.007451,
+     0.034498
+    ]
+   },
+   "id": "C12.gain_clamp",
+   "match": false,
+   "note": "the lufs2gain arm itself is 0/3 clean; report \u00a73.9 calls it 'the first run'",
+   "report_says": {
+    "ctlgrammar": [
+     0.000932
+    ],
+    "l2gcheck": [
+     0.000932
+    ]
+   }
+  },
+  {
+   "claim": "unquoted key -> load failure 3/3",
+   "from_receipts": {
+    "load_ok": [
+     false
+    ],
+    "n": 3,
+    "parse_err": true
+   },
+   "id": "C13.ctl_raw_fails",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "load_ok": [
+     false
+    ],
+    "n": 3
+   }
+  },
+  {
+   "claim": "debug/ramp/zeroramp/sqrt/busy load; null/avg/sum fail",
+   "from_receipts": {
+    "avg": false,
+    "busy": true,
+    "debug": true,
+    "null": false,
+    "ramp": true,
+    "sqrt": true,
+    "sum": false,
+    "zeroramp": true
+   },
+   "id": "C14.labels",
+   "match": true,
+   "note": "",
+   "report_says": {
+    "avg": false,
+    "busy": true,
+    "debug": true,
+    "null": false,
+    "ramp": true,
+    "sqrt": true,
+    "sum": false,
+    "zeroramp": true
+   }
+  },
+  {
+   "claim": "null fails in every shape with an audio path",
+   "from_receipts": {
+    "copy_only_control": [
+     true
+    ],
+    "null_only_outnull": [
+     false
+    ],
+    "null_plus_copy": [
+     false
+    ]
+   },
+   "id": "C14b.null_shapes",
+   "match": true,
+   "note": "copy_only_control (no null label) loads by design",
+   "report_says": {
+    "null_only_outnull": [
+     false
+    ],
+    "null_plus_copy": [
+     false
+    ]
+   }
+  },
+  {
+   "claim": "max_abs_diff = 0.0 at lag 0/+/-1024 (3/3)",
+   "from_receipts": [
+    {
+     "best_lag": 1024,
+     "lag": 1024,
+     "max_abs_diff": 0.0
+    },
+    {
+     "best_lag": null,
+     "lag": -1024,
+     "max_abs_diff": null
+    },
+    {
+     "best_lag": 0,
+     "lag": 0,
+     "max_abs_diff": 0.0
+    }
+   ],
+   "id": "C15.bit_exact",
+   "match": false,
+   "note": "rep with lag=-1024 has best_lag=None: the -1024 case was never evaluated",
+   "report_says": {
+    "diffs": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "lags": [
+     0,
+     1024,
+     -1024
+    ]
+   }
+  },
+  {
+   "claim": "plugin - own reference = -0.128 dB (amp family)",
+   "from_receipts": {
+    "amp_family": [
+     -0.148584,
+     -0.127608,
+     -0.127607,
+     -0.127606,
+     -0.127565
+    ],
+    "gating_program": [
+     -0.12087,
+     -0.117636,
+     -0.117165,
+     -0.095918
+    ]
+   },
+   "id": "C16.global_offset",
+   "match": true,
+   "note": "amp family only; gating program offsets are [-0.12087, -0.117636, -0.117165, -0.095918]",
+   "report_says": "[-0.128, -0.149]"
+  },
+  {
+   "claim": "offset is amplitude-independent",
+   "from_receipts": {
+    "amp_family": [
+     -0.148584,
+     -0.127608,
+     -0.127607,
+     -0.127606,
+     -0.127565
+    ],
+    "gating_program": [
+     -0.12087,
+     -0.117636,
+     -0.117165,
+     -0.095918
+    ]
+   },
+   "id": "C16b.global_offset_program",
+   "match": false,
+   "note": "scout's own receipts: amp [-0.148584, -0.127608, -0.127607, -0.127606, -0.127565] vs gating [-0.12087, -0.117636, -0.117165, -0.095918] (span 0.0210)",
+   "report_says": "same -0.128 for every program"
+  },
+  {
+   "claim": "273 stage legs",
+   "from_receipts": 273,
+   "id": "S3.leg_count",
+   "match": true,
+   "note": "",
+   "report_says": 273
+  }
+ ],
+ "n_checks": 25,
+ "n_mismatch": 4,
+ "stage": "scout_audit"
+}
