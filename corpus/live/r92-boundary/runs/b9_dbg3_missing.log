@@ -1,0 +1,994 @@
+[I][18:15:11.082355] pw.context   | [      pipewire.c:  592 pw_init()] version 1.6.8
+[I][18:15:11.087460] pw.conf      | [          conf.c:  420 conf_load()] 0x55b16090b1b0: loaded config '/usr/share/pipewire/client.conf' with 8 items
+[I][18:15:11.087557] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'context.properties'
+[I][18:15:11.087597] pw.context   | [       context.c:  473 pw_context_new()] 0x55b160909da0: parsed 1 context.properties items
+[I][18:15:11.087642] pw.context   | [       context.c:  272 setup_data_loops()] created data loop 'data-loop.0'
+[I][18:15:11.087664] pw.context   | [       context.c:  275 setup_data_loops()] created 1 data-loops
+[I][18:15:11.087867] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'context.spa-libs'
+[I][18:15:11.087925] pw.context   | [       context.c:  567 pw_context_new()] 0x55b160909da0: parsed 3 context.spa-libs items
+[I][18:15:11.087953] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'context.modules'
+[I][18:15:11.087983] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-rt args:{
+            #rt.prio      = 83
+            #rt.time.soft = -1
+            #rt.time.hard = -1
+            #rlimits.enabled = true
+            #rtportal.enabled = true
+            #rtkit.enabled = true
+            #uclamp.min = 0
+            #uclamp.max = 1024
+        }
+[I][18:15:11.088070] mod.rt       | [     module-rt.c: 1112 pipewire__module_init()] invalid nice level 20 (not between -20 and 19). nice level will not be adjusted
+[I][18:15:11.088132] mod.rt       | [     module-rt.c:  589 check_realtime_privileges()] failed to set realtime policy: Operation not permitted
+[I][18:15:11.092005] mod.rt       | [     module-rt.c:  554 check_realtime_privileges()] Clamp rtprio 83 to 0
+[I][18:15:11.092031] mod.rt       | [     module-rt.c:  562 check_realtime_privileges()] Priority max (0) must be at least 11
+[I][18:15:11.092050] mod.rt       | [     module-rt.c:  598 check_realtime_privileges()] can't set rt prio to 83 (try increasing rlimits)
+[I][18:15:11.095592] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x55b160918908 created queue 0x55b160919080 idx:0 0x7fb0cfa6b780
+[I][18:15:11.095615] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-rt
+[I][18:15:11.095622] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-protocol-native args:(null)
+[I][18:15:11.095715] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-protocol-native
+[I][18:15:11.095723] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-client-node args:(null)
+[I][18:15:11.095774] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-client-node
+[I][18:15:11.095780] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-client-device args:(null)
+[I][18:15:11.095814] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-client-device
+[I][18:15:11.095818] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-adapter args:(null)
+[I][18:15:11.095852] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-adapter
+[I][18:15:11.095857] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-metadata args:(null)
+[I][18:15:11.095895] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-metadata
+[I][18:15:11.095900] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-session-manager args:(null)
+[I][18:15:11.095949] pw.conf      | [          conf.c:  615 load_module()] 0x55b160909da0: loaded module libpipewire-module-session-manager
+[I][18:15:11.095955] pw.context   | [       context.c:  571 pw_context_new()] 0x55b160909da0: parsed 7 context.modules items
+[I][18:15:11.095959] pw.context   | [       context.c:  576 pw_context_new()] 0x55b160909da0: parsed 0 context.objects items
+[I][18:15:11.095963] pw.context   | [       context.c:  579 pw_context_new()] 0x55b160909da0: parsed 0 context.exec items
+[I][18:15:11.095968] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:log.level type: value:0
+[I][18:15:11.095972] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.rate type: value:48000
+[I][18:15:11.095977] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.allowed-rates type: value:[ 48000 ]
+[I][18:15:11.095980] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.quantum type: value:1024
+[I][18:15:11.095984] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.min-quantum type: value:32
+[I][18:15:11.095987] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.max-quantum type: value:2048
+[I][18:15:11.095990] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.force-quantum type: value:0
+[I][18:15:11.095994] pw.metadata  | [ impl-metadata.c:  186 impl_set_property()] 0x55b160913000: add id:0 key:clock.force-rate type: value:0
+[I][18:15:11.095999] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-link-factory args:(null)
+[I][18:15:11.096060] mod.protocol-native | [  local-socket.c:   72 try_connect()] connecting to 'pipewire-0' runtime_dir:/run/user/1000
+Welcome to PipeWire version 1.6.8. Type 'help' for usage.
+>> remote 0 is named 'pipewire-0'
+Error: "unsupported type PipeWire:Interface:SecurityContext"
+Error: "unsupported type PipeWire:Interface:Profiler"
+remote 0 added global: 	id 208, type PipeWire:Interface:Client/3
+ 		object.serial = "163053"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 208, type PipeWire:Interface:Client/3
+ 		object.serial = "163053"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+pipewire-0>> load-module libpipewire-module-filter-chain node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=cv,label=convolver,config={filename=/nonexistent/r92b_ir.wav}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}
+[I][18:15:12.361486] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55b160909da0: name:libpipewire-module-filter-chain args:node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=cv,label=convolver,config={filename=/nonexistent/r92b_ir.wav}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}
+[I][18:15:12.361938] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'(null)' class:'(null)'
+[I][18:15:12.362022] pw.context   | [       context.c:  287 data_loop_start()] starting data loop data-loop.0
+[I][18:15:12.364953] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x55b16090eac8 created queue 0x55b1609b17b0 idx:0 0x7fb0cfa6b780
+[I][18:15:12.365029] mod.rt       | [     module-rt.c:  831 do_make_realtime()] clamping requested priority 83 for thread 2961767 between 1  and 1
+[I][18:15:12.365106] mod.rt       | [     module-rt.c:  841 do_make_realtime()] acquired realtime priority 1 for thread 2961767 using RTKit
+[I][18:15:12.365161] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643465965194
+[I][18:15:12.365540] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver
+[I][18:15:12.365628] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'(null)' class:'(null)'
+[I][18:15:12.365661] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643469604368
+[I][18:15:12.366240] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'
+[I][18:15:12.366297] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0
+[I][18:15:12.366322] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0
+[I][18:15:12.366344] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0
+[I][18:15:12.366367] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1
+[I][18:15:12.366394] mod.filter-chain | [module-filter-ch: 1791 graph_info()] n_inputs 0
+[I][18:15:12.366417] mod.filter-chain | [module-filter-ch: 1791 graph_info()] n_outputs 0
+[I][18:15:12.366437] mod.filter-chain | [module-filter-ch: 1791 graph_info()] n_default_inputs 1
+[I][18:15:12.366457] mod.filter-chain | [module-filter-ch: 1791 graph_info()] n_default_outputs 1
+[I][18:15:12.366479] mod.filter-chain | [module-filter-ch: 1791 graph_info()] latency 0.000000
+[I][18:15:12.366560] mod.protocol-native | [  local-socket.c:   72 try_connect()] connecting to 'pipewire-0' runtime_dir:/run/user/1000
+[I][18:15:12.366676] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'stream.properties'
+[I][18:15:12.366712] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'stream.properties'
+[I][18:15:12.366753] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'stream.rules'
+[I][18:15:12.366797] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'(null)' class:'(null)'
+[I][18:15:12.366824] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643470766979
+[I][18:15:12.366849] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:16643470766979
+[I][18:15:12.366896] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'data-loop.0' class:'(null)'
+[I][18:15:12.366953] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643470896169
+[I][18:15:12.367169] spa.audioadapter | [  audioadapter.c: 2193 impl_init()] 0x55b1609ee078: loaded converter audio.convert, hnd 0x7fb0cd66c010, convert 0x7fb0cd66c028
+[I][18:15:12.367228] spa.audioadapter | [  audioadapter.c: 1254 follower_convert_port_info()] new EnumFormat from converter
+[I][18:15:12.367260] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55b1609e58c0: set output/input latency 0.000000-0.000000 0-0 0-0
+[I][18:15:12.367302] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'data-loop.0' class:'(null)'
+[I][18:15:12.367329] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643471272780
+[I][18:15:12.367394] pw.node      | [     impl-node.c: 1189 check_properties()] 0x55b1609ff9e0: group '(null)'->'filter-chain-2951339-22'
+[I][18:15:12.367421] pw.node      | [     impl-node.c: 1202 check_properties()] 0x55b1609ff9e0: link group '(null)'->'filter-chain-2951339-22'
+[I][18:15:12.367445] pw.node      | [     impl-node.c: 1216 check_properties()] 0x55b1609ff9e0: sync group '(null)'->'group.sync.0'
+[I][18:15:12.367479] pw.node      | [     impl-node.c:  509 node_update_state()] (r92b_fc_in-0) creating -> suspended
+[I][18:15:12.367562] pw.conf      | [          conf.c: 1116 pw_conf_section_for_each()] handle config '/usr/share/pipewire/client.conf' section 'stream.rules'
+[I][18:15:12.367609] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'(null)' class:'(null)'
+[I][18:15:12.367632] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643471575390
+[I][18:15:12.367654] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:16643471575390
+[I][18:15:12.367680] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'data-loop.0' class:'(null)'
+[I][18:15:12.367703] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643471646290
+[I][18:15:12.367754] spa.audioadapter | [  audioadapter.c: 2193 impl_init()] 0x55b160a03628: loaded converter audio.convert, hnd 0x7fb0cd634010, convert 0x7fb0cd634028
+[I][18:15:12.367783] spa.audioadapter | [  audioadapter.c: 1254 follower_convert_port_info()] new EnumFormat from converter
+[I][18:15:12.367808] pw.stream    | [        stream.c:  907 parse_latency()] stream 0x55b1609e71e0: set input/output latency 0.000000-0.000000 0-0 0-0
+[I][18:15:12.367884] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x55b160909da0: looking for name:'data-loop.0' class:'(null)'
+[I][18:15:12.367909] pw.context   | [       context.c:  782 acquire_data_loop()] 0x55b160909da0: using name:'data-loop.0' class:'data.rt' last_used:16643471852270
+[I][18:15:12.367955] pw.node      | [     impl-node.c: 1189 check_properties()] 0x55b160a18c20: group '(null)'->'filter-chain-2951339-22'
+[I][18:15:12.367978] pw.node      | [     impl-node.c: 1202 check_properties()] 0x55b160a18c20: link group '(null)'->'filter-chain-2951339-22'
+[I][18:15:12.368000] pw.node      | [     impl-node.c: 1216 check_properties()] 0x55b160a18c20: sync group '(null)'->'group.sync.0'
+[I][18:15:12.368030] pw.node      | [     impl-node.c:  509 node_update_state()] (r92b_fc_out-0) creating -> suspended
+1 = @module:22
+pipewire-0>> remote 0 added global: 	id 208, type PipeWire:Interface:Client/3
+ 		object.serial = "163054"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2951339"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pw-cli"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 96, type PipeWire:Interface:Node/3
+ 		object.serial = "163055"
+ 		factory.id = "9"
+ 		client.id = "208"
+ 		node.description = "r92b_fc"
+ 		node.name = "r92b_fc_in"
+ 		media.class = "Audio/Sink"
+remote 0 added global: 	id 94, type PipeWire:Interface:Node/3
+ 		object.serial = "163056"
+ 		factory.id = "9"
+ 		client.id = "208"
+ 		node.description = "r92b_fc"
+ 		node.name = "r92b_fc_out"
+ 		media.class = "Stream/Output/Audio"
+[I][18:15:12.374334] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x55b160909da0: busy:0 reason:node flags changed
+remote 0 node 96 changed
+remote 0 node 96 changed
+remote 0 added global: 	id 162, type PipeWire:Interface:Port/3
+ 		object.serial = "163057"
+ 		object.path = "r92b_fc_in:playback_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "96"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "playback_MONO"
+ 		port.direction = "in"
+ 		port.alias = "r92b_fc:playback_MONO"
+ 		port.group = "stream.0"
+remote 0 added global: 	id 135, type PipeWire:Interface:Port/3
+ 		object.serial = "163058"
+ 		object.path = "r92b_fc_in:monitor_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "96"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "monitor_MONO"
+ 		port.direction = "out"
+ 		port.monitor = "true"
+ 		port.alias = "r92b_fc:monitor_MONO"
+ 		port.group = "stream.0"
+remote 0 node 96 changed
+remote 0 node 96 changed
+[I][18:15:12.377458] pw.context   | [       context.c: 1446 pw_context_recalc_graph()] 0x55b160909da0: busy:0 reason:node flags changed
+remote 0 node 94 changed
+remote 0 node 94 changed
+remote 0 added global: 	id 160, type PipeWire:Interface:Port/3
+ 		object.serial = "163059"
+ 		object.path = "r92b_fc_out:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "94"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "r92b_fc:output_MONO"
+ 		port.group = "stream.0"
+remote 0 node 94 changed
+remote 0 node 94 changed
+remote 0 link 152 changed
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 port 123 changed
+remote 0 removed global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163049"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 removed global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163048"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163047"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163046"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 node 106 changed
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163060"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163060"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163061"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163061"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163062"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163062"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163063"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163063"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163064"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163064"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163065"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 added global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163066"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 added global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163067"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 added global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163068"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 port 123 changed
+remote 0 node 87 changed
+remote 0 port 86 changed
+remote 0 port 86 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 106 changed
+remote 0 added global: 	id 144, type PipeWire:Interface:Client/3
+ 		object.serial = "163069"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 144, type PipeWire:Interface:Client/3
+ 		object.serial = "163069"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 link 152 changed
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 port 123 changed
+remote 0 removed global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163068"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 removed global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163067"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163066"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163065"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 node 106 changed
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163070"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163070"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163071"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163071"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163072"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163072"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163073"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163073"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163074"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163074"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163075"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 added global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163076"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 added global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163077"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 added global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163078"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 port 123 changed
+remote 0 node 87 changed
+remote 0 port 86 changed
+remote 0 port 86 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 106 changed
+remote 0 added global: 	id 144, type PipeWire:Interface:Client/3
+ 		object.serial = "163079"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 144 changed
+remote 0 removed global: 	id 144, type PipeWire:Interface:Client/3
+ 		object.serial = "163079"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 link 72 changed
+remote 0 node 54 changed
+remote 0 port 70 changed
+remote 0 port 143 changed
+remote 0 port 143 changed
+remote 0 removed global: 	id 72, type PipeWire:Interface:Link/3
+ 		object.serial = "163014"
+ 		factory.id = "21"
+ 		link.output.port = "143"
+ 		link.input.port = "225"
+ 		link.output.node = "232"
+ 		link.input.node = "54"
+remote 0 removed global: 	id 225, type PipeWire:Interface:Port/3
+ 		object.serial = "163000"
+ 		object.path = "r93b_fc_in:playback_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "54"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "playback_MONO"
+ 		port.direction = "in"
+ 		port.alias = "r93b_fc:playback_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 66, type PipeWire:Interface:Port/3
+ 		object.serial = "163001"
+ 		object.path = "r93b_fc_in:monitor_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "54"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "monitor_MONO"
+ 		port.direction = "out"
+ 		port.monitor = "true"
+ 		port.alias = "r93b_fc:monitor_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 54, type PipeWire:Interface:Node/3
+ 		object.serial = "162998"
+ 		factory.id = "9"
+ 		client.id = "100"
+ 		node.description = "r93b_fc"
+ 		node.name = "r93b_fc_in"
+ 		media.class = "Audio/Sink"
+remote 0 node 216 changed
+remote 0 removed global: 	id 210, type PipeWire:Interface:Port/3
+ 		object.serial = "163002"
+ 		object.path = "r93b_fc_out:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "216"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "r93b_fc:output_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 216, type PipeWire:Interface:Node/3
+ 		object.serial = "162999"
+ 		factory.id = "9"
+ 		client.id = "100"
+ 		node.description = "r93b_fc"
+ 		node.name = "r93b_fc_out"
+ 		media.class = "Stream/Output/Audio"
+remote 0 removed global: 	id 100, type PipeWire:Interface:Client/3
+ 		object.serial = "162997"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2898865"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pw-cli"
+ 		pipewire.access = "unrestricted"
+remote 0 node 232 changed
+remote 0 link 152 changed
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 port 123 changed
+remote 0 removed global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163078"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 removed global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163077"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163076"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163075"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 node 106 changed
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163080"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163080"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163081"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163081"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163082"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163082"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163083"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163083"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163084"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 removed global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163084"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 added global: 	id 150, type PipeWire:Interface:Client/3
+ 		object.serial = "163085"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "paplay"
+ 		pipewire.access = "unrestricted"
+remote 0 client 150 changed
+remote 0 added global: 	id 87, type PipeWire:Interface:Node/3
+ 		object.serial = "163086"
+ 		factory.id = "7"
+ 		client.id = "150"
+ 		client.api = "pipewire-pulse"
+ 		application.name = "paplay"
+ 		node.name = "paplay"
+ 		media.class = "Stream/Output/Audio"
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 added global: 	id 86, type PipeWire:Interface:Port/3
+ 		object.serial = "163087"
+ 		object.path = "paplay:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "87"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "paplay:output_MONO"
+ 		port.group = "stream.0"
+remote 0 node 87 changed
+remote 0 port 123 changed
+remote 0 port 97 changed
+remote 0 added global: 	id 152, type PipeWire:Interface:Link/3
+ 		object.serial = "163088"
+ 		factory.id = "21"
+ 		client.id = "33"
+ 		link.output.port = "86"
+ 		link.input.port = "123"
+ 		link.output.node = "87"
+ 		link.input.node = "106"
+remote 0 port 123 changed
+remote 0 node 87 changed
+remote 0 link 152 changed
+remote 0 link 152 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 87 changed
+remote 0 node 106 changed
+remote 0 added global: 	id 100, type PipeWire:Interface:Client/3
+ 		object.serial = "163089"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+remote 0 removed global: 	id 100, type PipeWire:Interface:Client/3
+ 		object.serial = "163089"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2694"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pactl"
+ 		pipewire.access = "unrestricted"
+unload-module 1
+[I][18:15:16.653448] mod.filter-chain | [module-filter-ch: 1481 capture_state_changed()] module 0x55b1609aef70: unconnected
+[I][18:15:16.653678] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r92b_fc_in-96) destroy
+[I][18:15:16.653750] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:16643471852270
+[I][18:15:16.653792] mod.filter-chain | [module-filter-ch: 1575 playback_state_changed()] module 0x55b1609aef70: unconnected
+[I][18:15:16.653809] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r92b_fc_out-94) destroy
+[I][18:15:16.653878] pw.context   | [       context.c:  828 pw_context_release_loop()] release name:'data-loop.0' class:'data.rt' last_used:16643471852270
+[I][18:15:16.653910] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x55b160908c78 created queue 0x55b160a1efb0 idx:0 0x7fb0cfa6b780
+pipewire-0>> remote 0 removed global: 	id 162, type PipeWire:Interface:Port/3
+ 		object.serial = "163057"
+ 		object.path = "r92b_fc_in:playback_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "96"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "playback_MONO"
+ 		port.direction = "in"
+ 		port.alias = "r92b_fc:playback_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 135, type PipeWire:Interface:Port/3
+ 		object.serial = "163058"
+ 		object.path = "r92b_fc_in:monitor_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "96"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "monitor_MONO"
+ 		port.direction = "out"
+ 		port.monitor = "true"
+ 		port.alias = "r92b_fc:monitor_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 96, type PipeWire:Interface:Node/3
+ 		object.serial = "163055"
+ 		factory.id = "9"
+ 		client.id = "208"
+ 		node.description = "r92b_fc"
+ 		node.name = "r92b_fc_in"
+ 		media.class = "Audio/Sink"
+remote 0 removed global: 	id 160, type PipeWire:Interface:Port/3
+ 		object.serial = "163059"
+ 		object.path = "r92b_fc_out:output_0"
+ 		format.dsp = "32 bit float mono audio"
+ 		node.id = "94"
+ 		audio.channel = "MONO"
+ 		port.id = "0"
+ 		port.name = "output_MONO"
+ 		port.direction = "out"
+ 		port.alias = "r92b_fc:output_MONO"
+ 		port.group = "stream.0"
+remote 0 removed global: 	id 94, type PipeWire:Interface:Node/3
+ 		object.serial = "163056"
+ 		factory.id = "9"
+ 		client.id = "208"
+ 		node.description = "r92b_fc"
+ 		node.name = "r92b_fc_out"
+ 		media.class = "Stream/Output/Audio"
+remote 0 removed global: 	id 208, type PipeWire:Interface:Client/3
+ 		object.serial = "163054"
+ 		module.id = "2"
+ 		pipewire.protocol = "protocol-native"
+ 		pipewire.sec.pid = "2951339"
+ 		pipewire.sec.uid = "1000"
+ 		pipewire.sec.gid = "1000"
+ 		pipewire.sec.socket = "pipewire-0"
+ 		application.name = "pw-cli"
+ 		pipewire.access = "unrestricted"

@@ -1,0 +1,1897 @@
+{
+ "elapsed_s": 249.9,
+ "final": {
+  "modules": [],
+  "nodes": [],
+  "procs": []
+ },
+ "graphs": {
+  "bqraw-coefcfg": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=r,label=bq_raw,config={coefficients=[1.0,0.0,0.0,1.0,0.0,0.0]}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "raw label, coeffs via config",
+   "rbj": null,
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "fcb9ae1364a15cec",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=r,label=bq_raw,config={coefficients=[1.0,0.0,0.0,1.0,0.0,0.0]}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:26:48.057540] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:26:48.057574] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:26:48.057605] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:26:48.057633] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:26:48.057670] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:26:48.057700] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:26:48.057725] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:26:48.057750] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:26:48.057778] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:26:48.057803] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:26:48.057827] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:26:48.057859] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 81 changed\nremote 0 removed global: \tid 81, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"170848\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"3261289\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 483
+     },
+     "play": {
+      "dur": 4.119,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.249,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefcfg_out_bqraw-coefcfg_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.25,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefcfg_ref_bqraw-coefcfg_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 446508,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 223232,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "824aa4dd39437bef",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=r,label=bq_raw,config={coefficients=[1.0,0.0,0.0,1.0,0.0,0.0]}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:27:07.863176] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:27:07.863188] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:27:07.863198] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:27:07.863210] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:27:07.863221] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:27:07.863232] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:27:07.863242] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:27:07.863252] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:27:07.863262] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:27:07.863271] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:27:07.863281] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:27:07.863293] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "t.port = \"217\"\n \t\tlink.output.node = \"45\"\n \t\tlink.input.node = \"87\"\nremote 0 port 97 changed\nremote 0 port 217 changed\nremote 0 node 45 changed\nremote 0 port 103 changed\nremote 0 node 45 changed\nremote 0 port 103 changed\nremote 0 port 117 changed\nremote 0 port 117 changed\nremote 0 port 103 changed\nremote 0 port 117 changed\nremote 0 port 99 changed\nremote 0 node 69 changed\nremote 0 port 66 changed\nremote 0 node 69 changed\nremote 0 node 45 changed\nremote 0 node 45 changed\nremote 0 node 45 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 623
+     },
+     "play": {
+      "dur": 4.122,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870921
+      ],
+      "err": "",
+      "expected": 536870921,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.255,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefcfg_out_bqraw-coefcfg_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.256,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefcfg_ref_bqraw-coefcfg_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    }
+   ]
+  },
+  "bqraw-coefctl": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw,control={b0=1.0,b1=0.0,b2=0.0,a0=1.0,a1=0.0,a2=0.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "raw label, coeffs via control",
+   "rbj": null,
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 446508,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 223232,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "c11c52a6d3038012",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw,control={b0=1.0,b1=0.0,b2=0.0,a0=1.0,a1=0.0,a2=0.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:25:17.773436] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:25:17.773440] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:25:17.773444] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:25:17.773450] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:25:17.773455] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:25:17.773459] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:25:17.773464] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:25:17.773468] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:25:17.773472] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:25:17.773476] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:25:17.773480] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:25:17.773487] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "135 changed\nremote 0 node 90 changed\nremote 0 port 72 changed\nremote 0 node 225 changed\nremote 0 port 108 changed\nremote 0 port 217 changed\nremote 0 port 128 changed\nremote 0 port 87 changed\nremote 0 port 208 changed\nremote 0 port 135 changed\nremote 0 node 90 changed\nremote 0 node 200 changed\nremote 0 node 200 changed\nremote 0 node 200 changed\nremote 0 port 68 changed\nremote 0 node 192 changed\nremote 0 port 117 changed\nremote 0 port 68 changed\nremote 0 port 117 changed\nremote 0 node 192 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 718
+     },
+     "play": {
+      "dur": 4.135,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.278,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefctl_out_bqraw-coefctl_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.282,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefctl_ref_bqraw-coefctl_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 446508,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 223232,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "824aa4dd39437bef",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw,control={b0=1.0,b1=0.0,b2=0.0,a0=1.0,a1=0.0,a2=0.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:25:43.118988] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:25:43.119015] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:25:43.119027] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:25:43.119039] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:25:43.119052] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:25:43.119067] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:25:43.119080] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:25:43.119091] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:25:43.119102] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:25:43.119113] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:25:43.119125] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:25:43.119139] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "23 changed\nremote 0 node 72 changed\nremote 0 port 108 changed\nremote 0 port 217 changed\nremote 0 port 117 changed\nremote 0 port 87 changed\nremote 0 port 208 changed\nremote 0 port 105 changed\nremote 0 node 68 changed\nremote 0 node 128 changed\nremote 0 node 128 changed\nremote 0 port 206 changed\nremote 0 node 123 changed\nremote 0 port 98 changed\nremote 0 port 206 changed\nremote 0 port 98 changed\nremote 0 node 123 changed\nremote 0 node 128 changed\nremote 0 node 128 changed\nremote 0 node 128 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 890
+     },
+     "play": {
+      "dur": 4.133,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.267,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefctl_out_bqraw-coefctl_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.272,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-coefctl_ref_bqraw-coefctl_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    }
+   ]
+  },
+  "bqraw-noconfig": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "raw label, no config",
+   "rbj": null,
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.03999849354822616,
+       "1000": 0.03999867896883684,
+       "4000": 0.03999786376953127,
+       "12000": 0.039999389648437376,
+       "20000": 0.03999786376953116
+      },
+      "ref_sha16": "c36359a21ee5364b",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       14400,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:26:04.168796] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:26:04.168830] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:26:04.168858] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:26:04.168889] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:26:04.168916] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:26:04.168939] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:26:04.168962] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:26:04.168987] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:26:04.169012] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:26:04.169036] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:26:04.169065] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:26:04.169095] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "e 0 node 128 changed\nremote 0 node 128 changed\nremote 0 node 68 changed\nremote 0 node 68 changed\nremote 0 added global: \tid 99, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"170460\"\n \t\tobject.path = \"r93b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"68\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r93b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 68 changed\nremote 0 node 68 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 540
+     },
+     "play": {
+      "dur": 4.12,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.248,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-noconfig_out_bqraw-noconfig_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.249,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-noconfig_ref_bqraw-noconfig_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 440364,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 220160,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "c306accab4e898fc",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "fcb9ae1364a15cec",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_raw}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:26:24.367126] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:26:24.367152] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:26:24.367177] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:26:24.367203] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:26:24.367230] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:26:24.367272] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:26:24.367302] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:26:24.367325] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:26:24.367349] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:26:24.367646] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:26:24.367700] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:26:24.367730] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "\t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 150 changed\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"170667\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"3058871\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 829
+     },
+     "play": {
+      "dur": 4.123,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.246,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-noconfig_out_bqraw-noconfig_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.248,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/bqraw-noconfig_ref_bqraw-noconfig_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    }
+   ]
+  },
+  "freq--24000": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=-24000.0,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "guard vs formula discriminator",
+   "rbj": {
+    "identity_0dB": {
+     "200": 0.0,
+     "1000": 0.0,
+     "4000": 0.0,
+     "12000": 0.0,
+     "20000": 0.0
+    },
+    "zeros": "exact digital silence"
+   },
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 446508,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 223232,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "824aa4dd39437bef",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=-24000.0,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:23:48.668294] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:23:48.668322] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:23:48.668346] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:23:48.668373] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:23:48.668399] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:23:48.668426] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:23:48.668454] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:23:48.668479] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:23:48.668504] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:23:48.668529] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:23:48.668552] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:23:48.668579] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "de = \"178\"\n \t\tlink.input.node = \"225\"\nremote 0 port 55 changed\nremote 0 port 63 changed\nremote 0 node 178 changed\nremote 0 port 100 changed\nremote 0 node 178 changed\nremote 0 port 100 changed\nremote 0 port 128 changed\nremote 0 port 128 changed\nremote 0 port 100 changed\nremote 0 port 128 changed\nremote 0 link 86 changed\nremote 0 link 86 changed\nremote 0 link 96 changed\nremote 0 link 96 changed\nremote 0 node 178 changed\nremote 0 node 178 changed\nremote 0 node 178 changed\nremote 0 node 225 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 544
+     },
+     "play": {
+      "dur": 4.135,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.274,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq--24000_out_freq--24000_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.275,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq--24000_ref_freq--24000_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 440364,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 220160,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "c306accab4e898fc",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "83f1fb54bec60a0e",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=-24000.0,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:24:10.199384] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:24:10.199399] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:24:10.199407] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:24:10.199418] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:24:10.199428] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:24:10.199438] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:24:10.199447] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:24:10.199457] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:24:10.199466] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:24:10.199476] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:24:10.199484] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:24:10.199499] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "ote 0 node 79 changed\nremote 0 node 79 changed\nremote 0 node 81 changed\nremote 0 node 81 changed\nremote 0 added global: \tid 94, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"169047\"\n \t\tobject.path = \"r93b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"81\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r93b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 81 changed\nremote 0 node 81 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 1283
+     },
+     "play": {
+      "dur": 4.115,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.258,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq--24000_out_freq--24000_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.263,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq--24000_ref_freq--24000_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    }
+   ]
+  },
+  "freq-tiny": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1e-09,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "sub-Hz freq",
+   "rbj": null,
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 442412,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 221184,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "eac120b749267627",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 448556,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 224256,
+      "ref_mags": {
+       "200": 0.03999849354822619,
+       "1000": 0.0399986789688351,
+       "4000": 0.03999786376953085,
+       "12000": 0.039999389648437474,
+       "20000": 0.039997863769531204
+      },
+      "ref_sha16": "af5d424488c7de35",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1e-09,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:24:33.353014] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:24:33.353037] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:24:33.353055] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:24:33.353090] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:24:33.353115] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:24:33.353134] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:24:33.353155] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:24:33.353177] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:24:33.353195] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:24:33.353216] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:24:33.353235] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:24:33.353260] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "79b5da0: busy:0 reason:node flags changed\nremote 0 node 139 changed\nremote 0 node 139 changed\nremote 0 added global: \tid 86, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"169308\"\n \t\tobject.path = \"r92b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"139\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 139 changed\nremote 0 node 139 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 188
+     },
+     "play": {
+      "dur": 4.133,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.29,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq-tiny_out_freq-tiny_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.291,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq-tiny_ref_freq-tiny_0_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -272.041,
+       "12000": -272.041,
+       "200": -272.041,
+       "20000": -272.041,
+       "4000": -272.041
+      },
+      "out_bytes": 444460,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 222208,
+      "out_mags": {
+       "200": 0.0,
+       "1000": 0.0,
+       "4000": 0.0,
+       "12000": 0.0,
+       "20000": 0.0
+      },
+      "out_sha16": "ff5a158c22b97869",
+      "out_stats": {
+       "max_abs": 0.0,
+       "n": 24000,
+       "nz_exact": 0,
+       "rms": 0.0
+      },
+      "peak": [
+       0.159637,
+       0.0
+      ],
+      "ref_bytes": 446508,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 223232,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "824aa4dd39437bef",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       0
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1e-09,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 1,
+     "fc_log": [
+      "[I][18:24:52.118054] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:24:52.118168] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:24:52.118199] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:24:52.118229] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:24:52.118257] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:24:52.118285] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:24:52.118308] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:24:52.118334] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:24:52.118359] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:24:52.118385] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:24:52.118412] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:24:52.118440] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "5f9d4200da0: busy:0 reason:node flags changed\nremote 0 node 78 changed\nremote 0 node 78 changed\nremote 0 added global: \tid 148, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"169551\"\n \t\tobject.path = \"r92b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"78\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 78 changed\nremote 0 node 78 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 944
+     },
+     "play": {
+      "dur": 4.128,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870922
+      ],
+      "err": "",
+      "expected": 536870922,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.269,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq-tiny_out_freq-tiny_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.273,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/freq-tiny_ref_freq-tiny_1_1.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": false
+    }
+   ]
+  },
+  "lowpass-gain6": {
+   "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1000.0,Q=0.707,Gain=6.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+   "note": "is Gain inert on a label that does not use it?",
+   "rbj": {
+    "200": -0.007,
+    "1000": -3.012,
+    "4000": -24.477,
+    "12000": -47.339,
+    "20000": -70.217
+   },
+   "rows": [
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -3.012,
+       "12000": -47.37,
+       "200": -0.007,
+       "20000": -71.437,
+       "4000": -24.477
+      },
+      "out_bytes": 440364,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 220160,
+      "out_mags": {
+       "200": 0.039967271355240336,
+       "1000": 0.028279075668290275,
+       "4000": 0.002388960120899102,
+       "12000": 0.00017121452286200485,
+       "20000": 1.0719728336479957e-05
+      },
+      "out_sha16": "65075a4e8a3e2e03",
+      "out_stats": {
+       "max_abs": 0.0699462890625,
+       "n": 24000,
+       "nz_exact": 24000,
+       "rms": 0.03466140232671583
+      },
+      "peak": [
+       0.159637,
+       0.069946
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "fcb9ae1364a15cec",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       16800
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1000.0,Q=0.707,Gain=6.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 0,
+     "fc_log": [
+      "[I][18:27:19.227970] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:27:19.228000] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:27:19.228029] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:27:19.228060] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:27:19.228093] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:27:19.228124] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:27:19.228154] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:27:19.228179] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:27:19.228204] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:27:19.228229] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:27:19.228254] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:27:19.228284] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "de 81 changed\nremote 0 port 103 changed\nremote 0 node 81 changed\nremote 0 port 103 changed\nremote 0 port 55 changed\nremote 0 port 55 changed\nremote 0 port 103 changed\nremote 0 port 55 changed\nremote 0 port 124 changed\nremote 0 node 135 changed\nremote 0 port 124 changed\nremote 0 node 135 changed\nremote 0 port 224 changed\nremote 0 port 90 changed\nremote 0 port 104 changed\nremote 0 port 104 changed\nremote 0 node 135 changed\nremote 0 node 81 changed\nremote 0 node 81 changed\nremote 0 node 81 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 582
+     },
+     "play": {
+      "dur": 4.117,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 0,
+     "sink_unload": {
+      "candidates": [
+       536870921
+      ],
+      "err": "",
+      "expected": 536870921,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.241,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/lowpass-gain6_out_lowpass-gain6_0_0.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.246,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/lowpass-gain6_ref_lowpass-gain6_0_0.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": true
+    },
+    {
+     "analysis": {
+      "gain_db": {
+       "1000": -3.012,
+       "12000": -47.37,
+       "200": -0.007,
+       "20000": -71.437,
+       "4000": -24.477
+      },
+      "out_bytes": 440364,
+      "out_fmt": [
+       1,
+       16
+      ],
+      "out_frames": 220160,
+      "out_mags": {
+       "200": 0.039967271355240336,
+       "1000": 0.028279075668290275,
+       "4000": 0.002388960120899102,
+       "12000": 0.00017121452286200485,
+       "20000": 1.0719728336479957e-05
+      },
+      "out_sha16": "65075a4e8a3e2e03",
+      "out_stats": {
+       "max_abs": 0.0699462890625,
+       "n": 24000,
+       "nz_exact": 24000,
+       "rms": 0.03466140232671583
+      },
+      "peak": [
+       0.159637,
+       0.069946
+      ],
+      "ref_bytes": 444460,
+      "ref_fmt": [
+       1,
+       16
+      ],
+      "ref_frames": 222208,
+      "ref_mags": {
+       "200": 0.039998493548225385,
+       "1000": 0.03999867896883596,
+       "4000": 0.039997863769531544,
+       "12000": 0.03999938964843746,
+       "20000": 0.03999786376953113
+      },
+      "ref_sha16": "fcb9ae1364a15cec",
+      "ref_stats": {
+       "max_abs": 0.159637451171875,
+       "n": 24000,
+       "nz_exact": 23000,
+       "rms": 0.06324311556291246
+      },
+      "win_offsets": [
+       16800,
+       16800
+      ]
+     },
+     "args": "node.description=r92b_fc,filter.graph={nodes=[{type=builtin,name=f1,label=bq_lowpass,control={Freq=1000.0,Q=0.707,Gain=6.0}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92b_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r92b_fc_out,node.autoconnect=false}",
+     "attempt": 0,
+     "fc_log": [
+      "[I][18:27:30.812827] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+      "[I][18:27:30.812832] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+      "[I][18:27:30.812835] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+      "[I][18:27:30.812842] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+      "[I][18:27:30.812848] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+      "[I][18:27:30.812853] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+      "[I][18:27:30.812857] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+      "[I][18:27:30.812862] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+      "[I][18:27:30.812866] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+      "[I][18:27:30.812870] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+      "[I][18:27:30.812874] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+      "[I][18:27:30.812884] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+     ],
+     "links": [
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_fc_in:playback_MONO",
+       "rc": 0,
+       "tag": "feed",
+       "tries": 1
+      },
+      {
+       "a": "r92b_in:monitor_MONO",
+       "b": "r92b_ref:input_MONO",
+       "rc": 0,
+       "tag": "ref-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_fc_out:output_MONO",
+       "b": "r92b_rec:input_MONO",
+       "rc": 0,
+       "tag": "post-tap",
+       "tries": 1
+      },
+      {
+       "a": "r92b_play",
+       "b": "r92b_in",
+       "rc": 0,
+       "tag": "stimulus-wp",
+       "tries": 1
+      }
+     ],
+     "live": {
+      "modules": [],
+      "nodes": [],
+      "procs": []
+     },
+     "load_out": "5fee07f8da0: busy:0 reason:node flags changed\nremote 0 node 55 changed\nremote 0 node 55 changed\nremote 0 added global: \tid 143, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"171311\"\n \t\tobject.path = \"r92b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"55\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 55 changed\nremote 0 node 55 changed\n",
+     "log_stats": {
+      "E": 0,
+      "I": 105,
+      "W": 0,
+      "debug": "3",
+      "lines": 683
+     },
+     "play": {
+      "dur": 4.119,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rep": 1,
+     "sink_unload": {
+      "candidates": [
+       536870921
+      ],
+      "err": "",
+      "expected": 536870921,
+      "name": "r92b_in",
+      "rc": 0,
+      "verified": true
+     },
+     "stops": {
+      "rec": {
+       "dur": 5.246,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/lowpass-gain6_out_lowpass-gain6_1_0.wav\n",
+       "out": "",
+       "rc": 1
+      },
+      "ref": {
+       "dur": 5.246,
+       "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-boundary/scratch/lowpass-gain6_ref_lowpass-gain6_1_0.wav\n",
+       "out": "",
+       "rc": 1
+      }
+     },
+     "valid": true
+    }
+   ]
+  }
+ },
+ "preflight": {
+  "after": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "before": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "killed": [],
+  "was_clean": true
+ },
+ "reps": 2,
+ "stage": "b5_extras",
+ "sweep": {
+  "after": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "before": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "clean": true
+ },
+ "ts": "2026-10-15T21:23:31Z"
+}
