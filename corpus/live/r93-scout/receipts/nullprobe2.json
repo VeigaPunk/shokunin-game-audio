@@ -1,0 +1,18 @@
+{
+ "copy_out_null": {
+  "load_ok": true,
+  "tail": "\"r98s_drain:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"85\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r98s_drain:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 85 changed\nremote 0 port 185 changed\nremote 0 port 227 changed\nremote 0 port 185 changed\nremote 0 port 227 changed\nremote 0 added global: \tid 139, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"130133\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"138\"\n \t\tlink.input.port = \"185\"\n \t\tlink.output.node = \"85\"\n \t\tlink.input.node = \"106\"\nremote 0 port 185 changed\nremote 0 node 85 changed\nremote 0 port 138 changed\nremote 0 node 85 changed\nremote 0 port 138 changed\nremote 0 port 138 changed\nremote 0 link 139 changed\nremote 0 link 139 changed\nremote 0 node 85 changed\nremote 0 node 85 changed\nremote 0 node 106 changed\n"
+ },
+ "null_as_input": {
+  "load_ok": false,
+  "tail": "\rpipewire-0>> load-module libpipewire-module-filter-chain node.description=r93s_fc,filter.graph={nodes=[{type=builtin,name=x,label=null},{type=builtin,name=c,label=copy}],links=[],inputs=[\"null\"],outputs=[\"c:Out\"]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r93s_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r93s_fc_out,node.autoconnect=false}\nError: \"Could not load module\"\npipewire-0>> "
+ },
+ "null_plus_copy_outc": {
+  "load_ok": false,
+  "tail": "\rpipewire-0>> load-module libpipewire-module-filter-chain node.description=r93s_fc,filter.graph={nodes=[{type=builtin,name=x,label=null},{type=builtin,name=c,label=copy}],links=[],inputs=[\"x:In\"],outputs=[\"c:Out\"]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r93s_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r93s_fc_out,node.autoconnect=false}\nError: \"Could not load module\"\npipewire-0>> "
+ },
+ "null_with_link": {
+  "load_ok": false,
+  "tail": "\rpipewire-0>> load-module libpipewire-module-filter-chain node.description=r93s_fc,filter.graph={nodes=[{type=builtin,name=x,label=null},{type=builtin,name=c,label=copy}],links=[{output=\"c:Out\",input=\"c:In\"}],inputs=[\"x:In\"],outputs=[\"c:Out\"]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r93s_fc_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r93s_fc_out,node.autoconnect=false}\nError: \"Could not load module\"\npipewire-0>> remote 0 removed global: \tid 85, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"130150\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"3625991\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\n"
+ }
+}

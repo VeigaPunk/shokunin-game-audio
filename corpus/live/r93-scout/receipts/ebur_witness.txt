@@ -1,0 +1,36 @@
+libebur128 version 1.2.6
+init(mode=M) -> OK
+init(mode=S) -> OK
+init(mode=I) -> OK
+init(mode=LRA) -> OK
+init(mode=SAMPLE_PEAK) -> OK
+init(mode=TRUE_PEAK) -> OK
+init(mode=0) -> NULL
+init(mode=M|I) -> OK
+init(mode=I|LRA) -> OK
+init(M) window defaults:
+    loudness_window(0 ms) rc=0 out=-nan
+    loudness_window(400 ms) rc=0 out=-inf
+    loudness_window(2000 ms) rc=2 out=-12345.000000
+  set_max_window(2) rc=4
+    loudness_window(2 ms) rc=0 out=-inf
+    loudness_window(400 ms) rc=0 out=-inf
+    loudness_window(2000 ms) rc=2 out=-12345.000000
+  set_max_window(2000) rc=0
+    loudness_window(400 ms) rc=0 out=-inf
+    loudness_window(2000 ms) rc=0 out=-inf
+init(S):
+    loudness_window(3000 ms) rc=0 out=-inf
+    loudness_window(400 ms) rc=0 out=-inf
+unit probe: set_max_window(500) rc=0
+    loudness_window(500 ms) rc=0 out=-inf
+    loudness_window(100000 ms) rc=2 out=-12345.000000
+sample_peak(ch=0) rc=0 out=0.500000 | true_peak rc=0 out=0.500000
+sample_peak(ch=1) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+sample_peak(ch=2) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+sample_peak(ch=3) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+sample_peak(ch=4) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+sample_peak(ch=5) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+sample_peak(ch=6) rc=3 out=-777.000000 | true_peak rc=3 out=-777.000000
+set_channel(0,DUAL_MONO) rc=0 ; (6,DUAL_MONO) rc=3 ; (1,SL) rc=3
+after sine: momentary=-6.013916 global=0.000000
