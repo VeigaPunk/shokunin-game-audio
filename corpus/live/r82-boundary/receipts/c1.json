@@ -1,0 +1,1115 @@
+{
+ "ns_idx": 536870921,
+ "how": "loaded",
+ "inventory": {
+  "pactl_info": [
+   "Server Name: PulseAudio (on PipeWire 1.6.8)",
+   "Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+  ],
+  "ffmpeg_devices_audio": [
+   " DE alsa            ALSA audio output",
+   " D  jack            JACK Audio Connection Kit",
+   " DE oss             OSS (Open Sound System) playback",
+   " DE pulse           Pulse audio output",
+   " DE sndio           sndio audio playback"
+  ],
+  "foreign_modules": [
+   "1\tlibpipewire-module-rt\t{",
+   "            nice.level    = -11",
+   "            rt.prio       = 88",
+   "            #rt.time.soft = -1",
+   "            #rt.time.hard = -1",
+   "            #rlimits.enabled = true",
+   "            rtportal.enabled = false",
+   "            #rtkit.enabled = true",
+   "            #uclamp.min = 0",
+   "            #uclamp.max = 1024",
+   "        }\t",
+   "2\tlibpipewire-module-protocol-native\t{",
+   "            # List of server Unix sockets, and optionally permissions",
+   "            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]",
+   "        }\t",
+   "4\tlibpipewire-module-profiler\t{",
+   "            #profile.interval.ms = 0",
+   "        }\t",
+   "6\tlibpipewire-module-metadata\t\t",
+   "8\tlibpipewire-module-spa-device-factory\t\t",
+   "10\tlibpipewire-module-spa-node-factory\t\t",
+   "12\tlibpipewire-module-client-node\t\t",
+   "14\tlibpipewire-module-client-device\t\t",
+   "16\tlibpipewire-module-portal\t\t",
+   "17\tlibpipewire-module-access\t{",
+   "            # Socket-specific access permissions",
+   "            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }",
+   "",
+   "            # Deprecated legacy mode (not socket-based),",
+   "            # for now enabled by default if access.socket is not specified",
+   "            #access.legacy = true",
+   "        }\t",
+   "18\tlibpipewire-module-adapter\t\t",
+   "20\tlibpipewire-module-link-factory\t{",
+   "            #allow.link.passive = false",
+   "\t}\t",
+   "22\tlibpipewire-module-session-manager\t\t",
+   "536870912\tmodule-always-sink\t\t",
+   "536870913\tmodule-device-manager\t\t",
+   "536870914\tmodule-device-restore\t\t",
+   "536870915\tmodule-stream-restore\t\t",
+   "536870922\tmodule-null-sink\tsink_name=r78_def_sink_3819951\t"
+  ],
+  "sinks": [
+   "61\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\tPipeWire\ts16le 2ch 48000Hz\tIDLE",
+   "62\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "63\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "60843\talsa_output.pci-0000_01_00.1.hdmi-stereo\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "64751\tr78_def_sink_3819951\tPipeWire\tfloat32le 2ch 48000Hz\tIDLE",
+   "64811\tr82bnd_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED",
+   "64829\tr82bnd_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED"
+  ],
+  "loadavg": "3.00 5.93 7.60 2/1874 3893039"
+ },
+ "legs": [
+  {
+   "leg": "valid_ns",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.498,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x5562ccfd4180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "r82bnd_ns",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "r82bnd_ns",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> r82bnd_ns:playback_FL",
+    "r82bnd_p1:output_FR -> r82bnd_ns:playback_FR"
+   ],
+   "peer_sinks": [
+    "r82bnd_ns"
+   ],
+   "wit_def_tone_windows": [],
+   "wit_ns_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 699982,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 174976,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694386,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173577,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "a9ed8ba9f0eae8fd",
+     "shape": {
+      "exists": true,
+      "bytes": 699982,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 174976,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "8d4374cb060549e2",
+     "shape": {
+      "exists": true,
+      "bytes": 694386,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173577,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "bogus",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.498,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55b885b4c180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "no_such_sink_r82bnd",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "no_such_sink_r82bnd",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 701826,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 175437,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694466,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173597,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "301240b6f5dd691e",
+     "shape": {
+      "exists": true,
+      "bytes": 701826,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 175437,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "85e4a9b0b20f6875",
+     "shape": {
+      "exists": true,
+      "bytes": 694466,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173597,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "monitor_name",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.498,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x559d4d2f6180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "r82bnd_ns.monitor",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "r82bnd_ns.monitor",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 704094,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 176004,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694446,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173592,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "6141572e55413041",
+     "shape": {
+      "exists": true,
+      "bytes": 704094,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 176004,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "4eb8b062edfed26b",
+     "shape": {
+      "exists": true,
+      "bytes": 694446,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173592,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "source_name",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.499,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x5570f6b311c0] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 705446,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 176342,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694310,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173558,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "405317ae2bdc8024",
+     "shape": {
+      "exists": true,
+      "bytes": 705446,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 176342,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "90276ce5b43cd975",
+     "shape": {
+      "exists": true,
+      "bytes": 694310,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173558,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "empty",
+   "stage": "c1",
+   "rc": 187,
+   "wall_s": 1.064,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55e23add7180] Guessed Channel Layout: stereo",
+    "[PulseAudio outdev @ 0x55e23ae29480] pa_context_get_sink_info_by_name failed.",
+    "[PulseAudio outdev @ 0x55e23ae29480] Updating sink info failed.",
+    "[out#0/pulse @ 0x55e23ae290c0] Could not write header (incorrect codec parameters ?): Generic error in an external library",
+    "[af#0:0 @ 0x55e23ae2a000] Error sending frames to consumers: Generic error in an external library",
+    "[af#0:0 @ 0x55e23ae2a000] Task finished with error code: -542398533 (Generic error in an external library)"
+   ],
+   "device_repr": "",
+   "player_rc": 187,
+   "player_nodes": [],
+   "player_links": [],
+   "peer_sinks": [],
+   "wit_def_tone_windows": [],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 699686,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 174902,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694430,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173588,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "8740f008b771878d",
+     "shape": {
+      "exists": true,
+      "bytes": 699686,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 174902,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "4ddc7fff9e3cbf3e",
+     "shape": {
+      "exists": true,
+      "bytes": 694430,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173588,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "spaces",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.496,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55772da64180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "   ",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "   ",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 697818,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 174435,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694434,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173589,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "c2bf31e570f92f67",
+     "shape": {
+      "exists": true,
+      "bytes": 697818,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 174435,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "fee7df70ea64f71a",
+     "shape": {
+      "exists": true,
+      "bytes": 694434,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173589,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "space_inside",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.497,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x555f75106180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "no such sink r82bnd",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "no such sink r82bnd",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 700722,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 175161,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694458,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173595,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "85c2f3f810700543",
+     "shape": {
+      "exists": true,
+      "bytes": 700722,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 175161,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "7c3a19cfb64fd105",
+     "shape": {
+      "exists": true,
+      "bytes": 694458,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173595,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "unicode",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.496,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x5580c949b180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "r82bnd_\ud83c\udfb5_sink",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "r82bnd_\ud83c\udfb5_sink",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 702374,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 175574,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694442,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173591,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "17c021a7906bf69a",
+     "shape": {
+      "exists": true,
+      "bytes": 702374,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 175574,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "9e65e1d6909aabf3",
+     "shape": {
+      "exists": true,
+      "bytes": 694442,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173591,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "invalid_utf8",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.496,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55b813636180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "b'\\xff\\xfe'",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "\ufffd\ufffd",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 703386,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 175827,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694434,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173589,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "3bb1b854eb4c35f7",
+     "shape": {
+      "exists": true,
+      "bytes": 703386,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 175827,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "fee7df70ea64f71a",
+     "shape": {
+      "exists": true,
+      "bytes": 694434,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173589,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "long512",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.496,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55cb38c933c0] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 690426,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 172587,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694454,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173594,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "78013d42799a370c",
+     "shape": {
+      "exists": true,
+      "bytes": 690426,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 172587,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "34588bbc23fa6b7a",
+     "shape": {
+      "exists": true,
+      "bytes": 694454,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173594,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "default_kw",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.499,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x55ebbbd23180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "default",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "default",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 700894,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 175204,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694430,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173588,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "4401443443f59693",
+     "shape": {
+      "exists": true,
+      "bytes": 700894,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 175204,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "4ddc7fff9e3cbf3e",
+     "shape": {
+      "exists": true,
+      "bytes": 694430,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173588,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "alias_default_monitor",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.497,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x555c2bf48180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "@DEFAULT_MONITOR@",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "@DEFAULT_MONITOR@",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 704266,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 176047,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694462,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173596,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "1cb7c5d15496748d",
+     "shape": {
+      "exists": true,
+      "bytes": 704266,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 176047,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "812b7e5895b185c2",
+     "shape": {
+      "exists": true,
+      "bytes": 694462,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173596,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  },
+  {
+   "leg": "alias_default_source",
+   "stage": "c1",
+   "rc": 0,
+   "wall_s": 1.498,
+   "stderr_head": [
+    "[aist#0:0/pcm_s16le @ 0x5629e8451180] Guessed Channel Layout: stereo"
+   ],
+   "device_repr": "@DEFAULT_SOURCE@",
+   "player_rc": 0,
+   "player_nodes": [
+    {
+     "name": "r82bnd_p1",
+     "media.name": "r82bnd-play",
+     "target.object": "@DEFAULT_SOURCE@",
+     "client.api": "pipewire-pulse"
+    }
+   ],
+   "player_links": [
+    "r82bnd_p1:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r82bnd_p1:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+   ],
+   "peer_sinks": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "wit_def_tone_windows": [
+    0.0,
+    0.5,
+    1.0,
+    1.5
+   ],
+   "wit_ns_tone_windows": [],
+   "wit_def_shape": {
+    "exists": true,
+    "bytes": 691406,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 172832,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "wit_ns_shape": {
+    "exists": true,
+    "bytes": 694454,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 173594,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   },
+   "files": {
+    "wit_def": {
+     "sha16": "b92e6f6b5aebd503",
+     "shape": {
+      "exists": true,
+      "bytes": 691406,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 172832,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    },
+    "wit_ns": {
+     "sha16": "34588bbc23fa6b7a",
+     "shape": {
+      "exists": true,
+      "bytes": 694454,
+      "riff": "finalized",
+      "data": "finalized",
+      "frames": 173594,
+      "ch": 2,
+      "rate": 48000,
+      "bits": 16
+     }
+    }
+   }
+  }
+ ]
+}

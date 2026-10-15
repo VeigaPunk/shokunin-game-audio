@@ -1,0 +1,118 @@
+Splitting the commandline.
+Reading option '-hide_banner' ... matched as option 'hide_banner' (do not show program banner) with argument '1'.
+Reading option '-loglevel' ... matched as option 'loglevel' (set logging level) with argument 'debug'.
+Reading option '-nostdin' ... matched as option 'stdin' (enable or disable interaction on standard input) with argument 0.
+Reading option '-y' ... matched as option 'y' (overwrite output files) with argument '1'.
+Reading option '-f' ... matched as option 'f' (force container format (auto-detected otherwise)) with argument 'pulse'.
+Reading option '-i' ... matched as input url with argument 'r82bnd_ns.monitor'.
+Reading option '-fragment_size' ... matched as AVOption 'fragment_size' with argument '2048'.
+Reading option '-t' ... matched as option 't' (stop transcoding after specified duration) with argument '1.2'.
+Reading option '-c:a' ... matched as option 'c' (select encoder/decoder ('copy' to copy stream without reencoding)) with argument 'pcm_s16le'.
+Reading option '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r82-boundary/runs/c3x/post_frag_debug/out.wav' ... matched as output url.
+Finished splitting the commandline.
+Parsing a group of options: global .
+Applying option hide_banner (do not show program banner) with argument 1.
+Applying option loglevel (set logging level) with argument debug.
+Applying option nostdin (enable or disable interaction on standard input) with argument 0.
+Applying option y (overwrite output files) with argument 1.
+Successfully parsed a group of options.
+Parsing a group of options: input url r82bnd_ns.monitor.
+Applying option f (force container format (auto-detected otherwise)) with argument pulse.
+Successfully parsed a group of options.
+Opening an input file: r82bnd_ns.monitor.
+[in#0/pulse @ 0x55d9c342dcc0] All info found
+[aist#0:0/pcm_s16le @ 0x55d9c3439a80] Guessed Channel Layout: stereo
+Input #0, pulse, from 'r82bnd_ns.monitor':
+  Duration: N/A, start: 1792090696.126436, bitrate: 1536 kb/s
+  Stream #0:0, 1, 1/1000000: Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s, start 1792090696.126436
+Successfully opened the file.
+Parsing a group of options: output url /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r82-boundary/runs/c3x/post_frag_debug/out.wav.
+Applying option t (stop transcoding after specified duration) with argument 1.2.
+Applying option c:a (select encoder/decoder ('copy' to copy stream without reencoding)) with argument pcm_s16le.
+Successfully parsed a group of options.
+Opening an output file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r82-boundary/runs/c3x/post_frag_debug/out.wav.
+[out#0/wav @ 0x55d9c3439c40] No explicit maps, mapping streams automatically...
+[aost#0:0/pcm_s16le @ 0x55d9c343a0c0] Created audio stream from input stream 0:0
+[file @ 0x55d9c343d940] Setting default whitelist 'file,crypto,data'
+Successfully opened the file.
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s16le (native) -> pcm_s16le (native))
+[aost#0:0/pcm_s16le @ 0x55d9c343a0c0] Starting thread...
+[af#0:0 @ 0x55d9c343ac80] Starting thread...
+[aist#0:0/pcm_s16le @ 0x55d9c3439a80] [dec:pcm_s16le @ 0x55d9c343c180] Starting thread...
+[in#0/pulse @ 0x55d9c342d9c0] Starting thread...
+detected 32 logical cores
+[graph_-1_in_0:0 @ 0x7ff9f0003f80] Setting 'time_base' to value '1/48000'
+[graph_-1_in_0:0 @ 0x7ff9f0003f80] Setting 'sample_rate' to value '48000'
+[graph_-1_in_0:0 @ 0x7ff9f0003f80] Setting 'sample_fmt' to value 's16'
+[graph_-1_in_0:0 @ 0x7ff9f0003f80] Setting 'channel_layout' to value 'stereo'
+[graph_-1_in_0:0 @ 0x7ff9f0003f80] tb:1/48000 samplefmt:s16 samplerate:48000 chlayout:stereo
+[format_out_#0:0 @ 0x7ff9f0004a80] Setting 'sample_fmts' to value 's16'
+Filter 'Parsed_anull_0' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: u8 s16 s32 flt dbl u8p s16p s32p fltp dblp s64 s64p
+  out[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: u8 s16 s32 flt dbl u8p s16p s32p fltp dblp s64 s64p
+Filter 'graph_-1_in_0:0' formats:
+  out[0] 'default':
+    Channel layouts: stereo
+    Sample rates: 48000
+    Sample formats: s16
+Filter 'out_#0:0' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: u8 s16 s32 flt dbl u8p s16p s32p fltp dblp s64 s64p
+Filter 'format_out_#0:0' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: s16
+  out[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: s16
+Filter 'trim for output #0:0' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: u8 s16 s32 flt dbl u8p s16p s32p fltp dblp s64 s64p
+  out[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: u8 s16 s32 flt dbl u8p s16p s32p fltp dblp s64 s64p
+[AVFilterGraph @ 0x7ff9f0001040] query_formats: 5 queried, 8 merged, 4 already done, 0 delayed
+Output #0, wav, to '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r82-boundary/runs/c3x/post_frag_debug/out.wav':
+  Metadata:
+    ISFT            : Lavf63.1.101
+  Stream #0:0, 0, 1/48000: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+    Metadata:
+      encoder         : Lavc63.1.101 pcm_s16le
+[out#0/wav @ 0x55d9c3439c40] Starting thread...
+size=      94KiB time=00:00:00.54 bitrate=1406.7kbits/s speed=1.09x elapsed=0:00:00.50    size=     188KiB time=00:00:01.03 bitrate=1480.2kbits/s speed=1.04x elapsed=0:00:01.00    [out_#0:0 @ 0x7ff9f0004880] EOF on sink link out_#0:0:default.
+[af#0:0 @ 0x55d9c343ac80] Filtergraph returned EOF, finishing
+[af#0:0 @ 0x55d9c343ac80] All consumers returned EOF
+[aost#0:0/pcm_s16le @ 0x55d9c343a0c0] [enc:pcm_s16le @ 0x55d9c343a700] Encoder thread received EOF
+[aost#0:0/pcm_s16le @ 0x55d9c343a0c0] Terminating thread with return code 0 (success)
+[out#0/wav @ 0x55d9c3439c40] All streams finished
+[out#0/wav @ 0x55d9c3439c40] Terminating thread with return code 0 (success)
+[af#0:0 @ 0x55d9c343ac80] Terminating thread with return code 0 (success)
+[in#0/pulse @ 0x55d9c342d9c0] Terminating thread with return code 0 (success)
+[aist#0:0/pcm_s16le @ 0x55d9c3439a80] [dec:pcm_s16le @ 0x55d9c343c180] Decoder thread received EOF packet
+[aist#0:0/pcm_s16le @ 0x55d9c3439a80] [dec:pcm_s16le @ 0x55d9c343c180] Decoder returned EOF, finishing
+[aist#0:0/pcm_s16le @ 0x55d9c3439a80] [dec:pcm_s16le @ 0x55d9c343c180] Terminating thread with return code 0 (success)
+[AVIOContext @ 0x55d9c343db00] Statistics: 233270 bytes written, 0 seeks, 1 writeouts
+[out#0/wav @ 0x55d9c3439c40] Output file #0 (/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r82-boundary/runs/c3x/post_frag_debug/out.wav):
+[out#0/wav @ 0x55d9c3439c40]   Output stream #0:0 (audio): 25 frames encoded (58298 samples); 25 packets muxed (233192 bytes); 
+[out#0/wav @ 0x55d9c3439c40]   Total: 25 packets (233192 bytes) muxed
+[out#0/wav @ 0x55d9c3439c40] video:0KiB audio:228KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.033449%
+size=     228KiB time=00:00:01.20 bitrate=1555.1kbits/s speed=0.938x elapsed=0:00:01.27    
+[in#0/pulse @ 0x55d9c342d9c0] Input file #0 (r82bnd_ns.monitor):
+[in#0/pulse @ 0x55d9c342d9c0]   Input stream #0:0 (audio): 27 packets read (259200 bytes); 26 frames decoded; 0 decode errors (62400 samples); 
+[in#0/pulse @ 0x55d9c342d9c0]   Total: 27 packets (259200 bytes) demuxed
+
+Exiting with exit code 0

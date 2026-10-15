@@ -1,0 +1,63 @@
+{
+ "leg": "pulse_sink_unset_r0",
+ "stage": "c5",
+ "rc": 0,
+ "wall_s": 2.116,
+ "stderr_head": [
+  "\u001b[2K"
+ ],
+ "env": {
+  "SDL_AUDIODRIVER": "pulseaudio"
+ },
+ "rep": 0,
+ "nodes": [
+  {
+   "name": "ffplay",
+   "media.name": "Audio Stream",
+   "target.object": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "client.api": "pipewire-pulse",
+   "latency": "512/48000",
+   "tlength": 6144
+  }
+ ],
+ "links": [
+  "ffplay:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+  "ffplay:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+ ],
+ "wit_def_tone_windows": [
+  0.0,
+  0.5,
+  1.0,
+  1.5,
+  2.0
+ ],
+ "wit_ns_tone_windows": [],
+ "files": {
+  "wit_def": {
+   "sha16": "91657966b6819613",
+   "shape": {
+    "exists": true,
+    "bytes": 645882,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 161451,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   }
+  },
+  "wit_ns": {
+   "sha16": "878c7dbcf2873a3a",
+   "shape": {
+    "exists": true,
+    "bytes": 652290,
+    "riff": "finalized",
+    "data": "finalized",
+    "frames": 163053,
+    "ch": 2,
+    "rate": 48000,
+    "bits": 16
+   }
+  }
+ }
+}
