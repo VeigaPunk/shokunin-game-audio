@@ -783,3 +783,13 @@ Sol `r76-adjudicator.md`: ADMIT-corr — capture lattice landed; the real defect
 | calibration | **improved** | 4-seat exclusivity-guard defect closed; N2 wall-leg vacuity armed (was rc-0 no-op on a dead sink); F5 +2048 MB RSS streaming fix; sink_gone source/sink enumeration vacuity armed; 18.6 % contention false-alarm class named |
 
 Sol `r77-adjudicator.md`: ADMIT-corr — fallback law + reader matrix + split sentinel armed; every consensus vacuity folded; r76 drift classified host-state (pre-fold HEAD repro + named contention class). Bounded: PipeWire 1.6.8, DualSense-default-source topology, this host. Work `65790f1` + fold `1a84ca7`.
+
+## r80 — module-null-sink arg lattice + topology ops (wave-19)
+
+| axis | move | evidence |
+|---|---|---|
+| coverage | **improved** | 10 legs over `pactl load-module`: arg lattice (passthrough props, rate=99999 no range check, media.class flip, linger orphan) + topology ops (`@DEFAULT_SINK@` refusal, `pw-link` linger/`-m` split, move-sink-input sticky vs `node.dont-move`) |
+| depth | **improved** | linger-orphan lifecycle end-to-end (survives unload, stale pmid, pactl-invisible, `pw-cli destroy` only); falsified "dropped" model replaced by measured passthrough; stale-id foreign-kill window closed with live-citation guard |
+| calibration | **improved** | F1–F8 + B2/B3 + scribe prose defects all folded same-round; strict readers end the absence-witness fail-open; verbatim column pinned to its named receipt |
+
+Parent `r80-adjudicator.md`: ADMIT-corr — 4 green runs on final bytes; every wave-B finding folded or named. Bounded: PipeWire 1.6.8 / libpulse 17.0 / WirePlumber 0.5.17, shared host (by-name unload banned, disposable-daemon probes parked).

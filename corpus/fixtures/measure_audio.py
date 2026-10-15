@@ -11552,6 +11552,994 @@ def filterchain_module_r79_entry():
     return entry
 
 
+# ---------------------------------------------------------------------------
+# r80 MODULE frontier: the `pactl load-module` argument lattice + dynamic
+# topology lifecycle. A NEW parallel ledger family, --probe-module-r80;
+# prior rows untouched and the r76-r79 guards inherited, not relaxed.
+# Surface facts are the r80 scout's THIS-HOST measurements (PipeWire 1.6.8,
+# pactl 17.0-98-gb096, WirePlumber 0.5.17), re-armed through the r78/r79
+# conventions (pid-stamped names, port-readiness gates, named oracle,
+# coverage_blocked, teardown by captured module id ONLY — never by name:
+# the scout itself caused a foreign-module unload that way, §10 of its
+# report):
+#   ARGS. The plain `description=` argument is an UNKNOWN KEY — silently
+#     dropped (node.description stays the derived "<name> <class> sink");
+#     the same value through `sink_properties=device.description=` lands
+#     and wins. `rate=` is accepted VERBATIM into params.EnumFormat — no
+#     range check (99999 lands). `media.class=Audio/Source` is a real class
+#     change: 0 input ports, a pactl source entry named <n>, no sink and
+#     no <n>.monitor. `object.linger=true` unbinds the node from its
+#     client: it survives `pactl unload-module`, keeps a STALE
+#     pulse.module.id, stays listed as sink AND .monitor source, and only
+#     `pw-cli destroy <id>` removes it.
+#   TOPOLOGY. `@DEFAULT_SINK@` inside slaves=/sinks= is NOT expanded —
+#     rc=1 `Failure: Input/Output error`, no node created. `pw-link
+#     <o> <i>` lingers (outlives its exited process); `pw-link -m` is
+#     client-owned and dies with it. `pactl move-sink-input` is STICKY
+#     (still moved at +4.6 s) but a stream carrying `node.dont-move=true`
+#     turns it into a SILENT no-op (rc=0, links unchanged).
+MODULE_R80_SETTLE_S = 0.6
+MODULE_R80_NODE_WAIT_S = 5.0
+MODULE_R80_LINGER_LINK_HOLD_S = 2.0   # scout: linger link still up at +2 s
+MODULE_R80_MLINK_DEAD_S = 1.0         # -m link gone within ~0.3 s of kill
+MODULE_R80_MOVE_FIRST_S = 1.2         # post-move edge samples
+MODULE_R80_MOVE_LATE_S = 4.6          # stickiness horizon (scout: +6 s)
+MODULE_R80_TONE_S = 12.0              # feed file outlives every leg bound
+MODULE_R80_TAP_S = 6.8                # move-leg monitor tap duration
+MODULE_R80_PID = os.getpid()
+MODULE_R80_PREFIX = f"r80md_{MODULE_R80_PID}"
+def _module_r80_errclass(text):
+    """r80's only new class is `pa_io_error`, checked ahead of the
+    inherited r78 order — a one-class prepend rides the shared tuple
+    rather than wrapping it in a second family-local one."""
+    m = re.search(r"Input/[Oo]utput error", text)
+    if m:
+        return "pa_io_error", m.group(0).strip()
+    return _playback_r78_errclass(text)
+
+
+def _module_r80_pactl(args):
+    """One pactl call -> leaf. stderr is kept because several verdicts
+    ride on it (`No such entity`, `Input/Output error`) and pactl's rc
+    is not a verdict by itself (the scout's no-op forms)."""
+    try:
+        proc = subprocess.run(["pactl", *args], capture_output=True,
+                              timeout=15)
+        err = proc.stderr.decode(errors="replace")
+        cls, _ = _module_r80_errclass(err)
+        return {"exit_code": proc.returncode,
+                "stdout_tail": proc.stdout.decode(
+                    errors="replace").strip()[:200] or None,
+                "stderr_tail": _capture_tail(err, "module"),
+                "error_class": cls}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"exit_code": None, "error": str(exc)[:120]}
+
+
+def _module_r80_load(module, *args):
+    """pactl load-module -> leaf with the returned module index captured
+    verbatim (it is a stdout token, not a lookup)."""
+    leaf = _module_r80_pactl(["load-module", module, *args])
+    out = leaf.get("stdout_tail")
+    mid = None
+    if leaf.get("exit_code") == 0 and out and out.isdigit():
+        mid = int(out)
+    leaf["module_id"] = mid
+    return leaf
+
+
+def _module_r80_unload(module_id):
+    """Unload by the captured index ONLY — the by-name form unloads every
+    module of that name on the host including foreign ones (the scout's
+    own §10 incident). Never a name lookup."""
+    if module_id is None:
+        return {"skipped": "no module id captured"}
+    return _module_r80_pactl(["unload-module", str(module_id)])
+
+
+def _module_r80_module_map():
+    """`pactl list modules short` -> {index: name} — the ownership check
+    behind _module_r80_unload_own. Note the table ALSO lists native
+    libpipewire-module-* ids (boundary B3): a recycled pulse index can
+    point at a foreign or native module, so an index's presence in this
+    map is never proof of ownership."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+        out = {}
+        for ln in proc.stdout.decode(errors="replace").splitlines():
+            f = ln.split("\t")
+            if f and f[0].strip().isdigit():
+                out[int(f[0].strip())] = f[1].strip() if len(f) > 1 else ""
+        return out
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_own_leaves():
+    """{name: leaf} for live nodes carrying this run's prefix — the
+    pmid-citation check that distinguishes OUR module from a foreign
+    one holding a recycled index."""
+    pref = f"{MODULE_R80_PREFIX}_"
+    names = _playback_r78_node_names() or []
+    mine = [n for n in names if n.startswith(pref)]
+    return _module_r80_nodes(mine) if mine else {}
+
+
+def _module_r80_unload_own(module_id):
+    """Teardown-safe unload: only fire `pactl unload-module <id>` when a
+    live node of OURS still cites that pulse.module.id. Indexes recycle
+    LIFO within seconds (boundary B1); re-unloading a stale id after our
+    leg already unloaded it can kill a FOREIGN module that recycled the
+    index (the §10 incident class, one indirection removed — critic F2).
+    Skips are recorded, never silent: absent -> already_unloaded;
+    present-but-not-ours -> foreign_risk."""
+    if module_id is None:
+        return {"skipped": "no module id captured"}
+    mods = _module_r80_module_map()
+    if mods is None:
+        return {"skipped": "reader_error", "module_id": module_id}
+    if module_id not in mods:
+        return {"skipped": "already_unloaded", "module_id": module_id}
+    # Only a LIVE node's citation counts: an object.linger orphan keeps
+    # its stale pulse.module.id forever (a5's own measurement), so it
+    # cannot distinguish our dead module from a foreign recycler.
+    cited = {leaf.get("pulse_module_id")
+             for leaf in _module_r80_own_leaves().values()
+             if leaf.get("client_id") is not None}
+    if module_id in cited:
+        return _module_r80_unload(module_id)
+    return {"skipped": "foreign_risk", "module_id": module_id,
+            "listed_as": mods[module_id]}
+
+
+def _module_r80_nodes(names):
+    """One pw-dump -> {name: leaf} — same single-snapshot contract as the
+    r79 reader, plus the module-lattice props this frontier needs
+    (description / pulse.module.id / object.linger / port counts /
+    EnumFormat rates)."""
+    want = set(names)
+    out = {n: {"found": False} for n in want}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        for n in want:
+            out[n] = {"found": False, "error": type(exc).__name__}
+        return out
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        info = node.get("info") or {}
+        props = info.get("props") or {}
+        nm = props.get("node.name")
+        if nm not in want:
+            continue
+        params = info.get("params") or {}
+        enum = params.get("EnumFormat") or []
+        out[nm] = {
+            "found": True, "object_id": node.get("id"),
+            "state": info.get("state"),
+            "media_class": props.get("media.class"),
+            "description": props.get("node.description"),
+            "factory": props.get("factory.name"),
+            "pulse_module_id": props.get("pulse.module.id"),
+            "object_serial": props.get("object.serial"),
+            "object_linger": props.get("object.linger"),
+            "node_dont_move": props.get("node.dont-move"),
+            "client_id": props.get("client.id"),
+            "n_input_ports": info.get("n-input-ports"),
+            "n_output_ports": info.get("n-output-ports"),
+            "audio_channels": props.get("audio.channels"),
+            "audio_position": props.get("audio.position"),
+            "enum_rates": [e.get("rate") for e in enum
+                           if isinstance(e, dict)],
+            "enum_formats": [{k: e.get(k) for k in
+                              ("format", "rate", "channels")}
+                             for e in enum if isinstance(e, dict)]}
+    return out
+
+
+def _module_r80_node_id(tag):
+    """The live node's global object id (the pw-cli destroy handle) —
+    a pw-dump `id`, NOT the pulse index and NOT object.serial."""
+    leaf = _module_r80_nodes([tag]).get(tag) or {}
+    return leaf.get("object_id")
+
+
+def _module_r80_own_nodes():
+    """Live node names still carrying this run's tag — the teardown
+    witness (nothing r80md_ may survive an entry)."""
+    names = _playback_r78_node_names()
+    if names is None:
+        return None
+    return sorted(n for n in names if MODULE_R80_PREFIX in n)
+
+
+def _module_r80_wait_node(tag):
+    """pw-dump presence gate for a module-created node — the load returns
+    at PA-accept time and the node lands later (same enumeration gap as
+    the r78 sink gate). Returns (seen, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < MODULE_R80_NODE_WAIT_S:
+        leaf = _module_r80_nodes([tag]).get(tag) or {}
+        if leaf.get("found"):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _module_r80_load_sink(name):
+    """Load one probe-owned module-null-sink and gate it. Returns a leaf
+    with module_id + gate verdicts."""
+    load = _module_r80_load("module-null-sink", f"sink_name={name}")
+    leaf = {"load": load}
+    if load.get("module_id") is not None:
+        seen, waited = _playback_r78_wait_sink(name)
+        leaf["sink_seen"] = seen
+        leaf["sink_waited_s"] = waited
+        if not seen:
+            _module_r80_unload(load["module_id"])
+            leaf["error"] = f"loaded but never enumerated in {waited}s"
+    return leaf
+
+
+def _module_r80_edges(tag):
+    """Directed pw-link -l edges touching this tag — the link witness."""
+    return sorted({e for e in (_playback_r78_links() or [])
+                   if e[0].split(":")[0] == tag or
+                   e[1].split(":")[0] == tag})
+
+
+def _module_r80_wait_edge(out_port, in_port):
+    """Gate until a specific directed edge exists in pw-link -l — a stream
+    is only routable once its link can be observed. Returns
+    (linked, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < MODULE_R80_NODE_WAIT_S:
+        if (out_port, in_port) in (_playback_r78_links() or []):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _module_r80_sink_input(tag):
+    """`pactl -f json list sink-inputs` entry for the stream whose
+    node.name is `tag` — the pulse reroute handle (the scout measured
+    index == the stream node's object.serial; both are recorded)."""
+    try:
+        proc = subprocess.run(["pactl", "-f", "json", "list",
+                               "sink-inputs"], capture_output=True,
+                              timeout=10)
+        arr = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    for e in arr:
+        if (e.get("properties") or {}).get("node.name") == tag:
+            return {"index": e.get("index"), "sink": e.get("sink"),
+                    "entry_found": True}
+    return {"entry_found": False}
+
+
+def _module_r80_destroy(node_id):
+    """`pw-cli destroy <id>` — the ONLY reach into a lingering orphan;
+    pactl has no verb for it. Scoped to r80md_-tagged nodes by the caller
+    (a wrong id can name a foreign object — the r79 pw-cli rule)."""
+    if node_id is None:
+        return {"skipped": "no node id"}
+    try:
+        proc = subprocess.run(["pw-cli", "destroy", str(node_id)],
+                              capture_output=True, timeout=10)
+        return {"exit_code": proc.returncode,
+                "stderr_tail": _capture_tail(
+                    proc.stderr.decode(errors="replace"), "module")}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"exit_code": None, "error": str(exc)[:120]}
+
+
+def _module_r80_feed(target, tag, ctx, extra_props=()):
+    """Spawn the tag-tone feed — pw-cat playing ctx['tone'] into a
+    probe-owned sink, at FULL tag amplitude (the 0.05 scout volume was
+    the shared-default-sink concession; these targets are all
+    probe-owned so the standard `mine` bands apply)."""
+    argv = ["pw-cat", "-p", "-P", f"node.name={tag}"]
+    for prop in extra_props:
+        argv += ["-P", prop]
+    argv += ["--target", target, str(ctx["tone"])]
+    return subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True)
+
+
+def _module_r80_teardown(entry, failures, loads):
+    """Shared post-checks: every captured module id unloaded, every
+    lingering ORPHAN destroyed by node id (never by name), then the
+    two witnesses — probe sinks gone from pactl and no r80md_ node
+    survives."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unload_own", {})[tag] = _module_r80_unload_own(
+            (leaf or {}).get("load", {}).get("module_id"))
+    stray = _module_r80_own_nodes()
+    if stray is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — orphan/own_nodes_after "
+            "unmeasured")
+    elif stray:
+        entry["orphan_destroy"] = {
+            n: _module_r80_destroy(_module_r80_node_id(n))
+            for n in stray}
+        time.sleep(MODULE_R80_SETTLE_S)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    rest = _module_r80_own_nodes()
+    if rest is None:
+        entry.setdefault("own_nodes_after", "reader_error")
+        if "teardown: node reader failed — orphan/own_nodes_after " \
+                "unmeasured" not in entry.get("coverage_blocked", []):
+            entry.setdefault("coverage_blocked", []).append(
+                "teardown: node reader failed — orphan/own_nodes_after "
+                "unmeasured")
+    else:
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r80-tagged nodes survived: {rest}")
+
+
+def _capture_r77_sink_names_strict():
+    """Same reader as _capture_r77_sink_names but None on failure — the
+    teardown witness must distinguish 'no sinks' from 'reader dead'
+    (critic F3: an empty list made the absence witness pass vacuously)."""
+    try:
+        proc = subprocess.run(["pactl", "list", "sinks", "short"],
+                              capture_output=True, timeout=10)
+        return [ln.split()[1] for ln in
+                proc.stdout.decode(errors="replace").splitlines()
+                if len(ln.split()) >= 2]
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_module_count():
+    """`pactl list modules short` line count — t1's no-side-effect
+    witness: a refused load must leave the module table untouched."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+        return len(proc.stdout.decode(errors="replace").splitlines())
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_move_leg(tag, tapf, feed_to, tap_on, move_to, ctx,
+                         extra_props=(), with_node=False):
+    """The shared move-sink-input skeleton behind t4/t5: tap `tap_on`'s
+    monitor, feed the tag tone at `feed_to`, gate on its edge, move the
+    stream's sink-input to `move_to`, sample the edge set at the FIRST
+    and LATE horizons, then kill the feed and reap the tap. Returns the
+    measured pieces; each leg lays out its own leaf keys. `with_node`
+    adds the stream-node snapshot t5 records (t4 does not run it)."""
+    tap = _playback_r78_tap(tap_on, tapf,
+                            int(PLAYBACK_R78_TONE_RATE *
+                                MODULE_R80_TAP_S),
+                            f"{tag}_tap")
+    time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+    feed = _module_r80_feed(feed_to, tag, ctx, extra_props=extra_props)
+    edge_a = (f"{tag}:output_FL", f"{feed_to}:playback_FL")
+    linked, waited = _module_r80_wait_edge(*edge_a)
+    si = _module_r80_sink_input(tag)
+    edges_before = _module_r80_edges(tag)
+    node = _module_r80_nodes([tag]).get(tag) or {} if with_node else None
+    move = _module_r80_pactl(
+        ["move-sink-input", str(si.get("index")),
+         move_to]) if si.get("index") is not None else \
+        {"skipped": "no sink-input index"}
+    time.sleep(MODULE_R80_MOVE_FIRST_S)
+    edges_first = _module_r80_edges(tag)
+    time.sleep(MODULE_R80_MOVE_LATE_S - MODULE_R80_MOVE_FIRST_S)
+    edges_late = _module_r80_edges(tag)
+    if feed.poll() is None:
+        os.killpg(feed.pid, signal.SIGKILL)
+    feed.wait()
+    _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+    return {"tag": tag, "feed_exit": feed.returncode,
+            "edge_a_waited_s": waited, "edge_a_linked": linked,
+            "sink_input": si, "node": node, "move": move,
+            "edges_before": edges_before,
+            "edges_after_first_s": MODULE_R80_MOVE_FIRST_S,
+            "edges_first": edges_first,
+            "edges_after_late_s": MODULE_R80_MOVE_LATE_S,
+            "edges_late": edges_late,
+            "tap": {"target": tap_on,
+                    "exit_code": tap.returncode,
+                    "stderr_tail": _capture_tail(
+                        tap.stderr.read().decode(
+                            errors="replace"), str(tapf)),
+                    **_playback_r78_tone_windows(tapf)}}
+
+
+def _module_r80_block(entry, failures, msg, loads):
+    """The named coverage block every entry shares — a blocked leg is
+    named coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry["coverage_blocked"] = [msg]
+    for tag, leaf in loads.items():
+        entry.setdefault("unload_own", {})[tag] = _module_r80_unload_own(
+            (leaf or {}).get("load", {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (1) ARG LATTICE — which `pactl load-module module-null-sink` arguments land
+#     on the node, which are silently dropped, and the linger orphan.
+# --------------------------------------------------------------------------
+def module_args_lattice_r80_entry():
+    """(1) The argument lattice: `description=D` is an unknown key and is
+    silently DROPPED while `sink_properties=device.description=D` lands;
+    `rate=99999` enters EnumFormat verbatim (no range check);
+    `media.class=Audio/Source` is a real class change (0 input ports, a
+    source entry, no sink/.monitor); `object.linger=true` makes a
+    permanent orphan that outlives its module, keeps a stale
+    pulse.module.id, stays listed as sink AND source, and answers only
+    to `pw-cli destroy`. Every leg loads its own module and unloads by
+    the captured index."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pactl load-module argument lattice — dropped vs "
+                      "prop-vectored args, unclamped rate, class "
+                      "override, linger orphan",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    # space-free: `sink_properties=` is itself whitespace-split modargs —
+    # a value containing spaces truncates at the first (measured: a
+    # "r80md desc <pid> marker" run lands node.description == "r80md").
+    desc = f"r80md_desc_{MODULE_R80_PID}_marker"
+    legs = {}
+    loads = {}
+    try:
+        # a1: the plain description= argument does NOT reach
+        # node.description (the derived "<name> <class> sink" survives)
+        # — but it is NOT dropped: it lands verbatim as a plain
+        # `description` prop, like every other unknown modarg key
+        # (critic F1: the earlier "silently dropped" model was wrong).
+        name = f"{MODULE_R80_PREFIX}_a1"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                f"description={desc}")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a1_desc_dropped"] = {
+            "args": [f"sink_name=<n>", f"description=<d>"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "expected_description": f"{name} Audio/Sink sink",
+            "sent_description": desc,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a2: the SAME value through sink_properties lands and wins.
+        name = f"{MODULE_R80_PREFIX}_a2"
+        load = _module_r80_load(
+            "module-null-sink", f"sink_name={name}",
+            f"sink_properties=device.description={desc}")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a2_desc_prop_wins"] = {
+            "args": ["sink_name=<n>",
+                     "sink_properties=device.description=<d>"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node, "sent_description": desc,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a3: rate=99999 is accepted verbatim into params.EnumFormat —
+        # the node props carry no rate key at all, so only the param
+        # surface can see it.
+        name = f"{MODULE_R80_PREFIX}_a3"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "rate=99999")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a3_rate_no_check"] = {
+            "args": ["sink_name=<n>", "rate=99999"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a4: media.class=Audio/Source — a real class change, not
+        # decoration: zero input ports, a pactl SOURCE named <n>, and no
+        # sink entry / no <n>.monitor.
+        name = f"{MODULE_R80_PREFIX}_a4"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "media.class=Audio/Source")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        time.sleep(MODULE_R80_SETTLE_S)
+        node = _module_r80_nodes([name]).get(name) or {}
+        sinks_now = _capture_r77_sink_names()
+        sources_now = _playback_r78_source_names()
+        legs["a4_source_class"] = {
+            "args": ["sink_name=<n>", "media.class=Audio/Source"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "in_ports": _playback_r78_input_ports(name),
+            "out_ports": _playback_r78_output_ports(name),
+            "pactl_sink_listed": name in sinks_now,
+            "pactl_source_listed": name in sources_now,
+            "pactl_monitor_listed": f"{name}.monitor" in sources_now,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a5: object.linger=true — the permanent orphan. Phase the leg:
+        # live (client.id absent) -> unload rc=0 -> node STILL present
+        # with the stale pulse.module.id, still a pactl sink+source ->
+        # re-unload rc=1 No such entity -> pw-cli destroy removes it.
+        name = f"{MODULE_R80_PREFIX}_a5"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "object.linger=true")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node_live = _module_r80_nodes([name]).get(name) or {}
+        unl = _module_r80_unload(load.get("module_id"))
+        time.sleep(MODULE_R80_SETTLE_S)
+        node_after = _module_r80_nodes([name]).get(name) or {}
+        sinks_mid = _capture_r77_sink_names()
+        sources_mid = _playback_r78_source_names()
+        reunl = _module_r80_unload_own(load.get("module_id"))
+        nid = _module_r80_node_id(name)
+        destroy = _module_r80_destroy(nid)
+        time.sleep(MODULE_R80_SETTLE_S)
+        legs["a5_linger_orphan"] = {
+            "args": ["sink_name=<n>", "object.linger=true"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node_live": node_live,
+            "unload": unl,
+            "node_after_unload": node_after,
+            "pactl_sink_after_unload": name in sinks_mid,
+            "pactl_monitor_after_unload":
+                f"{name}.monitor" in sources_mid,
+            "re_unload": reunl,
+            "destroy": destroy, "destroyed_id": nid,
+            "gone_after_destroy": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+    finally:
+        _module_r80_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- a1: description= is dropped, the derived string survives ----
+    leg = legs.get("a1_desc_dropped") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a1: load/enumerate failed — "
+                        f"{leg.get('load')} seen={leg.get('node_seen')}")
+    else:
+        if nd.get("description") == desc:
+            failures.append("args a1: plain description= LANDED — the "
+                            "silent-drop law is falsified")
+        if nd.get("description") != leg.get("expected_description"):
+            failures.append(f"args a1: node.description "
+                            f"{nd.get('description')!r} != the derived "
+                            f"{leg.get('expected_description')!r}")
+        if nd.get("pulse_module_id") != leg["load"].get("module_id"):
+            failures.append("args a1: pulse.module.id "
+                            f"{nd.get('pulse_module_id')} != the "
+                            "returned index — the observed node is not "
+                            "the one this load returned")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a1: node survived the unload")
+    # ---- a2: sink_properties=device.description= lands and wins ----
+    leg = legs.get("a2_desc_prop_wins") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a2: load/enumerate failed")
+    else:
+        if nd.get("description") != desc:
+            failures.append(f"args a2: sink_properties description did "
+                            f"NOT land — got {nd.get('description')!r}")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a2: node survived the unload")
+    # ---- a3: rate=99999 verbatim in EnumFormat, no range check ----
+    leg = legs.get("a3_rate_no_check") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a3: rate=99999 was refused — the "
+                        "no-range-check law is falsified on this host")
+    else:
+        if 99999 not in (nd.get("enum_rates") or []):
+            failures.append(f"args a3: EnumFormat rates "
+                            f"{nd.get('enum_rates')} do not contain "
+                            "99999 — the verbatim-accept law fails")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a3: node survived the unload")
+    # ---- a4: media.class=Audio/Source is a real class change ----
+    leg = legs.get("a4_source_class") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a4: load/enumerate failed")
+    else:
+        if nd.get("media_class") != "Audio/Source":
+            failures.append(f"args a4: media.class "
+                            f"{nd.get('media_class')!r} != Audio/Source")
+        if nd.get("n_input_ports") != 0 or leg.get("in_ports"):
+            failures.append(f"args a4: a Source node must have 0 input "
+                            f"ports — n_in={nd.get('n_input_ports')} "
+                            f"pw-link={leg.get('in_ports')}")
+        if leg.get("pactl_sink_listed"):
+            failures.append("args a4: a class-overridden node showed up "
+                            "as a pactl SINK — the law fails")
+        if not leg.get("pactl_source_listed") or \
+                leg.get("pactl_monitor_listed"):
+            failures.append(f"args a4: pactl sources — expected <n> "
+                            f"listed and <n>.monitor absent, got "
+                            f"listed={leg.get('pactl_source_listed')} "
+                            f"monitor={leg.get('pactl_monitor_listed')}")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a4: node survived the unload")
+    # ---- a5: the linger orphan ----
+    leg = legs.get("a5_linger_orphan") or {}
+    live = leg.get("node_live") or {}
+    post = leg.get("node_after_unload") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a5: load/enumerate failed")
+    else:
+        if live.get("object_linger") is not True:
+            failures.append("args a5: object.linger did not land on the "
+                            f"node — got {live.get('object_linger')!r}")
+        if live.get("client_id") is not None:
+            failures.append("args a5: a lingering node must have NO "
+                            f"client.id — got {live.get('client_id')}")
+        if leg.get("unload", {}).get("exit_code") != 0:
+            failures.append("args a5: the first unload failed — "
+                            f"{leg.get('unload')}")
+        if not post.get("found"):
+            failures.append("args a5: the orphan did NOT survive the "
+                            "module unload — the linger law is falsified")
+        else:
+            if post.get("pulse_module_id") != leg["load"].get(
+                    "module_id"):
+                failures.append("args a5: the orphan's stale "
+                                f"pulse.module.id {post.get('pulse_module_id')}"
+                                " != the unloaded index")
+            if not leg.get("pactl_sink_after_unload") or \
+                    not leg.get("pactl_monitor_after_unload"):
+                failures.append("args a5: the orphan must stay listed as "
+                                f"sink+monitor — got "
+                                f"{leg.get('pactl_sink_after_unload')}/"
+                                f"{leg.get('pactl_monitor_after_unload')}")
+        reunl = leg.get("re_unload") or {}
+        # The guarded unload names the same law client-side: absent id
+        # -> already_unloaded; recycled id -> foreign_risk (refused, not
+        # fired). Both are the "stale id is not ours" realization.
+        _re_ok = (reunl.get("exit_code") == 1 and
+                  reunl.get("error_class") == "pa_no_such_entity") or \
+            reunl.get("skipped") in ("already_unloaded", "foreign_risk")
+        if not _re_ok:
+            failures.append(f"args a5: the re-unload must be rc=1 "
+                            f"No such entity or a named skip — got {reunl}")
+        if leg.get("destroy", {}).get("exit_code") != 0 or \
+                not leg.get("gone_after_destroy"):
+            failures.append("args a5: pw-cli destroy is the ONLY removal "
+                            f"path — destroy={leg.get('destroy')} "
+                            f"gone={leg.get('gone_after_destroy')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) TOPOLOGY — combine slave refusal, pw-link authority, move-sink-input.
+# --------------------------------------------------------------------------
+def module_topology_r80_entry():
+    """(2) The lifecycle/link-authority surface: `@DEFAULT_SINK@` inside
+    `slaves=`/`sinks=` is NOT expanded (rc=1 Input/Output error, no
+    node); a `pw-link` link lingers past its creator while `pw-link -m`'s
+    dies with it; `pactl move-sink-input` is sticky AND content-carrying
+    (monitor tap on the destination), while the same move on a
+    `node.dont-move=true` stream is a silent rc=0 no-op."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "module topology — @DEFAULT_SINK@ slave refusal, "
+                      "pw-link linger vs -m, move-sink-input sticky vs "
+                      "dont-move no-op",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    names = {"lnk_a": f"{MODULE_R80_PREFIX}_lnk_a",
+             "lnk_b": f"{MODULE_R80_PREFIX}_lnk_b",
+             "mv_a": f"{MODULE_R80_PREFIX}_mv_a",
+             "mv_b": f"{MODULE_R80_PREFIX}_mv_b",
+             "dm_a": f"{MODULE_R80_PREFIX}_dm_a",
+             "dm_b": f"{MODULE_R80_PREFIX}_dm_b"}
+    loads = {}
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="module-r80-topo-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, MODULE_R80_TONE_S)
+            ctx = {"tone": tone}
+            for key, nm in names.items():
+                leaf = _module_r80_load_sink(nm)
+                loads[nm] = leaf
+                if not leaf.get("sink_seen"):
+                    return _module_r80_block(
+                        entry, failures,
+                        f"probe sink {key} did not enumerate "
+                        f"({leaf.get('error') or leaf.get('load')})",
+                        loads)
+            entry["sink_loads"] = {k: {"module_id": v["load"].get(
+                "module_id"), "sink_waited_s": v.get("sink_waited_s")}
+                                   for k, v in loads.items()}
+            # t1: @DEFAULT_SINK@ inside slaves=/sinks= is never expanded —
+            # both spellings refuse rc=1 Input/Output error, no node, and
+            # the module list is untouched.
+            cbname = f"{MODULE_R80_PREFIX}_cb"
+            mods_before = _module_r80_module_count()
+            tries = {}
+            for arg in ("slaves=@DEFAULT_SINK@", "sinks=@DEFAULT_SINK@"):
+                tries[arg] = _module_r80_load(
+                    "module-combine-sink", f"sink_name={cbname}", arg)
+                time.sleep(0.2)
+            time.sleep(MODULE_R80_SETTLE_S)
+            nodes_now = _module_r80_nodes([cbname])
+            branches = sorted(
+                n for n in (_playback_r78_node_names() or [])
+                if n.startswith(f"output.{cbname}"))
+            mods_after = _module_r80_module_count()
+            legs["t1_combine_default_refused"] = {
+                "attempts": tries, "node_created": nodes_now[
+                    cbname].get("found"), "branch_nodes": branches,
+                "module_count_before": mods_before,
+                "module_count_after": mods_after}
+            # Leak guard (critic F8): a hypothetical rc=0 try produced a
+            # real module — it must reach `loads` for teardown custody.
+            for i, att in enumerate(tries.values()):
+                if (att or {}).get("module_id") is not None:
+                    loads[f"{cbname}_try{i}"] = {"load": att}
+            # t2: `pw-link <o> <i>` — the linger default. The process has
+            # already EXITED (rc=0 in ms) when the edge is observed; it
+            # must still be up at +2 s (WirePlumber does not reap it).
+            out_p = f"{names['lnk_a']}:monitor_FL"
+            in_p = f"{names['lnk_b']}:playback_FL"
+            try:
+                proc = subprocess.run(
+                    ["pw-link", out_p, in_p],
+                    capture_output=True, timeout=10)
+                create = {"exit_code": proc.returncode,
+                          "stderr_tail": _capture_tail(
+                              proc.stderr.decode(errors="replace"),
+                              "pw-link")}
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                create = {"exit_code": None, "error": str(exc)[:120]}
+            edges_now = _module_r80_edges(names["lnk_b"])
+            linked_now = (out_p, in_p) in edges_now
+            time.sleep(MODULE_R80_LINGER_LINK_HOLD_S)
+            edges_later = _module_r80_edges(names["lnk_b"])
+            legs["t2_pwlink_lingers"] = {
+                "out": out_p, "in": in_p, "create": create,
+                "linked_immediately": linked_now,
+                "edges_immediately": edges_now,
+                "linked_after_s": MODULE_R80_LINGER_LINK_HOLD_S,
+                "linked_later": (out_p, in_p) in edges_later,
+                "edges_later": edges_later}
+            # teardown the linger link explicitly — it survives module
+            # teardown anyway, but the explicit -d keeps the receipt
+            # honest about WHO tore it down.
+            try:
+                proc = subprocess.run(["pw-link", "-d", out_p, in_p],
+                                      capture_output=True, timeout=10)
+                legs["t2_pwlink_lingers"]["teardown_d"] = {
+                    "exit_code": proc.returncode}
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                legs["t2_pwlink_lingers"]["teardown_d"] = {
+                    "exit_code": None, "error": str(exc)[:120]}
+            # t3: `pw-link -m` — the link is the CLIENT's; it dies with
+            # the process. FR ports (t2 used FL) so a failed t2
+            # teardown_d cannot alias this leg's edge evidence (F7).
+            out_p3 = f"{names['lnk_a']}:monitor_FR"
+            in_p3 = f"{names['lnk_b']}:playback_FR"
+            mproc = subprocess.Popen(
+                ["pw-link", "-m", out_p3, in_p3],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                start_new_session=True)
+            time.sleep(1.0)
+            edges_live = _module_r80_edges(names["lnk_b"])
+            linked_live = (out_p3, in_p3) in edges_live
+            if mproc.poll() is None:
+                os.killpg(mproc.pid, signal.SIGKILL)
+            mproc.wait()
+            merr = mproc.stderr.read().decode(errors="replace")
+            time.sleep(MODULE_R80_MLINK_DEAD_S)
+            # Reader-error must not pass the "link died" claim vacuously
+            # (critic F3): a failed pw-link read is coverage_blocked.
+            raw_dead = _playback_r78_links()
+            edges_dead = None if raw_dead is None else sorted(
+                {e for e in raw_dead
+                 if e[0].split(":")[0] == names["lnk_b"] or
+                 e[1].split(":")[0] == names["lnk_b"]})
+            legs["t3_pwlink_m_dies"] = {
+                "out": out_p3, "in": in_p3,
+                "linked_while_running": linked_live,
+                "edges_while_running": edges_live,
+                "m_exit_code": mproc.returncode,
+                "m_stderr_tail": _capture_tail(merr, "pw-link"),
+                "linked_after_death": (
+                    None if edges_dead is None
+                    else (out_p3, in_p3) in edges_dead),
+                "edges_after_death": edges_dead}
+            # t4: pactl move-sink-input is STICKY and carries content —
+            # the tag tone is fed into mv_a, the move lands it on mv_b,
+            # and mv_b's monitor tap must carry it (the move is real,
+            # not relabeled).
+            tag = f"{MODULE_R80_PREFIX}_play_mv"
+            leg = _module_r80_move_leg(tag, Path(tmp) /
+                                       "tap_move_sticky.wav",
+                                       names["mv_a"], names["mv_b"],
+                                       names["mv_b"], ctx)
+            legs["t4_move_sticky"] = {k: leg[k] for k in leg
+                                      if k != "node"}
+            legs["t4_move_sticky"]["tap"]["ran"] = bool(
+                legs["t4_move_sticky"]["tap"].get("windows"))
+            # t5: node.dont-move=true — the same move is a SILENT no-op
+            # (rc=0, links unchanged). The tap on dm_a keeps carrying
+            # the tone: the move never happened.
+            tag = f"{MODULE_R80_PREFIX}_play_dm"
+            leg = _module_r80_move_leg(tag, Path(tmp) /
+                                       "tap_move_dontmove.wav",
+                                       names["dm_a"], names["dm_a"],
+                                       names["dm_b"], ctx,
+                                       extra_props=(
+                                           "node.dont-move=true",),
+                                       with_node=True)
+            legs["t5_move_dontmove_noop"] = {
+                "tag": leg["tag"], "feed_exit": leg["feed_exit"],
+                "edge_a_waited_s": leg["edge_a_waited_s"],
+                "edge_a_linked": leg["edge_a_linked"],
+                "sink_input": leg["sink_input"],
+                "node_dont_move_prop":
+                    leg["node"].get("node_dont_move"),
+                "node": leg["node"],
+                **{k: leg[k] for k in
+                   ("move", "edges_before", "edges_after_first_s",
+                    "edges_first", "edges_after_late_s", "edges_late",
+                    "tap")}}
+            legs["t5_move_dontmove_noop"]["tap"]["ran"] = bool(
+                legs["t5_move_dontmove_noop"]["tap"].get("windows"))
+    finally:
+        _module_r80_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- t1: both spellings refuse, nothing is created ----
+    leg = legs.get("t1_combine_default_refused") or {}
+    for arg, att in (leg.get("attempts") or {}).items():
+        if att.get("exit_code") != 1 or \
+                att.get("error_class") != "pa_io_error":
+            failures.append(f"topo t1: {arg} must be rc=1 "
+                            f"Input/Output error — got "
+                            f"{att.get('exit_code')}/"
+                            f"{att.get('stderr_tail')}")
+    if leg.get("node_created") or leg.get("branch_nodes"):
+        failures.append("topo t1: a refused combine load still created "
+                        f"nodes ({leg.get('node_created')}, "
+                        f"{leg.get('branch_nodes')})")
+    if leg.get("module_count_before") is not None and \
+            leg.get("module_count_after") is not None and \
+            leg["module_count_after"] != leg["module_count_before"]:
+        failures.append("topo t1: module count moved "
+                        f"{leg['module_count_before']} -> "
+                        f"{leg['module_count_after']} on refused loads")
+    # ---- t2: the linger link outlives its exited process ----
+    leg = legs.get("t2_pwlink_lingers") or {}
+    if leg.get("create", {}).get("exit_code") != 0:
+        failures.append(f"topo t2: pw-link create failed — "
+                        f"{leg.get('create')}")
+    if not leg.get("linked_immediately"):
+        failures.append("topo t2: the linger link was not observed")
+    if not leg.get("linked_later"):
+        failures.append("topo t2: the linger link did not survive "
+                        f"+{MODULE_R80_LINGER_LINK_HOLD_S}s — the "
+                        "linger law is falsified")
+    # ---- t3: the -m link dies with its client ----
+    leg = legs.get("t3_pwlink_m_dies") or {}
+    if not leg.get("linked_while_running"):
+        failures.append("topo t3: the -m link never appeared while the "
+                        "client ran")
+    if leg.get("linked_after_death") is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "topo t3: pw-link reader failed post-death — "
+            "linked_after_death unmeasured")
+    elif leg.get("linked_after_death"):
+        failures.append("topo t3: the -m link SURVIVED its client's "
+                        "death — the monitor-mode law is falsified")
+    # ---- t4: the move is sticky and carries content ----
+    leg = legs.get("t4_move_sticky") or {}
+    edge_dst = (f"{leg.get('tag')}:output_FL",
+                f"{names['mv_b']}:playback_FL")
+    if not leg.get("edge_a_linked"):
+        failures.append("topo t4: the feed never linked onto mv_a — "
+                        f"waited {leg.get('edge_a_waited_s')}s")
+    if not leg.get("sink_input", {}).get("entry_found"):
+        failures.append("topo t4: no sink-input entry for the tagged "
+                        "stream — the move was never issued")
+    elif leg.get("move", {}).get("exit_code") != 0:
+        failures.append(f"topo t4: move-sink-input failed — "
+                        f"{leg.get('move')}")
+    edge_src4 = (f"{leg.get('tag')}:output_FL",
+                 f"{names['mv_a']}:playback_FL")
+    # The move must CREATE the dst edge and REMOVE the src one — without
+    # both halves a preloaded or fan-out edge set passes (critic F5).
+    if edge_dst in (leg.get("edges_before") or []):
+        failures.append("topo t4: the mv_b edge existed BEFORE the move "
+                        "— the sticky evidence is preloaded")
+    for when in ("edges_first", "edges_late"):
+        got = leg.get(when) or []
+        if edge_dst not in got:
+            failures.append(f"topo t4: at {when} the stream is not "
+                            f"linked to mv_b — got {got}")
+        if edge_src4 in got:
+            failures.append(f"topo t4: at {when} the mv_a edge survived "
+                            f"the move — the move is not proven ({got})")
+    tapv = leg.get("tap") or {}
+    if not tapv.get("ran"):
+        failures.append("topo t4: the destination monitor tap produced "
+                        "no windows — the content pin is vacuous")
+    elif not tapv.get("carries_tone"):
+        failures.append("topo t4: the moved-to sink's monitor never "
+                        "carried the tag tone — the move did not carry "
+                        "content")
+    # ---- t5: dont-move turns the move into a silent no-op ----
+    leg = legs.get("t5_move_dontmove_noop") or {}
+    edge_src = (f"{leg.get('tag')}:output_FL",
+                f"{names['dm_a']}:playback_FL")
+    edge_bad = (f"{leg.get('tag')}:output_FL",
+                f"{names['dm_b']}:playback_FL")
+    if not leg.get("edge_a_linked"):
+        failures.append("topo t5: the feed never linked onto dm_a")
+    if leg.get("node_dont_move_prop") is not True:
+        failures.append("topo t5: node.dont-move did not land on the "
+                        f"stream node — got "
+                        f"{leg.get('node_dont_move_prop')!r}")
+    if not leg.get("sink_input", {}).get("entry_found"):
+        failures.append("topo t5: no sink-input entry for the tagged "
+                        "stream")
+    elif leg.get("move", {}).get("exit_code") != 0:
+        # the no-op is only silent if rc==0 — a refusal is a different
+        # law and must be named.
+        failures.append(f"topo t5: move-sink-input refused (rc!=0) — "
+                        f"the silent-no-op law needs rc=0: "
+                        f"{leg.get('move')}")
+    for when in ("edges_first", "edges_late"):
+        got = leg.get(when) or []
+        if edge_src not in got or edge_bad in got:
+            failures.append(f"topo t5: at {when} the stream must still "
+                            f"be on dm_a and never on dm_b — got {got}")
+    tapv = leg.get("tap") or {}
+    if not tapv.get("ran"):
+        failures.append("topo t5: the source monitor tap produced no "
+                        "windows — the content pin is vacuous")
+    elif not tapv.get("carries_tone"):
+        failures.append("topo t5: the ORIGINAL sink's monitor lost the "
+                        "tag tone — the no-op claim fails on content")
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -11674,12 +12662,13 @@ def main():
     parser.add_argument("--probe-consumers-r73", action="store_true")
     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
     parser.add_argument("--probe-consumers2-r75", action="store_true")
+    parser.add_argument("--probe-module-r80", action="store_true")
     parser.add_argument("--probe-capture-r79", action="store_true")
     parser.add_argument("--probe-capture-r78", action="store_true")
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -11970,6 +12959,19 @@ def main():
             path = ROOT / "live" / directory / filename
             measurements[f"consumer2_{member}_r75_probe"] = \
                 consumer2_transport_entry(member, path)
+    if args.probe_module_r80:
+        # r80: the pactl load-module frontier — the argument lattice
+        # (description= silently dropped vs sink_properties honored,
+        # rate= verbatim into EnumFormat, media.class=Audio/Source a real
+        # class change, object.linger=true the permanent orphan) and the
+        # link-authority lifecycle (@DEFAULT_SINK@ never expands inside
+        # slave lists, pw-link linger vs -m, move-sink-input sticky vs
+        # the dont-move silent no-op). A NEW parallel ledger family,
+        # prior rows untouched.
+        measurements["module_args_lattice_r80_probe"] = \
+            module_args_lattice_r80_entry()
+        measurements["module_topology_r80_probe"] = \
+            module_topology_r80_entry()
     if args.probe_capture_r79:
         # r79: the pw-loopback frontier — one client, two stream nodes
         # (input.<n>/output.<n>), the in-client copy; the -C capture
@@ -12528,7 +13530,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -12548,7 +13550,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
