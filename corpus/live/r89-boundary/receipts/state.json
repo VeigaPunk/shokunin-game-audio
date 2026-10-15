@@ -1,0 +1,312 @@
+{
+ "t": "2026-10-15T20:07:55Z",
+ "load": [
+  "61.18",
+  "44.89",
+  "40.16"
+ ],
+ "git_head": "1abd9549",
+ "git_status": [
+  " M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc",
+  " M corpus/fixtures/measure_audio.py",
+  "?? corpus/live/r71-critic/wvtail.wv",
+  "?? corpus/live/r72-author/",
+  "?? corpus/live/r72-baseline/env-patch.diff",
+  "?? corpus/live/r72-baseline/impl-compare.txt",
+  "?? corpus/live/r72-baseline/lattice.tsv",
+  "?? corpus/live/r72-baseline/post-state.txt",
+  "?? corpus/live/r72-baseline/pre-state.txt",
+  "?? corpus/live/r72-baseline/prior-rows-stable.txt",
+  "?? corpus/live/r72-baseline/receipt-shas.txt",
+  "?? corpus/live/r72-baseline/runs-canonical-after.txt"
+ ],
+ "modules": {
+  "ids": [
+   "1",
+   "2",
+   "4",
+   "6",
+   "8",
+   "10",
+   "12",
+   "14",
+   "16",
+   "17",
+   "18",
+   "20",
+   "22",
+   "536870912",
+   "536870913",
+   "536870914",
+   "536870915",
+   "536870916",
+   "536870918",
+   "536870922",
+   "536870923"
+  ],
+  "blanks": [
+   28
+  ],
+  "rc": 0,
+  "raw": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870916\tmodule-null-sink\tsink_name=r96s_ns rate=48000 channels=1 sink_properties=state.restore-props=false\t\n536870918\tmodule-null-sink\tsink_name=r86b_ns\t\n536870922\tmodule-null-sink\tsink_name=r93s_in channels=1\t\n536870923\tmodule-null-sink\tsink_name=r82ff_ns_2422178\t\n"
+ },
+ "module_lines": [
+  "1\tlibpipewire-module-rt\t{",
+  "2\tlibpipewire-module-protocol-native\t{",
+  "4\tlibpipewire-module-profiler\t{",
+  "6\tlibpipewire-module-metadata\t\t",
+  "8\tlibpipewire-module-spa-device-factory\t\t",
+  "10\tlibpipewire-module-spa-node-factory\t\t",
+  "12\tlibpipewire-module-client-node\t\t",
+  "14\tlibpipewire-module-client-device\t\t",
+  "16\tlibpipewire-module-portal\t\t",
+  "17\tlibpipewire-module-access\t{",
+  "18\tlibpipewire-module-adapter\t\t",
+  "20\tlibpipewire-module-link-factory\t{",
+  "22\tlibpipewire-module-session-manager\t\t",
+  "536870912\tmodule-always-sink\t\t",
+  "536870913\tmodule-device-manager\t\t",
+  "536870914\tmodule-device-restore\t\t",
+  "536870915\tmodule-stream-restore\t\t",
+  "536870916\tmodule-null-sink\tsink_name=r96s_ns rate=48000 channels=1 sink_properties=state.restore-props=false\t",
+  "536870918\tmodule-null-sink\tsink_name=r86b_ns\t",
+  "536870922\tmodule-null-sink\tsink_name=r93s_in channels=1\t",
+  "536870923\tmodule-null-sink\tsink_name=r82ff_ns_2422178\t"
+ ],
+ "sinks": {
+  "ids": [
+   "61",
+   "62",
+   "63",
+   "60843",
+   "116459",
+   "116556",
+   "116957",
+   "117017",
+   "117395"
+  ],
+  "blanks": [],
+  "rc": 0,
+  "raw": "61\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\tPipeWire\ts16le 2ch 48000Hz\tIDLE\n62\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n63\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n60843\talsa_output.pci-0000_01_00.1.hdmi-stereo\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n116459\tr96s_ns\tPipeWire\tfloat32le 1ch 48000Hz\tSUSPENDED\n116556\tr86b_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n116957\tr82ff_ns_2422178\tPipeWire\tfloat32le 2ch 48000Hz\tIDLE\n117017\tr93s_in\tPipeWire\tfloat32le 1ch 48000Hz\tIDLE\n117395\tr93s_fc_in\tPipeWire\tfloat32le 1ch 48000Hz\tRUNNING\n"
+ },
+ "sources": {
+  "ids": [
+   "61",
+   "62",
+   "63",
+   "64",
+   "65",
+   "60843",
+   "116459",
+   "116556",
+   "116957",
+   "117017",
+   "117395"
+  ],
+  "blanks": [],
+  "rc": 0,
+  "raw": "61\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor\tPipeWire\ts16le 2ch 48000Hz\tIDLE\n62\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n63\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n64\talsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED\n65\talsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED\n60843\talsa_output.pci-0000_01_00.1.hdmi-stereo.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n116459\tr96s_ns.monitor\tPipeWire\tfloat32le 1ch 48000Hz\tSUSPENDED\n116556\tr86b_ns.monitor\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n116957\tr82ff_ns_2422178.monitor\tPipeWire\tfloat32le 2ch 48000Hz\tIDLE\n117017\tr93s_in.monitor\tPipeWire\tfloat32le 1ch 48000Hz\tIDLE\n117395\tr93s_fc_in.monitor\tPipeWire\tfloat32le 1ch 48000Hz\tRUNNING\n"
+ },
+ "blank_census": {
+  "modules": {
+   "blanks": [
+    28
+   ],
+   "n_ids": 21
+  },
+  "cards": {
+   "blanks": [],
+   "n_ids": 3
+  },
+  "sinks": {
+   "blanks": [],
+   "n_ids": 9
+  },
+  "sources": {
+   "blanks": [],
+   "n_ids": 11
+  },
+  "clients": {
+   "blanks": [],
+   "n_ids": 16
+  },
+  "samples": {
+   "blanks": [],
+   "n_ids": 0
+  }
+ },
+ "graph": {
+  "n_objects": 122,
+  "nodes": [
+   {
+    "id": 29,
+    "name": "Dummy-Driver",
+    "driver": true,
+    "class": null
+   },
+   {
+    "id": 30,
+    "name": "Freewheel-Driver",
+    "driver": true,
+    "class": null
+   },
+   {
+    "id": 46,
+    "name": "Midi-Bridge",
+    "driver": true,
+    "class": "Midi/Bridge"
+   },
+   {
+    "id": 49,
+    "name": "bluez_midi.server",
+    "driver": null,
+    "class": "Midi/Bridge"
+   },
+   {
+    "id": 61,
+    "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 62,
+    "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 63,
+    "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 64,
+    "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "driver": true,
+    "class": "Audio/Source"
+   },
+   {
+    "id": 65,
+    "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+    "driver": true,
+    "class": "Audio/Source"
+   },
+   {
+    "id": 175,
+    "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 110,
+    "name": "r96s_ns",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 181,
+    "name": "r86b_ns",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 146,
+    "name": "r82ff_ns_2422178",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 234,
+    "name": "r93s_in",
+    "driver": true,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 52,
+    "name": "r93s_fc_in",
+    "driver": null,
+    "class": "Audio/Sink"
+   },
+   {
+    "id": 197,
+    "name": "r93s_fc_out",
+    "driver": null,
+    "class": "Stream/Output/Audio"
+   },
+   {
+    "id": 135,
+    "name": "r82ff_2422178_tdef_p3_monitor_name",
+    "driver": null,
+    "class": "Stream/Input/Audio"
+   },
+   {
+    "id": 127,
+    "name": "r82ff_2422178_tns_p3_monitor_name",
+    "driver": null,
+    "class": "Stream/Input/Audio"
+   }
+  ],
+  "load": [
+   "61.18",
+   "44.89",
+   "40.16"
+  ]
+ },
+ "pwtop": {
+  "raw": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nC   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge\nC   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server\nC   61      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nC   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nC   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nC   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nC   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nC  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nC  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nC  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nC  146      0      0    ---     ---   ---   ---     0                  r82ff_ns_2422178\nC  234      0      0    ---     ---   ---   ---     0                  r93s_in\nC   52      0      0    ---     ---   ---   ---     0                  r93s_fc_in\nC  197      0      0    ---     ---   ---   ---     0                  r93s_fc_out\nC  135      0      0    ---     ---   ---   ---     0                  r82ff_2422178_tdef_p3_monitor_name\nC  127      0      0    ---     ---   ---   ---     0                  r82ff_2422178_tns_p3_monitor_name\nS   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nI   29      0      0   0.0us   0.0us  ???   ???     0                  Dummy-Driver\nS   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nI   46      0      0   0.0us   0.0us  ???   ???     0                  Midi-Bridge\nI   49      0      0   0.0us   0.0us  ???   ???     0                  bluez_midi.server\nR   61      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nS   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\nS   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\nS   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nS   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\nS  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo\nS  110      0      0    ---     ---   ---   ---     0                  r96s_ns\nS  181      0      0    ---     ---   ---   ---     0                  r86b_ns\nR  146   1024  48000   4.6us   7.3us  0.00  0.00    0     F32P 2 48000 r82ff_ns_2422178\nR  127      0  48000   9.8us  10.9us  0.00  0.00    0    S16LE 2 48000  = r82ff_2422178_tns_p3_monitor_name\nR  234      0      0   0.0us   0.0us  ???   ???     0     F32P 1 48000 r93s_in\nR   52      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_in\nR  197      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_out\nR  135      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 r82ff_2422178_tdef_p3_monitor_name\n",
+  "rows": [
+   "C   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver",
+   "C   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver",
+   "C   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge",
+   "C   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server",
+   "C   61      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "C   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "C   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "C   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "C   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "C  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "C  110      0      0    ---     ---   ---   ---     0                  r96s_ns",
+   "C  181      0      0    ---     ---   ---   ---     0                  r86b_ns",
+   "C  146      0      0    ---     ---   ---   ---     0                  r82ff_ns_2422178",
+   "C  234      0      0    ---     ---   ---   ---     0                  r93s_in",
+   "C   52      0      0    ---     ---   ---   ---     0                  r93s_fc_in",
+   "C  197      0      0    ---     ---   ---   ---     0                  r93s_fc_out",
+   "C  135      0      0    ---     ---   ---   ---     0                  r82ff_2422178_tdef_p3_monitor_name",
+   "C  127      0      0    ---     ---   ---   ---     0                  r82ff_2422178_tns_p3_monitor_name",
+   "I   29      0      0   0.0us   0.0us  ???   ???     0                  Dummy-Driver",
+   "S   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver",
+   "I   46      0      0   0.0us   0.0us  ???   ???     0                  Midi-Bridge",
+   "I   49      0      0   0.0us   0.0us  ???   ???     0                  bluez_midi.server",
+   "R   61      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "S   62      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "S   63      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "S   64      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "S   65      0      0    ---     ---   ---   ---     0                  alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "S  175      0      0    ---     ---   ---   ---     0                  alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "S  110      0      0    ---     ---   ---   ---     0                  r96s_ns",
+   "S  181      0      0    ---     ---   ---   ---     0                  r86b_ns",
+   "R  146   1024  48000   4.6us   7.3us  0.00  0.00    0     F32P 2 48000 r82ff_ns_2422178",
+   "R  127      0  48000   9.8us  10.9us  0.00  0.00    0    S16LE 2 48000  = r82ff_2422178_tns_p3_monitor_name",
+   "R  234      0      0   0.0us   0.0us  ???   ???     0     F32P 1 48000 r93s_in",
+   "R   52      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_in",
+   "R  197      0      0   0.0us   0.0us  ???   ???     0         F32P 1 0 r93s_fc_out",
+   "R  135      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 r82ff_2422178_tdef_p3_monitor_name"
+  ]
+ },
+ "pw_cli_info5": "Error: \"unsupported type PipeWire:Interface:Profiler\"\n",
+ "profiler_obj": {
+  "info_rc": 0,
+  "info_stderr": "Error: \"unsupported type PipeWire:Interface:Profiler\"",
+  "enum_rc": 0,
+  "enum_stderr": "Error: \"unsupported type PipeWire:Interface:Profiler\""
+ },
+ "profiler_module_args": "\n\tArgument: {\n            #profile.interval.ms = 0\n        }\n\tUsage counter: n/a\n\tProperties:\n\t\tmodule.name = \"",
+ "procs": [
+  "2444306 [pw-play] <defunct>",
+  "2444650 pw-record -P stream.capture.sink=true -P node.name=r82ff_2422178_tns_p3_monitor_name --target r82ff_ns_2422178 -n 163200 --rate 48000 --channels 2 --format s16 /tmp/r82ff-play-rb9jzejw/p3_monitor_name_ns.wav",
+  "2444651 pw-record -P stream.capture.sink=true -P node.name=r82ff_2422178_tdef_p3_monitor_name --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 163200 --rate 48000 --channels 2 --format s16 /tmp/r82ff-play-rb9jzejw/p3_monitor_name_def.wav",
+  ""
+ ],
+ "hogs_own": "32"
+}
