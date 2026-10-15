@@ -1,0 +1,1168 @@
+{
+ "elapsed_s": 156.5,
+ "final_census": {
+  "host_default_sink_links": [],
+  "nodes": [
+   {
+    "autoconnect": null,
+    "channels": 1,
+    "class": "Audio/Sink",
+    "desc": "r92s_in Audio/Sink sink",
+    "id": 135,
+    "latency": null,
+    "name": "r92s_in",
+    "ports": [
+     "monitor_MONO",
+     "playback_MONO"
+    ],
+    "position": "[ MONO ]",
+    "rate": null,
+    "state": "idle"
+   },
+   {
+    "autoconnect": null,
+    "channels": 1,
+    "class": "Audio/Sink",
+    "desc": "r92s_out Audio/Sink sink",
+    "id": 88,
+    "latency": null,
+    "name": "r92s_out",
+    "ports": [
+     "monitor_MONO",
+     "playback_MONO"
+    ],
+    "position": "[ MONO ]",
+    "rate": null,
+    "state": "suspended"
+   },
+   {
+    "autoconnect": false,
+    "channels": null,
+    "class": "Stream/Input/Audio",
+    "desc": "",
+    "id": 95,
+    "latency": null,
+    "name": "r92s_rec",
+    "ports": [
+     "input_FL",
+     "input_FR",
+     "monitor_FL",
+     "monitor_FR"
+    ],
+    "position": null,
+    "rate": "1/48000",
+    "state": "suspended"
+   }
+  ],
+  "r92s_links": [],
+  "spdif_links": [],
+  "tag": "final"
+ },
+ "freqs": [
+  200,
+  1000,
+  4000,
+  12000
+ ],
+ "graphs": {
+  "bq_allpass-1000": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_allpass,control={Freq=1000.0,Q=1.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.611,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_allpass-1000_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_bandpass-1000": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_bandpass,control={Freq=1000.0,Q=1.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.611,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_bandpass-1000_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_highpass-1000": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_highpass,control={Freq=1000.0,Q=0.707}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.611,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_highpass-1000_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_highshelf-4000-gm6": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_highshelf,control={Freq=4000.0,Q=0.707,Gain=-6.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.61,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_highshelf-4000-gm6_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_lowpass-1000": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_lowpass,control={Freq=1000.0,Q=0.707}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.612,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_lowpass-1000_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_lowshelf-200-g6": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_lowshelf,control={Freq=200.0,Q=0.707,Gain=6.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.609,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_lowshelf-200-g6_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_notch-1000": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_notch,control={Freq=1000.0,Q=1.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.611,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_notch-1000_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "bq_peaking-1000-g6": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_peaking,control={Freq=1000.0,Q=1.0,Gain=6.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.611,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_peaking-1000-g6_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "bq_peaking-1000-gm6": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=f1,label=bq_peaking,control={Freq=1000.0,Q=1.0,Gain=-6.0}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.61,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_bq_peaking-1000-gm6_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "copy": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=c,label=copy]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.61,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_copy_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "delay-10ms": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=d,label=delay,config={max-delay=0.05},control={Delay=0.01}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.609,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_delay-10ms_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "eq6-chain": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=b1,label=bq_lowshelf,control={Freq=200.0,Q=0.707,Gain=6.0},type=builtin,name=b2,label=bq_peaking,control={Freq=1000.0,Q=1.0,Gain=-12.0},type=builtin,name=b3,label=bq_highshelf,control={Freq=4000.0,Q=0.707,Gain=6.0}],links=[{output=b1:Out,input=b2:In},{output=b2:Out,input=b3:In}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.707,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.613,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_eq6-chain_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "gain-0.5": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=g,label=gain,control={Gain=0.5}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.612,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_gain-0_5_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": [
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+       "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+       "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+      ]
+     }
+    }
+   ]
+  },
+  "identity": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.706,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.61,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_identity_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "invert": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=i,label=invert]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.609,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_invert_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "mixer-2in": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=m,label=mixer,control={Gain 1=0.5,Gain 2=0.5}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.707,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.612,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_mixer-2in_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870921,
+         536870922
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870920,
+         536870923
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "param_eq": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=pe,label=param_eq,config={filters=[{type=bq_peaking,freq=1000.0,gain=6.0,q=1.0},{type=bq_lowpass,freq=4000.0}]}]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.707,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.613,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_param_eq_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  },
+  "sine-gen": {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[type=builtin,name=s,label=sine]},audio.channels=1,audio.position=[MONO]",
+   "rows": [
+    {
+     "play": {
+      "dur": 1.705,
+      "err": "",
+      "out": "",
+      "rc": 0
+     },
+     "rec_bytes": 44,
+     "rec_stop": {
+      "dur": 2.61,
+      "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/rec_sine-gen_r0.wav\n",
+      "out": "",
+      "rc": 1
+     },
+     "rep": 0,
+     "teardown": {
+      "nodes_after_unload": null,
+      "nodes_at_exit": [
+       "r92s_in",
+       "r92s_out",
+       "r92s_rec",
+       "r92s_in",
+       "r92s_out"
+      ],
+      "sink_unload": [
+       {
+        "candidates": [
+         536870920,
+         536870922
+        ],
+        "expected_id": 536870920,
+        "name": "r92s_in",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       },
+       {
+        "candidates": [
+         536870921,
+         536870923
+        ],
+        "expected_id": 536870921,
+        "name": "r92s_out",
+        "unload_err": "",
+        "unload_rc": 0,
+        "verified": true
+       }
+      ],
+      "spdif_at_exit": []
+     }
+    }
+   ]
+  }
+ },
+ "ref_mags": {
+  "200": 0.049991,
+  "1000": 0.049988,
+  "4000": 0.049991,
+  "12000": 0.04999
+ },
+ "reps": 1,
+ "stage": "dsp",
+ "stim": {
+  "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/scratch/tone.wav",
+  "sha": "75c7f58873542f2f"
+ },
+ "ts": "2026-10-15T17:33:47Z"
+}

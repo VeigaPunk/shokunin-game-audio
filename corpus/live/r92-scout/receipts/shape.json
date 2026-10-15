@@ -1,0 +1,1681 @@
+{
+ "elapsed_s": 76.4,
+ "final_census": {
+  "host_default_sink_links": [],
+  "nodes": [],
+  "r92s_links": [],
+  "spdif_links": [],
+  "tag": "final"
+ },
+ "reps": 1,
+ "stage": "shape",
+ "ts": "2026-10-15T17:36:04Z",
+ "variants": {
+  "autoconnect-true": [
+   {
+    "census_live": {
+     "host_default_sink_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Input/Audio",
+       "desc": "r92s_fc",
+       "id": 117,
+       "latency": null,
+       "name": "r92s_fc_in",
+       "ports": [],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 109,
+       "latency": null,
+       "name": "r92s_fc_out",
+       "ports": [
+        "output_FL",
+        "output_FR"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "running"
+      }
+     ],
+     "r92s_links": [
+      "  |<- r92s_fc_out:output_FL",
+      "  |<- r92s_fc_out:output_FR",
+      "r92s_fc_out:output_FL",
+      "r92s_fc_out:output_FR"
+     ],
+     "spdif_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "tag": "autoconnect-true-r0"
+    },
+    "cli_log": "ode 109 changed\nremote 0 node 61 changed\nremote 0 port 66 changed\nremote 0 node 61 changed\nremote 0 port 68 changed\nremote 0 port 69 changed\nremote 0 port 66 changed\nremote 0 removed global: \tid 123, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25611\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"95\"\n \t\tlink.input.port = \"66\"\n \t\tlink.output.node = \"109\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 95, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25609\"\n \t\tobject.path = \"r92s_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"109\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 port 67 changed\nremote 0 port 67 changed\nremote 0 removed global: \tid 98, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25612\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"137\"\n \t\tlink.input.port = \"67\"\n \t\tlink.output.node = \"109\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 137, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25610\"\n \t\tobject.path = \"r92s_fc_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"109\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 109, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25608\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"97\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 97, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25606\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2196584\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n",
+    "fc_log": [
+     "[I][14:35:37.387363] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:35:37.387713] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:35:37.387723] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:37.387726] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:37.387730] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:37.387735] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:37.387740] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:37.387744] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:37.387748] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:37.387751] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:37.387755] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:37.387758] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:37.387761] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:37.387769] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:35:37.395795] spa.filter-graph | [  filter-graph.c: 1898 setup_graph()] using 1 instances 1 1",
+     "[I][14:35:37.395797] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port f1[0]:In",
+     "[I][14:35:37.395800] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port f1[0]:Out",
+     "[I][14:35:37.395802] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 1000.000000",
+     "[I][14:35:37.395806] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:37.395809] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:37.395811] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:37.395813] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:37.395816] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:37.395818] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:37.395820] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:37.395822] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:37.395824] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass f1[0] rate:48000",
+     "[I][14:35:37.395827] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port f1[0]:In 0x555f3bafe350",
+     "[I][14:35:37.395832] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port f1[0]:Out 0x555f3bb06360",
+     "[I][14:35:37.395834] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Freq 0x555f3bb140e8",
+     "[I][14:35:37.395836] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Q 0x555f3bb14630",
+     "[I][14:35:37.395838] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Gain 0x555f3bb14b78",
+     "[I][14:35:37.395840] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b0 0x555f3bb150c0",
+     "[I][14:35:37.395842] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b1 0x555f3bb15608",
+     "[I][14:35:37.395844] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b2 0x555f3bb15b50",
+     "[I][14:35:37.395845] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a0 0x555f3bb16098",
+     "[I][14:35:37.395847] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a1 0x555f3bb165e0",
+     "[I][14:35:37.395848] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a2 0x555f3bb16b28",
+     "[I][14:35:37.395851] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] f1 latency:0.000000-0.000000",
+     "[I][14:35:37.395853] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "ewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 112, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25618\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2229734\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 112 changed\nremote 0 removed global: \tid 112, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25618\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2229734\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "r92s_fc_in",
+     "r92s_fc_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "autoconnect-true",
+    "unload_out": "e 0 removed global: \tid 109, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25608\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"97\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 97, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25606\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2196584\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n"
+   }
+  ],
+  "bad-label": [
+   {
+    "census_live": {
+     "host_default_sink_links": [],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 133,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 118,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [],
+     "tag": "bad-label-r0"
+    },
+    "cli_log": "= \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264517\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25766\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264517\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25767\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264521\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25767\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264521\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25768\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264531\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 83 changed\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25768\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264531\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "fc_log": [
+     "[I][14:35:48.624400] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:not_a_filter",
+     "[I][14:35:48.624775] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[E][14:35:48.624784] spa.filter-graph | [  filter-graph.c: 1019 descriptor_load()] cannot create label not_a_filter",
+     "[E][14:35:48.624850] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: No such file or directory"
+    ],
+    "fc_module_var": null,
+    "links": [],
+    "load_out": "pipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25768\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264531\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 83 changed\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25768\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2264531\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "bad-label"
+   }
+  ],
+  "bq-unknown-freq": [
+   {
+    "census_live": {
+     "host_default_sink_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 118,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 133,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Input/Audio",
+       "desc": "r92s_fc",
+       "id": 135,
+       "latency": null,
+       "name": "input.filter-chain-2274046-22",
+       "ports": [],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 157,
+       "latency": null,
+       "name": "output.filter-chain-2274046-22",
+       "ports": [
+        "output_FL",
+        "output_FR"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "running"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "tag": "bq-unknown-freq-r0"
+    },
+    "cli_log": "anged\nremote 0 node 61 changed\nremote 0 port 68 changed\nremote 0 port 69 changed\nremote 0 port 66 changed\nremote 0 removed global: \tid 148, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25801\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"153\"\n \t\tlink.input.port = \"66\"\n \t\tlink.output.node = \"157\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 153, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25799\"\n \t\tobject.path = \"output.filter-chain-2274046-22:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"157\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 port 67 changed\nremote 0 port 67 changed\nremote 0 removed global: \tid 121, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25802\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"111\"\n \t\tlink.input.port = \"67\"\n \t\tlink.output.node = \"157\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 111, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25800\"\n \t\tobject.path = \"output.filter-chain-2274046-22:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"157\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 157, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25798\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"83\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2274046-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25796\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2274046\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n",
+    "fc_log": [
+     "[I][14:35:52.122758] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:35:52.123091] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:35:52.123100] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:52.123103] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:52.123105] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:52.123110] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:52.123113] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:52.123116] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:52.123119] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:52.123121] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:52.123124] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:52.123126] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:52.123129] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:52.123133] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:35:52.129810] spa.filter-graph | [  filter-graph.c: 1898 setup_graph()] using 1 instances 1 1",
+     "[I][14:35:52.129813] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port f1[0]:In",
+     "[I][14:35:52.129815] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port f1[0]:Out",
+     "[I][14:35:52.129818] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 0.000000",
+     "[I][14:35:52.129821] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:52.129823] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:52.129825] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:52.129828] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:52.129830] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:52.129832] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:52.129834] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:52.129836] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:52.129839] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass f1[0] rate:48000",
+     "[I][14:35:52.129841] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port f1[0]:In 0x55d8e6b63310",
+     "[I][14:35:52.129844] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port f1[0]:Out 0x55d8e6b71de0",
+     "[I][14:35:52.129846] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Freq 0x55d8e6b79e38",
+     "[I][14:35:52.129848] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Q 0x55d8e6b7a380",
+     "[I][14:35:52.129850] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Gain 0x55d8e6b7a8c8",
+     "[I][14:35:52.129852] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b0 0x55d8e6b7ae10",
+     "[I][14:35:52.129853] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b1 0x55d8e6b7b358",
+     "[I][14:35:52.129855] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b2 0x55d8e6b7b8a0",
+     "[I][14:35:52.129857] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a0 0x55d8e6b7bde8",
+     "[I][14:35:52.129858] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a1 0x55d8e6b7c330",
+     "[I][14:35:52.129860] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a2 0x55d8e6b7c878",
+     "[I][14:35:52.129862] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] f1 latency:0.000000-0.000000",
+     "[I][14:35:52.129865] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "face:Node/3\n \t\tobject.serial = \"25662\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"161\"\n \t\tnode.description = \"r79lb_1951294_b05_garbage\"\n \t\tnode.name = \"input.r79lb_1951294_b05_garbage\"\n \t\tmedia.class = \"Stream/Input/Audio\"\nremote 0 removed global: \tid 161, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25660\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2237615\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-loopback\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 152 changed\n[I][14:35:52.228333] mod.filter-chain | [module-filter-ch: 1485 capture_state_changed()] module 0x55d8e6b55e70: error: no target node available\n[I][14:35:52.228355] mod.filter-chain | [module-filter-ch: 1859 core_error()] message id:2 seq:38 res:-2 (No such file or directory): no target node available\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "input.filter-chain-2274046-22",
+     "output.filter-chain-2274046-22"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "bq-unknown-freq",
+    "unload_out": " \tid 157, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25798\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"83\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2274046-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25796\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2274046\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n"
+   }
+  ],
+  "empty-graph": [
+   {
+    "census_live": {
+     "host_default_sink_links": [],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 127,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 133,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [],
+     "tag": "empty-graph-r0"
+    },
+    "cli_log": "tocol-native\"\n \t\tpipewire.sec.pid = \"2003023\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24915\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003023\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24916\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003025\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24916\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003025\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24917\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003027\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 111 changed\nremote 0 removed global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24917\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003027\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "fc_log": [
+     "[E][14:34:49.960212] spa.filter-graph | [  filter-graph.c: 2253 load_graph()] filter.graph has no nodes",
+     "[E][14:34:49.960222] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+    ],
+    "fc_module_var": null,
+    "links": [],
+    "load_out": "ewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24917\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003027\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 111 changed\nremote 0 removed global: \tid 111, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"24917\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2003027\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "empty-graph"
+   }
+  ],
+  "graph-not-object": [
+   {
+    "census_live": {
+     "host_default_sink_links": [],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 133,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 118,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [],
+     "tag": "graph-not-object-r0"
+    },
+    "cli_log": "tocol-native\"\n \t\tpipewire.sec.pid = \"2309826\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 83 changed\nremote 0 removed global: \tid 83, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25952\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2309826\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n\rpipewire-0>> load-module libpipewire-module-filter-chain node.description=r92s_fc,filter.graph=42\n[I][14:36:01.870076] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x5624a5103da0: name:libpipewire-module-filter-chain args:node.description=r92s_fc,filter.graph=42\n[I][14:36:01.870189] pw.context   | [       context.c:  806 pw_context_acquire_loop()] 0x5624a5103da0: looking for name:'(null)' class:'(null)'\n[I][14:36:01.870197] pw.context   | [       context.c:  287 data_loop_start()] starting data loop data-loop.0\n[I][14:36:01.870239] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x5624a5108ac8 created queue 0x5624a51c48a0 idx:0 0x7f5455e77780\n[I][14:36:01.870245] pw.context   | [       context.c:  782 acquire_data_loop()] 0x5624a5103da0: using name:'data-loop.0' class:'data.rt' last_used:3492974140177\n[I][14:36:01.870245] mod.rt       | [     module-rt.c:  831 do_make_realtime()] clamping requested priority 83 for thread 2313849 between 1  and 1\n[I][14:36:01.870299] mod.rt       | [     module-rt.c:  841 do_make_realtime()] acquired realtime priority 1 for thread 2313849 using RTKit\n[E][14:36:01.870413] spa.filter-graph | [  filter-graph.c: 2150 load_graph()] filter.graph must be an object\n[E][14:36:01.870421] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument\nError: \"Could not load module\"\npipewire-0>> ",
+    "fc_log": [
+     "[E][14:36:01.870413] spa.filter-graph | [  filter-graph.c: 2150 load_graph()] filter.graph must be an object",
+     "[E][14:36:01.870421] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+    ],
+    "fc_module_var": null,
+    "links": [],
+    "load_out": "start()] starting data loop data-loop.0\n[I][14:36:01.870239] spa.loop     | [          loop.c:  264 loop_create_queue()] 0x5624a5108ac8 created queue 0x5624a51c48a0 idx:0 0x7f5455e77780\n[I][14:36:01.870245] pw.context   | [       context.c:  782 acquire_data_loop()] 0x5624a5103da0: using name:'data-loop.0' class:'data.rt' last_used:3492974140177\n[I][14:36:01.870245] mod.rt       | [     module-rt.c:  831 do_make_realtime()] clamping requested priority 83 for thread 2313849 between 1  and 1\n[I][14:36:01.870299] mod.rt       | [     module-rt.c:  841 do_make_realtime()] acquired realtime priority 1 for thread 2313849 using RTKit\n[E][14:36:01.870413] spa.filter-graph | [  filter-graph.c: 2150 load_graph()] filter.graph must be an object\n[E][14:36:01.870421] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument\nError: \"Could not load module\"\npipewire-0>> ",
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "graph-not-object"
+   }
+  ],
+  "media-class-sink": [
+   {
+    "census_live": {
+     "host_default_sink_links": [],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": false,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_fc",
+       "id": 156,
+       "latency": null,
+       "name": "r92s_fc_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": false,
+       "channels": 1,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 149,
+       "latency": null,
+       "name": "r92s_fc_out",
+       "ports": [
+        "output_MONO"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [],
+     "tag": "media-class-sink-r0"
+    },
+    "cli_log": "op_create_queue()] 0x56375a1bfc78 created queue 0x56375a321040 idx:0 0x7f6fbee38780\npipewire-0>> remote 0 removed global: \tid 93, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25540\"\n \t\tobject.path = \"r92s_fc_in:playback_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"156\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"playback_MONO\"\n \t\tport.direction = \"in\"\n \t\tport.alias = \"r92s_fc:playback_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 144, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25541\"\n \t\tobject.path = \"r92s_fc_in:monitor_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"156\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"monitor_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.monitor = \"true\"\n \t\tport.alias = \"r92s_fc:monitor_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 156, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25538\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"138\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_in\"\n \t\tmedia.class = \"Audio/Sink\"\nremote 0 removed global: \tid 140, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25542\"\n \t\tobject.path = \"r92s_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"149\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 149, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25539\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"138\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 138, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25537\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2136284\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "fc_log": [
+     "[I][14:35:31.765824] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:35:31.766219] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:35:31.766229] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:31.766233] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:31.766235] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:31.766239] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:31.766243] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:31.766245] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:31.766248] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:31.766251] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:31.766253] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:31.766255] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:31.766258] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:31.766263] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "pipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 90, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25548\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2159449\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 90 changed\nremote 0 removed global: \tid 90, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25548\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2159449\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "r92s_fc_in",
+     "r92s_fc_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "media-class-sink",
+    "unload_out": "roup = \"stream.0\"\nremote 0 removed global: \tid 149, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25539\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"138\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 138, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25537\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2136284\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\n"
+   }
+  ],
+  "one-biquad": [
+   {
+    "census_live": {
+     "host_default_sink_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Input/Audio",
+       "desc": "r92s_fc",
+       "id": 161,
+       "latency": null,
+       "name": "input.filter-chain-2004615-22",
+       "ports": [],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 149,
+       "latency": null,
+       "name": "output.filter-chain-2004615-22",
+       "ports": [
+        "output_FL",
+        "output_FR"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "running"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "tag": "one-biquad-r0"
+    },
+    "cli_log": "changed\nremote 0 node 61 changed\nremote 0 port 68 changed\nremote 0 port 69 changed\nremote 0 port 66 changed\nremote 0 removed global: \tid 155, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25059\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"97\"\n \t\tlink.input.port = \"66\"\n \t\tlink.output.node = \"149\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 97, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25057\"\n \t\tobject.path = \"output.filter-chain-2004615-22:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"149\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 port 67 changed\nremote 0 port 67 changed\nremote 0 removed global: \tid 106, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25060\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"102\"\n \t\tlink.input.port = \"67\"\n \t\tlink.output.node = \"149\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 102, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25058\"\n \t\tobject.path = \"output.filter-chain-2004615-22:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"149\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 149, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25056\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"94\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2004615-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 94, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25054\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2004615\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n",
+    "fc_log": [
+     "[I][14:34:58.679296] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:34:58.679660] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:34:58.679667] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:34:58.679670] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:34:58.679673] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:34:58.679678] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:34:58.679681] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:34:58.679685] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:34:58.679687] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:34:58.679690] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:34:58.679693] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:34:58.679695] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:34:58.679698] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:34:58.679702] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:34:58.685559] spa.filter-graph | [  filter-graph.c: 1898 setup_graph()] using 1 instances 1 1",
+     "[I][14:34:58.685561] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port f1[0]:In",
+     "[I][14:34:58.685564] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port f1[0]:Out",
+     "[I][14:34:58.685566] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 1000.000000",
+     "[I][14:34:58.685570] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:34:58.685573] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:34:58.685576] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:34:58.685578] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:34:58.685580] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:34:58.685583] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:34:58.685585] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:34:58.685587] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:34:58.685590] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass f1[0] rate:48000",
+     "[I][14:34:58.685593] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port f1[0]:In 0x55c9e9ba3010",
+     "[I][14:34:58.685596] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port f1[0]:Out 0x55c9e9bab020",
+     "[I][14:34:58.685598] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Freq 0x55c9e9bb3078",
+     "[I][14:34:58.685600] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Q 0x55c9e9bb35c0",
+     "[I][14:34:58.685602] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Gain 0x55c9e9bb3b08",
+     "[I][14:34:58.685604] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b0 0x55c9e9bb4050",
+     "[I][14:34:58.685606] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b1 0x55c9e9bb4598",
+     "[I][14:34:58.685608] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b2 0x55c9e9bb4ae0",
+     "[I][14:34:58.685609] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a0 0x55c9e9bb5028",
+     "[I][14:34:58.685611] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a1 0x55c9e9bb5570",
+     "[I][14:34:58.685613] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a2 0x55c9e9bb5ab8",
+     "[I][14:34:58.685616] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] f1 latency:0.000000-0.000000",
+     "[I][14:34:58.685618] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "ewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 131, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25066\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2020747\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 131 changed\nremote 0 removed global: \tid 131, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25066\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2020747\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "input.filter-chain-2004615-22",
+     "output.filter-chain-2004615-22"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "one-biquad",
+    "unload_out": " \tid 149, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25056\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"94\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2004615-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 94, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25054\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2004615\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n"
+   }
+  ],
+  "stereo-2ch": [
+   {
+    "census_live": {
+     "host_default_sink_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 2,
+       "class": "Stream/Input/Audio",
+       "desc": "r92s_fc",
+       "id": 133,
+       "latency": null,
+       "name": "input.filter-chain-2072359-22",
+       "ports": [],
+       "position": "[FL,FR]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 2,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 148,
+       "latency": null,
+       "name": "output.filter-chain-2072359-22",
+       "ports": [
+        "output_FL",
+        "output_FR"
+       ],
+       "position": "[FL,FR]",
+       "rate": null,
+       "state": "running"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "tag": "stereo-2ch-r0"
+    },
+    "cli_log": "hanged\nremote 0 node 61 changed\nremote 0 port 68 changed\nremote 0 port 69 changed\nremote 0 port 66 changed\nremote 0 removed global: \tid 118, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25385\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"86\"\n \t\tlink.input.port = \"66\"\n \t\tlink.output.node = \"148\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 86, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25383\"\n \t\tobject.path = \"output.filter-chain-2072359-22:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"148\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 port 67 changed\nremote 0 port 67 changed\nremote 0 removed global: \tid 94, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25386\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"127\"\n \t\tlink.input.port = \"67\"\n \t\tlink.output.node = \"148\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 127, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25384\"\n \t\tobject.path = \"output.filter-chain-2072359-22:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"148\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 148, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25382\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"140\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2072359-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25380\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2072359\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n",
+    "fc_log": [
+     "[I][14:35:21.142986] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:35:21.143344] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:35:21.143353] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:21.143356] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:21.143358] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:21.143363] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:21.143367] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:21.143370] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:21.143372] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:21.143375] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:21.143377] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:21.143380] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:21.143382] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:21.143387] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:35:21.150430] spa.filter-graph | [  filter-graph.c: 1898 setup_graph()] using 2 instances 1 1",
+     "[I][14:35:21.150433] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port f1[0]:In",
+     "[I][14:35:21.150437] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port f1[0]:Out",
+     "[I][14:35:21.150440] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port f1[1]:In",
+     "[I][14:35:21.150443] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port f1[1]:Out",
+     "[I][14:35:21.150446] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 1000.000000",
+     "[I][14:35:21.150451] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 1 ('Freq') from 0.000000 to 1000.000000",
+     "[I][14:35:21.150455] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:21.150459] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 1 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:21.150463] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:21.150466] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 1 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:21.150470] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:21.150474] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 1 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:21.150477] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:21.150481] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 1 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:21.150485] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:21.150488] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 1 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:21.150492] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:21.150496] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 1 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:21.150499] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:21.150502] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 1 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:21.150506] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:21.150510] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 1 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:21.150513] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass f1[0] rate:48000",
+     "[I][14:35:21.150517] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass f1[1] rate:48000",
+     "[I][14:35:21.150520] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port f1[0]:In 0x55c873ca5e80",
+     "[I][14:35:21.150524] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port f1[0]:Out 0x55c873cb0680",
+     "[I][14:35:21.150527] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Freq 0x55c873cbaca8",
+     "[I][14:35:21.150530] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Q 0x55c873cbb1f0",
+     "[I][14:35:21.150533] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:Gain 0x55c873cbb738",
+     "[I][14:35:21.150536] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b0 0x55c873cbbc80",
+     "[I][14:35:21.150539] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b1 0x55c873cbc1c8",
+     "[I][14:35:21.150542] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:b2 0x55c873cbc710",
+     "[I][14:35:21.150545] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a0 0x55c873cbcc58",
+     "[I][14:35:21.150549] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a1 0x55c873cbd1a0",
+     "[I][14:35:21.150551] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[0]:a2 0x55c873cbd6e8",
+     "[I][14:35:21.150555] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port f1[1]:In 0x55c873ca5e80",
+     "[I][14:35:21.150558] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port f1[1]:Out 0x55c873cb0680",
+     "[I][14:35:21.150561] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:Freq 0x55c873cbacac",
+     "[I][14:35:21.150565] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:Q 0x55c873cbb1f4",
+     "[I][14:35:21.150568] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:Gain 0x55c873cbb73c",
+     "[I][14:35:21.150571] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:b0 0x55c873cbbc84",
+     "[I][14:35:21.150574] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:b1 0x55c873cbc1cc",
+     "[I][14:35:21.150577] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:b2 0x55c873cbc714",
+     "[I][14:35:21.150580] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:a0 0x55c873cbcc5c",
+     "[I][14:35:21.150583] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:a1 0x55c873cbd1a4",
+     "[I][14:35:21.150586] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port f1[1]:a2 0x55c873cbd6ec",
+     "[I][14:35:21.150590] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] f1 latency:0.000000-0.000000",
+     "[I][14:35:21.150594] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "ewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25392\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2104776\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 150 changed\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25392\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2104776\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "input.filter-chain-2072359-22",
+     "output.filter-chain-2072359-22"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "stereo-2ch",
+    "unload_out": "id 148, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25382\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"140\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2072359-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25380\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2072359\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 61 changed\n"
+   }
+  ],
+  "two-nodes-linked": [
+   {
+    "census_live": {
+     "host_default_sink_links": [],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [],
+     "tag": "two-nodes-linked-r0"
+    },
+    "cli_log": "= \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058286\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25241\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058286\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25242\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058288\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25242\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058288\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25243\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058290\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 98 changed\nremote 0 removed global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25243\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058290\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "fc_log": [
+     "[W][14:35:11.274326][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+     "[W][14:35:11.274336][    properties.c:  264 update_string()] line:     1 | ...{Freq=200.0,Q=0.707}}],links=[{output=a:Out,input=b:In}]},audio.channels=1,audi",
+     "[W][14:35:11.274339][    properties.c:  264 update_string()] column: 202 |-------------------------------------------^",
+     "[E][14:35:11.274643] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+     "[E][14:35:11.274652] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+    ],
+    "fc_module_var": null,
+    "links": [],
+    "load_out": "pipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25243\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058290\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 98 changed\nremote 0 removed global: \tid 98, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25243\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2058290\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "two-nodes-linked"
+   }
+  ],
+  "two-nodes-nolinks": [
+   {
+    "census_live": {
+     "host_default_sink_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "nodes": [
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_in Audio/Sink sink",
+       "id": 157,
+       "latency": null,
+       "name": "r92s_in",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": null,
+       "channels": 1,
+       "class": "Audio/Sink",
+       "desc": "r92s_out Audio/Sink sink",
+       "id": 135,
+       "latency": null,
+       "name": "r92s_out",
+       "ports": [
+        "monitor_MONO",
+        "playback_MONO"
+       ],
+       "position": "[ MONO ]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Input/Audio",
+       "desc": "r92s_fc",
+       "id": 98,
+       "latency": null,
+       "name": "input.filter-chain-2048152-22",
+       "ports": [],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "suspended"
+      },
+      {
+       "autoconnect": true,
+       "channels": 1,
+       "class": "Stream/Output/Audio",
+       "desc": "r92s_fc",
+       "id": 129,
+       "latency": null,
+       "name": "output.filter-chain-2048152-22",
+       "ports": [
+        "output_FL",
+        "output_FR"
+       ],
+       "position": "[MONO]",
+       "rate": null,
+       "state": "running"
+      }
+     ],
+     "r92s_links": [],
+     "spdif_links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "tag": "two-nodes-nolinks-r0"
+    },
+    "cli_log": "d\nremote 0 node 129 changed\nremote 0 removed global: \tid 156, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25129\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"90\"\n \t\tlink.input.port = \"66\"\n \t\tlink.output.node = \"129\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 90, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25127\"\n \t\tobject.path = \"output.filter-chain-2048152-22:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"129\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 93, type PipeWire:Interface:Link/3\n \t\tobject.serial = \"25130\"\n \t\tfactory.id = \"21\"\n \t\tclient.id = \"33\"\n \t\tlink.output.port = \"138\"\n \t\tlink.input.port = \"67\"\n \t\tlink.output.node = \"129\"\n \t\tlink.input.node = \"61\"\nremote 0 removed global: \tid 138, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"25128\"\n \t\tobject.path = \"output.filter-chain-2048152-22:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"129\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 129, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"25126\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"154\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2048152-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 154, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25124\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2048152\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 88 changed\nremote 0 port 100 changed\nremote 0 port 141 changed\nremote 0 port 120 changed\nremote 0 port 126 changed\nremote 0 node 88 changed\n",
+    "fc_log": [
+     "[I][14:35:04.301911] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+     "[I][14:35:04.302245] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+     "[I][14:35:04.302252] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:04.302255] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:04.302258] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:04.302262] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:04.302266] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:04.302269] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:04.302271] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302274] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302276] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:04.302278] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302281] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302285] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:35:04.302291] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_highpass",
+     "[I][14:35:04.302293] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+     "[I][14:35:04.302295] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+     "[I][14:35:04.302297] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+     "[I][14:35:04.302299] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+     "[I][14:35:04.302301] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+     "[I][14:35:04.302304] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+     "[I][14:35:04.302306] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302308] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302311] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+     "[I][14:35:04.302313] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302315] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+     "[I][14:35:04.302320] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+     "[I][14:35:04.311542] spa.filter-graph | [  filter-graph.c: 1898 setup_graph()] using 1 instances 1 1",
+     "[I][14:35:04.311545] spa.filter-graph | [  filter-graph.c: 1918 setup_graph()] input port a[0]:In",
+     "[I][14:35:04.311547] spa.filter-graph | [  filter-graph.c: 2016 setup_graph()] output port b[0]:Out",
+     "[I][14:35:04.311549] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 1000.000000",
+     "[I][14:35:04.311553] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:04.311555] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:04.311557] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:04.311559] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:04.311561] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:04.311563] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:04.311566] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:04.311568] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:04.311570] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 0 0 ('Freq') from 0.000000 to 200.000000",
+     "[I][14:35:04.311572] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 1 0 ('Q') from 0.000000 to 0.707000",
+     "[I][14:35:04.311575] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 2 0 ('Gain') from 0.000000 to 0.000000",
+     "[I][14:35:04.311577] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+     "[I][14:35:04.311579] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+     "[I][14:35:04.311581] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+     "[I][14:35:04.311584] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+     "[I][14:35:04.311585] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+     "[I][14:35:04.311588] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+     "[I][14:35:04.311590] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass a[0] rate:48000",
+     "[I][14:35:04.311593] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_highpass b[0] rate:48000",
+     "[I][14:35:04.311595] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port a[0]:In 0x55f599d51aa0",
+     "[I][14:35:04.311598] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port a[0]:Out 0x55f599d59ab0",
+     "[I][14:35:04.311600] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:Freq 0x55f599d679a8",
+     "[I][14:35:04.311602] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:Q 0x55f599d67ef0",
+     "[I][14:35:04.311604] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:Gain 0x55f599d68438",
+     "[I][14:35:04.311606] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:b0 0x55f599d68980",
+     "[I][14:35:04.311608] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:b1 0x55f599d68ec8",
+     "[I][14:35:04.311610] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:b2 0x55f599d69410",
+     "[I][14:35:04.311612] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:a0 0x55f599d69958",
+     "[I][14:35:04.311614] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:a1 0x55f599d69ea0",
+     "[I][14:35:04.311616] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port a[0]:a2 0x55f599d6a3e8",
+     "[I][14:35:04.311618] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port b[0]:In 0x55f599d51aa0",
+     "[I][14:35:04.311619] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port b[0]:Out 0x55f599d59ab0",
+     "[I][14:35:04.311621] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:Freq 0x55f599d6b8b8",
+     "[I][14:35:04.311623] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:Q 0x55f599d6be00",
+     "[I][14:35:04.311625] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:Gain 0x55f599d6c348",
+     "[I][14:35:04.311626] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:b0 0x55f599d6c890",
+     "[I][14:35:04.311628] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:b1 0x55f599d6cdd8",
+     "[I][14:35:04.311630] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:b2 0x55f599d6d320",
+     "[I][14:35:04.311632] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:a0 0x55f599d6d868",
+     "[I][14:35:04.311633] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:a1 0x55f599d6ddb0",
+     "[I][14:35:04.311635] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port b[0]:a2 0x55f599d6e2f8",
+     "[I][14:35:04.311638] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] a latency:0.000000-0.000000",
+     "[I][14:35:04.311640] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] b latency:0.000000-0.000000",
+     "[I][14:35:04.311642] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+    ],
+    "fc_module_var": 1,
+    "links": [],
+    "load_out": "ewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 112, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25136\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2051080\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 112 changed\nremote 0 removed global: \tid 112, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25136\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2051080\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "ls_module": [],
+    "nodes_after_unload": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_at_exit": [
+     "r92s_in",
+     "r92s_out"
+    ],
+    "nodes_before_unload": [
+     "r92s_in",
+     "r92s_out",
+     "input.filter-chain-2048152-22",
+     "output.filter-chain-2048152-22"
+    ],
+    "sink_unload": [
+     {
+      "candidates": [
+       536870922
+      ],
+      "expected_id": 536870922,
+      "name": "r92s_in",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     },
+     {
+      "candidates": [
+       536870921
+      ],
+      "expected_id": 536870921,
+      "name": "r92s_out",
+      "unload_err": "",
+      "unload_rc": 0,
+      "verified": true
+     }
+    ],
+    "sinks": {
+     "r92s_in": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_in",
+       "channels=1"
+      ],
+      "id": 536870922,
+      "out": "536870922",
+      "rc": 0
+     },
+     "r92s_out": {
+      "argv": [
+       "pactl",
+       "load-module",
+       "module-null-sink",
+       "sink_name=r92s_out",
+       "channels=1"
+      ],
+      "id": 536870921,
+      "out": "536870921",
+      "rc": 0
+     }
+    },
+    "spdif_links_at_exit": [],
+    "stray_procs": [],
+    "tag": "two-nodes-nolinks",
+    "unload_out": "\"r92s_fc\"\n \t\tnode.name = \"output.filter-chain-2048152-22\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 154, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"25124\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2048152\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 88 changed\nremote 0 port 100 changed\nremote 0 port 141 changed\nremote 0 port 120 changed\nremote 0 port 126 changed\nremote 0 node 88 changed\n"
+   }
+  ]
+ }
+}

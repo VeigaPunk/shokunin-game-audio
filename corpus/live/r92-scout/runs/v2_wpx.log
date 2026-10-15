@@ -1,0 +1,27 @@
+W1-hello         r0 rc=0    dur=0.01 timedout=False | r92s hello from wpexec
+W1-hello         r1 rc=0    dur=0.01 timedout=False | r92s hello from wpexec
+W1-hello         r2 rc=0    dur=0.01 timedout=False | r92s hello from wpexec
+W2-globals       r0 rc=70   dur=0.01 timedout=False | Lua runtime error
+W2-globals       r1 rc=70   dur=0.01 timedout=False | Lua runtime error
+W2-globals       r2 rc=70   dur=0.01 timedout=False | Lua runtime error
+W3-settings      r0 rc=70   dur=0.01 timedout=False | Lua runtime error
+W3-settings      r1 rc=70   dur=0.01 timedout=False | Lua runtime error
+W3-settings      r2 rc=70   dur=0.01 timedout=False | Lua runtime error
+W4-localmodule   r0 rc=0    dur=0.01 timedout=False | LocalModule type=function | LocalModule pcall ok=true mod=<WpImplModule:0x55b6ff27f5b0> | mod type=userdata name=libpipewire-module-filter-chain
+W4-localmodule   r1 rc=0    dur=0.01 timedout=False | LocalModule type=function | LocalModule pcall ok=true mod=<WpImplModule:0x557703d15ba0> | mod type=userdata name=libpipewire-module-filter-chain
+W4-localmodule   r2 rc=0    dur=0.01 timedout=False | LocalModule type=function | LocalModule pcall ok=true mod=<WpImplModule:0x55b5d93d0750> | mod type=userdata name=libpipewire-module-filter-chain
+W5-noquit        r0 rc=-9   dur=4.01 timedout=True | r92s no quit here
+W5-noquit        r1 rc=-9   dur=4.01 timedout=True | r92s no quit here
+W5-noquit        r2 rc=-9   dur=4.01 timedout=True | r92s no quit here
+W6-badscript     r0 rc=70   dur=0.01 timedout=False | Failed to compile: [string "w6_syntax.lua"]:1: syntax error near 'is'
+W6-badscript     r1 rc=70   dur=0.01 timedout=False | Failed to compile: [string "w6_syntax.lua"]:1: syntax error near 'is'
+W6-badscript     r2 rc=70   dur=0.01 timedout=False | Failed to compile: [string "w6_syntax.lua"]:1: syntax error near 'is'
+W7-missing-file  r0 rc=70   dur=0.01 timedout=False | Could not locate script '/nonexistent/r92s.lua'
+W7-missing-file  r1 rc=70   dur=0.01 timedout=False | Could not locate script '/nonexistent/r92s.lua'
+W7-missing-file  r2 rc=70   dur=0.01 timedout=False | Could not locate script '/nonexistent/r92s.lua'
+W8-noargs        r0 rc=70   dur=0.01 timedout=False | Could not locate script '(null)'
+W8-noargs        r1 rc=70   dur=0.01 timedout=False | Could not locate script '(null)'
+W8-noargs        r2 rc=70   dur=0.01 timedout=False | Could not locate script '(null)'
+BEFORE: {"n_nodes": 11, "n_modules": 37, "r92s_nodes": ["r92s_in"], "r92s_mods": [], "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"}
+AFTER : {"n_nodes": 10, "n_modules": 36, "r92s_nodes": ["r92s_in"], "r92s_mods": [], "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"}
+FINAL : {"n_nodes": 9, "n_modules": 35, "r92s_nodes": [], "r92s_mods": [], "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"} sweep clean: True

@@ -1,0 +1,70 @@
+### STAGE labels
+label bq_lowpass     loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_highpass    loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_bandpass    loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_lowshelf    loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_highshelf   loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_peaking     loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_notch       loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_allpass     loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label bq_raw         loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label copy           loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label invert         loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label mixer          loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label gain           loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label mult           loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label clamp          loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label dcblock        loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label linear         loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label recip          loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label sine           loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label convolver      loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label delay          loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label param_eq       loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label noisegate      loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label nop            loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label passthrough    loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label sum            loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label avg            loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label max            loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label min            loaded=[False, False, False] n_in=None n_out=None n_ctl=None
+label abs            loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label exp            loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+label log            loaded=[True, True, True] n_in=None n_out=None n_ctl=None
+WROTE /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r92-scout/receipts/v2_labels.json (10.6s)
+SWEEP clean: True final: {'nodes': [], 'modules': [], 'procs': []}
+### STAGE dsp
+dsp identity                 r0 ref=249900  out=44      None
+dsp identity                 r1 ref=251948  out=44      None
+dsp identity                 r2 ref=251948  out=247852  {'200': 0.0, '1000': 0.0, '4000': 0.0, '12000': 0.0}
+dsp copy                     r0 ref=251948  out=247852  {'200': -273.978, '1000': -273.977, '4000': -273.978, '12000': -273.978}
+dsp copy                     r1 ref=44      out=44      None
+dsp copy                     r2 ref=251948  out=245804  {'200': -273.978, '1000': -273.977, '4000': -273.978, '12000': -273.978}
+dsp gain-0.5                 r0 ref=251948  out=44      None
+dsp gain-0.5                 r1 ref=36908   out=44      None
+dsp gain-0.5                 r2 ref=251948  out=44      None
+dsp gain-0.25                r0 ref=227372  out=44      None
+dsp gain-0.25                r1 ref=159788  out=44      None
+dsp gain-0.25                r2 ref=251948  out=44      None
+dsp bq_lowpass-1000          r0 ref=249900  out=245804  {'200': -0.007, '1000': -3.011, '4000': -24.476, '12000': -47.329}
+dsp bq_lowpass-1000          r1 ref=249900  out=247852  {'200': -0.007, '1000': -3.011, '4000': -24.476, '12000': -47.329}
+dsp bq_lowpass-1000          r2 ref=44      out=44      None
+dsp bq_highpass-1000         r0 ref=45100   out=44      None
+dsp bq_highpass-1000         r1 ref=239660  out=237612  {'200': -27.992, '1000': -3.011, '4000': -0.016, '12000': -0.0}
+dsp bq_highpass-1000         r2 ref=44      out=44      None
+dsp bq_peaking-1000-g6       r0 ref=251948  out=249900  {'200': 0.266, '1000': 6.0, '4000': 0.405, '12000': 0.028}
+dsp bq_peaking-1000-g6       r1 ref=251948  out=251948  {'200': -273.978, '1000': -273.977, '4000': -273.978, '12000': -273.978}
+dsp bq_peaking-1000-g6       r2 ref=249900  out=247852  {'200': 0.266, '1000': 6.0, '4000': 0.405, '12000': 0.028}
+dsp bq_peaking-1000-gm6      r0 ref=44      out=44      None
+dsp bq_peaking-1000-gm6      r1 ref=251948  out=251948  {'200': -273.978, '1000': -273.977, '4000': -273.978, '12000': -273.978}
+dsp bq_peaking-1000-gm6      r2 ref=249900  out=247852  {'200': -27.992, '1000': -3.011, '4000': -0.016, '12000': -0.0}
+Terminated                 timeout 1200 python3 -u probes/driver2.py $st 3
+### STAGE ir
+ir identity                 r0 out=44      nz=None  gap=None   ratio=None
+ir identity                 r1 out=44      nz=None  gap=None   ratio=None
+ir identity                 r2 out=44      nz=None  gap=None   ratio=None
+ir copy                     r0 out=44      nz=None  gap=None   ratio=None
+ir copy                     r1 out=44      nz=None  gap=None   ratio=None
+ir copy                     r2 out=44      nz=None  gap=None   ratio=None
+ir convolver-2tap           r0 out=44      nz=None  gap=None   ratio=None
+ir convolver-2tap           r1 out=44      nz=None  gap=None   ratio=None

@@ -1,0 +1,31 @@
+f6 r0 alive=True during_nodes=['r92s_wpx_in', 'r92s_wpx_out'] during_links=0 spdif=0 after=[] rc=0
+    stdout: LocalModule type=function | pcall ok=true mod=<WpImplModule:0x56116a62ce80>
+f6 r1 alive=True during_nodes=['r92s_wpx_in', 'r92s_wpx_out'] during_links=0 spdif=0 after=[] rc=0
+    stdout: LocalModule type=function | pcall ok=true mod=<WpImplModule:0x55d1de0d8cc0>
+f6 r2 alive=True during_nodes=['r92s_wpx_in', 'r92s_wpx_out'] during_links=0 spdif=0 after=[] rc=0
+    stdout: LocalModule type=function | pcall ok=true mod=<WpImplModule:0x55cc36a8ad80>
+sweep clean: True final: {'nodes': [], 'modules': [], 'procs': []}
+### F5-DEBUG
+lv2-quoted-missing-uri       loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=lv2,name=v,plugin="http://example.org/r92s#none",label="x"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoco
+lv2-quoted-spec-uri          loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=lv2,name=v,plugin="http://lv2plug.in/ns/ext/atom",label="x"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoc
+lv2-quoted-urid              loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=lv2,name=v,plugin="http://lv2plug.in/ns/ext/urid",label="x"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoc
+ffmpeg-quoted-label          loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ffmpeg,name=f,plugin=filtergraph,label="volume=0.5"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=f
+ffmpeg-quoted-highpass       loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ffmpeg,name=f,plugin=filtergraph,label="highpass=f=1000"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconn
+sofa-spatializer-no-file     loaded=[True, True, True] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=sofa,name=s,label=spatializer,config={filename="/nonexistent/r92s.sofa"}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_
+sofa-spatializer-noconfig    loaded=[True, True, True] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=sofa,name=s,label=spatializer}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false,media.class=Audio
+ebur128-label-ebur128        loaded=[True, True, True] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ebur128,name=e,label=ebur128}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false,media.class=Audio/
+ebur128-label-loudness       loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ebur128,name=e,label=loudness}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false,media.class=Audio
+ebur128-label-x              loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ebur128,name=e,label=x}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false,media.class=Audio/Sink},
+ladspa-abs-path-plugin       loaded=[False, False, False] -
+     args: node.description=r92s_fc,filter.graph={nodes=[{type=ladspa,name=l,plugin="/usr/lib/libmltladspa",label="x"}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnec
+sweep clean: True

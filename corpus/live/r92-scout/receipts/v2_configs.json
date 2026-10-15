@@ -1,0 +1,2063 @@
+{
+ "data": {
+  "dir": "/usr/share/pipewire/filter-chain",
+  "files": {
+   "demonic.conf": {
+    "args_raw": "{\n            #audio.format    = F32\n            #audio.rate      = 48000\n            audio.channels   = 2\n            audio.position   = [ FL FR ]\n            node.description = \"Demonic example\"\n            media.name       = \"Demonic example\"\n            filter.graph = {\n                nodes = [\n                    {\n                        name   = rev\n                        type   = ladspa\n                        plugin = revdelay_1605\n                        label  = revdelay\n                        control = {\n                            \"Delay Time (s)\" = 2.0\n                        }\n                    }\n                    {\n                        name   = pitch\n                        type   = ladspa\n                        plugin = am_pitchshift_1433\n                        label  = amPitchshift\n                        control = {\n                            \"Pitch shift\" = 0.6\n                        }\n                    }\n                    {\n                        name   = rev2\n                        type   = ladspa\n                        plugin = g2reverb\n                        label  = G2reverb\n                        control = {\n                            \"Reverb tail\" = 0.5\n                            \"Damping\"     = 0.9\n                        }\n                    }\n                ]\n                links = [\n                    { output = \"rev:Output\"   input = \"pitch:Input\" }\n                    { output = \"pitch:Output\" input = \"rev2:In L\" }\n                ]\n                inputs  = [ \"rev:Input\" ]\n                outputs = [ \"rev2:Out L\" ]\n            }\n            capture.props = {\n                node.name        = \"effect_input.filter-chain-demonic\"\n                #media.class = Audio/Sink\n            }\n            playback.props = {\n                node.name        = \"effect_output.filter-chain-demonic\"\n                #media.class = Audio/Source\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={\"Delay Time (s)\"=2.0}},{name=pitch,type=ladspa,plugin=am_pitchshift_1433,label=amPitchs",
+       "[I][15:25:58.533347] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55c0804d3da0: name:libpipewire-module-filter-chain args:{\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={",
+       "[W][15:25:58.533496][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:25:58.533503][    properties.c:  264 update_string()] line:     1 | {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,",
+       "[W][15:25:58.533507][    properties.c:  264 update_string()] column:  30 |------------------------------^",
+       "[E][15:25:58.533864] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:25:58.533878] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={\"Delay Time (s)\"=2.0}},{name=pitch,type=ladspa,plugin=am_pitchshift_1433,label=amPitchs",
+       "[I][15:26:04.668090] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x559cf0e61da0: name:libpipewire-module-filter-chain args:{\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={",
+       "[W][15:26:04.668229][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:26:04.668238][    properties.c:  264 update_string()] line:     1 | {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,",
+       "[W][15:26:04.668242][    properties.c:  264 update_string()] column:  30 |------------------------------^",
+       "[E][15:26:04.668584] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:26:04.668593] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={\"Delay Time (s)\"=2.0}},{name=pitch,type=ladspa,plugin=am_pitchshift_1433,label=amPitchs",
+       "[I][15:26:10.853500] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x558da2d58da0: name:libpipewire-module-filter-chain args:{\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,type=ladspa,plugin=revdelay_1605,label=revdelay,control={",
+       "[W][15:26:10.853659][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:26:10.853669][    properties.c:  264 update_string()] line:     1 | {\"Demonic example\",media.name=\"Demonic example\",filter.graph={nodes=[{name=rev,",
+       "[W][15:26:10.853673][    properties.c:  264 update_string()] column:  30 |------------------------------^",
+       "[E][15:26:10.853969] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:26:10.853977] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-dolby-pro-logic-ii.conf": {
+    "args_raw": "{\n        \"node.description\": \"Dolby Pro Logic II Sink\",\n        \"media.name\": \"Dolby Pro Logic II Sink\",\n        \"filter.graph\": {\n          \"nodes\": [\n            {\n              \"type\": \"builtin\",\n              \"name\": \"fc_copy\",\n              \"label\": \"copy\"\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"lfe_copy\",\n              \"label\": \"copy\"\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"sl_phased\",\n              \"label\": \"convolver\",\n              \"config\": {\n                \"filename\": \"/hilbert\",\n                \"length\": 90\n              }\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"sr_phased\",\n              \"label\": \"convolver\",\n              \"config\": {\n                \"filename\": \"/hilbert\",\n                \"length\": 90\n              }\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_lt\",\n              \"label\": \"mixer\",\n              \"control\": {\n                \"Gain 1\": 1,\n                \"Gain 2\": 0,\n                \"Gain 3\": 0.7071067811865475,\n                \"Gain 4\": 0.7071067811865475,\n                \"Gain 5\": -0.8660254037844386,\n                \"Gain 6\": -0.5\n              }\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_rt\",\n              \"label\": \"mixer\",\n              \"control\": {\n                \"Gain 1\": 0,\n                \"Gain 2\": 1,\n                \"Gain 3\": 0.7071067811865475,\n                \"Gain 4\": 0.7071067811865475,\n                \"Gain 5\": 0.5,\n                \"Gain 6\": 0.8660254037844386\n              }\n            }\n          ],\n          \"links\": [\n            {\n              \"output\": \"fc_copy:Out\",\n              \"input\": \"mixer_lt:In 3\"\n            },\n            {\n              \"output\": \"fc_copy:Out\",\n              \"input\": \"mixer_rt:In 3\"\n            },\n            {\n              \"output\": \"lfe_copy:Out\",\n              \"input\": \"mixer_lt:In 4\"\n            },\n            {\n              \"output\": \"lfe_copy:Out\",\n              \"input\": \"mixer_rt:In 4\"\n            },\n            {\n              \"output\": \"sl_phased:Out\",\n              \"input\": \"mixer_lt:In 5\"\n            },\n            {\n              \"output\": \"sl_phased:Out\",\n              \"input\": \"mixer_rt:In 5\"\n            },\n            {\n              \"output\": \"sr_phased:Out\",\n              \"input\": \"mixer_lt:In 6\"\n            },\n            {\n              \"output\": \"sr_phased:Out\",\n              \"input\": \"mixer_rt:In 6\"\n            }\n          ],\n          \"inputs\": [\n            \"mixer_lt:In 1\",\n            \"mixer_rt:In 2\",\n            \"fc_copy:In\",\n            \"lfe_copy:In\",\n            \"sl_phased:In\",\n            \"sr_phased:In\"\n          ],\n          \"outputs\": [\n            \"mixer_lt:Out\",\n            \"mixer_rt:Out\"\n          ]\n        },\n        \"capture.props\": {\n          \"node.name\": \"effect_input.dolby_pro_logic_ii\",\n          \"media.class\": \"Audio/Sink\",\n          \"audio.channels\": 6,\n          \"audio.position\": [\n            \"FL\",\n            \"FR\",\n            \"FC\",\n            \"LFE\",\n            \"SL\",\n            \"SR\"\n          ]\n        },\n        \"playback.props\": {\n          \"node.name\": \"effect_output.dolby_pro_logic_ii\",\n          \"node.passive\": true,\n          \"audio.channels\": 2,\n          \"audio.position\": [\n            \"FL\",\n            \"FR\"\n          ]\n        }\n      }",
+    "rows": [
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"fc_copy\",\"label\":,\"copy\"},{\"type\":,\"builtin\",\"name\":,\"lfe_copy\",\"label\":,\"copy\"},",
+       "[I][15:26:17.102754] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55c599725da0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"na",
+       "[I][15:26:17.103203] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:17.103561] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:17.103568] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:17.103570] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:17.103574] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:17.103577] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:17.103580] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:17.103583] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:17.103586] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:17.103588] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:17.103591] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:17.103593] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:17.103596] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:17.103599] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:17.103602] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:17.103605] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:17.103607] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:17.103609] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:17.103611] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:17.103613] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:17.103615] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:17.103617] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:17.103618] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:17.103620] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:17.103622] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103627] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103630] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103632] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103635] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103638] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103640] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103643] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:17.103653] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:17.103660] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:17.103665] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:17.103669] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_lt:In 3",
+       "[I][15:26:17.103672] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_rt:In 3",
+       "[I][15:26:17.103675] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_lt:In 4",
+       "[I][15:26:17.103677] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_rt:In 4",
+       "[I][15:26:17.103679] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_lt:In 5",
+       "[I][15:26:17.103681] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_rt:In 5",
+       "[I][15:26:17.103684] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_lt:In 6",
+       "[I][15:26:17.103686] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_rt:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_pro_logic_ii",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_pro_logic_ii",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FR",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"fc_copy\",\"label\":,\"copy\"},{\"type\":,\"builtin\",\"name\":,\"lfe_copy\",\"label\":,\"copy\"},",
+       "[I][15:26:23.791181] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x558361da5da0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"na",
+       "[I][15:26:23.791620] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:23.792031] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:23.792041] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:23.792044] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:23.792048] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:23.792051] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:23.792055] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:23.792060] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:23.792063] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:23.792066] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:23.792075] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:23.792080] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:23.792085] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:23.792089] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:23.792093] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:23.792096] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:23.792098] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:23.792101] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:23.792104] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:23.792106] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:23.792109] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:23.792111] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:23.792113] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:23.792116] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:23.792118] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792125] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792128] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792131] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792134] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792138] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792140] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792144] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:23.792154] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:23.792162] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:23.792170] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:23.792175] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_lt:In 3",
+       "[I][15:26:23.792179] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_rt:In 3",
+       "[I][15:26:23.792182] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_lt:In 4",
+       "[I][15:26:23.792184] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_rt:In 4",
+       "[I][15:26:23.792187] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_lt:In 5",
+       "[I][15:26:23.792190] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_rt:In 5",
+       "[I][15:26:23.792192] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_lt:In 6",
+       "[I][15:26:23.792195] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_rt:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_pro_logic_ii",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_pro_logic_ii",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FR",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"fc_copy\",\"label\":,\"copy\"},{\"type\":,\"builtin\",\"name\":,\"lfe_copy\",\"label\":,\"copy\"},",
+       "[I][15:26:29.973168] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x565063d83da0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Pro Logic II Sink\",\"media.name\":,\"Dolby Pro Logic II Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"na",
+       "[I][15:26:29.973636] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:29.974024] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:29.974033] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:29.974035] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:29.974038] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:29.974041] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:26:29.974044] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:26:29.974048] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:29.974051] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:29.974053] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:29.974055] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:29.974065] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:29.974068] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:29.974071] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:29.974074] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:29.974077] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:29.974079] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:29.974082] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:29.974085] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:29.974087] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:29.974090] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:29.974093] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:29.974096] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:29.974099] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:29.974102] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974107] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974110] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974112] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974114] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974117] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974119] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974121] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:29.974130] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:29.974137] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:29.974142] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:29.974147] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_lt:In 3",
+       "[I][15:26:29.974149] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking fc_copy:Out -> mixer_rt:In 3",
+       "[I][15:26:29.974151] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_lt:In 4",
+       "[I][15:26:29.974154] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking lfe_copy:Out -> mixer_rt:In 4",
+       "[I][15:26:29.974156] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_lt:In 5",
+       "[I][15:26:29.974158] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sl_phased:Out -> mixer_rt:In 5",
+       "[I][15:26:29.974160] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_lt:In 6",
+       "[I][15:26:29.974163] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking sr_phased:Out -> mixer_rt:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_pro_logic_ii",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_pro_logic_ii",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "  |<- r92s_effect_output_dolby_pro_logic_ii:output_FR",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FL",
+       "r92s_effect_output_dolby_pro_logic_ii:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-dolby-surround.conf": {
+    "args_raw": "{\n        \"node.description\": \"Dolby Surround Sink\",\n        \"media.name\": \"Dolby Surround Sink\",\n        \"filter.graph\": {\n          \"nodes\": [\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_fc\",\n              \"label\": \"mixer\"\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_s\",\n              \"label\": \"mixer\"\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"s_phased\",\n              \"label\": \"convolver\",\n              \"config\": {\n                \"filename\": \"/hilbert\",\n                \"length\": 90\n              }\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_lt\",\n              \"label\": \"mixer\",\n              \"control\": {\n                \"Gain 1\": 1,\n                \"Gain 2\": 0,\n                \"Gain 3\": 0.7071067811865475,\n                \"Gain 4\": -0.7071067811865475\n              }\n            },\n            {\n              \"type\": \"builtin\",\n              \"name\": \"mixer_rt\",\n              \"label\": \"mixer\",\n              \"control\": {\n                \"Gain 1\": 0,\n                \"Gain 2\": 1,\n                \"Gain 3\": 0.7071067811865475,\n                \"Gain 4\": 0.7071067811865475\n              }\n            }\n          ],\n          \"links\": [\n            {\n              \"output\": \"mixer_fc:Out\",\n              \"input\": \"mixer_lt:In 3\"\n            },\n            {\n              \"output\": \"mixer_fc:Out\",\n              \"input\": \"mixer_rt:In 3\"\n            },\n            {\n              \"output\": \"mixer_s:Out\",\n              \"input\": \"s_phased:In\"\n            },\n            {\n              \"output\": \"s_phased:Out\",\n              \"input\": \"mixer_lt:In 4\"\n            },\n            {\n              \"output\": \"s_phased:Out\",\n              \"input\": \"mixer_rt:In 4\"\n            }\n          ],\n          \"inputs\": [\n            \"mixer_lt:In 1\",\n            \"mixer_rt:In 2\",\n            \"mixer_fc:In 1\",\n            \"mixer_fc:In 2\",\n            \"mixer_s:In 1\",\n            \"mixer_s:In 2\"\n          ],\n          \"outputs\": [\n            \"mixer_lt:Out\",\n            \"mixer_rt:Out\"\n          ]\n        },\n        \"capture.props\": {\n          \"node.name\": \"effect_input.dolby_surround\",\n          \"media.class\": \"Audio/Sink\",\n          \"audio.channels\": 6,\n          \"audio.position\": [\n            \"FL\",\n            \"FR\",\n            \"FC\",\n            \"LFE\",\n            \"SL\",\n            \"SR\"\n          ]\n        },\n        \"playback.props\": {\n          \"node.name\": \"effect_output.dolby_surround\",\n          \"node.passive\": true,\n          \"audio.channels\": 2,\n          \"audio.position\": [\n            \"FL\",\n            \"FR\"\n          ]\n        }\n      }",
+    "rows": [
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mixer_fc\",\"label\":,\"mixer\"},{\"type\":,\"builtin\",\"name\":,\"mixer_s\",\"label\":,\"mixer\"},{\"type",
+       "[I][15:26:36.156404] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x560e17876da0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mi",
+       "[I][15:26:36.156844] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:36.157224] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:36.157232] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:36.157236] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:36.157239] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:36.157241] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:36.157243] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:36.157246] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:36.157248] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:36.157250] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:36.157252] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:36.157254] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157260] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157262] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157265] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157267] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157270] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157272] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157274] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:36.157280] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:36.157283] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:36.157290] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:36.157294] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:36.157297] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:36.157300] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:36.157302] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:36.157305] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:36.157307] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:36.157314] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:36.157320] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:36.157334] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:36.157338] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_lt:In 3",
+       "[I][15:26:36.157341] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_rt:In 3",
+       "[I][15:26:36.157343] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_s:Out -> s_phased:In",
+       "[I][15:26:36.157345] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_lt:In 4",
+       "[I][15:26:36.157348] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_rt:In 4"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_surround",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_surround",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_surround:output_FL",
+       "  |<- r92s_effect_output_dolby_surround:output_FR",
+       "r92s_effect_output_dolby_surround:output_FL",
+       "r92s_effect_output_dolby_surround:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mixer_fc\",\"label\":,\"mixer\"},{\"type\":,\"builtin\",\"name\":,\"mixer_s\",\"label\":,\"mixer\"},{\"type",
+       "[I][15:26:42.040671] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x564c432eada0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mi",
+       "[I][15:26:42.041114] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:42.041497] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:42.041505] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:42.041507] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:42.041510] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:42.041512] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:42.041514] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:42.041516] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:42.041519] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:42.041521] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:42.041522] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:42.041525] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041530] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041533] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041535] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041537] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041539] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041542] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041545] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:42.041550] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:42.041554] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:42.041559] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:42.041563] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:42.041567] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:42.041570] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:42.041572] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:42.041577] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:42.041579] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:42.041584] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:42.041590] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:42.041598] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:42.041602] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_lt:In 3",
+       "[I][15:26:42.041605] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_rt:In 3",
+       "[I][15:26:42.041607] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_s:Out -> s_phased:In",
+       "[I][15:26:42.041609] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_lt:In 4",
+       "[I][15:26:42.041611] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_rt:In 4"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_surround",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_surround",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_surround:output_FL",
+       "  |<- r92s_effect_output_dolby_surround:output_FR",
+       "r92s_effect_output_dolby_surround:output_FL",
+       "r92s_effect_output_dolby_surround:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mixer_fc\",\"label\":,\"mixer\"},{\"type\":,\"builtin\",\"name\":,\"mixer_s\",\"label\":,\"mixer\"},{\"type",
+       "[I][15:26:50.420681] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x56024a5b3da0: name:libpipewire-module-filter-chain args:{\"node.description\":,\"Dolby Surround Sink\",\"media.name\":,\"Dolby Surround Sink\",\"filter.graph\":,{\"nodes\":,[{\"type\":,\"builtin\",\"name\":,\"mi",
+       "[I][15:26:50.421058] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:50.421406] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:50.421413] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:50.421416] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:26:50.421418] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:26:50.421420] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:26:50.421423] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:26:50.421425] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:26:50.421427] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:26:50.421428] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:26:50.421430] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:26:50.421432] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421436] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421439] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421442] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421444] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421447] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421449] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421452] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:26:50.421457] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:50.421460] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:50.421468] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:50.421471] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:26:50.421474] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:50.421476] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:50.421478] spa.filter-graph | [  filter-graph.c: 1067 descriptor_load()] using port 2 ('latency') as notify 0",
+       "[I][15:26:50.421481] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:26:50.421483] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:50.421488] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:50.421494] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:26:50.421501] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:26:50.421504] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_lt:In 3",
+       "[I][15:26:50.421507] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_fc:Out -> mixer_rt:In 3",
+       "[I][15:26:50.421509] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mixer_s:Out -> s_phased:In",
+       "[I][15:26:50.421512] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_lt:In 4",
+       "[I][15:26:50.421514] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking s_phased:Out -> mixer_rt:In 4"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_dolby_surround",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "running"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_dolby_surround",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "running"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_dolby_surround:output_FL",
+       "  |<- r92s_effect_output_dolby_surround:output_FR",
+       "r92s_effect_output_dolby_surround:output_FL",
+       "r92s_effect_output_dolby_surround:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-eq6.conf": {
+    "args_raw": "{\n            node.description = \"Equalizer Sink\"\n            media.name       = \"Equalizer Sink\"\n            filter.graph = {\n                nodes = [\n                    {\n                        type  = builtin\n                        name  = eq_band_1\n                        label = bq_lowshelf\n                        control = { \"Freq\" = 100.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                    {\n                        type  = builtin\n                        name  = eq_band_2\n                        label = bq_peaking\n                        control = { \"Freq\" = 100.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                    {\n                        type  = builtin\n                        name  = eq_band_3\n                        label = bq_peaking\n                        control = { \"Freq\" = 500.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                    {\n                        type  = builtin\n                        name  = eq_band_4\n                        label = bq_peaking\n                        control = { \"Freq\" = 2000.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                    {\n                        type  = builtin\n                        name  = eq_band_5\n                        label = bq_peaking\n                        control = { \"Freq\" = 5000.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                    {\n                        type  = builtin\n                        name  = eq_band_6\n                        label = bq_highshelf\n                        control = { \"Freq\" = 5000.0 \"Q\" = 1.0 \"Gain\" = 0.0 }\n                    }\n                ]\n                links = [\n                    { output = \"eq_band_1:Out\" input = \"eq_band_2:In\" }\n                    { output = \"eq_band_2:Out\" input = \"eq_band_3:In\" }\n                    { output = \"eq_band_3:Out\" input = \"eq_band_4:In\" }\n                    { output = \"eq_band_4:Out\" input = \"eq_band_5:In\" }\n                    { output = \"eq_band_5:Out\" input = \"eq_band_6:In\" }\n                ]\n            }\n\t    audio.channels = 2\n\t    audio.position = [ FL FR ]\n            capture.props = {\n                node.name   = \"effect_input.eq6\"\n                media.class = Audio/Sink\n            }\n            playback.props = {\n                node.name   = \"effect_output.eq6\"\n                node.passive = true\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[I][15:26:57.268518] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowshelf",
+       "[I][15:26:57.268877] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:26:57.268884] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:57.268887] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:57.268889] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:26:57.268894] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:26:57.268898] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:26:57.268901] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.268904] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268907] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268909] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.268911] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268914] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268920] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.268927] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:26:57.268929] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:57.268931] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:57.268933] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:26:57.268935] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:26:57.268938] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:26:57.268940] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.268943] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268945] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268948] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.268950] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268953] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.268957] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.268961] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:26:57.268966] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.268969] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:26:57.268972] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.268975] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:26:57.268979] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.268982] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_highshelf",
+       "[I][15:26:57.268984] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:26:57.268986] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:26:57.268988] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:26:57.268990] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:26:57.268992] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:26:57.268995] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.268998] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.269000] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.269003] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:26:57.269005] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.269007] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:26:57.269012] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:26:57.269015] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_1:Out -> eq_band_2:In",
+       "[I][15:26:57.269018] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_2:Out -> eq_band_3:In",
+       "[I][15:26:57.269020] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_3:Out -> eq_band_4:In",
+       "[I][15:26:57.269022] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_4:Out -> eq_band_5:In",
+       "[I][15:26:57.269024] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_5:Out -> eq_band_6:In"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 2,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_eq6",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_eq6",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_eq6:output_FL",
+       "  |<- r92s_effect_output_eq6:output_FR",
+       "r92s_effect_output_eq6:output_FL",
+       "r92s_effect_output_eq6:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[I][15:27:03.530999] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_4[1]:b1 0x55ab06d96d7c",
+       "[I][15:27:03.531000] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_4[1]:b2 0x55ab06d972c4",
+       "[I][15:27:03.531002] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_4[1]:a0 0x55ab06d9780c",
+       "[I][15:27:03.531004] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_4[1]:a1 0x55ab06d97d54",
+       "[I][15:27:03.531006] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_4[1]:a2 0x55ab06d9829c",
+       "[I][15:27:03.531008] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port eq_band_4[0]:Out 0x7f3811444040",
+       "[I][15:27:03.531011] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port eq_band_5[0]:In 0x7f3811444040",
+       "[I][15:27:03.531012] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port eq_band_5[0]:Out 0x55ab06d7f250",
+       "[I][15:27:03.531014] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:Freq 0x55ab06d99628",
+       "[I][15:27:03.531016] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:Q 0x55ab06d99b70",
+       "[I][15:27:03.531018] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:Gain 0x55ab06d9a0b8",
+       "[I][15:27:03.531020] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:b0 0x55ab06d9a600",
+       "[I][15:27:03.531021] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:b1 0x55ab06d9ab48",
+       "[I][15:27:03.531023] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:b2 0x55ab06d9b090",
+       "[I][15:27:03.531025] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:a0 0x55ab06d9b5d8",
+       "[I][15:27:03.531027] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:a1 0x55ab06d9bb20",
+       "[I][15:27:03.531028] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[0]:a2 0x55ab06d9c068",
+       "[I][15:27:03.531031] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port eq_band_4[1]:Out 0x7f38113bb040",
+       "[I][15:27:03.531033] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port eq_band_5[1]:In 0x7f38113bb040",
+       "[I][15:27:03.531034] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port eq_band_5[1]:Out 0x55ab06d7f250",
+       "[I][15:27:03.531036] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:Freq 0x55ab06d9962c",
+       "[I][15:27:03.531040] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:Q 0x55ab06d99b74",
+       "[I][15:27:03.531042] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:Gain 0x55ab06d9a0bc",
+       "[I][15:27:03.531044] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:b0 0x55ab06d9a604",
+       "[I][15:27:03.531045] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:b1 0x55ab06d9ab4c",
+       "[I][15:27:03.531047] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:b2 0x55ab06d9b094",
+       "[I][15:27:03.531049] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:a0 0x55ab06d9b5dc",
+       "[I][15:27:03.531050] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:a1 0x55ab06d9bb24",
+       "[I][15:27:03.531052] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_5[1]:a2 0x55ab06d9c06c",
+       "[I][15:27:03.531055] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port eq_band_5[0]:Out 0x7f3811332040",
+       "[I][15:27:03.531060] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port eq_band_6[0]:In 0x7f3811332040",
+       "[I][15:27:03.531062] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port eq_band_6[0]:Out 0x55ab06d7f250",
+       "[I][15:27:03.531064] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:Freq 0x55ab06d9d538",
+       "[I][15:27:03.531065] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:Q 0x55ab06d9da80",
+       "[I][15:27:03.531067] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:Gain 0x55ab06d9dfc8",
+       "[I][15:27:03.531069] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:b0 0x55ab06d9e510",
+       "[I][15:27:03.531070] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:b1 0x55ab06d9ea58",
+       "[I][15:27:03.531072] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:b2 0x55ab06d9efa0",
+       "[I][15:27:03.531073] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:a0 0x55ab06d9f4e8",
+       "[I][15:27:03.531075] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:a1 0x55ab06d9fa30",
+       "[I][15:27:03.531076] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[0]:a2 0x55ab06d9ff78",
+       "[I][15:27:03.531079] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port eq_band_5[1]:Out 0x7f38112a9040",
+       "[I][15:27:03.531081] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port eq_band_6[1]:In 0x7f38112a9040",
+       "[I][15:27:03.531082] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port eq_band_6[1]:Out 0x55ab06d7f250",
+       "[I][15:27:03.531084] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:Freq 0x55ab06d9d53c",
+       "[I][15:27:03.531086] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:Q 0x55ab06d9da84",
+       "[I][15:27:03.531087] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:Gain 0x55ab06d9dfcc",
+       "[I][15:27:03.531089] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:b0 0x55ab06d9e514",
+       "[I][15:27:03.531090] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:b1 0x55ab06d9ea5c",
+       "[I][15:27:03.531092] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:b2 0x55ab06d9efa4",
+       "[I][15:27:03.531093] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:a0 0x55ab06d9f4ec",
+       "[I][15:27:03.531095] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:a1 0x55ab06d9fa34",
+       "[I][15:27:03.531097] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port eq_band_6[1]:a2 0x55ab06d9ff7c",
+       "[I][15:27:03.531100] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_1 latency:0.000000-0.000000",
+       "[I][15:27:03.531103] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_2 latency:0.000000-0.000000",
+       "[I][15:27:03.531105] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_3 latency:0.000000-0.000000",
+       "[I][15:27:03.531106] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_4 latency:0.000000-0.000000",
+       "[I][15:27:03.531108] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_5 latency:0.000000-0.000000",
+       "[I][15:27:03.531113] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] eq_band_6 latency:0.000000-0.000000",
+       "[I][15:27:03.531115] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 2,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_eq6",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "running"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_eq6",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "running"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_eq6:output_FL",
+       "  |<- r92s_effect_output_eq6:output_FR",
+       "r92s_effect_output_eq6:output_FL",
+       "r92s_effect_output_eq6:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[I][15:27:09.444680] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowshelf",
+       "[I][15:27:09.445017] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:27:09.445026] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:09.445030] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:09.445032] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:27:09.445038] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:27:09.445043] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:27:09.445047] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445051] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445055] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445062] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445066] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445069] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445075] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445094] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:27:09.445110] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:09.445114] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:09.445117] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:27:09.445122] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:27:09.445126] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:27:09.445129] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445133] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445137] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445140] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445143] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445146] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445154] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445158] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:27:09.445166] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445170] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:27:09.445175] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445179] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_peaking",
+       "[I][15:27:09.445183] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445187] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_highshelf",
+       "[I][15:27:09.445190] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:09.445193] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:09.445195] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:27:09.445198] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:27:09.445201] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:27:09.445204] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445207] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445210] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445213] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:09.445215] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445218] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:27:09.445224] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:09.445228] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_1:Out -> eq_band_2:In",
+       "[I][15:27:09.445231] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_2:Out -> eq_band_3:In",
+       "[I][15:27:09.445234] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_3:Out -> eq_band_4:In",
+       "[I][15:27:09.445237] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_4:Out -> eq_band_5:In",
+       "[I][15:27:09.445240] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking eq_band_5:Out -> eq_band_6:In"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 2,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_eq6",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_eq6",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_eq6:output_FL",
+       "  |<- r92s_effect_output_eq6:output_FR",
+       "r92s_effect_output_eq6:output_FL",
+       "r92s_effect_output_eq6:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-make-LFE.conf": {
+    "args_raw": "{\n            node.description = \"LFE example\"\n            media.name       = \"LFE example\"\n            filter.graph = {\n                nodes = [\n                    { name = copyIL type = builtin label = copy }\n                    { name = copyOL type = builtin label = copy }\n                    { name = copyIR type = builtin label = copy }\n                    { name = copyOR type = builtin label = copy }\n                    {\n                        name   = mix\n                        type   = builtin\n                        label  = mixer\n                        control = {\n                          \"Gain 1\" = 0.5\n                          \"Gain 2\" = 0.5\n                        }\n                    }\n                    {\n                        type  = builtin\n                        name  = lpLFE\n                        label = bq_lowpass\n                        control = { \"Freq\" = 150.0 }\n                    }\n                ]\n                links = [\n                    { output = \"copyIL:Out\" input = \"copyOL:In\" }\n                    { output = \"copyIR:Out\" input = \"copyOR:In\" }\n                    { output = \"copyIL:Out\" input = \"mix:In 1\" }\n                    { output = \"copyIR:Out\" input = \"mix:In 2\" }\n                    { output = \"mix:Out\" input = \"lpLFE:In\" }\n                ]\n                inputs  = [ \"copyIL:In\" \"copyIR:In\" ]\n                outputs = [ \"copyOL:Out\" \"copyOR:Out\" \"lpLFE:Out\"]\n            }\n            capture.props = {\n                node.name         = \"input_lfe\"\n                audio.position    = [ FL FR ]\n                media.class       = \"Audio/Sink\"\n            }\n            playback.props = {\n                node.name         = \"output_lfe\"\n                audio.position    = [ FL FR LFE ]\n                stream.dont-remix = true\n                node.passive      = true\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[I][15:27:16.724197] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:16.724753] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:27:16.724765] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:16.724769] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:16.724774] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:16.724779] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:16.724786] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:16.724790] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:16.724794] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:16.724797] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:16.724801] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:16.724805] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:27:16.724808] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:16.724811] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:27:16.724815] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:27:16.724818] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:27:16.724821] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:27:16.724824] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:27:16.724828] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:27:16.724831] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:27:16.724835] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:27:16.724838] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724847] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724851] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724855] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724858] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724862] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724866] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724869] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724879] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:27:16.724886] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+       "[I][15:27:16.724890] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:16.724893] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:16.724896] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:27:16.724900] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:27:16.724904] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:27:16.724908] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724912] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:27:16.724916] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:27:16.724920] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:16.724923] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:27:16.724927] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:27:16.724936] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:16.724941] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIL:Out -> copyOL:In",
+       "[I][15:27:16.724944] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIR:Out -> copyOR:In",
+       "[I][15:27:16.724948] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIL:Out -> mix:In 1",
+       "[I][15:27:16.724951] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIR:Out -> mix:In 2",
+       "[I][15:27:16.724955] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mix:Out -> lpLFE:In"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_input_lfe",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "running"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_output_lfe",
+        "ports": [
+         "output_FL",
+         "output_FR",
+         "output_LFE"
+        ],
+        "state": "running"
+       }
+      ],
+      "links": [
+       "  |<- r92s_output_lfe:output_FL",
+       "  |<- r92s_output_lfe:output_FR",
+       "r92s_output_lfe:output_FL",
+       "r92s_output_lfe:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[I][15:27:22.948989] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 3 0 ('b0') from 0.000000 to 1.000000",
+       "[I][15:27:22.948992] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 4 0 ('b1') from 0.000000 to 0.000000",
+       "[I][15:27:22.948994] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 5 0 ('b2') from 0.000000 to 0.000000",
+       "[I][15:27:22.948996] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 6 0 ('a0') from 0.000000 to 1.000000",
+       "[I][15:27:22.948998] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 7 0 ('a1') from 0.000000 to 0.000000",
+       "[I][15:27:22.949000] spa.filter-graph | [  filter-graph.c:  598 port_id_set_control_value()] control 8 0 ('a2') from 0.000000 to 0.000000",
+       "[I][15:27:22.949002] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate copy copyIL[0] rate:48000",
+       "[I][15:27:22.949005] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate copy copyOL[0] rate:48000",
+       "[I][15:27:22.949007] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate copy copyIR[0] rate:48000",
+       "[I][15:27:22.949009] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate copy copyOR[0] rate:48000",
+       "[I][15:27:22.949010] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate mixer mix[0] rate:48000",
+       "[I][15:27:22.949012] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate bq_lowpass lpLFE[0] rate:48000",
+       "[I][15:27:22.949015] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port copyIL[0]:In 0x55635e4da840",
+       "[I][15:27:22.949017] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port copyIL[0]:Out 0x55635e4e7310",
+       "[I][15:27:22.949021] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port copyIL[0]:Out 0x7f7c25907040",
+       "[I][15:27:22.949023] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port copyOL[0]:In 0x7f7c25907040",
+       "[I][15:27:22.949024] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port copyOL[0]:Out 0x55635e4e7310",
+       "[I][15:27:22.949026] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port copyIR[0]:In 0x55635e4da840",
+       "[I][15:27:22.949028] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port copyIR[0]:Out 0x55635e4e7310",
+       "[I][15:27:22.949031] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port copyIR[0]:Out 0x7f7c2587e040",
+       "[I][15:27:22.949033] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port copyOR[0]:In 0x7f7c2587e040",
+       "[I][15:27:22.949035] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port copyOR[0]:Out 0x55635e4e7310",
+       "[I][15:27:22.949037] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port copyIL[0]:Out 0x7f7c25907040",
+       "[I][15:27:22.949039] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 1 0x7f7c25907040",
+       "[I][15:27:22.949041] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port copyIR[0]:Out 0x7f7c2587e040",
+       "[I][15:27:22.949043] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 2 0x7f7c2587e040",
+       "[I][15:27:22.949045] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 3 (nil)",
+       "[I][15:27:22.949047] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 4 (nil)",
+       "[I][15:27:22.949048] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 5 (nil)",
+       "[I][15:27:22.949050] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 6 (nil)",
+       "[I][15:27:22.949052] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 7 (nil)",
+       "[I][15:27:22.949054] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port mix[0]:In 8 (nil)",
+       "[I][15:27:22.949055] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port mix[0]:Out (nil)",
+       "[I][15:27:22.949058] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 1 0x55635e4f6ae8",
+       "[I][15:27:22.949060] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 2 0x55635e4f7030",
+       "[I][15:27:22.949062] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 3 0x55635e4f7578",
+       "[I][15:27:22.949064] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 4 0x55635e4f7ac0",
+       "[I][15:27:22.949069] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 5 0x55635e4f8008",
+       "[I][15:27:22.949071] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 6 0x55635e4f8550",
+       "[I][15:27:22.949073] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 7 0x55635e4f8a98",
+       "[I][15:27:22.949075] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port mix[0]:Gain 8 0x55635e4f8fe0",
+       "[I][15:27:22.949079] spa.filter-graph | [  filter-graph.c: 1506 port_ensure_data()] connect output port mix[0]:Out 0x7f7c257f5040",
+       "[I][15:27:22.949081] spa.filter-graph | [  filter-graph.c: 1676 impl_activate()] connect input port lpLFE[0]:In 0x7f7c257f5040",
+       "[I][15:27:22.949082] spa.filter-graph | [  filter-graph.c: 1687 impl_activate()] connect output port lpLFE[0]:Out 0x55635e4e7310",
+       "[I][15:27:22.949084] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:Freq 0x55635e4fa4b8",
+       "[I][15:27:22.949086] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:Q 0x55635e4faa00",
+       "[I][15:27:22.949088] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:Gain 0x55635e4faf48",
+       "[I][15:27:22.949090] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:b0 0x55635e4fb490",
+       "[I][15:27:22.949092] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:b1 0x55635e4fb9d8",
+       "[I][15:27:22.949093] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:b2 0x55635e4fbf20",
+       "[I][15:27:22.949095] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:a0 0x55635e4fc468",
+       "[I][15:27:22.949097] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:a1 0x55635e4fc9b0",
+       "[I][15:27:22.949099] spa.filter-graph | [  filter-graph.c: 1701 impl_activate()] connect control port lpLFE[0]:a2 0x55635e4fcef8",
+       "[I][15:27:22.949102] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] copyIL latency:0.000000-0.000000",
+       "[I][15:27:22.949104] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] copyOL latency:0.000000-0.000000",
+       "[I][15:27:22.949106] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] copyIR latency:0.000000-0.000000",
+       "[I][15:27:22.949108] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] copyOR latency:0.000000-0.000000",
+       "[I][15:27:22.949110] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] mix latency:0.000000-0.000000",
+       "[I][15:27:22.949112] spa.filter-graph | [  filter-graph.c: 1749 impl_activate()] lpLFE latency:0.000000-0.000000",
+       "[I][15:27:22.949114] spa.filter-graph | [  filter-graph.c: 1763 impl_activate()] graph latency min:0.000000 max:0.000000"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_input_lfe",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "idle"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_output_lfe",
+        "ports": [
+         "output_FL",
+         "output_FR",
+         "output_LFE"
+        ],
+        "state": "idle"
+       }
+      ],
+      "links": [
+       "  |<- r92s_output_lfe:output_FL",
+       "  |<- r92s_output_lfe:output_FR",
+       "r92s_output_lfe:output_FL",
+       "r92s_output_lfe:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[I][15:27:28.943573] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:28.943957] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:27:28.943965] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:28.943968] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:28.943972] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:28.943975] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:28.943978] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:28.943981] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:28.943984] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:28.943986] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:27:28.943989] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:27:28.943992] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:27:28.943994] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:28.943996] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:27:28.943999] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:27:28.944001] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:27:28.944003] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:27:28.944005] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:27:28.944007] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:27:28.944009] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:27:28.944011] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:27:28.944013] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944019] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944022] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944024] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944026] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944029] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944031] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944034] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944039] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:27:28.944045] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:bq_lowpass",
+       "[I][15:27:28.944047] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:28.944050] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:27:28.944051] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 2 ('Freq') as control 0 0.000000/0.000000/1.000000",
+       "[I][15:27:28.944054] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 3 ('Q') as control 1 0.000000/0.000000/10.000000",
+       "[I][15:27:28.944061] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 4 ('Gain') as control 2 0.000000/-120.000000/20.000000",
+       "[I][15:27:28.944065] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 5 ('b0') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944068] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 6 ('b1') as control 4 0.000000/-10.000000/10.000000",
+       "[I][15:27:28.944070] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 7 ('b2') as control 5 0.000000/-10.000000/10.000000",
+       "[I][15:27:28.944073] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 8 ('a0') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:28.944075] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('a1') as control 7 0.000000/-10.000000/10.000000",
+       "[I][15:27:28.944077] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('a2') as control 8 0.000000/-10.000000/10.000000",
+       "[I][15:27:28.944081] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:9 n_notify:0",
+       "[I][15:27:28.944084] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIL:Out -> copyOL:In",
+       "[I][15:27:28.944102] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIR:Out -> copyOR:In",
+       "[I][15:27:28.944111] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIL:Out -> mix:In 1",
+       "[I][15:27:28.944114] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyIR:Out -> mix:In 2",
+       "[I][15:27:28.944120] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking mix:Out -> lpLFE:In"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_input_lfe",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_output_lfe",
+        "ports": [
+         "output_FL",
+         "output_FR",
+         "output_LFE"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_output_lfe:output_FL",
+       "  |<- r92s_output_lfe:output_FR",
+       "r92s_output_lfe:output_FL",
+       "r92s_output_lfe:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-matrix-spatialiser.conf": {
+    "args_raw": "{\n            node.description = \"Matrix Spatialiser\"\n            media.name       = \"Matrix Spatialiser\"\n            filter.graph = {\n                nodes = [\n                    {\n                        type   = ladspa\n                        name   = matrix\n                        plugin = matrix_spatialiser_1422\n                        label  = matrixSpatialiser\n                        control = {\n                            \"Width\" = 80\n                        }\n                    }\n                ]\n                inputs  = [ \"matrix:Input L\" \"matrix:Input R\" ]\n                outputs = [ \"matrix:Output L\" \"matrix:Output R\" ]\n            }\n            audio.channels = 2\n            audio.position = [ FL FR ]\n            capture.props = {\n                node.name      = \"effect_input.matrix_spatialiser\"\n                media.class    = Audio/Sink\n            }\n            playback.props = {\n                node.name      = \"effect_output.matrix_spatialiser\"\n                node.passive   = true\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[I][15:27:36.366941] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:ladspa plugin:matrix_spatialiser_1422 label:matrixSpatialiser",
+       "[E][15:27:36.367283][ plugin_ladspa.c:  352 impl_init()] failed to load plugin 'matrix_spatialiser_1422' in '/usr/lib64/ladspa:/usr/lib/ladspa:/usr/lib': No such file or directory",
+       "[E][15:27:36.367313] spa.filter-graph | [  filter-graph.c:  932 plugin_load()] can't load plugin type 'ladspa': No such file or directory",
+       "[E][15:27:36.367320] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: No such file or directory"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[I][15:27:42.274009] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:ladspa plugin:matrix_spatialiser_1422 label:matrixSpatialiser",
+       "[E][15:27:42.274083][ plugin_ladspa.c:  352 impl_init()] failed to load plugin 'matrix_spatialiser_1422' in '/usr/lib64/ladspa:/usr/lib/ladspa:/usr/lib': No such file or directory",
+       "[E][15:27:42.274104] spa.filter-graph | [  filter-graph.c:  932 plugin_load()] can't load plugin type 'ladspa': No such file or directory",
+       "[E][15:27:42.274109] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: No such file or directory"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[I][15:27:48.119529] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:ladspa plugin:matrix_spatialiser_1422 label:matrixSpatialiser",
+       "[E][15:27:48.119606][ plugin_ladspa.c:  352 impl_init()] failed to load plugin 'matrix_spatialiser_1422' in '/usr/lib64/ladspa:/usr/lib/ladspa:/usr/lib': No such file or directory",
+       "[E][15:27:48.119622] spa.filter-graph | [  filter-graph.c:  932 plugin_load()] can't load plugin type 'ladspa': No such file or directory",
+       "[E][15:27:48.119628] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: No such file or directory"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-mix-FL-FR.conf": {
+    "args_raw": "{\n            node.description = \"Mix example\"\n            media.name       = \"Mix example\"\n            filter.graph = {\n                nodes = [\n                    {\n                        name   = mix\n                        type   = builtin\n                        label  = mixer\n                        control = {\n                          \"Gain 1\" = 0.5\n                          \"Gain 2\" = 0.5\n                        }\n                    }\n                ]\n                inputs  = [ \"mix:In 1\" \"mix:In 2\" ]\n                outputs = [ \"mix:Out\" ]\n            }\n            capture.props = {\n                node.name         = \"mix_input.mix-FL-FR-to-FL\"\n                audio.position    = [ FL FR ]\n                media.class       = \"Audio/Sink\"\n            }\n            playback.props = {\n                node.name         = \"mix_output.mix-FL-FR-to-FL\"\n                audio.position    = [ FL ]\n                stream.dont-remix = true\n                node.passive      = true\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[I][15:27:53.972626] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:27:53.973090] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:27:53.973098] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:53.973102] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:27:53.973105] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:27:53.973108] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:27:53.973111] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:27:53.973114] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:27:53.973116] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:27:53.973119] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:27:53.973122] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:27:53.973125] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973132] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973136] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973140] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973143] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973147] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973151] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973154] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:27:53.973162] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_mix_input.mix-FL-FR-to-FL",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_mix_output.mix-FL-FR-to-FL",
+        "ports": [
+         "output_FL"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_mix_output.mix-FL-FR-to-FL:output_FL",
+       "r92s_mix_output.mix-FL-FR-to-FL:output_FL"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[I][15:27:59.931639] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:27:59.932128] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:27:59.932138] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:27:59.932142] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:27:59.932145] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:27:59.932148] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:27:59.932151] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:27:59.932154] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:27:59.932159] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:27:59.932162] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:27:59.932165] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:27:59.932168] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932175] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932179] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932183] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932188] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932191] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932196] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932200] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:27:59.932209] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_mix_input.mix-FL-FR-to-FL",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_mix_output.mix-FL-FR-to-FL",
+        "ports": [
+         "output_FL"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_mix_output.mix-FL-FR-to-FL:output_FL",
+       "r92s_mix_output.mix-FL-FR-to-FL:output_FL"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[I][15:28:05.917826] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:05.918321] spa.filter-graph | [  filter-graph.c:  950 plugin_load()] successfully opened 'builtin':'builtin'",
+       "[I][15:28:05.918330] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:05.918334] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:28:05.918338] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:28:05.918341] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:28:05.918344] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:28:05.918347] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:28:05.918350] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:28:05.918353] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:28:05.918356] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:28:05.918359] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918365] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918369] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918373] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918376] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918380] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918384] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918387] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:28:05.918396] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0"
+      ],
+      "fc_nodes": [
+       {
+        "ch": null,
+        "class": "Audio/Sink",
+        "name": "r92s_mix_input.mix-FL-FR-to-FL",
+        "ports": [
+         "monitor_FL",
+         "monitor_FR",
+         "playback_FL",
+         "playback_FR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": null,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_mix_output.mix-FL-FR-to-FL",
+        "ports": [
+         "output_FL"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_mix_output.mix-FL-FR-to-FL:output_FL",
+       "r92s_mix_output.mix-FL-FR-to-FL:output_FL"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-upmix-5.1-filter.conf": {
+    "args_raw": "{\n            node.description = \"Upmix Sink\"\n            filter.graph = {\n                nodes = [\n                    {   type = builtin name = copyFL label = copy }\n                    {   type = builtin name = copyFR label = copy }\n                    {   type = builtin name = copyOFL label = copy }\n                    {   type = builtin name = copyOFR label = copy }\n\t\t    {\n\t\t        # this mixes the front left and right together\n\t\t\t# for filtering the center and subwoofer signal-\n                        name   = mixF\n                        type   = builtin\n                        label  = mixer\n                        control = {\n                          \"Gain 1\" = 0.707\n                          \"Gain 2\" = 0.707\n                        }\n                    }\n                    {   \n\t\t        # filtering of the FC and LFE channel. We use a 2 channel\n\t\t\t# parametric equalizer with custom filters for each channel.\n\t\t\t# This makes it possible to run the filters in parallel.\n                        type = builtin\n                        name = eq_FC_LFE\n                        label = param_eq\n                        config = {\n                            filters1 = [\n\t\t\t       # FC is a crossover filter (with 2 lowpass biquads)\n                               { type = bq_lowpass freq = 12000 },\n                               { type = bq_lowpass freq = 12000 },\n                            ]\n                            filters2 = [\n\t\t\t       # LFE is first a gain adjustment (with a highself) and\n\t\t\t       # then a crossover filter (with 2 lowpass biquads)\n                               { type = bq_highshelf freq = 0 gain = -20.0 }, # gain -20dB\n                               { type = bq_lowpass freq = 120 },\n                               { type = bq_lowpass freq = 120 },\n                            ]\n\t\t        }\n                    }\n\t\t    {\n\t\t        # for the rear channels, we subtract the front channels. Do this\n\t\t\t# with a mixer with negative gain to flip the sign.\n                        name   = subR\n                        type   = builtin\n                        label  = mixer\n                        control = {\n                          \"Gain 1\" = 0.707\n                          \"Gain 2\" = -0.707\n                        }\n                    }\n                    {\n\t\t        # a delay for the rear Left channel. This can be\n\t\t\t# replaced with the convolver below. */\n                        type   = builtin\n                        name   = delayRL\n                        label  = delay\n                        config = { \"max-delay\" = 1 }\n                        control = { \"Delay (s)\" = 0.012 }\n                    }\n                    {\n\t\t        # a delay for the rear Right channel. This can be\n\t\t\t# replaced with the convolver below. */\n                        type   = builtin\n                        name   = delayRR\n                        label  = delay\n                        config = { \"max-delay\" = 1 }\n                        control = { \"Delay (s)\" = 0.012 }\n                    }\n                    {\n\t\t        # an optional convolver with a hilbert curve to\n\t\t\t# change the phase. It also has a delay, making the above\n\t\t\t# left delay filter optional.\n                        type   = builtin\n                        name   = convRL\n                        label  = convolver\n                        config = {\n                            gain = 1.0\n\t\t\t    delay = 0.012\n                            filename = \"/hilbert\"\n\t\t\t    length = 33\n\t\t\t    latency = 0.0\n\t\t\t}\n\t\t    }\n                    {\n\t\t        # an optional convolver with a hilbert curve to\n\t\t\t# change the phase. It also has a delay, making the above\n\t\t\t# right delay filter optional.\n                        type   = builtin\n                        name   = convRR\n                        label  = convolver\n                        config = {\n                            gain = -1.0\n\t\t\t    delay = 0.012\n                            filename = \"/hilbert\"\n\t\t\t    length = 33\n\t\t\t    latency = 0.0\n\t\t\t}\n\t\t    }\n                 ]\n                 links = [\n                     { output = \"copyFL:Out\"  input=\"mixF:In 1\" }\n                     { output = \"copyFR:Out\"  input=\"mixF:In 2\" }\n                     { output = \"copyFL:Out\"  input=\"copyOFR:In\" }\n                     { output = \"copyFR:Out\"  input=\"copyOFL:In\" }\n                     { output = \"mixF:Out\"  input=\"eq_FC_LFE:In 1\" }\n                     { output = \"mixF:Out\"  input=\"eq_FC_LFE:In 2\" }\n                     { output = \"copyFL:Out\"  input=\"subR:In 1\" }\n                     { output = \"copyFR:Out\"  input=\"subR:In 2\" }\n\t\t     # here we can choose to just delay or also convolve\n\t\t     #\n                     #{ output = \"subR:Out\"  input=\"delayRL:In\" }\n                     #{ output = \"subR:Out\"  input=\"delayRR:In\" }\n                     { output = \"subR:Out\"  input=\"convRL:In\" }\n                     { output = \"subR:Out\"  input=\"convRR:In\" }\n                 ]\n                 inputs = [ \"copyFL:In\" \"copyFR:In\" ]\n                 outputs = [ \n\t\t              \"copyOFL:Out\"\n\t\t\t      \"copyOFR:Out\"\n\t\t              \"eq_FC_LFE:Out 1\"\n\t\t\t      \"eq_FC_LFE:Out 2\"\n\t\t              # here we can choose to just delay or also convolve\n                              #\n\t\t              #\"delayRL:Out\"\n\t\t\t      #\"delayRR:Out\"\n\t\t              \"convRL:Out\"\n\t\t\t      \"convRR:Out\"\n\t\t\t   ]\n            }\n            capture.props = {\n                node.name = \"effect_input.upmix_5.1\"\n                media.class = \"Audio/Sink\"\n                audio.position = [ FL FR ]\n            }\n            playback.props = {\n                node.name = \"effect_output.upmix_5.1\"\n                audio.position = [ FL FR FC LFE RL RR ]\n                stream.dont-remix = true\n                node.passive = true\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=builtin,name=copyOFL,label=copy},{type=builtin,name=copyOFR,label=copy},{\"Gain 1\"=0.707,\"",
+       "[I][15:28:12.823653] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55c135e96da0: name:libpipewire-module-filter-chain args:{node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=bu",
+       "[W][15:28:12.823810][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected array close bracket",
+       "[W][15:28:12.823817][    properties.c:  264 update_string()] line:     1 | ...l=copy},{\"Gain 1\"=0.707,\"Gain 2\"=0.707}},{\"Gain 1\"=0.707,\"Gain 2\"=-0.707}},{\"ma",
+       "[W][15:28:12.823822][    properties.c:  264 update_string()] column: 238 |-------------------------------------------^",
+       "[E][15:28:12.824207] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:28:12.824220] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=builtin,name=copyOFL,label=copy},{type=builtin,name=copyOFR,label=copy},{\"Gain 1\"=0.707,\"",
+       "[I][15:28:18.296166] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55ee5f0a7da0: name:libpipewire-module-filter-chain args:{node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=bu",
+       "[W][15:28:18.296324][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected array close bracket",
+       "[W][15:28:18.296332][    properties.c:  264 update_string()] line:     1 | ...l=copy},{\"Gain 1\"=0.707,\"Gain 2\"=0.707}},{\"Gain 1\"=0.707,\"Gain 2\"=-0.707}},{\"ma",
+       "[W][15:28:18.296336][    properties.c:  264 update_string()] column: 238 |-------------------------------------------^",
+       "[E][15:28:18.296827] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:28:18.296838] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "pipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=builtin,name=copyOFL,label=copy},{type=builtin,name=copyOFR,label=copy},{\"Gain 1\"=0.707,\"",
+       "[I][15:28:23.774921] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x559f70944da0: name:libpipewire-module-filter-chain args:{node.description=\"Upmix Sink\",filter.graph={nodes=[{type=builtin,name=copyFL,label=copy},{type=builtin,name=copyFR,label=copy},{type=bu",
+       "[W][15:28:23.775059][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected array close bracket",
+       "[W][15:28:23.775073][    properties.c:  264 update_string()] line:     1 | ...l=copy},{\"Gain 1\"=0.707,\"Gain 2\"=0.707}},{\"Gain 1\"=0.707,\"Gain 2\"=-0.707}},{\"ma",
+       "[W][15:28:23.775077][    properties.c:  264 update_string()] column: 238 |-------------------------------------------^",
+       "[E][15:28:23.775432] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:28:23.775441] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-virtual-surround-5.1-kemar.conf": {
+    "args_raw": "{\n            node.description = \"Virtual Surround Sink\"\n            media.name       = \"Virtual Surround Sink\"\n            filter.graph = {\n                nodes = [\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convFL_L\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 0\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convFL_R\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 1\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convFR_L\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 1\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convFR_R\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 0\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convFC\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 2\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convLFE\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 3\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convSL_L\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 4\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convSL_R\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 5\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convSR_L\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 5\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = convolver\n                        name  = convSR_R\n                        config = {\n                            filename = \"hrir_kemar/hrir-kemar.wav\"\n                            channel  = 4\n                        }\n                    }\n                    {\n                        type  = builtin\n                        label = mixer\n                        name  = mixL\n                    }\n                    {\n                        type  = builtin\n                        label = mixer\n                        name  = mixR\n                    }\n                    {\n                        type  = builtin\n                        label = copy\n                        name  = copyFL\n                    }\n                    {\n                        type  = builtin\n                        label = copy\n                        name  = copyFR\n                    }\n                    {\n                        type  = builtin\n                        label = copy\n                        name  = copySL\n                    }\n                    {\n                        type  = builtin\n                        label = copy\n                        name  = copySR\n                    }\n                ]\n                links = [\n                    { output = \"copyFL:Out\"   input = \"convFL_L:In\" }\n                    { output = \"copyFL:Out\"   input = \"convFL_R:In\" }\n                    { output = \"copyFR:Out\"   input = \"convFR_R:In\" }\n                    { output = \"copyFR:Out\"   input = \"convFR_L:In\" }\n\n                    { output = \"copySL:Out\"   input = \"convSL_L:In\" }\n                    { output = \"copySL:Out\"   input = \"convSL_R:In\" }\n                    { output = \"copySR:Out\"   input = \"convSR_R:In\" }\n                    { output = \"copySR:Out\"   input = \"convSR_L:In\" }\n\n                    { output = \"convFL_L:Out\" input = \"mixL:In 1\" }\n                    { output = \"convFR_L:Out\" input = \"mixL:In 2\" }\n                    { output = \"convFC:Out\"   input = \"mixL:In 3\" }\n                    { output = \"convLFE:Out\"  input = \"mixL:In 4\" }\n                    { output = \"convSL_L:Out\" input = \"mixL:In 5\" }\n                    { output = \"convSR_L:Out\" input = \"mixL:In 6\" }\n\n                    { output = \"convFL_R:Out\" input = \"mixR:In 1\" }\n                    { output = \"convFR_R:Out\" input = \"mixR:In 2\" }\n                    { output = \"convFC:Out\"   input = \"mixR:In 3\" }\n                    { output = \"convLFE:Out\"  input = \"mixR:In 4\" }\n                    { output = \"convSL_R:Out\" input = \"mixR:In 5\" }\n                    { output = \"convSR_R:Out\" input = \"mixR:In 6\" }\n                ]\n                inputs  = [ \"copyFL:In\" \"copyFR:In\" \"convFC:In\" \"convLFE:In\" \"copySL:In\" \"copySR:In\" ]\n                outputs = [ \"mixL:Out\" \"mixR:Out\" ]\n\n            }\n            capture.props = {\n                node.name      = \"effect_input.virtual-surround-5.1-kemar\"\n                media.class    = Audio/Sink\n                audio.channels = 6\n                audio.position = [ FL FR FC LFE SL SR]\n            }\n            playback.props = {\n                node.name      = \"effect_output.virtual-surround-5.1-kemar\"\n                node.passive   = true\n                audio.channels = 2\n                audio.position = [ FL FR ]\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[I][15:28:30.035975] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:30.035979] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:30.035983] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:30.035987] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:30.035990] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:30.035993] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:30.035996] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:30.035998] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:30.036001] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:30.036003] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:30.036006] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:30.036008] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:28:30.036010] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:28:30.036012] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:28:30.036014] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:28:30.036016] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:28:30.036019] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:28:30.036022] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:28:30.036025] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:28:30.036027] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036032] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036035] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036037] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036039] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036042] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036044] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036046] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:28:30.036052] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:30.036054] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:30.036061] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:30.036064] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:30.036071] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:30.036073] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:28:30.036076] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:30.036078] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:30.036081] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:30.036083] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:30.036085] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:30.036087] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:30.036089] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:30.036092] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_L:In",
+       "[I][15:28:30.036095] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_R:In",
+       "[I][15:28:30.036097] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_R:In",
+       "[I][15:28:30.036100] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_L:In",
+       "[I][15:28:30.036102] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_L:In",
+       "[I][15:28:30.036104] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_R:In",
+       "[I][15:28:30.036106] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_R:In",
+       "[I][15:28:30.036108] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_L:In",
+       "[I][15:28:30.036110] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_L:Out -> mixL:In 1",
+       "[I][15:28:30.036112] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_L:Out -> mixL:In 2",
+       "[I][15:28:30.036115] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixL:In 3",
+       "[I][15:28:30.036118] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixL:In 4",
+       "[I][15:28:30.036120] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_L:Out -> mixL:In 5",
+       "[I][15:28:30.036122] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_L:Out -> mixL:In 6",
+       "[I][15:28:30.036125] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_R:Out -> mixR:In 1",
+       "[I][15:28:30.036127] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_R:Out -> mixR:In 2",
+       "[I][15:28:30.036131] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixR:In 3",
+       "[I][15:28:30.036134] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixR:In 4",
+       "[I][15:28:30.036138] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_R:Out -> mixR:In 5",
+       "[I][15:28:30.036140] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_R:Out -> mixR:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_virtual-surround-5.1-kemar",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_virtual-surround-5.1-kemar",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FR",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[I][15:28:40.503637] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:40.503640] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:40.503643] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:40.503645] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:40.503647] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:40.503650] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:40.503652] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:40.503655] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:40.503659] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:40.503662] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:40.503664] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:40.503666] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:28:40.503669] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:28:40.503671] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:28:40.503673] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:28:40.503675] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:28:40.503677] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:28:40.503679] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:28:40.503680] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:28:40.503682] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503688] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503690] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503693] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503695] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503698] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503700] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503702] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:28:40.503708] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:40.503710] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:40.503716] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:40.503720] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:40.503723] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:40.503726] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:28:40.503730] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:40.503733] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:40.503737] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:40.503740] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:40.503744] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:40.503746] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:40.503749] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:40.503752] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_L:In",
+       "[I][15:28:40.503755] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_R:In",
+       "[I][15:28:40.503757] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_R:In",
+       "[I][15:28:40.503759] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_L:In",
+       "[I][15:28:40.503761] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_L:In",
+       "[I][15:28:40.503763] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_R:In",
+       "[I][15:28:40.503765] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_R:In",
+       "[I][15:28:40.503767] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_L:In",
+       "[I][15:28:40.503769] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_L:Out -> mixL:In 1",
+       "[I][15:28:40.503771] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_L:Out -> mixL:In 2",
+       "[I][15:28:40.503773] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixL:In 3",
+       "[I][15:28:40.503775] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixL:In 4",
+       "[I][15:28:40.503778] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_L:Out -> mixL:In 5",
+       "[I][15:28:40.503780] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_L:Out -> mixL:In 6",
+       "[I][15:28:40.503782] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_R:Out -> mixR:In 1",
+       "[I][15:28:40.503784] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_R:Out -> mixR:In 2",
+       "[I][15:28:40.503786] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixR:In 3",
+       "[I][15:28:40.503788] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixR:In 4",
+       "[I][15:28:40.503791] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_R:Out -> mixR:In 5",
+       "[I][15:28:40.503793] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_R:Out -> mixR:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_virtual-surround-5.1-kemar",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_virtual-surround-5.1-kemar",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FR",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[I][15:28:47.589884] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:47.589886] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:47.589889] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:47.589891] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:47.589895] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:47.589897] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:47.589900] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:47.589902] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:convolver",
+       "[I][15:28:47.589905] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:1",
+       "[I][15:28:47.589907] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:47.589909] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:47.589911] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In 1') as input 0",
+       "[I][15:28:47.589913] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 2 ('In 2') as input 1",
+       "[I][15:28:47.589915] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 3 ('In 3') as input 2",
+       "[I][15:28:47.589917] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 4 ('In 4') as input 3",
+       "[I][15:28:47.589919] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 5 ('In 5') as input 4",
+       "[I][15:28:47.589921] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 6 ('In 6') as input 5",
+       "[I][15:28:47.589923] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 7 ('In 7') as input 6",
+       "[I][15:28:47.589925] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 8 ('In 8') as input 7",
+       "[I][15:28:47.589927] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 9 ('Gain 1') as control 0 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589932] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 10 ('Gain 2') as control 1 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589935] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 11 ('Gain 3') as control 2 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589937] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 12 ('Gain 4') as control 3 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589939] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 13 ('Gain 5') as control 4 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589942] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 14 ('Gain 6') as control 5 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589944] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 15 ('Gain 7') as control 6 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589946] spa.filter-graph | [  filter-graph.c: 1062 descriptor_load()] using port 16 ('Gain 8') as control 7 1.000000/-10.000000/10.000000",
+       "[I][15:28:47.589951] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:47.589953] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:mixer",
+       "[I][15:28:47.589959] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:8 n_output:1 n_control:8 n_notify:0",
+       "[I][15:28:47.589961] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:47.589963] spa.filter-graph | [  filter-graph.c: 1056 descriptor_load()] using port 0 ('Out') as output 0",
+       "[I][15:28:47.589965] spa.filter-graph | [  filter-graph.c: 1051 descriptor_load()] using port 1 ('In') as input 0",
+       "[I][15:28:47.589968] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:47.589970] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:47.589972] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:47.589974] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:47.589977] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:47.589979] spa.filter-graph | [  filter-graph.c: 1405 load_node()] loading type:builtin plugin:builtin label:copy",
+       "[I][15:28:47.589981] spa.filter-graph | [  filter-graph.c: 1425 load_node()] loaded n_input:1 n_output:1 n_control:0 n_notify:0",
+       "[I][15:28:47.589984] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_L:In",
+       "[I][15:28:47.589986] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFL:Out -> convFL_R:In",
+       "[I][15:28:47.589989] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_R:In",
+       "[I][15:28:47.589991] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copyFR:Out -> convFR_L:In",
+       "[I][15:28:47.589993] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_L:In",
+       "[I][15:28:47.589995] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySL:Out -> convSL_R:In",
+       "[I][15:28:47.589998] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_R:In",
+       "[I][15:28:47.590000] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking copySR:Out -> convSR_L:In",
+       "[I][15:28:47.590002] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_L:Out -> mixL:In 1",
+       "[I][15:28:47.590004] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_L:Out -> mixL:In 2",
+       "[I][15:28:47.590006] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixL:In 3",
+       "[I][15:28:47.590008] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixL:In 4",
+       "[I][15:28:47.590011] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_L:Out -> mixL:In 5",
+       "[I][15:28:47.590013] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_L:Out -> mixL:In 6",
+       "[I][15:28:47.590015] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFL_R:Out -> mixR:In 1",
+       "[I][15:28:47.590017] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFR_R:Out -> mixR:In 2",
+       "[I][15:28:47.590019] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convFC:Out -> mixR:In 3",
+       "[I][15:28:47.590021] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convLFE:Out -> mixR:In 4",
+       "[I][15:28:47.590023] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSL_R:Out -> mixR:In 5",
+       "[I][15:28:47.590026] spa.filter-graph | [  filter-graph.c: 1216 parse_link()] linking convSR_R:Out -> mixR:In 6"
+      ],
+      "fc_nodes": [
+       {
+        "ch": 6,
+        "class": "Audio/Sink",
+        "name": "r92s_effect_input_virtual-surround-5.1-kemar",
+        "ports": [
+         "monitor_FC",
+         "monitor_FL",
+         "monitor_FR",
+         "monitor_LFE",
+         "monitor_SL",
+         "monitor_SR",
+         "playback_FC",
+         "playback_FL",
+         "playback_FR",
+         "playback_LFE",
+         "playback_SL",
+         "playback_SR"
+        ],
+        "state": "suspended"
+       },
+       {
+        "ch": 2,
+        "class": "Stream/Output/Audio",
+        "name": "r92s_effect_output_virtual-surround-5.1-kemar",
+        "ports": [
+         "output_FL",
+         "output_FR"
+        ],
+        "state": "suspended"
+       }
+      ],
+      "links": [
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "  |<- r92s_effect_output_virtual-surround-5.1-kemar:output_FR",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FL",
+       "r92s_effect_output_virtual-surround-5.1-kemar:output_FR"
+      ],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 2,
+      "rep": 2
+     }
+    ]
+   },
+   "sink-virtual-surround-7.1-hesuvi.conf": {
+    "args_raw": "{\n            node.description = \"Virtual Surround Sink\"\n            media.name       = \"Virtual Surround Sink\"\n            filter.graph = {\n                nodes = [\n                    # duplicate inputs\n                    { type = builtin label = copy name = copyFL  }\n                    { type = builtin label = copy name = copyFR  }\n                    { type = builtin label = copy name = copyFC  }\n                    { type = builtin label = copy name = copyRL  }\n                    { type = builtin label = copy name = copyRR  }\n                    { type = builtin label = copy name = copySL  }\n                    { type = builtin label = copy name = copySR  }\n                    { type = builtin label = copy name = copyLFE }\n\n                    # apply hrir - HeSuVi 14-channel WAV (not the *-.wav variants) (note: */44/* in HeSuVi are the same, but resampled to 44100)\n                    { type = builtin label = convolver name = convFL_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  0 } }\n                    { type = builtin label = convolver name = convFL_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  1 } }\n                    { type = builtin label = convolver name = convSL_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  2 } }\n                    { type = builtin label = convolver name = convSL_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  3 } }\n                    { type = builtin label = convolver name = convRL_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  4 } }\n                    { type = builtin label = convolver name = convRL_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  5 } }\n                    { type = builtin label = convolver name = convFC_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  6 } }\n                    { type = builtin label = convolver name = convFR_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  7 } }\n                    { type = builtin label = convolver name = convFR_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  8 } }\n                    { type = builtin label = convolver name = convSR_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  9 } }\n                    { type = builtin label = convolver name = convSR_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel = 10 } }\n                    { type = builtin label = convolver name = convRR_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel = 11 } }\n                    { type = builtin label = convolver name = convRR_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel = 12 } }\n                    { type = builtin label = convolver name = convFC_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel = 13 } }\n\n                    # treat LFE as FC\n                    { type = builtin label = convolver name = convLFE_L config = { filename = \"hrir_hesuvi/hrir.wav\" channel =  6 } }\n                    { type = builtin label = convolver name = convLFE_R config = { filename = \"hrir_hesuvi/hrir.wav\" channel = 13 } }\n\n                    # stereo output\n                    { type = builtin label = mixer name = mixL }\n                    { type = builtin label = mixer name = mixR }\n                ]\n                links = [\n                    # input\n                    { output = \"copyFL:Out\"  input=\"convFL_L:In\"  }\n                    { output = \"copyFL:Out\"  input=\"convFL_R:In\"  }\n                    { output = \"copySL:Out\"  input=\"convSL_L:In\"  }\n                    { output = \"copySL:Out\"  input=\"convSL_R:In\"  }\n                    { output = \"copyRL:Out\"  input=\"convRL_L:In\"  }\n                    { output = \"copyRL:Out\"  input=\"convRL_R:In\"  }\n                    { output = \"copyFC:Out\"  input=\"convFC_L:In\"  }\n                    { output = \"copyFR:Out\"  input=\"convFR_R:In\"  }\n                    { output = \"copyFR:Out\"  input=\"convFR_L:In\"  }\n                    { output = \"copySR:Out\"  input=\"convSR_R:In\"  }\n                    { output = \"copySR:Out\"  input=\"convSR_L:In\"  }\n                    { output = \"copyRR:Out\"  input=\"convRR_R:In\"  }\n                    { output = \"copyRR:Out\"  input=\"convRR_L:In\"  }\n                    { output = \"copyFC:Out\"  input=\"convFC_R:In\"  }\n                    { output = \"copyLFE:Out\" input=\"convLFE_L:In\" }\n                    { output = \"copyLFE:Out\" input=\"convLFE_R:In\" }\n\n                    # output\n                    { output = \"convFL_L:Out\"  input=\"mixL:In 1\" }\n                    { output = \"convFL_R:Out\"  input=\"mixR:In 1\" }\n                    { output = \"convSL_L:Out\"  input=\"mixL:In 2\" }\n                    { output = \"convSL_R:Out\"  input=\"mixR:In 2\" }\n                    { output = \"convRL_L:Out\"  input=\"mixL:In 3\" }\n                    { output = \"convRL_R:Out\"  input=\"mixR:In 3\" }\n                    { output = \"convFC_L:Out\"  input=\"mixL:In 4\" }\n                    { output = \"convFC_R:Out\"  input=\"mixR:In 4\" }\n                    { output = \"convFR_R:Out\"  input=\"mixR:In 5\" }\n                    { output = \"convFR_L:Out\"  input=\"mixL:In 5\" }\n                    { output = \"convSR_R:Out\"  input=\"mixR:In 6\" }\n                    { output = \"convSR_L:Out\"  input=\"mixL:In 6\" }\n                    { output = \"convRR_R:Out\"  input=\"mixR:In 7\" }\n                    { output = \"convRR_L:Out\"  input=\"mixL:In 7\" }\n                    { output = \"convLFE_R:Out\" input=\"mixR:In 8\" }\n                    { output = \"convLFE_L:Out\" input=\"mixL:In 8\" }\n                ]\n                inputs  = [ \"copyFL:In\" \"copyFR:In\" \"copyFC:In\" \"copyLFE:In\" \"copyRL:In\" \"copyRR:In\", \"copySL:In\", \"copySR:In\" ]\n                outputs = [ \"mixL:Out\" \"mixR:Out\" ]\n            }\n            capture.props = {\n                node.name      = \"effect_input.virtual-surround-7.1-hesuvi\"\n                media.class    = Audio/Sink\n                audio.channels = 8\n                audio.position = [ FL FR FC LFE RL RR SL SR ]\n            }\n            playback.props = {\n                node.name      = \"effect_output.virtual-surround-7.1-hesuvi\"\n                node.passive   = true\n                audio.channels = 2\n                audio.position = [ FL FR ]\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "\u001b[H\u001b[2Jpipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=convFL_R,config={filename=\"hrir_hesuvi/hrir.wav\"",
+       "[I][15:28:54.436478] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x557ed8455da0: name:libpipewire-module-filter-chain args:{node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{ty",
+       "[W][15:28:54.436594][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:28:54.436600][    properties.c:  264 update_string()] line:     1 | ...={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=",
+       "[W][15:28:54.436603][    properties.c:  264 update_string()] column: 129 |-------------------------------------------^",
+       "[E][15:28:54.436904] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:28:54.436913] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "\u001b[H\u001b[2Jpipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=convFL_R,config={filename=\"hrir_hesuvi/hrir.wav\"",
+       "[I][15:28:59.866214] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x5606939a1da0: name:libpipewire-module-filter-chain args:{node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{ty",
+       "[W][15:28:59.866332][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:28:59.866340][    properties.c:  264 update_string()] line:     1 | ...={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=",
+       "[W][15:28:59.866343][    properties.c:  264 update_string()] column: 129 |-------------------------------------------^",
+       "[E][15:28:59.866639] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:28:59.866649] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "\u001b[H\u001b[2Jpipewire-0>> load-module libpipewire-module-filter-chain {node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=convFL_R,config={filename=\"hrir_hesuvi/hrir.wav\"",
+       "[I][15:29:05.865720] pw.module    | [   impl-module.c:  160 pw_context_load_module()] 0x55fde1340da0: name:libpipewire-module-filter-chain args:{node.description=\"Virtual Surround Sink\",media.name=\"Virtual Surround Sink\",filter.graph={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{ty",
+       "[W][15:29:05.865849][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:29:05.865856][    properties.c:  264 update_string()] line:     1 | ...={nodes=[\"hrir_hesuvi/hrir.wav\",channel=0}},{type=builtin,label=convolver,name=",
+       "[W][15:29:05.865859][    properties.c:  264 update_string()] column: 129 |-------------------------------------------^",
+       "[E][15:29:05.866154] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:05.866162] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   },
+   "source-duplicate-FL.conf": {
+    "args_raw": "{\n            node.description = \"Remap example\"\n            media.name       = \"Remap example\"\n            filter.graph = {\n                nodes = [\n                    {\n                        name   = copyIL\n                        type   = builtin\n                        label  = copy\n                    }\n                    {\n                        name   = copyOL\n                        type   = builtin\n                        label  = copy\n                    }\n                    {\n                        name   = copyOR\n                        type   = builtin\n                        label  = copy\n                    }\n                ]\n                links = [\n\t\t    # we can only tee from nodes, not inputs so we need\n\t\t    # to copy the inputs and then tee.\n                    { output = \"copyIL:Out\" input = \"copyOL:In\" }\n                    { output = \"copyIL:Out\" input = \"copyOR:In\" }\n                ]\n                inputs  = [ \"copyIL:In\" ]\n                outputs = [ \"copyOL:Out\" \"copyOR:Out\" ]\n            }\n            capture.props = {\n                node.name         = \"remap_input.remap-FL-to-FL-FR\"\n                audio.position    = [ FL ]\n                stream.dont-remix = true\n                node.passive      = true\n            }\n            playback.props = {\n                node.name         = \"remap_output.remap-FL-to-FL-FR\"\n                audio.position    = [ FL FR ]\n                media.class       = \"Audio/Source\"\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[W][15:29:11.279299][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:29:11.279307][    properties.c:  264 update_string()] line:     1 | ...,label=copy}],links=[\"copyIL:Out\",input=\"copyOL:In\"},{output=\"copyIL:Out\",input",
+       "[W][15:29:11.279311][    properties.c:  264 update_string()] column: 223 |-------------------------------------------^",
+       "[E][15:29:11.279657] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:11.279668] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[W][15:29:16.691314][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:29:16.691321][    properties.c:  264 update_string()] line:     1 | ...,label=copy}],links=[\"copyIL:Out\",input=\"copyOL:In\"},{output=\"copyIL:Out\",input",
+       "[W][15:29:16.691325][    properties.c:  264 update_string()] column: 223 |-------------------------------------------^",
+       "[E][15:29:16.691632] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:16.691642] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[W][15:29:22.105762][    properties.c:  264 update_string()] error parsing more than 0 properties: Invalid array separator",
+       "[W][15:29:22.105770][    properties.c:  264 update_string()] line:     1 | ...,label=copy}],links=[\"copyIL:Out\",input=\"copyOL:In\"},{output=\"copyIL:Out\",input",
+       "[W][15:29:22.105774][    properties.c:  264 update_string()] column: 223 |-------------------------------------------^",
+       "[E][15:29:22.106118] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:22.106127] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   },
+   "source-rnnoise.conf": {
+    "args_raw": "{\n            node.description = \"Noise Canceling source\"\n            media.name       = \"Noise Canceling source\"\n            filter.graph = {\n                nodes = [\n                    {\n                        type   = ladspa\n                        name   = rnnoise\n\t\t\t# The path to the plugin. The suffix .so is appended to\n\t\t\t# this string and then the file is then located in the directories\n\t\t\t# listed in the environment variable LADSPA_PATH or \n\t\t\t# /usr/lib64/ladspa, /usr/lib/ladspa or the system library directory\n\t\t\t# as a fallback.\n                        plugin = \"librnnoise_ladspa\"\n                        label  = noise_suppressor_stereo\n                        control = {\n                            \"VAD Threshold (%)\" 50.0\n                        }\n                    }\n                ]\n            }\n            audio.position = [ FL FR ]\n            capture.props = {\n                node.name = \"effect_input.rnnoise\"\n                node.passive = true\n            }\n            playback.props = {\n                node.name = \"effect_output.rnnoise\"\n                media.class = Audio/Source\n            }\n        }",
+    "rows": [
+     {
+      "fc_log": [
+       "[W][15:29:27.518042][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:29:27.518049][    properties.c:  264 update_string()] line:     1 | ...,name=rnnoise,\"librnnoise_ladspa\",label=noise_suppressor_stereo,control={\"VAD T",
+       "[W][15:29:27.518052][    properties.c:  264 update_string()] column: 152 |-------------------------------------------^",
+       "[E][15:29:27.518428] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:27.518439] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 0
+     },
+     {
+      "fc_log": [
+       "[W][15:29:32.927913][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:29:32.927919][    properties.c:  264 update_string()] line:     1 | ...,name=rnnoise,\"librnnoise_ladspa\",label=noise_suppressor_stereo,control={\"VAD T",
+       "[W][15:29:32.927922][    properties.c:  264 update_string()] column: 152 |-------------------------------------------^",
+       "[E][15:29:32.928230] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:32.928250] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 1
+     },
+     {
+      "fc_log": [
+       "[W][15:29:38.338362][    properties.c:  264 update_string()] error parsing more than 0 properties: Expected object key",
+       "[W][15:29:38.338370][    properties.c:  264 update_string()] line:     1 | ...,name=rnnoise,\"librnnoise_ladspa\",label=noise_suppressor_stereo,control={\"VAD T",
+       "[W][15:29:38.338373][    properties.c:  264 update_string()] column: 152 |-------------------------------------------^",
+       "[E][15:29:38.338649] spa.filter-graph | [  filter-graph.c: 2145 load_graph()] missing filter.graph property",
+       "[E][15:29:38.338660] spa.filter-graph | [  filter-graph.c: 2440 impl_init()] can't load graph: Invalid argument"
+      ],
+      "fc_nodes": [],
+      "links": [],
+      "live": {
+       "modules": [],
+       "nodes": [],
+       "procs": []
+      },
+      "n_fc": 0,
+      "rep": 2
+     }
+    ]
+   }
+  },
+  "stage": "configs"
+ },
+ "elapsed_s": 226.1,
+ "final": {
+  "modules": [],
+  "nodes": [],
+  "procs": []
+ },
+ "precondition": {
+  "modules": [],
+  "nodes": [],
+  "procs": []
+ },
+ "preflight": {
+  "after": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "before": {
+   "modules": [
+    "536870920"
+   ],
+   "nodes": [
+    "r92s_in"
+   ],
+   "procs": []
+  },
+  "killed_procs": [],
+  "was_clean": false
+ },
+ "reps": 3,
+ "stage": "configs",
+ "sweep": {
+  "after": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "before": {
+   "modules": [],
+   "nodes": [],
+   "procs": []
+  },
+  "clean": true
+ },
+ "ts": "2026-10-15T18:25:57Z"
+}

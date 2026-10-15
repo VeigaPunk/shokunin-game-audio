@@ -1,0 +1,161 @@
+{
+ "args_comma": "node.description=r92s_fc,filter.graph={nodes=[{type=builtin,name=bq1,label=bq_lowpass,control={Freq=1000.0,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false},playback.props={node.name=r92s_fc_out,node.autoconnect=false}",
+ "legs": [
+  {
+   "args": "node.description=r92s_fc,filter.graph={nodes=[{type=builtin,name=bq1,label=bq_lowpass,control={Freq=1000.0,Q=0.707}}]},audio.channels=1,audio.position=[MONO],capture.props={node.name=r92s_fc_in,node.autoconnect=false},playback.props={node.name=r92s_fc_out,node.autoconnect=false}",
+   "census_after_exit": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L1L4-comma-form-after-exit"
+   },
+   "census_after_unload": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L1L4-comma-form-after-unload"
+   },
+   "census_before": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L1L4-comma-form-before"
+   },
+   "census_live": {
+    "n_r92s_nodes": 2,
+    "nodes": [
+     {
+      "audio.channels": 1,
+      "audio.position": "[MONO]",
+      "factory.name": null,
+      "id": 141,
+      "media.class": "Stream/Input/Audio",
+      "media.type": null,
+      "node.autoconnect": false,
+      "node.description": "r92s_fc",
+      "node.driver-id": null,
+      "node.latency": null,
+      "node.name": "r92s_fc_in",
+      "node.passive": null,
+      "port.names": [
+       "input_MONO",
+       "monitor_MONO"
+      ],
+      "state": "suspended",
+      "stream.is-live": true
+     },
+     {
+      "audio.channels": 1,
+      "audio.position": "[MONO]",
+      "factory.name": null,
+      "id": 91,
+      "media.class": "Stream/Output/Audio",
+      "media.type": null,
+      "node.autoconnect": false,
+      "node.description": "r92s_fc",
+      "node.driver-id": null,
+      "node.latency": null,
+      "node.name": "r92s_fc_out",
+      "node.passive": null,
+      "port.names": [
+       "output_MONO"
+      ],
+      "state": "suspended",
+      "stream.is-live": true
+     }
+    ],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L1L4-comma-form-live"
+   },
+   "cli_greeting": " \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 120 changed\nremote 0 removed global: \tid 120, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21174\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469142\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "cli_log_tail": "nterface:Port/3\n \t\tobject.serial = \"21179\"\n \t\tobject.path = \"r92s_fc_in:monitor_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"141\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"monitor_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.monitor = \"true\"\n \t\tport.alias = \"r92s_fc:monitor_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 141, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"21176\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"120\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_in\"\n \t\tmedia.class = \"Stream/Input/Audio\"\nremote 0 removed global: \tid 88, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"21180\"\n \t\tobject.path = \"r92s_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"91\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 91, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"21177\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"120\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 120, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21175\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469091\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "leg": "L1L4-comma-form",
+   "load_out": "= \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469176\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 95, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21184\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469176\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 95, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21185\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469178\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 95, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21185\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469178\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 95, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21186\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469180\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 95 changed\nremote 0 removed global: \tid 95, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21186\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469180\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "module_id_parsed": 1,
+   "unload_out": "ormat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"91\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92s_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 removed global: \tid 91, type PipeWire:Interface:Node/3\n \t\tobject.serial = \"21177\"\n \t\tfactory.id = \"9\"\n \t\tclient.id = \"120\"\n \t\tnode.description = \"r92s_fc\"\n \t\tnode.name = \"r92s_fc_out\"\n \t\tmedia.class = \"Stream/Output/Audio\"\nremote 0 removed global: \tid 120, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21175\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469091\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\n"
+  },
+  {
+   "args": "node.description=r92s_fc filter.graph={nodes=[{type=builtin name=bq1 label=bq_lowpass control={Freq=1000.0 Q=0.707}}]} audio.channels=1 audio.position=[MONO] capture.props={node.name=r92s_fc_in node.autoconnect=false} playback.props={node.name=r92s_fc_out node.autoconnect=false}",
+   "census_after_exit": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L5-spaced-form-after-exit"
+   },
+   "census_after_unload": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L5-spaced-form-after-unload"
+   },
+   "census_before": {
+    "n_r92s_nodes": 0,
+    "nodes": [],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L5-spaced-form-before"
+   },
+   "census_live": {
+    "n_r92s_nodes": 2,
+    "nodes": [
+     {
+      "audio.channels": 1,
+      "audio.position": "[MONO]",
+      "factory.name": null,
+      "id": 87,
+      "media.class": "Stream/Input/Audio",
+      "media.type": null,
+      "node.autoconnect": false,
+      "node.description": "r92s_fc",
+      "node.driver-id": null,
+      "node.latency": null,
+      "node.name": "r92s_fc_in",
+      "node.passive": null,
+      "port.names": [
+       "input_MONO",
+       "monitor_MONO"
+      ],
+      "state": "suspended",
+      "stream.is-live": true
+     },
+     {
+      "audio.channels": 1,
+      "audio.position": "[MONO]",
+      "factory.name": null,
+      "id": 157,
+      "media.class": "Stream/Output/Audio",
+      "media.type": null,
+      "node.autoconnect": false,
+      "node.description": "r92s_fc",
+      "node.driver-id": null,
+      "node.latency": null,
+      "node.name": "r92s_fc_out",
+      "node.passive": null,
+      "port.names": [
+       "output_MONO"
+      ],
+      "state": "suspended",
+      "stream.is-live": true
+     }
+    ],
+    "r92s_links": [],
+    "spdif_links": [],
+    "tag": "L5-spaced-form-live"
+   },
+   "cli_greeting": "c.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21221\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469268\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "cli_log_tail": "cation.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21240\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469334\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21240\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469334\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21241\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469336\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 150 changed\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21241\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469336\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "leg": "L5-spaced-form",
+   "load_out": "tocol-native\"\n \t\tpipewire.sec.pid = \"1469285\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21231\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469285\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21232\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469287\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21232\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469287\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21233\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469289\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 140 changed\nremote 0 removed global: \tid 140, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21233\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469289\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+   "module_id_parsed": 1,
+   "unload_out": "tion.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21241\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469336\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 150 changed\nremote 0 removed global: \tid 150, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"21241\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1469336\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n"
+  }
+ ],
+ "probe": "f0",
+ "ts": "2026-10-15T17:28:00Z"
+}
