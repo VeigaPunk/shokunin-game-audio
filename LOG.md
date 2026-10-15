@@ -1353,3 +1353,27 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - **r79** (2026-10-15): ADMIT-corr. pw-loopback -C/-P binding frontier — 66 legs over 8 entries: loopback two-node shape + prop lattice; capture-side default-source fallback is conditional (b13 two-branch leg measured the unnegotiated branch formally — source_meta absent while pactl enumerated a Line source, the two authorities split live); playback lattice honors r78's law verbatim with -o beating -P; channel matrix mix is position-driven (half-gain ratio 0.500); pw-record --target three arms + D17; hot-plug re-links both directions; node.latency prop vector + prop-beats-flag; filter-chain module surface. Critic C1-C7 all applied and live-verified (constant-source gate, tap precedence, origin-gated excuse, positive law leg); verifier A2 vacuity named; simplifier vfold proven 0+0 over 23k leaves; r78 wait_source defect disclosed pre-existing (queued r80). Commit d170df9.
 
 - **r80** (2026-10-15): ADMIT-corr. pactl load-module arg lattice + module topology — 10 legs: derived-vs-passthrough description (F1 mechanism corrected: unknown modargs land as literal props, not dropped; node.description stays derived), rate=99999 no range check, media.class=Audio/Source flip (0 in ports, no sink, no .monitor), object.linger orphan lifecycle (survives unload, stale pmid, pactl-invisible, pw-cli destroy only), @DEFAULT_SINK@ slave-list refusal (rc=1 pa_io_error, module count unmoved), pw-link linger vs -m client authority, move-sink-input sticky vs node.dont-move silent no-op with monitor-tap content witnesses. Critic F1-F8 all folded: _module_r80_unload_own ownership guard closes the LIFO-recycle foreign-kill window (live-node client_id citation is the discriminator; orphan pmid cites are stale by design), strict readers + coverage_blocked on reader fail-open paths, t4 both-halves edge assertions, t3 FR-port isolation, block-path unload_own witnesses, tries→loads leak guard, verbatim column re-emitted from true run-2 receipt. Verifier CONFIRM (4th green run, 266 leaf keys ×4 runs, 0 non-volatile diffs); boundary B2/B3 corrected (dup-name direction dict artifact; pactl lists native ids — union); simplifier vfold proven −29L; run D 20261015T161018039047Z green on folded+corrected bytes. Dead-seat author salvaged complete. Disposable-daemon probes parked (shared host). Commit follows.
+
+## round 81 — gst↔pipewire binding lattice (ADMIT-corr)
+
+- MOVE (6aa03e6): --probe-gst-r81, 7 entries / 54 legs post-fold —
+  pipewiresrc/sink prop grammar, two-key target-object= write,
+  element-prop-beats-stream-props (inverse of r78's law), device=
+  silent fallback vs pulsesrc strict refusal, direction-split target
+  loss (+0.203s relink / 204844B frozen captures), PIPEWIRE_REMOTE
+  decisiveness, env precedence target.object>node.target, exit-class
+  lattice, autodetect→pulsesink, client.name null, STRING TRUE/FALSE.
+- MECHANISM (r91 scout c58ac36): gstpipewiresrc.c:1207 sets
+  PW_STREAM_FLAG_DONT_RECONNECT unconditionally → WirePlumber
+  prepare-link.lua:73 drops re-links → capture-freeze law explained.
+- FALSIFIED+FOLDED (07c0671): scout hex 0x7FFFF000 → real
+  0x7FFF0024/0x7FFF0000 (freeze predicate now pins corrected);
+  num-buffers exact on pulse record path (frames = nb × blocksize/fb);
+  S1-S9+L1 dead code (-75/+50); p8 dead leg; e3/e8/e9 real out_paths.
+- Contention: baseline 2/8 + verifier 2 transient reds all attributed
+  to sibling scout lanes (r91 remap source, r92s_* pw-record pairs) —
+  named class, not code drift; normal receipt sha byte-identical
+  7-way across seats.
+- Seats: scout/boundary×2/baseline/author/critic/reviewer/simplifier/
+  verifier/verifier2/scribe/fold; adjudicator orchestrator. ADMIT-corr.
+  Commits 6aa03e6 + 07c0671 + this.
