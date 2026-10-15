@@ -1,0 +1,49 @@
+{
+ "name": "a1_autoaudiosrc_r1",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "autoaudiosrc",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/auto.wav"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.025,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstAutoAudioSrc:autoaudiosrc0/GstPulseSrc:autoaudiosrc0-actual-src-puls: Failed to connect stream: No such entity",
+  "Additional debug info:",
+  "../gstreamer/subprojects/gst-plugins-good/ext/pulse/pulsesrc.c(1622): gst_pulsesrc_prepare (): /GstPipeline:pipeline0/GstAutoAudioSrc:autoaudiosrc0/GstPulseSrc:autoaudiosrc0-actual-src-puls"
+ ],
+ "err_class": "internal_data_stream",
+ "err_hit": "Internal data stream error",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": {
+  "exists": true,
+  "bytes": 0,
+  "riff": "short",
+  "data": null,
+  "frames": null,
+  "fmt": null,
+  "ch": null,
+  "rate": null,
+  "bits": null
+ },
+ "out_peak": null,
+ "note": null
+}

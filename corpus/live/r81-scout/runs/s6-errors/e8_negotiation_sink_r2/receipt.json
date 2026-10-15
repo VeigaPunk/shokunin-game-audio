@@ -1,0 +1,36 @@
+{
+ "name": "e8_negotiation_sink_r2",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "num-buffers=4",
+  "!",
+  "audio/x-raw,format=F64LE,rate=48000,channels=2",
+  "!",
+  "pulsesink",
+  "device=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.018,
+ "stderr_head": [
+  "WARNING: erroneous pipeline: could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48000, channels=(int)2"
+ ],
+ "err_class": "could_not_link",
+ "err_hit": "could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

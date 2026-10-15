@@ -1,0 +1,1089 @@
+{
+ "probe": "sever",
+ "host": "plazir27",
+ "when": "2026-10-14T19:52:32+00:00",
+ "toolchain": {
+  "gst_launch": "gst-launch-1.0 version 1.28.6",
+  "gst_inspect": "gst-inspect-1.0 version 1.28.6",
+  "pw_version": "id: 0",
+  "ffprobe": "ffprobe version n9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+  "soxi": "soxi FAIL getopt: invalid option `--'",
+  "sndfile": "Error : Not able to open input file --version.",
+  "python": "3.14.7",
+  "numpy": "2.5.3"
+ },
+ "byte_cap_bytes": 16777216,
+ "wall_cap_s": 20.0,
+ "scratch_bytes_before": 29879981,
+ "body": {
+  "testsrc": {
+   "SIGINT": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT.wav"
+     ],
+     "rc": 0,
+     "signal": null,
+     "sent": "SIGINT",
+     "eos": false,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 290860,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 72704,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.514667,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "6259f3ee012ca063"
+   },
+   "SIGINT_eos": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT_eos.wav"
+     ],
+     "rc": 0,
+     "signal": null,
+     "sent": "SIGINT",
+     "eos": true,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGINT_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 294956,
+     "riff_sz": 294948,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 294912,
+     "data_class": "finalized",
+     "frames_declared": 73728,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:294912"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "73728",
+     "soxi_D": "1.536000",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 73728,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 73728,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.536,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "9f629bfa80bbe821"
+   },
+   "SIGTERM": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM.wav"
+     ],
+     "rc": -15,
+     "signal": "SIGTERM",
+     "sent": "SIGTERM",
+     "eos": false,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "97e4fc0931e2e8d7"
+   },
+   "SIGTERM_eos": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM_eos.wav"
+     ],
+     "rc": -15,
+     "signal": "SIGTERM",
+     "sent": "SIGTERM",
+     "eos": true,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGTERM_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "97e4fc0931e2e8d7"
+   },
+   "SIGKILL": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL.wav"
+     ],
+     "rc": -9,
+     "signal": "SIGKILL",
+     "sent": "SIGKILL",
+     "eos": false,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "97e4fc0931e2e8d7"
+   },
+   "SIGKILL_eos": {
+    "run": {
+     "pipeline": "audiotestsrc wave=sine freq=1000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "audiotestsrc",
+      "wave=sine",
+      "freq=1000",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "sync=true",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL_eos.wav"
+     ],
+     "rc": -9,
+     "signal": "SIGKILL",
+     "sent": "SIGKILL",
+     "eos": true,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_testsrc_SIGKILL_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.321943296985,
+     "nonzero_frac": 0.9583333333333334,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "97e4fc0931e2e8d7"
+   }
+  },
+  "pipewiresrc": {
+   "SIGINT": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT.wav"
+     ],
+     "rc": 0,
+     "signal": null,
+     "sent": "SIGINT",
+     "eos": false,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 286764,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 71680,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.493333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "c84853d7949ed0ec"
+   },
+   "SIGINT_eos": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT_eos.wav"
+     ],
+     "rc": 0,
+     "signal": null,
+     "sent": "SIGINT",
+     "eos": true,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGINT_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 286764,
+     "riff_sz": 286756,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 286720,
+     "data_class": "finalized",
+     "frames_declared": 71680,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:286720"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "71680",
+     "soxi_D": "1.493333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 71680,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 71680,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.493333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "29ee4e1c557d94b6"
+   },
+   "SIGTERM": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM.wav"
+     ],
+     "rc": -15,
+     "signal": "SIGTERM",
+     "sent": "SIGTERM",
+     "eos": false,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "798b6da30b386f98"
+   },
+   "SIGTERM_eos": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM_eos.wav"
+     ],
+     "rc": -15,
+     "signal": "SIGTERM",
+     "sent": "SIGTERM",
+     "eos": true,
+     "elapsed_s": 1.527,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGTERM_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "798b6da30b386f98"
+   },
+   "SIGKILL": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL.wav"
+     ],
+     "rc": -9,
+     "signal": "SIGKILL",
+     "sent": "SIGKILL",
+     "eos": false,
+     "elapsed_s": 1.527,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "798b6da30b386f98"
+   },
+   "SIGKILL_eos": {
+    "run": {
+     "pipeline": "pipewiresrc target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink stream-properties=props,stream.capture.sink=true ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL_eos.wav",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "-e",
+      "pipewiresrc",
+      "target-object=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "stream-properties=props,stream.capture.sink=true",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL_eos.wav"
+     ],
+     "rc": -9,
+     "signal": "SIGKILL",
+     "sent": "SIGKILL",
+     "eos": true,
+     "elapsed_s": 1.526,
+     "stderr": "",
+     "stderr_head": [],
+     "byte_cap_killed_at": null,
+     "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pipewiresrc_SIGKILL_eos.wav"
+    },
+    "insp": {
+     "exists": true,
+     "bytes": 274476,
+     "riff_sz": 2147418148,
+     "riff_class": "wavenc_streaming",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 2147418112,
+     "data_class": "other",
+     "frames_declared": 536854528,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": true,
+     "chunks": [
+      "fmt :16",
+      "data:2147418112"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "536854528",
+     "soxi_D": "11184.469333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 536854528,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 68608,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.429333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "798b6da30b386f98"
+   }
+  },
+  "cross_consumer": {
+   "pw_record_TERM": {
+    "argv": [
+     "pw-record",
+     "-P",
+     "stream.capture.sink=true",
+     "--target",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "-n",
+     "96000",
+     "--rate",
+     "48000",
+     "--channels",
+     "2",
+     "--format",
+     "s16",
+     "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pw_record_TERM.wav"
+    ],
+    "rc": 1,
+    "sent": "SIGTERM",
+    "stderr_head": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pw_record_TERM.wav",
+    "insp": {
+     "exists": true,
+     "bytes": 286764,
+     "riff_sz": 286756,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 286720,
+     "data_class": "finalized",
+     "frames_declared": 71680,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:286720"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "readers": {
+     "soxi_s": "71680",
+     "soxi_D": "1.493333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 71680,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 71680,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.493333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "29ee4e1c557d94b6"
+   },
+   "pw_record_KILL": {
+    "argv": [
+     "pw-record",
+     "-P",
+     "stream.capture.sink=true",
+     "--target",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "-n",
+     "96000",
+     "--rate",
+     "48000",
+     "--channels",
+     "2",
+     "--format",
+     "s16",
+     "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pw_record_KILL.wav"
+    ],
+    "rc": -9,
+    "sent": "SIGKILL",
+    "stderr_head": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_pw_record_KILL.wav",
+    "insp": {
+     "exists": true,
+     "bytes": 286764,
+     "riff_sz": 8,
+     "riff_class": "placeholder_8",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 0,
+     "data_class": "zero",
+     "frames_declared": 0,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:0"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": null,
+     "rms": null,
+     "nonzero_frac": null,
+     "err": "Error"
+    },
+    "readers": {
+     "soxi_s": "0",
+     "soxi_D": "0.000000",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: fmt chunk and/or data chunk missing",
+     "sndfile_frames": 71680,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 1.493333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "d354269efd0eb067"
+   },
+   "parecord_KILL": {
+    "argv": [
+     "parecord",
+     "--device",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+     "--file-format=wav",
+     "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/sev_parecord_KILL.wav"
+    ],
+    "rc": -9,
+    "sent": "SIGKILL",
+    "stderr_head": "",
+    "insp": {
+     "exists": true,
+     "bytes": 44,
+     "riff_sz": 8,
+     "riff_class": "placeholder_8",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 44100,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 0,
+     "data_class": "finalized",
+     "frames_declared": 0,
+     "finalized": false,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:0"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": null,
+     "rms": null,
+     "nonzero_frac": null,
+     "err": "Error"
+    },
+    "readers": {
+     "soxi_s": "0",
+     "soxi_D": "0.000000",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: fmt chunk and/or data chunk missing",
+     "sndfile_frames": 0,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": null,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "8f0dcabf7874685d"
+   }
+  },
+  "link_producers_sample": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> pw-record:input_1\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> pw-record:input_2\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\n  |-> parecord:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n  |-> parecord:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_1\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\npw-record:input_2\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\nparecord:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\nparecord:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n"
+ }
+}

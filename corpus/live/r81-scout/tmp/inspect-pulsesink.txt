@@ -1,0 +1,208 @@
+Factory Details:
+  Rank                     primary + 10 (266)
+  Long-name                PulseAudio Audio Sink
+  Klass                    Sink/Audio
+  Description              Plays audio to a PulseAudio server
+  Author                   Lennart Poettering
+  Documentation            https://gstreamer.freedesktop.org/documentation/pulseaudio/pulsesink.html
+
+Plugin Details:
+  Name                     pulseaudio
+  Description              PulseAudio plugin library
+  Filename                 /usr/lib/gstreamer-1.0/libgstpulseaudio.so
+  Version                  1.28.6
+  License                  LGPL
+  Source module            gst-plugins-good
+  Documentation            https://gstreamer.freedesktop.org/documentation/pulseaudio/
+  Source release date      2026-08-05
+  Binary package           Arch Linux GStreamer 1.28.6-3
+  Origin URL               https://www.archlinux.org/
+
+GObject
+ +----GInitiallyUnowned
+       +----GstObject
+             +----GstElement
+                   +----GstBaseSink
+                         +----GstAudioBaseSink
+                               +----GstPulseSink
+
+Implemented Interfaces:
+  GstStreamVolume
+
+Element Flags:
+  - SINK
+  - PROVIDE_CLOCK
+
+Pad Templates:
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      audio/x-raw
+                 format: { (string)S16LE, (string)S16BE, (string)F32LE, (string)F32BE, (string)S32LE, (string)S32BE, (string)S24LE, (string)S24BE, (string)S24_32LE, (string)S24_32BE, (string)U8 } (GstValueList)
+                 layout: interleaved (string)
+                   rate: [ 1, 768000 ] (GstIntRange)
+               channels: [ 1, 32 ] (GstIntRange)
+      audio/x-alaw
+                   rate: [ 1, 768000 ] (GstIntRange)
+               channels: [ 1, 32 ] (GstIntRange)
+      audio/x-mulaw
+                   rate: [ 1, 768000 ] (GstIntRange)
+               channels: [ 1, 32 ] (GstIntRange)
+      audio/x-ac3
+                 framed: true (gboolean)
+      audio/x-eac3
+                 framed: true (gboolean)
+      audio/x-dts
+                 framed: true (gboolean)
+             block-size: { (int)512, (int)1024, (int)2048 } (GstValueList)
+      audio/mpeg
+            mpegversion: 1 (gint)
+        mpegaudioversion: [ 1, 3 ] (GstIntRange)
+                 parsed: true (gboolean)
+      audio/mpeg
+            mpegversion: { (int)2, (int)4 } (GstValueList)
+                 framed: true (gboolean)
+          stream-format: adts (string)
+
+Clocking Interaction:
+  element provides a clock
+Element has no URI handling capabilities.
+
+Pads:
+  SINK: 'sink'
+    Pad Template: 'sink'
+
+Element Properties:
+
+  alignment-threshold : Timestamp alignment threshold in nanoseconds
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 1 - 18446744073709551614 Default: 40000000 
+  
+  async               : Go asynchronously to PAUSED
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  blocksize           : Size in bytes to pull per buffer (0 = default)
+                        flags: readable, writable
+                        Unsigned Integer. Range: 0 - 4294967295 Default: 4096 
+  
+  buffer-time         : Size of audio buffer in microseconds, this is the minimum latency that the sink reports
+                        flags: readable, writable
+                        Integer64. Range: 1 - 9223372036854775807 Default: 200000 
+  
+  can-activate-pull   : Allow pull-based scheduling
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  client-name         : The PulseAudio client name to use
+                        flags: readable, writable, changeable only in NULL or READY state
+                        String. Default: "gst-inspect-1.0"
+  
+  current-device      : The current PulseAudio sink device
+                        flags: readable
+                        String. Default: ""
+  
+  device              : The PulseAudio sink device to connect to
+                        flags: readable, writable
+                        String. Default: null
+  
+  device-name         : Human-readable name of the sound device
+                        flags: readable
+                        String. Default: null
+  
+  discont-wait        : Window of time in nanoseconds to wait before creating a discontinuity
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551614 Default: 1000000000 
+  
+  drift-tolerance     : Tolerance for clock drift in microseconds
+                        flags: readable, writable
+                        Integer64. Range: 1 - 9223372036854775807 Default: 40000 
+  
+  enable-last-sample  : Enable the last-sample property
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  last-sample         : The last sample received in the sink
+                        flags: readable
+                        Boxed pointer of type "GstSample"
+  
+  latency-time        : The minimum amount of data to write in each iteration in microseconds
+                        flags: readable, writable
+                        Integer64. Range: 1 - 9223372036854775807 Default: 10000 
+  
+  max-bitrate         : The maximum bits per second to render (0 = disabled)
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  max-lateness        : Maximum number of nanoseconds that a buffer can be late before it is dropped (-1 unlimited)
+                        flags: readable, writable
+                        Integer64. Range: -1 - 9223372036854775807 Default: -1 
+  
+  mute                : Mute state of this stream
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  name                : The name of the object
+                        flags: readable, writable
+                        String. Default: "pulsesink0"
+  
+  parent              : The parent of the object
+                        flags: readable, writable
+                        Object of type "GstObject"
+  
+  processing-deadline : Maximum processing time for a buffer in nanoseconds
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 20000000 
+  
+  provide-clock       : Provide a clock to be used as the global pipeline clock
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  qos                 : Generate Quality-of-Service events upstream
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  render-delay        : Additional render delay of the sink in nanoseconds
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  server              : The PulseAudio server to connect to
+                        flags: readable, writable
+                        String. Default: null
+  
+  slave-method        : Algorithm used to match the rate of the masterclock
+                        flags: readable, writable
+                        Enum "GstAudioBaseSinkSlaveMethod" Default: 1, "skew"
+                           (0): resample         - GST_AUDIO_BASE_SINK_SLAVE_RESAMPLE
+                           (1): skew             - GST_AUDIO_BASE_SINK_SLAVE_SKEW
+                           (2): none             - GST_AUDIO_BASE_SINK_SLAVE_NONE
+                           (3): custom           - GST_AUDIO_BASE_SINK_SLAVE_CUSTOM
+  
+  stats               : Sink Statistics
+                        flags: readable
+                        Boxed pointer of type "GstStructure"
+                                                        average-rate: 0 (gdouble)
+                                                             dropped: 0 (guint64)
+                                                            rendered: 0 (guint64)
+
+  
+  stream-properties   : list of pulseaudio stream properties
+                        flags: readable, writable
+                        Boxed pointer of type "GstStructure"
+  
+  sync                : Sync on the clock
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  throttle-time       : The time to keep between rendered buffers (0 = disabled)
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  ts-offset           : Timestamp offset in nanoseconds
+                        flags: readable, writable
+                        Integer64. Range: -9223372036854775808 - 9223372036854775807 Default: 0 
+  
+  volume              : Linear volume of this stream, 1.0=100%
+                        flags: readable, writable
+                        Double. Range:               0 -              10 Default:               1 
+  

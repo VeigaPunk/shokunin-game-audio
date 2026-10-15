@@ -1,0 +1,695 @@
+{
+ "seat": "r78-boundary",
+ "ts": 1792013767.5891035,
+ "env": {
+  "sink_inputs": [
+   {
+    "index": 51149,
+    "node.name": "output.r79_9721_cm2",
+    "sink": 50777,
+    "mine": false
+   },
+   {
+    "index": 51163,
+    "node.name": "r79_9721_CM2-c1-only_tone",
+    "sink": 50770,
+    "mine": false
+   }
+  ],
+  "procs": [
+   " 208622 python3         python3 -B vobs/love_battery.py --runs runs-vobs",
+   " 238623 ffmpeg          ffmpeg -loglevel quiet -nostdin -strict -2 -i /tmp/fifo-hold-r70-eh9xra2d/pair_dec_act.wav -f au -",
+   " 272755 pw-cat          pw-cat -p -P node.name=r79_9721_CM2-c1-only_tone --target r79_ns_a_r79_9721 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/scratch/tone_r79_long.wav",
+   " 279506 love            /usr/bin/love /home/vgpnk/Projects/shokunin/game-dev-2d-shokunin/corpus/live/r78-simplifier/vobs/love_phys_probe",
+   "2202613 aplay           aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav"
+  ]
+ },
+ "pre_default": [
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  0,
+  ""
+ ],
+ "pre_meta_keys": [
+  "default.audio.sink",
+  "default.configured.audio.source",
+  "default.configured.audio.sink",
+  "default.audio.source"
+ ],
+ "pre_cleanup": {
+  "unloaded": [],
+  "count": 0
+ },
+ "null_sinks": {
+  "ns": "536870919",
+  "ns2": "536870921"
+ },
+ "ns_serial": 51183,
+ "ns2_serial": 51190,
+ "spdif_serial": 59,
+ "line_serial": 62,
+ "node_states": {
+  "r78b_ns": "suspended",
+  "r78b_ns2": "suspended",
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink": "suspended",
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink": "suspended"
+ },
+ "leg_honored": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r78bsm_a",
+   "--target",
+   "r78b_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary/raw/tone_r78b.wav"
+  ],
+  "rc": 0,
+  "stderr": "",
+  "stdout": "",
+  "wall_s": 2.493,
+  "timed_out": false,
+  "mid": {
+   "links": {
+    "r78bsm_a:output_FL": [
+     "r78b_ns:playback_FL"
+    ],
+    "r78bsm_a:output_FR": [
+     "r78b_ns:playback_FR"
+    ]
+   },
+   "props": {
+    "node.name": "r78bsm_a",
+    "media.class": "Stream/Output/Audio",
+    "media.role": "Music",
+    "media.category": "Playback",
+    "target.object": "r78b_ns",
+    "node.autoconnect": true,
+    "stream.is-live": true,
+    "application.name": "pw-play"
+   },
+   "node_state": "running",
+   "alive": true
+  },
+  "timeline": [],
+  "actions": [],
+  "caps": {
+   "ns": {
+    "meta": {
+     "bytes": 540716,
+     "declared_data": 540672
+    },
+    "n_windows": 6,
+    "mine": [
+     0.0,
+     0.5,
+     1.0,
+     1.5,
+     2.0
+    ],
+    "mine_r_tag": [
+     0.0,
+     0.5,
+     1.0,
+     1.5,
+     2.0
+    ],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 1,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1098.8,
+      "f_R": 1753.9,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.6,
+      "f_R": 1748.4,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 15168
+     }
+    ],
+    "verdict": "mine",
+    "bytes": 540716,
+    "sha256": "7f742f71b7ad36a7"
+   },
+   "ns2": {
+    "meta": {
+     "bytes": 544812,
+     "declared_data": 544768
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 16192
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 544812,
+    "sha256": "dfdc201897b82c22"
+   },
+   "spdif": {
+    "meta": {
+     "bytes": 540716,
+     "declared_data": 540672
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 15168
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 540716,
+    "sha256": "b5fd3387de30b44a"
+   },
+   "spk": {
+    "meta": {
+     "bytes": 516140,
+     "declared_data": 516096
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 9024
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 516140,
+    "sha256": "c2021e4a4ad79936"
+   }
+  },
+  "carried": [
+   "ns"
+  ],
+  "foreign": []
+ },
+ "leg_garbage": {
+  "argv": [
+   "pw-play",
+   "-P",
+   "node.name=r78bsm_b",
+   "--target",
+   "no_such_sink_r78b",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary/raw/tone_r78b.wav"
+  ],
+  "rc": 0,
+  "stderr": "",
+  "stdout": "",
+  "wall_s": 2.437,
+  "timed_out": false,
+  "mid": {
+   "links": {
+    "r78bsm_b:output_FL": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+    ],
+    "r78bsm_b:output_FR": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+    ]
+   },
+   "props": {
+    "node.name": "r78bsm_b",
+    "media.class": "Stream/Output/Audio",
+    "media.role": "Music",
+    "media.category": "Playback",
+    "target.object": "no_such_sink_r78b",
+    "node.autoconnect": true,
+    "stream.is-live": true,
+    "application.name": "pw-play"
+   },
+   "node_state": "running",
+   "alive": true
+  },
+  "timeline": [],
+  "actions": [],
+  "caps": {
+   "ns": {
+    "meta": {
+     "bytes": 536620,
+     "declared_data": 536576
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 14144
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 536620,
+    "sha256": "92d638b18f280737"
+   },
+   "ns2": {
+    "meta": {
+     "bytes": 532524,
+     "declared_data": 532480
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 13120
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 532524,
+    "sha256": "5df7bea315e209d2"
+   },
+   "spdif": {
+    "meta": {
+     "bytes": 532524,
+     "declared_data": 532480
+    },
+    "n_windows": 6,
+    "mine": [
+     0.0,
+     0.5,
+     1.0,
+     1.5,
+     2.0
+    ],
+    "mine_r_tag": [
+     0.0,
+     0.5,
+     1.0,
+     1.5,
+     2.0
+    ],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 1,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1104.9,
+      "f_R": 1746.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1100.0,
+      "f_R": 1750.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 12000.0,
+      "peak_R": 12000.0,
+      "f_L": 1098.5,
+      "f_R": 1751.5,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 13120
+     }
+    ],
+    "verdict": "mine",
+    "bytes": 532524,
+    "sha256": "52822446b4cc139b"
+   },
+   "spk": {
+    "meta": {
+     "bytes": 528428,
+     "declared_data": 528384
+    },
+    "n_windows": 6,
+    "mine": [],
+    "mine_r_tag": [],
+    "mine2": [],
+    "foreign": [],
+    "silent_n": 6,
+    "windows": [
+     {
+      "t0": 0.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 0.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 1.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.0,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 24000
+     },
+     {
+      "t0": 2.5,
+      "peak_L": 0.0,
+      "peak_R": 0.0,
+      "f_L": 0.0,
+      "f_R": 0.0,
+      "frames": 12096
+     }
+    ],
+    "verdict": "silent",
+    "bytes": 528428,
+    "sha256": "9bc7a4d9195f7827"
+   }
+  },
+  "carried": [
+   "spdif"
+  ],
+  "foreign": []
+ },
+ "post_default": [
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  0,
+  ""
+ ]
+}

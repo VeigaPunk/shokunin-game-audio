@@ -1,0 +1,33 @@
+# p5-index-law
+
+- board at start: {"1": "libpipewire-module-rt", "2": "libpipewire-module-protocol-native", "4": "libpipewire-module-profiler", "6": "libpipewire-module-metadata", "8": "libpipewire-module-spa-device-factory", "10": "libpipewire-module-spa-node-factory", "12": "libpipewire-module-client-node", "14": "libpipewire-module-client-device", "16": "libpipewire-module-portal", "17": "libpipewire-module-access", "18": "libpipewire-module-adapter", "20": "libpipewire-module-link-factory", "22": "libpipewire-module-session-manager", "536870912": "module-always-sink", "536870913": "module-device-manager", "536870914": "module-device-restore", "536870915": "module-stream-restore", "536870923": "module-null-sink", "536870929": "module-null-sink"}
+- rep0 alloc: a=[536870922, 536870921, 536870920, 536870919] b=536870921(reuse_a1=True) c=536870919(reuse_a3=True) d=536870922(reuse_a0=True) before=[1, 2, 4, 6, 8, 10, 12, 14, 16, 17, 18, 20, 22, 536870912, 536870913, 536870914, 536870915, 536870923, 536870929]
+- rep0 cleanup [{'idx': 536870920, 'rc': 0, 'err': ''}, {'idx': 536870921, 'rc': 0, 'err': ''}, {'idx': 536870922, 'rc': 0, 'err': ''}, {'idx': 536870919, 'rc': 0, 'err': ''}]
+- rep1 alloc: a=[536870919, 536870922, 536870921, 536870920] b=536870922(reuse_a1=True) c=536870920(reuse_a3=True) d=536870919(reuse_a0=True) before=[1, 2, 4, 6, 8, 10, 12, 14, 16, 17, 18, 20, 22, 536870912, 536870913, 536870914, 536870915, 536870923, 536870929]
+- rep1 cleanup [{'idx': 536870920, 'rc': 0, 'err': ''}, {'idx': 536870921, 'rc': 0, 'err': ''}, {'idx': 536870922, 'rc': 0, 'err': ''}, {'idx': 536870919, 'rc': 0, 'err': ''}]
+- rep2 alloc: a=[536870919, 536870922, 536870921, 536870920] b=536870922(reuse_a1=True) c=536870920(reuse_a3=True) d=536870919(reuse_a0=True) before=[1, 2, 4, 6, 8, 10, 12, 14, 16, 17, 18, 20, 22, 536870912, 536870913, 536870914, 536870915, 536870923, 536870929]
+- rep2 cleanup [{'idx': 536870920, 'rc': 0, 'err': ''}, {'idx': 536870921, 'rc': 0, 'err': ''}, {'idx': 536870922, 'rc': 0, 'err': ''}, {'idx': 536870919, 'rc': 0, 'err': ''}]
+- rep0 bare-live          arg='536870919' alive_before=True rc=0 err='' alive_after=False
+- rep0 hash-live          arg='#536870919' alive_before=True rc=0 err='Failed to unload module: Module #536870919 not loaded' alive_after=True
+- rep0 bare-dead          arg='536870919' alive_before=False rc=1 err='Failure: No such entity' alive_after=False
+- rep0 hash-dead          arg='#536870919' alive_before=False rc=0 err='Failed to unload module: Module #536870919 not loaded' alive_after=False
+- rep0 bare-below-base    arg='536870000' alive_before=True rc=1 err='Failure: Access denied' alive_after=True
+- rep0 bare-name-string SKIPPED (foreign null-sink modules live: [536870929])
+- rep0 bogus-string       arg='no-such-module-name' alive_before=True rc=0 err='Failed to unload module: Module no-such-module-name not load' alive_after=True
+- rep0 bare-huge          arg='999999999' alive_before=True rc=1 err='Failure: No such entity' alive_after=True
+- rep1 bare-live          arg='536870923' alive_before=True rc=0 err='' alive_after=False
+- rep1 hash-live          arg='#536870923' alive_before=True rc=0 err='Failed to unload module: Module #536870923 not loaded' alive_after=True
+- rep1 bare-dead          arg='536870923' alive_before=False rc=1 err='Failure: No such entity' alive_after=False
+- rep1 hash-dead          arg='#536870923' alive_before=False rc=0 err='Failed to unload module: Module #536870923 not loaded' alive_after=False
+- rep1 bare-below-base    arg='536870000' alive_before=True rc=1 err='Failure: Access denied' alive_after=True
+- rep1 bare-name-string SKIPPED (foreign null-sink modules live: [536870929])
+- rep1 bogus-string       arg='no-such-module-name' alive_before=True rc=0 err='Failed to unload module: Module no-such-module-name not load' alive_after=True
+- rep1 bare-huge          arg='999999999' alive_before=True rc=1 err='Failure: No such entity' alive_after=True
+- rep2 bare-live          arg='536870923' alive_before=True rc=0 err='' alive_after=False
+- rep2 hash-live          arg='#536870923' alive_before=True rc=0 err='Failed to unload module: Module #536870923 not loaded' alive_after=True
+- rep2 bare-dead          arg='536870923' alive_before=False rc=1 err='Failure: No such entity' alive_after=False
+- rep2 hash-dead          arg='#536870923' alive_before=False rc=0 err='Failed to unload module: Module #536870923 not loaded' alive_after=False
+- rep2 bare-below-base    arg='536870000' alive_before=True rc=1 err='Failure: Access denied' alive_after=True
+- rep2 bare-name-string SKIPPED (foreign null-sink modules live: [536870929])
+- rep2 bogus-string       arg='no-such-module-name' alive_before=True rc=0 err='Failed to unload module: Module no-such-module-name not load' alive_after=True
+- rep2 bare-huge          arg='999999999' alive_before=True rc=1 err='Failure: No such entity' alive_after=True

@@ -1,0 +1,49 @@
+{
+ "name": "c0_no_prop_r1",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "target-object=gst_r81_ns",
+  "num-buffers=100",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/cap.wav"
+ ],
+ "env_extra": null,
+ "rc": 255,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.026,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+  "Additional debug info:",
+  "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0"
+ ],
+ "err_class": "state_change_failed",
+ "err_hit": "Failed to set pipeline to PAUSED",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "gst_r81_tone:output_FL -> gst_r81_ns:playback_FL",
+  "gst_r81_tone:output_FR -> gst_r81_ns:playback_FR"
+ ],
+ "out": {
+  "exists": true,
+  "bytes": 0,
+  "riff": "short",
+  "data": null,
+  "frames": null,
+  "fmt": null,
+  "ch": null,
+  "rate": null,
+  "bits": null
+ },
+ "out_peak": null,
+ "note": null
+}

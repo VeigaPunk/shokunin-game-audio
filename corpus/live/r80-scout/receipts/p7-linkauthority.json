@@ -1,0 +1,480 @@
+{
+ "name": "p7-linkauthority",
+ "started": "2026-10-15T05:04:51Z",
+ "legs": [
+  {
+   "label": "A-rep0",
+   "at": "02:04:58",
+   "create_linger": {
+    "linger": {
+     "cmd": [
+      "pw-link",
+      "r80_q_ns:monitor_FL",
+      "r80_q_rec:input_FL"
+     ],
+     "rc": 0,
+     "secs": 0.002,
+     "stdout": "",
+     "stderr": ""
+    }
+   },
+   "links_immediately": [
+    "r80_q_ns:206->r80_q_rec:170"
+   ],
+   "links_after_2s": [
+    "r80_q_ns:206->r80_q_rec:170"
+   ],
+   "nonlinger": {
+    "link_while_m_running": [
+     "r80_q_ns:206->r80_q_rec2:220"
+    ],
+    "link_after_m_killed": []
+   }
+  },
+  {
+   "label": "A-rep1",
+   "at": "02:05:06",
+   "create_linger": {
+    "linger": {
+     "cmd": [
+      "pw-link",
+      "r80_q_ns:monitor_FL",
+      "r80_q_rec:input_FL"
+     ],
+     "rc": 0,
+     "secs": 0.002,
+     "stdout": "",
+     "stderr": ""
+    }
+   },
+   "links_immediately": [
+    "r80_q_ns:247->r80_q_rec:213"
+   ],
+   "links_after_2s": [
+    "r80_q_ns:247->r80_q_rec:213"
+   ],
+   "nonlinger": {
+    "link_while_m_running": [
+     "r80_q_ns:247->r80_q_rec2:135"
+    ],
+    "link_after_m_killed": []
+   }
+  },
+  {
+   "label": "A-rep2",
+   "at": "02:05:14",
+   "create_linger": {
+    "linger": {
+     "cmd": [
+      "pw-link",
+      "r80_q_ns:monitor_FL",
+      "r80_q_rec:input_FL"
+     ],
+     "rc": 0,
+     "secs": 0.002,
+     "stdout": "",
+     "stderr": ""
+    }
+   },
+   "links_immediately": [
+    "r80_q_ns:159->r80_q_rec:44"
+   ],
+   "links_after_2s": [
+    "r80_q_ns:159->r80_q_rec:44"
+   ],
+   "nonlinger": {
+    "link_while_m_running": [
+     "r80_q_ns:159->r80_q_rec2:213"
+    ],
+    "link_after_m_killed": []
+   }
+  },
+  {
+   "label": "B-rep0",
+   "at": "02:05:22",
+   "sink_input_index": "82574",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82574",
+     "r80_q_m2"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_play:170->r80_q_m1:250",
+    "r80_q_play:86->r80_q_m1:110"
+   ],
+   "links_after_1s": [
+    "r80_q_play:170->r80_q_m2:210",
+    "r80_q_play:86->r80_q_m2:135"
+   ],
+   "links_after_3.5s": [
+    "r80_q_play:170->r80_q_m2:210",
+    "r80_q_play:86->r80_q_m2:135"
+   ],
+   "links_after_6s": [
+    "r80_q_play:170->r80_q_m2:210",
+    "r80_q_play:86->r80_q_m2:135"
+   ],
+   "stream_props": {
+    "node.dont-move": null,
+    "target.object": "r80_q_m1",
+    "node.target": null,
+    "stream.dont-remix": null,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_play"
+   }
+  },
+  {
+   "label": "B-rep1",
+   "at": "02:05:30",
+   "sink_input_index": "82660",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82660",
+     "r80_q_m2"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_play:86->r80_q_m1:160",
+    "r80_q_play:95->r80_q_m1:44"
+   ],
+   "links_after_1s": [
+    "r80_q_play:86->r80_q_m2:247",
+    "r80_q_play:95->r80_q_m2:205"
+   ],
+   "links_after_3.5s": [
+    "r80_q_play:86->r80_q_m2:247",
+    "r80_q_play:95->r80_q_m2:205"
+   ],
+   "links_after_6s": [
+    "r80_q_play:86->r80_q_m2:247",
+    "r80_q_play:95->r80_q_m2:205"
+   ],
+   "stream_props": {
+    "node.dont-move": null,
+    "target.object": "r80_q_m1",
+    "node.target": null,
+    "stream.dont-remix": null,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_play"
+   }
+  },
+  {
+   "label": "B-rep2",
+   "at": "02:05:38",
+   "sink_input_index": "82730",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82730",
+     "r80_q_m2"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_play:95->r80_q_m1:210",
+    "r80_q_play:170->r80_q_m1:213"
+   ],
+   "links_after_1s": [
+    "r80_q_play:95->r80_q_m2:247",
+    "r80_q_play:170->r80_q_m2:246"
+   ],
+   "links_after_3.5s": [
+    "r80_q_play:95->r80_q_m2:247",
+    "r80_q_play:170->r80_q_m2:246"
+   ],
+   "links_after_6s": [
+    "r80_q_play:95->r80_q_m2:247",
+    "r80_q_play:170->r80_q_m2:246"
+   ],
+   "stream_props": {
+    "node.dont-move": null,
+    "target.object": "r80_q_m1",
+    "node.target": null,
+    "stream.dont-remix": null,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_play"
+   }
+  },
+  {
+   "label": "C-rep0",
+   "at": "02:05:41",
+   "sink_input_index": "82780",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82780",
+     "r80_q_d2"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_playd:110->r80_q_d1:160",
+    "r80_q_playd:159->r80_q_d1:44"
+   ],
+   "links_after": [
+    "r80_q_playd:110->r80_q_d1:160",
+    "r80_q_playd:159->r80_q_d1:44"
+   ],
+   "prop_on_node": true,
+   "prop_all": {
+    "node.dont-move": true
+   }
+  },
+  {
+   "label": "C-rep1",
+   "at": "02:05:44",
+   "sink_input_index": "82835",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82835",
+     "r80_q_d2"
+    ],
+    "rc": 0,
+    "secs": 0.002,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_playd:159->r80_q_d1:103",
+    "r80_q_playd:177->r80_q_d1:213"
+   ],
+   "links_after": [
+    "r80_q_playd:159->r80_q_d1:103",
+    "r80_q_playd:177->r80_q_d1:213"
+   ],
+   "prop_on_node": true,
+   "prop_all": {
+    "node.dont-move": true
+   }
+  },
+  {
+   "label": "C-rep2",
+   "at": "02:05:48",
+   "sink_input_index": "82874",
+   "move": {
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "82874",
+     "r80_q_d2"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "",
+    "stderr": ""
+   },
+   "links_before": [
+    "r80_q_playd:177->r80_q_d1:160",
+    "r80_q_playd:210->r80_q_d1:44"
+   ],
+   "links_after": [
+    "r80_q_playd:177->r80_q_d1:160",
+    "r80_q_playd:210->r80_q_d1:44"
+   ],
+   "prop_on_node": true,
+   "prop_all": {
+    "node.dont-move": true
+   }
+  },
+  {
+   "label": "D-rep0",
+   "at": "02:05:51",
+   "node_before": 252,
+   "node_after_client_death": null,
+   "props": {
+    "object.linger": true,
+    "client.id": 247,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_playl",
+    "node.dont-move": null,
+    "node.linger": null
+   },
+   "links_after": []
+  },
+  {
+   "label": "D-rep1",
+   "at": "02:05:54",
+   "node_before": 252,
+   "node_after_client_death": null,
+   "props": {
+    "object.linger": true,
+    "client.id": 103,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_playl",
+    "node.dont-move": null,
+    "node.linger": null
+   },
+   "links_after": []
+  },
+  {
+   "label": "D-rep2",
+   "at": "02:05:57",
+   "node_before": 252,
+   "node_after_client_death": null,
+   "props": {
+    "object.linger": true,
+    "client.id": 247,
+    "media.class": "Stream/Output/Audio",
+    "node.name": "r80_q_playl",
+    "node.dont-move": null,
+    "node.linger": null
+   },
+   "links_after": []
+  },
+  {
+   "label": "E-rep0",
+   "at": "02:05:59",
+   "load": {
+    "cmd": [
+     "pw-cli",
+     "load-module",
+     "libpipewire-module-null-audio-sink",
+     "{ node.name=r80_q_nat sink.props={ media.class=Audio/Sink } }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": "Error: \"Could not load module\"\n"
+   },
+   "var": null,
+   "nodes": {},
+   "pactl_sees_sink": false,
+   "pactl_module_list_has_native": true,
+   "unload": null,
+   "node_gone": true
+  },
+  {
+   "label": "E-rep1",
+   "at": "02:06:00",
+   "load": {
+    "cmd": [
+     "pw-cli",
+     "load-module",
+     "libpipewire-module-null-audio-sink",
+     "{ node.name=r80_q_nat sink.props={ media.class=Audio/Sink } }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": "Error: \"Could not load module\"\n"
+   },
+   "var": null,
+   "nodes": {},
+   "pactl_sees_sink": false,
+   "pactl_module_list_has_native": true,
+   "unload": null,
+   "node_gone": true
+  },
+  {
+   "label": "E-rep2",
+   "at": "02:06:02",
+   "load": {
+    "cmd": [
+     "pw-cli",
+     "load-module",
+     "libpipewire-module-null-audio-sink",
+     "{ node.name=r80_q_nat sink.props={ media.class=Audio/Sink } }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": "Error: \"Could not load module\"\n"
+   },
+   "var": null,
+   "nodes": {},
+   "pactl_sees_sink": false,
+   "pactl_module_list_has_native": true,
+   "unload": null,
+   "node_gone": true
+  },
+  {
+   "label": "F-wpctl",
+   "at": "02:06:03",
+   "load_idx": 536870923,
+   "status": {
+    "cmd": [
+     "wpctl",
+     "status"
+    ],
+    "rc": 0,
+    "secs": 0.008,
+    "stdout": "PipeWire 'pipewire-0' [1.6.8, vgpnk@plazir27, cookie:3551536730]\n \u2514\u2500 Clients:\n        32. xdg-desktop-portal                  [1.6.8, vgpnk@plazir27, pid:1203504]\n        33. WirePlumber                         [1.6.8, vgpnk@plazir27, pid:1203636]\n        40. xdg-desktop-portal-hyprland         [1.6.8, vgpnk@plazir27, pid:1203662]\n        43. WirePlumber [client]                [1.6.8, vgpnk@plazir27, pid:1203636]\n       130. pipewire                            [1.6.8, vgpnk@plazir27, pid:761930]\n       196. wpctl                               [1.6.8, vgpnk@plazir27, pid:2866986]\n       226. waybar                              [1.6.8, vgpnk@plazir27, pid:917685]\n       230. pipewire                            [1.6.8, vgpnk@plazir27, pid:761930]\n       252. pipewire                            [1.6.8, vgpnk@plazir27, pid:761930]\n\nAudio\n \u251c\u2500 Devices:\n \u2502      48. GB205 High Definition Audio Controller [alsa]\n \u2502      49. USB Audio                           [alsa]\n \u2502      50. Radeon High Definition Audio Controller [alsa]\n \u2502  \n \u251c\u2500 Sinks:\n \u2502  *   46. USB Audio S/PDIF Output             [vol: 0.40]\n \u2502      56. USB Audio Front Headphones          [vol: 1.00]\n \u2502      57. USB Audio Speakers                  [vol: 1.00]\n \u2502      58. GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE] [vol: 0.40]\n \u2502     199. r80_p4_d Audio/Sink sink            [vol: 1.00]\n \u2502     246. r80_q_w1 Audio/Sink sink            [vol: 1.00]\n \u2502  \n \u251c\u2500 Sources:\n \u2502      54. USB Audio Microphone                [vol: 1.00]\n \u2502      55. USB Audio Line Input                [vol: 1.00]\n \u2502  \n \u251c\u2500 Filters:\n \u2502  \n \u2514\u2500 Streams:\n\nVideo\n \u251c\u2500 Devices:\n \u2502  \n \u251c\u2500 Sinks:\n \u2502  \n \u251c\u2500 Sources:\n \u2502  \n \u251c\u2500 Filters:\n \u2502  \n \u2514\u2500 Streams:\n\nSettings\n \u2514\u2500 Default Configured Devices:\n         0. Audio/Sink    alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\n         1. Audio/Source  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\n",
+    "stderr": ""
+   },
+   "inspect": {
+    "cmd": [
+     "wpctl",
+     "inspect",
+     "r80_q_w1"
+    ],
+    "rc": 1,
+    "secs": 0.002,
+    "stdout": "Usage:\n  wpctl [OPTION\u2026] COMMAND [COMMAND_OPTIONS] - WirePlumber Control CLI\n\nCommand: inspect ID\n  Displays information about the specified object\n\nHelp Options:\n  -h, --help           Show help options\n\nApplication Options:\n  -r, --referenced     Show objects that are referenced in properties\n  -a, --associated     Show associated objects\n\n",
+    "stderr": "Error: 'r80_q_w1' is not a valid number\n\n"
+   },
+   "settings": {
+    "cmd": [
+     "wpctl",
+     "settings"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "Settings:\n\n- Id: node.stream.restore-props\n  Name: Restore properties\n  Desc: Remember and restore properties of streams\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: node.stream.default-capture-volume\n  Name: Default capture volume\n  Desc: The default volume for capture nodes\n  Type: Float\n  Default: 1.0\t[Min: 0.0, Max: 1.0]\n  Value: 1.0\n\n- Id: bluetooth.autoswitch-to-headset-profile\n  Name: Auto-switch to headset profile\n  Desc: Always show microphone for Bluetooth headsets, and switch to headset mode when recording\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: linking.role-based.duck-level\n  Name: Ducking level\n  Desc: The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\n  Type: Float\n  Default: 0.3\t[Min: 0.0, Max: 1.0]\n  Value: 0.3\n\n- Id: device.restore-routes\n  Name: Restore routes\n  Desc: Remember and restore device routes\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: linking.follow-default-target\n  Name: Follow default target\n  Desc: Streams connected to the default device follow when default changes\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: node.stream.restore-target\n  Name: Restore target\n  Desc: Remember and restore stream targets\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: node.restore-default-targets\n  Name: Restore default target\n  Desc: Remember and restore default audio/video input/output devices\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: device.routes.default-source-volume\n  Name: Default source volume\n  Desc: The default volume for audio sources\n  Type: Float\n  Default: 1.0\t[Min: 0.0, Max: 1.0]\n  Value: 1.0\n\n- Id: linking.allow-moving-streams\n  Name: Allow moving streams\n  Desc: Streams may be moved by adding PipeWire metadata at runtime\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: device.restore-profile\n  Name: Restore profile\n  Desc: Remember and restore device profiles\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: device.routes.default-sink-volume\n  Name: Default sink volume\n  Desc: The default volume for audio sinks\n  Type: Float\n  Default: 0.064\t[Min: 0.0, Max: 1.0]\n  Value: 0.064\n\n- Id: monitor.alsa.autodetect-hdmi-channels\n  Name: Automatically detect HDMI channels (experimental)\n  Desc: Automatically detect channel count and positions for HDMI devices (experimental)\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: linking.pause-playback\n  Name: Pause playback if output removed\n  Desc: Pause media players if their target sink is removed\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: node.features.audio.control-port\n  Name: Control ports\n  Desc: Enable control ports on audio nodes\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: monitor.camera-discovery-timeout\n  Name: Discovery timeout\n  Desc: The camera discovery timeout in milliseconds\n  Type: Integer\n  Default: 1000\t[Min: 0, Max: 60000]\n  Value: 1000\n\n- Id: node.stream.default-playback-volume\n  Name: Default playback volume\n  Desc: The default volume for playback nodes\n  Type: Float\n  Default: 1.0\t[Min: 0.0, Max: 1.0]\n  Value: 1.0\n\n- Id: node.features.audio.no-dsp\n  Name: No DSP\n  Desc: Do not convert audio to F32 format\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: device.routes.mute-on-alsa-playback-removed\n  Name: Auto-mute on wired audio disconnect\n  Desc: Automatically mute all audio devices when active wired headphones/speakers are disconnected to prevent unintended sound output\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: bluetooth.use-persistent-storage\n  Name: Persistent storage\n  Desc: Remember and restore Bluetooth headset mode status\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: node.features.audio.monitor-ports\n  Name: Monitor ports\n  Desc: Enable monitor ports on audio nodes\n  Type: Boolean\n  Default: true\n  Value: true\n\n- Id: device.routes.mute-on-bluetooth-playback-removed\n  Name: Auto-mute on Bluetooth audio disconnect\n  Desc: Automatically mute all audio devices when active Bluetooth headphones/speakers are disconnected to prevent unintended sound output\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: bluetooth.profile-preference\n  Name: Bluetooth profile preference\n  Desc: Prefer better quality or better latency when auto-selecting profiles (only 'quality' or 'latency' values are accepted)\n  Type: String\n  Default: \"quality\"\n  Value: \"quality\"\n\n- Id: node.features.audio.mono\n  Name: Mono\n  Desc: Configure all audio device sink nodes in MONO\n  Type: Boolean\n  Default: false\n  Value: false\n\n- Id: node.stream.default-media-role\n  Name: Default media role\n  Desc: Default media.role to assign on streams that do not specify it\n  Type: String\n  Default: null\n  Value: null\n\n",
+    "stderr": ""
+   }
+  }
+ ],
+ "notes": [
+  "A rep0 pw-link rc=0 links_now=['r80_q_ns:206->r80_q_rec:170'] links_after_2s=['r80_q_ns:206->r80_q_rec:170'] m_while=['r80_q_ns:206->r80_q_rec2:220'] m_after_kill=[]",
+  "A rep1 pw-link rc=0 links_now=['r80_q_ns:247->r80_q_rec:213'] links_after_2s=['r80_q_ns:247->r80_q_rec:213'] m_while=['r80_q_ns:247->r80_q_rec2:135'] m_after_kill=[]",
+  "A rep2 pw-link rc=0 links_now=['r80_q_ns:159->r80_q_rec:44'] links_after_2s=['r80_q_ns:159->r80_q_rec:44'] m_while=['r80_q_ns:159->r80_q_rec2:213'] m_after_kill=[]",
+  "B rep0 idx=82574 move_rc=0 err='' before=['r80_q_play:170->r80_q_m1:250', 'r80_q_play:86->r80_q_m1:110'] +1s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135'] +3.5s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135'] +6s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135']",
+  "B rep1 idx=82660 move_rc=0 err='' before=['r80_q_play:86->r80_q_m1:160', 'r80_q_play:95->r80_q_m1:44'] +1s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205'] +3.5s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205'] +6s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205']",
+  "B rep2 idx=82730 move_rc=0 err='' before=['r80_q_play:95->r80_q_m1:210', 'r80_q_play:170->r80_q_m1:213'] +1s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246'] +3.5s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246'] +6s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246']",
+  "C rep0 dont-move prop=True + move rc=0 before=['r80_q_playd:110->r80_q_d1:160', 'r80_q_playd:159->r80_q_d1:44'] after=['r80_q_playd:110->r80_q_d1:160', 'r80_q_playd:159->r80_q_d1:44']",
+  "C rep1 dont-move prop=True + move rc=0 before=['r80_q_playd:159->r80_q_d1:103', 'r80_q_playd:177->r80_q_d1:213'] after=['r80_q_playd:159->r80_q_d1:103', 'r80_q_playd:177->r80_q_d1:213']",
+  "C rep2 dont-move prop=True + move rc=0 before=['r80_q_playd:177->r80_q_d1:160', 'r80_q_playd:210->r80_q_d1:44'] after=['r80_q_playd:177->r80_q_d1:160', 'r80_q_playd:210->r80_q_d1:44']",
+  "D rep0 object.linger on stream: node_before=252 after_client_death=None props={\"object.linger\": true, \"client.id\": 247, \"node.linger\": null}",
+  "D rep1 object.linger on stream: node_before=252 after_client_death=None props={\"object.linger\": true, \"client.id\": 103, \"node.linger\": null}",
+  "D rep2 object.linger on stream: node_before=252 after_client_death=None props={\"object.linger\": true, \"client.id\": 247, \"node.linger\": null}",
+  "E rep0 pw-cli load-module rc=0 out='' err='Error: \"Could not load module\"' node=[] pactl_sees_sink=False unload_rc=None gone=True",
+  "E rep0 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'",
+  "E rep1 pw-cli load-module rc=0 out='' err='Error: \"Could not load module\"' node=[] pactl_sees_sink=False unload_rc=None gone=True",
+  "E rep1 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'",
+  "E rep2 pw-cli load-module rc=0 out='' err='Error: \"Could not load module\"' node=[] pactl_sees_sink=False unload_rc=None gone=True",
+  "E rep2 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'",
+  "wpctl status rc=0 (sinks section has r80_q_w1: True)",
+  "wpctl inspect rc=1 len=344",
+  "   Usage:",
+  "     wpctl [OPTION\u2026] COMMAND [COMMAND_OPTIONS] - WirePlumber Control CLI",
+  "   ",
+  "   Command: inspect ID",
+  "     Displays information about the specified object",
+  "   ",
+  "wpctl settings rc=0 first lines: Settings: |  | - Id: node.stream.restore-props",
+  "wpctl can see the pulse module index? False"
+ ]
+}

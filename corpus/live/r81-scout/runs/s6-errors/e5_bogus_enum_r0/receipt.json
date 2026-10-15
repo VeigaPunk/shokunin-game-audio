@@ -1,0 +1,37 @@
+{
+ "name": "e5_bogus_enum_r0",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "wave=silence",
+  "num-buffers=4",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "pipewiresink",
+  "mode=bogus"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.018,
+ "stderr_head": [
+  "WARNING: erroneous pipeline: could not set property \"mode\" in element \"pipewiresink\" to \"bogus\""
+ ],
+ "err_class": "parse_error",
+ "err_hit": "WARNING: erroneous",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

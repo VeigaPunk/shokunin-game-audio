@@ -1,0 +1,36 @@
+{
+ "name": "e13_bad_capsfilter_link_r2",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "num-buffers=4",
+  "!",
+  "capsfilter",
+  "caps=audio/x-raw,format=BOGUSFMT",
+  "!",
+  "fakesink"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.017,
+ "stderr_head": [
+  "WARNING: erroneous pipeline: could not link audiotestsrc0 to capsfilter0"
+ ],
+ "err_class": "could_not_link",
+ "err_hit": "could not link audiotestsrc0 to capsfilter0",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

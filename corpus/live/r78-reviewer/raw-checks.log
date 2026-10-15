@@ -1,0 +1,48 @@
+[20:08:18] === raw-checks start pid=933133 default_sink=r78_def_sink_927430 ===
+[20:08:18] --- check lattice ---
+[20:08:22] lattice garbage: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=0/36
+[20:08:26] lattice absent_after_unload: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=0/36
+[20:08:30] lattice default_token: rc=0 killed=False wall=2.67 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=0/36
+[20:08:34] lattice at_default_sink: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:08:39] lattice source_name: rc=0 killed=False wall=2.67 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:08:43] lattice monitor_of_probe: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:08:50] lattice target_0: rc=-9 killed=True wall=6.0 consumers=[] tap_mine=0/36
+[20:08:54] lattice honored_probe_sink: rc=0 killed=False wall=2.62 consumers=['r78rev_play_933133'] tap_mine=26/36
+[20:08:54] --- check segv ---
+[20:08:54] segv Audio/Sink: rc=-11 wall=0.06 stderr_len=0 killed=False cons=[]
+[20:08:55] segv Stream/Input/Audio: rc=-11 wall=0.06 stderr_len=0 killed=False cons=[]
+[20:08:55] segv Audio/Duplex: rc=-11 wall=0.06 stderr_len=0 killed=False cons=[]
+[20:08:56] segv Audio/Bogus: rc=-11 wall=0.06 stderr_len=0 killed=False cons=[]
+[20:08:58] segv Stream/Output/Audio: rc=0 wall=1.67 stderr_len=0 killed=False cons=[]
+[20:09:04] segv Audio/Source: rc=-9 wall=6.0 stderr_len=0 killed=True cons=[]
+[20:09:04] --- check zeros ---
+[20:09:10] zeros producer: sizes=[155692, 401452, 499756, 593964, 786476, 880684] pre_mine=14/14 post_silent=27/27 peak_post=0
+[20:09:20] zeros consumer: sizes=[155692, 253996, 311340, 311340, 311340, 401452, 499756]
+[20:09:20] --- check parec ---
+[20:09:26] parec hdr_rate_fix: bps=195756 implied_rate=48939.2 hdr={'channels': 2, 'rate': 22050, 'bits': 16}
+[20:09:32] parec hdr_rate_plain: bps=85111 implied_rate=21277.9 hdr={'channels': 2, 'rate': 22050, 'bits': 16}
+[20:09:37] parec rate_fix_raw: bps=195756 implied_rate=48939.2 hdr=None
+[20:09:43] parec rate_req_raw: bps=85111 implied_rate=21277.9 hdr=None
+[20:09:43] RESTORED metadata alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -> r78_def_sink_927430
+[20:09:43] === raw-checks end ===
+[20:17:21] === raw-checks start pid=940075 default_sink=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink ===
+[20:17:21] --- check lattice ---
+[20:17:25] lattice garbage: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:29] lattice absent_after_unload: rc=0 killed=False wall=2.67 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:33] lattice default_token: rc=0 killed=False wall=2.67 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:37] lattice at_default_sink: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:41] lattice source_name: rc=0 killed=False wall=2.67 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:46] lattice monitor_of_probe: rc=0 killed=False wall=2.62 consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] tap_mine=26/36
+[20:17:53] lattice target_0: rc=-9 killed=True wall=6.0 consumers=[] tap_mine=0/36
+[20:17:57] lattice honored_probe_sink: rc=0 killed=False wall=2.62 consumers=['r78rev_play_940075'] tap_mine=26/36
+[20:17:57] === raw-checks end ===
+[20:22:05] === raw-checks start pid=943893 default_sink=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink ===
+[20:22:05] --- check follow ---
+[20:22:11] follow: spawn=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] after_move=[['r78rev_def_943893'], ['r78rev_def_943893']] after_restore=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] rc=0
+[20:22:15] pactl set-default-sink: rc=0 moved_at=3.5 trace_tail={'at_s': 3.5, 'metadata': 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink', 'pactl': 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'}
+[20:22:22] durability (no stream): first non-probe at 0.25 s of 24 samples
+[20:22:22] --- check aplay ---
+[20:22:30] aplay witness: busy_rc=1 release_in=5.9s
+[20:22:38] retention: +1s rc=1 +7s rc=1
+[20:22:38] convert rc=1 -> None; arecord rc=1
+[20:22:38] === raw-checks end ===

@@ -1,0 +1,27 @@
+# p3-linger-orphans
+
+- orphans at entry: [(214, 'r80_p1_lng', 536870917, None, True), (210, 'r80_p1_lng', 536870917, None, True), (229, 'r80_p1_lng', 536870917, None, True), (239, 'r80_p2_n4', 536870917, None, True), (91, 'r80_p2_n4', 536870917, None, True), (205, 'r80_p2_n4', 536870917, None, True)]
+- pactl short sinks: 58	alsa_output.pci-0000_01_00.1.hdmi-stereo	PipeWire	s32le 2ch 48000Hz	SUSPENDED | 59	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink	PipeWire	s16le 2ch 48000Hz	SUSPENDED | 60	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink	PipeWire	s32le 2ch 48000Hz	IDLE | 61	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED | 58253	r78p_check	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76263	r80_p1_lng	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76275	r80_p1_lng	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76296	r80_p1_lng	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77005	r80_p2_n4	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77032	r80_p2_n4	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77049	r80_p2_n4	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+- pactl short sources: 58	alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED | 59	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor	PipeWire	s16le 2ch 48000Hz	SUSPENDED | 60	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor	PipeWire	s32le 2ch 48000Hz	IDLE | 61	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor	PipeWire	s32le 2ch 48000Hz	SUSPENDED | 62	alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source	PipeWire	s24le 2ch 48000Hz	SUSPENDED | 63	alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source	PipeWire	s24le 2ch 48000Hz	SUSPENDED | 58253	r78p_check.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76263	r80_p1_lng.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76275	r80_p1_lng.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 76296	r80_p1_lng.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77005	r80_p2_n4.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77032	r80_p2_n4.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED | 77049	r80_p2_n4.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+- orphan 214 props keys: ['audio.channels', 'audio.position', 'clock.quantum-limit', 'factory.id', 'factory.name', 'library.name', 'media.class', 'monitor.channel-volumes', 'monitor.passthrough', 'node.description', 'node.driver', 'node.loop.name', 'node.name', 'object.id', 'object.linger', 'object.serial', 'port.group', 'pulse.module.id']
+-    object.linger = True
+-    client.id = '<absent>'
+-    pulse.module.id = 536870917
+-    node.name = 'r80_p1_lng'
+-    media.class = 'Audio/Sink'
+-    factory.name = 'support.null-audio-sink'
+-    node.driver = True
+-    object.id = 214
+-    object.serial = 76263
+-    node.description = 'r80_p1_lng Audio/Sink sink'
+-    monitor.passthrough = True
+-    monitor.channel-volumes = True
+-    clock.quantum-limit = 8192
+-    node.loop.name = 'data-loop.0'
+-    node.want-driver = '<absent>'
+-    node.virtual = '<absent>'
+-    node.autoconnect = '<absent>'
+-    node.group = '<absent>'
+- unload-module 536870917 rc=1 err='Failure: No such entity'
+- pw-cli destroy 214 rc=0 err='' still_present=False
+- cleanup: [{'id': 91, 'name': 'r80_p2_n4', 'rc': 0, 'err': ''}, {'id': 205, 'name': 'r80_p2_n4', 'rc': 0, 'err': ''}, {'id': 210, 'name': 'r80_p1_lng', 'rc': 0, 'err': ''}, {'id': 229, 'name': 'r80_p1_lng', 'rc': 0, 'err': ''}, {'id': 239, 'name': 'r80_p2_n4', 'rc': 0, 'err': ''}]

@@ -1,0 +1,149 @@
+Factory Details:
+  Rank                     none (0)
+  Long-name                PipeWire sink
+  Klass                    Sink/Audio/Video
+  Description              Send audio/video to PipeWire
+  Author                   Wim Taymans <wim.taymans@gmail.com>
+
+Plugin Details:
+  Name                     pipewire
+  Description              Uses PipeWire to handle media streams
+  Filename                 /usr/lib/gstreamer-1.0/libgstpipewire.so
+  Version                  1.6.8
+  License                  MIT/X11
+  Source module            pipewire
+  Binary package           pipewire
+  Origin URL               pipewire.org
+
+GObject
+ +----GInitiallyUnowned
+       +----GstObject
+             +----GstElement
+                   +----GstBaseSink
+                         +----GstPipeWireSink
+
+Element Flags:
+  - SINK
+  - PROVIDE_CLOCK
+
+Pad Templates:
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      ANY
+
+Clocking Interaction:
+  element provides a clock
+Element has no URI handling capabilities.
+
+Pads:
+  SINK: 'sink'
+    Pad Template: 'sink'
+
+Element Properties:
+
+  async               : Go asynchronously to PAUSED
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  blocksize           : Size in bytes to pull per buffer (0 = default)
+                        flags: readable, writable
+                        Unsigned Integer. Range: 0 - 4294967295 Default: 4096 
+  
+  client-name         : The client name to use (NULL = default)
+                        flags: readable, writable
+                        String. Default: "gst-inspect-1.0"
+  
+  client-properties   : List of PipeWire client properties
+                        flags: readable, writable
+                        Boxed pointer of type "GstStructure"
+  
+  enable-last-sample  : Enable the last-sample property
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  fd                  : The fd to connect with
+                        flags: readable, writable
+                        Integer. Range: -1 - 2147483647 Default: -1 
+  
+  last-sample         : The last sample received in the sink
+                        flags: readable
+                        Boxed pointer of type "GstSample"
+  
+  max-bitrate         : The maximum bits per second to render (0 = disabled)
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  max-lateness        : Maximum number of nanoseconds that a buffer can be late before it is dropped (-1 unlimited)
+                        flags: readable, writable
+                        Integer64. Range: -1 - 9223372036854775807 Default: -1 
+  
+  mode                : The mode to operate in
+                        flags: readable, writable, changeable only in NULL or READY state
+                        Enum "GstPipeWireSinkMode" Default: 0, "default"
+                           (0): default          - GST_PIPEWIRE_SINK_MODE_DEFAULT
+                           (1): render           - GST_PIPEWIRE_SINK_MODE_RENDER
+                           (2): provide          - GST_PIPEWIRE_SINK_MODE_PROVIDE
+  
+  name                : The name of the object
+                        flags: readable, writable
+                        String. Default: "pipewiresink0"
+  
+  parent              : The parent of the object
+                        flags: readable, writable
+                        Object of type "GstObject"
+  
+  path                : The sink path to connect to (NULL = default)
+                        flags: readable, writable, deprecated
+                        String. Default: null
+  
+  processing-deadline : Maximum processing time for a buffer in nanoseconds
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 20000000 
+  
+  qos                 : Generate Quality-of-Service events upstream
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  render-delay        : Additional render delay of the sink in nanoseconds
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  slave-method        : Algorithm used to match the rate of the masterclock
+                        flags: readable, writable
+                        Enum "GstPipeWireSinkSlaveMethod" Default: 0, "none"
+                           (0): none             - GST_PIPEWIRE_SINK_SLAVE_METHOD_NONE
+                           (1): resample         - GST_PIPEWIRE_SINK_SLAVE_METHOD_RESAMPLE
+  
+  stats               : Sink Statistics
+                        flags: readable
+                        Boxed pointer of type "GstStructure"
+                                                        average-rate: 0 (gdouble)
+                                                             dropped: 0 (guint64)
+                                                            rendered: 0 (guint64)
+
+  
+  stream-properties   : List of PipeWire stream properties
+                        flags: readable, writable
+                        Boxed pointer of type "GstStructure"
+  
+  sync                : Sync on the clock
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  target-object       : The sink name/serial to connect to (NULL = default)
+                        flags: readable, writable
+                        String. Default: null
+  
+  throttle-time       : The time to keep between rendered buffers (0 = disabled)
+                        flags: readable, writable
+                        Unsigned Integer64. Range: 0 - 18446744073709551615 Default: 0 
+  
+  ts-offset           : Timestamp offset in nanoseconds
+                        flags: readable, writable
+                        Integer64. Range: -9223372036854775808 - 9223372036854775807 Default: 0 
+  
+  use-bufferpool      : Use bufferpool (default: true for video, false for audio)
+                        flags: readable, writable
+                        Boolean. Default: true
+  

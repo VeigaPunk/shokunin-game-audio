@@ -1,0 +1,143 @@
+# r78 run-1 comparison extract (derived artifact)
+
+PROVENANCE: at 23:26Z I compared my own `--probe-capture-r78` receipt
+(`corpus/live/r78-reviewer/env/corpus/live/runs/20261014T230634982331Z-capture-r78/measurements.json`,
+own pid 921933, run 23:01:50–23:06:34Z, `failures` on 2 of 8 entries) against
+the author's `corpus/live/runs/20261014T221945369366Z-capture-r78/measurements.json`.
+The script's stdout is transcribed below verbatim. **The run-1 receipt file was
+then destroyed by my own scratch cleanup (a `cp` of two receipts into one
+filename overwrote it before the env tree was pruned); it no longer exists and
+this extract is the surviving record.** Run 2
+(`receipts/r78-measurements-run2.json`, pid 949695) is the surviving full
+receipt and was taken under a concurrent sibling probe (contended, 5 failures).
+
+Entry-level `failures` in run 1:
+- `playback_target_lattice_r78_probe`: ["lattice target_0: tag tone reached the
+  default sink — a stall is not a fallback"] (the foreign-tone confound, report F2)
+- `playback_default_follow_r78_probe`: ["follow moved: expected consumers
+  [r78_def_sink_921933], got ['…SPDIF__sink', 'r78_def_sink_921933']"] (the
+  straddle, report F1)
+- all six others: `failures: []`
+
+## lattice legs (rc / killed_at_bound / wall_s / consumers)
+
+```
+  probe_sink           A: rc=0 k=False w=2.63 cons=['r78_play_sink_844895']
+                       R: rc=0 k=False w=2.63 cons=['r78_play_sink_921933']
+  other_sink           A: rc=0 k=False w=2.63 cons=['alsa_output.pci-0000_01_00']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output.pci-0000_01_00']
+  garbage              A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  absent_sink          A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  default_token        A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  pulse_token          A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  at_default_sink      A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  at_default_monitor   A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  at_default_source    A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  source_name          A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  monitor_name         A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  empty_target         A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  no_target            A: rc=0 k=False w=2.63 cons=['alsa_output']
+                       R: rc=0 k=False w=2.63 cons=['alsa_output']
+  target_0             A: rc=-9 k=True w=6.0 cons=[]
+                       R: rc=-9 k=True w=6.0 cons=[]
+```
+
+## loss
+
+```
+  unload_relink: A rc=0 wall=6.03 samples=[[loss_sink], [SPDIF], [SPDIF]]
+                 R rc=0 wall=6.03 samples=[[loss_sink], [SPDIF], [SPDIF]]
+  manual_unlink: A rc=0 wall=6.03 samples=[[loss_sink], [], []]
+                 R rc=0 wall=6.08 samples=[[loss_sink], [], []]
+```
+
+## props (all 14 legs, rc / killed / consumers)
+
+```
+  flag_a_prop_b              A: rc=0 k=False cons=['r78_prop_b_844895'] | R: rc=0 k=False cons=['r78_prop_b_921933']
+  flag_b_prop_a              A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  prop_only                  A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  node_target                A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  flag_garbage_prop_b        A: rc=0 k=False cons=['r78_prop_b_844895'] | R: rc=0 k=False cons=['r78_prop_b_921933']
+  prop_garbage               A: rc=0 k=False cons=['…SPDIF__sink'] | R: rc=0 k=False cons=['…SPDIF__sink']
+  node_target_garbage        A: rc=0 k=False cons=['…SPDIF__sink'] | R: rc=0 k=False cons=['…SPDIF__sink']
+  env_props_flag_a           A: rc=0 k=False cons=['r78_prop_b_844895'] | R: rc=0 k=False cons=['r78_prop_b_921933']
+  env_props_flag_garbage     A: rc=0 k=False cons=['r78_prop_b_844895'] | R: rc=0 k=False cons=['r78_prop_b_921933']
+  role_decoration            A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  capture_prop_decoration    A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  monitor_prop_decoration    A: rc=0 k=False cons=['r78_prop_a_844895'] | R: rc=0 k=False cons=['r78_prop_a_921933']
+  autoconnect_false          A: rc=-9 k=True cons=[] | R: rc=-9 k=True cons=[]
+  class_source_stall         A: rc=-9 k=True cons=[] | R: rc=-9 k=True cons=[]
+```
+
+## segv
+
+```
+  segv_sink          A: rc=-11 wall=2.01 | R: rc=-11 wall=2.01
+  segv_audio         A: rc=-11 wall=2.02 | R: rc=-11 wall=2.01
+  segv_duplex        A: rc=-11 wall=2.01 | R: rc=-11 wall=2.01
+  segv_bogus         A: rc=-11 wall=2.01 | R: rc=-11 wall=2.01
+  control_output     A: rc=0 wall=1.63 | R: rc=0 wall=1.63
+  boundary_source    A: rc=-9 wall=6.0 | R: rc=-9 wall=6.0
+```
+
+## zeros
+
+```
+  consumer_unlink: A bytes=1344044/1344044 rc=1 sizes=[155692, 253996, 311340, 311340, 311340, 401452, 499756]
+                   R bytes=1344044/1344044 rc=1 sizes=[155692, 253996, 311340, 311340, 311340, 401452, 499756]
+  producer_unlink: A bytes=960044/960044 rc=1 sizes=[401452, 499756, 593964, 786476, 880684]
+                   R bytes=960044/960044 rc=1 sizes=[401452, 499756, 593964, 786476, 880684]
+```
+
+## parec
+
+```
+  rate_req         A bps=76600 imp_r=22050 imp_bpf=1 | R bps=76600 imp_r=22050 imp_bpf=1
+  rate_fix         A bps=195756 imp_r=48000 imp_bpf=2 | R bps=195756 imp_r=48000 imp_bpf=2
+  fmt_req          A bps=383002 imp_r=96000 imp_bpf=4 | R bps=383002 imp_r=96000 imp_bpf=4
+  fmt_fix          A bps=383002 imp_r=96000 imp_bpf=4 | R bps=383002 imp_r=96000 imp_bpf=4
+  ch_req           A bps=97878 imp_r=22050 imp_bpf=1 | R bps=97878 imp_r=22050 imp_bpf=1
+  ch_fix           A bps=195756 imp_r=48000 imp_bpf=2 | R bps=195756 imp_r=48000 imp_bpf=2
+  hdr_rate_fix     A bps=195756 imp_r=48000 fmt={'channels':2,'rate':22050,'bits':16} | R identical
+  hdr_fmt_fix      A bps=383002 imp_r=96000 fmt={'channels':2,'rate':48000,'bits':16} | R identical
+  hdr_ch_fix       A bps=195756 imp_r=48000 fmt={'channels':1,'rate':48000,'bits':16} | R identical
+  hdr_rate_plain   A bps=85111 imp_r=22050 fmt={'channels':2,'rate':22050,'bits':16} | R identical
+```
+
+## aplay (full entry identical)
+
+```
+  subject {'sink': '…HiFi__Speaker__sink', 'device': 'hw:0,0'}
+  params_play rc=0 wall=0.51–0.52; params_cap rc=1 (formats ['S16_LE','S24_3LE'])
+  hw_baseline rc=0 wall=1.39 new_nodes=[]; busy_under_witness rc=1 alsa_busy
+  witness_lock_release_s = 5.9 (both)
+  retention_1s rc=1 alsa_busy; retention_7s rc=0; alsa_lock_retention {'plus_1s':'alsa_busy','plus_7s_exit':0}
+  convert_float rc=0 converted_to=S16_LE; refuse_bogus rc=1 aplay_bad_format
+  arecord_constrain rc=1 alsa_sample_format; arecord_honored rc=0
+  plugin_default rc=0; plugin_pipewire rc=0 (tag tone on the current default)
+  pulse_refuse rc=1 alsa_unknown_pcm; null_unpaced rc=0 wall=0.0
+  playback envelope formats ['S16_LE','S32_LE','S24_3LE'] channels [2,8]
+```
+
+## follow (the one entry that differs)
+
+```
+  before:      A [SPDIF, SPDIF]              R [SPDIF, SPDIF]
+  moved:       A [probe, probe]              R [probe, SPDIF]      <- F1 straddle
+  still_probe: A [probe, probe]              R [SPDIF, SPDIF]
+  nofollow:    A [probe, SPDIF, SPDIF]       R [SPDIF, SPDIF, SPDIF]
+  restored:    A [SPDIF, SPDIF]              R [SPDIF, SPDIF]
+  pactl:       A rc=0 moved_at=None stale=True   R rc=0 moved_at=0.5 delayed=True
+  nofollow followed/pinned: A True/False     R True/True
+```

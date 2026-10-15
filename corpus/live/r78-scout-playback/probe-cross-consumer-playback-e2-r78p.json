@@ -1,0 +1,265 @@
+{
+ "probe": "cross-consumer-playback-e2-r78p",
+ "legs": [
+  {
+   "label": "pacat_ns",
+   "argv": [
+    "pacat",
+    "-p",
+    "--device",
+    "r78p_ns",
+    "--format=s16le",
+    "--rate=48000",
+    "--channels=2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p.raw"
+   ],
+   "rc": 0,
+   "wall_s": 1.306,
+   "timed_out": false,
+   "stderr_tail": [],
+   "carried": [
+    "ns"
+   ],
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "foreign": {}
+  },
+  {
+   "label": "pacat_garbage",
+   "argv": [
+    "pacat",
+    "-p",
+    "--device",
+    "no_such_sink",
+    "--format=s16le",
+    "--rate=48000",
+    "--channels=2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p.raw"
+   ],
+   "rc": 0,
+   "wall_s": 1.287,
+   "timed_out": false,
+   "stderr_tail": [],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "foreign": {}
+  },
+  {
+   "label": "pacat_line",
+   "argv": [
+    "pacat",
+    "-p",
+    "--device",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--format=s16le",
+    "--rate=48000",
+    "--channels=2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p.raw"
+   ],
+   "rc": 0,
+   "wall_s": 1.285,
+   "timed_out": false,
+   "stderr_tail": [],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "foreign": {}
+  },
+  {
+   "label": "pacat_at_default",
+   "argv": [
+    "pacat",
+    "-p",
+    "--device",
+    "@DEFAULT_SINK@",
+    "--format=s16le",
+    "--rate=48000",
+    "--channels=2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p.raw"
+   ],
+   "rc": 0,
+   "wall_s": 1.285,
+   "timed_out": false,
+   "stderr_tail": [],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "foreign": {}
+  },
+  {
+   "label": "pacat_spdif",
+   "argv": [
+    "pacat",
+    "-p",
+    "--device",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "--format=s16le",
+    "--rate=48000",
+    "--channels=2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p.raw"
+   ],
+   "rc": 0,
+   "wall_s": 1.285,
+   "timed_out": false,
+   "stderr_tail": [],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5
+    ]
+   },
+   "foreign": {}
+  },
+  {
+   "label": "ffmpeg_pulse_ns",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "r78p_ns",
+    "-"
+   ],
+   "rc": 187,
+   "wall_s": 0.022,
+   "timed_out": false,
+   "stderr_tail": [
+    "[in#0/mpegts @ 0x55c6572e4980] could not find codec parameters",
+    "Error opening input file /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav.",
+    "Error opening input files: End of file"
+   ],
+   "carried": [],
+   "tone_windows": {},
+   "foreign": {}
+  },
+  {
+   "label": "ffmpeg_pulse_garbage",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "no_such_sink",
+    "-"
+   ],
+   "rc": 187,
+   "wall_s": 0.02,
+   "timed_out": false,
+   "stderr_tail": [
+    "[in#0/mpegts @ 0x5626ab705980] could not find codec parameters",
+    "Error opening input file /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav.",
+    "Error opening input files: End of file"
+   ],
+   "carried": [],
+   "tone_windows": {},
+   "foreign": {}
+  }
+ ],
+ "toolchain": {
+  "pw-cat": [
+   "pw-cat",
+   "Compiled with libpipewire 1.6.8"
+  ],
+  "pactl": [
+   "pactl 17.0-98-gb096",
+   "Compiled with libpulse 17.0.0"
+  ],
+  "aplay": [
+   "aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "arecord": [
+   "arecord: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "ffmpeg": [
+   "ffmpeg version n9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+   "built with gcc 16 (GCC)"
+  ],
+  "python": [
+   "Python 3.14.7"
+  ],
+  "uname": [
+   "7.2.3-arch1-3"
+  ]
+ },
+ "pre_cleanup": {
+  "unloaded": [],
+  "count": 0
+ },
+ "raw_bytes": 230400,
+ "ffmpeg_pulse_muxer_help": [
+  "Muxer pulse [Pulse audio output]:",
+  "    Default audio codec: pcm_s16le.",
+  "PulseAudio outdev AVOptions:",
+  "  -server            <string>     E.......... set PulseAudio server",
+  "  -name              <string>     E.......... set application name (default \"Lavf63.1.101\")",
+  "  -stream_name       <string>     E.......... set stream description",
+  "  -device            <string>     E.......... set device name",
+  "  -buffer_size       <int>        E.......... set buffer size in bytes (from 0 to INT_MAX) (default 0)",
+  "  -buffer_duration   <int>        E.......... set buffer duration in millisecs (from 0 to INT_MAX) (default 0)",
+  "  -prebuf            <int>        E.......... set pre-buffering size (from 0 to INT_MAX) (default 0)",
+  "  -minreq            <int>        E.......... set minimum request size (from 0 to INT_MAX) (default 0)",
+  "",
+  "",
+  "Exiting with exit code 0"
+ ],
+ "post_cleanup": {
+  "unloaded": [],
+  "count": 0
+ }
+}

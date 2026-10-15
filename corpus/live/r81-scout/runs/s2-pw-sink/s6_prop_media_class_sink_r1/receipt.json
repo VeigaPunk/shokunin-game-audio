@@ -1,0 +1,48 @@
+{
+ "name": "s6_prop_media_class_sink_r1",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "wave=silence",
+  "num-buffers=96",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "pipewiresink",
+  "stream-properties=props,media.class=Audio/Sink"
+ ],
+ "env_extra": null,
+ "rc": -9,
+ "signal": "SIGKILL",
+ "sent": null,
+ "killed": "wallcap",
+ "elapsed_s": 60.444,
+ "stderr_head": [
+  "Caught SIGSEGV",
+  "Spinning.  Please run 'gdb gst-launch-1.0 3060299' to continue debugging, Ctrl-C to quit, or Ctrl-\\ to dump core."
+ ],
+ "err_class": null,
+ "err_hit": null,
+ "actions": [],
+ "samples": [
+  {
+   "t": 0.404,
+   "size": null,
+   "g": {
+    "err": "timeout"
+   }
+  },
+  {
+   "t": 30.43,
+   "size": null,
+   "g": {
+    "err": "timeout"
+   }
+  }
+ ],
+ "post_links": [],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

@@ -1,0 +1,191 @@
+{
+ "probe": "ffmpeg-pulse-output-r78p",
+ "legs": [
+  {
+   "label": "ffmpeg_ns",
+   "device": "r78p_ns",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-f",
+    "wav",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "r78p_ns",
+    "out"
+   ],
+   "rc": 0,
+   "wall_s": 0.723,
+   "timed_out": false,
+   "stderr_tail": [
+    "size=N/A time=00:00:01.02 bitrate=N/A speed=2.05x elapsed=0:00:00.50    ",
+    "[out#0/pulse @ 0x55d58b993800] video:0KiB audio:225KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown",
+    "size=N/A time=00:00:01.20 bitrate=N/A speed=1.73x elapsed=0:00:00.69"
+   ],
+   "carried": [
+    "ns"
+   ],
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ]
+   }
+  },
+  {
+   "label": "ffmpeg_ns2",
+   "device": "r78p_ns2",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-f",
+    "wav",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "r78p_ns2",
+    "out"
+   ],
+   "rc": 0,
+   "wall_s": 0.723,
+   "timed_out": false,
+   "stderr_tail": [
+    "size=N/A time=00:00:01.02 bitrate=N/A speed=2.05x elapsed=0:00:00.50    ",
+    "[out#0/pulse @ 0x55c3ce3cf800] video:0KiB audio:225KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown",
+    "size=N/A time=00:00:01.20 bitrate=N/A speed=1.73x elapsed=0:00:00.69"
+   ],
+   "carried": [
+    "ns2"
+   ],
+   "tone_windows": {
+    "ns2": [
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ]
+   }
+  },
+  {
+   "label": "ffmpeg_spdif",
+   "device": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-f",
+    "wav",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "out"
+   ],
+   "rc": 0,
+   "wall_s": 0.723,
+   "timed_out": false,
+   "stderr_tail": [
+    "size=N/A time=00:00:01.02 bitrate=N/A speed=2.05x elapsed=0:00:00.50    ",
+    "[out#0/pulse @ 0x5576b2b34840] video:0KiB audio:225KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown",
+    "size=N/A time=00:00:01.20 bitrate=N/A speed=1.73x elapsed=0:00:00.69"
+   ],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ]
+   }
+  },
+  {
+   "label": "ffmpeg_garbage",
+   "device": "no_such_sink",
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-re",
+    "-f",
+    "wav",
+    "-i",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout-playback/raw/tone_r78p_12.wav",
+    "-f",
+    "pulse",
+    "-device",
+    "no_such_sink",
+    "out"
+   ],
+   "rc": 0,
+   "wall_s": 0.725,
+   "timed_out": false,
+   "stderr_tail": [
+    "size=N/A time=00:00:01.02 bitrate=N/A speed=2.05x elapsed=0:00:00.50    ",
+    "[out#0/pulse @ 0x555afb1e3800] video:0KiB audio:225KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown",
+    "size=N/A time=00:00:01.20 bitrate=N/A speed=1.73x elapsed=0:00:00.69"
+   ],
+   "carried": [
+    "spdif"
+   ],
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0
+    ]
+   }
+  }
+ ],
+ "toolchain": {
+  "pw-cat": [
+   "pw-cat",
+   "Compiled with libpipewire 1.6.8"
+  ],
+  "pactl": [
+   "pactl 17.0-98-gb096",
+   "Compiled with libpulse 17.0.0"
+  ],
+  "aplay": [
+   "aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "arecord": [
+   "arecord: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "ffmpeg": [
+   "ffmpeg version n9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+   "built with gcc 16 (GCC)"
+  ],
+  "python": [
+   "Python 3.14.7"
+  ],
+  "uname": [
+   "7.2.3-arch1-3"
+  ]
+ },
+ "pre_cleanup": {
+  "unloaded": [],
+  "count": 0
+ },
+ "post_cleanup": {
+  "unloaded": [],
+  "count": 0
+ }
+}

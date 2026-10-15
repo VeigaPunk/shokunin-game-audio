@@ -1,0 +1,306 @@
+fresh: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-baseline/measure-env/corpus/live/runs/20261014T213136105621Z-capture-r76/measurements.json
+ref:   /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/live/runs/20261014T194043238882Z-capture-r76/measurements.json
+
+leaves fresh=1231 ref=1155 only-fresh=114 only-ref=38 differing=76
+[DECLARED] capture_device_axis_r76_probe :: hw_first :: 1 leaves
+      measurements.capture_device_axis_r76_probe.legs.hw_first.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="arecord: main:850: audio open error: Device or resource busy"
+[DECLARED] capture_device_axis_r76_probe :: hw_first_mono :: 1 leaves
+      measurements.capture_device_axis_r76_probe.legs.hw_first_mono.stderr_tail
+        fresh="arecord: set_params:1404: Channels count non available"
+        ref  ="arecord: main:850: audio open error: Device or resource busy"
+[DECLARED] capture_device_axis_r76_probe :: plughw_first :: 1 leaves
+      measurements.capture_device_axis_r76_probe.legs.plughw_first.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="arecord: main:850: audio open error: Device or resource busy"
+[DECLARED] capture_device_axis_r76_probe :: sysdefault :: 1 leaves
+      measurements.capture_device_axis_r76_probe.legs.sysdefault.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="arecord: main:850: audio open error: Invalid argument"
+[DECLARED] capture_gate_r76_probe :: pwrecord_auto_target :: 1 leaves
+      measurements.capture_gate_r76_probe.gate.pwrecord_auto_target.stderr_tail
+        fresh="<input>"
+        ref  ="remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available"
+[DECLARED] capture_gate_r76_probe :: pwrecord_monitor_alias :: 1 leaves
+      measurements.capture_gate_r76_probe.gate.pwrecord_monitor_alias.stderr_tail
+        fresh="<input>"
+        ref  ="remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available"
+[DECLARED] capture_roundtrip_r76_probe :: detect_legs.sox :: 1 leaves
+      measurements.capture_roundtrip_r76_probe.detect_legs.sox.captured.stderr_tail
+        fresh="Volume adjustment:        5.802"
+        ref  ="Volume adjustment:        2.000"
+[ENV-DEVICE] capture_gate_r76_probe :: parec_no_device :: 3 leaves
+      measurements.capture_gate_r76_probe.gate.parec_no_device.error
+        fresh="blocked: no verdict within 10 s"
+        ref  ="No such entity"
+      measurements.capture_gate_r76_probe.gate.parec_no_device.error_class
+        fresh=null
+        ref  ="pa_no_such_entity"
+      measurements.capture_gate_r76_probe.gate.parec_no_device.exit_code
+        fresh=null
+        ref  =1
+[ENV-DEVICE] capture_gate_r76_probe :: parecord_no_device :: 8 leaves
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.blocked
+        fresh=true
+        ref  =false
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.error
+        fresh="blocked: no verdict within 15 s"
+        ref  ="No such entity"
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.error_class
+        fresh=null
+        ref  ="pa_no_such_entity"
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.exit_code
+        fresh=null
+        ref  =1
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.file.data_declared_field
+        fresh="zero"
+        ref  ="finalized"
+      measurements.capture_gate_r76_probe.gate.parecord_no_device.file.data_finalized
+        fresh=false
+        ref  =true
+      … +2 more
+[ENV-INVENTORY] capture_gate_r76_probe :: inventory :: 1 leaves
+      measurements.capture_gate_r76_probe.inventory.default_source
+        fresh="alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source"
+        ref  ="alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+[ENV-ROUTE] capture_device_axis_r76_probe :: default :: 5 leaves
+      measurements.capture_device_axis_r76_probe.legs.default.error_class
+        fresh=null
+        ref  ="alsa_hwparams"
+      measurements.capture_device_axis_r76_probe.legs.default.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_device_axis_r76_probe.legs.default.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_device_axis_r76_probe.legs.default.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="TICK_TIME: [0 0]"
+      measurements.capture_device_axis_r76_probe.legs.default.wall_lt_0.5s
+        fresh=false
+        ref  =true
+[ENV-ROUTE] capture_device_axis_r76_probe :: pipewire :: 5 leaves
+      measurements.capture_device_axis_r76_probe.legs.pipewire.error_class
+        fresh=null
+        ref  ="alsa_hwparams"
+      measurements.capture_device_axis_r76_probe.legs.pipewire.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_device_axis_r76_probe.legs.pipewire.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_device_axis_r76_probe.legs.pipewire.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="TICK_TIME: [0 0]"
+      measurements.capture_device_axis_r76_probe.legs.pipewire.wall_lt_0.5s
+        fresh=false
+        ref  =true
+[ENV-ROUTE] capture_gate_r76_probe :: arecord_default :: 4 leaves
+      measurements.capture_gate_r76_probe.gate.arecord_default.error_class
+        fresh=null
+        ref  ="alsa_hwparams"
+      measurements.capture_gate_r76_probe.gate.arecord_default.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_gate_r76_probe.gate.arecord_default.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_gate_r76_probe.gate.arecord_default.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="TICK_TIME: [0 0]"
+[ENV-ROUTE] capture_gate_r76_probe :: arecord_pipewire :: 4 leaves
+      measurements.capture_gate_r76_probe.gate.arecord_pipewire.error_class
+        fresh=null
+        ref  ="alsa_hwparams"
+      measurements.capture_gate_r76_probe.gate.arecord_pipewire.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_gate_r76_probe.gate.arecord_pipewire.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_gate_r76_probe.gate.arecord_pipewire.stderr_tail
+        fresh="Recording WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+        ref  ="TICK_TIME: [0 0]"
+[ENV-SOURCE] capture_bounded_r76_probe :: pwrecord_sample_bound :: 1 leaves
+      measurements.capture_bounded_r76_probe.legs.pwrecord_sample_bound.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 48000 --rate 48000 --channels 2 
+[ENV-SOURCE] capture_gate_r76_probe :: pwrecord_dead_daemon :: 1 leaves
+      measurements.capture_gate_r76_probe.gate.pwrecord_dead_daemon.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 <out>"
+[ENV-SOURCE] capture_name_axis_r76_probe :: pwrecord_bin :: 1 leaves
+      measurements.capture_name_axis_r76_probe.legs.pwrecord_bin.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 -
+[ENV-SOURCE] capture_name_axis_r76_probe :: pwrecord_raw :: 1 leaves
+      measurements.capture_name_axis_r76_probe.legs.pwrecord_raw.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 -
+[ENV-SOURCE] capture_name_axis_r76_probe :: pwrecord_rawflag_on_bin :: 1 leaves
+      measurements.capture_name_axis_r76_probe.legs.pwrecord_rawflag_on_bin.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source --raw -n 4800 --rate 48000 --channe
+[ENV-SOURCE] capture_name_axis_r76_probe :: pwrecord_wav :: 1 leaves
+      measurements.capture_name_axis_r76_probe.legs.pwrecord_wav.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 -
+[ENV-SOURCE] capture_sever_r76_probe :: ffmpeg_kill :: 1 leaves
+      measurements.capture_sever_r76_probe.cells.ffmpeg_kill.argv
+        fresh="ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireles
+        ref  ="ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -y <out>
+[ENV-SOURCE] capture_sever_r76_probe :: ffmpeg_term :: 1 leaves
+      measurements.capture_sever_r76_probe.cells.ffmpeg_term.argv
+        fresh="ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireles
+        ref  ="ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -y <out>
+[ENV-SOURCE] capture_sever_r76_probe :: pwrecord_kill :: 1 leaves
+      measurements.capture_sever_r76_probe.cells.pwrecord_kill.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source --rate 48000 --channels 2 --format 
+[ENV-SOURCE] capture_sever_r76_probe :: pwrecord_term :: 1 leaves
+      measurements.capture_sever_r76_probe.cells.pwrecord_term.argv
+        fresh="pw-record --target alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Dir
+        ref  ="pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source --rate 48000 --channels 2 --format 
+[OTHER] capture_bounded_r76_probe :: ffmpeg_alsa_t :: 3 leaves
+      measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.error_class
+        fresh=null
+        ref  ="alsa_busy"
+      measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.exit_code
+        fresh=0
+        ref  =251
+      measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.file.exists
+        fresh=true
+        ref  =false
+[OTHER] capture_device_axis_r76_probe :: hw_first :: 4 leaves
+      measurements.capture_device_axis_r76_probe.legs.hw_first.error_class
+        fresh=null
+        ref  ="alsa_busy"
+      measurements.capture_device_axis_r76_probe.legs.hw_first.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_device_axis_r76_probe.legs.hw_first.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_device_axis_r76_probe.legs.hw_first.wall_lt_0.5s
+        fresh=false
+        ref  =true
+[OTHER] capture_device_axis_r76_probe :: hw_first_mono :: 2 leaves
+      measurements.capture_device_axis_r76_probe.legs.hw_first_mono.error
+        fresh="Channels count non available"
+        ref  ="Device or resource busy"
+      measurements.capture_device_axis_r76_probe.legs.hw_first_mono.error_class
+        fresh="alsa_channels"
+        ref  ="alsa_busy"
+[OTHER] capture_device_axis_r76_probe :: plughw_first :: 4 leaves
+      measurements.capture_device_axis_r76_probe.legs.plughw_first.error_class
+        fresh=null
+        ref  ="alsa_busy"
+      measurements.capture_device_axis_r76_probe.legs.plughw_first.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_device_axis_r76_probe.legs.plughw_first.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_device_axis_r76_probe.legs.plughw_first.wall_lt_0.5s
+        fresh=false
+        ref  =true
+[OTHER] capture_device_axis_r76_probe :: sysdefault :: 3 leaves
+      measurements.capture_device_axis_r76_probe.legs.sysdefault.exit_code
+        fresh=0
+        ref  =1
+      measurements.capture_device_axis_r76_probe.legs.sysdefault.file.exists
+        fresh=true
+        ref  =false
+      measurements.capture_device_axis_r76_probe.legs.sysdefault.wall_lt_0.5s
+        fresh=false
+        ref  =true
+[OTHER] capture_gate_r76_probe :: ffmpeg_alsa_default :: 3 leaves
+      measurements.capture_gate_r76_probe.gate.ffmpeg_alsa_default.error_class
+        fresh=null
+        ref  ="ffmpeg_alsa"
+      measurements.capture_gate_r76_probe.gate.ffmpeg_alsa_default.exit_code
+        fresh=0
+        ref  =251
+      measurements.capture_gate_r76_probe.gate.ffmpeg_alsa_default.file.exists
+        fresh=true
+        ref  =false
+[OTHER] capture_gate_r76_probe :: ffmpeg_pulse_default :: 3 leaves
+      measurements.capture_gate_r76_probe.gate.ffmpeg_pulse_default.error_class
+        fresh=null
+        ref  ="ffmpeg_io"
+      measurements.capture_gate_r76_probe.gate.ffmpeg_pulse_default.exit_code
+        fresh=0
+        ref  =251
+      measurements.capture_gate_r76_probe.gate.ffmpeg_pulse_default.file.exists
+        fresh=true
+        ref  =false
+[OTHER] capture_gate_r76_probe :: pwrecord_auto_target :: 1 leaves
+      measurements.capture_gate_r76_probe.gate.pwrecord_auto_target.error_class
+        fresh=null
+        ref  ="no_target_node"
+[OTHER] capture_gate_r76_probe :: pwrecord_monitor_alias :: 1 leaves
+      measurements.capture_gate_r76_probe.gate.pwrecord_monitor_alias.error_class
+        fresh=null
+        ref  ="no_target_node"
+[OTHER] capture_roundtrip_r76_probe :: content_witness.peak_within_3db_of_member :: 1 leaves
+      measurements.capture_roundtrip_r76_probe.content_witness.peak_within_3db_of_member
+        fresh=true
+        ref  =false
+[OTHER] capture_sever_r76_probe :: arecord_kill :: 2 leaves
+      measurements.capture_sever_r76_probe.cells.arecord_kill.argv
+        fresh="arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav <out>"
+        ref  ="arecord -D hw:0,2 -f S16_LE -r 48000 -c 2 -t wav <out>"
+      measurements.capture_sever_r76_probe.cells.arecord_kill.device
+        fresh="hw:0,0"
+        ref  ="hw:0,2"
+[OTHER] capture_sever_r76_probe :: arecord_term :: 2 leaves
+      measurements.capture_sever_r76_probe.cells.arecord_term.argv
+        fresh="arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav <out>"
+        ref  ="arecord -D hw:0,2 -f S16_LE -r 48000 -c 2 -t wav <out>"
+      measurements.capture_sever_r76_probe.cells.arecord_term.device
+        fresh="hw:0,0"
+        ref  ="hw:0,2"
+
+=== only-fresh leaves (grouped) ===
+  capture_bounded_r76_probe :: ffmpeg_alsa_t :: 8
+  capture_device_axis_r76_probe :: default :: 10
+  capture_device_axis_r76_probe :: failures[0] :: 1
+  capture_device_axis_r76_probe :: failures[1] :: 1
+  capture_device_axis_r76_probe :: hw_first :: 10
+  capture_device_axis_r76_probe :: pipewire :: 10
+  capture_device_axis_r76_probe :: plughw_first :: 10
+  capture_device_axis_r76_probe :: sysdefault :: 10
+  capture_gate_r76_probe :: arecord_default :: 8
+  capture_gate_r76_probe :: arecord_pipewire :: 8
+  capture_gate_r76_probe :: failures[0] :: 1
+  capture_gate_r76_probe :: ffmpeg_alsa_default :: 8
+  capture_gate_r76_probe :: ffmpeg_pulse_default :: 8
+  capture_gate_r76_probe :: inventory :: 21
+=== only-ref leaves (grouped) ===
+  capture_bounded_r76_probe :: ffmpeg_alsa_t :: 3
+  capture_device_axis_r76_probe :: default :: 2
+  capture_device_axis_r76_probe :: hw_first :: 2
+  capture_device_axis_r76_probe :: pipewire :: 2
+  capture_device_axis_r76_probe :: plughw_first :: 2
+  capture_device_axis_r76_probe :: sysdefault :: 1
+  capture_gate_r76_probe :: arecord_default :: 2
+  capture_gate_r76_probe :: arecord_pipewire :: 2
+  capture_gate_r76_probe :: ffmpeg_alsa_default :: 3
+  capture_gate_r76_probe :: ffmpeg_pulse_default :: 3
+  capture_gate_r76_probe :: parecord_no_device :: 1
+  capture_gate_r76_probe :: pwrecord_auto_target :: 1
+  capture_gate_r76_probe :: pwrecord_monitor_alias :: 1
+  capture_roundtrip_r76_probe :: failures[0] :: 1
+  capture_sever_r76_probe :: arecord_contention[0].device :: 1
+  capture_sever_r76_probe :: arecord_contention[0].named_failure :: 1
+  capture_sever_r76_probe :: arecord_contention[0].signal :: 1
+  capture_sever_r76_probe :: arecord_contention[1].device :: 1
+  capture_sever_r76_probe :: arecord_contention[1].named_failure :: 1
+  capture_sever_r76_probe :: arecord_contention[1].signal :: 1
+  capture_sever_r76_probe :: arecord_contention[2].device :: 1
+  capture_sever_r76_probe :: arecord_contention[2].named_failure :: 1
+  capture_sever_r76_probe :: arecord_contention[2].signal :: 1
+  capture_sever_r76_probe :: arecord_contention[3].device :: 1
+  capture_sever_r76_probe :: arecord_contention[3].named_failure :: 1
+  capture_sever_r76_probe :: arecord_contention[3].signal :: 1

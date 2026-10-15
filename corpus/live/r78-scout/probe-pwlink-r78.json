@@ -1,0 +1,168 @@
+{
+ "cases": {
+  "disconnect_midrun": {
+   "bytes": 747564,
+   "data_actual": 747520,
+   "disc_err": "",
+   "disc_rc": [
+    0,
+    0
+   ],
+   "err_class": null,
+   "err_line": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout/scratch/r78-scout-pyu4v6b3/disc.wav",
+   "growth_after_relink": 229376,
+   "growth_while_disc": 192512,
+   "links_after_relink": {
+    "r78_ns:monitor_FL": [
+     "r78b:input_FL",
+     "r78b:input_FL"
+    ],
+    "r78_ns:monitor_FR": [
+     "r78b:input_FR",
+     "r78b:input_FR"
+    ]
+   },
+   "links_while_disc": {},
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "relink_rc": [
+    0,
+    0
+   ],
+   "riff_size_field": "finalized",
+   "sz_1.2s_after_relink": 747564,
+   "sz_1s_while_disc": 518188,
+   "sz_just_after_disc": 325676,
+   "sz_pre_disc_1.5s": 286764
+  },
+  "monitor_mode": {
+   "head": "+alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n+  |<- Chromium:output_FL\n+  |<- Chromium:output_FL\n+alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n+  |<- Chromium:output_FR\n+  |<- Chromium:output_FR\n+Chromium:output_FL\n+  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n+Chromium:output_FR\n+  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n+Chromium:output_FL\n+  |-> a",
+   "rc": null,
+   "timed_out": true
+  },
+  "refusals": {
+   "bogus_in_port": {
+    "err_class": null,
+    "err_line": "failed to link ports: No such file or directory",
+    "rc": 255,
+    "stdout": ""
+   },
+   "bogus_out_port": {
+    "err_class": null,
+    "err_line": "failed to link ports: No such file or directory",
+    "rc": 255,
+    "stdout": ""
+   },
+   "disconnect_never_linked": {
+    "err_class": null,
+    "err_line": "failed to unlink ports: No such file or directory",
+    "rc": 255,
+    "stdout": ""
+   },
+   "input_to_input": {
+    "err_class": null,
+    "err_line": "failed to link ports: No such file or directory",
+    "rc": 255,
+    "stdout": ""
+   },
+   "output_to_output": {
+    "err_class": null,
+    "err_line": "failed to link ports: No such file or directory",
+    "rc": 255,
+    "stdout": ""
+   }
+  },
+  "single_channel_fl": {
+   "bytes": 192044,
+   "data_actual": 192000,
+   "err_line": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout/scratch/r78-scout-pyu4v6b3/flonly.wav",
+   "links": {
+    "r78_ns:monitor_FL": [
+     "r78b:input_FL",
+     "r78b:input_FL"
+    ]
+   },
+   "out_kind": "riff_wav",
+   "peak_L": 16384,
+   "peak_R": 0,
+   "pin_rc": 0,
+   "rc": 1
+  },
+  "target0_manual_pin": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "node.name=r78b",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "0",
+    "-n",
+    "192000",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout/scratch/r78-scout-pyu4v6b3/t0.wav"
+   ],
+   "bytes": 768044,
+   "data_actual": 768000,
+   "err_class": null,
+   "err_line": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout/scratch/r78-scout-pyu4v6b3/t0.wav",
+   "links_after_pin": {
+    "r78_ns:monitor_FL": [
+     "r78b:input_FL",
+     "r78b:input_FL"
+    ],
+    "r78_ns:monitor_FR": [
+     "r78b:input_FR",
+     "r78b:input_FR"
+    ]
+   },
+   "links_while_unlinked": {},
+   "nz_frac": 0.9378,
+   "out_kind": "riff_wav",
+   "peak": 16384,
+   "pin_err": "",
+   "pin_rc": [
+    0,
+    0
+   ],
+   "ports_while_unlinked": [
+    "r78b:input_FL",
+    "r78b:input_FR"
+   ],
+   "rc": 1,
+   "riff_size_field": "finalized",
+   "sz_at_1s_unlinked": 44,
+   "sz_at_2.2s_after_pin": 229420
+  },
+  "two_producers_one_port": {
+   "bytes": 192044,
+   "err_line": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-scout/scratch/r78-scout-pyu4v6b3/twoprod.wav",
+   "links": {
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL": [
+     "r78b:input_FL",
+     "r78b:input_FL"
+    ],
+    "r78_ns:monitor_FL": [
+     "r78b:input_FL",
+     "r78b:input_FL"
+    ],
+    "r78_ns:monitor_FR": [
+     "r78b:input_FR",
+     "r78b:input_FR"
+    ]
+   },
+   "nz_frac": 0.867,
+   "out_kind": "riff_wav",
+   "peak": 16384,
+   "pin_errs": "",
+   "pin_rcs": [
+    0,
+    0,
+    0
+   ],
+   "rc": 1
+  }
+ },
+ "ns_module": 536870916,
+ "ns_note": "monitor-present",
+ "scratch_bytes": 7469016
+}

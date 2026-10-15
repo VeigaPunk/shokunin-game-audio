@@ -1,0 +1,29 @@
+r78-baseline exclusivity-guard check (frozen anchor 731937c)
+================================================================
+The r77 baseline reported that --probe-capture-r77 escaped the
+"choose one probe mode" guard. Re-checked here against the frozen bytes.
+
+(1) source @ 731937c (git show 731937c:corpus/fixtures/measure_audio.py)
+    :6007  parser.add_argument("--probe-capture-r77", action="store_true")
+    :6008  parser.add_argument("--probe-capture-r76", action="store_true")
+    :6010  if sum([ ... , args.probe_capture_r76, args.probe_capture_r77]) > 1:
+    :6011      parser.error("choose one probe mode")
+    => the r77 family IS inside the guard sum at the frozen anchor.
+
+(2) which commit added it:
+    git log --oneline -S"args.probe_capture_r76, args.probe_capture_r77" \
+        -- corpus/fixtures/measure_audio.py
+    1a84ca7 r77 fold: consolidated wave-B corrections — vacuity kills,
+            gate asserts, streaming
+    => corrected by the r77 fold, not by this seat.
+
+(3) dynamic A/B against the frozen env fixture
+    (measure-env/corpus/fixtures/measure_audio.py, each leg bounded to 15 s
+     with `timeout`, so the probe families never run to completion):
+
+    control  --probe-consumers2-r75 --probe-capture-r76  -> rc=2  guard fires
+    test     --probe-consumers2-r75 --probe-capture-r77  -> rc=2  guard fires
+    test     --probe-capture-r77    --probe-capture-r76  -> rc=2  guard fires
+
+    r77-baseline measured rc=124 (ran to its bound, guard silent) for the two
+    test pairings; both now refuse with rc=2. The reported gap is closed.

@@ -1,0 +1,60 @@
+# r78 SIMPLIFIER — proof anchors
+# repo: /home/vgpnk/Projects/shokunin/audio-shokunin
+# HEAD: d9aa6f95eed751694337f15ef485f384c3b6c033
+
+## fixtures
+  control (pristine = HEAD) : af28eadef3008973863f1a4dedeb51ed6a38911f9b831f1bff5db53dd95cee9a  9255 lines
+  candidate (folded)        : fadc1d082d44eb8c607ddc631c95c963f38f9e43cfdd182f482551436b7fec03  9217 lines
+  vfold copy                : fadc1d082d44eb8c607ddc631c95c963f38f9e43cfdd182f482551436b7fec03  9217 lines
+  applier output == cand fixture: True
+
+## env materialization (tracked-only subset at d9aa6f9, git-show blobs)
+  control: 663 files, 663 byte-equal to the pinned blobs
+  cand: 663 files, 663 byte-equal to the pinned blobs
+
+## unit equivalence
+UNIT VERDICT: PASS
+
+## negative control (the comparator is not vacuous)
+NEGATIVE CONTROL: PASS (both mutations caught)
+
+## replay results (see compare-*.txt for the full output)
+   PASS = A=0, C=0 and identical failures maps
+  -- compare-pair.txt
+      leaves compared          : 13142
+      A strict diffs           : 0
+      B contract-leaf diffs    : 0
+      C self-consistency viols : 0
+      failures identical       : True (empty: False)
+      VERDICT: PASS (A=0 B=0 C=0 failures ctl=1 cand=1 identical=True r78=1)
+  -- compare-canonical.txt
+      leaves compared          : 13148
+      A strict diffs           : 0
+      B contract-leaf diffs    : 0
+      C self-consistency viols : 0
+      failures identical       : True (empty: True)
+      VERDICT: PASS (A=0 B=0 C=0 failures ctl=0 cand=0 identical=True r78=0)
+  -- compare-canonical-accepted.txt
+      leaves compared          : 13150
+      A strict diffs           : 10
+      B contract-leaf diffs    : 5
+      C self-consistency viols : 0
+      failures identical       : False (empty: False)
+      VERDICT: FAIL (A=10 B=5 C=0 failures ctl=0 cand=1 identical=False r78=1)
+  -- compare-within-arm.txt
+      leaves compared          : 13151
+      A strict diffs           : 37
+      B contract-leaf diffs    : 20
+      C self-consistency viols : 0
+      failures identical       : False (empty: False)
+      VERDICT: FAIL (A=37 B=20 C=0 failures ctl=1 cand=1 identical=False r78=2)
+      leaves compared          : 13143
+      A strict diffs           : 10
+      B contract-leaf diffs    : 5
+      C self-consistency viols : 0
+      failures identical       : False (empty: False)
+      VERDICT: FAIL (A=10 B=5 C=0 failures ctl=0 cand=1 identical=False r78=1)
+
+## segv_audio mechanism probe (6 fresh processes, pristine fixture)
+  arm F: segv_audio rc=[1, 1, 1] siblings=[[-11, 1], [-11, 1], [-11, 1]]
+  arm N: segv_audio rc=[1, 1, 1] siblings=[[-11, 1], [-11, 1], [-11, 1]]

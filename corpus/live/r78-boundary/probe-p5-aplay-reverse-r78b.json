@@ -1,0 +1,90 @@
+{
+ "probe": "p5-aplay-reverse",
+ "ts": 1792014721.4077954,
+ "env": {
+  "sink_inputs": [],
+  "procs": [
+   " 748709 bash            bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary && timeout 200 python3 p5_aplay_reverse.py 2>&1",
+   " 748710 timeout         timeout 200 python3 p5_aplay_reverse.py",
+   " 748711 python3         python3 p5_aplay_reverse.py",
+   "2202613 aplay           aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav"
+  ]
+ },
+ "cleanup": {
+  "unloaded": [],
+  "count": 0
+ },
+ "pre": {
+  "spk_state": "suspended",
+  "foreign_inputs": []
+ },
+ "A_aplay_idle": {
+  "rc": 0,
+  "stdout": "b''",
+  "stderr": "",
+  "wall": 2.016,
+  "to": false
+ },
+ "B_state_with_tap": "running",
+ "B_aplay_vs_tap": {
+  "rc": 1,
+  "stdout": "b''",
+  "stderr": "aplay: main:850: audio open error: Device or resource busy\n",
+  "wall": 0.001,
+  "to": false
+ },
+ "B_tap_cap": {
+  "bytes": 172076
+ },
+ "C_hold_alive": false,
+ "C_state_during_hold": "idle",
+ "C_pwplay_vs_aplay_hold": {
+  "rc": 0,
+  "wall": 2.475,
+  "stderr": "",
+  "timed_out": false,
+  "links": {
+   "r78bH_pw:output_FL": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:playback_FL"
+   ],
+   "r78bH_pw:output_FR": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:playback_FR"
+   ]
+  },
+  "carried": [
+   "spk"
+  ],
+  "state_after": "idle"
+ },
+ "C_hold_rc": 1,
+ "D_retention": [
+  {
+   "rc": 1,
+   "err": "aplay: main:850: audio open error: Device or resource busy",
+   "wall": 0.001
+  },
+  {
+   "rc": 1,
+   "err": "aplay: main:850: audio open error: Device or resource busy",
+   "wall": 0.004
+  },
+  {
+   "rc": 1,
+   "err": "aplay: main:850: audio open error: Device or resource busy",
+   "wall": 0.001
+  }
+ ],
+ "E_aplay_vs_pw_stream": {
+  "rc": 1,
+  "stdout": "b''",
+  "stderr": "aplay: main:850: audio open error: Device or resource busy\n",
+  "wall": 0.001,
+  "to": false
+ },
+ "E_pw_rc": 0,
+ "post_state": "idle",
+ "post_cleanup": {
+  "unloaded": [],
+  "count": 0
+ }
+}

@@ -1,0 +1,123 @@
+# r78 SIMPLIFIER static census
+# fixture: corpus/fixtures/measure_audio.py
+# r78 block: lines 5906..9255 (3350 lines)
+
+## §1 r78 constants: file-wide reference count (definition = 1)
+  refs= 16  PLAYBACK_R78_TIMEOUT_S
+  refs=  9  PLAYBACK_R78_SETTLE_S
+  refs= 20  PLAYBACK_R78_TAP_LEAD_S
+  refs= 14  PLAYBACK_R78_TONE_RATE
+  refs=  3  PLAYBACK_R78_TONE_AMP
+  refs=  4  PLAYBACK_R78_TONE_L_HZ
+  refs=  4  PLAYBACK_R78_TONE_R_HZ
+  refs=  3  PLAYBACK_R78_TONE_TOL
+  refs=  3  PLAYBACK_R78_TONE_AMP_MIN
+  refs=  2  PLAYBACK_R78_TONE_AUDIO_MIN
+  refs=  2  PLAYBACK_R78_TONE_WINDOW_S
+  refs=  6  PLAYBACK_R78_LATTICE_TONE_S
+  refs=  6  PLAYBACK_R78_FOLLOW_TONE_S
+  refs=  4  PLAYBACK_R78_NOFOLLOW_TONE_S
+  refs=  8  PLAYBACK_R78_LOSS_TONE_S
+  refs=  7  PLAYBACK_R78_LOSS_EVENT_S
+  refs=  5  PLAYBACK_R78_PROP_TONE_S
+  refs=  7  PLAYBACK_R78_STALL_BOUND_S
+  refs=  6  PLAYBACK_R78_BOUND_SLACK_S
+  refs=  2  PLAYBACK_R78_LINK_SAMPLE_AT
+  refs=  2  PLAYBACK_R78_METADATA_APPLY_S
+  refs=  2  PLAYBACK_R78_CARRIES_TONE_WINDOWS
+  refs=  1  PLAYBACK_R78_CAP_TONE_S  <-- DEAD (definition only)
+  refs=  1  PLAYBACK_R78_CAP_FRAMES_S  <-- DEAD (definition only)
+  refs=  1  PLAYBACK_R78_CAP_UNLINK_S  <-- DEAD (definition only)
+  refs=  1  PLAYBACK_R78_CAP_RELINK_S  <-- DEAD (definition only)
+  refs=  2  PLAYBACK_R78_PAREC_POLL_S
+  refs=  2  PLAYBACK_R78_PAREC_TONE_S
+  refs=  2  PLAYBACK_R78_LOCK_POLL_S
+  refs=  6  PLAYBACK_R78_NULL_SINK
+  refs=  2  PLAYBACK_R78_DEF_SINK
+  refs=  8  PLAYBACK_R78_LOSS_SINK
+  refs=  3  PLAYBACK_R78_PROP_SINK_A
+  refs=  2  PLAYBACK_R78_PROP_SINK_B
+  refs=  4  PLAYBACK_R78_CAP_SINK
+  refs=  4  PLAYBACK_R78_FIX_SINK
+  refs=  4  PLAYBACK_R78_LATTICE
+
+## §2 r78 functions: parameter use counts (Name loads in body)
+  _playback_r78_errclass: text=1
+  _playback_r78_write_tone: path=1, seconds=1, rate=3
+  _playback_r78_link_map: (no params)
+  _playback_r78_consumers: tag=2, links=2
+  _playback_r78_producers: tag=2, links=2
+  _playback_r78_output_ports: tag=1
+  _playback_r78_node_state: tag=1
+  _playback_r78_node_names: (no params)
+  _playback_r78_null_sink_load: name=1
+  _playback_r78_unload: module_id=2
+  _playback_r78_metadata_default_sink: (no params)
+  _playback_r78_metadata_set_default: raw_json=1
+  _playback_r78_metadata_wait: name=1, deadline_s=1
+  _playback_r78_pcm_map: (no params)
+  _playback_r78_hw_params: text=3
+  _playback_r78_pcm_array: path=1, insp=5
+  _playback_r78_domfreq: seg_windowed=2, freq_axis=1
+  _playback_r78_tone_windows: path=2, window_s=4
+  _playback_r78_tap: target=1, path=1, frames=1, tag=1
+  _playback_r78_foreign_clients: (no params)
+  _playback_r78_run: tail=2, ctx=5, tag=5, events=1, wait_bound_s=2, env=1
+  _playback_r78_leg: name=3, tail=1, ctx=4, tap_target=3, tap_seconds=1, sample_at=1, bound_s=1, env_extra=2
+  playback_target_lattice_r78_entry: (no params)
+  playback_default_follow_r78_entry: (no params)
+  playback_target_loss_r78_entry: (no params)
+  playback_props_r78_entry: (no params)
+  playback_class_segv_r78_entry: (no params)
+  _playback_r78_aplay: argv=4, timeout_s=1
+  playback_aplay_axis_r78_entry: (no params)
+  _playback_r78_pwlink_batch: pairs=1, disconnect=1
+  capture_unlinked_zeros_r78_entry: (no params)
+  _playback_r78_nearest: value=3, candidates=1, tolerance=1
+  capture_parec_fix_r78_entry: (no params)
+
+## §3 call-site census for the deleted parameters
+  _playback_r78_write_tone: 11 sites
+      line 6021: def _playback_r78_write_tone(path, seconds,
+      line 6611: _playback_r78_write_tone(tone, PLAYBACK_R78_LATTICE_TONE_S)
+      line 6843: _playback_r78_write_tone(tone, PLAYBACK_R78_FOLLOW_TONE_S)
+      line 6845: _playback_r78_write_tone(long_tone,
+      line 7079: _playback_r78_write_tone(tone, PLAYBACK_R78_LOSS_TONE_S)
+      line 7319: _playback_r78_write_tone(tone, PLAYBACK_R78_PROP_TONE_S)
+      line 7420: _playback_r78_write_tone(tone, PLAYBACK_R78_PROP_TONE_S)
+      line 7546: _playback_r78_write_tone(tone, 1.2)
+      line 7548: _playback_r78_write_tone(tiny, 0.3)
+      line 7809: _playback_r78_write_tone(tone, 12.0)
+      line 8055: _playback_r78_write_tone(tone, PLAYBACK_R78_PAREC_TONE_S)
+  _playback_r78_tone_windows: 10 sites
+      line 6315: def _playback_r78_tone_windows(path,
+      line 6530: **_playback_r78_tone_windows(tapf)}
+      line 6934: **_playback_r78_tone_windows(tapf)}}
+      line 7105: **_playback_r78_tone_windows(tapf)}}
+      line 7146: **_playback_r78_tone_windows(tapf_d)},
+      line 7149: **_playback_r78_tone_windows(tapf_s)}}
+      line 7719: "target": d0, **_playback_r78_tone_windows(tapf2)}
+      line 7733: "target": d0, **_playback_r78_tone_windows(tapf3)}
+      line 7881: "file_windows": _playback_r78_tone_windows(out_a)}
+      line 7931: "file_windows": _playback_r78_tone_windows(out_b)}
+
+## §4 call-site census: what each caller reads off the helper
+  _playback_r78_link_map: 3 call site(s) -> lines [6448, 7850, 7904]
+      line 6448 reads ['links']: tag, _playback_r78_link_map().get("links", [])),
+      line 7850 reads ['links']: ctag_a, _playback_r78_link_map().get(
+      line 7904 reads ['links']: ctag_b, _playback_r78_link_map().get(
+  _playback_r78_consumers: 0 call site(s) -> lines []
+  _playback_r78_producers: 0 call site(s) -> lines []
+
+## §6 the zeros legs' size-sample counts (the S3 guards)
+  line 7837: 12 events, 7 size samples, break=False
+  line 7894: 8 events, 5 size samples, break=False
+
+## §5 branch census: the guards the fold removes
+  line 7955: if len(seq) >= 7:
+  line 7991: if len(seq_b) >= 2 and not all(
+  line 6793: if not any(l.get("target_object_lies") for l in legs.values()
+  line 6798: if mid is not None and entry["probe_sink_gone"] is not True:
+  line 6627: if resolver is None:
+  line 6633: if resolver is not None and \
+  line 6639: if resolver in ("probe_sink", "probe_monitor") and \

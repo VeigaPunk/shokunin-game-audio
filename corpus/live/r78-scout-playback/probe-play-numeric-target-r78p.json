@@ -1,0 +1,420 @@
+{
+ "probe": "playback-numeric-target-clean-r78p",
+ "legs": [
+  {
+   "label": "name",
+   "args": [
+    "--target",
+    "r78p_ns"
+   ],
+   "rc": 0,
+   "wall_s": 1.646,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_name:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB5_name:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "r78p_ns:playback_FL",
+     "  |<- r78pB5_name:output_FL",
+     "r78p_ns:playback_FR",
+     "  |<- r78pB5_name:output_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_name:output_FL",
+     "  |-> r78p_ns:playback_FL",
+     "r78pB5_name:output_FR",
+     "  |-> r78p_ns:playback_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  },
+  {
+   "label": "serial",
+   "args": [
+    "--target",
+    "41203"
+   ],
+   "rc": 0,
+   "wall_s": 1.647,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_serial:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB5_serial:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "r78p_ns:playback_FL",
+     "  |<- r78pB5_serial:output_FL",
+     "r78p_ns:playback_FR",
+     "  |<- r78pB5_serial:output_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_serial:output_FL",
+     "  |-> r78p_ns:playback_FL",
+     "r78pB5_serial:output_FR",
+     "  |-> r78p_ns:playback_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  },
+  {
+   "label": "node_id",
+   "args": [
+    "--target",
+    "194"
+   ],
+   "rc": 0,
+   "wall_s": 1.627,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_node_id:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r78pB5_node_id:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "  |<- r78pB5_node_id:output_FL",
+     "  |<- r78pB5_node_id:output_FR",
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_node_id:output_FL",
+     "r78pB5_node_id:output_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns2": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ],
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns2",
+    "spdif"
+   ]
+  },
+  {
+   "label": "prop_serial_int",
+   "args": [
+    "-P",
+    "target.object=41203"
+   ],
+   "rc": 0,
+   "wall_s": 1.648,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_prop_serial_int:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB5_prop_serial_int:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "r78p_ns:playback_FL",
+     "  |<- r78pB5_prop_serial_int:output_FL",
+     "r78p_ns:playback_FR",
+     "  |<- r78pB5_prop_serial_int:output_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_prop_serial_int:output_FL",
+     "  |-> r78p_ns:playback_FL",
+     "r78pB5_prop_serial_int:output_FR",
+     "  |-> r78p_ns:playback_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  },
+  {
+   "label": "prop_serial_str",
+   "args": [
+    "-P",
+    "target.object=41203"
+   ],
+   "rc": 0,
+   "wall_s": 1.63,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_prop_serial_str:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB5_prop_serial_str:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "r78p_ns:playback_FL",
+     "  |<- r78pB5_prop_serial_str:output_FL",
+     "r78p_ns:playback_FR",
+     "  |<- r78pB5_prop_serial_str:output_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_prop_serial_str:output_FL",
+     "  |-> r78p_ns:playback_FL",
+     "r78pB5_prop_serial_str:output_FR",
+     "  |-> r78p_ns:playback_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  },
+  {
+   "label": "prop_id_int",
+   "args": [
+    "-P",
+    "target.object=194"
+   ],
+   "rc": 0,
+   "wall_s": 1.618,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_prop_id_int:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r78pB5_prop_id_int:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "  |<- r78pB5_prop_id_int:output_FL",
+     "  |<- r78pB5_prop_id_int:output_FR",
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_prop_id_int:output_FL",
+     "r78pB5_prop_id_int:output_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns2": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ],
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns2",
+    "spdif"
+   ]
+  },
+  {
+   "label": "name_again",
+   "args": [
+    "--target",
+    "r78p_ns"
+   ],
+   "rc": 0,
+   "wall_s": 1.628,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB5_name_again:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB5_name_again:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "pwlink_text": [
+     "r78p_ns:monitor_FL",
+     "r78p_ns:monitor_FR",
+     "r78p_ns:playback_FL",
+     "  |<- r78pB5_name_again:output_FL",
+     "r78p_ns:playback_FR",
+     "  |<- r78pB5_name_again:output_FR",
+     "  |<- r78p_ns:monitor_FL",
+     "  |<- r78p_ns:monitor_FR",
+     "r78pB5_name_again:output_FL",
+     "  |-> r78p_ns:playback_FL",
+     "r78pB5_name_again:output_FR",
+     "  |-> r78p_ns:playback_FR"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  }
+ ],
+ "toolchain": {
+  "pw-cat": [
+   "pw-cat",
+   "Compiled with libpipewire 1.6.8"
+  ],
+  "pactl": [
+   "pactl 17.0-98-gb096",
+   "Compiled with libpulse 17.0.0"
+  ],
+  "aplay": [
+   "aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "arecord": [
+   "arecord: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "ffmpeg": [
+   "ffmpeg version n9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+   "built with gcc 16 (GCC)"
+  ],
+  "python": [
+   "Python 3.14.7"
+  ],
+  "uname": [
+   "7.2.3-arch1-3"
+  ]
+ },
+ "pre_cleanup": {
+  "unloaded": [
+   [
+    "536870917",
+    0
+   ],
+   [
+    "536870918",
+    0
+   ],
+   [
+    "536870920",
+    0
+   ]
+  ],
+  "count": 3
+ },
+ "ns": {
+  "module": "536870920",
+  "id": 194,
+  "serial": 41203,
+  "sinks_short": "58\talsa_output.pci-0000_01_00.1.hdmi-stereo\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n59\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED\n60\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n61\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n31694\talsa_output.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__sink\tPipeWire\ts16le 4ch 48000Hz\tSUSPENDED\n41203\tr78p_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n"
+ },
+ "post_cleanup": {
+  "unloaded": [
+   [
+    "536870920",
+    0
+   ]
+  ],
+  "count": 1
+ }
+}

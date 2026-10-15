@@ -1,0 +1,134 @@
+# p8-combine-and-params
+
+- default sink = alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+- base null sink idx=536870922
+- combine-slaves-literal   rc=0 idx=536870921 err=''
+-      node 110 r80_z_c1 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 177 output.r80_z_c1_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c1_r80_z_base:95->r80_z_base:126', 'output.r80_z_c1_r80_z_base:220->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c1'] sources=['r80_z_base.monitor', 'r80_z_c1.monitor']
+- combine-sinks-literal    rc=0 idx=536870921 err=''
+-      node 110 r80_z_c2 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 228 output.r80_z_c2_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c2_r80_z_base:159->r80_z_base:126', 'output.r80_z_c2_r80_z_base:214->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c2'] sources=['r80_z_base.monitor', 'r80_z_c2.monitor']
+- combine-slaves-default   rc=0 idx=536870921 err=''
+-      node 99 r80_z_c3 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 177 output.r80_z_c3_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c3_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:214->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:66', 'output.r80_z_c3_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:95->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:67']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c3'] sources=['r80_z_base.monitor', 'r80_z_c3.monitor']
+- combine-slaves-two       rc=0 idx=536870921 err=''
+-      node 220 r80_z_c4 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 86 output.r80_z_c4_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 159 output.r80_z_c4_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c4_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:214->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:66', 'output.r80_z_c4_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:95->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:67', 'output.r80_z_c4_r80_z_base:127->r80_z_base:126', 'output.r80_z_c4_r80_z_base:240->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c4'] sources=['r80_z_base.monitor', 'r80_z_c4.monitor']
+- combine-noargs           rc=0 idx=536870921 err=''
+-      node 170 r80_z_c5 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 189 output.r80_z_c5_alsa_output.pci-0000_01_00.1.hdmi-stereo class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 195 output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 128 output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 205 output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 102 output.r80_z_c5_r80_p4_d class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 217 output.r80_z_c5_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      node 210 output.r80_z_c5_r78_fix_sink_2819738 class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c5_alsa_output.pci-0000_01_00.1.hdmi-stereo:159->alsa_output.pci-0000_01_00.1.hdmi-stereo:62', 'output.r80_z_c5_alsa_output.pci-0000_01_00.1.hdmi-stereo:229->alsa_output.pci-0000_01_00.1.hdmi-stereo:63', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:214->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:66', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:99->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:67', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:240->alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:70', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:250->alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:71', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:115->alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:74', 'output.r80_z_c5_alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:87->alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:75']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c5'] sources=['r80_z_base.monitor', 'r80_z_c5.monitor']
+- combine-latcomp          rc=0 idx=536870921 err=''
+-      node 177 r80_z_c6 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 102 output.r80_z_c6_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c6_r80_z_base:228->r80_z_base:126', 'output.r80_z_c6_r80_z_base:227->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c6'] sources=['r80_z_base.monitor', 'r80_z_c6.monitor']
+- combine-adjust           rc=0 idx=536870921 err=''
+-      node 192 r80_z_c7 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 133 output.r80_z_c7_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c7_r80_z_base:227->r80_z_base:126', 'output.r80_z_c7_r80_z_base:217->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c7'] sources=['r80_z_base.monitor', 'r80_z_c7.monitor']
+- combine-remix            rc=0 idx=536870921 err=''
+-      node 228 r80_z_c8 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 177 output.r80_z_c8_r80_z_base class=Stream/Output/Audio in/out=0/2 ch=None pos=None factory=None
+-      links=['output.r80_z_c8_r80_z_base:217->r80_z_base:126', 'output.r80_z_c8_r80_z_base:102->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_c8'] sources=['r80_z_base.monitor', 'r80_z_c8.monitor']
+- null-noargs-name         rc=0 idx=536870921 err=''
+-      node 103 null-sink class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": {"default": "F32P", "alt1": "F32P", "alt2": "F32LE"}, "rate": {"default": 48000, "min": 1, "max": 2147483647}, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base'] sources=['r80_z_base.monitor']
+- null-rate44              rc=0 idx=536870921 err=''
+-      node 103 r80_z_r44 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": {"default": "F32P", "alt1": "F32P", "alt2": "F32LE"}, "rate": 44100, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_r44'] sources=['r80_z_base.monitor', 'r80_z_r44.monitor']
+- null-rate96              rc=0 idx=536870921 err=''
+-      node 103 r80_z_r96 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": {"default": "F32P", "alt1": "F32P", "alt2": "F32LE"}, "rate": 96000, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_r96'] sources=['r80_z_base.monitor', 'r80_z_r96.monitor']
+- null-rate-odd            rc=0 idx=536870921 err=''
+-      node 103 r80_z_rod class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": {"default": "F32P", "alt1": "F32P", "alt2": "F32LE"}, "rate": 99999, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_rod'] sources=['r80_z_base.monitor', 'r80_z_rod.monitor']
+- null-fmt-s16             rc=0 idx=536870921 err=''
+-      node 103 r80_z_f16 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "S16LE", "rate": {"default": 48000, "min": 1, "max": 2147483647}, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_f16'] sources=['r80_z_base.monitor', 'r80_z_f16.monitor']
+- null-fmt-u8              rc=0 idx=536870921 err=''
+-      node 103 r80_z_f8 class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "U8", "rate": {"default": 48000, "min": 1, "max": 2147483647}, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_f8'] sources=['r80_z_base.monitor', 'r80_z_f8.monitor']
+- null-chmap-passthrough   rc=0 idx=536870921 err=''
+-      node 103 r80_z_cp class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=support.null-audio-sink
+-      links=[]
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": {"default": "F32P", "alt1": "F32P", "alt2": "F32LE"}, "rate": {"default": 48000, "min": 1, "max": 2147483647}, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_cp'] sources=['r80_z_base.monitor', 'r80_z_cp.monitor']
+- remap-master-mine        rc=0 idx=536870921 err=''
+-      node 103 output.r80_z_rm class=Stream/Output/Audio in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 224 r80_z_rm class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      links=['output.r80_z_rm:217->r80_z_base:126', 'output.r80_z_rm:102->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_rm'] sources=['r80_z_base.monitor', 'r80_z_rm.monitor']
+- remap-master-mine-51     rc=1 idx=None err='Failure: Invalid argument'
+-      links=[]
+-      pactl sinks=['r80_z_base'] sources=['r80_z_base.monitor']
+- remap-bad-master         rc=0 idx=536870921 err=''
+-      node 177 output.r80_z_rmx class=Stream/Output/Audio in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 207 r80_z_rmx class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      links=['output.r80_z_rmx:201->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:66', 'output.r80_z_rmx:102->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:67']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_rmx'] sources=['r80_z_base.monitor', 'r80_z_rmx.monitor']
+- echo-master-mine         rc=0 idx=536870921 err=''
+-      node 228 echo-cancel-capture class=Stream/Input/Audio in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 217 r80_z_ecs class=Audio/Source in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 192 r80_z_ec class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 227 echo-cancel-playback class=Stream/Output/Audio in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      links=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:68->echo-cancel-capture:201', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:69->echo-cancel-capture:111', 'echo-cancel-playback:216->r80_z_base:126', 'echo-cancel-playback:86->r80_z_base:176']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "rate": 48000, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_ec'] sources=['r80_z_base.monitor', 'r80_z_ecs', 'r80_z_ec.monitor']
+- echo-bad-master          rc=0 idx=536870921 err=''
+-      node 101 echo-cancel-capture class=Stream/Input/Audio in/out=0/0 ch=2 pos=[ FL, FR ] factory=None
+-      node 217 r80_z_ecxs class=Audio/Source in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 133 r80_z_ecx class=Audio/Sink in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 103 echo-cancel-playback class=Stream/Output/Audio in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      links=['echo-cancel-playback:87->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:66', 'echo-cancel-playback:111->alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:67']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "rate": 48000, "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base', 'r80_z_ecx'] sources=['r80_z_base.monitor', 'r80_z_ecxs', 'r80_z_ecx.monitor']
+- echo-bad-method          rc=1 idx=None err='Failure: No such entity'
+-      links=[]
+-      pactl sinks=['r80_z_base'] sources=['r80_z_base.monitor']
+- loopback-mine            rc=0 idx=536870921 err=''
+-      node 47 output.loopback-761930-13 class=Stream/Output/Audio in/out=0/2 ch=2 pos=[ FL, FR ] factory=None
+-      node 255 input.loopback-761930-13 class=Stream/Input/Audio in/out=2/2 ch=2 pos=[ FL, FR ] factory=None
+-      links=['output.loopback-761930-13:163->r80_z_base:126', 'output.loopback-761930-13:108->r80_z_base:176', 'r80_z_base:160->input.loopback-761930-13:83', 'r80_z_base:135->input.loopback-761930-13:103']
+-      EnumFormat=[{"mediaType": "audio", "mediaSubtype": "raw", "format": "F32P", "channels": 2, "position": ["FL", "FR"]}]
+-      pactl sinks=['r80_z_base'] sources=['r80_z_base.monitor']

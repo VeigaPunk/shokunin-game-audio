@@ -1,0 +1,1 @@
+gst-launch-1.0 -q pipewiresrc target-object=gst_r81_ns on-disconnect=eos stream-properties=props,stream.capture.sink=true num-buffers=1000000 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/loss.wav

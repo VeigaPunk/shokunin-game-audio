@@ -1,0 +1,1568 @@
+{
+ "probe": "control",
+ "host": "plazir27",
+ "when": "2026-10-14T19:49:38+00:00",
+ "toolchain": {
+  "gst_launch": "gst-launch-1.0 version 1.28.6",
+  "gst_inspect": "gst-inspect-1.0 version 1.28.6",
+  "pw_version": "id: 0",
+  "ffprobe": "ffprobe version n9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+  "soxi": "soxi FAIL getopt: invalid option `--'",
+  "sndfile": "Error : Not able to open input file --version.",
+  "python": "3.14.7",
+  "numpy": "2.5.3"
+ },
+ "byte_cap_bytes": 33554432,
+ "wall_cap_s": 20.0,
+ "scratch_bytes_before": 21271377,
+ "body": {
+  "known_good_nb1": {
+   "run": {
+    "pipeline": "audiotestsrc wave=sine freq=1000 num-buffers=1 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb1.wav",
+    "argv": [
+     "gst-launch-1.0",
+     "-q",
+     "audiotestsrc",
+     "wave=sine",
+     "freq=1000",
+     "num-buffers=1",
+     "!",
+     "audio/x-raw,format=S16LE,rate=48000,channels=2",
+     "!",
+     "wavenc",
+     "!",
+     "filesink",
+     "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb1.wav"
+    ],
+    "rc": 0,
+    "signal": null,
+    "sent": null,
+    "eos": false,
+    "elapsed_s": 0.021,
+    "stderr": "",
+    "stderr_head": [],
+    "byte_cap_killed_at": null,
+    "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb1.wav"
+   },
+   "insp": {
+    "exists": true,
+    "bytes": 4140,
+    "riff_sz": 4132,
+    "riff_class": "finalized",
+    "fmt_tag": 1,
+    "channels": 2,
+    "rate": 48000,
+    "bits": 16,
+    "data_off": 44,
+    "data_field": 4096,
+    "data_class": "finalized",
+    "frames_declared": 1024,
+    "finalized": true,
+    "err": null,
+    "streaming_placeholder": false,
+    "chunks": [
+     "fmt :16",
+     "data:4096"
+    ],
+    "fmt_size": 16
+   },
+   "stats": {
+    "peak": 26213,
+    "rms": 18571.842684195974,
+    "nonzero_frac": 0.958984375,
+    "err": null
+   },
+   "sha16": "d67def8f6cf583f4"
+  },
+  "known_good_nb100": {
+   "run": {
+    "pipeline": "audiotestsrc wave=sine freq=1000 num-buffers=100 ! audio/x-raw,format=S16LE,rate=48000,channels=2 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb100.wav",
+    "argv": [
+     "gst-launch-1.0",
+     "-q",
+     "audiotestsrc",
+     "wave=sine",
+     "freq=1000",
+     "num-buffers=100",
+     "!",
+     "audio/x-raw,format=S16LE,rate=48000,channels=2",
+     "!",
+     "wavenc",
+     "!",
+     "filesink",
+     "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb100.wav"
+    ],
+    "rc": 0,
+    "signal": null,
+    "sent": null,
+    "eos": false,
+    "elapsed_s": 0.021,
+    "stderr": "",
+    "stderr_head": [],
+    "byte_cap_killed_at": null,
+    "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_nb100.wav"
+   },
+   "insp": {
+    "exists": true,
+    "bytes": 409644,
+    "riff_sz": 409636,
+    "riff_class": "finalized",
+    "fmt_tag": 1,
+    "channels": 2,
+    "rate": 48000,
+    "bits": 16,
+    "data_off": 44,
+    "data_field": 409600,
+    "data_class": "finalized",
+    "frames_declared": 102400,
+    "finalized": true,
+    "err": null,
+    "streaming_placeholder": false,
+    "chunks": [
+     "fmt :16",
+     "data:409600"
+    ],
+    "fmt_size": 16
+   },
+   "stats": {
+    "peak": 26213,
+    "rms": 18535.321943296985,
+    "nonzero_frac": 0.9583333333333334,
+    "err": null
+   },
+   "sha16": "908114334803c086"
+  },
+  "unbounded_wall2s": {
+   "run": {
+    "pipeline": "audiotestsrc wave=sine freq=1000 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_wall.wav",
+    "argv": [
+     "gst-launch-1.0",
+     "-q",
+     "audiotestsrc",
+     "wave=sine",
+     "freq=1000",
+     "!",
+     "wavenc",
+     "!",
+     "filesink",
+     "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_wall.wav"
+    ],
+    "rc": -9,
+    "signal": "SIGKILL",
+    "sent": null,
+    "eos": false,
+    "elapsed_s": 0.061,
+    "stderr": "",
+    "stderr_head": [],
+    "byte_cap_killed_at": 8783916,
+    "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_wall.wav"
+   },
+   "insp": {
+    "exists": true,
+    "bytes": 8783916,
+    "riff_sz": 2147418148,
+    "riff_class": "wavenc_streaming",
+    "fmt_tag": 1,
+    "channels": 1,
+    "rate": 44100,
+    "bits": 16,
+    "data_off": 44,
+    "data_field": 2147418112,
+    "data_class": "other",
+    "frames_declared": 1073709056,
+    "finalized": false,
+    "err": null,
+    "streaming_placeholder": true,
+    "chunks": [
+     "fmt :16",
+     "data:2147418112"
+    ],
+    "fmt_size": 16
+   },
+   "readers": {
+    "soxi_s": "1073709056",
+    "soxi_D": "24347.144127",
+    "soxi_precision": "16-bit",
+    "soxi_warn": null,
+    "wave_frames": 1073709056,
+    "wave_ok": true,
+    "wave_err": null,
+    "sndfile_frames": 4391936,
+    "sndfile_ok": true,
+    "sndfile_err": null,
+    "ffprobe_duration": 99.590385,
+    "ffprobe_codec": "pcm_s16le",
+    "ffprobe_error": null
+   },
+   "sha16": "3396e04d23b15a06"
+  },
+  "unbounded_sync_TERM1.5s": {
+   "run": {
+    "pipeline": "audiotestsrc wave=sine freq=1000 ! wavenc ! filesink sync=true location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_sync_wall.wav",
+    "argv": [
+     "gst-launch-1.0",
+     "-q",
+     "audiotestsrc",
+     "wave=sine",
+     "freq=1000",
+     "!",
+     "wavenc",
+     "!",
+     "filesink",
+     "sync=true",
+     "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_sync_wall.wav"
+    ],
+    "rc": -15,
+    "signal": "SIGTERM",
+    "sent": "SIGTERM",
+    "eos": false,
+    "elapsed_s": 1.526,
+    "stderr": "",
+    "stderr_head": [],
+    "byte_cap_killed_at": null,
+    "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_sync_wall.wav"
+   },
+   "insp": {
+    "exists": true,
+    "bytes": 133164,
+    "riff_sz": 2147418148,
+    "riff_class": "wavenc_streaming",
+    "fmt_tag": 1,
+    "channels": 1,
+    "rate": 44100,
+    "bits": 16,
+    "data_off": 44,
+    "data_field": 2147418112,
+    "data_class": "other",
+    "frames_declared": 1073709056,
+    "finalized": false,
+    "err": null,
+    "streaming_placeholder": true,
+    "chunks": [
+     "fmt :16",
+     "data:2147418112"
+    ],
+    "fmt_size": 16
+   },
+   "readers": {
+    "soxi_s": "1073709056",
+    "soxi_D": "24347.144127",
+    "soxi_precision": "16-bit",
+    "soxi_warn": null,
+    "wave_frames": 1073709056,
+    "wave_ok": true,
+    "wave_err": null,
+    "sndfile_frames": 66560,
+    "sndfile_ok": true,
+    "sndfile_err": null,
+    "ffprobe_duration": 1.509297,
+    "ffprobe_codec": "pcm_s16le",
+    "ffprobe_error": null
+   },
+   "sha16": "a5bd9229530c6713"
+  },
+  "unbounded_bytecap8MiB": {
+   "run": {
+    "pipeline": "audiotestsrc wave=sine freq=1000 ! wavenc ! filesink location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_bytecap.wav",
+    "argv": [
+     "gst-launch-1.0",
+     "-q",
+     "audiotestsrc",
+     "wave=sine",
+     "freq=1000",
+     "!",
+     "wavenc",
+     "!",
+     "filesink",
+     "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_bytecap.wav"
+    ],
+    "rc": -9,
+    "signal": "SIGKILL",
+    "sent": null,
+    "eos": false,
+    "elapsed_s": 0.061,
+    "stderr": "",
+    "stderr_head": [],
+    "byte_cap_killed_at": 8851500,
+    "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/gst-scout/scratch/ctl_unbounded_bytecap.wav"
+   },
+   "insp": {
+    "exists": true,
+    "bytes": 8851500,
+    "riff_sz": 2147418148,
+    "riff_class": "wavenc_streaming",
+    "fmt_tag": 1,
+    "channels": 1,
+    "rate": 44100,
+    "bits": 16,
+    "data_off": 44,
+    "data_field": 2147418112,
+    "data_class": "other",
+    "frames_declared": 1073709056,
+    "finalized": false,
+    "err": null,
+    "streaming_placeholder": true,
+    "chunks": [
+     "fmt :16",
+     "data:2147418112"
+    ],
+    "fmt_size": 16
+   },
+   "readers": {
+    "soxi_s": "1073709056",
+    "soxi_D": "24347.144127",
+    "soxi_precision": "16-bit",
+    "soxi_warn": null,
+    "wave_frames": 1073709056,
+    "wave_ok": true,
+    "wave_err": null,
+    "sndfile_frames": 4425728,
+    "sndfile_ok": true,
+    "sndfile_err": null,
+    "ffprobe_duration": 100.356644,
+    "ffprobe_codec": "pcm_s16le",
+    "ffprobe_error": null
+   },
+   "sha16": "83595b0404c75723"
+  },
+  "waves": {
+   "sine": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 11585.307630853978,
+     "nonzero_frac": 0.958359375,
+     "err": null
+    },
+    "sha16": "e9dd6510287a5b53"
+   },
+   "square": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 16383.0,
+     "nonzero_frac": 1.0,
+     "err": null
+    },
+    "sha16": "0a228a3d0313e604"
+   },
+   "saw": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 9461.139647309854,
+     "nonzero_frac": 0.9791796875,
+     "err": null
+    },
+    "sha16": "74819f1fb6f99e27"
+   },
+   "triangle": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 9475.953120881331,
+     "nonzero_frac": 0.958359375,
+     "err": null
+    },
+    "sha16": "6f6fc353c0271be4"
+   },
+   "silence": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "sha16": "3dcb6a341da6cbb5"
+   },
+   "white-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 9473.588123779893,
+     "nonzero_frac": 0.99984375,
+     "err": null
+    },
+    "sha16": "3b5e376a7f29387e"
+   },
+   "pink-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 10380,
+     "rms": 2689.89428446576,
+     "nonzero_frac": 0.999765625,
+     "err": null
+    },
+    "sha16": "d8578d2cc2fc7996"
+   },
+   "sine-table": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 16383,
+     "rms": 11585.30491277602,
+     "nonzero_frac": 1.0,
+     "err": null
+    },
+    "sha16": "756d14bd9983e550"
+   },
+   "ticks": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "sha16": "3dcb6a341da6cbb5"
+   },
+   "gaussian-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 32767,
+     "rms": 15233.29907658353,
+     "nonzero_frac": 0.9999609375,
+     "err": null
+    },
+    "sha16": "1829bb80c4442f84"
+   },
+   "red-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 8191,
+     "rms": 4634.608815671165,
+     "nonzero_frac": 0.999765625,
+     "err": null
+    },
+    "sha16": "2377c375c2b0e464"
+   },
+   "blue-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 9672,
+     "rms": 2471.2815400190775,
+     "nonzero_frac": 0.9994921875,
+     "err": null
+    },
+    "sha16": "dcd78fb0517b1178"
+   },
+   "violet-noise": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 8191,
+     "rms": 4658.751584077911,
+     "nonzero_frac": 0.999921875,
+     "err": null
+    },
+    "sha16": "69b476f886af812f"
+   }
+  },
+  "freq_volume": {
+   "freq100": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18547.578410759754,
+     "nonzero_frac": 0.995859375,
+     "err": null
+    },
+    "sha16": "7f814650c12a4ed0"
+   },
+   "freq20000": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.764646569285,
+     "nonzero_frac": 0.833359375,
+     "err": null
+    },
+    "sha16": "5ef2742e75bc5727"
+   },
+   "freq30000_above_nyquist": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18535.195028647526,
+     "nonzero_frac": 0.75,
+     "err": null
+    },
+    "sha16": "0dde09356678c602"
+   },
+   "freq0": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "sha16": "3dcb6a341da6cbb5"
+   },
+   "vol0": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 0,
+     "rms": 0.0,
+     "nonzero_frac": 0.0,
+     "err": null
+    },
+    "sha16": "3dcb6a341da6cbb5"
+   },
+   "vol2_clip": {
+    "rc": 0,
+    "stderr_head": [
+     "(gst-launch-1.0:502065): GLib-GObject-CRITICAL **: 16:49:38.029: value \"2.000000\" of type 'gdouble' is invalid or out of range for property 'volume' of type 'gdouble'"
+    ],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18536.784154417426,
+     "nonzero_frac": 0.958359375,
+     "err": null
+    },
+    "sha16": "f264ac3157df0b06"
+   },
+   "vol4_clip": {
+    "rc": 0,
+    "stderr_head": [
+     "(gst-launch-1.0:502070): GLib-GObject-CRITICAL **: 16:49:38.051: value \"4.000000\" of type 'gdouble' is invalid or out of range for property 'volume' of type 'gdouble'"
+    ],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "stats": {
+     "peak": 26213,
+     "rms": 18536.784154417426,
+     "nonzero_frac": 0.958359375,
+     "err": null
+    },
+    "sha16": "f264ac3157df0b06"
+   }
+  },
+  "caps": {
+   "s16_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 102444,
+    "insp": {
+     "exists": true,
+     "bytes": 102444,
+     "riff_sz": 102436,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 102400,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:102400"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "6ccea2f3dbd5a2ee"
+   },
+   "f32_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 204844,
+    "insp": {
+     "exists": true,
+     "bytes": 204844,
+     "riff_sz": 204836,
+     "riff_class": "finalized",
+     "fmt_tag": 3,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 32,
+     "data_off": 44,
+     "data_field": 204800,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:204800"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "25-bit",
+     "soxi_warn": "soxi WARN wav: wave header missing extended part of fmt chunk",
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: unknown format: 3",
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_f32le",
+     "ffprobe_error": null
+    },
+    "sha16": "283b11a932acd190"
+   },
+   "u8_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 8,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "8-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_u8",
+     "ffprobe_error": null
+    },
+    "sha16": "7fed9b7ee583a286"
+   },
+   "s24_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 153644,
+    "insp": {
+     "exists": true,
+     "bytes": 153644,
+     "riff_sz": 153636,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 24,
+     "data_off": 44,
+     "data_field": 153600,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:153600"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "24-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s24le",
+     "ffprobe_error": null
+    },
+    "sha16": "fbf84e6929e9e664"
+   },
+   "s32_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 204844,
+    "insp": {
+     "exists": true,
+     "bytes": 204844,
+     "riff_sz": 204836,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 32,
+     "data_off": 44,
+     "data_field": 204800,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:204800"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "32-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s32le",
+     "ffprobe_error": null
+    },
+    "sha16": "939b74de433167c0"
+   },
+   "s16_96k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 102444,
+    "insp": {
+     "exists": true,
+     "bytes": 102444,
+     "riff_sz": 102436,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 96000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 102400,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:102400"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.266667",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.266667,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "8c5b503013161b0f"
+   },
+   "s16_44k1_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 102444,
+    "insp": {
+     "exists": true,
+     "bytes": 102444,
+     "riff_sz": 102436,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 2,
+     "rate": 44100,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 102400,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:102400"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.580499",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.580499,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "c7a3f8a64922ed50"
+   },
+   "s16_48k_1ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 51244,
+    "insp": {
+     "exists": true,
+     "bytes": 51244,
+     "riff_sz": 51236,
+     "riff_class": "finalized",
+     "fmt_tag": 1,
+     "channels": 1,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 44,
+     "data_field": 51200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:51200"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "f264ac3157df0b06"
+   },
+   "s16_48k_6ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 307280,
+    "insp": {
+     "exists": true,
+     "bytes": 307280,
+     "riff_sz": 307272,
+     "riff_class": "finalized",
+     "fmt_tag": 65534,
+     "channels": 6,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 80,
+     "data_field": 307200,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :40",
+      "fact:4",
+      "data:307200"
+     ],
+     "fmt_size": 40,
+     "cb_size": 22,
+     "valid_bits": 16,
+     "channel_mask": 0
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "ebeba53816c2a97f"
+   },
+   "s16_48k_3ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 153680,
+    "insp": {
+     "exists": true,
+     "bytes": 153680,
+     "riff_sz": 153672,
+     "riff_class": "finalized",
+     "fmt_tag": 65534,
+     "channels": 3,
+     "rate": 48000,
+     "bits": 16,
+     "data_off": 80,
+     "data_field": 153600,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :40",
+      "fact:4",
+      "data:153600"
+     ],
+     "fmt_size": 40,
+     "cb_size": 22,
+     "valid_bits": 16,
+     "channel_mask": 11
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "7a1bfa3bc9348760"
+   },
+   "f64_48k_2ch": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 409644,
+    "insp": {
+     "exists": true,
+     "bytes": 409644,
+     "riff_sz": 409636,
+     "riff_class": "finalized",
+     "fmt_tag": 3,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 64,
+     "data_off": 44,
+     "data_field": 409600,
+     "data_class": "finalized",
+     "frames_declared": 25600,
+     "finalized": true,
+     "err": null,
+     "streaming_placeholder": false,
+     "chunks": [
+      "fmt :16",
+      "data:409600"
+     ],
+     "fmt_size": 16
+    },
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "54-bit",
+     "soxi_warn": "soxi WARN wav: wave header missing extended part of fmt chunk",
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: unknown format: 3",
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_f64le",
+     "ffprobe_error": null
+    },
+    "sha16": "3b73e9a5ed55e189"
+   }
+  },
+  "containers": {
+   "wav": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 102444,
+    "riff_class": "finalized",
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": 25600,
+     "wave_ok": true,
+     "wave_err": null,
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "pcm_s16le",
+     "ffprobe_error": null
+    },
+    "sha16": "6ccea2f3dbd5a2ee"
+   },
+   "flac": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 15533,
+    "riff_class": "not_wav",
+    "readers": {
+     "soxi_s": "25600",
+     "soxi_D": "0.533333",
+     "soxi_precision": "16-bit",
+     "soxi_warn": null,
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: file does not start with RIFF id",
+     "sndfile_frames": 25600,
+     "sndfile_ok": true,
+     "sndfile_err": null,
+     "ffprobe_duration": 0.533333,
+     "ffprobe_codec": "flac",
+     "ffprobe_error": null
+    },
+    "sha16": "616f6ac2f3dac0ff"
+   },
+   "raw_s16": {
+    "rc": 0,
+    "stderr_head": [],
+    "bytes": 102400,
+    "riff_class": "not_wav",
+    "readers": {
+     "soxi_s": "rc=1",
+     "soxi_D": "rc=1",
+     "soxi_precision": null,
+     "soxi_warn": null,
+     "wave_frames": null,
+     "wave_ok": false,
+     "wave_err": "Error: file does not start with RIFF id",
+     "sndfile_frames": null,
+     "sndfile_ok": false,
+     "sndfile_err": "Error : Not able to open input file /home/vgpnk/Projects/shokunin/audio-shokunin",
+     "ffprobe_duration": null,
+     "ffprobe_codec": "bintext",
+     "ffprobe_error": null
+    },
+    "sha16": "bc196e187743ca8e"
+   }
+  }
+ }
+}

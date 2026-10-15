@@ -1,0 +1,45 @@
+{
+ "name": "e1_missing_element_src_r2",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "nosuchelementsrc_xyz",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.016,
+ "stderr_head": [
+  "WARNING: erroneous pipeline: no element \"nosuchelementsrc_xyz\""
+ ],
+ "err_class": "parse_error",
+ "err_hit": "WARNING: erroneous",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": {
+  "exists": false,
+  "bytes": null,
+  "riff": null,
+  "data": null,
+  "frames": null,
+  "fmt": null,
+  "ch": null,
+  "rate": null,
+  "bits": null
+ },
+ "out_peak": null,
+ "note": null
+}

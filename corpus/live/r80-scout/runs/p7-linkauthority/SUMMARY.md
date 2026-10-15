@@ -1,0 +1,30 @@
+# p7-linkauthority
+
+- A rep0 pw-link rc=0 links_now=['r80_q_ns:206->r80_q_rec:170'] links_after_2s=['r80_q_ns:206->r80_q_rec:170'] m_while=['r80_q_ns:206->r80_q_rec2:220'] m_after_kill=[]
+- A rep1 pw-link rc=0 links_now=['r80_q_ns:247->r80_q_rec:213'] links_after_2s=['r80_q_ns:247->r80_q_rec:213'] m_while=['r80_q_ns:247->r80_q_rec2:135'] m_after_kill=[]
+- A rep2 pw-link rc=0 links_now=['r80_q_ns:159->r80_q_rec:44'] links_after_2s=['r80_q_ns:159->r80_q_rec:44'] m_while=['r80_q_ns:159->r80_q_rec2:213'] m_after_kill=[]
+- B rep0 idx=82574 move_rc=0 err='' before=['r80_q_play:170->r80_q_m1:250', 'r80_q_play:86->r80_q_m1:110'] +1s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135'] +3.5s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135'] +6s=['r80_q_play:170->r80_q_m2:210', 'r80_q_play:86->r80_q_m2:135']
+- B rep1 idx=82660 move_rc=0 err='' before=['r80_q_play:86->r80_q_m1:160', 'r80_q_play:95->r80_q_m1:44'] +1s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205'] +3.5s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205'] +6s=['r80_q_play:86->r80_q_m2:247', 'r80_q_play:95->r80_q_m2:205']
+- B rep2 idx=82730 move_rc=0 err='' before=['r80_q_play:95->r80_q_m1:210', 'r80_q_play:170->r80_q_m1:213'] +1s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246'] +3.5s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246'] +6s=['r80_q_play:95->r80_q_m2:247', 'r80_q_play:170->r80_q_m2:246']
+- C rep0 dont-move prop=True + move rc=0 before=['r80_q_playd:110->r80_q_d1:160', 'r80_q_playd:159->r80_q_d1:44'] after=['r80_q_playd:110->r80_q_d1:160', 'r80_q_playd:159->r80_q_d1:44']
+- C rep1 dont-move prop=True + move rc=0 before=['r80_q_playd:159->r80_q_d1:103', 'r80_q_playd:177->r80_q_d1:213'] after=['r80_q_playd:159->r80_q_d1:103', 'r80_q_playd:177->r80_q_d1:213']
+- C rep2 dont-move prop=True + move rc=0 before=['r80_q_playd:177->r80_q_d1:160', 'r80_q_playd:210->r80_q_d1:44'] after=['r80_q_playd:177->r80_q_d1:160', 'r80_q_playd:210->r80_q_d1:44']
+- D rep0 object.linger on stream: node_before=252 after_client_death=None props={"object.linger": true, "client.id": 247, "node.linger": null}
+- D rep1 object.linger on stream: node_before=252 after_client_death=None props={"object.linger": true, "client.id": 103, "node.linger": null}
+- D rep2 object.linger on stream: node_before=252 after_client_death=None props={"object.linger": true, "client.id": 247, "node.linger": null}
+- E rep0 pw-cli load-module rc=0 out='' err='Error: "Could not load module"' node=[] pactl_sees_sink=False unload_rc=None gone=True
+- E rep0 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'
+- E rep1 pw-cli load-module rc=0 out='' err='Error: "Could not load module"' node=[] pactl_sees_sink=False unload_rc=None gone=True
+- E rep1 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'
+- E rep2 pw-cli load-module rc=0 out='' err='Error: "Could not load module"' node=[] pactl_sees_sink=False unload_rc=None gone=True
+- E rep2 pactl load-module libpipewire-module-null-audio-sink rc=1 err='Failure: No such entity'
+- wpctl status rc=0 (sinks section has r80_q_w1: True)
+- wpctl inspect rc=1 len=344
+-    Usage:
+-      wpctl [OPTION…] COMMAND [COMMAND_OPTIONS] - WirePlumber Control CLI
+-    
+-    Command: inspect ID
+-      Displays information about the specified object
+-    
+- wpctl settings rc=0 first lines: Settings: |  | - Id: node.stream.restore-props
+- wpctl can see the pulse module index? False

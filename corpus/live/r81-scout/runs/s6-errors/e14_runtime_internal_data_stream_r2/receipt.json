@@ -1,0 +1,35 @@
+{
+ "name": "e14_runtime_internal_data_stream_r2",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "num-buffers=4",
+  "!",
+  "wavenc"
+ ],
+ "env_extra": null,
+ "rc": 1,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.016,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+  "Additional debug info:",
+  "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+ ],
+ "err_class": "internal_data_stream",
+ "err_hit": "Internal data stream error",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+  "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+  "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+  "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+ ],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

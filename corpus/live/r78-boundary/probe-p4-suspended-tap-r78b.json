@@ -1,0 +1,190 @@
+{
+ "probe": "p4-suspended-tap",
+ "ts": 1792014641.9762378,
+ "env": {
+  "sink_inputs": [
+   {
+    "index": 56994,
+    "node.name": "r78z_feed",
+    "sink": 56988,
+    "mine": false
+   }
+  ],
+  "procs": [
+   " 743977 bash            bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && python3 -c \" import subprocess, time, os, signal, tempfile from pathlib import Path import wave, numpy as np # build 8s tag tone n = 48000*8; t = np.arange(n)/48000 pcm = np.empty(n*2, dtype='<i2') pcm[0::2] = (8192*np.sin(2*np.pi*1000*t)).astype('<i2') pcm[1::2] = (8192*np.sin(2*np.pi*1500*t)).astype('<i2') tmp = tempfile.mkdtemp() tone = Path(tmp)/'t.wav' with wave.open(str(tone),'wb') as w:     w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000); w.writeframes(pcm.tobytes()) mid = subprocess.run(['pactl','load-module','module-null-sink','sink_name=r78z_probe'],capture_output=True,text=True).stdout.strip() try:     feed = subprocess.Popen(['pw-cat','-p','-P','node.name=r78z_feed','--target','r78z_probe',str(tone)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)     time.sleep(0.5)     out = Path(tmp)/'cap.wav'     cap = subprocess.Popen(['pw-record','-P','stream.capture.sink=true','-P','node.name=r78z_cap','--target','r78z_probe','-n',str(int(4.8*48000)),'--rate','48000','--channels','2','--format','s16',str(out)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)     time.sleep(1.6)     # watch link map right after -d, live     for a,b in [('r78z_probe:monitor_FL','r78z_cap:input_FL'),('r78z_probe:monitor_FR','r78z_cap:input_FR')]:         p = subprocess.run(['pw-link','-d',a,b],capture_output=True,text=True); print('d',p.returncode,p.stderr[:60])     for i in range(6):         time.sleep(0.3)         lm = subprocess.run(['pw-link','-l'],capture_output=True,text=True).stdout         has = 'r78z_probe:monitor_FL' in lm         # find if r78z_cap input shows a link         idx = lm.find('r78z_cap:input_FL')         seg = lm[idx:idx+300] if idx>=0 else ''         print(f't+{1.6+0.3*(i+1):.1f}: monitor port in map={has} cap-input seg={seg[:140]!r}')     cap.wait(timeout=10)     print('cap rc:', cap.returncode, 'size:', out.stat().st_size)     data = out.read_bytes()     off = data.find(b'data')     arr = np.memmap(out, dtype='<i2', mode='r', offset=off+8).reshape(-1,2)     for w in range(0,48,4):         seg = arr[w*4800:(w+1)*4800,0].astype(np.float64)         mag = np.abs(np.fft.rfft(seg*np.hanning(len(seg))))         print(f'win {w*0.1:.1f}s peak={int(4*mag.max()/len(seg))} f={int(np.fft.rfftfreq(len(seg),1/48000)[np.argmax(mag)])}')     feed.wait(timeout=10); print('feed rc:', feed.returncode) finally:     subprocess.run(['pactl','unload-module',mid],capture_output=True) \" 2>&1",
+   " 743978 python3         python3 -c  import subprocess, time, os, signal, tempfile from pathlib import Path import wave, numpy as np # build 8s tag tone n = 48000*8; t = np.arange(n)/48000 pcm = np.empty(n*2, dtype='<i2') pcm[0::2] = (8192*np.sin(2*np.pi*1000*t)).astype('<i2') pcm[1::2] = (8192*np.sin(2*np.pi*1500*t)).astype('<i2') tmp = tempfile.mkdtemp() tone = Path(tmp)/'t.wav' with wave.open(str(tone),'wb') as w:     w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000); w.writeframes(pcm.tobytes()) mid = subprocess.run(['pactl','load-module','module-null-sink','sink_name=r78z_probe'],capture_output=True,text=True).stdout.strip() try:     feed = subprocess.Popen(['pw-cat','-p','-P','node.name=r78z_feed','--target','r78z_probe',str(tone)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)     time.sleep(0.5)     out = Path(tmp)/'cap.wav'     cap = subprocess.Popen(['pw-record','-P','stream.capture.sink=true','-P','node.name=r78z_cap','--target','r78z_probe','-n',str(int(4.8*48000)),'--rate','48000','--channels','2','--format','s16',str(out)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)     time.sleep(1.6)     # watch link map right after -d, live     for a,b in [('r78z_probe:monitor_FL','r78z_cap:input_FL'),('r78z_probe:monitor_FR','r78z_cap:input_FR')]:         p = subprocess.run(['pw-link','-d',a,b],capture_output=True,text=True); print('d',p.returncode,p.stderr[:60])     for i in range(6):         time.sleep(0.3)         lm = subprocess.run(['pw-link','-l'],capture_output=True,text=True).stdout         has = 'r78z_probe:monitor_FL' in lm         # find if r78z_cap input shows a link         idx = lm.find('r78z_cap:input_FL')         seg = lm[idx:idx+300] if idx>=0 else ''         print(f't+{1.6+0.3*(i+1):.1f}: monitor port in map={has} cap-input seg={seg[:140]!r}')     cap.wait(timeout=10)     print('cap rc:', cap.returncode, 'size:', out.stat().st_size)     data = out.read_bytes()     off = data.find(b'data')     arr = np.memmap(out, dtype='<i2', mode='r', offset=off+8).reshape(-1,2)     for w in range(0,48,4):         seg = arr[w*4800:(w+1)*4800,0].astype(np.float64)         mag = np.abs(np.fft.rfft(seg*np.hanning(len(seg))))         print(f'win {w*0.1:.1f}s peak={int(4*mag.max()/len(seg))} f={int(np.fft.rfftfreq(len(seg),1/48000)[np.argmax(mag)])}')     feed.wait(timeout=10); print('feed rc:', feed.returncode) finally:     subprocess.run(['pactl','unload-module',mid],capture_output=True) ",
+   " 743980 pw-cat          pw-cat -p -P node.name=r78z_feed --target r78z_probe /tmp/tmpd4qtctuf/t.wav",
+   " 743983 pw-record       pw-record -P stream.capture.sink=true -P node.name=r78z_cap --target r78z_probe -n 230400 --rate 48000 --channels 2 --format s16 /tmp/tmpd4qtctuf/cap.wav",
+   "2202613 aplay           aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav"
+  ]
+ },
+ "cleanup": {
+  "unloaded": [],
+  "count": 0
+ },
+ "fresh_state": "suspended",
+ "after_pactl_suspend": {
+  "rc": 0,
+  "err": "",
+  "state": "suspended"
+ },
+ "tap_suspended_null": {
+  "rc": 1,
+  "wall": 2.012,
+  "timed_out": false,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary/raw/tap_suspended.wav",
+  "bytes": 384044,
+  "verdict": "silent",
+  "peaks": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "state_after": "idle"
+ },
+ "tap_while_suspended_then_live": {
+  "state_during_suspend": "running",
+  "state_after_unsuspend": "running",
+  "bytes": 786476,
+  "verdict": "mine",
+  "mine_windows": [
+   1.5,
+   2.0,
+   2.5,
+   3.0,
+   3.5
+  ],
+  "windows": [
+   {
+    "t0": 0.0,
+    "peak_L": 0.0,
+    "peak_R": 0.0,
+    "f_L": 0.0,
+    "f_R": 0.0,
+    "frames": 24000
+   },
+   {
+    "t0": 0.5,
+    "peak_L": 0.0,
+    "peak_R": 0.0,
+    "f_L": 0.0,
+    "f_R": 0.0,
+    "frames": 24000
+   },
+   {
+    "t0": 1.0,
+    "peak_L": 0.0,
+    "peak_R": 0.0,
+    "f_L": 0.0,
+    "f_R": 0.0,
+    "frames": 24000
+   },
+   {
+    "t0": 1.5,
+    "peak_L": 12000.0,
+    "peak_R": 12000.0,
+    "f_L": 1100.3,
+    "f_R": 1750.5,
+    "frames": 24000
+   },
+   {
+    "t0": 2.0,
+    "peak_L": 12000.0,
+    "peak_R": 12000.0,
+    "f_L": 1100.0,
+    "f_R": 1750.1,
+    "frames": 24000
+   },
+   {
+    "t0": 2.5,
+    "peak_L": 12000.0,
+    "peak_R": 12000.0,
+    "f_L": 1100.0,
+    "f_R": 1750.1,
+    "frames": 24000
+   },
+   {
+    "t0": 3.0,
+    "peak_L": 12000.0,
+    "peak_R": 12000.0,
+    "f_L": 1100.0,
+    "f_R": 1750.1,
+    "frames": 24000
+   },
+   {
+    "t0": 3.5,
+    "peak_L": 12000.0,
+    "peak_R": 12000.0,
+    "f_L": 1100.1,
+    "f_R": 1750.2,
+    "frames": 24000
+   },
+   {
+    "t0": 4.0,
+    "peak_L": 0.0,
+    "peak_R": 0.0,
+    "f_L": 0.0,
+    "f_R": 0.0,
+    "frames": 4608
+   }
+  ]
+ },
+ "state_pre_play": "suspended",
+ "play_into_suspended": {
+  "rc": 0,
+  "carried": [
+   "sus"
+  ],
+  "state_after": "idle",
+  "links": {
+   "r78bG_play:output_FL": [
+    "r78b_sus:playback_FL"
+   ],
+   "r78bG_play:output_FR": [
+    "r78b_sus:playback_FR"
+   ]
+  }
+ },
+ "spk_state_pre": "suspended",
+ "tap_suspended_hw": {
+  "rc": 1,
+  "wall": 2.137,
+  "timed_out": false,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary/raw/tap_spk.wav",
+  "bytes": 384044,
+  "verdict": "silent",
+  "peaks": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "state_after": "idle"
+ },
+ "tap_live_hw": {
+  "rc": 1,
+  "wall": 2.032,
+  "timed_out": false,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r78-boundary/raw/tap_spk_live.wav",
+  "bytes": 384044,
+  "verdict": "silent",
+  "peaks": [
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "state_after": "idle"
+ },
+ "spk_state_post": "suspended",
+ "post_cleanup": {
+  "unloaded": [
+   [
+    "536870920",
+    0
+   ]
+  ],
+  "count": 1
+ }
+}

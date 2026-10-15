@@ -1,0 +1,20 @@
+### folded candidate (accepted-pair window) vs the canonical clean receipt
+leaves compared          : 13150
+A strict diffs           : 10
+B contract-leaf diffs    : 5
+  (declared drift diffs  : 62 ['D1 wall clock', 'D3 host module counter', 'D4 host topology/census', 'D5 pactl poll trace', 'D6 per-window tap magnitudes', 'D6b boundary-window audio/zero split'])
+C self-consistency viols : 0
+control   failures       : {}
+candidate failures       : {"playback_class_segv_r78_probe": ["segv segv_audio: expected rc=-11 (SIGSEGV), got 1", "segv segv_audio: expected EMPTY stderr, got 'remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available'"]}
+  STRICT measurements.playback_class_segv_r78_probe.failures[0]: '<MISSING>' != 'segv segv_audio: expected rc=-11 (SIGSEGV), got 1'
+  STRICT measurements.playback_class_segv_r78_probe.failures[1]: '<MISSING>' != "segv segv_audio: expected EMPTY stderr, got 'remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available'"
+  STRICT measurements.playback_class_segv_r78_probe.legs.segv_audio.error: None != 'no target node available'
+  STRICT measurements.playback_class_segv_r78_probe.legs.segv_audio.error_class: None != 'no_target_node'
+  STRICT measurements.playback_class_segv_r78_probe.legs.segv_audio.exit_code: -11 != 1
+  STRICT measurements.playback_class_segv_r78_probe.legs.segv_audio.stderr_tail: None != 'remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available'
+  STRICT measurements.playback_target_lattice_r78_probe.legs.source_name.samples[0].node.target_object: 'alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source' != 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source'
+  STRICT measurements.playback_target_lattice_r78_probe.legs.source_name.samples[1].node.target_object: 'alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source' != 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source'
+  STRICT measurements.playback_target_lattice_r78_probe.legs.source_name.target_arg: 'alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source' != 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source'
+  STRICT measurements.playback_target_lattice_r78_probe.legs.source_name.target_object_advertised: 'alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source' != 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source'
+failures identical       : False (empty: False)
+VERDICT: FAIL (A=10 B=5 C=0 failures ctl=0 cand=1 identical=False r78=1)

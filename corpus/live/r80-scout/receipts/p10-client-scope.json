@@ -1,0 +1,455 @@
+{
+ "name": "p10-client-scope",
+ "started": "2026-10-15T05:08:12Z",
+ "legs": [
+  {
+   "label": "plain-rep0",
+   "at": "02:08:13",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_plain",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "linger-rep0",
+   "at": "02:08:14",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_linger",
+   "nodes_after_pwcli_exit": {
+    "213": {
+     "name": "r80_c_linger",
+     "class": "Audio/Sink",
+     "client.id": null,
+     "factory": "support.null-audio-sink",
+     "desc": null,
+     "pulse.module.id": null,
+     "serial": 84437,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": true,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": null,
+     "audio.position": null,
+     "node.group": null
+    }
+   },
+   "pactl_sees": true
+  },
+  {
+   "label": "register-false-rep0",
+   "at": "02:08:16",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+    ],
+    "rc": 0,
+    "secs": 0.104,
+    "stdout": "",
+    "stderr": "remote 0: error id:0 seq:405 res:-32 (Broken pipe): connection error\n"
+   },
+   "name": "r80_c_register_false",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "held-rep0",
+   "at": "02:08:18",
+   "name": "r80_c_held",
+   "alive_while_pwcli_running": {},
+   "after_kill": {}
+  },
+  {
+   "label": "server-owned-rep0",
+   "at": "02:08:18",
+   "index": 536870916,
+   "load": {
+    "cmd": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r80_c_srv"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "536870916\n",
+    "stderr": ""
+   },
+   "node_after_pactl_exit": {
+    "82": {
+     "name": "r80_c_srv",
+     "class": "Audio/Sink",
+     "client.id": 81,
+     "factory": "support.null-audio-sink",
+     "desc": "r80_c_srv Audio/Sink sink",
+     "pulse.module.id": 536870916,
+     "serial": 94,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": null,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": 2,
+     "audio.position": "[ FL, FR ]",
+     "node.group": null
+    }
+   }
+  },
+  {
+   "label": "plain-rep1",
+   "at": "02:08:19",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_plain",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "linger-rep1",
+   "at": "02:08:20",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_linger",
+   "nodes_after_pwcli_exit": {
+    "81": {
+     "name": "r80_c_linger",
+     "class": "Audio/Sink",
+     "client.id": null,
+     "factory": "support.null-audio-sink",
+     "desc": null,
+     "pulse.module.id": null,
+     "serial": 106,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": true,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": null,
+     "audio.position": null,
+     "node.group": null
+    }
+   },
+   "pactl_sees": true
+  },
+  {
+   "label": "register-false-rep1",
+   "at": "02:08:22",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+    ],
+    "rc": 0,
+    "secs": 0.06,
+    "stdout": "",
+    "stderr": "remote 0: error id:0 seq:377 res:-32 (Broken pipe): connection error\n"
+   },
+   "name": "r80_c_register_false",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "held-rep1",
+   "at": "02:08:24",
+   "name": "r80_c_held",
+   "alive_while_pwcli_running": {},
+   "after_kill": {}
+  },
+  {
+   "label": "server-owned-rep1",
+   "at": "02:08:24",
+   "index": 536870916,
+   "load": {
+    "cmd": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r80_c_srv"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "536870916\n",
+    "stderr": ""
+   },
+   "node_after_pactl_exit": {
+    "82": {
+     "name": "r80_c_srv",
+     "class": "Audio/Sink",
+     "client.id": 81,
+     "factory": "support.null-audio-sink",
+     "desc": "r80_c_srv Audio/Sink sink",
+     "pulse.module.id": 536870916,
+     "serial": 94,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": null,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": 2,
+     "audio.position": "[ FL, FR ]",
+     "node.group": null
+    }
+   }
+  },
+  {
+   "label": "plain-rep2",
+   "at": "02:08:26",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_plain media.class=Audio/Sink }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_plain",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "linger-rep2",
+   "at": "02:08:27",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_linger media.class=Audio/Sink object.linger=true }"
+    ],
+    "rc": 0,
+    "secs": 0.004,
+    "stdout": "",
+    "stderr": ""
+   },
+   "name": "r80_c_linger",
+   "nodes_after_pwcli_exit": {
+    "81": {
+     "name": "r80_c_linger",
+     "class": "Audio/Sink",
+     "client.id": null,
+     "factory": "support.null-audio-sink",
+     "desc": null,
+     "pulse.module.id": null,
+     "serial": 106,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": true,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": null,
+     "audio.position": null,
+     "node.group": null
+    }
+   },
+   "pactl_sees": true
+  },
+  {
+   "label": "register-false-rep2",
+   "at": "02:08:28",
+   "cmd": [
+    "pw-cli",
+    "create-node",
+    "adapter",
+    "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+   ],
+   "run": {
+    "cmd": [
+     "pw-cli",
+     "create-node",
+     "adapter",
+     "{ factory.name=support.null-audio-sink node.name=r80_c_register_false media.class=Audio/Sink object.register=false }"
+    ],
+    "rc": 0,
+    "secs": 0.058,
+    "stdout": "",
+    "stderr": "remote 0: error id:0 seq:378 res:-32 (Broken pipe): connection error\n"
+   },
+   "name": "r80_c_register_false",
+   "nodes_after_pwcli_exit": {},
+   "pactl_sees": false
+  },
+  {
+   "label": "held-rep2",
+   "at": "02:08:30",
+   "name": "r80_c_held",
+   "alive_while_pwcli_running": {},
+   "after_kill": {}
+  },
+  {
+   "label": "server-owned-rep2",
+   "at": "02:08:31",
+   "index": 536870916,
+   "load": {
+    "cmd": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r80_c_srv"
+    ],
+    "rc": 0,
+    "secs": 0.003,
+    "stdout": "536870916\n",
+    "stderr": ""
+   },
+   "node_after_pactl_exit": {
+    "82": {
+     "name": "r80_c_srv",
+     "class": "Audio/Sink",
+     "client.id": 81,
+     "factory": "support.null-audio-sink",
+     "desc": "r80_c_srv Audio/Sink sink",
+     "pulse.module.id": 536870916,
+     "serial": 94,
+     "state": "suspended",
+     "n_in": 2,
+     "n_out": 2,
+     "dont_move": null,
+     "linger": null,
+     "obj_linger": null,
+     "virtual": null,
+     "autoconnect": null,
+     "link_group": null,
+     "audio.channels": 2,
+     "audio.position": "[ FL, FR ]",
+     "node.group": null
+    }
+   }
+  }
+ ],
+ "notes": [
+  "plain          rep0 rc=0 err='' node_after_exit=[] pactl_sees=False",
+  "linger         rep0 rc=0 err='' node_after_exit=[213] pactl_sees=True",
+  "register-false rep0 rc=0 err='remote 0: error id:0 seq:405 res:-32 (Broken pipe): connecti' node_after_exit=[] pactl_sees=False",
+  "held           rep0 alive_while_running=[] after_kill=[]",
+  "server-owned   rep0 idx=536870916 node_after_pactl_exit=[82]",
+  "plain          rep1 rc=0 err='' node_after_exit=[] pactl_sees=False",
+  "linger         rep1 rc=0 err='' node_after_exit=[81] pactl_sees=True",
+  "register-false rep1 rc=0 err='remote 0: error id:0 seq:377 res:-32 (Broken pipe): connecti' node_after_exit=[] pactl_sees=False",
+  "held           rep1 alive_while_running=[] after_kill=[]",
+  "server-owned   rep1 idx=536870916 node_after_pactl_exit=[82]",
+  "plain          rep2 rc=0 err='' node_after_exit=[] pactl_sees=False",
+  "linger         rep2 rc=0 err='' node_after_exit=[81] pactl_sees=True",
+  "register-false rep2 rc=0 err='remote 0: error id:0 seq:378 res:-32 (Broken pipe): connecti' node_after_exit=[] pactl_sees=False",
+  "held           rep2 alive_while_running=[] after_kill=[]",
+  "server-owned   rep2 idx=536870916 node_after_pactl_exit=[82]"
+ ]
+}

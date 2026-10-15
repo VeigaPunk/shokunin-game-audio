@@ -1,0 +1,177 @@
+{
+ "probe": "s0-final",
+ "host": "plazir27",
+ "when": "2026-10-15T05:37:29+00:00",
+ "toolchain": {
+  "gst_launch": "gst-launch-1.0 version 1.28.6",
+  "gst_inspect": "gst-inspect-1.0 version 1.28.6",
+  "pw_cli": "pw-cli",
+  "pactl": "pactl 17.0-98-gb096",
+  "ffprobe": "ffprobe version n9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+  "python": "3.14.7",
+  "kernel": "7.2.3-arch1-3",
+  "pkgs": "gstreamer 1.28.6-3"
+ },
+ "byte_cap_bytes": 4194304,
+ "wall_cap_s": 8.0,
+ "body": {
+  "sinks": [
+   "59\talsa_output.pci-0000_01_00.1.hdmi-stereo\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "63\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+   "64\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "65\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "9023\tr78_fix_sink_3071748\tPipeWire\tfloat32le 2ch 48000Hz\tRUNNING"
+  ],
+  "sources": [
+   "59\talsa_output.pci-0000_01_00.1.hdmi-stereo.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "63\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+   "64\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "65\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "66\talsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED",
+   "67\talsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED",
+   "9023\tr78_fix_sink_3071748.monitor\tPipeWire\tfloat32le 2ch 48000Hz\tRUNNING"
+  ],
+  "modules": [
+   "1\tlibpipewire-module-rt\t{",
+   "            nice.level    = -11",
+   "            rt.prio       = 88",
+   "            #rt.time.soft = -1",
+   "            #rt.time.hard = -1",
+   "            #rlimits.enabled = true",
+   "            rtportal.enabled = false",
+   "            #rtkit.enabled = true",
+   "            #uclamp.min = 0",
+   "            #uclamp.max = 1024",
+   "        }\t",
+   "2\tlibpipewire-module-protocol-native\t{",
+   "            # List of server Unix sockets, and optionally permissions",
+   "            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]",
+   "        }\t",
+   "4\tlibpipewire-module-profiler\t{",
+   "            #profile.interval.ms = 0",
+   "        }\t",
+   "6\tlibpipewire-module-metadata\t\t",
+   "8\tlibpipewire-module-spa-device-factory\t\t",
+   "10\tlibpipewire-module-spa-node-factory\t\t",
+   "12\tlibpipewire-module-client-node\t\t",
+   "14\tlibpipewire-module-client-device\t\t",
+   "16\tlibpipewire-module-portal\t\t",
+   "17\tlibpipewire-module-access\t{",
+   "            # Socket-specific access permissions",
+   "            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }",
+   "",
+   "            # Deprecated legacy mode (not socket-based),",
+   "            # for now enabled by default if access.socket is not specified",
+   "            #access.legacy = true",
+   "        }\t",
+   "18\tlibpipewire-module-adapter\t\t",
+   "20\tlibpipewire-module-link-factory\t{",
+   "            #allow.link.passive = false",
+   "\t}\t",
+   "22\tlibpipewire-module-session-manager\t\t",
+   "536870912\tmodule-always-sink\t\t",
+   "536870913\tmodule-device-manager\t\t",
+   "536870914\tmodule-device-restore\t\t",
+   "536870915\tmodule-stream-restore\t\t",
+   "536870916\tmodule-null-sink\tsink_name=r78_fix_sink_3071748"
+  ],
+  "procs": [
+   "3071745 Thu Oct 15 02:32:56 2026 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && python3 -m py_compile corpus/fixtures/measure_audio.py && echo COMPILED && nohup python3 corpus/fixtures/measure_audio.py --probe-capture-r78 > /tmp/r78-folded-probe6.log 2>&1 & echo LAUNCHED",
+   "3071748 Thu Oct 15 02:32:56 2026 python3 corpus/fixtures/measure_audio.py --probe-capture-r78",
+   "3074396 Thu Oct 15 02:33:36 2026 bash -c for i in $(seq 1 40); do pgrep -f \"measure_audio.py --probe\" >/dev/null 2>&1 || break; sleep 10; done; pgrep -f \"measure_audio.py --probe\" >/dev/null 2>&1 && echo STILL || echo DONE; ls -td /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/runs/*-capture-r78 | head -1",
+   "3091359 Thu Oct 15 02:36:36 2026 pw-cat -p -P node.name=r78fix_feed --target r78_fix_sink_3071748 /tmp/capture-r78-fix-xrrz5omg/tag_tone.wav",
+   "3097061 Thu Oct 15 02:37:26 2026 parec -d r78_fix_sink_3071748.monitor --file-format=wav --rate=22050 --channels=2 --format=s16le"
+  ],
+  "graph": {
+   "links": [
+    "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+    "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+    "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+    "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+   ],
+   "my_nodes": {},
+   "phys": {
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo": {
+     "class": "Audio/Sink",
+     "state": "suspended",
+     "serial": 59
+    },
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink": {
+     "class": "Audio/Sink",
+     "state": "suspended",
+     "serial": 63
+    },
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink": {
+     "class": "Audio/Sink",
+     "state": "suspended",
+     "serial": 64
+    },
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink": {
+     "class": "Audio/Sink",
+     "state": "suspended",
+     "serial": 65
+    },
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source": {
+     "class": "Audio/Source",
+     "state": "suspended",
+     "serial": 66
+    },
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source": {
+     "class": "Audio/Source",
+     "state": "suspended",
+     "serial": 67
+    },
+    "r78_fix_sink_3071748": {
+     "class": "Audio/Sink",
+     "state": "running",
+     "serial": 9023
+    },
+    "r78fix_feed": {
+     "class": "Stream/Output/Audio",
+     "state": "running",
+     "serial": 9050
+    }
+   },
+   "node_count": 13,
+   "clients": {
+    "33": {
+     "name": "WirePlumber",
+     "binary": "wireplumber"
+    },
+    "34": {
+     "name": "xdg-desktop-portal",
+     "binary": "xdg-desktop-portal"
+    },
+    "32": {
+     "name": "pipewire",
+     "binary": "pipewire"
+    },
+    "36": {
+     "name": "waybar",
+     "binary": "waybar"
+    },
+    "45": {
+     "name": "WirePlumber [client]",
+     "binary": "wireplumber"
+    },
+    "122": {
+     "name": "pipewire",
+     "binary": "pipewire"
+    },
+    "106": {
+     "name": "pw-cat",
+     "binary": "pw-cat"
+    },
+    "118": {
+     "name": "parec",
+     "binary": "pacat"
+    },
+    "103": {
+     "name": "pw-dump",
+     "binary": "pw-dump"
+    }
+   }
+  },
+  "scratch_bytes": 17464107
+ }
+}

@@ -1,0 +1,12 @@
+prior A (r77-baseline Phase-1): 126 rows
+prior B (r76-baseline): 125 rows
+fresh (r78-baseline): 127 rows
+=== (a) index-exact vs r77-baseline Phase-1 (r78 row N+1 == r77 row N) ===
+ROW-EXIT-ONLY	prior-02->fresh-03	capture-r76	prior_exit=1 fresh_exit=1
+    prior_failsum='capture_roundtrip_r76_probe: roundtrip content witness deviated (captured pcm silent or level-far from the member)'
+    fresh_failsum='capture_gate_r76_probe: gate parec_no_device: expected (1,pa_no_such_entity) got (None,None); capture_device_axis_r76_probe: arecord -D default: expected the set_params:1462 capture block or a busy; a'
+row-level (index-exact: row 01<->01, row N+1 vs r77 row N for N>=2): {'ROW-STABLE': 125, 'ROW-EXIT-ONLY': 1}
+receipt-level counts: {'EQUAL': 110, 'ENV-STRUCTURE': 2, 'JITTER-LEAVES': 1, 'EQUAL-MOD-PATHS': 13}
+=== (b) mode-keyed vs r76-baseline canonical ===
+row-level (mode-keyed vs r76 ledger): {'ROW-STABLE': 125}
+receipt-level counts: {'EQUAL': 109, 'ENV-STRUCTURE': 1, 'JITTER-LEAVES': 2, 'EQUAL-MOD-PATHS': 13}

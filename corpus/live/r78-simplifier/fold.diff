@@ -1,0 +1,360 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -5978,10 +5978,6 @@
+ PLAYBACK_R78_LINK_SAMPLE_AT = (0.8, 1.8)
+ PLAYBACK_R78_METADATA_APPLY_S = 2.5
+ PLAYBACK_R78_CARRIES_TONE_WINDOWS = 8  # 0.8 s of tag = content witness
+-PLAYBACK_R78_CAP_TONE_S = 6.0
+-PLAYBACK_R78_CAP_FRAMES_S = 4.8
+-PLAYBACK_R78_CAP_UNLINK_S = 1.6       # from the pw-record spawn
+-PLAYBACK_R78_CAP_RELINK_S = 3.2
+ PLAYBACK_R78_PAREC_POLL_S = 0.55
+ PLAYBACK_R78_PAREC_TONE_S = 70.0
+ PLAYBACK_R78_LOCK_POLL_S = 12.0
+@@ -6018,13 +6014,12 @@
+     return None, None
+ 
+ 
+-def _playback_r78_write_tone(path, seconds,
+-                             rate=PLAYBACK_R78_TONE_RATE):
++def _playback_r78_write_tone(path, seconds):
+     """The r78 frequency-strict tag tone: L 1 kHz / R 1.5 kHz at amp 8192 —
+     the scout's proven discriminator on this host (a foreign 1 kHz STEREO
+     tone on the shared default sink fails the R-channel test)."""
+-    n = int(rate * seconds)
+-    t = np.arange(n) / rate
++    n = int(PLAYBACK_R78_TONE_RATE * seconds)
++    t = np.arange(n) / PLAYBACK_R78_TONE_RATE
+     left = (PLAYBACK_R78_TONE_AMP *
+             np.sin(2 * np.pi * PLAYBACK_R78_TONE_L_HZ * t)).astype("<i2")
+     right = (PLAYBACK_R78_TONE_AMP *
+@@ -6034,24 +6029,22 @@
+     with wave.open(str(path), "wb") as w:
+         w.setnchannels(2)
+         w.setsampwidth(2)
+-        w.setframerate(rate)
++        w.setframerate(PLAYBACK_R78_TONE_RATE)
+         w.writeframes(pcm.tobytes())
+ 
+ 
+-def _playback_r78_link_map():
++def _playback_r78_links():
+     """`pw-link -l` as an edge set [(out_port, in_port)]. The `|->` line
+     under a producer's port and the `|<-` line under a consumer's port
+     encode the SAME direction (producer -> consumer), so both forms fold
+-    into one directed edge set."""
+-    out = {"links": [], "exit": None}
++    into one directed edge set. An unreadable table is the empty set —
++    every caller consumes edges only."""
+     try:
+         proc = subprocess.run(["pw-link", "-l"], capture_output=True,
+                               timeout=10)
+-        out["exit"] = proc.returncode
+         text = proc.stdout.decode(errors="replace")
+-    except (subprocess.TimeoutExpired, OSError) as exc:
+-        out["error"] = str(exc)[:120]
+-        return out
++    except (subprocess.TimeoutExpired, OSError):
++        return []
+     port, links = None, []
+     for ln in text.splitlines():
+         if not ln or not ln[0].isspace():
+@@ -6063,8 +6056,7 @@
+             links.append((port, ln.split("|->", 1)[1].strip()))
+         elif "|<-" in ln:
+             links.append((ln.split("|<-", 1)[1].strip(), port))
+-    out["links"] = sorted(set(links))
+-    return out
++    return sorted(set(links))
+ 
+ 
+ def _playback_r78_consumers(tag, links):
+@@ -6312,8 +6304,7 @@
+     return float(freq_axis[i]), float(4.0 * mag[i] / len(seg_windowed))
+ 
+ 
+-def _playback_r78_tone_windows(path,
+-                               window_s=PLAYBACK_R78_TONE_WINDOW_S):
++def _playback_r78_tone_windows(path):
+     """Frequency-strict tag classifier over a monitor-tap wav, window by
+     window — the content witness. A window is `mine` only if the L channel
+     peaks at 1 kHz AND the R channel at 1.5 kHz within 6 %, both at a real
+@@ -6328,7 +6319,7 @@
+         out["unsupported"] = "no s16 stereo data chunk"
+         return out
+     rate = (insp.get("fmt") or {}).get("rate") or PLAYBACK_R78_TONE_RATE
+-    win = max(64, int(rate * window_s))
++    win = max(64, int(rate * PLAYBACK_R78_TONE_WINDOW_S))
+     han = np.hanning(win)
+     freq_axis = np.fft.rfftfreq(win, 1.0 / rate)
+     tol_l = PLAYBACK_R78_TONE_L_HZ * PLAYBACK_R78_TONE_TOL
+@@ -6338,7 +6329,7 @@
+         seg = pcm[i * win:(i + 1) * win].astype(np.float64) * han[:, None]
+         fl, al = _playback_r78_domfreq(seg[:, 0], freq_axis)
+         fr, ar = _playback_r78_domfreq(seg[:, 1], freq_axis)
+-        at = round(i * window_s, 2)
++        at = round(i * PLAYBACK_R78_TONE_WINDOW_S, 2)
+         mine = (abs(fl - PLAYBACK_R78_TONE_L_HZ) <= tol_l and
+                 abs(fr - PLAYBACK_R78_TONE_R_HZ) <= tol_r and
+                 al >= PLAYBACK_R78_TONE_AMP_MIN and
+@@ -6348,8 +6339,8 @@
+                                "f_r": int(fr), "a_r": int(ar),
+                                "mine": bool(mine), "audio": bool(audio)})
+         if mine:
+-            cur = [at, at + window_s] if cur is None \
+-                else [cur[0], at + window_s]
++            cur = [at, at + PLAYBACK_R78_TONE_WINDOW_S] if cur is None \
++                else [cur[0], at + PLAYBACK_R78_TONE_WINDOW_S]
+         elif cur is not None:
+             spans.append([round(x, 2) for x in cur])
+             cur = None
+@@ -6444,28 +6435,16 @@
+             samples.append({
+                 "at_s": at, "when_s": when, "live": proc.poll() is None,
+                 "output_ports": _playback_r78_output_ports(tag),
+-                **_playback_r78_consumers(
+-                    tag, _playback_r78_link_map().get("links", [])),
++                **_playback_r78_consumers(tag, _playback_r78_links()),
+                 "node": _playback_r78_node_state(tag)})
+         elif kind == "unload_module":
+             rc = _playback_r78_unload(arg)
+             fired.append({"at_s": at, "when_s": when, "kind": kind,
+                           "module_id": arg, "exit_code": rc})
+         elif kind in ("pwlink_d", "pwlink"):
+-            rcs = []
+-            for a, b in arg:
+-                cmd = ["pw-link", a, b] if kind == "pwlink" \
+-                    else ["pw-link", "-d", a, b]
+-                try:
+-                    p = subprocess.run(cmd, capture_output=True, timeout=10)
+-                    rcs.append({"out": a, "in": b, "exit": p.returncode,
+-                                "err": p.stderr.decode(
+-                                    errors="replace")[:100] or None})
+-                except (subprocess.TimeoutExpired, OSError) as exc:
+-                    rcs.append({"out": a, "in": b, "exit": None,
+-                                "err": str(exc)[:100]})
+             fired.append({"at_s": at, "when_s": when, "kind": kind,
+-                          "links": rcs})
++                          "links": _playback_r78_pwlink_batch(
++                              arg, kind == "pwlink_d")})
+         elif kind == "metadata_default":
+             res = _playback_r78_metadata_set_default(arg)
+             fired.append({"at_s": at, "when_s": when, "kind": kind,
+@@ -6630,12 +6609,11 @@
+                     target = resolver.split(":", 1)[1]
+                 else:
+                     target = tg.get(resolver)
+-                if resolver is not None and \
+-                        not str(resolver).startswith("literal:") and \
+-                        not target:
+-                    legs[name] = {"blocked": f"no {resolver} enumerated "
+-                                             "on this host"}
+-                    continue
++                    if not target:
++                        legs[name] = {"blocked": f"no {resolver} "
++                                                 "enumerated on this "
++                                                 "host"}
++                        continue
+                 if resolver in ("probe_sink", "probe_monitor") and \
+                         mid is None:
+                     legs[name] = {"blocked": "probe-owned null sink did "
+@@ -6677,9 +6655,8 @@
+     entry["probe_sink_gone"] = PLAYBACK_R78_NULL_SINK not in \
+         _capture_r77_sink_names()
+     entry["default_sink_trace"] = [
+-        {"leg": n, "default_sink_at_leg": legs[n].get(
+-            "default_sink_at_leg")}
+-        for n, _r, _e in PLAYBACK_R78_LATTICE if n in legs]
++        {"leg": n, "default_sink_at_leg": leg.get("default_sink_at_leg")}
++        for n, leg in legs.items()]
+     for name, resolver, expect in PLAYBACK_R78_LATTICE:
+         leg = legs.get(name)
+         if leg is None:
+@@ -6790,8 +6767,7 @@
+             failures.append(f"lattice {name}: wall {leg['wall_s']} s — "
+                             "fallback must still consume the file at "
+                             "real-time rate")
+-    if not any(l.get("target_object_lies") for l in legs.values()
+-               if isinstance(l, dict)):
++    if not any(l.get("target_object_lies") for l in legs.values()):
+         failures.append("lattice: no fallback leg advertised the "
+                         "requested target while consuming the default — "
+                         "the provenance trap did not reproduce")
+@@ -7601,8 +7577,8 @@
+         tap_end = time.monotonic()
+         tap.terminate()
+         _capture_r77_reap(tap, 8)
+-        bcls, _bl = _playback_r78_errclass(
+-            legs["busy_under_witness"].get("stderr", ""))
++        bcls = _playback_r78_errclass(
++            legs["busy_under_witness"].get("stderr", ""))[0]
+         legs["busy_under_witness"]["error_class"] = bcls
+         if bcls != "alsa_busy":
+             failures.append(f"aplay witness: expected EBUSY while a "
+@@ -7676,8 +7652,8 @@
+                             f"{legs['convert_float']}")
+         legs["refuse_bogus"] = _playback_r78_aplay(
+             ["aplay", "-D", dev, "-f", "BOGUS", str(tiny)])
+-        rcls, _rl = _playback_r78_errclass(
+-            legs["refuse_bogus"].get("stderr", ""))
++        rcls = _playback_r78_errclass(
++            legs["refuse_bogus"].get("stderr", ""))[0]
+         legs["refuse_bogus"]["error_class"] = rcls
+         if legs["refuse_bogus"]["exit_code"] != 1 or \
+                 rcls != "aplay_bad_format" or \
+@@ -7687,8 +7663,8 @@
+                             f"{legs['refuse_bogus']}")
+         legs["arecord_constrain"] = _playback_r78_aplay(
+             ["arecord", "-D", dev, "-d", "1", "/dev/null"])
+-        acls, _al = _playback_r78_errclass(
+-            legs["arecord_constrain"].get("stderr", ""))
++        acls = _playback_r78_errclass(
++            legs["arecord_constrain"].get("stderr", ""))[0]
+         legs["arecord_constrain"]["error_class"] = acls
+         if legs["arecord_constrain"]["exit_code"] == 0:
+             failures.append("arecord constrain: the device refused "
+@@ -7707,38 +7683,25 @@
+             _playback_r78_hw_params(
+                 legs["plugin_params"].get("stdout", "") +
+                 legs["plugin_params"].get("stderr", "")).get("device_name")
+-        tapf2 = Path(tmp) / "tap_plugin.wav"
+-        tap2 = _playback_r78_tap(
+-            d0, tapf2, int(PLAYBACK_R78_TONE_RATE * 3.2),
+-            "r78aplay_plug_tap")
+-        time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+-        legs["plugin_default"] = _playback_r78_aplay(
+-            ["aplay", "-D", "default", str(tone)])
+-        _capture_r77_reap(tap2, PLAYBACK_R78_TIMEOUT_S)
+-        legs["plugin_default"]["tap"] = {
+-            "target": d0, **_playback_r78_tone_windows(tapf2)}
+-        if legs["plugin_default"]["exit_code"] != 0 or \
+-                not legs["plugin_default"]["tap"].get("carries_tone"):
+-            failures.append("aplay plugin: -D default must land the "
+-                            "tag tone on the current default sink")
+-        tapf3 = Path(tmp) / "tap_pipewire.wav"
+-        tap3 = _playback_r78_tap(
+-            d0, tapf3, int(PLAYBACK_R78_TONE_RATE * 3.2),
+-            "r78aplay_pw_tap")
+-        time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+-        legs["plugin_pipewire"] = _playback_r78_aplay(
+-            ["aplay", "-D", "pipewire", str(tone)])
+-        _capture_r77_reap(tap3, PLAYBACK_R78_TIMEOUT_S)
+-        legs["plugin_pipewire"]["tap"] = {
+-            "target": d0, **_playback_r78_tone_windows(tapf3)}
+-        if legs["plugin_pipewire"]["exit_code"] != 0 or \
+-                not legs["plugin_pipewire"]["tap"].get("carries_tone"):
+-            failures.append("aplay plugin: -D pipewire must land the "
+-                            "tag tone on the current default sink")
++        for plug in ("default", "pipewire"):
++            tapf = Path(tmp) / f"tap_{plug}.wav"
++            tap = _playback_r78_tap(
++                d0, tapf, int(PLAYBACK_R78_TONE_RATE * 3.2),
++                f"r78aplay_{plug}_tap")
++            time.sleep(PLAYBACK_R78_TAP_LEAD_S)
++            legs["plugin_" + plug] = _playback_r78_aplay(
++                ["aplay", "-D", plug, str(tone)])
++            _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
++            legs["plugin_" + plug]["tap"] = {
++                "target": d0, **_playback_r78_tone_windows(tapf)}
++            if legs["plugin_" + plug]["exit_code"] != 0 or \
++                    not legs["plugin_" + plug]["tap"].get("carries_tone"):
++                failures.append(f"aplay plugin: -D {plug} must land the "
++                                "tag tone on the current default sink")
+         legs["pulse_refuse"] = _playback_r78_aplay(
+             ["aplay", "-D", "pulse", str(tiny)])
+-        pcls, _pl = _playback_r78_errclass(
+-            legs["pulse_refuse"].get("stderr", ""))
++        pcls = _playback_r78_errclass(
++            legs["pulse_refuse"].get("stderr", ""))[0]
+         legs["pulse_refuse"]["error_class"] = pcls
+         if pcls != "alsa_unknown_pcm":
+             failures.append(f"aplay pulse: expected Unknown PCM, got "
+@@ -7758,7 +7721,9 @@
+ # (7) CAPTURE GAP — unlinked_sustained_zeros: pw-link -d mid-capture.
+ # --------------------------------------------------------------------------
+ def _playback_r78_pwlink_batch(pairs, disconnect):
+-    """Fire a batch of pw-link connects/disconnects -> per-pair rcs."""
++    """Fire a batch of pw-link connects/disconnects -> per-pair rcs.
++    The one adapter for both the event-fired links and the zeros legs; the
++    stderr echo is bounded at 100 chars."""
+     rcs = []
+     for a, b in pairs:
+         cmd = ["pw-link", "-d", a, b] if disconnect else ["pw-link", a, b]
+@@ -7766,10 +7731,10 @@
+             p = subprocess.run(cmd, capture_output=True, timeout=10)
+             rcs.append({"out": a, "in": b, "exit": p.returncode,
+                         "err": p.stderr.decode(
+-                            errors="replace")[:80] or None})
++                            errors="replace")[:100] or None})
+         except (subprocess.TimeoutExpired, OSError) as exc:
+             rcs.append({"out": a, "in": b, "exit": None,
+-                        "err": str(exc)[:80]})
++                        "err": str(exc)[:100]})
+     return rcs
+ 
+ 
+@@ -7847,8 +7812,7 @@
+                     prods_a.append({
+                         "at_s": at,
+                         **_playback_r78_producers(
+-                            ctag_a, _playback_r78_link_map().get(
+-                                "links", []))})
++                            ctag_a, _playback_r78_links())})
+                 elif kind == "size":
+                     sizes_a.append({"at_s": at, "bytes":
+                                     out_a.stat().st_size
+@@ -7901,8 +7865,7 @@
+                     prods_b.append({
+                         "at_s": at,
+                         **_playback_r78_producers(
+-                            ctag_b, _playback_r78_link_map().get(
+-                                "links", []))})
++                            ctag_b, _playback_r78_links())})
+                 elif kind == "size":
+                     sizes_b.append({"at_s": at, "bytes":
+                                     out_b.stat().st_size
+@@ -7952,21 +7915,20 @@
+         seq = a.get("size_trace", [])
+         # seq = [0.8, 1.3 | unlink@1.6 | 2.1, 2.6, 3.4 | relink@3.9 | 4.4,
+         #        4.9] — pre-growth, frozen window, post-relink growth.
+-        if len(seq) >= 7:
+-            pre_grew = seq[1]["bytes"] > seq[0]["bytes"] + 80000
+-            froze = seq[4]["bytes"] - seq[2]["bytes"] < 8192
+-            resumed = seq[6]["bytes"] > seq[4]["bytes"] + 150000
+-            if not pre_grew:
+-                failures.append(f"zeros consumer_unlink: file was not "
+-                                f"growing before the unlink {seq}")
+-            if not froze:
+-                failures.append(f"zeros consumer_unlink: file kept "
+-                                f"growing during the unlink {seq} — "
+-                                "the class is a STARVING stream, not a "
+-                                "zero fill")
+-            if not resumed:
+-                failures.append(f"zeros consumer_unlink: file did not "
+-                                f"resume after the relink {seq}")
++        pre_grew = seq[1]["bytes"] > seq[0]["bytes"] + 80000
++        froze = seq[4]["bytes"] - seq[2]["bytes"] < 8192
++        resumed = seq[6]["bytes"] > seq[4]["bytes"] + 150000
++        if not pre_grew:
++            failures.append(f"zeros consumer_unlink: file was not "
++                            f"growing before the unlink {seq}")
++        if not froze:
++            failures.append(f"zeros consumer_unlink: file kept "
++                            f"growing during the unlink {seq} — "
++                            "the class is a STARVING stream, not a "
++                            "zero fill")
++        if not resumed:
++            failures.append(f"zeros consumer_unlink: file did not "
++                            f"resume after the relink {seq}")
+         prods = [s.get("nodes") for s in a.get("producer_samples", [])]
+         if prods and (prods[0] != [c] or prods[1] != [] or
+                       prods[2] != [c]):
+@@ -7988,7 +7950,7 @@
+             failures.append(f"zeros producer_unlink: feed -d failed "
+                             f"{rcs_b}")
+         seq_b = b.get("size_trace", [])
+-        if len(seq_b) >= 2 and not all(
++        if not all(
+                 s2["bytes"] > s1["bytes"] + 50000
+                 for s1, s2 in zip(seq_b, seq_b[1:])):
+             failures.append(f"zeros producer_unlink: file did not keep "

@@ -1,0 +1,136 @@
+Factory Details:
+  Rank                     primary + 1 (257)
+  Long-name                PipeWire source
+  Klass                    Source/Audio/Video
+  Description              Uses PipeWire to create audio/video
+  Author                   Wim Taymans <wim.taymans@gmail.com>
+
+Plugin Details:
+  Name                     pipewire
+  Description              Uses PipeWire to handle media streams
+  Filename                 /usr/lib/gstreamer-1.0/libgstpipewire.so
+  Version                  1.6.8
+  License                  MIT/X11
+  Source module            pipewire
+  Binary package           pipewire
+  Origin URL               pipewire.org
+
+GObject
+ +----GInitiallyUnowned
+       +----GstObject
+             +----GstElement
+                   +----GstBaseSrc
+                         +----GstPushSrc
+                               +----GstPipeWireSrc
+
+Element Flags:
+  - SOURCE
+  - PROVIDE_CLOCK
+
+Pad Templates:
+  SRC template: 'src'
+    Availability: Always
+    Capabilities:
+      ANY
+
+Clocking Interaction:
+  element provides a clock
+Element has no URI handling capabilities.
+
+Pads:
+  SRC: 'src'
+    Pad Template: 'src'
+
+Element Properties:
+
+  always-copy         : Always copy the buffer and data
+                        flags: readable, writable, deprecated
+                        Boolean. Default: false
+  
+  autoconnect         : Attempt to find a peer to connect to
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  automatic-eos       : Automatically EOS when the segment is done
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  blocksize           : Size in bytes to read per buffer (-1 = default)
+                        flags: readable, writable
+                        Unsigned Integer. Range: 0 - 4294967295 Default: 4096 
+  
+  client-name         : The client name to use (NULL = default)
+                        flags: readable, writable
+                        String. Default: "gst-inspect-1.0"
+  
+  client-properties   : list of PipeWire client properties
+                        flags: readable, writable
+                        Boxed pointer of type "GstStructure"
+  
+  do-timestamp        : Apply current stream time to buffers
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  fd                  : The fd to connect with
+                        flags: readable, writable
+                        Integer. Range: -1 - 2147483647 Default: -1 
+  
+  keepalive-time      : Periodically send last buffer (in milliseconds, 0 = disabled)
+                        flags: readable, writable
+                        Integer. Range: 0 - 2147483647 Default: 0 
+  
+  max-buffers         : Maximum number of buffers to negotiate with PipeWire
+                        flags: readable, writable
+                        Integer. Range: 1 - 2147483647 Default: 2147483647 
+  
+  min-buffers         : Minimum number of buffers to negotiate with PipeWire
+                        flags: readable, writable
+                        Integer. Range: 1 - 2147483647 Default: 1 
+  
+  name                : The name of the object
+                        flags: readable, writable
+                        String. Default: "pipewiresrc0"
+  
+  num-buffers         : Number of buffers to output before sending EOS (-1 = unlimited)
+                        flags: readable, writable
+                        Integer. Range: -1 - 2147483647 Default: -1 
+  
+  on-disconnect       : Action to take on disconnect
+                        flags: readable, writable
+                        Enum "GstPipeWireSrcOnDisconnect" Default: 0, "none"
+                           (0): none             - GST_PIPEWIRE_SRC_ON_DISCONNECT_NONE
+                           (1): eos              - GST_PIPEWIRE_SRC_ON_DISCONNECT_EOS
+                           (2): error            - GST_PIPEWIRE_SRC_ON_DISCONNECT_ERROR
+  
+  parent              : The parent of the object
+                        flags: readable, writable
+                        Object of type "GstObject"
+  
+  path                : The source path to connect to (NULL = default)
+                        flags: readable, writable, deprecated
+                        String. Default: null
+  
+  provide-clock       : Provide a clock to be used as the global pipeline clock
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  resend-last         : Resend last buffer on EOS
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  stream-properties   : list of PipeWire stream properties
+                        flags: readable, writable
+                        Boxed pointer of type "GstStructure"
+  
+  target-object       : The source name/serial to connect to (NULL = default)
+                        flags: readable, writable
+                        String. Default: null
+  
+  typefind            : Run typefind before negotiating (deprecated, non-functional)
+                        flags: readable, writable, deprecated
+                        Boolean. Default: false
+  
+  use-bufferpool      : Use bufferpool (default: true for video, false for audio)
+                        flags: readable, writable
+                        Boolean. Default: true
+  

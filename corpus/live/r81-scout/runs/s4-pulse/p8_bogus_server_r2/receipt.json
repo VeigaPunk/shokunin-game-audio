@@ -1,0 +1,39 @@
+{
+ "name": "p8_bogus_server_r2",
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "audiotestsrc",
+  "wave=silence",
+  "num-buffers=96",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "pulsesink",
+  "server=unix:/nonexistent-r81"
+ ],
+ "env_extra": null,
+ "rc": 255,
+ "signal": null,
+ "sent": null,
+ "killed": null,
+ "elapsed_s": 0.018,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstPulseSink:pulsesink0: Failed to connect: Connection refused",
+  "Additional debug info:",
+  "../gstreamer/subprojects/gst-plugins-good/ext/pulse/pulsesink.c(616): gst_pulseringbuffer_open_device (): /GstPipeline:pipeline0/GstPulseSink:pulsesink0"
+ ],
+ "err_class": "state_change_failed",
+ "err_hit": "Failed to set pipeline to PAUSED",
+ "actions": [],
+ "samples": [],
+ "post_links": [
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> r78lat_default_token_tap:input_FL",
+  "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> r78lat_default_token_tap:input_FR",
+  "r78lat_default_token:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+  "r78lat_default_token:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+ ],
+ "out": null,
+ "out_peak": null,
+ "note": null
+}

@@ -1,0 +1,1738 @@
+{
+ "probe": "s6-errors",
+ "host": "plazir27",
+ "when": "2026-10-15T05:37:00+00:00",
+ "toolchain": {
+  "gst_launch": "gst-launch-1.0 version 1.28.6",
+  "gst_inspect": "gst-inspect-1.0 version 1.28.6",
+  "pw_cli": "pw-cli",
+  "pactl": "pactl 17.0-98-gb096",
+  "ffprobe": "ffprobe version n9.0.1 Copyright (c) 2007-2026 the FFmpeg developers",
+  "python": "3.14.7",
+  "kernel": "7.2.3-arch1-3",
+  "pkgs": "gstreamer 1.28.6-3"
+ },
+ "byte_cap_bytes": 4194304,
+ "wall_cap_s": 8.0,
+ "body": {
+  "legs": {
+   "e1_missing_element_src": [
+    {
+     "name": "e1_missing_element_src_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "nosuchelementsrc_xyz",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsrc_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": false,
+      "bytes": null,
+      "riff": null,
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e1_missing_element_src_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "nosuchelementsrc_xyz",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.019,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsrc_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": false,
+      "bytes": null,
+      "riff": null,
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e1_missing_element_src_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "nosuchelementsrc_xyz",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.016,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsrc_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": false,
+      "bytes": null,
+      "riff": null,
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e2_missing_element_sink": [
+    {
+     "name": "e2_missing_element_sink_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "nosuchelementsink_xyz"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsink_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e2_missing_element_sink_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "nosuchelementsink_xyz"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsink_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e2_missing_element_sink_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "nosuchelementsink_xyz"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no element \"nosuchelementsink_xyz\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e3_bogus_property": [
+    {
+     "name": "e3_bogus_property_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "bogus-prop=42",
+      "num-buffers=4",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"audiotestsrc\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e3_bogus_property_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "bogus-prop=42",
+      "num-buffers=4",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"audiotestsrc\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e3_bogus_property_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "bogus-prop=42",
+      "num-buffers=4",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"audiotestsrc\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e4_bogus_property_pw": [
+    {
+     "name": "e4_bogus_property_pw_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "bogus-prop=42"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"pipewiresink\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e4_bogus_property_pw_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "bogus-prop=42"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"pipewiresink\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e4_bogus_property_pw_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "bogus-prop=42"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: no property \"bogus-prop\" in element \"pipewiresink\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e5_bogus_enum": [
+    {
+     "name": "e5_bogus_enum_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "mode=bogus"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not set property \"mode\" in element \"pipewiresink\" to \"bogus\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e5_bogus_enum_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "mode=bogus"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not set property \"mode\" in element \"pipewiresink\" to \"bogus\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e5_bogus_enum_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "wave=silence",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "pipewiresink",
+      "mode=bogus"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not set property \"mode\" in element \"pipewiresink\" to \"bogus\""
+     ],
+     "err_class": "parse_error",
+     "err_hit": "WARNING: erroneous",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e6_bogus_caps_value": [
+    {
+     "name": "e6_bogus_caps_value_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e6_bogus_caps_value_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e6_bogus_caps_value_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps audio/x-raw, format=(string)BOGUSFMT",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e7_negotiation_video": [
+    {
+     "name": "e7_negotiation_video_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "video/x-raw,format=I420,width=64,height=64,framerate=30/1",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)64, height=(int)64, framerate=(fraction)30/1"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e7_negotiation_video_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "video/x-raw,format=I420,width=64,height=64,framerate=30/1",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)64, height=(int)64, framerate=(fraction)30/1"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e7_negotiation_video_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "video/x-raw,format=I420,width=64,height=64,framerate=30/1",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)64, height=(int)64, framerate=(fraction)30/1"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to fakesink0, audiotestsrc0 can't handle caps video/x-raw, format=(string)I420, width=(int)",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e8_negotiation_sink": [
+    {
+     "name": "e8_negotiation_sink_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=F64LE,rate=48000,channels=2",
+      "!",
+      "pulsesink",
+      "device=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48000, channels=(int)2"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e8_negotiation_sink_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=F64LE,rate=48000,channels=2",
+      "!",
+      "pulsesink",
+      "device=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48000, channels=(int)2"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e8_negotiation_sink_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=F64LE,rate=48000,channels=2",
+      "!",
+      "pulsesink",
+      "device=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48000, channels=(int)2"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to pulsesink0, pulsesink0 can't handle caps audio/x-raw, format=(string)F64LE, rate=(int)48",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e9_parse_incomplete": [
+    {
+     "name": "e9_parse_incomplete_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "!"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "ERROR: pipeline could not be constructed: syntax error."
+     ],
+     "err_class": "parse_error",
+     "err_hit": "syntax error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e9_parse_incomplete_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "!"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "ERROR: pipeline could not be constructed: syntax error."
+     ],
+     "err_class": "parse_error",
+     "err_hit": "syntax error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e9_parse_incomplete_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "!"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "ERROR: pipeline could not be constructed: syntax error."
+     ],
+     "err_class": "parse_error",
+     "err_hit": "syntax error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e10_pwsrc_no_prop_garbage": [
+    {
+     "name": "e10_pwsrc_no_prop_garbage_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+      "Additional debug info:",
+      "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0"
+     ],
+     "err_class": "state_change_failed",
+     "err_hit": "Failed to set pipeline to PAUSED",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e10_pwsrc_no_prop_garbage_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+      "Additional debug info:",
+      "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0"
+     ],
+     "err_class": "state_change_failed",
+     "err_hit": "Failed to set pipeline to PAUSED",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e10_pwsrc_no_prop_garbage_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pipewiresrc",
+      "target-object=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+      "Additional debug info:",
+      "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0"
+     ],
+     "err_class": "state_change_failed",
+     "err_hit": "Failed to set pipeline to PAUSED",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e11_pulsesrc_bogus": [
+    {
+     "name": "e11_pulsesrc_bogus_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pulsesrc",
+      "device=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0: Failed to connect stream: No such entity",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gst-plugins-good/ext/pulse/pulsesrc.c(1622): gst_pulsesrc_prepare (): /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e11_pulsesrc_bogus_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pulsesrc",
+      "device=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0: Failed to connect stream: No such entity",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gst-plugins-good/ext/pulse/pulsesrc.c(1622): gst_pulsesrc_prepare (): /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e11_pulsesrc_bogus_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "pulsesrc",
+      "device=no_such_node_r81",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc",
+      "!",
+      "filesink",
+      "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-scout/tmp/err.wav"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.025,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0: Failed to connect stream: No such entity",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gst-plugins-good/ext/pulse/pulsesrc.c(1622): gst_pulsesrc_prepare (): /GstPipeline:pipeline0/GstPulseSrc:pulsesrc0"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": {
+      "exists": true,
+      "bytes": 0,
+      "riff": "short",
+      "data": null,
+      "frames": null,
+      "fmt": null,
+      "ch": null,
+      "rate": null,
+      "bits": null
+     },
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e12_inspect_missing": [
+    {
+     "name": "e12_inspect_missing_r0",
+     "argv": [
+      "gst-inspect-1.0",
+      "nosuchelement_xyz"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "No such element or plugin 'nosuchelement_xyz'"
+     ],
+     "err_class": "no_element",
+     "err_hit": "No such element or plugin 'nosuchelement_xyz'",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e12_inspect_missing_r1",
+     "argv": [
+      "gst-inspect-1.0",
+      "nosuchelement_xyz"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "No such element or plugin 'nosuchelement_xyz'"
+     ],
+     "err_class": "no_element",
+     "err_hit": "No such element or plugin 'nosuchelement_xyz'",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e12_inspect_missing_r2",
+     "argv": [
+      "gst-inspect-1.0",
+      "nosuchelement_xyz"
+     ],
+     "env_extra": null,
+     "rc": 255,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "No such element or plugin 'nosuchelement_xyz'"
+     ],
+     "err_class": "no_element",
+     "err_hit": "No such element or plugin 'nosuchelement_xyz'",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e13_bad_capsfilter_link": [
+    {
+     "name": "e13_bad_capsfilter_link_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "capsfilter",
+      "caps=audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to capsfilter0"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to capsfilter0",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e13_bad_capsfilter_link_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "capsfilter",
+      "caps=audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to capsfilter0"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to capsfilter0",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e13_bad_capsfilter_link_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "capsfilter",
+      "caps=audio/x-raw,format=BOGUSFMT",
+      "!",
+      "fakesink"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "WARNING: erroneous pipeline: could not link audiotestsrc0 to capsfilter0"
+     ],
+     "err_class": "could_not_link",
+     "err_hit": "could not link audiotestsrc0 to capsfilter0",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e14_runtime_internal_data_stream": [
+    {
+     "name": "e14_runtime_internal_data_stream_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e14_runtime_internal_data_stream_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.017,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e14_runtime_internal_data_stream_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.016,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ],
+   "e15_runtime_internal_data_stream_nosink": [
+    {
+     "name": "e15_runtime_internal_data_stream_nosink_r0",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.016,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e15_runtime_internal_data_stream_nosink_r1",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.018,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    },
+    {
+     "name": "e15_runtime_internal_data_stream_nosink_r2",
+     "argv": [
+      "gst-launch-1.0",
+      "-q",
+      "audiotestsrc",
+      "num-buffers=4",
+      "!",
+      "audio/x-raw,format=S16LE,rate=48000,channels=2",
+      "!",
+      "wavenc"
+     ],
+     "env_extra": null,
+     "rc": 1,
+     "signal": null,
+     "sent": null,
+     "killed": null,
+     "elapsed_s": 0.016,
+     "stderr_head": [
+      "ERROR: from element /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0: Internal data stream error.",
+      "Additional debug info:",
+      "../gstreamer/subprojects/gstreamer/libs/gst/base/gstbasesrc.c(3187): gst_base_src_loop (): /GstPipeline:pipeline0/GstAudioTestSrc:audiotestsrc0:"
+     ],
+     "err_class": "internal_data_stream",
+     "err_hit": "Internal data stream error",
+     "actions": [],
+     "samples": [],
+     "post_links": [
+      "r78_fix_sink_3071748:monitor_FL -> parec:input_FL",
+      "r78_fix_sink_3071748:monitor_FR -> parec:input_FR",
+      "r78fix_feed:output_FL -> r78_fix_sink_3071748:playback_FL",
+      "r78fix_feed:output_FR -> r78_fix_sink_3071748:playback_FR"
+     ],
+     "out": null,
+     "out_peak": null,
+     "note": null
+    }
+   ]
+  },
+  "reps": 3
+ }
+}

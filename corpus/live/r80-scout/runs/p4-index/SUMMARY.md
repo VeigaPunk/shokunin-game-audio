@@ -1,0 +1,26 @@
+# p4-index
+
+- rep0 alloc 6 live -> [536870924, 536870925, 536870926, 536870927, 536870928, 536870929] live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870915', 'module-stream-restore'), ('536870916', 'module-null-sink'), ('536870917', 'module-null-sink'), ('536870918', 'module-null-sink'), ('536870919', 'module-null-sink'), ('536870920', 'module-null-sink'), ('536870921', 'module-null-sink'), ('536870922', 'module-null-sink'), ('536870923', 'module-null-sink'), ('536870924', 'module-null-sink'), ('536870925', 'module-null-sink'), ('536870926', 'module-null-sink'), ('536870927', 'module-null-sink'), ('536870928', 'module-null-sink'), ('536870929', 'module-null-sink')]
+- rep0 unload mid 536870926 rc=0 -> reload idx=536870926 (reuse=True)
+- rep0 after all freed -> idx=536870929
+- rep0 unload-module module-null-sink rc=0 err='' live_after=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870915', 'module-stream-restore')]
+- rep0 unload-module #536870929 rc=0 err='Failed to unload module: Module #536870929 not loaded' still_present=False
+- rep0 bare unload rc=0 / double rc=1 err='Failure: No such entity' / bogus rc=1 err='Failure: Access denied'
+- rep0 unload static 536870915 (module-stream-restore) rc=0 err='' live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870929', 'module-null-sink')]
+- rep0 idx=536870915 node=[(200, 'r80_p4_f', 78841, 99)]
+- rep1 alloc 6 live -> [536870915, 536870923, 536870922, 536870921, 536870920, 536870919] live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870915', 'module-null-sink'), ('536870919', 'module-null-sink'), ('536870920', 'module-null-sink'), ('536870921', 'module-null-sink'), ('536870922', 'module-null-sink'), ('536870923', 'module-null-sink'), ('536870929', 'module-null-sink')]
+- rep1 unload mid 536870922 rc=0 -> reload idx=536870922 (reuse=True)
+- rep1 after all freed -> idx=536870919
+- rep1 unload-module module-null-sink rc=0 err='' live_after=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore')]
+- rep1 unload-module #536870929 rc=0 err='Failed to unload module: Module #536870929 not loaded' still_present=False
+- rep1 bare unload rc=0 / double rc=1 err='Failure: No such entity' / bogus rc=1 err='Failure: Access denied'
+- rep1 unload static 536870915 (module-stream-restore) rc=1 err='Failure: No such entity' live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870929', 'module-null-sink')]
+- rep1 idx=536870919 node=[(102, 'r80_p4_f', 78948, 209)]
+- rep2 alloc 6 live -> [536870919, 536870920, 536870921, 536870922, 536870923, 536870915] live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870915', 'module-null-sink'), ('536870919', 'module-null-sink'), ('536870920', 'module-null-sink'), ('536870921', 'module-null-sink'), ('536870922', 'module-null-sink'), ('536870923', 'module-null-sink'), ('536870929', 'module-null-sink')]
+- rep2 unload mid 536870921 rc=0 -> reload idx=536870921 (reuse=True)
+- rep2 after all freed -> idx=536870915
+- rep2 unload-module module-null-sink rc=0 err='' live_after=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore')]
+- rep2 unload-module #536870929 rc=0 err='Failed to unload module: Module #536870929 not loaded' still_present=False
+- rep2 bare unload rc=0 / double rc=1 err='Failure: No such entity' / bogus rc=1 err='Failure: Access denied'
+- rep2 unload static 536870915 (module-stream-restore) rc=1 err='Failure: No such entity' live=[('536870912', 'module-always-sink'), ('536870913', 'module-device-manager'), ('536870914', 'module-device-restore'), ('536870923', 'module-null-sink'), ('536870929', 'module-null-sink')]
+- rep2 idx=536870915 node=[(258, 'r80_p4_f', 79076, 213)]

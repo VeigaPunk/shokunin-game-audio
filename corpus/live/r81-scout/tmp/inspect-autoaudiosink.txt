@@ -1,0 +1,80 @@
+Factory Details:
+  Rank                     none (0)
+  Long-name                Auto audio sink
+  Klass                    Sink/Audio
+  Description              Wrapper audio sink for automatically detected audio sink
+  Author                   Jan Schmidt <thaytan@noraisin.net>
+  Documentation            https://gstreamer.freedesktop.org/documentation/autodetect/autoaudiosink.html
+
+Plugin Details:
+  Name                     autodetect
+  Description              Plugin contains auto-detection plugins for video/audio in- and outputs
+  Filename                 /usr/lib/gstreamer-1.0/libgstautodetect.so
+  Version                  1.28.6
+  License                  LGPL
+  Source module            gst-plugins-good
+  Documentation            https://gstreamer.freedesktop.org/documentation/autodetect/
+  Source release date      2026-08-05
+  Binary package           Arch Linux GStreamer 1.28.6-3
+  Origin URL               https://www.archlinux.org/
+
+GObject
+ +----GInitiallyUnowned
+       +----GstObject
+             +----GstElement
+                   +----GstBin
+                         +----GstAutoDetect
+                               +----GstAutoAudioSink
+
+Implemented Interfaces:
+  GstChildProxy
+
+Element Flags:
+  - SINK
+
+Pad Templates:
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      ANY
+
+Element has no clocking capabilities.
+Element has no URI handling capabilities.
+
+Pads:
+  SINK: 'sink'
+
+Element Properties:
+
+  async-handling      : The bin will handle Asynchronous state changes
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  filter-caps         : Filter sink candidates using these caps.
+                        flags: readable, writable
+                                                   audio/x-raw
+
+  
+  message-forward     : Forwards all children messages
+                        flags: readable, writable
+                        Boolean. Default: false
+  
+  name                : The name of the object
+                        flags: readable, writable
+                        String. Default: "autoaudiosink0"
+  
+  parent              : The parent of the object
+                        flags: readable, writable
+                        Object of type "GstObject"
+  
+  sync                : Sync on the clock
+                        flags: readable, writable
+                        Boolean. Default: true
+  
+  ts-offset           : Timestamp offset in nanoseconds
+                        flags: readable, writable
+                        Integer64. Range: -9223372036854775808 - 9223372036854775807 Default: 0 
+  
+
+Children:
+  fake-audio-sink

@@ -1,0 +1,194 @@
+{
+ "probe": "playback-serial-decoy-r78p",
+ "legs": [
+  {
+   "label": "serial",
+   "args": [
+    "--target",
+    "40965"
+   ],
+   "rc": 0,
+   "wall_s": 1.628,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB4_serial:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB4_serial:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "dump_links": [],
+    "pw_top": [
+     "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME",
+     "C  199      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C   88      0      0    ---     ---   ---   ---     0                  r78p_ns2",
+     "C  163      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C  187      0      0    ---     ---   ---   ---     0                  r78pB4_serial"
+    ]
+   },
+   "tone_windows": {},
+   "carried": []
+  },
+  {
+   "label": "name",
+   "args": [
+    "--target",
+    "r78p_ns"
+   ],
+   "rc": 0,
+   "wall_s": 1.631,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB4_name:output_FL": [
+      "r78p_ns:playback_FL"
+     ],
+     "r78pB4_name:output_FR": [
+      "r78p_ns:playback_FR"
+     ]
+    },
+    "dump_links": [],
+    "pw_top": [
+     "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME",
+     "C  199      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C   88      0      0    ---     ---   ---   ---     0                  r78p_ns2",
+     "C  163      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C  187      0      0    ---     ---   ---   ---     0                  r78pB4_name"
+    ]
+   },
+   "tone_windows": {
+    "ns": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "ns"
+   ]
+  },
+  {
+   "label": "serial_spdif",
+   "args": [
+    "--target",
+    "59"
+   ],
+   "rc": 0,
+   "wall_s": 1.623,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB4_serial_spdif:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r78pB4_serial_spdif:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    },
+    "dump_links": [],
+    "pw_top": [
+     "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME",
+     "C  199      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C   88      0      0    ---     ---   ---   ---     0                  r78p_ns2",
+     "C  163      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C  187      0      0    ---     ---   ---   ---     0                  r78pB4_serial_spdif"
+    ]
+   },
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "spdif"
+   ]
+  },
+  {
+   "label": "garbage",
+   "args": [
+    "--target",
+    "no_such_sink_xyz"
+   ],
+   "rc": 0,
+   "wall_s": 1.619,
+   "stderr": "",
+   "mid": {
+    "links": {
+     "r78pB4_garbage:output_FL": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL"
+     ],
+     "r78pB4_garbage:output_FR": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ]
+    },
+    "dump_links": [],
+    "pw_top": [
+     "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME",
+     "C  199      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C   88      0      0    ---     ---   ---   ---     0                  r78p_ns2",
+     "C  163      0      0    ---     ---   ---   ---     0                  r78p_ns",
+     "C  187      0      0    ---     ---   ---   ---     0                  r78pB4_garbage"
+    ]
+   },
+   "tone_windows": {
+    "spdif": [
+     0.25,
+     0.5,
+     0.75,
+     1.0,
+     1.25,
+     1.5,
+     1.75,
+     2.0
+    ]
+   },
+   "carried": [
+    "spdif"
+   ]
+  }
+ ],
+ "toolchain": {
+  "pw-cat": [
+   "pw-cat",
+   "Compiled with libpipewire 1.6.8"
+  ],
+  "pactl": [
+   "pactl 17.0-98-gb096",
+   "Compiled with libpulse 17.0.0"
+  ],
+  "aplay": [
+   "aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "arecord": [
+   "arecord: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>"
+  ],
+  "ffmpeg": [
+   "ffmpeg version n9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+   "built with gcc 16 (GCC)"
+  ],
+  "python": [
+   "Python 3.14.7"
+  ],
+  "uname": [
+   "7.2.3-arch1-3"
+  ]
+ },
+ "ns": {
+  "id": 163,
+  "serial": 40965
+ }
+}
