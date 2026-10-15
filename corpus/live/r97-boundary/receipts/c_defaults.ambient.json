@@ -1,0 +1,584 @@
+{
+ "stage": "c_defaults",
+ "host": "plazir27",
+ "seat": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary",
+ "loadavg_start": "92.94 110.54 96.33 73/2009 3550959",
+ "hogs_at_start": 0,
+ "foreign_at_start": {
+  "foreign_yes_hogs": 48,
+  "seat_procs": {
+   "r90-author": 2,
+   "r97-boundary": 3,
+   "r92-boundary": 5,
+   "r96": 3
+  }
+ },
+ "started": "2026-10-15T21:16:42Z",
+ "reps": [
+  {
+   "rep": 0,
+   "steps": [
+    {
+     "node": 39,
+     "ok": true,
+     "default": {
+      "name": "r97b_a0"
+     },
+     "secs": 1.668,
+     "polls": 15,
+     "max_dump_s": 0.023,
+     "tag": "c1_first_sink_becomes_default",
+     "t": 2.502,
+     "loadavg": "92.94 110.54 96.33 77/1976 3562279"
+    },
+    {
+     "node": 43,
+     "ok": true,
+     "default": {
+      "name": "r97b_b0"
+     },
+     "secs": 0.015,
+     "polls": 1,
+     "max_dump_s": 0.015,
+     "tag": "c2_higher_session_takes_over",
+     "t": 3.036,
+     "loadavg": "92.94 110.54 96.33 102/2032 3564862"
+    },
+    {
+     "node": 38,
+     "default": {
+      "name": "r97b_b0"
+     },
+     "tag": "c3_lower_session_does_not_take",
+     "t": 5.075,
+     "loadavg": "94.22 110.51 96.40 93/1993 3574761"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "38"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.016,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c4_set_default_c",
+     "t": 5.091,
+     "loadavg": "94.22 110.51 96.40 82/2019 3574852"
+    },
+    {
+     "ok": true,
+     "default": {
+      "name": "r97b_c0"
+     },
+     "secs": 0.022,
+     "polls": 1,
+     "tag": "c4_explicit_default",
+     "t": 5.114,
+     "loadavg": "94.22 110.51 96.40 82/2009 3574939"
+    },
+    {
+     "found": true,
+     "secs": 1.007,
+     "tag": "c4_state_file_lag",
+     "t": 6.121,
+     "loadavg": "94.22 110.51 96.40 82/2018 3580032"
+    },
+    {
+     "rows": {
+      "default.audio.sink": {
+       "name": "r97b_c0"
+      },
+      "default.configured.audio.sink": {
+       "name": "r97b_c0"
+      },
+      "default.configured.audio.sink.0": null
+     },
+     "tag": "c4_metadata_rows",
+     "t": 6.137,
+     "loadavg": "94.22 110.51 96.40 83/2016 3580112"
+    },
+    {
+     "node": 59,
+     "default": {
+      "name": "r97b_c0"
+     },
+     "tag": "c5_highest_priority_newcomer_does_not_steal",
+     "t": 8.19,
+     "loadavg": "94.22 110.51 96.40 81/2011 3589926"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.018,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c6_clear_default",
+     "t": 8.208,
+     "loadavg": "94.22 110.51 96.40 84/2015 3590026"
+    },
+    {
+     "ok": true,
+     "default": {
+      "name": "r97b_d0"
+     },
+     "secs": 0.019,
+     "tag": "c6_after_clear_default_best_wins",
+     "t": 8.227,
+     "loadavg": "94.22 110.51 96.40 82/2013 3590110"
+    },
+    {
+     "ok": true,
+     "default": {
+      "name": "r97b_b0"
+     },
+     "secs": 0.016,
+     "tag": "c7_removed_default_falls_back",
+     "t": 9.246,
+     "loadavg": "94.22 110.51 96.40 84/1972 3594987"
+    },
+    {
+     "e": 38,
+     "f": 43,
+     "default": {
+      "name": "r97b_e0"
+     },
+     "tag": "c8a_low_driver_first_incumbent_keeps",
+     "t": 14.433,
+     "loadavg": "92.43 109.59 96.25 86/1976 3619370"
+    },
+    {
+     "g": 38,
+     "h": 44,
+     "default": {
+      "name": "r97b_i2"
+     },
+     "tag": "c8b_high_driver_first_incumbent_keeps",
+     "t": 28.699,
+     "loadavg": "88.73 108.24 95.95 71/1957 3675324"
+    },
+    {
+     "i": 49,
+     "j": null,
+     "default": {
+      "name": "r97b_i0"
+     },
+     "tag": "c9_no_priority_node_does_not_displace",
+     "t": 53.099,
+     "loadavg": "80.41 104.73 95.12 66/1940 3747281"
+    },
+    {
+     "i": 49,
+     "k": null,
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq0"
+     },
+     "secs": 10.008,
+     "tag": "c10_no_session_driver999_takes_over",
+     "t": 73.829,
+     "loadavg": "76.00 102.15 94.47 65/2077 3797636"
+    }
+   ],
+   "state_file_after_c4": {
+    "found": true,
+    "secs": 1.007,
+    "body": "[default-nodes]\ndefault.configured.audio.sink=r97b_c0\n"
+   },
+   "state_file_final": "",
+   "attempt": 0,
+   "wedge_events": 0
+  },
+  {
+   "rep": 1,
+   "steps": [
+    {
+     "node": 49,
+     "ok": true,
+     "default": {
+      "name": "r97b_a1"
+     },
+     "secs": 2.613,
+     "polls": 23,
+     "max_dump_s": 0.026,
+     "tag": "c1_first_sink_becomes_default",
+     "t": 3.443,
+     "loadavg": "75.77 100.82 94.16 68/1982 3823500"
+    },
+    {
+     "node": 48,
+     "ok": true,
+     "default": {
+      "name": "r97b_b1"
+     },
+     "secs": 0.015,
+     "polls": 1,
+     "max_dump_s": 0.015,
+     "tag": "c2_higher_session_takes_over",
+     "t": 3.975,
+     "loadavg": "75.77 100.82 94.16 68/1990 3824755"
+    },
+    {
+     "node": 35,
+     "default": null,
+     "tag": "c3_lower_session_does_not_take",
+     "t": 6.015,
+     "loadavg": "75.77 100.82 94.16 64/2084 3829206"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "35"
+      ],
+      "rc": 3,
+      "timed_out": false,
+      "dur_s": 0.014,
+      "stdout": "",
+      "stderr": "failed to set default node 35 (media.class = Audio/Sink)\n",
+      "bytes": 57,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c4_set_default_c",
+     "t": 6.029,
+     "loadavg": "75.77 100.82 94.16 64/2075 3829239"
+    },
+    {
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq0"
+     },
+     "secs": 10.007,
+     "polls": 83,
+     "tag": "c4_explicit_default",
+     "t": 16.037,
+     "loadavg": "74.11 99.64 93.85 64/1888 3849651"
+    },
+    {
+     "found": false,
+     "secs": 8.035,
+     "tag": "c4_state_file_lag",
+     "t": 24.072,
+     "loadavg": "72.72 98.50 93.54 69/1944 3869114"
+    },
+    {
+     "rows": {
+      "default.audio.sink": {
+       "name": "r97b_rrq0"
+      },
+      "default.configured.audio.sink": null,
+      "default.configured.audio.sink.0": null
+     },
+     "tag": "c4_metadata_rows",
+     "t": 24.097,
+     "loadavg": "72.72 98.50 93.54 72/1942 3869191"
+    },
+    {
+     "node": 65,
+     "default": null,
+     "tag": "c5_highest_priority_newcomer_does_not_steal",
+     "t": 26.147,
+     "loadavg": "72.72 98.50 93.54 76/1917 3877354"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 3,
+      "timed_out": false,
+      "dur_s": 0.01,
+      "stdout": "",
+      "stderr": "failed to clear default configured node (Audio/Sink)\n",
+      "bytes": 53,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c6_clear_default",
+     "t": 26.157,
+     "loadavg": "72.72 98.50 93.54 75/1918 3877392"
+    },
+    {
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq1"
+     },
+     "secs": 10.066,
+     "tag": "c6_after_clear_default_best_wins",
+     "t": 36.223,
+     "loadavg": "72.15 97.53 93.27 70/1925 3924365"
+    },
+    {
+     "ok": true,
+     "default": {
+      "name": "r97b_b1"
+     },
+     "secs": 7.253,
+     "tag": "c7_removed_default_falls_back",
+     "t": 44.483,
+     "loadavg": "71.81 96.62 93.02 70/1924 3956427"
+    },
+    {
+     "e": 52,
+     "f": 36,
+     "default": {
+      "name": "r97b_rrq1"
+     },
+     "tag": "c8a_low_driver_first_incumbent_keeps",
+     "t": 59.194,
+     "loadavg": "71.47 95.33 92.66 72/1885 4034217"
+    },
+    {
+     "g": 43,
+     "h": 49,
+     "default": {
+      "name": "r97b_rrp1"
+     },
+     "tag": "c8b_high_driver_first_incumbent_keeps",
+     "t": 72.822,
+     "loadavg": "72.02 94.66 92.47 76/1947 4112701"
+    },
+    {
+     "i": 70,
+     "j": null,
+     "default": {
+      "name": "r97b_rrq2"
+     },
+     "tag": "c9_no_priority_node_does_not_displace",
+     "t": 97.255,
+     "loadavg": "82.37 95.14 92.68 114/2020 101745"
+    },
+    {
+     "i": 70,
+     "k": null,
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq0"
+     },
+     "secs": 10.084,
+     "tag": "c10_no_session_driver999_takes_over",
+     "t": 118.066,
+     "loadavg": "95.57 97.23 93.44 118/2005 247152"
+    }
+   ],
+   "state_file_after_c4": {
+    "found": false,
+    "secs": 8.035,
+    "body": ""
+   },
+   "state_file_final": "",
+   "attempt": 0,
+   "wedge_events": 0
+  },
+  {
+   "rep": 2,
+   "steps": [
+    {
+     "node": 70,
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq2"
+     },
+     "secs": 10.037,
+     "polls": 75,
+     "max_dump_s": 0.046,
+     "tag": "c1_first_sink_becomes_default",
+     "t": 10.906,
+     "loadavg": "102.49 98.68 93.97 125/2017 363625"
+    },
+    {
+     "node": 66,
+     "ok": false,
+     "default": {
+      "name": "r97b_rrp0"
+     },
+     "secs": 10.177,
+     "polls": 74,
+     "max_dump_s": 0.085,
+     "tag": "c2_higher_session_takes_over",
+     "t": 21.614,
+     "loadavg": "106.65 99.69 94.35 129/1995 427362"
+    },
+    {
+     "node": 28,
+     "default": {
+      "name": "r97b_rrp0"
+     },
+     "tag": "c3_lower_session_does_not_take",
+     "t": 23.678,
+     "loadavg": "108.28 100.15 94.53 126/2017 439265"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "28"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.042,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c4_set_default_c",
+     "t": 23.719,
+     "loadavg": "108.28 100.15 94.53 130/2022 439516"
+    },
+    {
+     "ok": true,
+     "default": {
+      "name": "r97b_c2"
+     },
+     "secs": 0.029,
+     "polls": 1,
+     "tag": "c4_explicit_default",
+     "t": 23.749,
+     "loadavg": "108.28 100.15 94.53 133/2028 439661"
+    },
+    {
+     "found": true,
+     "secs": 1.01,
+     "tag": "c4_state_file_lag",
+     "t": 24.759,
+     "loadavg": "108.28 100.15 94.53 134/2033 445664"
+    },
+    {
+     "rows": {
+      "default.audio.sink": {
+       "name": "r97b_c2"
+      },
+      "default.configured.audio.sink": {
+       "name": "r97b_c2"
+      },
+      "default.configured.audio.sink.0": null
+     },
+     "tag": "c4_metadata_rows",
+     "t": 24.781,
+     "loadavg": "108.28 100.15 94.53 131/2025 445787"
+    },
+    {
+     "node": 49,
+     "default": {
+      "name": "r97b_rrp2"
+     },
+     "tag": "c5_highest_priority_newcomer_does_not_steal",
+     "t": 26.848,
+     "loadavg": "108.28 100.15 94.53 124/2018 457968"
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.034,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false,
+      "load_before": null
+     },
+     "tag": "c6_clear_default",
+     "t": 26.882,
+     "loadavg": "108.28 100.15 94.53 129/2035 458194"
+    },
+    {
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq2"
+     },
+     "secs": 10.053,
+     "tag": "c6_after_clear_default_best_wins",
+     "t": 36.935,
+     "loadavg": "111.68 101.15 94.91 128/2052 518513"
+    },
+    {
+     "ok": false,
+     "default": {
+      "name": "r97b_rrq0"
+     },
+     "secs": 10.075,
+     "tag": "c7_removed_default_falls_back",
+     "t": 48.014,
+     "loadavg": "115.46 102.50 95.46 120/1956 587016"
+    },
+    {
+     "e": 28,
+     "f": 63,
+     "default": null,
+     "tag": "c8a_low_driver_first_incumbent_keeps",
+     "t": 61.7,
+     "loadavg": "118.22 103.52 95.86 126/1983 669080"
+    },
+    {
+     "g": 63,
+     "h": 52,
+     "default": {
+      "name": "r97b_rrq1"
+     },
+     "tag": "c8b_high_driver_first_incumbent_keeps",
+     "t": 75.995,
+     "loadavg": "120.44 104.73 96.38 130/1997 764090"
+    },
+    {
+     "i": 52,
+     "j": null,
+     "default": null,
+     "tag": "c9_no_priority_node_does_not_displace",
+     "t": 92.154,
+     "loadavg": "121.12 105.66 96.82 127/1985 867085"
+    },
+    {
+     "i": 52,
+     "k": null,
+     "ok": false,
+     "default": null,
+     "secs": 10.029,
+     "tag": "c10_no_session_driver999_takes_over",
+     "t": 112.719,
+     "loadavg": "120.27 106.79 97.44 93/1904 1012762"
+    }
+   ],
+   "state_file_after_c4": {
+    "found": true,
+    "secs": 1.01,
+    "body": "[default-nodes]\ndefault.configured.audio.sink=r97b_c2\ndefault.configured.audio.sink.0=r97b_rrp0\n"
+   },
+   "state_file_final": "",
+   "attempt": 0,
+   "wedge_events": 0
+  }
+ ],
+ "arm": "ambient",
+ "pair": {
+  "already": true,
+  "objects": 44
+ },
+ "loadavg_end_rep": "117.93 106.53 97.40 87/1910 1074517",
+ "loadavg_end": "117.93 106.53 97.40 88/1916 1074523"
+}

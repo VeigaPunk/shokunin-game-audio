@@ -1,0 +1,50 @@
+--- rep 0 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t= 2.502 {"node": 39, "ok": true, "default": {"name": "r97b_a0"}, "secs": 1.668, "polls": 15, "max_dump_s": 0.023}
+  c2_higher_session_takes_over                 t= 3.036 {"node": 43, "ok": true, "default": {"name": "r97b_b0"}, "secs": 0.015, "polls": 1, "max_dump_s": 0.015}
+  c3_lower_session_does_not_take               t= 5.075 {"node": 38, "default": {"name": "r97b_b0"}}
+  c4_set_default_c                             t= 5.091 {"r": {"argv": ["wpctl", "set-default", "38"], "rc": 0, "timed_out": false, "dur_s": 0.016, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": nul
+  c4_explicit_default                          t= 5.114 {"ok": true, "default": {"name": "r97b_c0"}, "secs": 0.022, "polls": 1}
+  c4_state_file_lag                            t= 6.121 {"found": true, "secs": 1.007}
+  c4_metadata_rows                             t= 6.137 {"rows": {"default.audio.sink": {"name": "r97b_c0"}, "default.configured.audio.sink": {"name": "r97b_c0"}, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t=  8.19 {"node": 59, "default": {"name": "r97b_c0"}}
+  c6_clear_default                             t= 8.208 {"r": {"argv": ["wpctl", "clear-default"], "rc": 0, "timed_out": false, "dur_s": 0.018, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": null}}
+  c6_after_clear_default_best_wins             t= 8.227 {"ok": true, "default": {"name": "r97b_d0"}, "secs": 0.019}
+  c7_removed_default_falls_back                t= 9.246 {"ok": true, "default": {"name": "r97b_b0"}, "secs": 0.016}
+  c8a_low_driver_first_incumbent_keeps         t=14.433 {"e": 38, "f": 43, "default": {"name": "r97b_e0"}}
+  c8b_high_driver_first_incumbent_keeps        t=28.699 {"g": 38, "h": 44, "default": {"name": "r97b_i2"}}
+  c9_no_priority_node_does_not_displace        t=53.099 {"i": 49, "j": null, "default": {"name": "r97b_i0"}}
+  c10_no_session_driver999_takes_over          t=73.829 {"i": 49, "k": null, "ok": false, "default": {"name": "r97b_rrq0"}, "secs": 10.008}
+--- rep 1 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t= 3.443 {"node": 49, "ok": true, "default": {"name": "r97b_a1"}, "secs": 2.613, "polls": 23, "max_dump_s": 0.026}
+  c2_higher_session_takes_over                 t= 3.975 {"node": 48, "ok": true, "default": {"name": "r97b_b1"}, "secs": 0.015, "polls": 1, "max_dump_s": 0.015}
+  c3_lower_session_does_not_take               t= 6.015 {"node": 35, "default": null}
+  c4_set_default_c                             t= 6.029 {"r": {"argv": ["wpctl", "set-default", "35"], "rc": 3, "timed_out": false, "dur_s": 0.014, "stdout": "", "stderr": "failed to set default node 35 (media.class = Audio/Si
+  c4_explicit_default                          t=16.037 {"ok": false, "default": {"name": "r97b_rrq0"}, "secs": 10.007, "polls": 83}
+  c4_state_file_lag                            t=24.072 {"found": false, "secs": 8.035}
+  c4_metadata_rows                             t=24.097 {"rows": {"default.audio.sink": {"name": "r97b_rrq0"}, "default.configured.audio.sink": null, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t=26.147 {"node": 65, "default": null}
+  c6_clear_default                             t=26.157 {"r": {"argv": ["wpctl", "clear-default"], "rc": 3, "timed_out": false, "dur_s": 0.01, "stdout": "", "stderr": "failed to clear default configured node (Audio/Sink)\n", "
+  c6_after_clear_default_best_wins             t=36.223 {"ok": false, "default": {"name": "r97b_rrq1"}, "secs": 10.066}
+  c7_removed_default_falls_back                t=44.483 {"ok": true, "default": {"name": "r97b_b1"}, "secs": 7.253}
+  c8a_low_driver_first_incumbent_keeps         t=59.194 {"e": 52, "f": 36, "default": {"name": "r97b_rrq1"}}
+  c8b_high_driver_first_incumbent_keeps        t=72.822 {"g": 43, "h": 49, "default": {"name": "r97b_rrp1"}}
+  c9_no_priority_node_does_not_displace        t=97.255 {"i": 70, "j": null, "default": {"name": "r97b_rrq2"}}
+  c10_no_session_driver999_takes_over          t=118.066 {"i": 70, "k": null, "ok": false, "default": {"name": "r97b_rrq0"}, "secs": 10.084}
+--- rep 2 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t=10.906 {"node": 70, "ok": false, "default": {"name": "r97b_rrq2"}, "secs": 10.037, "polls": 75, "max_dump_s": 0.046}
+  c2_higher_session_takes_over                 t=21.614 {"node": 66, "ok": false, "default": {"name": "r97b_rrp0"}, "secs": 10.177, "polls": 74, "max_dump_s": 0.085}
+  c3_lower_session_does_not_take               t=23.678 {"node": 28, "default": {"name": "r97b_rrp0"}}
+  c4_set_default_c                             t=23.719 {"r": {"argv": ["wpctl", "set-default", "28"], "rc": 0, "timed_out": false, "dur_s": 0.042, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": nul
+  c4_explicit_default                          t=23.749 {"ok": true, "default": {"name": "r97b_c2"}, "secs": 0.029, "polls": 1}
+  c4_state_file_lag                            t=24.759 {"found": true, "secs": 1.01}
+  c4_metadata_rows                             t=24.781 {"rows": {"default.audio.sink": {"name": "r97b_c2"}, "default.configured.audio.sink": {"name": "r97b_c2"}, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t=26.848 {"node": 49, "default": {"name": "r97b_rrp2"}}
+  c6_clear_default                             t=26.882 {"r": {"argv": ["wpctl", "clear-default"], "rc": 0, "timed_out": false, "dur_s": 0.034, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": null}}
+  c6_after_clear_default_best_wins             t=36.935 {"ok": false, "default": {"name": "r97b_rrq2"}, "secs": 10.053}
+  c7_removed_default_falls_back                t=48.014 {"ok": false, "default": {"name": "r97b_rrq0"}, "secs": 10.075}
+  c8a_low_driver_first_incumbent_keeps         t=  61.7 {"e": 28, "f": 63, "default": null}
+  c8b_high_driver_first_incumbent_keeps        t=75.995 {"g": 63, "h": 52, "default": {"name": "r97b_rrq1"}}
+  c9_no_priority_node_does_not_displace        t=92.154 {"i": 52, "j": null, "default": null}
+  c10_no_session_driver999_takes_over          t=112.719 {"i": 52, "k": null, "ok": false, "default": null, "secs": 10.029}
+wrote /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/receipts/c_defaults.json loadavg 92.94 110.54 96.33 73/2009 3550959 -> 117.93 106.53 97.40 88/1916 1074523
+9.41 104.12 94.97 63/2047 3753687

@@ -1,0 +1,55 @@
+--- rep 0 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t= 0.868 {"node": 37, "ok": true, "default": {"name": "r97b_a0"}, "secs": 0.02, "polls": 1, "max_dump_s": 0.02}
+  c2_higher_session_takes_over                 t= 1.406 {"node": 43, "ok": true, "default": {"name": "r97b_b0"}, "secs": 0.016, "polls": 1, "max_dump_s": 0.016}
+  c3_lower_session_does_not_take               t= 3.481 {"node": 48, "default": {"name": "r97b_b0"}}
+  c4_set_default_c                             t= 3.509 {"r": {"argv": ["wpctl", "set-default", "48"], "rc": 0, "timed_out": false, "dur_s": 0.028, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": nul
+  c4_explicit_default                          t= 3.536 {"ok": true, "default": {"name": "r97b_c0"}, "secs": 0.027, "polls": 1}
+  c4_state_file_lag                            t= 4.547 {"found": true, "secs": 1.01}
+  c4_metadata_rows                             t= 4.571 {"rows": {"default.audio.sink": {"name": "r97b_c0"}, "default.configured.audio.sink": {"name": "r97b_c0"}, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t= 6.625 {"node": 53, "default": {"name": "r97b_c0"}}
+  c6_clear_default                             t= 6.659 {"r": {"argv": ["wpctl", "clear-default"], "rc": 0, "timed_out": false, "dur_s": 0.034, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": null}}
+  c6_after_clear_default_best_wins             t= 6.683 {"ok": true, "default": {"name": "r97b_d0"}, "secs": 0.024}
+  c7_removed_default_falls_back                t= 7.699 {"ok": true, "default": {"name": "r97b_b0"}, "secs": 0.015}
+  exception                                    t=10.358 {"error": "ValueError('too many values to unpack (expected 3, got 5)')"}
+--- rep 0 attempt=0 wedge_events=0 
+  before_restart_low_priority_configured       t=  1.14 {"p": 48, "q": 43, "ok": true, "secs": 0.02}
+  wp_restart                                   t= 2.431 {"up": "wp up pid=1112723 profile=main"}
+  after_restart_default_is_configured_p        t=17.519 {"ok": false, "default": {"name": "r97b_rq0"}, "secs_since_up": 15.088, "polls": 119}
+  after_restart_rows                           t=17.537 {"rows": {"default.audio.sink": {"name": "r97b_rq0"}, "default.configured.audio.sink": null, "default.configured.audio.sink.0": null}, "p_alive": 48, "q_alive": 43}
+--- rep 1 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t= 0.888 {"node": 43, "ok": true, "default": {"name": "r97b_a1"}, "secs": 0.022, "polls": 1, "max_dump_s": 0.022}
+  c2_higher_session_takes_over                 t= 1.441 {"node": 48, "ok": true, "default": {"name": "r97b_b1"}, "secs": 0.028, "polls": 1, "max_dump_s": 0.028}
+  c3_lower_session_does_not_take               t= 3.504 {"node": 37, "default": {"name": "r97b_b1"}}
+  c4_set_default_c                             t= 3.537 {"r": {"argv": ["wpctl", "set-default", "37"], "rc": 0, "timed_out": false, "dur_s": 0.033, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": nul
+  c4_explicit_default                          t= 3.576 {"ok": true, "default": {"name": "r97b_c1"}, "secs": 0.039, "polls": 1}
+  c4_state_file_lag                            t= 4.588 {"found": true, "secs": 1.011}
+  c4_metadata_rows                             t= 4.624 {"rows": {"default.audio.sink": {"name": "r97b_c1"}, "default.configured.audio.sink": {"name": "r97b_c1"}, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t= 6.705 {"node": 53, "default": {"name": "r97b_c1"}}
+  c6_clear_default                             t=  6.73 {"r": {"argv": ["wpctl", "clear-default"], "rc": 0, "timed_out": false, "dur_s": 0.025, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": null}}
+  c6_after_clear_default_best_wins             t= 6.758 {"ok": true, "default": {"name": "r97b_d1"}, "secs": 0.028}
+  c7_removed_default_falls_back                t= 7.802 {"ok": true, "default": {"name": "r97b_b1"}, "secs": 0.042}
+  exception                                    t=10.478 {"error": "ValueError('too many values to unpack (expected 3, got 5)')"}
+--- rep 1 attempt=0 wedge_events=0 
+  before_restart_low_priority_configured       t= 1.134 {"p": 37, "q": 48, "ok": true, "secs": 0.025}
+  wp_restart                                   t= 2.422 {"up": "wp up pid=1519429 profile=main"}
+  after_restart_default_is_configured_p        t=17.441 {"ok": false, "default": {"name": "r97b_rq1"}, "secs_since_up": 15.019, "polls": 115}
+  after_restart_rows                           t=17.463 {"rows": {"default.audio.sink": {"name": "r97b_rq1"}, "default.configured.audio.sink": null, "default.configured.audio.sink.0": null}, "p_alive": 37, "q_alive": 48}
+--- rep 2 attempt=0 wedge_events=0 
+  c1_first_sink_becomes_default                t= 0.909 {"node": 48, "ok": true, "default": {"name": "r97b_a2"}, "secs": 0.027, "polls": 1, "max_dump_s": 0.027}
+  c2_higher_session_takes_over                 t= 1.506 {"node": 37, "ok": true, "default": {"name": "r97b_b2"}, "secs": 0.065, "polls": 1, "max_dump_s": 0.065}
+  c3_lower_session_does_not_take               t= 3.556 {"node": 43, "default": {"name": "r97b_b2"}}
+  c4_set_default_c                             t= 3.584 {"r": {"argv": ["wpctl", "set-default", "43"], "rc": 0, "timed_out": false, "dur_s": 0.028, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": nul
+  c4_explicit_default                          t= 3.606 {"ok": true, "default": {"name": "r97b_c2"}, "secs": 0.022, "polls": 1}
+  c4_state_file_lag                            t= 4.609 {"found": true, "secs": 1.004}
+  c4_metadata_rows                             t= 4.644 {"rows": {"default.audio.sink": {"name": "r97b_c2"}, "default.configured.audio.sink": {"name": "r97b_c2"}, "default.configured.audio.sink.0": null}}
+  c5_highest_priority_newcomer_does_not_steal  t= 6.698 {"node": 53, "default": {"name": "r97b_c2"}}
+  c6_clear_default                             t= 6.725 {"r": {"argv": ["wpctl", "clear-default"], "rc": 0, "timed_out": false, "dur_s": 0.026, "stdout": "", "stderr": "", "bytes": 0, "truncated": false, "load_before": null}}
+  c6_after_clear_default_best_wins             t= 6.744 {"ok": true, "default": {"name": "r97b_d2"}, "secs": 0.019}
+  c7_removed_default_falls_back                t= 7.794 {"ok": true, "default": {"name": "r97b_b2"}, "secs": 0.049}
+  exception                                    t=10.466 {"error": "ValueError('too many values to unpack (expected 3, got 5)')"}
+--- rep 2 attempt=0 wedge_events=0 
+  before_restart_low_priority_configured       t= 1.202 {"p": 43, "q": 37, "ok": true, "secs": 0.03}
+  wp_restart                                   t= 2.494 {"up": "wp up pid=1903470 profile=main"}
+  after_restart_default_is_configured_p        t=17.579 {"ok": false, "default": {"name": "r97b_rq2"}, "secs_since_up": 15.085, "polls": 118}
+  after_restart_rows                           t=17.594 {"rows": {"default.audio.sink": {"name": "r97b_rq2"}, "default.configured.audio.sink": null, "default.configured.audio.sink.0": null}, "p_alive": 43, "q_alive": 37}
+wrote /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/receipts/c_defaults.json loadavg 118.73 97.79 85.62 117/2287 906699 -> 145.88 114.81 93.35 138/2221 2094133

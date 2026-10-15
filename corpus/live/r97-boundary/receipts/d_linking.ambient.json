@@ -1,0 +1,2731 @@
+{
+ "stage": "d_linking",
+ "host": "plazir27",
+ "seat": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary",
+ "loadavg_start": "93.08 101.02 96.46 96/1958 1912117",
+ "hogs_at_start": 0,
+ "foreign_at_start": {
+  "foreign_yes_hogs": 48,
+  "seat_procs": {
+   "r97-boundary": 3,
+   "r90-author": 2,
+   "r92-boundary": 4
+  }
+ },
+ "started": "2026-10-15T21:24:05Z",
+ "reps": [
+  {
+   "rep": 0,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 48,
+     "id_b": 66,
+     "serial_a": 6412,
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "loadavg": "92.51 100.77 96.40 85/1949 1928842"
+    },
+    {
+     "tag": "d1_target_0",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6424
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "92.51 100.77 96.40 91/1946 1957257"
+    },
+    {
+     "tag": "d2_auto_default",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6428
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.07 100.54 96.35 92/1956 1972264"
+    },
+    {
+     "tag": "d3_target_global_id_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "48",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6435,
+      "target.object": 48
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.07 100.54 96.35 91/1958 1988330"
+    },
+    {
+     "tag": "d4_target_object_serial_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6412",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6442,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.66 100.32 96.30 86/1916 2003062"
+    },
+    {
+     "tag": "d5_target_name_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97b_sa0",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6449,
+      "target.object": "r97b_sa0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.66 100.32 96.30 86/1911 2017301"
+    },
+    {
+     "tag": "d6_bogus_99999",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6456,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.81 100.00 96.22 91/1915 2032226"
+    },
+    {
+     "tag": "d7_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": null,
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 45 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "90.81 100.00 96.22 86/1941 2046714"
+    },
+    {
+     "tag": "d8_bogus_dont_fallback_linger",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true node.linger = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.dont-fallback": true,
+      "node.latency": "4800/48000",
+      "node.linger": true,
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6466,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "90.27 99.73 96.15 94/1939 2072135"
+    },
+    {
+     "tag": "d9a_target_before_mode_flags",
+     "argv": [
+      "pw-cat",
+      "--target",
+      "6412",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6469,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.27 99.73 96.15 87/1929 2084199"
+    },
+    {
+     "tag": "d9b_target_equals_form",
+     "argv": [
+      "pw-cat",
+      "--target=6412",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6476,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.72 99.67 96.15 93/1910 2097191"
+    },
+    {
+     "tag": "d9c_target_after_input",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-",
+      "--target",
+      "6412"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6483,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.72 99.67 96.15 93/1949 2110564"
+    },
+    {
+     "tag": "d9d_target_after_props",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "--target",
+      "6412",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6490,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.72 99.67 96.15 90/1946 2123657"
+    },
+    {
+     "tag": "d10a_prop_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 6412 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6497,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.19 99.41 96.09 86/1941 2137919"
+    },
+    {
+     "tag": "d10b_prop_target_object_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 48 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6504,
+      "target.object": 48
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.19 99.41 96.09 81/1911 2151773"
+    },
+    {
+     "tag": "d10c_prop_node_target_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 48 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 48,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6511
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.93 99.20 96.04 91/1953 2163928"
+    },
+    {
+     "tag": "d10d_prop_node_target_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 6412 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 6412,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6518
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.93 99.20 96.04 101/1923 2177336"
+    },
+    {
+     "tag": "d13_rate_44100_serial_target",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6412",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb0"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4410/44100",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/44100",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6525,
+      "target.object": 6412
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.93 99.20 96.04 87/1915 2191793"
+    },
+    {
+     "tag": "d11_allow_moving_streams_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.70 99.00 95.99 90/1959 2224328"
+    },
+    {
+     "tag": "d12_follow_default_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb0"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa0"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.96 98.90 95.97 92/1958 2260005"
+    }
+   ]
+  },
+  {
+   "rep": 1,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 66,
+     "id_b": 48,
+     "serial_a": 6564,
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "loadavg": "90.06 98.62 95.92 88/1959 2321490"
+    },
+    {
+     "tag": "d1_target_0",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6576
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "89.57 98.38 95.85 83/1894 2348807"
+    },
+    {
+     "tag": "d2_auto_default",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6580
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.57 98.38 95.85 89/1904 2361277"
+    },
+    {
+     "tag": "d3_target_global_id_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "66",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6587,
+      "target.object": 66
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.45 98.21 95.81 84/1900 2373662"
+    },
+    {
+     "tag": "d4_target_object_serial_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6564",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6594,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.45 98.21 95.81 89/1902 2386189"
+    },
+    {
+     "tag": "d5_target_name_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97b_sa1",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6601,
+      "target.object": "r97b_sa1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.89 98.16 95.80 93/1949 2400090"
+    },
+    {
+     "tag": "d6_bogus_99999",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6608,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.89 98.16 95.80 96/1922 2416472"
+    },
+    {
+     "tag": "d7_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": null,
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 45 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "89.89 98.16 95.80 98/1934 2431852"
+    },
+    {
+     "tag": "d8_bogus_dont_fallback_linger",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true node.linger = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.dont-fallback": true,
+      "node.latency": "4800/48000",
+      "node.linger": true,
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6618,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "90.62 98.17 95.82 102/1958 2461544"
+    },
+    {
+     "tag": "d9a_target_before_mode_flags",
+     "argv": [
+      "pw-cat",
+      "--target",
+      "6564",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6621,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.53 98.23 95.85 94/1962 2476197"
+    },
+    {
+     "tag": "d9b_target_equals_form",
+     "argv": [
+      "pw-cat",
+      "--target=6564",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6628,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.53 98.23 95.85 92/1969 2489266"
+    },
+    {
+     "tag": "d9c_target_after_input",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-",
+      "--target",
+      "6564"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6635,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.81 98.18 95.85 96/1972 2502712"
+    },
+    {
+     "tag": "d9d_target_after_props",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "--target",
+      "6564",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6642,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.81 98.18 95.85 95/1975 2516995"
+    },
+    {
+     "tag": "d10a_prop_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 6564 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6649,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.81 98.18 95.85 94/1965 2532023"
+    },
+    {
+     "tag": "d10b_prop_target_object_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 66 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6656,
+      "target.object": 66
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.31 98.18 95.86 96/1961 2546508"
+    },
+    {
+     "tag": "d10c_prop_node_target_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 66 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 66,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6663
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.31 98.18 95.86 93/1961 2560713"
+    },
+    {
+     "tag": "d10d_prop_node_target_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 6564 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 6564,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6670
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.12 98.04 95.83 91/1964 2575097"
+    },
+    {
+     "tag": "d13_rate_44100_serial_target",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6564",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb1"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4410/44100",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/44100",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6677,
+      "target.object": 6564
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "92.12 98.04 95.83 92/1968 2589633"
+    },
+    {
+     "tag": "d11_allow_moving_streams_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.79 97.87 95.79 93/1927 2634475"
+    },
+    {
+     "tag": "d12_follow_default_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb1"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa1"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.57 97.73 95.75 91/1953 2682605"
+    }
+   ]
+  },
+  {
+   "rep": 2,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 48,
+     "id_b": 66,
+     "serial_a": 6716,
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "loadavg": "92.03 97.62 95.74 92/1928 2796866"
+    },
+    {
+     "tag": "d1_target_0",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6728
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "91.47 97.41 95.68 91/1954 2846734"
+    },
+    {
+     "tag": "d2_auto_default",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6732
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.47 97.41 95.68 94/1963 2869717"
+    },
+    {
+     "tag": "d3_target_global_id_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "48",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6739,
+      "target.object": 48
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.47 97.41 95.68 89/1948 2892893"
+    },
+    {
+     "tag": "d4_target_object_serial_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6716",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6746,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.11 97.24 95.63 94/1950 2916748"
+    },
+    {
+     "tag": "d5_target_name_A",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97b_sa2",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6753,
+      "target.object": "r97b_sa2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.11 97.24 95.63 97/1950 2940890"
+    },
+    {
+     "tag": "d6_bogus_99999",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6760,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "91.02 97.12 95.60 85/1944 2964398"
+    },
+    {
+     "tag": "d7_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": null,
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 45 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "91.02 97.12 95.60 93/1970 2986277"
+    },
+    {
+     "tag": "d8_bogus_dont_fallback_linger",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_str node.dont-fallback = true node.linger = true }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.dont-fallback": true,
+      "node.latency": "4800/48000",
+      "node.linger": true,
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6770,
+      "target.object": 99999
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     },
+     "loadavg": "90.62 96.93 95.55 95/1941 3029320"
+    },
+    {
+     "tag": "d9a_target_before_mode_flags",
+     "argv": [
+      "pw-cat",
+      "--target",
+      "6716",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6773,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.62 96.93 95.55 91/1948 3052395"
+    },
+    {
+     "tag": "d9b_target_equals_form",
+     "argv": [
+      "pw-cat",
+      "--target=6716",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6780,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.33 96.77 95.50 98/1965 3076396"
+    },
+    {
+     "tag": "d9c_target_after_input",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-",
+      "--target",
+      "6716"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6787,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.33 96.77 95.50 87/1960 3097301"
+    },
+    {
+     "tag": "d9d_target_after_props",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str }",
+      "--target",
+      "6716",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6794,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.33 96.77 95.50 89/1947 3119605"
+    },
+    {
+     "tag": "d10a_prop_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 6716 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6801,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.94 96.79 95.52 88/1920 3140079"
+    },
+    {
+     "tag": "d10b_prop_target_object_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str target.object = 48 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6808,
+      "target.object": 48
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.94 96.79 95.52 90/1897 3157407"
+    },
+    {
+     "tag": "d10c_prop_node_target_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 48 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 48,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6815
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.55 96.61 95.47 86/1922 3174641"
+    },
+    {
+     "tag": "d10d_prop_node_target_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97b_str node.target = 6716 }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 66,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/48000",
+      "node.target": 6716,
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6822
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.55 96.61 95.47 88/1942 3191352"
+    },
+    {
+     "tag": "d13_rate_44100_serial_target",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "6716",
+      "-P",
+      "{ node.name = r97b_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "default": {
+      "name": "r97b_sb2"
+     },
+     "stream_props": {
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 48,
+      "node.latency": "4410/44100",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r97b_str",
+      "node.rate": "1/44100",
+      "node.want-driver": true,
+      "object.id": 45,
+      "object.register": false,
+      "object.serial": 6829,
+      "target.object": 6716
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "90.02 96.40 95.40 88/1923 3208700"
+    },
+    {
+     "tag": "d11_allow_moving_streams_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.86 96.26 95.36 84/1892 3253049"
+    },
+    {
+     "tag": "d12_follow_default_false",
+     "readback": "Value: false",
+     "before": [
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sb2"
+      ]
+     ],
+     "after": [
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ],
+      [
+       "r97b_str",
+       "r97b_sa2"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "89.23 96.02 95.29 87/1909 3293474"
+    }
+   ]
+  }
+ ],
+ "arm": "ambient",
+ "pair": {
+  "already": true,
+  "objects": 32
+ },
+ "loadavg_end_rep": "88.97 95.86 95.24 84/1897 3352380",
+ "loadavg_end": "88.97 95.86 95.24 84/1898 3352384"
+}

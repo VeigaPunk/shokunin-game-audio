@@ -1,0 +1,158 @@
+{
+ "stage": "wf_forensics",
+ "host": "plazir27",
+ "seat": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary",
+ "loadavg_start": "71.61 74.07 76.70 73/2030 3650861",
+ "hogs_at_start": 0,
+ "foreign_at_start": {
+  "foreign_yes_hogs": 60,
+  "seat_procs": {
+   "r92-boundary": 6,
+   "r97-boundary": 2,
+   "r96": 4,
+   "r90-author": 2,
+   "r98": 2,
+   "r95": 1
+  }
+ },
+ "started": "2026-10-15T21:06:27Z",
+ "reps": [],
+ "loadavg_at_entry": "71.61 74.07 76.70 69/2031 3650887",
+ "hogs_at_entry": 0,
+ "wf1_pw_dump": {
+  "rc": -9,
+  "timed_out": true,
+  "dur_s": 12.014,
+  "bytes": 0
+ },
+ "wf1_pw_cli_ls_client": {
+  "rc": -9,
+  "timed_out": true,
+  "dur_s": 12.018,
+  "stdout": "",
+  "stderr": ""
+ },
+ "wf1_wpctl_status": {
+  "rc": -9,
+  "timed_out": true,
+  "dur_s": 12.018,
+  "bytes": 0
+ },
+ "wf1_core_proc": {
+  "pid": 3482661,
+  "state": "R",
+  "nlwp": "2",
+  "utime": "1",
+  "stime": "1",
+  "wchan": "0",
+  "cmdline": "pipewire -c /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/conf/pw/r97b-pipewire.conf",
+  "fds": 27,
+  "threads": [
+   {
+    "tid": "3482661",
+    "wchan": "0"
+   },
+   {
+    "tid": "3482670",
+    "wchan": "do_epoll_wait"
+   }
+  ]
+ },
+ "wf1_wp_proc": {
+  "pid": 3496044,
+  "state": "S",
+  "nlwp": "6",
+  "utime": "1",
+  "stime": "0",
+  "wchan": "poll_schedule_timeout.constprop.0",
+  "cmdline": "wireplumber -c wireplumber.conf -p main",
+  "fds": 21,
+  "threads": [
+   {
+    "tid": "3496044",
+    "wchan": "poll_schedule_timeout.constprop.0"
+   },
+   {
+    "tid": "3496055",
+    "wchan": "do_epoll_wait"
+   },
+   {
+    "tid": "3496059",
+    "wchan": "poll_schedule_timeout.constprop.0"
+   },
+   {
+    "tid": "3496064",
+    "wchan": "futex_do_wait"
+   },
+   {
+    "tid": "3496081",
+    "wchan": "poll_schedule_timeout.constprop.0"
+   },
+   {
+    "tid": "3496124",
+    "wchan": "do_epoll_wait"
+   }
+  ]
+ },
+ "wf1_wedged": true,
+ "wf2_kill_wp": "REFUSED (foreign cmd=wireplumber -c wireplumber.conf -p main )",
+ "wf2_health_after_wp_kill": {
+  "ok": false,
+  "rc": -9,
+  "timed_out": true,
+  "dur_s": 10.012,
+  "bytes": 0,
+  "loadavg": "71.57 73.66 76.42 74/2166 3670183",
+  "hogs": 0,
+  "context": "wf2/after_wp_kill"
+ },
+ "wf2_core_proc_after": {
+  "pid": 3482661,
+  "state": "S",
+  "nlwp": "2",
+  "utime": "1",
+  "stime": "1",
+  "wchan": "do_epoll_wait",
+  "cmdline": "pipewire -c /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/conf/pw/r97b-pipewire.conf",
+  "fds": 27,
+  "threads": [
+   {
+    "tid": "3482661",
+    "wchan": "do_epoll_wait"
+   },
+   {
+    "tid": "3482670",
+    "wchan": "do_epoll_wait"
+   }
+  ]
+ },
+ "wf2_kill_core": "killed",
+ "wf2_health_after_core_kill": {
+  "ok": false,
+  "rc": 255,
+  "timed_out": false,
+  "dur_s": 0.009,
+  "bytes": 0,
+  "loadavg": "71.57 73.66 76.42 71/2155 3671689",
+  "hogs": 0,
+  "context": "wf2/after_core_kill"
+ },
+ "wf3_rearm": {
+  "already": false,
+  "up": "core up pid=3672372 sock=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/run/pipewire-0\nwp up pid=3672379 profile=main",
+  "ok": true,
+  "objects": 33
+ },
+ "wf3_health_after_rearm": {
+  "ok": true,
+  "rc": 0,
+  "timed_out": false,
+  "dur_s": 0.015,
+  "bytes": 34060,
+  "loadavg": "72.81 73.88 76.48 85/2202 3674840",
+  "hogs": 0,
+  "context": "wf3/after_rearm"
+ },
+ "loadavg_at_exit": "72.81 73.88 76.48 85/2202 3674840",
+ "loadavg_end": "72.81 73.88 76.48 86/2202 3674840"
+}

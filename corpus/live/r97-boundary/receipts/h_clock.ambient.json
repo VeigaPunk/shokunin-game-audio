@@ -1,0 +1,562 @@
+{
+ "stage": "h_clock",
+ "host": "plazir27",
+ "seat": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary",
+ "loadavg_start": "127.99 116.20 106.75 117/2294 1771814",
+ "hogs_at_start": 0,
+ "foreign_at_start": {
+  "foreign_yes_hogs": 48,
+  "seat_procs": {
+   "r90-author": 3,
+   "r97-boundary": 4
+  }
+ },
+ "started": "2026-10-15T21:44:44Z",
+ "reps": [
+  {
+   "rep": 0,
+   "obs": [
+    {
+     "tag": "h0_core_clock",
+     "clock": {
+      "default.clock.allowed-rates": "[ 44100 48000 ]",
+      "default.clock.max-quantum": 2048,
+      "default.clock.min-quantum": 32,
+      "default.clock.quantum": 64,
+      "default.clock.quantum-floor": 4,
+      "default.clock.quantum-limit": 8192,
+      "default.clock.rate": 44100
+     },
+     "loadavg": "130.31 116.87 107.02 116/2337 1775008"
+    },
+    {
+     "tag": "h1_first_sink_wins",
+     "node": 38,
+     "ok": true,
+     "default": {
+      "name": "r97b_ha0"
+     },
+     "secs": 0.015,
+     "loadavg": "130.31 116.87 107.02 124/2287 1775332"
+    },
+    {
+     "tag": "h2_higher_session_takes_over",
+     "node": 43,
+     "ok": true,
+     "default": {
+      "name": "r97b_hb0"
+     },
+     "secs": 0.018,
+     "loadavg": "130.31 116.87 107.02 119/2306 1775889"
+    },
+    {
+     "tag": "h3_explicit_survives_newcomer",
+     "set_ok": true,
+     "node": 48,
+     "default": {
+      "name": "r97b_ha0"
+     },
+     "loadavg": "130.31 116.87 107.02 115/2335 1777439"
+    },
+    {
+     "tag": "h4_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "44",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "129.40 116.91 107.08 116/2296 1779199"
+    },
+    {
+     "tag": "h5_target_global_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "38",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "129.40 116.91 107.08 115/2227 1780901"
+    },
+    {
+     "tag": "h6_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_h_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 54 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "129.40 116.91 107.08 130/2648 1782860"
+    },
+    {
+     "tag": "h7_rate44100_stream_into_44100_core",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "44",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha0"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "129.69 117.18 107.22 128/2532 1784816"
+    }
+   ]
+  },
+  {
+   "rep": 1,
+   "obs": [
+    {
+     "tag": "h0_core_clock",
+     "clock": {
+      "default.clock.allowed-rates": "[ 44100 48000 ]",
+      "default.clock.max-quantum": 2048,
+      "default.clock.min-quantum": 32,
+      "default.clock.quantum": 64,
+      "default.clock.quantum-floor": 4,
+      "default.clock.quantum-limit": 8192,
+      "default.clock.rate": 44100
+     },
+     "loadavg": "129.91 117.62 107.47 125/2581 1796042"
+    },
+    {
+     "tag": "h1_first_sink_wins",
+     "node": 48,
+     "ok": true,
+     "default": {
+      "name": "r97b_ha1"
+     },
+     "secs": 0.02,
+     "loadavg": "129.91 117.62 107.47 125/2361 1796762"
+    },
+    {
+     "tag": "h2_higher_session_takes_over",
+     "node": 43,
+     "ok": true,
+     "default": {
+      "name": "r97b_hb1"
+     },
+     "secs": 0.014,
+     "loadavg": "129.91 117.62 107.47 122/2718 1797581"
+    },
+    {
+     "tag": "h3_explicit_survives_newcomer",
+     "set_ok": true,
+     "node": 38,
+     "default": {
+      "name": "r97b_ha1"
+     },
+     "loadavg": "129.91 117.62 107.47 126/2289 1799392"
+    },
+    {
+     "tag": "h4_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "96",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "126.47 117.11 107.36 89/2284 1801598"
+    },
+    {
+     "tag": "h5_target_global_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "48",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "126.47 117.11 107.36 83/2181 1803681"
+    },
+    {
+     "tag": "h6_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_h_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 54 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "126.47 117.11 107.36 81/2271 1805090"
+    },
+    {
+     "tag": "h7_rate44100_stream_into_44100_core",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "96",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha1"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "122.75 116.49 107.21 98/2848 1807643"
+    }
+   ]
+  },
+  {
+   "rep": 2,
+   "obs": [
+    {
+     "tag": "h0_core_clock",
+     "clock": {
+      "default.clock.allowed-rates": "[ 44100 48000 ]",
+      "default.clock.max-quantum": 2048,
+      "default.clock.min-quantum": 32,
+      "default.clock.quantum": 64,
+      "default.clock.quantum-floor": 4,
+      "default.clock.quantum-limit": 8192,
+      "default.clock.rate": 44100
+     },
+     "loadavg": "119.97 116.02 107.11 82/2155 1817034"
+    },
+    {
+     "tag": "h1_first_sink_wins",
+     "node": 38,
+     "ok": true,
+     "default": {
+      "name": "r97b_ha2"
+     },
+     "secs": 0.015,
+     "loadavg": "119.73 116.04 107.16 85/2409 1817723"
+    },
+    {
+     "tag": "h2_higher_session_takes_over",
+     "node": 43,
+     "ok": true,
+     "default": {
+      "name": "r97b_hb2"
+     },
+     "secs": 0.011,
+     "loadavg": "119.73 116.04 107.16 89/2300 1818279"
+    },
+    {
+     "tag": "h3_explicit_survives_newcomer",
+     "set_ok": true,
+     "node": 48,
+     "default": {
+      "name": "r97b_ha2"
+     },
+     "loadavg": "119.73 116.04 107.16 82/2253 1820043"
+    },
+    {
+     "tag": "h4_target_object_serial",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "148",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "119.73 116.04 107.16 94/2469 1822635"
+    },
+    {
+     "tag": "h5_target_global_id",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "38",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "117.19 115.57 107.06 87/2182 1823880"
+    },
+    {
+     "tag": "h6_bogus_dont_fallback",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97b_h_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": [],
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 54 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     },
+     "loadavg": "117.19 115.57 107.06 82/2145 1826146"
+    },
+    {
+     "tag": "h7_rate44100_stream_into_44100_core",
+     "argv": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "44100",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "148",
+      "-P",
+      "{ node.name = r97b_h_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ],
+      [
+       "r97b_h_str",
+       "r97b_ha2"
+      ]
+     ],
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     },
+     "loadavg": "114.61 115.06 106.94 83/2160 1828064"
+    }
+   ]
+  }
+ ],
+ "arm": "ambient",
+ "clock_fragment": "## r97b clock/quantum axis (stage H): non-default clock under test\ncontext.properties = {\n  default.clock.rate          = 44100\n  default.clock.allowed-rates = [ 44100 48000 ]\n  default.clock.quantum       = 64\n  default.clock.min-quantum   = 32\n  default.clock.max-quantum   = 2048\n}\n",
+ "pair": {
+  "already": false,
+  "up": "core up pid=1773272 sock=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-boundary/run/pipewire-0\nwp up pid=1773478 profile=main",
+  "ok": true,
+  "objects": 32
+ },
+ "wp_ready": {
+  "ok": true,
+  "secs": 0.014
+ },
+ "clock_after_rearm": {
+  "default.clock.allowed-rates": "[ 44100 48000 ]",
+  "default.clock.max-quantum": 2048,
+  "default.clock.min-quantum": 32,
+  "default.clock.quantum": 64,
+  "default.clock.quantum-floor": 4,
+  "default.clock.quantum-limit": 8192,
+  "default.clock.rate": 44100
+ },
+ "clock_fragment_removed": true,
+ "loadavg_end": "112.16 114.55 106.82 80/2287 1839573"
+}
