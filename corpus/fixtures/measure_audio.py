@@ -12540,6 +12540,1667 @@ def module_topology_r80_entry():
     return entry
 
 
+# ---------------------------------------------------------------------------
+# r81 GST<->PIPEWIRE frontier: the GStreamer clients armed — the element
+# availability lattice, the node/Client naming crossover, the routing-prop
+# vectors and their precedence, the pulse `device=` axis, the direction-split
+# target-loss law, the gst-launch exit classes, and the autodetect backend.
+# A NEW parallel ledger family, --probe-gst-r81; prior rows untouched and the
+# r76-r80 guards inherited, not relaxed. Surface facts are the r81 scout's
+# THIS-HOST measurements (GStreamer 1.28.6, gst-plugin-pipewire 1.6.8 — the
+# gst plugin tracks the PipeWire version, PipeWire 1.6.8, libpulse 17.0+r98,
+# WirePlumber session manager), re-armed verbatim:
+#   LATTICE. pipewiresink/pipewiresrc exist (Klass Sink|Source/Audio/Video,
+#     plugin version 1.6.8); pulsesink/pulsesrc/autoaudiosink/autoaudiosrc
+#     exist at 1.28.6; openalsink is ABSENT — inspect rc=255. The identical
+#     absence is rc=255 through gst-inspect but rc=1 through gst-launch's
+#     parser — never read one tool's rc as the other's.
+#   NAMING CROSSOVER. `client-name=` renames the *node* (name + description
+#     + media.name); `client-properties=props,application.name=` renames
+#     the *pw Client object* — the two names cross over and neither
+#     touches the other's object.
+#   ROUTING VECTORS. gst `target-object=` is a TWO-KEY write (node.target
+#     AND target.object); stream-properties emits either alone and both
+#     route; PIPEWIRE_PROPS and PIPEWIRE_NODE envs are honored; and the gst
+#     ELEMENT property BEATS stream-properties — the inverse of r78's
+#     `-P`-beats-`--target` law on pw-cat (client-specific precedence, both
+#     laws pinned with their authorities).
+#   PULSE AXIS. `device=` is a name handed to the server, not a client-side
+#     bind: a bogus name is rc=0 with a SILENT fallback to the current
+#     default sink; the record direction refuses the same input (rc=1
+#     `No such entity` + 0-byte artifact). PULSE_SINK is honored and
+#     `device=` outranks it.
+#   TARGET LOSS — SPLIT BY DIRECTION. Playback re-links to the current
+#     default within one 0.2 s sample and never exits/errors; capture does
+#     NOT re-link — the artifact freezes at the last buffer (unfinalized
+#     wavenc streaming header), no error, no EOS, process alive — while a
+#     same-event pw-record re-links (client-specific law; the stale
+#     node.target prop is ruled out by the prop-only leg).
+#   EXIT CLASSES. parse refusal rc=1 + NO artifact (caps negotiation is a
+#     parse refusal in gst-launch terms); runtime state-change rc=255 +
+#     0-byte artifact; the pulsesrc outlier rc=1 + 0-byte artifact.
+#   AUTODETECT. autoaudiosink -> pulsesink (a pipewire-pulse protocol node,
+#     linked to the default sink); autoaudiosrc -> pulsesrc -> fails rc=1 —
+#     r77's "pulsesrc has no working default" survives the wrapper.
+# Contention (mandatory): every routing leg targets the seat-owned null
+# sink `gst_r81_auth_<pid>` or is read-only observation; stream/node names
+# are gst_r81_*; unloads go by the name-verified module index ONLY (the
+# args string must carry our sink_name — a bare captured index is never
+# trusted, indices recycle LIFO); never pactl set-default-sink/source;
+# every capture leg is triple-bounded (element bound where it exists +
+# wall cap + byte cap) in the same loop that owns the process group.
+GST_R81_PID = os.getpid()
+GST_R81_NS = f"gst_r81_auth_{GST_R81_PID}"     # seat-owned null sink
+GST_R81_TAG = f"gst_r81_{GST_R81_PID}"         # stream/node name prefix
+GST_R81_RAW = "audio/x-raw,format=S16LE,rate=48000,channels=2"
+GST_R81_WALL_S = 6.0
+GST_R81_BYTE_CAP = 4 * 1024 * 1024
+GST_R81_LOSS_EVENT_S = 1.2          # unload at +1.2 s (scout verbatim)
+GST_R81_LOSS_WALL_S = 4.5           # scout verbatim
+GST_R81_RELINK_BOUND_S = 0.45       # "within one 0.2 s sample" + fire skew
+GST_R81_BOGUS = "no_such_sink_r81"
+GST_R81_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+# Receipt-stable node props — volatile ids/serials/counters are dropped;
+# client.id is kept at the node leaf level (the Client join needs it).
+GST_R81_PROP_KEEP = re.compile(
+    r"^(node\.|stream\.|target\.|media\.|application\.name$|client\.|"
+    r"object\.|pulse\.server)")
+GST_R81_PROP_DROP = {
+    "object.id", "object.serial", "node.driver-id", "node.latency",
+    "stream.is-live", "application.language", "client.id"}
+
+# gst-local error classes — a separate tuple, same rule as r77/r78: never
+# prepended into the shared _CAPTURE_ERR_CLASSES (that could reclassify a
+# committed row). Ordered most-specific first.
+_GST_R81_ERR_CLASSES = (
+    ("gst_target_not_found", r"stream error: target not found"),
+    ("gst_no_such_entity", r"Failed to connect stream: No such entity"),
+    ("gst_connection_refused", r"Failed to connect: Connection refused"),
+    ("gst_parse_refusal", r"(?:WARNING: erroneous pipeline|"
+     r"pipeline could not be constructed)[^\n]*"),
+    ("gst_state_change_refusal",
+     r"Failed to set pipeline to (?:PAUSED|PLAYING)[^\n]*"),
+    ("gst_not_negotiated", r"not-negotiated \(-4\)"),
+    ("gst_not_linked", r"not-linked \(-1\)"),
+    ("gst_no_element", r"No such element or plugin[^\n]*"),
+    ("gst_internal_stream", r"Internal data stream error\.?"),
+    ("other_error", r"ERROR:"),
+)
+
+
+def _gst_r81_errclass(text):
+    """First matching named class on a gst leg's stderr (r81 tuple)."""
+    for name, pat in _GST_R81_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _gst_r81_graph():
+    """One pw-dump -> {nodes, ports, links, clients}. Identification is by
+    OBJECT ID, never by name: two gst-launch pipelines both publish a
+    `gst-launch-1.0` node, so port-name prefixes alias under contention.
+    The client join is node.client.id -> Client.application.process.id —
+    a native-protocol NODE does not carry the pid itself."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, ports, links, clients = {}, {}, [], {}
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "class": props.get("media.class"),
+                "desc": props.get("node.description"),
+                "client_id": props.get("client.id"),
+                "state": info.get("state"),
+                "props": {k: v for k, v in props.items()
+                          if GST_R81_PROP_KEEP.match(k)
+                          and k not in GST_R81_PROP_DROP}}
+        elif t.endswith("Port"):
+            ports[o["id"]] = {"node": info.get("node-id"),
+                              "name": props.get("port.name"),
+                              "dir": props.get("port.direction")}
+        elif t.endswith("Link"):
+            links.append({"out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id")})
+        elif t.endswith("Client"):
+            clients[o["id"]] = {
+                "name": props.get("client.name"),
+                "application_name": props.get("application.name"),
+                "binary": props.get("application.process.binary"),
+                "pid": props.get("application.process.id")}
+    return {"nodes": nodes, "ports": ports, "links": links,
+            "clients": clients}
+
+
+def _gst_r81_our_nodes(g, pid):
+    """Our stream node(s): the Client whose application.process.id is our
+    spawned pid -> the Node(s) whose client.id is that client. Works
+    under renames (the naming legs' whole point) and under default-name
+    aliasing on a contended host."""
+    if "error" in g:
+        return []
+    ours = {cid for cid, c in g["clients"].items()
+            if str(c.get("pid")) == str(pid)}
+    return [(nid, n) for nid, n in g["nodes"].items()
+            if n.get("client_id") in ours]
+
+
+def _gst_r81_consumers(g, node_id):
+    """Sink-node names our node's output ports link INTO (by object id —
+    the only collision-proof consumption statement)."""
+    if "error" in g:
+        return None
+    return sorted({(g["nodes"].get(l["in_node"]) or {}).get("name")
+                   for l in g["links"]
+                   if l["out_node"] == node_id and l["in_node"] is not None
+                   } - {None})
+
+
+def _gst_r81_producers(g, node_id):
+    """Source-node names feeding our node's input ports (by object id)."""
+    if "error" in g:
+        return None
+    return sorted({(g["nodes"].get(l["out_node"]) or {}).get("name")
+                   for l in g["links"]
+                   if l["in_node"] == node_id and l["out_node"] is not None
+                   } - {None})
+
+
+def _gst_r81_sample(proc, out_path, el):
+    """One timeline sample: process liveness, artifact size, our node
+    (client-joined, prop-filtered) with its link endpoints."""
+    g = _gst_r81_graph()
+    s = {"t": round(el, 3), "live": proc.poll() is None,
+         "size": (Path(out_path).stat().st_size
+                  if out_path and Path(out_path).exists() else None),
+         "nodes": []}
+    if "error" in g:
+        s["graph_error"] = g["error"]
+        return s
+    for nid, n in _gst_r81_our_nodes(g, proc.pid):
+        cl = dict(g["clients"].get(n.get("client_id")) or {})
+        cl.pop("pid", None)          # volatile — the join already happened
+        s["nodes"].append({
+            "id": nid, "name": n.get("name"), "class": n.get("class"),
+            "desc": n.get("desc"), "client_id": n.get("client_id"),
+            "state": n.get("state"), "props": n.get("props"),
+            "client": cl or None,
+            "consumers": _gst_r81_consumers(g, nid),
+            "producers": _gst_r81_producers(g, nid)})
+    return s
+
+
+def _gst_r81_last_node(leg, require_linked=False):
+    """The leg's last sample carrying our node -> that node leaf (the
+    verdict surface for prop/link assertions)."""
+    for s in reversed(leg.get("samples") or []):
+        nodes = s.get("nodes") or []
+        if nodes:
+            if require_linked and not (nodes[0].get("consumers") or
+                                       nodes[0].get("producers")):
+                continue
+            return nodes[0]
+    return None
+
+
+def _gst_r81_wav_inspect(path):
+    """Scout-faithful artifact shape: riff/data size-field classes name
+    the wavenc streaming placeholders verbatim (the frozen-capture
+    signature), plus the raw declared ints and the fmt fields."""
+    insp = {"exists": bool(path and Path(path).exists())}
+    if not insp["exists"]:
+        return insp
+    p = Path(path)
+    size = p.stat().st_size
+    insp["bytes"] = size
+    if size < 44:
+        insp["riff"] = "short"
+        return insp
+    with p.open("rb") as fh:
+        head = fh.read(64)
+    if head[:4] != b"RIFF" or head[8:12] != b"WAVE":
+        insp["riff"] = "not_wav"
+        return insp
+    riff = struct.unpack("<I", head[4:8])[0]
+    insp["riff_size"] = riff
+    insp["riff"] = (
+        "finalized" if riff == size - 8 else
+        "placeholder_8" if riff == 8 else
+        "zero" if riff == 0 else
+        "placeholder_7ffff000" if riff == 0x7FFFF000 else
+        "wavenc_streaming" if riff == 0x7FFF0024 else f"other:{riff}")
+    try:
+        (insp["fmt"], insp["ch"], insp["rate"],
+         _br, _ba, insp["bits"]) = struct.unpack("<HHIIHH", head[20:36])
+    except struct.error:
+        pass
+    off = 12
+    while off + 8 <= 64:
+        cid = head[off:off + 4].decode("latin1")
+        csz = struct.unpack("<I", head[off + 4:off + 8])[0]
+        if cid == "data":
+            insp["data_declared"] = csz
+            insp["data_actual"] = size - (off + 8)
+            insp["data"] = (
+                "finalized" if csz == size - (off + 8) else
+                "zero" if csz == 0 else
+                "placeholder_7ffff000" if csz == 0x7FFFF000 else
+                "wavenc_streaming" if csz == 0x7FFF0000 else
+                "placeholder_ff" if csz == 0xFFFFFFFF else
+                f"other:{csz}")
+            frame = max(1, (insp.get("ch") or 1) *
+                        ((insp.get("bits") or 8) // 8))
+            insp["frames_declared"] = csz // frame
+            break
+        off += 8 + csz + (csz & 1)
+    return insp
+
+
+def _gst_r81_sink_module_index(sink_name):
+    """`pactl list modules short` -> the index whose ARGUMENTS carry
+    `sink_name=<sink_name>` (short listings include the arg string). The
+    name-in-args match is the ownership proof — an index alone proves
+    nothing on a host that recycles them LIFO."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    for ln in proc.stdout.decode(errors="replace").splitlines():
+        f = ln.split("\t")
+        if f and f[0].strip().isdigit() and \
+                "module-null-sink" in ln and \
+                f"sink_name={sink_name}" in ln:
+            return int(f[0].strip())
+    return None
+
+
+def _gst_r81_unload_own(module_id, sink_name=GST_R81_NS):
+    """Unload by the NAME-VERIFIED index ONLY: re-read the module table
+    immediately before firing, require the index whose args name OUR
+    sink, and unload that index. A bare captured id is never fired (a
+    recycled index can belong to a foreign module — the scout's
+    §10/r80-class incident). `recycled` records a captured-vs-verified
+    drift; the name match still proves ownership."""
+    idx = _gst_r81_sink_module_index(sink_name)
+    res = {"verified_index": idx, "captured": module_id}
+    if idx is None:
+        res["skipped"] = "not_listed"
+        return res
+    res["recycled"] = (module_id is not None and idx != module_id)
+    try:
+        proc = subprocess.run(["pactl", "unload-module", str(idx)],
+                              capture_output=True, timeout=15)
+        res["exit_code"] = proc.returncode
+        res["stderr_tail"] = proc.stderr.decode(
+            errors="replace").strip()[:120] or None
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        res["exit_code"] = None
+        res["error"] = str(exc)[:120]
+    return res
+
+
+def _gst_r81_ns_ensure(loads):
+    """(Re)load the seat-owned null sink if absent, with the r78
+    port-readiness gate plus the monitor-source gate — a record spawned
+    in the enumeration gap binds the live default and hangs to its
+    bound."""
+    if GST_R81_NS in (_capture_r77_sink_names() or []):
+        leaf = {"present": True,
+                "module_id": _gst_r81_sink_module_index(GST_R81_NS),
+                "sink_seen": True}
+        loads[GST_R81_NS] = leaf
+        return leaf
+    mid, rc, err = _playback_r78_null_sink_load(GST_R81_NS)
+    leaf = {"module_id": mid, "rc": rc, "error": err,
+            "sink_seen": mid is not None}
+    if mid is not None:
+        seen, waited, diag = _loopback_r79_wait_monitor(GST_R81_NS)
+        leaf["monitor_seen"], leaf["monitor_waited_s"], \
+            leaf["monitor_gate"] = seen, waited, diag
+    loads[GST_R81_NS] = leaf
+    return leaf
+
+
+def _gst_r81_teardown(entry, failures, loads):
+    """Every own module unloaded by name-verified index, then the two
+    witnesses: probe sinks gone from pactl and no gst_r81_* node of ours
+    surviving."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unloads", {})[tag] = _gst_r81_unload_own(
+            (leaf or {}).get("module_id"))
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if GST_R81_TAG in n or n == GST_R81_NS)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r81-tagged nodes survived: {rest}")
+
+
+def _gst_r81_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares: record it, unload
+    anything this entry loaded, and return — a blocked leg is named
+    coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    if loads is not None:
+        for leaf in loads.values():
+            _gst_r81_unload_own((leaf or {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+def _gst_r81_leg(name, argv, ctx, env_extra=None, out_path=None,
+                 wall_cap=GST_R81_WALL_S, byte_cap=GST_R81_BYTE_CAP,
+                 sample_at=(0.4, 0.9), timeline=None, events=()):
+    """One bounded gst/pw leg, triple-bounded INSIDE the loop that owns
+    the process group (no watchdog thread — the r77 flood lesson): the
+    element bound (num-buffers / -n) rides inside argv where it exists,
+    the wall cap SIGKILLs the pgid, and the byte cap on out_path is
+    checked on the same loop tick. Timed events fire in-order: an
+    "unload_module" goes through the name-verified unload, "kill_proc"
+    kills a feed's pgid, "call" runs a callable. Each sample resolves our
+    node by client object id (name-alias-proof)."""
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        env.update(env_extra)
+    if out_path:
+        Path(out_path).unlink(missing_ok=True)
+    rec = {"name": name, "env_extra": env_extra or None,
+           "samples": [], "fired": []}
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
+                                start_new_session=True, env=env)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:120]
+        return rec
+    t0 = time.monotonic()
+    ev = sorted(events, key=lambda e: e[0])
+    due = [] if timeline else list(sample_at)
+    next_tl = timeline
+    killed = None
+    while True:
+        el = time.monotonic() - t0
+        if proc.poll() is not None:
+            break
+        while ev and el >= ev[0][0]:
+            _, kind, arg = ev.pop(0)
+            when = round(el, 3)
+            try:
+                if kind == "unload_module":
+                    res = _gst_r81_unload_own(arg)
+                elif kind == "kill_proc":
+                    try:
+                        os.killpg(arg.pid, signal.SIGKILL)
+                        res = {"killed_pgid": arg.pid}
+                    except (ProcessLookupError, PermissionError) as e2:
+                        res = {"kill_error": str(e2)[:120]}
+                elif kind == "call":
+                    res = arg()
+                else:
+                    res = {"unknown_event": kind}
+            except Exception as exc:                 # defensive: event must not kill the loop
+                res = {"exc": repr(exc)[:160]}
+            rec["fired"].append({"at": when, "kind": kind, "result": res})
+        if timeline:
+            if el >= next_tl:
+                rec["samples"].append(_gst_r81_sample(proc, out_path, el))
+                next_tl += timeline
+        elif due and el >= due[0]:
+            rec["samples"].append(
+                _gst_r81_sample(proc, out_path, due.pop(0)))
+        if out_path and Path(out_path).exists() and \
+                Path(out_path).stat().st_size > byte_cap:
+            killed = f"bytecap:{Path(out_path).stat().st_size}"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        if el > wall_cap:
+            killed = "wallcap"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        time.sleep(0.008)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    err = GST_R81_ANSI.sub(
+        "", proc.stderr.read().decode(errors="replace"))
+    cls, hit = _gst_r81_errclass(err)
+    shown = " ".join(argv)
+    for token, mark in ((str(out_path), "<out>"), (ctx.get("tmp"), "<tmp>"),
+                        (ctx.get("tone"), "<tone>")):
+        if token:
+            shown = shown.replace(str(token), mark)
+    rec.update({"argv": shown,
+                "exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed": killed,
+                "stderr_head": err.strip().splitlines()[:3],
+                "stderr": err[:3000],
+                "error_class": cls, "error_hit": hit,
+                "out": (_gst_r81_wav_inspect(out_path)
+                        if out_path else None)})
+    return rec
+
+
+def _gst_r81_entry_head(probe):
+    """Shared entry preamble: inventory, oracle, contention census."""
+    inv = _capture_inventory()
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"]}}
+
+
+# --------------------------------------------------------------------------
+# (1) ELEMENT LATTICE — the gst-inspect availability table.
+# --------------------------------------------------------------------------
+def gst_element_lattice_r81_entry():
+    """(1) The availability lattice: the six named elements inspect rc=0
+    at their pinned klass/plugin/version — the pipewire pair at 1.6.8
+    (the gst plugin tracks PipeWire's version, not GStreamer's), the
+    pulse/autodetect elements at 1.28.6 — and `openalsink` is ABSENT
+    rc=255 `No such element or plugin`, the same class as the
+    nosuchelement control. Two reps per element, row-stability asserted."""
+    failures = []
+    entry = _gst_r81_entry_head(
+        "gst-inspect element lattice — availability, klass, plugin, "
+        "version; absent-element rc=255; pipewire plugin at 1.6.8")
+    want = {
+        "pipewiresink": {"rc": 0, "klass": "Sink/Audio/Video",
+                         "plugin": "libgstpipewire.so", "version": "1.6.8"},
+        "pipewiresrc": {"rc": 0, "klass": "Source/Audio/Video",
+                        "plugin": "libgstpipewire.so", "version": "1.6.8"},
+        "pulsesink": {"rc": 0, "klass": "Sink/Audio",
+                      "plugin": "libgstpulseaudio.so", "version": "1.28.6"},
+        "pulsesrc": {"rc": 0, "klass": "Source/Audio",
+                     "plugin": "libgstpulseaudio.so", "version": "1.28.6"},
+        "autoaudiosink": {"rc": 0, "klass": "Sink/Audio",
+                          "plugin": "libgstautodetect.so",
+                          "version": "1.28.6"},
+        "autoaudiosrc": {"rc": 0, "klass": "Source/Audio",
+                         "plugin": "libgstautodetect.so",
+                         "version": "1.28.6"},
+        "alsasink": {"rc": 0, "klass": "Sink/Audio",
+                     "plugin": "libgstalsa.so", "version": "1.28.6"},
+        "alsasrc": {"rc": 0, "klass": "Source/Audio",
+                    "plugin": "libgstalsa.so", "version": "1.28.6"},
+        "audiotestsrc": {"rc": 0, "klass": "Source/Audio",
+                         "plugin": "libgstaudiotestsrc.so",
+                         "version": "1.28.6"},
+        "wavenc": {"rc": 0, "klass": "Codec/Muxer/Audio",
+                   "plugin": "libgstwavenc.so", "version": "1.28.6"},
+        "filesink": {"rc": 0, "klass": "Sink/File",
+                     "plugin": "libgstcoreelements.so",
+                     "version": "1.28.6"},
+        "fakesink": {"rc": 0, "klass": "Sink",
+                     "plugin": "libgstcoreelements.so",
+                     "version": "1.28.6"},
+        "openalsink": {"rc": 255,
+                       "first_line":
+                           "No such element or plugin 'openalsink'"},
+        "nosuchelement_r81_xyz": {"rc": 255,
+                                "first_line":
+                                    "No such element or plugin "
+                                    "'nosuchelement_r81_xyz'"},
+    }
+    legs = {}
+    for el, exp in want.items():
+        rows = []
+        for _rep in range(2):
+            try:
+                proc = subprocess.run(["gst-inspect-1.0", el],
+                                      capture_output=True, timeout=30)
+                txt = GST_R81_ANSI.sub(
+                    "", proc.stdout.decode(errors="replace") +
+                    proc.stderr.decode(errors="replace"))
+
+                def _field(name, _txt=txt):
+                    m = re.search(rf"^\s*{name}\s+(.+)$", _txt, re.M)
+                    return m.group(1).strip() if m else None
+
+                rows.append({"rc": proc.returncode,
+                             "klass": _field("Klass"),
+                             "plugin": _field("Filename"),
+                             "version": _field("Version"),
+                             "first_line":
+                                 (txt.strip().splitlines() or [""])[0][:120]})
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                rows.append({"rc": None, "error": str(exc)[:120]})
+        legs[el] = {"expect": exp, "rows": rows,
+                    "stable": len({json.dumps(r, sort_keys=True)
+                                   for r in rows}) == 1}
+    try:
+        proc = subprocess.run(["gst-inspect-1.0", "pipewire"],
+                              capture_output=True, timeout=30)
+        txt = GST_R81_ANSI.sub("", proc.stdout.decode(errors="replace"))
+        m = re.search(r"^\s*Version\s+(\S+)", txt, re.M)
+        legs["plugin_pipewire"] = {"rc": proc.returncode,
+                                   "version": m.group(1) if m else None}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        legs["plugin_pipewire"] = {"rc": None, "error": str(exc)[:120]}
+    entry["legs"] = legs
+    for el, exp in want.items():
+        leg = legs[el]
+        for r in leg["rows"]:
+            if r.get("rc") != exp["rc"]:
+                failures.append(f"lattice {el}: rc {r.get('rc')} != "
+                                f"{exp['rc']}")
+                continue
+            if exp["rc"] == 0:
+                if r.get("klass") != exp["klass"]:
+                    failures.append(f"lattice {el}: klass "
+                                    f"{r.get('klass')!r} != "
+                                    f"{exp['klass']!r}")
+                if not (r.get("plugin") or "").endswith(exp["plugin"]):
+                    failures.append(f"lattice {el}: plugin "
+                                    f"{r.get('plugin')!r} does not end "
+                                    f"with {exp['plugin']!r}")
+                if r.get("version") != exp["version"]:
+                    failures.append(f"lattice {el}: version "
+                                    f"{r.get('version')!r} != "
+                                    f"{exp['version']!r}")
+            elif r.get("first_line") != exp["first_line"]:
+                failures.append(f"lattice {el}: refusal line "
+                                f"{r.get('first_line')!r} != "
+                                f"{exp['first_line']!r}")
+        if not leg["stable"]:
+            failures.append(f"lattice {el}: rows differ across reps")
+    pw = legs["plugin_pipewire"]
+    if pw.get("rc") != 0 or pw.get("version") != "1.6.8":
+        failures.append(f"lattice plugin_pipewire: {pw}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) NAMING — the node/Client crossover.
+# --------------------------------------------------------------------------
+def gst_naming_r81_entry():
+    """(2) The naming crossover: `client-name=` renames the *node*
+    (node.name + node.description + media.name) while the pw Client
+    object keeps `gst-launch-1.0`; `client-properties=
+    props,application.name=` renames the *Client* while the node keeps
+    `gst-launch-1.0` on all three strings; `stream-properties
+    node.name=` renames only node.name. Every leg routes into the
+    seat-owned null sink so the graph witnesses are contention-free;
+    our node is resolved by client object id (never by name)."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "gst naming crossover — client-name renames the node, "
+        "client-properties renames the Client object")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    tgt = ["target-object=" + GST_R81_NS]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gst_r81_block(
+                entry, failures, "null sink load/enumerate failed",
+                loads)
+        legs["n0_bare"] = _gst_r81_leg(
+            "n0_bare", base + ["pipewiresink"] + tgt, ctx)
+        legs["n1_stream_node_name"] = _gst_r81_leg(
+            "n1_stream_node_name",
+            base + ["pipewiresink"] + tgt +
+            [f"stream-properties=props,node.name={GST_R81_TAG}_snk"],
+            ctx)
+        legs["n2_client_name"] = _gst_r81_leg(
+            "n2_client_name",
+            base + ["pipewiresink"] + tgt +
+            [f"client-name={GST_R81_TAG}_client"], ctx)
+        legs["n3_client_properties"] = _gst_r81_leg(
+            "n3_client_properties",
+            base + ["pipewiresink"] + tgt +
+            [f"client-properties=props,application.name="
+             f"{GST_R81_TAG}_app"], ctx)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-name-") as tmp:
+            cap = str(Path(tmp) / "cap.wav")
+            legs["n4_src_client_name"] = _gst_r81_leg(
+                "n4_src_client_name",
+                ["gst-launch-1.0", "-q", "pipewiresrc"] + tgt +
+                [f"client-name={GST_R81_TAG}_src_client",
+                 "stream-properties=props,stream.capture.sink=true",
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap}"],
+                dict(ctx, tmp=tmp), out_path=cap,
+                wall_cap=GST_R81_WALL_S)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- n0: the default shape — node AND Client are gst-launch-1.0 ----
+    leg, nd = legs.get("n0_bare") or {}, _gst_r81_last_node(
+        legs.get("n0_bare") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"name n0: leg failed or no node — "
+                        f"rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        cl = nd.get("client") or {}
+        if not (nd.get("name") == nd.get("desc") ==
+                props.get("media.name") == "gst-launch-1.0"):
+            failures.append(f"name n0: default identity strings differ "
+                            f"— {nd.get('name')!r}/{nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+        if nd.get("class") != "Stream/Output/Audio":
+            failures.append(f"name n0: media.class "
+                            f"{nd.get('class')!r}")
+        if props.get("application.name") is not None:
+            failures.append("name n0: application.name present on a "
+                            "native pipewire node — scout pinned it "
+                            "absent")
+        if (cl.get("application_name") or cl.get("name")) != \
+                "gst-launch-1.0":
+            failures.append(f"name n0: Client name "
+                            f"{cl.get('application_name')!r} != "
+                            "gst-launch-1.0")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"name n0: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- n1: stream-properties node.name renames only node.name ----
+    leg, nd = legs.get("n1_stream_node_name") or {}, _gst_r81_last_node(
+        legs.get("n1_stream_node_name") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if nd.get("name") != f"{GST_R81_TAG}_snk":
+            failures.append(f"name n1: node.name {nd.get('name')!r} did "
+                            "not take the stream-properties rename")
+        if nd.get("desc") != "gst-launch-1.0" or \
+                props.get("media.name") != "gst-launch-1.0":
+            failures.append("name n1: description/media.name must stay "
+                            f"gst-launch-1.0 — got {nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+    # ---- n2: client-name renames the NODE, not the Client ----
+    leg, nd = legs.get("n2_client_name") or {}, _gst_r81_last_node(
+        legs.get("n2_client_name") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n2: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        cl = nd.get("client") or {}
+        want = f"{GST_R81_TAG}_client"
+        if not (nd.get("name") == nd.get("desc") ==
+                props.get("media.name") == want):
+            failures.append(f"name n2: client-name did NOT rename the "
+                            f"node — {nd.get('name')!r}/{nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+        if (cl.get("application_name") or cl.get("name")) != \
+                "gst-launch-1.0":
+            failures.append(f"name n2: the pw Client MOVED to "
+                            f"{cl.get('application_name')!r} — the "
+                            "crossover law is falsified")
+    # ---- n3: client-properties renames the Client, not the node ----
+    leg, nd = legs.get("n3_client_properties") or {}, _gst_r81_last_node(
+        legs.get("n3_client_properties") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n3: leg failed or no node")
+    else:
+        cl = nd.get("client") or {}
+        if nd.get("name") != "gst-launch-1.0":
+            failures.append(f"name n3: the NODE moved to "
+                            f"{nd.get('name')!r} — the crossover law is "
+                            "falsified")
+        if (cl.get("application_name") or cl.get("name")) != \
+                f"{GST_R81_TAG}_app":
+            failures.append(f"name n3: Client name "
+                            f"{cl.get('application_name')!r} != "
+                            f"{GST_R81_TAG}_app")
+    # ---- n4: the capture-side node takes client-name too ----
+    leg, nd = legs.get("n4_src_client_name") or {}, _gst_r81_last_node(
+        legs.get("n4_src_client_name") or {}, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"name n4: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("name") != f"{GST_R81_TAG}_src_client":
+            failures.append(f"name n4: capture node {nd.get('name')!r} "
+                            "did not take client-name")
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"name n4: producers {nd.get('producers')} "
+                            "!= [<ns>]")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) ROUTING — prop vectors, precedence, envs; capture-side props.
+# --------------------------------------------------------------------------
+def gst_routing_r81_entry():
+    """(3) The routing vectors: gst `target-object=` writes BOTH
+    node.target and target.object (the two-key write); stream-properties
+    emits either alone and both route; PIPEWIRE_PROPS and PIPEWIRE_NODE
+    are honored; and the gst ELEMENT property overwrites
+    stream-properties — the INVERSE of r78's `-P`-beats-`--target` law
+    on pw-cat (client-specific precedence, both authorities recorded).
+    A sink-side target miss is rc=0 + silent fallback to the CURRENT
+    default; the capture side's miss without the stream.capture.sink
+    prop is rc=255 `target not found`, and a `<sink>.monitor` name does
+    NOT resolve — it lands the *default* sink's monitor (the r77
+    residual, decided on a non-default probe sink)."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "gst routing vectors — two-key target-object write, gst-prop "
+        "precedence over stream-properties, PIPEWIRE_PROPS/"
+        "PIPEWIRE_NODE envs, silent fallback, capture prop gate")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _gst_r81_block(
+                entry, failures,
+                "null sink load/enumerate failed", loads)
+        play = base + ["pipewiresink"]
+        L = [
+            ("r1_target_object", play + ["target-object=" + GST_R81_NS],
+             None, {}),
+            ("r2_sp_node_target",
+             play + ["stream-properties=props,node.target=" + GST_R81_NS],
+             None, {}),
+            ("r3_sp_target_object",
+             play + ["stream-properties=props,target.object=" +
+                     GST_R81_NS], None, {}),
+            ("r4_bogus_target",
+             play + ["target-object=" + GST_R81_BOGUS], None, {}),
+            ("r5_prop_beats_props",
+             play + ["target-object=" + GST_R81_NS,
+                     "stream-properties=props,target.object=" +
+                     GST_R81_BOGUS], None, {}),
+            ("r6_env_pipewire_props", play,
+             {"PIPEWIRE_PROPS": "{ node.name=" + GST_R81_TAG + "_env"
+              " node.target=" + GST_R81_NS + " }"}, {}),
+            ("r7_env_pipewire_node", play,
+             {"PIPEWIRE_NODE": GST_R81_NS}, {}),
+            ("r8_no_autoconnect",
+             play + ["target-object=" + GST_R81_NS,
+                     "stream-properties=props,node.autoconnect=false"],
+             None, {"wall_cap": GST_R81_WALL_S}),
+        ]
+        for name, argv, envx, kw in L:
+            legs[name] = _gst_r81_leg(name, argv, ctx, env_extra=envx,
+                                      **kw)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-route-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            # c0: capture WITHOUT the stream.capture.sink prop -> the
+            # strict-side refusal (rc=255, 0-byte artifact).
+            cap0 = str(Path(tmp) / "c0.wav")
+            legs["c0_no_prop"] = _gst_r81_leg(
+                "c0_no_prop",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 "target-object=" + GST_R81_NS, "num-buffers=100", "!",
+                 GST_R81_RAW, "!", "wavenc", "!", "filesink",
+                 f"location={cap0}"], ctx, out_path=cap0)
+            # c1: the prop opens the sink side — tone-anchored content.
+            tone = Path(tmp) / "tag.wav"
+            _playback_r78_write_tone(tone, 6.0)
+            feed = subprocess.Popen(
+                ["pw-play", "-P", f"node.name={GST_R81_TAG}_feed",
+                 "--target", GST_R81_NS, str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            cap1 = str(Path(tmp) / "c1.wav")
+            try:
+                legs["c1_prop_capture"] = _gst_r81_leg(
+                    "c1_prop_capture",
+                    ["gst-launch-1.0", "-q", "pipewiresrc",
+                     "target-object=" + GST_R81_NS,
+                     "stream-properties=props,stream.capture.sink=true",
+                     "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc",
+                     "!", "filesink", f"location={cap1}"], ctx,
+                    out_path=cap1)
+            finally:
+                try:
+                    os.killpg(feed.pid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    pass
+                feed.wait()
+            legs["c1_prop_capture"]["tone"] = \
+                _playback_r78_tone_windows(Path(cap1))
+            # c4: `target-object=<ns>.monitor` does not resolve — the
+            # capture lands on the *default* sink's monitor (the r77
+            # residual decided on a non-default probe sink).
+            cap4 = str(Path(tmp) / "c4.wav")
+            legs["c4_monitor_suffix"] = _gst_r81_leg(
+                "c4_monitor_suffix",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 f"target-object={GST_R81_NS}.monitor",
+                 "stream-properties=props,stream.capture.sink=true",
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap4}"], ctx, out_path=cap4)
+            # c7: prop-only node.target routes the capture with no gst
+            # target-object at all (the t6 law's benign half).
+            cap7 = str(Path(tmp) / "c7.wav")
+            legs["c7_prop_only"] = _gst_r81_leg(
+                "c7_prop_only",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 "stream-properties=props,stream.capture.sink=true,"
+                 "node.target=" + GST_R81_NS,
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap7}"], ctx, out_path=cap7)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default_seen = [entry["inventory"]["default_sink"],
+                    entry["oracle_at_start"]["sink_pactl"],
+                    entry["oracle_at_start"]["sink_meta"]]
+    default_seen = [d for d in default_seen if d]
+
+    def _node(lname):
+        return legs.get(lname) or {}, _gst_r81_last_node(
+            legs.get(lname) or {})
+
+    def _props(lname):
+        _l, nd = _node(lname)
+        return nd, (nd or {}).get("props") or {}
+
+    # ---- r1: the two-key write + honored route ----
+    leg, nd = _node("r1_target_object")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.target") != GST_R81_NS or \
+                props.get("target.object") != GST_R81_NS:
+            failures.append("route r1: target-object must write BOTH "
+                            f"keys — got node.target="
+                            f"{props.get('node.target')!r} target.object="
+                            f"{props.get('target.object')!r}")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r1: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- r2/r3: each single-key prop vector routes alone ----
+    for lname, key in (("r2_sp_node_target", "node.target"),
+                       ("r3_sp_target_object", "target.object")):
+        leg, nd = _node(lname)
+        other = "target.object" if key == "node.target" else "node.target"
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"route {lname}: leg failed or no node")
+            continue
+        props = nd.get("props") or {}
+        if props.get(key) != GST_R81_NS:
+            failures.append(f"route {lname}: {key} "
+                            f"{props.get(key)!r} != <ns>")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route {lname}: consumers "
+                            f"{nd.get('consumers')} != [<ns>] "
+                            f"(other key {other}="
+                            f"{props.get(other)!r})")
+    # ---- r4: the silent sink-side fallback ----
+    leg, nd = _node("r4_bogus_target")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r4: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_BOGUS or \
+                props.get("node.target") != GST_R81_BOGUS:
+            failures.append("route r4: bogus target must be written "
+                            f"verbatim — got {props.get('node.target')!r}/"
+                            f"{props.get('target.object')!r}")
+        cons = nd.get("consumers") or []
+        if cons != [entry["inventory"]["default_sink"]]:
+            failures.append(f"route r4: silent fallback must land the "
+                            f"leg-time default {default_seen} — got "
+                            f"{cons}")
+        if leg.get("stderr_head"):
+            failures.append(f"route r4: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- r5: the gst element property BEATS stream-properties ----
+    leg, nd = _node("r5_prop_beats_props")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r5: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                props.get("node.target") != GST_R81_NS:
+            failures.append("route r5: element prop must overwrite "
+                            f"stream-properties — got "
+                            f"{props.get('node.target')!r}/"
+                            f"{props.get('target.object')!r} (inverse of "
+                            "r78's -P-beats-flag law)")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r5: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- r6/r7: the env vectors ----
+    leg, nd = _node("r6_env_pipewire_props")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r6: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.target") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS] or \
+                nd.get("name") != f"{GST_R81_TAG}_env":
+            failures.append(f"route r6: PIPEWIRE_PROPS not honored — "
+                            f"name={nd.get('name')!r} node.target="
+                            f"{props.get('node.target')!r} consumers="
+                            f"{nd.get('consumers')}")
+    leg, nd = _node("r7_env_pipewire_node")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r7: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r7: PIPEWIRE_NODE must land as "
+                            f"target.object — got "
+                            f"{props.get('target.object')!r} consumers="
+                            f"{nd.get('consumers')}")
+    # ---- r8: node.autoconnect=false stalls unlinked, prop is a STRING ----
+    leg, nd = _node("r8_no_autoconnect")
+    if leg.get("killed") != "wallcap" or leg.get("exit_code") != -9:
+        failures.append(f"route r8: expected a stalled pipeline killed "
+                        f"at the wall cap — rc={leg.get('exit_code')} "
+                        f"killed={leg.get('killed')}")
+    if nd is not None:
+        props = nd.get("props") or {}
+        if props.get("node.autoconnect") != "FALSE":
+            failures.append("route r8: node.autoconnect must read the "
+                            f"STRING \"FALSE\" — got "
+                            f"{props.get('node.autoconnect')!r}")
+        if nd.get("consumers"):
+            failures.append(f"route r8: an autoconnect-off node must "
+                            f"stay unlinked — got {nd.get('consumers')}")
+    else:
+        failures.append("route r8: no node witnessed")
+    # ---- c0: the strict capture-side refusal ----
+    leg = legs.get("c0_no_prop") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 255 or \
+            leg.get("error_class") != "gst_target_not_found":
+        failures.append(f"route c0: expected rc=255 target not found — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"route c0: expected a 0-byte artifact — {out}")
+    # ---- c1: the prop opens the sink side; tag tone lands ----
+    leg = legs.get("c1_prop_capture") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    tw = leg.get("tone") or {}
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c1: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"route c1: producers "
+                            f"{nd.get('producers')} != [<ns>]")
+        props = nd.get("props") or {}
+        if props.get("stream.capture.sink") != "TRUE":
+            failures.append("route c1: gst writes stream.capture.sink "
+                            "as the STRING \"TRUE\" — got "
+                            f"{props.get('stream.capture.sink')!r}")
+    out = leg.get("out") or {}
+    if out.get("riff") != "finalized" or not tw.get("mine_windows"):
+        failures.append(f"route c1: expected a finalized wav carrying "
+                        f"the tag tone — riff={out.get('riff')} "
+                        f"mine={tw.get('mine_windows')}")
+    # ---- c4: the .monitor suffix does NOT resolve -> default monitor ----
+    leg = legs.get("c4_monitor_suffix") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c4: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [entry["inventory"]["default_sink"]]:
+            failures.append(f"route c4: <ns>.monitor must land the "
+                            f"DEFAULT monitor — producers "
+                            f"{nd.get('producers')}")
+        if GST_R81_NS in (nd.get("producers") or []):
+            failures.append("route c4: the .monitor name resolved to "
+                            "our sink — the r77 residual law is "
+                            "falsified")
+    # ---- c7: prop-only node.target routes the capture ----
+    leg = legs.get("c7_prop_only") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c7: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"route c7: producers "
+                            f"{nd.get('producers')} != [<ns>]")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) PULSE AXIS — `device=` is a server-side name; the direction split.
+# --------------------------------------------------------------------------
+def gst_pulse_axis_r81_entry():
+    """(4) `pulsesink device=` is a name handed to the SERVER, not a
+    client-side bind: the client writes it verbatim into target.object
+    and policy creates the link — a bogus name is rc=0 with a SILENT
+    fallback to the current default. The record direction refuses the
+    same input: `pulsesrc device=<bogus>` is rc=1 `No such entity` +
+    0-byte artifact. PULSE_SINK is honored as the client-local default
+    and `device=` outranks it; a dead `server=` is a state-change
+    refusal (rc=255). Pulse-protocol nodes carry client.api
+    =pipewire-pulse — the backend witness."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "pulse device= axis — server-side name resolution, silent "
+        "playback fallback vs strict record refusal, PULSE_SINK "
+        "precedence")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gst_r81_block(
+                entry, failures, "null sink load/enumerate failed",
+                loads)
+        legs["p1_device_ns"] = _gst_r81_leg(
+            "p1_device_ns",
+            base + ["pulsesink", "device=" + GST_R81_NS], ctx)
+        legs["p2_device_bogus"] = _gst_r81_leg(
+            "p2_device_bogus",
+            base + ["pulsesink", "device=" + GST_R81_BOGUS], ctx)
+        legs["p3_env_pulse_sink"] = _gst_r81_leg(
+            "p3_env_pulse_sink", base + ["pulsesink"], ctx,
+            env_extra={"PULSE_SINK": GST_R81_NS})
+        if default:
+            legs["p4_env_vs_device"] = _gst_r81_leg(
+                "p4_env_vs_device",
+                base + ["pulsesink", "device=" + default], ctx,
+                env_extra={"PULSE_SINK": GST_R81_NS})
+        else:
+            legs["p4_env_vs_device"] = {"skipped": "no default sink"}
+        legs["p5_bogus_server"] = _gst_r81_leg(
+            "p5_bogus_server",
+            base + ["pulsesink", "server=unix:/nonexistent-r81"], ctx)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-pulse-") as tmp:
+            cap = str(Path(tmp) / "rec.wav")
+            legs["p6_pulsesrc_bogus"] = _gst_r81_leg(
+                "p6_pulsesrc_bogus",
+                ["gst-launch-1.0", "-q", "pulsesrc",
+                 "device=" + GST_R81_BOGUS, "num-buffers=4", "!",
+                 GST_R81_RAW, "!", "wavenc", "!", "filesink",
+                 f"location={cap}"], dict(ctx, tmp=tmp), out_path=cap)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+
+    def _nd(lname):
+        return legs.get(lname) or {}, _gst_r81_last_node(
+            legs.get(lname) or {})
+
+    # ---- p1: device= writes target.object verbatim and routes ----
+    leg, nd = _nd("p1_device_ns")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("pulse p1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS:
+            failures.append(f"pulse p1: target.object "
+                            f"{props.get('target.object')!r} != <ns>")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"pulse p1: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+        if props.get("client.api") != "pipewire-pulse":
+            failures.append(f"pulse p1: client.api "
+                            f"{props.get('client.api')!r} != "
+                            "pipewire-pulse")
+    # ---- p2: the silent playback fallback (rc=0, verbatim prop, def) ----
+    leg, nd = _nd("p2_device_bogus")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"pulse p2: expected rc=0 + a node — "
+                        f"rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_BOGUS:
+            failures.append("pulse p2: the bogus name must reach "
+                            f"target.object verbatim — got "
+                            f"{props.get('target.object')!r}")
+        if nd.get("consumers") != [entry["inventory"]["default_sink"]]:
+            failures.append(f"pulse p2: silent fallback must land the "
+                            f"leg-time default — got "
+                            f"{nd.get('consumers')}")
+        if leg.get("stderr_head"):
+            failures.append(f"pulse p2: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- p3: PULSE_SINK is the client-local default ----
+    leg, nd = _nd("p3_env_pulse_sink")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("pulse p3: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"pulse p3: PULSE_SINK not honored — "
+                            f"target.object={props.get('target.object')!r} "
+                            f"consumers={nd.get('consumers')}")
+    # ---- p4: device= outranks PULSE_SINK ----
+    leg = legs.get("p4_env_vs_device") or {}
+    if "skipped" not in leg:
+        nd = _gst_r81_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append("pulse p4: leg failed or no node")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != default or \
+                    nd.get("consumers") != [default]:
+                failures.append(f"pulse p4: device= must beat "
+                                f"PULSE_SINK — target.object="
+                                f"{props.get('target.object')!r} "
+                                f"consumers={nd.get('consumers')} "
+                                f"default={default!r}")
+    # ---- p5: dead server -> state-change refusal ----
+    leg = legs.get("p5_bogus_server") or {}
+    if leg.get("exit_code") != 255 or \
+            leg.get("error_class") != "gst_connection_refused":
+        failures.append(f"pulse p5: expected rc=255 connection refused "
+                        f"— rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')} "
+                        f"err={leg.get('stderr_head')}")
+    elif "Failed to set pipeline to PAUSED" not in \
+            (leg.get("stderr") or ""):
+        failures.append("pulse p5: no `Failed to set pipeline to "
+                        "PAUSED` in stderr")
+    # ---- p6: the record direction refuses the same input ----
+    leg = legs.get("p6_pulsesrc_bogus") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 1 or \
+            leg.get("error_class") != "gst_no_such_entity":
+        failures.append(f"pulse p6: expected rc=1 No such entity — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')} "
+                        f"err={leg.get('stderr_head')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"pulse p6: expected a 0-byte artifact — {out}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) TARGET LOSS — playback re-links, capture freezes (the split law).
+# --------------------------------------------------------------------------
+def gst_target_loss_r81_entry():
+    """(5) The split law under target-node destruction: PLAYBACK
+    (`pipewiresink target-object=`, `pulsesink device=`) re-links to the
+    current default within one 0.2 s sample and never exits or errors;
+    CAPTURE (`pipewiresrc`) does NOT re-link — the artifact freezes at
+    the last buffer (unfinalized wavenc streaming header), no error, no
+    EOS, process alive to the wall cap. `on-disconnect=none|error|eos`
+    is inert; a prop-only target.object capture freezes identically
+    (the stale node.target prop is ruled out as the cause); a same-event
+    pw-record control re-links within one sample (the law is
+    client-specific). The unload fires by the NAME-VERIFIED index."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "target loss — playback re-links <= one 0.2 s sample, gst "
+        "capture freezes at the last buffer (no re-link, no error), "
+        "pw-record control re-links; on-disconnect inert")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    play = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "!", GST_R81_RAW, "!"]
+    try:
+        for name, argv in (
+                ("t1_pwsink", play +
+                 ["pipewiresink", "target-object=" + GST_R81_NS]),
+                ("t2_pulsesink", play +
+                 ["pulsesink", "device=" + GST_R81_NS])):
+            load = _gst_r81_ns_ensure(loads)
+            if not load.get("sink_seen"):
+                return _gst_r81_block(
+                    entry, failures,
+                    f"null sink load failed before {name}", loads)
+            legs[name] = _gst_r81_leg(
+                name, argv, ctx, timeline=0.2,
+                wall_cap=GST_R81_LOSS_WALL_S,
+                events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                         load.get("module_id"))])
+        with tempfile.TemporaryDirectory(prefix="gst-r81-loss-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            cap_tail = ["num-buffers=1000000", "!", GST_R81_RAW, "!",
+                        "wavenc", "!", "filesink"]
+            for name, argv in (
+                    ("t3_pwsrc",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t4_on_disconnect_error",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "on-disconnect=error",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t5_on_disconnect_eos",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "on-disconnect=eos",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t6_prop_only",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true,target.object=" +
+                      GST_R81_NS] + cap_tail)):
+                load = _gst_r81_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _gst_r81_block(
+                        entry, failures,
+                        f"null sink load failed before {name}", loads)
+                cap = str(Path(tmp) / f"{name}.wav")
+                legs[name] = _gst_r81_leg(
+                    name, argv + [f"location={cap}"], ctx,
+                    out_path=cap, timeline=0.2,
+                    wall_cap=GST_R81_LOSS_WALL_S,
+                    events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+            # t7: the pw-record control on the same host event (r80 L4).
+            load = _gst_r81_ns_ensure(loads)
+            if not load.get("sink_seen") or \
+                    not load.get("monitor_seen", True):
+                return _gst_r81_block(
+                    entry, failures,
+                    "null sink load failed before t7", loads)
+            cap = str(Path(tmp) / "t7.wav")
+            legs["t7_pw_record_control"] = _gst_r81_leg(
+                "t7_pw_record_control",
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "-P", f"node.name={GST_R81_TAG}_pwrec",
+                 "--target", GST_R81_NS, "-n", "1000000", cap],
+                ctx, out_path=cap, timeline=0.2,
+                wall_cap=GST_R81_LOSS_WALL_S,
+                events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                         load.get("module_id"))])
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+
+    def _unload_at(leg):
+        for f in leg.get("fired") or []:
+            if f.get("kind") == "unload_module":
+                return f.get("at"), (f.get("result") or {})
+        return None, {}
+
+    def _post(leg, t0):
+        return [s for s in leg.get("samples") or []
+                if s["t"] >= (t0 or 0)]
+
+    # ---- t1/t2: playback re-links to the default and never exits ----
+    for lname in ("t1_pwsink", "t2_pulsesink"):
+        leg = legs.get(lname) or {}
+        unl_at, res = _unload_at(leg)
+        post = _post(leg, unl_at)
+        if leg.get("killed") != "wallcap":
+            failures.append(f"loss {lname}: the consumer must still be "
+                            f"alive at the wall cap — rc="
+                            f"{leg.get('exit_code')} killed="
+                            f"{leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and \
+                not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        relink = None
+        for s in post:
+            cons = []
+            for nd in s.get("nodes") or []:
+                cons = nd.get("consumers") or []
+                if cons:
+                    break
+            if cons:
+                relink = (s["t"], cons)
+                break
+        if relink is None:
+            failures.append(f"loss {lname}: no post-unload sample shows "
+                            "a link — the re-link law fails")
+        else:
+            if relink[0] - (unl_at or 0) > GST_R81_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at "
+                                f"+{relink[0] - (unl_at or 0):.3f} s — "
+                                "beyond one 0.2 s sample")
+            if relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked consumers "
+                                f"{relink[1]} != the leg-time default "
+                                f"{default!r}")
+        if leg.get("stderr_head"):
+            failures.append(f"loss {lname}: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- t3-t6: the gst capture FREEZES — no re-link, no error ----
+    frozen = {}
+    for lname in ("t3_pwsrc", "t4_on_disconnect_error",
+                  "t5_on_disconnect_eos", "t6_prop_only"):
+        leg = legs.get(lname) or {}
+        unl_at, res = _unload_at(leg)
+        post = _post(leg, unl_at)
+        out = leg.get("out") or {}
+        sizes = [s.get("size") for s in post if s.get("size") is not None]
+        relinked = False
+        prods_seen = set()
+        for s in post:
+            for nd in s.get("nodes") or []:
+                prods_seen.update(nd.get("producers") or [])
+        if prods_seen:
+            relinked = True
+        frozen[lname] = {"relinked": relinked,
+                         "sizes_tail": sizes[-3:] if sizes else []}
+        if leg.get("killed") != "wallcap":
+            failures.append(f"loss {lname}: the frozen capture must be "
+                            f"alive at the wall cap — rc="
+                            f"{leg.get('exit_code')} killed="
+                            f"{leg.get('killed')}")
+        if leg.get("stderr_head"):
+            failures.append(f"loss {lname}: stderr must be EMPTY — "
+                            f"{leg['stderr_head']}")
+        if relinked:
+            failures.append(f"loss {lname}: the capture RE-LINKED to "
+                            f"{sorted(prods_seen)} — the split law is "
+                            "falsified")
+        if not out.get("exists") or (out.get("bytes") or 0) <= 44:
+            failures.append(f"loss {lname}: artifact must have real "
+                            f"bytes — {out}")
+        else:
+            if out.get("riff") not in ("wavenc_streaming",
+                                       "placeholder_7ffff000") or \
+                    out.get("data") == "finalized":
+                failures.append(f"loss {lname}: the frozen artifact "
+                                "must carry an UNFINALIZED wavenc "
+                                f"streaming header — riff="
+                                f"{out.get('riff')} data="
+                                f"{out.get('data')}")
+        if len(sizes) >= 2 and sizes[-1] != sizes[0]:
+            # growth after the unload means it kept consuming — the
+            # freeze claim fails even if links stayed empty.
+            failures.append(f"loss {lname}: file kept GROWING after "
+                            f"the unload — sizes {sizes[:2]}..{sizes[-2:]}")
+    # t4/t5/t6 outcomes must equal t3's (on-disconnect inert; prop-only
+    # identical — the stale node.target prop is ruled out).
+    base = frozen.get("t3_pwsrc") or {}
+    for lname in ("t4_on_disconnect_error", "t5_on_disconnect_eos",
+                  "t6_prop_only"):
+        cur = frozen.get(lname) or {}
+        if cur.get("relinked") != base.get("relinked"):
+            failures.append(f"loss {lname}: outcome differs from t3 — "
+                            "the inert-prop/identical-freeze law fails")
+    # ---- t7: the pw-record control DOES re-link (client-specific) ----
+    leg = legs.get("t7_pw_record_control") or {}
+    unl_at, res = _unload_at(leg)
+    post = _post(leg, unl_at)
+    out = leg.get("out") or {}
+    relink = None
+    for s in post:
+        prods = []
+        for nd in s.get("nodes") or []:
+            prods = nd.get("producers") or []
+            if prods:
+                break
+        if prods:
+            relink = (s["t"], prods)
+            break
+    if relink is None:
+        failures.append("loss t7: the pw-record control never "
+                        "re-linked — the client-specific law fails")
+    else:
+        if relink[0] - (unl_at or 0) > GST_R81_RELINK_BOUND_S:
+            failures.append(f"loss t7: control re-link at "
+                            f"+{relink[0] - (unl_at or 0):.3f} s — "
+                            "beyond one 0.2 s sample")
+        if relink[1] != [default]:
+            failures.append(f"loss t7: control re-linked producers "
+                            f"{relink[1]} != default monitor "
+                            f"{default!r}")
+    sizes = [s.get("size") for s in (leg.get("samples") or [])
+             if s.get("size") is not None]
+    if len(sizes) >= 2 and not (out.get("bytes") or 0) > max(
+            sizes[: max(1, len(sizes) // 2)]):
+        failures.append(f"loss t7: control file stopped growing — "
+                        f"sizes {sizes[:2]}..{sizes[-2:]} "
+                        f"final={out.get('bytes')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) EXIT CLASSES — parse refusal / state-change / the pulsesrc outlier.
+# --------------------------------------------------------------------------
+def gst_exit_classes_r81_entry():
+    """(6) The gst-launch exit/artifact classes: a PARSE refusal is
+    rc=1 `WARNING: erroneous pipeline:` (or `pipeline could not be
+    constructed`) and creates NO artifact — caps negotiation lands here
+    too because gst-launch checks caps at link time; a RUNTIME
+    state-change failure is rc=255 `ERROR: from element` + `Failed to
+    set pipeline to PAUSED` with a 0-byte artifact already created;
+    `pulsesrc` is the outlier — rc=1 WITH a 0-byte artifact. Assert the
+    (rc, artifact shape) PAIR — never rc alone."""
+    failures = []
+    legs = {}
+    entry = _gst_r81_entry_head(
+        "gst-launch exit classes — parse refusal rc=1/no-artifact, "
+        "state-change refusal rc=255/0-byte, pulsesrc outlier "
+        "rc=1/0-byte")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    with tempfile.TemporaryDirectory(prefix="gst-r81-exit-") as tmp:
+        ctx = dict(ctx, tmp=tmp)
+        f1 = str(Path(tmp) / "e1.wav")
+        f2 = str(Path(tmp) / "e10.wav")
+        f3 = str(Path(tmp) / "e11.wav")
+        L = [
+            ("e1_missing_element", "gst_parse_refusal",
+             ["gst-launch-1.0", "-q", "nosuchelementsrc_r81", "!",
+              "wavenc", "!", "filesink", f"location={f1}"], f1,
+             'no element "nosuchelementsrc_r81"'),
+            ("e3_bogus_property", "gst_parse_refusal",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "bogus-prop=42",
+              "num-buffers=4", "!", "fakesink"], None,
+             'no property "bogus-prop" in element "audiotestsrc"'),
+            ("e8_negotiation_f64", "gst_parse_refusal",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "num-buffers=4",
+              "!", "audio/x-raw,format=F64LE,rate=48000,channels=2",
+              "!", "pulsesink"], None,
+             "can't handle caps"),
+            ("e9_incomplete", "gst_parse_refusal",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "!"], None,
+             "syntax error"),
+            ("e10_pwsrc_no_prop", "gst_target_not_found",
+             ["gst-launch-1.0", "-q", "pipewiresrc",
+              "target-object=" + GST_R81_BOGUS, "num-buffers=4", "!",
+              GST_R81_RAW, "!", "wavenc", "!", "filesink",
+              f"location={f2}"], f2, "target not found"),
+            ("e11_pulsesrc_bogus", "gst_no_such_entity",
+             ["gst-launch-1.0", "-q", "pulsesrc",
+              "device=" + GST_R81_BOGUS, "num-buffers=4", "!",
+              GST_R81_RAW, "!", "wavenc", "!", "filesink",
+              f"location={f3}"], f3, "No such entity"),
+            ("p8_bogus_server", "gst_connection_refused",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+              "num-buffers=4", "!", GST_R81_RAW, "!", "pulsesink",
+              "server=unix:/nonexistent-r81"], None,
+             "Connection refused"),
+        ]
+        for name, cls, argv, op, hit in L:
+            legs[name] = _gst_r81_leg(name, argv, ctx, out_path=op,
+                                      wall_cap=GST_R81_WALL_S)
+            legs[name]["expect_class"] = cls
+            legs[name]["expect_hit"] = hit
+    entry["legs"] = legs
+    expect = {
+        "e1_missing_element": (1, "absent", "gst_parse_refusal"),
+        "e3_bogus_property": (1, "none", "gst_parse_refusal"),
+        "e8_negotiation_f64": (1, "none", "gst_parse_refusal"),
+        "e9_incomplete": (1, "none", "gst_parse_refusal"),
+        "e10_pwsrc_no_prop": (255, "zero_byte", "gst_target_not_found"),
+        "e11_pulsesrc_bogus": (1, "zero_byte", "gst_no_such_entity"),
+        "p8_bogus_server": (255, "none", "gst_connection_refused"),
+    }
+    for lname, (rc, shape, cls) in expect.items():
+        leg = legs.get(lname) or {}
+        out = leg.get("out") or {"exists": False}
+        if leg.get("exit_code") != rc:
+            failures.append(f"exit {lname}: rc {leg.get('exit_code')} "
+                            f"!= {rc}")
+        if leg.get("error_class") != cls:
+            failures.append(f"exit {lname}: error class "
+                            f"{leg.get('error_class')!r} != {cls!r} "
+                            f"(err={leg.get('stderr_head')})")
+        hit = leg.get("expect_hit")
+        if hit and hit not in (leg.get("stderr") or ""):
+            failures.append(f"exit {lname}: {hit!r} missing from "
+                            f"stderr — {leg.get('stderr_head')}")
+        if shape == "absent" and out.get("exists"):
+            failures.append(f"exit {lname}: a parse refusal must leave "
+                            f"NO artifact — {out}")
+        elif shape == "zero_byte" and \
+                (not out.get("exists") or out.get("bytes") != 0):
+            failures.append(f"exit {lname}: expected a 0-byte "
+                            f"artifact — {out}")
+    # the class-level statement: parse refusals never create the file,
+    # runtime refusals create it empty — assert across the whole entry.
+    parse = [l for l in expect if expect[l][2] == "gst_parse_refusal"]
+    runtime = [l for l in expect if expect[l][1] == "zero_byte"]
+    entry["class_summary"] = {
+        "parse_rc1_no_artifact": all(
+            not ((legs.get(l) or {}).get("out") or
+                 {"exists": False}).get("exists") for l in parse),
+        "runtime_refusal_zero_byte": all(
+            (((legs.get(l) or {}).get("out") or {}).get("bytes") == 0 and
+             ((legs.get(l) or {}).get("out") or {}).get("exists"))
+            for l in runtime)}
+    if not entry["class_summary"]["parse_rc1_no_artifact"]:
+        failures.append("exit classes: a parse-class leg left an "
+                        "artifact — the pair law fails")
+    if not entry["class_summary"]["runtime_refusal_zero_byte"]:
+        failures.append("exit classes: a runtime-class leg lacks the "
+                        "0-byte artifact — the pair law fails")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) AUTODETECT — the wrapper resolves to the pulse elements.
+# --------------------------------------------------------------------------
+def gst_autodetect_r81_entry():
+    """(7) The autodetect backend: `autoaudiosink` resolves to the PULSE
+    path (a pipewire-pulse protocol node appears, linked to the default
+    sink, media.name filled from the pipeline); `autoaudiosrc` resolves
+    to `pulsesrc` and inherits r77's no-working-default — rc=1
+    `Failed to connect stream: No such entity` + `not-negotiated (-4)`
+    + a 0-byte artifact. The `alsasink device=null` control leaves no
+    pw node — the "no pw node" signature really is an ALSA path."""
+    failures = []
+    legs = {}
+    entry = _gst_r81_entry_head(
+        "autodetect backend — autoaudiosink resolves to pulsesink "
+        "(pipewire-pulse node), autoaudiosrc to pulsesrc (rc=1 "
+        "no-default refusal); alsasink control leaves no pw node")
+    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=48", "!", GST_R81_RAW, "!"]
+    with tempfile.TemporaryDirectory(prefix="gst-r81-auto-") as tmp:
+        ctx = dict(ctx, tmp=tmp)
+        legs["a0_autoaudiosink"] = _gst_r81_leg(
+            "a0_autoaudiosink", base + ["autoaudiosink"], ctx)
+        cap = str(Path(tmp) / "a1.wav")
+        legs["a1_autoaudiosrc"] = _gst_r81_leg(
+            "a1_autoaudiosrc",
+            ["gst-launch-1.0", "-q", "autoaudiosrc", "!", GST_R81_RAW,
+             "!", "wavenc", "!", "filesink", f"location={cap}"],
+            ctx, out_path=cap)
+        legs["a2_alsasink_control"] = _gst_r81_leg(
+            "a2_alsasink_control",
+            base + ["alsasink", "device=null"], ctx)
+    entry["legs"] = legs
+    # ---- a0: the pulse backend appears and links to the default ----
+    leg = legs.get("a0_autoaudiosink") or {}
+    nd = _gst_r81_last_node(leg)
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"auto a0: leg failed or no node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("client.api") != "pipewire-pulse":
+            failures.append(f"auto a0: the autodetected backend is NOT "
+                            f"the pulse path — client.api="
+                            f"{props.get('client.api')!r}")
+        if nd.get("consumers") != [default]:
+            failures.append(f"auto a0: consumers {nd.get('consumers')} "
+                            f"!= leg-time default {default!r}")
+        if props.get("media.name") != "audiotest wave":
+            failures.append("auto a0: media.name must be filled from "
+                            f"the pipeline — got "
+                            f"{props.get('media.name')!r}")
+    # ---- a1: autoaudiosrc inherits the missing default (rc=1) ----
+    leg = legs.get("a1_autoaudiosrc") or {}
+    out = leg.get("out") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if leg.get("exit_code") != 1:
+        failures.append(f"auto a1: expected rc=1 — got "
+                        f"{leg.get('exit_code')}")
+    if "GstPulseSrc" not in err_text or "No such entity" not in err_text:
+        failures.append(f"auto a1: stderr must name the pulsesrc "
+                        f"refusal — {leg.get('stderr_head')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"auto a1: expected a 0-byte artifact — {out}")
+    # ---- a2: the ALSA control leaves no pw node ----
+    leg = legs.get("a2_alsasink_control") or {}
+    nodes_seen = [n for s in leg.get("samples") or []
+                  for n in (s.get("nodes") or [])]
+    if leg.get("exit_code") != 0:
+        failures.append(f"auto a2: control rc {leg.get('exit_code')} "
+                        f"!= 0")
+    if nodes_seen:
+        failures.append(f"auto a2: an ALSA path must publish NO pw "
+                        f"stream node — saw {[n.get('name') for n in nodes_seen]}")
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -12662,13 +14323,14 @@ def main():
     parser.add_argument("--probe-consumers-r73", action="store_true")
     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
     parser.add_argument("--probe-consumers2-r75", action="store_true")
+    parser.add_argument("--probe-gst-r81", action="store_true")
     parser.add_argument("--probe-module-r80", action="store_true")
     parser.add_argument("--probe-capture-r79", action="store_true")
     parser.add_argument("--probe-capture-r78", action="store_true")
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -12959,6 +14621,27 @@ def main():
             path = ROOT / "live" / directory / filename
             measurements[f"consumer2_{member}_r75_probe"] = \
                 consumer2_transport_entry(member, path)
+    if args.probe_gst_r81:
+        # r81: GST<->PIPEWIRE frontier — the GStreamer clients' element
+        # lattice, the node/Client naming crossover, the routing vectors
+        # and their precedence, the pulse device= axis, the direction-
+        # split target-loss law, the gst-launch exit classes and the
+        # autodetect backend. A NEW parallel ledger family, prior rows
+        # untouched; the r76-r80 guards are inherited (name-verified
+        # unloads, seat-owned gst_r81_* names, never set-default-*,
+        # triple-bounded captures inside the pgid-owning loop).
+        measurements["gst_element_lattice_r81_probe"] = \
+            gst_element_lattice_r81_entry()
+        measurements["gst_naming_r81_probe"] = gst_naming_r81_entry()
+        measurements["gst_routing_r81_probe"] = gst_routing_r81_entry()
+        measurements["gst_pulse_axis_r81_probe"] = \
+            gst_pulse_axis_r81_entry()
+        measurements["gst_target_loss_r81_probe"] = \
+            gst_target_loss_r81_entry()
+        measurements["gst_exit_classes_r81_probe"] = \
+            gst_exit_classes_r81_entry()
+        measurements["gst_autodetect_r81_probe"] = \
+            gst_autodetect_r81_entry()
     if args.probe_module_r80:
         # r80: the pactl load-module frontier — the argument lattice
         # (description= silently dropped vs sink_properties honored,
@@ -13530,7 +15213,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -13550,7 +15233,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
