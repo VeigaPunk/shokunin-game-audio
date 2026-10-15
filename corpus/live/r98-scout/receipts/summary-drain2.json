@@ -1,0 +1,38 @@
+{
+ "utc": "2026-10-15T20:19:59Z",
+ "stage": "drain2",
+ "sink_module": "536870929",
+ "sink_serial": 130175,
+ "sink_id": "125",
+ "probe_sha": "aab37319e33721edb53dc2f1a9bdd27026eba2659d53e2485d9922c6676d71fe",
+ "probe_c_sha": "d73353de24d0c9cb6171f783029bd0196fbb63bc064264c866e0826a887548c2",
+ "entry_census": {
+  "utc": "2026-10-15T20:19:44Z",
+  "n_objects": 83,
+  "r98s_nodes": [],
+  "r98s_modules_pactl": [],
+  "r98s_procs": [
+   "3652688 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout/probes && python3 - <<'EOF' p='r98stream.c' s=open(p).read() s=s.replace(\"\"\"?if (d->drain_done && d->n_drained > 0) ??; ?else if (d->activate_after > 0 && !d->activate_done) {\"\"\", \"\"\"?if (d->drain_done) { ??arm_timer_rel(d, 20); ??return; ?} ?if (d->activate_after > 0 && !d->activate_done) {\"\"\") open(p,'w').write(s) print('ok') EOF gcc -O2 -Wall -o r98stream r98stream.c $(pkg-config --cflags --libs libpipewire-0.3) -lm 2>&1|head -3; sha256sum r98stream; cd .. && python3 r98driver.py drain2 > runs/drain2b.log 2>&1; echo rc=$?; tail -4 runs/drain2b.log; python3 - <<'EOF' import json for r in json.load(open('receipts/battery-drain2.json')):     p=r['parsed']     ev=[e for e in p.get('_events',[]) if 'drained' in e or 'drain_flush' in e]     print(r['leg'],'rep',r['rep'],'rc',r['rc'],'wall',r['wall_ms'],'n_drained',p.get('n_drained'),'flush_rc',p.get('flush_rc'),'cb',p.get('cb_count'),'first_ev',ev[:2]) EOF"
+  ],
+  "stream_properties_r98s_lines": [
+   "Audio/Sink:node.name:r98s_ns={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}"
+  ]
+ },
+ "exit_census": {
+  "utc": "2026-10-15T20:19:59Z",
+  "n_objects": 95,
+  "r98s_nodes": [],
+  "r98s_modules_pactl": [],
+  "r98s_procs": [
+   "3652688 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout/probes && python3 - <<'EOF' p='r98stream.c' s=open(p).read() s=s.replace(\"\"\"?if (d->drain_done && d->n_drained > 0) ??; ?else if (d->activate_after > 0 && !d->activate_done) {\"\"\", \"\"\"?if (d->drain_done) { ??arm_timer_rel(d, 20); ??return; ?} ?if (d->activate_after > 0 && !d->activate_done) {\"\"\") open(p,'w').write(s) print('ok') EOF gcc -O2 -Wall -o r98stream r98stream.c $(pkg-config --cflags --libs libpipewire-0.3) -lm 2>&1|head -3; sha256sum r98stream; cd .. && python3 r98driver.py drain2 > runs/drain2b.log 2>&1; echo rc=$?; tail -4 runs/drain2b.log; python3 - <<'EOF' import json for r in json.load(open('receipts/battery-drain2.json')):     p=r['parsed']     ev=[e for e in p.get('_events',[]) if 'drained' in e or 'drain_flush' in e]     print(r['leg'],'rep',r['rep'],'rc',r['rc'],'wall',r['wall_ms'],'n_drained',p.get('n_drained'),'flush_rc',p.get('flush_rc'),'cb',p.get('cb_count'),'first_ev',ev[:2]) EOF"
+  ],
+  "stream_properties_r98s_lines": [
+   "Audio/Sink:node.name:r98s_ns={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}"
+  ]
+ },
+ "unload": {
+  "rc": 0,
+  "err": ""
+ },
+ "defaults": "Server String: /run/user/1000/pulse/native\nLibrary Protocol Version: 35\nServer Protocol Version: 35\nIs Local: yes\nClient Index: 130266\nTile Size: 65472\nUser Name: vgpnk\nHost Name: plazir27\nServer Name: PulseAudio (on PipeWire 1.6.8)\nServer Version: 15.0.0\nDefault Sample Specification: float32le 2ch 48000Hz\nDefault Channel Map: front-left,front-right\nDefault Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nDefault Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nCookie: 17ac:13e6\n"
+}

@@ -1,0 +1,42 @@
+{
+ "utc": "2026-10-15T20:11:53Z",
+ "stage": "info",
+ "sink_module": "536870929",
+ "sink_serial": 123513,
+ "sink_id": "95",
+ "probe_sha": "7501bd7b2bf99c646b524fbe73c8bbc7cdbacba707877eb003bf0cfc6a7e702e",
+ "probe_c_sha": "fd968202018a6d0414417ae7b83dbf9110b8004a7f4a7963b634cf633d5506ae",
+ "entry_census": {
+  "utc": "2026-10-15T20:11:51Z",
+  "n_objects": 177,
+  "r98s_nodes": [
+   "r98s_ns"
+  ],
+  "r98s_modules_pactl": [
+   "536870929\tmodule-null-sink\tsink_name=r98s_ns channels=1 rate=48000 sink_properties=state.restore-props=false,device.description=r98s_ns\t"
+  ],
+  "r98s_procs": [
+   "2963147 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout && python3 - <<'EOF' p='r98driver.py' s=open(p).read() s=s.replace('            mynode = f\"r98s_{args_name(args)}\"','            mynode = \"r98s_\" + (args_name(args) or args[0])') s=s.replace('[\"pw-profiler\", \"-J\", \"-n\", \"200\"]','[\"pw-profiler\", \"-J\", \"-n\", \"400\"]') open(p,'w').write(s) print('ok') EOF python3 -c \"import ast;ast.parse(open('/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout/r98driver.py').read());print('syntax ok')\" && timeout 120 python3 r98driver.py info 2>&1 | tail -10"
+  ],
+  "stream_properties_r98s_lines": [
+   "Audio/Sink:node.name:r98s_ns={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}"
+  ]
+ },
+ "exit_census": {
+  "utc": "2026-10-15T20:11:53Z",
+  "n_objects": 174,
+  "r98s_nodes": [],
+  "r98s_modules_pactl": [],
+  "r98s_procs": [
+   "2963147 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout && python3 - <<'EOF' p='r98driver.py' s=open(p).read() s=s.replace('            mynode = f\"r98s_{args_name(args)}\"','            mynode = \"r98s_\" + (args_name(args) or args[0])') s=s.replace('[\"pw-profiler\", \"-J\", \"-n\", \"200\"]','[\"pw-profiler\", \"-J\", \"-n\", \"400\"]') open(p,'w').write(s) print('ok') EOF python3 -c \"import ast;ast.parse(open('/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout/r98driver.py').read());print('syntax ok')\" && timeout 120 python3 r98driver.py info 2>&1 | tail -10"
+  ],
+  "stream_properties_r98s_lines": [
+   "Audio/Sink:node.name:r98s_ns={\"volume\":1.000000, \"channelMap\":[\"MONO\"], \"mute\":false, \"channelVolumes\":[1.000000]}"
+  ]
+ },
+ "unload": {
+  "rc": 0,
+  "err": ""
+ },
+ "defaults": "Server String: /run/user/1000/pulse/native\nLibrary Protocol Version: 35\nServer Protocol Version: 35\nIs Local: yes\nClient Index: 123644\nTile Size: 65472\nUser Name: vgpnk\nHost Name: plazir27\nServer Name: PulseAudio (on PipeWire 1.6.8)\nServer Version: 15.0.0\nDefault Sample Specification: float32le 2ch 48000Hz\nDefault Channel Map: front-left,front-right\nDefault Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\nDefault Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\nCookie: 17ac:13e6\n"
+}

@@ -1,0 +1,7 @@
+drain_cb r0: rc=0 wall=2512ms state=streaming cb=3
+drain_cb r1: rc=0 wall=2516ms state=streaming cb=3
+drain_cb r2: rc=0 wall=2511ms state=streaming cb=3
+drain_timer2 r0: rc=0 wall=2513ms state=streaming cb=4
+drain_timer2 r1: rc=0 wall=2511ms state=streaming cb=4
+drain_timer2 r2: rc=0 wall=2513ms state=streaming cb=4
+exit census r98s nodes: [] modules: [] procs: ['3652688 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r98-scout/probes && python3 - <<\'EOF\' p=\'r98stream.c\' s=open(p).read() s=s.replace("""?if (d->drain_done && d->n_drained > 0) ??; ?else if (d->activate_after > 0 && !d->activate_done) {""", """?if (d->drain_done) { ??arm_timer_rel(d, 20); ??return; ?} ?if (d->activate_after > 0 && !d->activate_done) {""") open(p,\'w\').write(s) print(\'ok\') EOF gcc -O2 -Wall -o r98stream r98stream.c $(pkg-config --cflags --libs libpipewire-0.3) -lm 2>&1|head -3; sha256sum r98stream; cd .. && python3 r98driver.py drain2 > runs/drain2b.log 2>&1; echo rc=$?; tail -4 runs/drain2b.log; python3 - <<\'EOF\' import json for r in json.load(open(\'receipts/battery-drain2.json\')):     p=r[\'parsed\']     ev=[e for e in p.get(\'_events\',[]) if \'drained\' in e or \'drain_flush\' in e]     print(r[\'leg\'],\'rep\',r[\'rep\'],\'rc\',r[\'rc\'],\'wall\',r[\'wall_ms\'],\'n_drained\',p.get(\'n_drained\'),\'flush_rc\',p.get(\'flush_rc\'),\'cb\',p.get(\'cb_count\'),\'first_ev\',ev[:2]) EOF']
