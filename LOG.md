@@ -1385,3 +1385,10 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   PASS (T1-T7 -8 queued); scribe boundary-INTACT, author stamp-defect.
 - LAWS: malformed-prop 2-class lattice; -i/-o/-P empty SIGSEGV family;
   -d transport delay; uint32 wrap; resample |x| artifact; MONO=0.5(L+R).
+- ROUND 82 (2026-10-15): ffmpeg transport lattice. ADMIT-corr — folded
+  d6167399 (+198/-77: simplifier -25, tones re-keyed pid-class killing
+  the r78 collision, rc-8 class armed, a2 Speaker+gate, t2 zeros gate,
+  exact-name unload + flock), verified on folded bytes cab9f08e (77 legs
+  x3, foreign-name unload negative control live).
+- LAWS: folded pre-authoring boundary corrections held; all wave-B
+  findings resolved in the fold.

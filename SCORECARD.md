@@ -853,3 +853,13 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | Three latent defects proven-live and queued (empty-transport false-green, substring unload foreign kill, env non-hermeticity); envelope slack 2-4x flagged; author citation defect (red-run stamp) corrected on record; T1-T7 -8 patch proven and queued. Work `a151a226` + fold queue. |
 
 | r83 | audio | pw-cat/pw-record arg lattice | ADMIT-with-findings | a151a226 |
+
+## Round 82 verdict — 2026-10-15
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | 8 entries / 77 legs over ffmpeg transport (post-fold adds +1 leg for the armed rc-8 class); verifier-r2 ×3 green on folded bytes, `normal` sha byte-identical to canonical. |
+| depth | **improved** | fold closed every wave-B finding: tone-band collision (pid-class re-key + band-clear guard, two pid classes exercised), `a2` Speaker retarget + `holder_consumers` gate, `t2_cap` post-unlink zeros gate, exact-name unload with live foreign-name negative control, same-family flock. |
+| calibration | **improved** | 13 critic findings + 2 reviewer findings + 10 simplifier deletions all resolved in one fold; scribe custody INTACT throughout; one /tmp-quota environmental flake correctly rejected by the new gate. |
+
+| r82 | audio | ffmpeg transport lattice | ADMIT-corr | d6167399 + cab9f08e |
