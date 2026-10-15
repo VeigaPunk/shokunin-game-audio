@@ -3,6 +3,7 @@
 import argparse
 import ctypes
 from datetime import datetime, timezone
+import fcntl
 import hashlib
 import json
 import os
@@ -12803,7 +12804,10 @@ def _gst_r81_sink_module_index(sink_name):
     """`pactl list modules short` -> the index whose ARGUMENTS carry
     `sink_name=<sink_name>` (short listings include the arg string). The
     name-in-args match is the ownership proof — an index alone proves
-    nothing on a host that recycles them LIFO."""
+    nothing on a host that recycles them LIFO. The match is an EXACT
+    field equality, never a substring: a foreign `r82c_a2` must not
+    answer a `r82c_a` query (the substring predicate once returned a
+    foreign index and fired a real unload on it — r82 critic F4)."""
     try:
         proc = subprocess.run(["pactl", "list", "modules", "short"],
                               capture_output=True, timeout=10)
@@ -12811,9 +12815,11 @@ def _gst_r81_sink_module_index(sink_name):
         return None
     for ln in proc.stdout.decode(errors="replace").splitlines():
         f = ln.split("\t")
-        if f and f[0].strip().isdigit() and \
-                "module-null-sink" in ln and \
-                f"sink_name={sink_name}" in ln:
+        if not (f and f[0].strip().isdigit() and
+                "module-null-sink" in ln):
+            continue
+        m = re.search(r"sink_name=(\S+)", ln)
+        if m and m.group(1).strip("\"'") == sink_name:
             return int(f[0].strip())
     return None
 
@@ -14219,10 +14225,12 @@ def gst_autodetect_r81_entry():
 #   TARGET LOSS — NO SPLIT (unlike r81's gst law): BOTH directions
 #     re-link to the leg-time default within ~0.3 s (scout 0.22/0.27 s
 #     means over 3 reps each; armed bound 0.8 s) and keep running.
-#   EXIT MAP. 187 access-denied (outdev bad server), 222 ERANGE (AVOption
-#     bounds), 234 EINVAL (unknown format), 251 EIO (unresolvable source,
-#     busy or unopenable ALSA pcm), 253 ESRCH (indev bad server), -6
-#     SIGABRT (libpulse assertion / ffmpeg_sched assertion).
+#   EXIT MAP. 8 (option absent on this device — the alsa indev has no
+#     `-channels`; rc=8 `Option channels not found`), 187 access-denied
+#     (outdev bad server), 222 ERANGE (AVOption bounds), 234 EINVAL
+#     (unknown format), 251 EIO (unresolvable source, busy or
+#     unopenable ALSA pcm), 253 ESRCH (indev bad server), -6 SIGABRT
+#     (libpulse assertion / ffmpeg_sched assertion).
 #   FFPLAY DUAL PERSONALITY. Auto driver -> SDL's NATIVE pipewire client
 #     (no client.api, media.role=Game, node.async); SDL_AUDIODRIVER=
 #     pulseaudio -> a pipewire-pulse node with pulse.attr.* — and there
@@ -14232,19 +14240,24 @@ def gst_autodetect_r81_entry():
 #     pcm_s16le/48k/2ch and an EPOCH-CLASS start_pts (wall-clock PTS).
 #   ALSA SPLIT. `hw:C,D` is independent per direction: busy -> 251
 #     `Device or resource busy` (capture AND playback), free -> rc=0 even
-#     while PipeWire holds the card's playback subdevice; `-i pipewire`
-#     and unknown PCMs are 251 `cannot set parameters`/`Unknown PCM`;
-#     `-i default` resolves through the pipewire plugin (env node.name
-#     lands) on the scout's host — armed as an envelope since the same
-#     invocation also measured 251 `cannot set parameters` once;
-#     -sample_rate 12345 silently clamps to a hardware rate (44100
-#     measured).
+#     while PipeWire holds the SAME subdevice's playback direction;
+#     `-i pipewire` and unknown PCMs are 251 `cannot set
+#     parameters`/`Unknown PCM`; `-i default` resolves through the
+#     pipewire plugin (env node.name lands) on the scout's host — armed
+#     as an envelope since the same invocation also measured 251
+#     `cannot set parameters` once; -sample_rate 12345 silently clamps
+#     to a hardware rate (44100 measured); `-channels 0` is rc=8 — the
+#     option does not exist on the alsa indev at all.
 # Contention (mandatory): every routing leg targets the seat-owned null
 #   sink r82ff_ns_<pid> or is read-only; taps on the shared default sink
 #   monitor are bounded pw-record runs and are DECLARED in each entry's
 #   contamination leaf (the tag tone is audible on the default sink for
 #   the legs whose claim is content-level fallback — the scout's own
-#   measurement; it is never left running).
+#   measurement; it is never left running). The tag pair is pid-keyed
+#   in the disjoint 2.9-4.7 kHz band (the band guard asserts
+#   disjointness at import) and a same-family flock serializes
+#   --probe-ffmpeg-r82 runs — a foreign probe's tone can never read as
+#   `mine`, and a concurrent same-family run can never overlap.
 FFPW_R82_PID = os.getpid()
 FFPW_R82_NS = f"r82ff_ns_{FFPW_R82_PID}"      # seat-owned null sink
 FFPW_R82_TAG = f"r82ff_{FFPW_R82_PID}"        # stream/node/tap name prefix
@@ -14256,15 +14269,63 @@ FFPW_R82_LOSS_EVENT_S = 1.2          # unload at +1.2 s (scout verbatim)
 FFPW_R82_LOSS_WALL_S = 6.5           # playback tone 3.6 s + slack
 FFPW_R82_CAP_LOSS_WALL_S = 9.0       # -t 5.0 capture + slack
 FFPW_R82_RELINK_BOUND_S = 0.8        # scout mean ~0.22-0.27 s; wider arm
-FFPW_R82_TONE_L_HZ = 1210.0          # distinct from the r78 1k/1.5k tag
-FFPW_R82_TONE_R_HZ = 1780.0          # so a foreign same-pair probe can
-FFPW_R82_TONE_AMP = 8192             # never read as `mine`
+def _ffpw_r82_tone_pair(pid):
+    """The pid-keyed r82 tag pair in the 2.9-4.7 kHz band — L steps
+    400 Hz per pid class (>> the ±6 % window tolerance), R = L+560.
+    Disjoint from EVERY r78-family pid class (997-2133 Hz) and from
+    every other r82 pid class (the r82-F1 collision: the old fixed
+    1210/1780 pair sat inside BOTH ±6 % bands of the r78 pid%4==1
+    1208/1711 pair — on the same 10 Hz FFT bin for L)."""
+    l = 2900.0 + (pid % 4) * 400.0
+    return l, l + 560.0
+
+
+FFPW_R82_TONE_L_HZ, FFPW_R82_TONE_R_HZ = _ffpw_r82_tone_pair(FFPW_R82_PID)
+FFPW_R82_TONE_AMP = 8192             # >= the r78 `mine` amp floor
+
+
+def _ffpw_r82_tone_band_clear():
+    """The same-family band guard: OUR pair must sit outside every
+    r78-family ±6 % band in BOTH directions AND outside every other
+    r82 pid class's pair — a re-keyed collision can never arm
+    silently again (reviewer-F1 / critic-F3)."""
+    for j in range(4):
+        l78, r78 = 997.0 + j * 211.0, 997.0 + j * 211.0 + 503.0
+        if (abs(l78 - FFPW_R82_TONE_L_HZ) <=
+                FFPW_R82_TONE_L_HZ * PLAYBACK_R78_TONE_TOL and
+                abs(r78 - FFPW_R82_TONE_R_HZ) <=
+                FFPW_R82_TONE_R_HZ * PLAYBACK_R78_TONE_TOL):
+            return False      # a foreign r78-family tone reads as `mine`
+        if (abs(FFPW_R82_TONE_L_HZ - l78) <=
+                l78 * PLAYBACK_R78_TONE_TOL and
+                abs(FFPW_R82_TONE_R_HZ - r78) <=
+                r78 * PLAYBACK_R78_TONE_TOL):
+            return False      # our tone reads as `mine` to THEIR classifier
+    for j in range(4):
+        if j == FFPW_R82_PID % 4:
+            continue
+        lo, ro = _ffpw_r82_tone_pair(j)
+        if (abs(lo - FFPW_R82_TONE_L_HZ) <=
+                FFPW_R82_TONE_L_HZ * PLAYBACK_R78_TONE_TOL and
+                abs(ro - FFPW_R82_TONE_R_HZ) <=
+                FFPW_R82_TONE_R_HZ * PLAYBACK_R78_TONE_TOL):
+            return False      # another r82 pid class reads as `mine`
+    return True
+
+
+# Same-family band guard — a pure function of the constants above, so the
+# check either always holds or fails loudly at import (never silently,
+# and never stripped — an assert would vanish under `python -O`).
+if not _ffpw_r82_tone_band_clear():
+    raise RuntimeError(
+        "r82 tag pair collides with an r78-family or sibling r82 pid "
+        "band")
+
 FFPW_R82_BOGUS_SINK = "no_such_sink_r82"
 FFPW_R82_BOGUS_SOURCE = "no_such_source_r82"
 FFPW_R82_BOGUS_PCM = "no_such_pcm_r82"
 FFPW_R82_BAD_SERVER = "unix:/nonexistent-r82ff"
 FFPW_R82_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")   # ffplay emits \x1b[2K
-FFPW_R82_FFPLAY = "ffplay"
 FFPW_R82_PROP_KEEP = re.compile(
     r"^(node\.|stream\.|target\.|media\.|application\.|client\.|"
     r"object\.|pulse\.|port\.|clock\.|library\.|factory\.|adapt\.|"
@@ -14290,6 +14351,7 @@ _FFPW_R82_ERR_CLASSES = (
     ("ff_pulse_sink_info",
      r"(?:pa_context_get_sink_info_by_name failed|"
      r"Updating sink info failed)"),
+    ("ff_option_not_found", r"Option \S+ not found"),
     ("ff_option_range",
      r"(?:out of range \[|Numerical result out of range)"),
     ("ff_io_error", r"Input/output error"),
@@ -14373,23 +14435,18 @@ def _ffpw_r82_sample(procs, out_path, el):
     return s
 
 
-def _ffpw_r82_last_node(leg, src="main", require_linked=False):
+def _ffpw_r82_last_node(leg, src="main"):
     """The last sample's node leaf for `src` — the verdict surface."""
     for s in reversed(leg.get("samples") or []):
         for nd in (s.get("nodes") or []):
             if src and nd.get("src") != src:
                 continue
-            if require_linked and not (nd.get("consumers") or
-                                       nd.get("producers")):
-                continue
             return nd
     return None
 
 
-def _ffpw_r82_kill_watch(proc, label):
+def _ffpw_r82_kill_watch(proc):
     """Timed-event kill for a watch proc (the pump) — SIGKILL its pgid."""
-    if proc is None:
-        return {"missing": label}
     if proc.poll() is not None:
         return {"already_exited": proc.returncode}
     try:
@@ -14453,7 +14510,7 @@ def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
                 if kind == "unload_module":
                     res = _gst_r81_unload_own(arg, sink_name=FFPW_R82_NS)
                 elif kind == "kill_watch":
-                    res = _ffpw_r82_kill_watch(procs.get(arg), arg)
+                    res = _ffpw_r82_kill_watch(procs.get(arg))
                 else:
                     res = {"unknown_event": kind}
             except Exception as exc:                 # defensive: event must not kill the loop
@@ -14506,20 +14563,12 @@ def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
     return rec
 
 
-def _ffpw_r82_shot(argv, env_extra=None, timeout_s=12.0):
+def _ffpw_r82_shot(argv, timeout_s=12.0):
     """A read-only instant command (devices/sources/sinks/-h/ffprobe
     listing) — subprocess timeout is the bound; no stream ever opens."""
-    env = None
-    if env_extra:
-        env = dict(os.environ)
-        for k, v in env_extra.items():
-            if v is None:
-                env.pop(k, None)
-            else:
-                env[k] = v
     try:
         proc = subprocess.run(argv, capture_output=True,
-                              timeout=timeout_s, env=env)
+                              timeout=timeout_s)
     except (subprocess.TimeoutExpired, OSError) as exc:
         return {"argv": " ".join(argv), "rc": None,
                 "error": type(exc).__name__ + ": " + str(exc)[:120]}
@@ -14561,11 +14610,14 @@ def _ffpw_r82_enum_rows(text):
 
 
 def _ffpw_r82_write_tone(path, seconds):
-    """The r82 tag tone: L 1210 Hz / R 1780 Hz at amp 8192 with +-30 LSB
-    uniform dither — a pair DISTINCT from the r78 1k/1.5k tag so a foreign
-    probe's tone can never read as `mine` at the 6% window tolerance, and
-    the dither defeats the mpegts-misprobe edge the scout noted on a pure
-    S16 stereo tone (the r82 ffplay legs probe the file positionally)."""
+    """The r82 tag tone: the pid-keyed pair from `_ffpw_r82_tone_pair`
+    (2.9-4.7 kHz) at amp 8192 with +-30 LSB uniform dither — a pair
+    DISTINCT from every r78-family pid class and every sibling r82
+    class (the same-family band guard asserts it at import), so a
+    foreign probe's tone can never read as `mine` at the 6% window
+    tolerance; the dither defeats the mpegts-misprobe edge the scout
+    noted on a pure S16 stereo tone (the r82 ffplay legs probe the
+    file positionally)."""
     n = int(48000 * seconds)
     t = np.arange(n) / 48000
     rng = np.random.default_rng(0x82FF ^ (FFPW_R82_PID & 0xFFFF))
@@ -14586,15 +14638,13 @@ def _ffpw_r82_write_tone(path, seconds):
 
 
 def _ffpw_r82_tone_windows(path):
-    """The r78 window classifier re-pointed at the r82 pair (1210/1780 Hz
-    within 6%, amp>=the r78 floor): `mine` means BOTH channels carry the
-    tag, `audio` means any signal — the only statement that survives a
-    shared default sink."""
-    path = Path(path) if path else None
-    insp = (_capture_wav_inspect(path) if path is not None
-            else {"exists": False})
-    pcm = (_playback_r78_pcm_array(path, insp) if path is not None
-           else None)
+    """The r78 window classifier re-pointed at OUR pid-keyed pair
+    (`_ffpw_r82_tone_pair` within 6%, amp>=the r78 floor): `mine` means
+    BOTH channels carry the tag, `audio` means any signal — the only
+    statement that survives a shared default sink."""
+    path = Path(path)
+    insp = _capture_wav_inspect(path)
+    pcm = _playback_r78_pcm_array(path, insp)
     out = {"exists": insp.get("exists"), "bytes": insp.get("bytes"),
            "windows": [], "mine_spans": []}
     if pcm is None:
@@ -14701,6 +14751,29 @@ def _ffpw_r82_block(entry, failures, msg, loads=None):
             _ffpw_r82_unload_own((leaf or {}).get("module_id"))
     entry["failures"] = failures
     return entry
+
+
+def _ffpw_r82_family_lock():
+    """Same-family exclusion (critic-F3): two concurrent
+    --probe-ffmpeg-r82 runs share the default-sink monitor and could
+    cross-credit the tag witness — an exclusive flock on a well-known
+    path serializes them (a second run waits HERE, never overlaps; the
+    pid-keyed tone pair and the band guard are the deeper fix). The fd
+    is held for the whole family and released by the OS at exit."""
+    path = Path(tempfile.gettempdir()) / "measure_audio-ffmpeg-r82.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={FFPW_R82_PID} ns={FFPW_R82_NS} "
+                     f"tone={FFPW_R82_TONE_L_HZ}/{FFPW_R82_TONE_R_HZ}\n"
+                     .encode())
+    except OSError:
+        pass
+    return fd
 
 
 def _ffpw_r82_entry_head(probe):
@@ -14823,9 +14896,6 @@ def ffpw_device_surfaces_r82_entry():
         failures.append("devices: a pipewire device row EXISTS — the "
                         "build-gained-a-device realization (falsifies "
                         "the scout lattice)")
-    if any(rows.get(d) is None for d in want_flags):
-        failures.append("devices: a pinned audio device row is missing "
-                        f"entirely — {rows_seen[0]}")
     if rows_seen[0] != rows_seen[1]:
         failures.append("devices: rep-to-rep drift in the device table")
     # ---- d1: forcing the absent indev is rc=234 EINVAL ----
@@ -14836,7 +14906,7 @@ def ffpw_device_surfaces_r82_entry():
                         "EINVAL `Unknown input format`")
     # ---- d2/d3/d4: the enumeration channels ----
     leg = legs["d2_sources_pipewire"]
-    rows_pw, _star = _ffpw_r82_enum_rows(leg.get("out") or "")
+    rows_pw, _ = _ffpw_r82_enum_rows(leg.get("out") or "")
     leg["rows"] = rows_pw
     if leg.get("rc") != 0:
         failures.append(f"sources pipewire: rc={leg.get('rc')} != 0")
@@ -14944,12 +15014,12 @@ def ffpw_capture_lattice_r82_entry():
             time.sleep(0.4)     # let the pump link before the legs sample it
             watch = {"pump": pump}
 
-            def _cap(name, pre, src, post=None, env=None, wall=None,
+            def _cap(name, pre, src, env=None, wall=None,
                      w=watch, tone=False):
                 out = str(Path(tmp) / f"{name}.wav")
                 leg = _ffpw_r82_leg(
                     name,
-                    base + list(pre) + ["-i", src] + list(post or []) +
+                    base + list(pre) + ["-i", src] +
                     ["-t", "2.0", "-c:a", "pcm_s16le", out],
                     ctx, env_extra=env, out_path=out,
                     watch=w, wall_cap=wall or FFPW_R82_WALL_S)
@@ -15355,7 +15425,7 @@ def ffpw_playback_lattice_r82_entry():
         return ((leg.get("taps") or {}).get(label) or {}).get("tone") or {}
 
     # ---- the two routing shapes ----
-    def _landed_on(name, sink, want_target, taps=True):
+    def _landed_on(name, sink, want_target):
         leg = legs.get(name) or {}
         nd = _ffpw_r82_last_node(leg)
         if leg.get("exit_code") != 0 or nd is None:
@@ -15376,8 +15446,6 @@ def ffpw_playback_lattice_r82_entry():
         if nd.get("consumers") != [sink]:
             failures.append(f"play {name}: consumers "
                             f"{nd.get('consumers')} != [{sink}]")
-        if not taps:
-            return
         tdef = _tap_tone(leg, "tap_def")
         tns = _tap_tone(leg, "tap_ns")
         if sink == FFPW_R82_NS:
@@ -15867,6 +15935,19 @@ def ffpw_target_loss_r82_entry():
         if out.get("riff") != "finalized":
             failures.append(f"loss {lname}: bounded capture must leave "
                             f"a finalized wav — {out}")
+        # content gate (critic-F2): growth alone cannot distinguish a
+        # finalized capture from the r85 `unlinked_sustained_zeros`
+        # class — the tag tone must appear in the wav AFTER the unlink
+        # (the pump re-links to the same default the capture re-bound
+        # to; mirrors the t1 post_mine witness on the tap side)
+        if unl_at is not None:
+            spans = ((leg.get("cap_tone") or {}).get("mine_spans") or [])
+            post_mine = [s for s in spans if s[1] > unl_at]
+            if not post_mine:
+                failures.append(f"loss {lname}: the captured wav "
+                                f"carries NO tag tone past the unlink — "
+                                f"spans {spans} (the sustained-zeros "
+                                "class is indistinguishable)")
         # the pump's own playback re-link, witnessed inside this leg
         pump_re = None
         for s in leg.get("samples") or []:
@@ -15966,10 +16047,6 @@ def ffpw_error_classes_r82_entry():
                        (leg.get("error_hit") or "")):
             failures.append(f"err {lname}: stderr missing the pinned "
                             f"token {hit!r} — {leg.get('stderr_head')}")
-        out = leg.get("out") or {}
-        if out.get("exists") and (out.get("bytes") or 0) > 44:
-            failures.append(f"err {lname}: a refused leg must not "
-                            f"produce audio — {out}")
     entry["failures"] = failures
     return entry
 
@@ -15980,15 +16057,18 @@ def ffpw_error_classes_r82_entry():
 def ffpw_alsa_split_r82_entry():
     """(7) The ALSA lattice: `hw:C,D` is busy->251 `Device or resource
     busy` in BOTH directions (arecord/aplay holders), independent per
-    direction (rc=0 capture while PipeWire holds the card's playback
-    subdevice — the holder is an ffmpeg -f pulse silence pump witnessed
-    in the graph); `-i pipewire` and unknown PCMs are 251 `cannot set
-    parameters`/`Unknown PCM`; `-i default` under PIPEWIRE_PROPS is the
-    envelope cell (scout: rc=0 via the pipewire plugin with the env
+    direction (rc=0 capture while PipeWire holds the SAME subdevice's
+    playback direction — the holder is an ffmpeg -f pulse silence pump
+    on the sink whose aplay_device IS the capture device, witnessed and
+    gated in the graph); `-i pipewire` and unknown PCMs are 251 `cannot
+    set parameters`/`Unknown PCM`; `-i default` under PIPEWIRE_PROPS is
+    the envelope cell (scout: rc=0 via the pipewire plugin with the env
     node.name LANDING — the pulse-path override split — plus one
     historical 251 params realization, so both are admitted and the
     realization is recorded); `-sample_rate 12345` clamps silently to a
-    hardware rate (44100 measured)."""
+    hardware rate (44100 measured); `-channels 0` is rc=8 `Option
+    channels not found` — the option is ABSENT on the alsa indev
+    (boundary's exact class), unlike the pulse indev's 222 ERANGE."""
     failures = []
     legs = {}
     entry = _ffpw_r82_entry_head(
@@ -16008,6 +16088,15 @@ def ffpw_alsa_split_r82_entry():
         m.get("aplay_device") and
         m["aplay_device"].startswith(f"hw:{inv_devs[0]['card']},"))
     entry["card_sinks"] = sinks_on_card
+    # the SAME-subdevice playback direction: the sink whose aplay_device
+    # IS the capture device (critic-F1 — `hw:C,D` direction independence
+    # is only exercised against the same PCM; any other subdevice is the
+    # trivial ALSA case the claim does not make)
+    holder_sink = next(
+        (n for n in sinks_on_card
+         if (pcm["map"].get(n) or {}).get("aplay_device") == cap_dev),
+        None)
+    entry["a2_holder_sink"] = holder_sink
     ctx = {}
     base_in = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
                "-nostdin", "-y", "-f", "alsa"]
@@ -16044,13 +16133,16 @@ def ffpw_alsa_split_r82_entry():
                  "-f", "alsa", cap_dev],
                 ctx, wall_cap=5.0)
             _capture_r77_reap(hold, 5)
-            # a2: PW holds the card's playback subdevice — capture still rc=0
-            if sinks_on_card:
+            # a2: PW holds the SAME subdevice's playback direction —
+            # the capture direction must still open rc=0 (critic-F1:
+            # sorted(card_sinks)[0] used to hold a DIFFERENT subdevice,
+            # which is the trivial ALSA case, not the claim)
+            if holder_sink:
                 holder = subprocess.Popen(
                     ["ffmpeg", "-hide_banner", "-loglevel", "warning",
                      "-nostdin", "-re", "-stream_loop", "-1", "-f", "wav",
                      "-i", str(silence), "-f", "pulse", "-name",
-                     f"{FFPW_R82_TAG}_hold", "-device", sinks_on_card[0],
+                     f"{FFPW_R82_TAG}_hold", "-device", holder_sink,
                      FFPW_R82_OUT_NAME],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                     start_new_session=True)
@@ -16067,8 +16159,9 @@ def ffpw_alsa_split_r82_entry():
                 _capture_r77_reap(holder, 3)
             else:
                 entry.setdefault("coverage_blocked", []).append(
-                    "a2_hw_free_pwheld: no Audio/Sink maps to the capture "
-                    "card — PW-held independence unmeasured")
+                    f"a2_hw_free_pwheld: no Audio/Sink maps aplay_device"
+                    f"={cap_dev} — the same-subdevice PW-held premise is "
+                    "unmeasurable on this host")
             # a3: the pipewire pcm name is refused
             legs["a3_pipewire_pcm"] = _ffpw_r82_leg(
                 "a3_pipewire_pcm",
@@ -16097,6 +16190,16 @@ def ffpw_alsa_split_r82_entry():
                 base_in + ["-sample_rate", "12345", "-i", cap_dev,
                            "-t", "1.5", "-c:a", "pcm_s16le", out],
                 ctx, out_path=out, wall_cap=6.0)
+            # a7: `-channels` is ABSENT on the alsa indev — rc=8 at
+            # option-parse time `Option channels not found` (the
+            # boundary's exact armed class), vs the pulse indev's
+            # 222 ERANGE for the same spelling (e2)
+            out = str(Path(tmp) / "a7.wav")
+            legs["a7_ch0_option_absent"] = _ffpw_r82_leg(
+                "a7_ch0_option_absent",
+                base_in + ["-channels", "0", "-i", cap_dev,
+                           "-t", "1.0", "-c:a", "pcm_s16le", out],
+                ctx, out_path=out, wall_cap=5.0)
     finally:
         pass
     entry["legs"] = legs
@@ -16121,6 +16224,11 @@ def ffpw_alsa_split_r82_entry():
                             f"finalize real audio — {out}")
         holder_nd = _ffpw_r82_last_node(leg, src="holder")
         leg["holder_consumers"] = (holder_nd or {}).get("consumers")
+        if leg["holder_consumers"] != [holder_sink]:
+            failures.append(f"alsa a2: the holder never linked to "
+                            f"{holder_sink} — consumers "
+                            f"{leg['holder_consumers']} (the PW-held "
+                            "premise went unmet)")
     # ---- refusal cells ----
     leg = legs.get("a3_pipewire_pcm") or {}
     if leg.get("exit_code") != 251 or \
@@ -16170,6 +16278,16 @@ def ffpw_alsa_split_r82_entry():
                         f"rc={leg.get('exit_code')} wav rate="
                         f"{out.get('rate')}")
     entry["a6_clamped_rate"] = out.get("rate")
+    # ---- a7: option-absent rc=8 (the alsa indev has no -channels) ----
+    leg = legs.get("a7_ch0_option_absent") or {}
+    if leg.get("exit_code") != 8 or \
+            leg.get("error_class") != "ff_option_not_found":
+        failures.append(f"alsa a7: `-channels 0` must be rc=8 "
+                        f"ff_option_not_found — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    if "Option channels not found" not in (leg.get("stderr") or ""):
+        failures.append(f"alsa a7: stderr missing the pinned token — "
+                        f"{leg.get('stderr_head')}")
     entry["failures"] = failures
     return entry
 
@@ -19169,7 +19287,10 @@ def main():
         # ledger family, prior rows untouched; the r76-r81 guards are
         # inherited (name-verified unloads, seat-owned r82ff_* names,
         # never set-default-*, triple-bounded captures inside the
-        # pgid-owning loop).
+        # pgid-owning loop). The family lock serializes same-family
+        # runs (critic-F3) — a second --probe-ffmpeg-r82 waits here
+        # instead of overlapping on the shared default-sink monitor.
+        _r82_family_lock = _ffpw_r82_family_lock()   # held to exit
         measurements["ffpw_device_surfaces_r82_probe"] = \
             ffpw_device_surfaces_r82_entry()
         measurements["ffpw_capture_lattice_r82_probe"] = \

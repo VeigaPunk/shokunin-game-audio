@@ -1,0 +1,59 @@
+r82-fold proofs — executed on the final fixture bytes
+sha256(measure_audio.py) = 7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  (19932 lines)
+pre-edit sha256          = 26431adf29ab122bbf1f55ef03c9aa47bf9825c61654562d9a421117434f5eea  (19811 lines, == HEAD blob at bc3f55ca)
+
+[1] git apply corpus/live/r82-simplifier/r82-simplifier.patch  -> clean (checked with --check first)
+
+[2] python3 -m py_compile corpus/fixtures/measure_audio.py     -> OK
+    (tracked __pycache__ .pyc restored via git checkout)
+
+[3] band-disjointness enumeration (TOL=0.06, both-channels conjunct):
+    r78 classes {(997,1500),(1208,1711),(1419,1922),(1630,2133)}
+    r82 classes {(2900,3460),(3300,3860),(3700,4260),(4100,4660)}
+    16 forward + 16 reverse + 12 sibling ordered pairs: ALL PASS
+    (worst forward margin 1270 Hz vs 246 allowed; independent labrat
+    probe agent 2a77abc9 re-derived the same tables — PASS, min 1.43x)
+
+[4] exact-name module predicate (new _gst_r81_sink_module_index logic):
+    live `pactl list modules short` null-sink lines self-match;
+    prefix-shorter / prefix-longer queries -> None;
+    sink_name=r82c_a2 vs query r82c_a -> correct line (536870922),
+    r82c -> None, quoted "r82c_a" -> match. Labrat re-verified on the
+    real r83-critic incident receipt (r83c_a2 foreign index rejected).
+
+[5] a7 standalone repro (same argv shape as the leg):
+    ffmpeg -hide_banner -loglevel warning -nostdin -y -f alsa
+      -channels 0 -i hw:0,0 -t 1 out.wav
+    -> rc=8, stderr "Option channels not found." (boundary verbatim)
+    _ffpw_r82_errclass -> ('ff_option_not_found', 'Option channels not found')
+
+[6] module import: _ffpw_r82_tone_band_clear() -> True at import
+    (would raise RuntimeError otherwise); pid-derived pair printed.
+
+[7] ff_option_not_found does not reclassify pinned legs:
+    0 "not found" hits across run1 + final3 pinned receipts.
+
+[8] Family runs on final bytes:
+    run1  20261015T222214878231Z-ffmpeg-r82  {"failures": {}}  77 legs
+          pid 4098187 -> pair 4100/4660; lockfile recorded
+          a2_holder_sink=Speaker__sink.29, holder_consumers=[Speaker],
+          a7 rc=8/ff_option_not_found, t2 spans all past unlink,
+          sinks_gone true, own_nodes_after [], recycled:false
+    run2  20261015T222550276154Z-ffmpeg-r82  RED — environmental:
+          t2_cap_r0 ffmpeg died rc=134 at wall 1.438 s with
+          "Error submitting a packet to the muxer: Disk quota exceeded"
+          (16G tmpfs /tmp at ~80% from sibling seat dirs; the new
+          content gate correctly reported the empty wav instead of
+          passing it). All other 76 legs green; host_is_quiet true.
+    run2b 20261015T222951470354Z-ffmpeg-r82  {"failures": {}}  77 legs
+          pid 268525 -> pair 3300/3860 (a second pid class exercised)
+          same folded cells verified green.
+
+Receipt shas (canonical copies in corpus/live/r82-fold/):
+    run1  55884b69b200d6f5436a54fcf34fe650444e35a36cab8f507166b60ae97ff605
+    run2b aaddf1696058cf300fb7c5bae3158b77df89615e1000ccafa73fedd543a3cd68
+    red   ed319073f119f2e3bfe3d3fe7f70d46d1c5b2e9eaf8264b5760112bb24c17bd3
+
+Custody: HEAD moved bc3f55ca -> 2a5555b4 during the window (r83 verdict
+commits only); `git log -2 -- fixture` shows last fixture touch a151a226.
+The only tracked modification is corpus/fixtures/measure_audio.py.
