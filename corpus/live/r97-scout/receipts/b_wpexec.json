@@ -1,0 +1,581 @@
+{
+ "stage": "b_wpexec",
+ "reps": [
+  {
+   "rep": 0,
+   "legs": {
+    "inventory": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_inv.lua"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "dur_s": 0.024,
+     "stdout": "FOUND Core=table Settings=table Log=table LocalModule=function LocalNode=function SpaDevice=function ObjectManager=function Node=function Device=function Link=function table=table string=table math=table os=table debug=table require=function print=function type=function pairs=function ipairs=function next=function select=function pcall=function xpcall=function error=function assert=function setmetatable=function getmetatable=function tonumber=function tostring=function _VERSION=string GLib=table utf8=table Script=table Feature=table Features=table Interest=function Constraint=function ImplMetadata=function\nMISSING StaticObject Object Client Metadata Session Endpoint SiLink SiAdapter SiNode Wp utils io load loadstring dofile require_api rawget rawset unpack _G _ENV json spa GObject bit32 ImplModule\nENV=table G=nil VERSION=Lua 5.5\ndebug.getregistry=function\n",
+     "stderr": "",
+     "bytes": 868,
+     "truncated": false
+    },
+    "err_syntax": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_syntax.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.03,
+     "stdout": "",
+     "stderr": "Failed to compile: [string \"b_syntax.lua\"]:1: syntax error near 'is'\n",
+     "bytes": 69,
+     "truncated": false
+    },
+    "err_runtime_error_msg": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_runtime_error_msg.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.023,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nil_index": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nil_index.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.038,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_pairs_G": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_pairs_G.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.027,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nested_error": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nested_error.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.032,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_no_quit": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_no_quit.lua"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 6.015,
+     "stdout": "r97s never quits\n",
+     "stderr": "",
+     "bytes": 17,
+     "truncated": false
+    },
+    "settings_inert": {
+     "before": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.037,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_false": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "false"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.02,
+      "stdout": "Updated setting 'linking.follow-default-target' to: false\n",
+      "stderr": "",
+      "bytes": 58,
+      "truncated": false
+     },
+     "after_false": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.03,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_true": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "true"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.02,
+      "stdout": "Updated setting 'linking.follow-default-target' to: true\n",
+      "stderr": "",
+      "bytes": 57,
+      "truncated": false
+     },
+     "after_true": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.027,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     }
+    },
+    "no_arg": {
+     "argv": [
+      "wpexec"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.038,
+     "stdout": "",
+     "stderr": "Could not locate script '(null)'\n",
+     "bytes": 33,
+     "truncated": false
+    },
+    "missing_file": {
+     "argv": [
+      "wpexec",
+      "/nonexistent/r97s.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.029,
+     "stdout": "",
+     "stderr": "Could not locate script '/nonexistent/r97s.lua'\n",
+     "bytes": 48,
+     "truncated": false
+    }
+   }
+  },
+  {
+   "rep": 1,
+   "legs": {
+    "inventory": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_inv.lua"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "dur_s": 0.036,
+     "stdout": "FOUND Core=table Settings=table Log=table LocalModule=function LocalNode=function SpaDevice=function ObjectManager=function Node=function Device=function Link=function table=table string=table math=table os=table debug=table require=function print=function type=function pairs=function ipairs=function next=function select=function pcall=function xpcall=function error=function assert=function setmetatable=function getmetatable=function tonumber=function tostring=function _VERSION=string GLib=table utf8=table Script=table Feature=table Features=table Interest=function Constraint=function ImplMetadata=function\nMISSING StaticObject Object Client Metadata Session Endpoint SiLink SiAdapter SiNode Wp utils io load loadstring dofile require_api rawget rawset unpack _G _ENV json spa GObject bit32 ImplModule\nENV=table G=nil VERSION=Lua 5.5\ndebug.getregistry=function\n",
+     "stderr": "",
+     "bytes": 868,
+     "truncated": false
+    },
+    "err_syntax": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_syntax.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.023,
+     "stdout": "",
+     "stderr": "Failed to compile: [string \"b_syntax.lua\"]:1: syntax error near 'is'\n",
+     "bytes": 69,
+     "truncated": false
+    },
+    "err_runtime_error_msg": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_runtime_error_msg.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.035,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nil_index": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nil_index.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.039,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_pairs_G": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_pairs_G.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.027,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nested_error": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nested_error.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.034,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_no_quit": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_no_quit.lua"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 6.014,
+     "stdout": "r97s never quits\n",
+     "stderr": "",
+     "bytes": 17,
+     "truncated": false
+    },
+    "settings_inert": {
+     "before": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.028,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_false": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "false"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.022,
+      "stdout": "Updated setting 'linking.follow-default-target' to: false\n",
+      "stderr": "",
+      "bytes": 58,
+      "truncated": false
+     },
+     "after_false": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.037,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_true": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "true"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.011,
+      "stdout": "Updated setting 'linking.follow-default-target' to: true\n",
+      "stderr": "",
+      "bytes": 57,
+      "truncated": false
+     },
+     "after_true": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.021,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     }
+    },
+    "no_arg": {
+     "argv": [
+      "wpexec"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.026,
+     "stdout": "",
+     "stderr": "Could not locate script '(null)'\n",
+     "bytes": 33,
+     "truncated": false
+    },
+    "missing_file": {
+     "argv": [
+      "wpexec",
+      "/nonexistent/r97s.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.021,
+     "stdout": "",
+     "stderr": "Could not locate script '/nonexistent/r97s.lua'\n",
+     "bytes": 48,
+     "truncated": false
+    }
+   }
+  },
+  {
+   "rep": 2,
+   "legs": {
+    "inventory": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_inv.lua"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "dur_s": 0.04,
+     "stdout": "FOUND Core=table Settings=table Log=table LocalModule=function LocalNode=function SpaDevice=function ObjectManager=function Node=function Device=function Link=function table=table string=table math=table os=table debug=table require=function print=function type=function pairs=function ipairs=function next=function select=function pcall=function xpcall=function error=function assert=function setmetatable=function getmetatable=function tonumber=function tostring=function _VERSION=string GLib=table utf8=table Script=table Feature=table Features=table Interest=function Constraint=function ImplMetadata=function\nMISSING StaticObject Object Client Metadata Session Endpoint SiLink SiAdapter SiNode Wp utils io load loadstring dofile require_api rawget rawset unpack _G _ENV json spa GObject bit32 ImplModule\nENV=table G=nil VERSION=Lua 5.5\ndebug.getregistry=function\n",
+     "stderr": "",
+     "bytes": 868,
+     "truncated": false
+    },
+    "err_syntax": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_syntax.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.034,
+     "stdout": "",
+     "stderr": "Failed to compile: [string \"b_syntax.lua\"]:1: syntax error near 'is'\n",
+     "bytes": 69,
+     "truncated": false
+    },
+    "err_runtime_error_msg": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_runtime_error_msg.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.032,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nil_index": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nil_index.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.035,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_pairs_G": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_pairs_G.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.032,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_nested_error": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_nested_error.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.034,
+     "stdout": "",
+     "stderr": "Lua runtime error\n",
+     "bytes": 18,
+     "truncated": false
+    },
+    "err_no_quit": {
+     "argv": [
+      "wpexec",
+      "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_no_quit.lua"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 6.009,
+     "stdout": "r97s never quits\n",
+     "stderr": "",
+     "bytes": 17,
+     "truncated": false
+    },
+    "settings_inert": {
+     "before": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.036,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_false": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "false"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.022,
+      "stdout": "Updated setting 'linking.follow-default-target' to: false\n",
+      "stderr": "",
+      "bytes": 58,
+      "truncated": false
+     },
+     "after_false": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.022,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     },
+     "set_true": {
+      "argv": [
+       "wpctl",
+       "settings",
+       "linking.follow-default-target",
+       "true"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.023,
+      "stdout": "Updated setting 'linking.follow-default-target' to: true\n",
+      "stderr": "",
+      "bytes": 57,
+      "truncated": false
+     },
+     "after_true": {
+      "argv": [
+       "wpexec",
+       "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/scratch/b_settings.lua"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.05,
+      "stdout": "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/\n",
+      "stderr": "",
+      "bytes": 243,
+      "truncated": false
+     }
+    },
+    "no_arg": {
+     "argv": [
+      "wpexec"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.038,
+     "stdout": "",
+     "stderr": "Could not locate script '(null)'\n",
+     "bytes": 33,
+     "truncated": false
+    },
+    "missing_file": {
+     "argv": [
+      "wpexec",
+      "/nonexistent/r97s.lua"
+     ],
+     "rc": 70,
+     "timed_out": false,
+     "dur_s": 0.04,
+     "stdout": "",
+     "stderr": "Could not locate script '/nonexistent/r97s.lua'\n",
+     "bytes": 48,
+     "truncated": false
+    }
+   }
+  }
+ ]
+}

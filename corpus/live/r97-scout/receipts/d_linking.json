@@ -1,0 +1,1112 @@
+{
+ "stage": "d_linking",
+ "reps": [
+  {
+   "rep": 0,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 38,
+     "id_b": 43,
+     "serial": {
+      "r97s_sa0": 43,
+      "r97s_sb0": 49
+     },
+     "default": {
+      "name": "r97s_sb0"
+     }
+    },
+    {
+     "tag": "target_0_no_link",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "auto_default",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       50,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       51,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_global_id_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "38",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       51,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       53,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_object_serial_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "43",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa0",
+       53,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa0",
+       52,
+       40
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_name_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97s_sa0",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa0",
+       52,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa0",
+       50,
+       40
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_99999",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       50,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       51,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_dont_fallback",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": null,
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 49 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     }
+    },
+    {
+     "tag": "media_role_Communication",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str media.role = Communication }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       51,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       53,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb0"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "follow_default_true",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       53,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       52,
+       45
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa0",
+       53,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa0",
+       52,
+       40
+      ]
+     ]
+    },
+    {
+     "tag": "follow_default_false",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb0",
+       52,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb0",
+       51,
+       45
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa0",
+       52,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa0",
+       51,
+       40
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "rep": 1,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 37,
+     "id_b": 38,
+     "serial": {
+      "r97s_sa1": 133,
+      "r97s_sb1": 139
+     },
+     "default": {
+      "name": "r97s_sb1"
+     }
+    },
+    {
+     "tag": "target_0_no_link",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "auto_default",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       51,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       53,
+       41
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_global_id_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "37",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       53,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       50,
+       41
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_object_serial_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "133",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa1",
+       50,
+       47
+      ],
+      [
+       "r97s_str",
+       "r97s_sa1",
+       52,
+       46
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_name_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97s_sa1",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa1",
+       52,
+       47
+      ],
+      [
+       "r97s_str",
+       "r97s_sa1",
+       51,
+       46
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_99999",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       51,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       53,
+       41
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_dont_fallback",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": null,
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 49 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     }
+    },
+    {
+     "tag": "media_role_Communication",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str media.role = Communication }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       53,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       50,
+       41
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb1"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "follow_default_true",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       50,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       52,
+       41
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa1",
+       50,
+       47
+      ],
+      [
+       "r97s_str",
+       "r97s_sa1",
+       52,
+       46
+      ]
+     ]
+    },
+    {
+     "tag": "follow_default_false",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb1",
+       52,
+       42
+      ],
+      [
+       "r97s_str",
+       "r97s_sb1",
+       53,
+       41
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa1",
+       52,
+       47
+      ],
+      [
+       "r97s_str",
+       "r97s_sa1",
+       53,
+       46
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "rep": 2,
+   "obs": [
+    {
+     "tag": "setup",
+     "id_a": 38,
+     "id_b": 37,
+     "serial": {
+      "r97s_sa2": 223,
+      "r97s_sb2": 229
+     },
+     "default": {
+      "name": "r97s_sb2"
+     }
+    },
+    {
+     "tag": "target_0_no_link",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "0",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": null,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "auto_default",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       53,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       50,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_global_id_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "38",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       50,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       51,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_object_serial_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "223",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa2",
+       51,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa2",
+       52,
+       40
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "target_name_A",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "r97s_sa2",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sa2",
+       52,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa2",
+       53,
+       40
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_99999",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       53,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       50,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "bogus_target_dont_fallback",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "--target",
+      "99999",
+      "-P",
+      "{ node.name = r97s_str node.dont-fallback = true }",
+      "-"
+     ],
+     "links": null,
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 1,
+      "stderr": "stream node 49 error: defined target not found\nremote error: id=2 seq:7 res:-2 (No such file or directory): defined target not found\nstream node 4294967295 unconnected\n"
+     }
+    },
+    {
+     "tag": "media_role_Communication",
+     "stream_args": [
+      "pw-cat",
+      "-p",
+      "--raw",
+      "--rate",
+      "48000",
+      "--channels",
+      "1",
+      "--format",
+      "s16",
+      "-P",
+      "{ node.name = r97s_str media.role = Communication }",
+      "-"
+     ],
+     "links": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       50,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       51,
+       45
+      ]
+     ],
+     "default": {
+      "name": "r97s_sb2"
+     },
+     "stop": {
+      "rc": 0,
+      "stderr": ""
+     }
+    },
+    {
+     "tag": "follow_default_true",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       51,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       52,
+       45
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa2",
+       51,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa2",
+       52,
+       40
+      ]
+     ]
+    },
+    {
+     "tag": "follow_default_false",
+     "before": [
+      [
+       "r97s_str",
+       "r97s_sb2",
+       52,
+       44
+      ],
+      [
+       "r97s_str",
+       "r97s_sb2",
+       50,
+       45
+      ]
+     ],
+     "after": [
+      [
+       "r97s_str",
+       "r97s_sa2",
+       52,
+       39
+      ],
+      [
+       "r97s_str",
+       "r97s_sa2",
+       50,
+       40
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

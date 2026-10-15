@@ -1,0 +1,533 @@
+{
+ "stage": "c_default_nodes",
+ "host": "plazir27",
+ "started": "2026-10-15T20:13:03Z",
+ "env": {
+  "PIPEWIRE_RUNTIME_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/run",
+  "XDG_STATE_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-state"
+ },
+ "reps": [
+  {
+   "rep": 0,
+   "steps": [
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.017,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default",
+     "t": 0.02
+    },
+    {
+     "node": 38,
+     "default": {
+      "name": "r97s_a0"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "A_first_sink_becomes_default",
+     "t": 1.05
+    },
+    {
+     "node": 43,
+     "default": {
+      "name": "r97s_b0"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "B_higher_session_priority_takes_default",
+     "t": 1.57
+    },
+    {
+     "node": 48,
+     "default": {
+      "name": "r97s_b0"
+     },
+     "tag": "C_lower_session_priority_does_not_take_default",
+     "t": 3.31
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "48"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.018,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "set_default_C",
+     "t": 3.32
+    },
+    {
+     "node": 48,
+     "default": {
+      "name": "r97s_c0"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "C_explicit_default",
+     "t": 3.34
+    },
+    {
+     "node": 53,
+     "default": {
+      "name": "r97s_c0"
+     },
+     "tag": "D_highest_priority_does_not_override_explicit",
+     "t": 5.38
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.022,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_2",
+     "t": 5.4
+    },
+    {
+     "default": {
+      "name": "r97s_d0"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "after_clear_default_best_wins",
+     "t": 5.42
+    },
+    {
+     "default": {
+      "name": "r97s_b0"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "removed_default_falls_back_to_best_remaining",
+     "t": 6.94
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.023,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_3",
+     "t": 9.47
+    },
+    {
+     "e": 48,
+     "f": 43,
+     "default": {
+      "name": "r97s_e0"
+     },
+     "tag": "driver_priority_only_e_vs_f",
+     "t": 12.02
+    },
+    {
+     "g": null,
+     "default": {
+      "name": "r97s_e0"
+     },
+     "tag": "no_priority_session_node_g",
+     "t": 20.09
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.013,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "final_clear_default",
+     "t": 21.91
+    }
+   ],
+   "state_after_set_default": null,
+   "state_final": ""
+  },
+  {
+   "rep": 1,
+   "steps": [
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.014,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default",
+     "t": 0.01
+    },
+    {
+     "node": 43,
+     "default": {
+      "name": "r97s_a1"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "A_first_sink_becomes_default",
+     "t": 1.04
+    },
+    {
+     "node": 48,
+     "default": {
+      "name": "r97s_b1"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "B_higher_session_priority_takes_default",
+     "t": 1.57
+    },
+    {
+     "node": 38,
+     "default": {
+      "name": "r97s_b1"
+     },
+     "tag": "C_lower_session_priority_does_not_take_default",
+     "t": 3.32
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "38"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.016,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "set_default_C",
+     "t": 3.33
+    },
+    {
+     "node": 38,
+     "default": {
+      "name": "r97s_c1"
+     },
+     "ok": true,
+     "secs": 0.01,
+     "tag": "C_explicit_default",
+     "t": 3.35
+    },
+    {
+     "node": 53,
+     "default": {
+      "name": "r97s_c1"
+     },
+     "tag": "D_highest_priority_does_not_override_explicit",
+     "t": 5.39
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.016,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_2",
+     "t": 5.4
+    },
+    {
+     "default": {
+      "name": "r97s_d1"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "after_clear_default_best_wins",
+     "t": 5.42
+    },
+    {
+     "default": {
+      "name": "r97s_b1"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "removed_default_falls_back_to_best_remaining",
+     "t": 6.94
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.01,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_3",
+     "t": 9.45
+    },
+    {
+     "e": 38,
+     "f": 48,
+     "default": {
+      "name": "r97s_e1"
+     },
+     "tag": "driver_priority_only_e_vs_f",
+     "t": 12.02
+    },
+    {
+     "g": null,
+     "default": {
+      "name": "r97s_e1"
+     },
+     "tag": "no_priority_session_node_g",
+     "t": 20.22
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.016,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "final_clear_default",
+     "t": 22.04
+    }
+   ],
+   "state_after_set_default": "",
+   "state_final": ""
+  },
+  {
+   "rep": 2,
+   "steps": [
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.03,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default",
+     "t": 0.03
+    },
+    {
+     "node": 37,
+     "default": {
+      "name": "r97s_a2"
+     },
+     "ok": true,
+     "secs": 0.03,
+     "tag": "A_first_sink_becomes_default",
+     "t": 1.09
+    },
+    {
+     "node": 38,
+     "default": {
+      "name": "r97s_b2"
+     },
+     "ok": true,
+     "secs": 0.03,
+     "tag": "B_higher_session_priority_takes_default",
+     "t": 1.64
+    },
+    {
+     "node": 43,
+     "default": {
+      "name": "r97s_b2"
+     },
+     "tag": "C_lower_session_priority_does_not_take_default",
+     "t": 3.38
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "set-default",
+       "43"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.025,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "set_default_C",
+     "t": 3.41
+    },
+    {
+     "node": 43,
+     "default": {
+      "name": "r97s_c2"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "C_explicit_default",
+     "t": 3.42
+    },
+    {
+     "node": 53,
+     "default": {
+      "name": "r97s_c2"
+     },
+     "tag": "D_highest_priority_does_not_override_explicit",
+     "t": 5.48
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.023,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_2",
+     "t": 5.51
+    },
+    {
+     "default": {
+      "name": "r97s_d2"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "after_clear_default_best_wins",
+     "t": 5.53
+    },
+    {
+     "default": {
+      "name": "r97s_b2"
+     },
+     "ok": true,
+     "secs": 0.02,
+     "tag": "removed_default_falls_back_to_best_remaining",
+     "t": 7.05
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.019,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "clear_default_3",
+     "t": 9.57
+    },
+    {
+     "e": 43,
+     "f": 38,
+     "default": {
+      "name": "r97s_e2"
+     },
+     "tag": "driver_priority_only_e_vs_f",
+     "t": 12.12
+    },
+    {
+     "g": null,
+     "default": {
+      "name": "r97s_e2"
+     },
+     "tag": "no_priority_session_node_g",
+     "t": 20.37
+    },
+    {
+     "r": {
+      "argv": [
+       "wpctl",
+       "clear-default"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "dur_s": 0.047,
+      "stdout": "",
+      "stderr": "",
+      "bytes": 0,
+      "truncated": false
+     },
+     "tag": "final_clear_default",
+     "t": 22.22
+    }
+   ],
+   "state_after_set_default": "",
+   "state_final": ""
+  }
+ ]
+}

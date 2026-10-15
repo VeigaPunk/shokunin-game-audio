@@ -1,0 +1,538 @@
+{
+ "stage": "r97-scout",
+ "host": "plazir27",
+ "c_default_nodes": {
+  "reps": 3,
+  "first_sink_becomes_default": [
+   {
+    "name": "r97s_a0"
+   },
+   {
+    "name": "r97s_a1"
+   },
+   {
+    "name": "r97s_a2"
+   }
+  ],
+  "higher_session_priority_takes_over": [
+   {
+    "name": "r97s_b0"
+   },
+   {
+    "name": "r97s_b1"
+   },
+   {
+    "name": "r97s_b2"
+   }
+  ],
+  "lower_priority_does_not": [
+   {
+    "name": "r97s_b0"
+   },
+   {
+    "name": "r97s_b1"
+   },
+   {
+    "name": "r97s_b2"
+   }
+  ],
+  "explicit_wins_over_highest": [
+   {
+    "name": "r97s_c0"
+   },
+   {
+    "name": "r97s_c1"
+   },
+   {
+    "name": "r97s_c2"
+   }
+  ],
+  "clear_default_picks_best": [
+   {
+    "name": "r97s_d0"
+   },
+   {
+    "name": "r97s_d1"
+   },
+   {
+    "name": "r97s_d2"
+   }
+  ],
+  "removed_default_falls_back": [
+   {
+    "name": "r97s_b0"
+   },
+   {
+    "name": "r97s_b1"
+   },
+   {
+    "name": "r97s_b2"
+   }
+  ],
+  "equal_session_incumbent_keeps": [
+   {
+    "name": "r97s_e0"
+   },
+   {
+    "name": "r97s_e1"
+   },
+   {
+    "name": "r97s_e2"
+   }
+  ]
+ },
+ "c2_controls": {
+  "reps": 3,
+  "driver_high_first_incumbent_keeps": [
+   {
+    "name": "r97s_h0"
+   },
+   {
+    "name": "r97s_h1"
+   },
+   {
+    "name": "r97s_h2"
+   }
+  ],
+  "no_priority_session_key_loses": [
+   {
+    "name": "r97s_h0"
+   },
+   {
+    "name": "r97s_h1"
+   },
+   {
+    "name": "r97s_h2"
+   }
+  ],
+  "configured_row_written": [
+   {
+    "name": "r97s_l0"
+   },
+   {
+    "name": "r97s_l1"
+   },
+   {
+    "name": "r97s_l2"
+   }
+  ],
+  "configured_row_survives_no_sinks": [
+   {
+    "name": "r97s_l0"
+   },
+   {
+    "name": "r97s_l1"
+   },
+   {
+    "name": "r97s_l2"
+   }
+  ],
+  "state_file": [
+   {
+    "exists": true,
+    "size": 54,
+    "content": "[default-nodes]\ndefault.configured.audio.sink=r97s_l0\n"
+   },
+   {
+    "exists": true,
+    "size": 54,
+    "content": "[default-nodes]\ndefault.configured.audio.sink=r97s_l1\n"
+   },
+   {
+    "exists": true,
+    "size": 54,
+    "content": "[default-nodes]\ndefault.configured.audio.sink=r97s_l2\n"
+   }
+  ]
+ },
+ "c3_restart": {
+  "reps": 3,
+  "before_restart_default": [
+   {
+    "name": "r97s_p0"
+   },
+   {
+    "name": "r97s_p1"
+   },
+   {
+    "name": "r97s_p2"
+   }
+  ],
+  "after_restart_default": [
+   {
+    "name": "r97s_p0"
+   },
+   {
+    "name": "r97s_p1"
+   },
+   {
+    "name": "r97s_p2"
+   }
+  ],
+  "state_after_restart": [
+   "[default-nodes]\ndefault.configured.audio.sink=r97s_p0\ndefault.configured.audio.sink.0=r97s_q0\n",
+   "[default-nodes]\ndefault.configured.audio.sink=r97s_p1\ndefault.configured.audio.sink.0=r97s_q1\n",
+   "[default-nodes]\ndefault.configured.audio.sink=r97s_p2\ndefault.configured.audio.sink.0=r97s_q2\n"
+  ]
+ },
+ "b_wpexec": {
+  "reps": 3,
+  "found": [
+   "Core=table Settings=table Log=table LocalModule=function LocalNode=function SpaDevice=function ObjectManager=function Node=function Device=function Link=function table=table string=table math=table os=table debug=table require=function print=function type=function pairs=function ipairs=function next=function select=function pcall=function xpcall=function error=function assert=function setmetatable=function getmetatable=function tonumber=function tostring=function _VERSION=string GLib=table utf8=table Script=table Feature=table Features=table Interest=function Constraint=function ImplMetadata=function"
+  ],
+  "missing": [
+   "StaticObject Object Client Metadata Session Endpoint SiLink SiAdapter SiNode Wp utils io load loadstring dofile require_api rawget rawset unpack _G _ENV json spa GObject bit32 ImplModule"
+  ],
+  "env_line": [
+   "ENV=table G=nil VERSION=Lua 5.5"
+  ],
+  "runtime_error": [
+   [
+    70,
+    "Lua runtime error"
+   ]
+  ],
+  "syntax_error": [
+   [
+    70,
+    "Failed to compile: [string \"b_syntax.lua\"]:1: syntax error near 'is'"
+   ]
+  ],
+  "no_quit": [
+   [
+    -9,
+    true
+   ]
+  ],
+  "settings_inert": [
+   [
+    "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/",
+    "linking.follow-default-target=false/0.0/ node.stream.restore-props=false/0.0/ node.features.audio.no-dsp=false/0.0/ device.routes.default-sink-volume=false/0.0/ bluetooth.profile-preference=false/0.0/ node.stream.default-media-role=false/0.0/"
+   ]
+  ],
+  "settings_wpctl_worked": [
+   "Updated setting 'linking.follow-default-target' to: false"
+  ],
+  "no_arg": [
+   [
+    70,
+    "Could not locate script '(null)'"
+   ]
+  ]
+ },
+ "a_arming": {
+  "reps": 3,
+  "variants": {
+   "V1_CONFIGDIR_without_conf": [
+    [
+     78,
+     false,
+     []
+    ]
+   ],
+   "V2_CONFIGDIR_with_conf_copy": [
+    [
+     -9,
+     true,
+     [
+      "alsa-vm.conf"
+     ]
+    ]
+   ],
+   "V3_private_XDG_CONFIG_HOME": [
+    [
+     -9,
+     true,
+     [
+      "10-r97s.conf",
+      "alsa-vm.conf"
+     ]
+    ]
+   ],
+   "V4_default_user_config": [
+    [
+     -9,
+     true,
+     [
+      "alsa-vm.conf",
+      "bluetooth-a2dp-autoconnect.conf"
+     ]
+    ]
+   ],
+   "V5_DATA_DIR_additive": [
+    [
+     78,
+     false,
+     [
+      "10-r97s-probe.conf",
+      "alsa-vm.conf"
+     ]
+    ]
+   ]
+  }
+ },
+ "d_linking": {
+  "reps": 3,
+  "cells": {
+   "target_0_no_link": [
+    [],
+    [],
+    []
+   ],
+   "auto_default": [
+    [
+     "r97s_sb0"
+    ],
+    [
+     "r97s_sb1"
+    ],
+    [
+     "r97s_sb2"
+    ]
+   ],
+   "target_global_id_A": [
+    [
+     "r97s_sb0"
+    ],
+    [
+     "r97s_sb1"
+    ],
+    [
+     "r97s_sb2"
+    ]
+   ],
+   "target_object_serial_A": [
+    [
+     "r97s_sa0"
+    ],
+    [
+     "r97s_sa1"
+    ],
+    [
+     "r97s_sa2"
+    ]
+   ],
+   "target_name_A": [
+    [
+     "r97s_sa0"
+    ],
+    [
+     "r97s_sa1"
+    ],
+    [
+     "r97s_sa2"
+    ]
+   ],
+   "bogus_target_99999": [
+    [
+     "r97s_sb0"
+    ],
+    [
+     "r97s_sb1"
+    ],
+    [
+     "r97s_sb2"
+    ]
+   ],
+   "bogus_target_dont_fallback": [
+    null,
+    null,
+    null
+   ],
+   "media_role_Communication": [
+    [
+     "r97s_sb0"
+    ],
+    [
+     "r97s_sb1"
+    ],
+    [
+     "r97s_sb2"
+    ]
+   ],
+   "follow_default_true": [
+    {
+     "before": [
+      "r97s_sb0"
+     ],
+     "after": [
+      "r97s_sa0"
+     ]
+    },
+    {
+     "before": [
+      "r97s_sb1"
+     ],
+     "after": [
+      "r97s_sa1"
+     ]
+    },
+    {
+     "before": [
+      "r97s_sb2"
+     ],
+     "after": [
+      "r97s_sa2"
+     ]
+    }
+   ],
+   "follow_default_false": [
+    {
+     "before": [
+      "r97s_sb0"
+     ],
+     "after": [
+      "r97s_sa0"
+     ]
+    },
+    {
+     "before": [
+      "r97s_sb1"
+     ],
+     "after": [
+      "r97s_sa1"
+     ]
+    },
+    {
+     "before": [
+      "r97s_sb2"
+     ],
+     "after": [
+      "r97s_sa2"
+     ]
+    }
+   ]
+  }
+ },
+ "e_residuals": {
+  "reps": 3,
+  "driver_fallback_verdicts": [
+   "x_took_default",
+   "x_took_default",
+   "x_took_default"
+  ],
+  "follow_false_setting_value": [
+   "Value: false",
+   "Value: false",
+   "Value: false"
+  ],
+  "follow_false_moved": [
+   true,
+   true,
+   true
+  ]
+ },
+ "f_target_property": {
+  "reps": 3,
+  "target_property_written": [
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     47
+    ],
+    [
+     "target.object",
+     40
+    ]
+   ],
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     55
+    ],
+    [
+     "target.object",
+     38
+    ]
+   ],
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     70
+    ],
+    [
+     "target.object",
+     63
+    ]
+   ],
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     78
+    ],
+    [
+     "target.object",
+     38
+    ]
+   ],
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     93
+    ],
+    [
+     "target.object",
+     86
+    ]
+   ],
+   [
+    [
+     "media.class",
+     "Stream/Output/Audio"
+    ],
+    [
+     "node.autoconnect",
+     true
+    ],
+    [
+     "object.serial",
+     101
+    ],
+    [
+     "target.object",
+     38
+    ]
+   ]
+  ]
+ }
+}

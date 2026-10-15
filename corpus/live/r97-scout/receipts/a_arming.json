@@ -1,0 +1,341 @@
+{
+ "stage": "a_arming",
+ "reps": [
+  {
+   "rep": 0,
+   "legs": [
+    {
+     "variant": "V1_CONFIGDIR_without_conf",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-empty"
+     },
+     "lines": [],
+     "raw_len": 293
+    },
+    {
+     "variant": "V2_CONFIGDIR_with_conf_copy",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy"
+     },
+     "lines": [
+      "I 17:18:30.815626            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55c8dcf6a300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:30.815691            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x55c8dcf765b0> using configuration file: wireplumber.conf",
+      "I 17:18:30.816125             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36927
+    },
+    {
+     "variant": "V3_private_XDG_CONFIG_HOME",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config"
+     },
+     "lines": [
+      "I 17:18:35.824723            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x559da1754300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:35.824740            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x559da1754300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config/wireplumber/wireplumber.conf.d/10-r97s.conf",
+      "I 17:18:35.824800            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x559da1760960> using configuration file: wireplumber.conf",
+      "I 17:18:35.825251             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36702
+    },
+    {
+     "variant": "V4_default_user_config",
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.02,
+     "env_overrides": {
+      "dropped": [
+       "XDG_CONFIG_HOME"
+      ]
+     },
+     "lines": [
+      "I 17:18:40.840133            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x557185625300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:40.840147            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x557185625300> opening fragment file: /home/vgpnk/.config/wireplumber/wireplumber.conf.d/bluetooth-a2dp-autoconnect.conf",
+      "I 17:18:40.840224            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x557185631950> using configuration file: wireplumber.conf"
+     ],
+     "raw_len": 36685
+    },
+    {
+     "variant": "V5_DATA_DIR_additive",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.03,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe",
+      "WIREPLUMBER_DATA_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wpdata"
+     },
+     "lines": [
+      "I 17:18:45.854775            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x562fc18f8300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:45.854789            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x562fc18f8300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe/wireplumber/wireplumber.conf.d/10-r97s-probe.conf",
+      "I 17:18:45.854858            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x562fc1904a80> using configuration file: wireplumber.conf",
+      "I 17:18:45.855283             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 23474
+    }
+   ]
+  },
+  {
+   "rep": 1,
+   "legs": [
+    {
+     "variant": "V1_CONFIGDIR_without_conf",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-empty"
+     },
+     "lines": [],
+     "raw_len": 293
+    },
+    {
+     "variant": "V2_CONFIGDIR_with_conf_copy",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy"
+     },
+     "lines": [
+      "I 17:18:45.886951            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x562a38127300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:45.890135            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x562a381335b0> using configuration file: wireplumber.conf",
+      "I 17:18:45.890572             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36927
+    },
+    {
+     "variant": "V3_private_XDG_CONFIG_HOME",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config"
+     },
+     "lines": [
+      "I 17:18:50.899574            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55b8bae22300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:50.899588            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55b8bae22300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config/wireplumber/wireplumber.conf.d/10-r97s.conf",
+      "I 17:18:50.899641            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x55b8bae2e960> using configuration file: wireplumber.conf",
+      "I 17:18:50.900048             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36702
+    },
+    {
+     "variant": "V4_default_user_config",
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "dropped": [
+       "XDG_CONFIG_HOME"
+      ]
+     },
+     "lines": [
+      "I 17:18:55.907013            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x555c03158300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:18:55.907027            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x555c03158300> opening fragment file: /home/vgpnk/.config/wireplumber/wireplumber.conf.d/bluetooth-a2dp-autoconnect.conf",
+      "I 17:18:55.907085            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x555c03164950> using configuration file: wireplumber.conf"
+     ],
+     "raw_len": 36685
+    },
+    {
+     "variant": "V5_DATA_DIR_additive",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.03,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe",
+      "WIREPLUMBER_DATA_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wpdata"
+     },
+     "lines": [
+      "I 17:19:00.920294            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x5650a4d29300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:19:00.920309            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x5650a4d29300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe/wireplumber/wireplumber.conf.d/10-r97s-probe.conf",
+      "I 17:19:00.920361            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x5650a4d35a80> using configuration file: wireplumber.conf",
+      "I 17:19:00.920776             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 23474
+    }
+   ]
+  },
+  {
+   "rep": 2,
+   "legs": [
+    {
+     "variant": "V1_CONFIGDIR_without_conf",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-empty"
+     },
+     "lines": [],
+     "raw_len": 293
+    },
+    {
+     "variant": "V2_CONFIGDIR_with_conf_copy",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "WIREPLUMBER_CONFIG_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy"
+     },
+     "lines": [
+      "I 17:19:00.958083            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55744099e300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wp-copy/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:19:00.958140            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x5574409aa5b0> using configuration file: wireplumber.conf",
+      "I 17:19:00.958559             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36927
+    },
+    {
+     "variant": "V3_private_XDG_CONFIG_HOME",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config"
+     },
+     "lines": [
+      "I 17:19:05.966101            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x5654e8bea300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:19:05.966118            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x5654e8bea300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config/wireplumber/wireplumber.conf.d/10-r97s.conf",
+      "I 17:19:05.966174            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x5654e8bf6960> using configuration file: wireplumber.conf",
+      "I 17:19:05.966589             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 36702
+    },
+    {
+     "variant": "V4_default_user_config",
+     "rc": -9,
+     "timed_out": true,
+     "dur_s": 5.01,
+     "env_overrides": {
+      "dropped": [
+       "XDG_CONFIG_HOME"
+      ]
+     },
+     "lines": [
+      "I 17:19:10.972034            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55bf8b22d300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:19:10.972779            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x55bf8b22d300> opening fragment file: /home/vgpnk/.config/wireplumber/wireplumber.conf.d/bluetooth-a2dp-autoconnect.conf",
+      "I 17:19:10.972859            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x55bf8b239950> using configuration file: wireplumber.conf"
+     ],
+     "raw_len": 36685
+    },
+    {
+     "variant": "V5_DATA_DIR_additive",
+     "argv": [
+      "wireplumber",
+      "-c",
+      "wireplumber.conf",
+      "-p",
+      "main"
+     ],
+     "rc": 78,
+     "timed_out": false,
+     "dur_s": 0.03,
+     "env_overrides": {
+      "XDG_CONFIG_HOME": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe",
+      "WIREPLUMBER_DATA_DIR": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/wpdata"
+     },
+     "lines": [
+      "I 17:19:15.982274            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x56413831a300> opening fragment file: /usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf",
+      "I 17:19:15.982315            wp-conf ../wireplumber/lib/wp/conf.c:366:wp_conf_open: <WpConf:0x56413831a300> opening fragment file: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r97-scout/conf/xdg-config-probe/wireplumber/wireplumber.conf.d/10-r97s-probe.conf",
+      "I 17:19:15.982392            wp-core ../wireplumber/lib/wp/core.c:341:wp_core_constructed: <WpCore:0x564138326a80> using configuration file: wireplumber.conf",
+      "I 17:19:15.983109             mod.rt ../pipewire/src/modules/module-rt.c:589:check_realtime_privileges: failed to set realtime policy: Operation not permitted",
+      "    description = \"The volume level to apply when ducking (= reducing volume for a higher priority stream to be audible) in the role-based linking policy\""
+     ],
+     "raw_len": 23474
+    }
+   ]
+  }
+ ]
+}
