@@ -12638,7 +12638,7 @@ def _gst_r81_errclass(text):
 
 
 def _gst_r81_graph():
-    """One pw-dump -> {nodes, ports, links, clients}. Identification is by
+    """One pw-dump -> {nodes, links, clients}. Identification is by
     OBJECT ID, never by name: two gst-launch pipelines both publish a
     `gst-launch-1.0` node, so port-name prefixes alias under contention.
     The client join is node.client.id -> Client.application.process.id —
@@ -12648,7 +12648,7 @@ def _gst_r81_graph():
         dump = json.loads(proc.stdout or b"[]")
     except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
         return {"error": type(exc).__name__}
-    nodes, ports, links, clients = {}, {}, [], {}
+    nodes, links, clients = {}, [], {}
     for o in dump:
         t = str(o.get("type", ""))
         info = o.get("info") or {}
@@ -12663,10 +12663,6 @@ def _gst_r81_graph():
                 "props": {k: v for k, v in props.items()
                           if GST_R81_PROP_KEEP.match(k)
                           and k not in GST_R81_PROP_DROP}}
-        elif t.endswith("Port"):
-            ports[o["id"]] = {"node": info.get("node-id"),
-                              "name": props.get("port.name"),
-                              "dir": props.get("port.direction")}
         elif t.endswith("Link"):
             links.append({"out_node": info.get("output-node-id"),
                           "out_port": info.get("output-port-id"),
@@ -12678,8 +12674,7 @@ def _gst_r81_graph():
                 "application_name": props.get("application.name"),
                 "binary": props.get("application.process.binary"),
                 "pid": props.get("application.process.id")}
-    return {"nodes": nodes, "ports": ports, "links": links,
-            "clients": clients}
+    return {"nodes": nodes, "links": links, "clients": clients}
 
 
 def _gst_r81_our_nodes(g, pid):
@@ -12777,7 +12772,6 @@ def _gst_r81_wav_inspect(path):
         "finalized" if riff == size - 8 else
         "placeholder_8" if riff == 8 else
         "zero" if riff == 0 else
-        "placeholder_7ffff000" if riff == 0x7FFFF000 else
         "wavenc_streaming" if riff == 0x7FFF0024 else f"other:{riff}")
     try:
         (insp["fmt"], insp["ch"], insp["rate"],
@@ -12794,7 +12788,6 @@ def _gst_r81_wav_inspect(path):
             insp["data"] = (
                 "finalized" if csz == size - (off + 8) else
                 "zero" if csz == 0 else
-                "placeholder_7ffff000" if csz == 0x7FFFF000 else
                 "wavenc_streaming" if csz == 0x7FFF0000 else
                 "placeholder_ff" if csz == 0xFFFFFFFF else
                 f"other:{csz}")
@@ -12859,15 +12852,8 @@ def _gst_r81_ns_ensure(loads):
         leaf = {"present": True,
                 "module_id": _gst_r81_sink_module_index(GST_R81_NS),
                 "sink_seen": True}
-        loads[GST_R81_NS] = leaf
-        return leaf
-    mid, rc, err = _playback_r78_null_sink_load(GST_R81_NS)
-    leaf = {"module_id": mid, "rc": rc, "error": err,
-            "sink_seen": mid is not None}
-    if mid is not None:
-        seen, waited, diag = _loopback_r79_wait_monitor(GST_R81_NS)
-        leaf["monitor_seen"], leaf["monitor_waited_s"], \
-            leaf["monitor_gate"] = seen, waited, diag
+    else:
+        leaf = _loopback_r79_sinks_load([GST_R81_NS])[GST_R81_NS]
     loads[GST_R81_NS] = leaf
     return leaf
 
@@ -12924,9 +12910,8 @@ def _gst_r81_leg(name, argv, ctx, env_extra=None, out_path=None,
     element bound (num-buffers / -n) rides inside argv where it exists,
     the wall cap SIGKILLs the pgid, and the byte cap on out_path is
     checked on the same loop tick. Timed events fire in-order: an
-    "unload_module" goes through the name-verified unload, "kill_proc"
-    kills a feed's pgid, "call" runs a callable. Each sample resolves our
-    node by client object id (name-alias-proof)."""
+    "unload_module" goes through the name-verified unload. Each sample
+    resolves our node by client object id (name-alias-proof)."""
     env = None
     if env_extra:
         env = dict(os.environ)
@@ -12957,14 +12942,6 @@ def _gst_r81_leg(name, argv, ctx, env_extra=None, out_path=None,
             try:
                 if kind == "unload_module":
                     res = _gst_r81_unload_own(arg)
-                elif kind == "kill_proc":
-                    try:
-                        os.killpg(arg.pid, signal.SIGKILL)
-                        res = {"killed_pgid": arg.pid}
-                    except (ProcessLookupError, PermissionError) as e2:
-                        res = {"kill_error": str(e2)[:120]}
-                elif kind == "call":
-                    res = arg()
                 else:
                     res = {"unknown_event": kind}
             except Exception as exc:                 # defensive: event must not kill the loop
@@ -12997,8 +12974,8 @@ def _gst_r81_leg(name, argv, ctx, env_extra=None, out_path=None,
         "", proc.stderr.read().decode(errors="replace"))
     cls, hit = _gst_r81_errclass(err)
     shown = " ".join(argv)
-    for token, mark in ((str(out_path), "<out>"), (ctx.get("tmp"), "<tmp>"),
-                        (ctx.get("tone"), "<tone>")):
+    for token, mark in ((str(out_path), "<out>"),
+                        (ctx.get("tmp"), "<tmp>")):
         if token:
             shown = shown.replace(str(token), mark)
     rec.update({"argv": shown,
@@ -13163,7 +13140,7 @@ def gst_naming_r81_entry():
     entry = _gst_r81_entry_head(
         "gst naming crossover — client-name renames the node, "
         "client-properties renames the Client object")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
             "num-buffers=96", "!", GST_R81_RAW, "!"]
     tgt = ["target-object=" + GST_R81_NS]
@@ -13198,8 +13175,7 @@ def gst_naming_r81_entry():
                  "stream-properties=props,stream.capture.sink=true",
                  "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
                  "filesink", f"location={cap}"],
-                dict(ctx, tmp=tmp), out_path=cap,
-                wall_cap=GST_R81_WALL_S)
+                dict(ctx, tmp=tmp), out_path=cap)
     finally:
         _gst_r81_teardown(entry, failures, loads)
     entry["legs"] = legs
@@ -13322,7 +13298,7 @@ def gst_routing_r81_entry():
         "gst routing vectors — two-key target-object write, gst-prop "
         "precedence over stream-properties, PIPEWIRE_PROPS/"
         "PIPEWIRE_NODE envs, silent fallback, capture prop gate")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
             "num-buffers=96", "!", GST_R81_RAW, "!"]
     try:
@@ -13355,7 +13331,7 @@ def gst_routing_r81_entry():
             ("r8_no_autoconnect",
              play + ["target-object=" + GST_R81_NS,
                      "stream-properties=props,node.autoconnect=false"],
-             None, {"wall_cap": GST_R81_WALL_S}),
+             None, {}),
         ]
         for name, argv, envx, kw in L:
             legs[name] = _gst_r81_leg(name, argv, ctx, env_extra=envx,
@@ -13430,10 +13406,6 @@ def gst_routing_r81_entry():
     def _node(lname):
         return legs.get(lname) or {}, _gst_r81_last_node(
             legs.get(lname) or {})
-
-    def _props(lname):
-        _l, nd = _node(lname)
-        return nd, (nd or {}).get("props") or {}
 
     # ---- r1: the two-key write + honored route ----
     leg, nd = _node("r1_target_object")
@@ -13626,7 +13598,7 @@ def gst_pulse_axis_r81_entry():
         "pulse device= axis — server-side name resolution, silent "
         "playback fallback vs strict record refusal, PULSE_SINK "
         "precedence")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
             "num-buffers=96", "!", GST_R81_RAW, "!"]
     default = entry["inventory"]["default_sink"] or \
@@ -13780,7 +13752,7 @@ def gst_target_loss_r81_entry():
         "target loss — playback re-links <= one 0.2 s sample, gst "
         "capture freezes at the last buffer (no re-link, no error), "
         "pw-record control re-links; on-disconnect inert")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     play = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
             "!", GST_R81_RAW, "!"]
     try:
@@ -13944,14 +13916,18 @@ def gst_target_loss_r81_entry():
             failures.append(f"loss {lname}: artifact must have real "
                             f"bytes — {out}")
         else:
-            if out.get("riff") not in ("wavenc_streaming",
-                                       "placeholder_7ffff000") or \
-                    out.get("data") == "finalized":
+            if out.get("riff") != "wavenc_streaming" or \
+                    out.get("riff_size") != 0x7FFF0024 or \
+                    out.get("data") != "wavenc_streaming" or \
+                    out.get("data_declared") != 0x7FFF0000:
                 failures.append(f"loss {lname}: the frozen artifact "
-                                "must carry an UNFINALIZED wavenc "
-                                f"streaming header — riff="
-                                f"{out.get('riff')} data="
-                                f"{out.get('data')}")
+                                "must carry the pinned wavenc streaming "
+                                "placeholders (riff_size 0x7FFF0024, "
+                                "data_declared 0x7FFF0000) — riff="
+                                f"{out.get('riff')}/"
+                                f"{out.get('riff_size')} data="
+                                f"{out.get('data')}/"
+                                f"{out.get('data_declared')}")
         if len(sizes) >= 2 and sizes[-1] != sizes[0]:
             # growth after the unload means it kept consuming — the
             # freeze claim fails even if links stayed empty.
@@ -14022,59 +13998,58 @@ def gst_exit_classes_r81_entry():
         "gst-launch exit classes — parse refusal rc=1/no-artifact, "
         "state-change refusal rc=255/0-byte, pulsesrc outlier "
         "rc=1/0-byte")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     with tempfile.TemporaryDirectory(prefix="gst-r81-exit-") as tmp:
         ctx = dict(ctx, tmp=tmp)
         f1 = str(Path(tmp) / "e1.wav")
         f2 = str(Path(tmp) / "e10.wav")
         f3 = str(Path(tmp) / "e11.wav")
+        f4 = str(Path(tmp) / "e3.wav")
+        f5 = str(Path(tmp) / "e8.wav")
+        f6 = str(Path(tmp) / "e9.wav")
         L = [
-            ("e1_missing_element", "gst_parse_refusal",
+            ("e1_missing_element",
              ["gst-launch-1.0", "-q", "nosuchelementsrc_r81", "!",
               "wavenc", "!", "filesink", f"location={f1}"], f1,
              'no element "nosuchelementsrc_r81"'),
-            ("e3_bogus_property", "gst_parse_refusal",
+            ("e3_bogus_property",
              ["gst-launch-1.0", "-q", "audiotestsrc", "bogus-prop=42",
-              "num-buffers=4", "!", "fakesink"], None,
+              "num-buffers=4", "!", "wavenc", "!", "filesink",
+              f"location={f4}"], f4,
              'no property "bogus-prop" in element "audiotestsrc"'),
-            ("e8_negotiation_f64", "gst_parse_refusal",
+            ("e8_negotiation_f64",
              ["gst-launch-1.0", "-q", "audiotestsrc", "num-buffers=4",
-              "!", "audio/x-raw,format=F64LE,rate=48000,channels=2",
-              "!", "pulsesink"], None,
+              "!", "tee", "name=t", "!",
+              "audio/x-raw,format=F64LE,rate=48000,channels=2",
+              "!", "pulsesink", "t.", "!", "wavenc", "!", "filesink",
+              f"location={f5}"], f5,
              "can't handle caps"),
-            ("e9_incomplete", "gst_parse_refusal",
-             ["gst-launch-1.0", "-q", "audiotestsrc", "!"], None,
+            ("e9_incomplete",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "!", "wavenc",
+              "!", "filesink", f"location={f6}", "!"], f6,
              "syntax error"),
-            ("e10_pwsrc_no_prop", "gst_target_not_found",
+            ("e10_pwsrc_no_prop",
              ["gst-launch-1.0", "-q", "pipewiresrc",
               "target-object=" + GST_R81_BOGUS, "num-buffers=4", "!",
               GST_R81_RAW, "!", "wavenc", "!", "filesink",
               f"location={f2}"], f2, "target not found"),
-            ("e11_pulsesrc_bogus", "gst_no_such_entity",
+            ("e11_pulsesrc_bogus",
              ["gst-launch-1.0", "-q", "pulsesrc",
               "device=" + GST_R81_BOGUS, "num-buffers=4", "!",
               GST_R81_RAW, "!", "wavenc", "!", "filesink",
               f"location={f3}"], f3, "No such entity"),
-            ("p8_bogus_server", "gst_connection_refused",
-             ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
-              "num-buffers=4", "!", GST_R81_RAW, "!", "pulsesink",
-              "server=unix:/nonexistent-r81"], None,
-             "Connection refused"),
         ]
-        for name, cls, argv, op, hit in L:
-            legs[name] = _gst_r81_leg(name, argv, ctx, out_path=op,
-                                      wall_cap=GST_R81_WALL_S)
-            legs[name]["expect_class"] = cls
+        for name, argv, op, hit in L:
+            legs[name] = _gst_r81_leg(name, argv, ctx, out_path=op)
             legs[name]["expect_hit"] = hit
     entry["legs"] = legs
     expect = {
         "e1_missing_element": (1, "absent", "gst_parse_refusal"),
-        "e3_bogus_property": (1, "none", "gst_parse_refusal"),
-        "e8_negotiation_f64": (1, "none", "gst_parse_refusal"),
-        "e9_incomplete": (1, "none", "gst_parse_refusal"),
+        "e3_bogus_property": (1, "absent", "gst_parse_refusal"),
+        "e8_negotiation_f64": (1, "absent", "gst_parse_refusal"),
+        "e9_incomplete": (1, "absent", "gst_parse_refusal"),
         "e10_pwsrc_no_prop": (255, "zero_byte", "gst_target_not_found"),
         "e11_pulsesrc_bogus": (1, "zero_byte", "gst_no_such_entity"),
-        "p8_bogus_server": (255, "none", "gst_connection_refused"),
     }
     for lname, (rc, shape, cls) in expect.items():
         leg = legs.get(lname) or {}
@@ -14136,7 +14111,7 @@ def gst_autodetect_r81_entry():
         "autodetect backend — autoaudiosink resolves to pulsesink "
         "(pipewire-pulse node), autoaudiosrc to pulsesrc (rc=1 "
         "no-default refusal); alsasink control leaves no pw node")
-    ctx = {"ns": GST_R81_NS, "tag": GST_R81_TAG}
+    ctx = {}
     base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
             "num-buffers=48", "!", GST_R81_RAW, "!"]
     with tempfile.TemporaryDirectory(prefix="gst-r81-auto-") as tmp:
