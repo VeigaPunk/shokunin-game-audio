@@ -1,0 +1,25 @@
+{
+ "seat": "ufo-labrat (read-only, advisory; dispatched by the frozen probeParent r96 executor/scout seat)",
+ "hypothesis": "pipewire-pulse 1.6.8 process() underrun branch with prebuf==0 advances the ring read index by the full padded size (not by avail), so sustained starvation leaves readindex > writeindex and later data is permanently treated as consumed; with prebuf>0 the branch does not touch the ring, so data survives.",
+ "verdict": "SUPPORTED",
+ "cites": [
+  "pulse-server.c:1448 underrun gate (avail < minreq || corked)",
+  "pulse-server.c:1450-1451 size = SPA_MIN(d->maxsize, minreq); sample_spec_silence",
+  "pulse-server.c:1461 gate (attr.prebuf == 0 || do_flush) && !corked",
+  "pulse-server.c:1462-1468 copies only avail>0 bytes",
+  "pulse-server.c:1470-1472 index += size; pd.read_inc = size; spa_ringbuffer_read_update (unclamped)",
+  "pulse-server.c:1321 stream->read_index += pd->read_inc",
+  "pulse-server.c:1491-1501 normal path when prebuf>0 leaves data in ring",
+  "stream.c:173-175 stream_flush resync (only via COMMAND_FLUSH_*, pulse-server.c:2732-2735)",
+  "stream.c:191-201 / 203-229 stream_prebuf_active gates REQUEST generation only"
+ ],
+ "counter_evidence": "The client-data write path (packet payload -> ring writeindex/write_index bump, handle_packet) is in a module file not among the fetched sources; if it clamped writeindex forward to readindex on arrival, recovery could occur. Nothing in the fetched code suggests it; measured arm-B permanent silence matches the unclamped reading.",
+ "residual_uncertainty": "One sentence: verdict rests on the write-side handler never clamping writeindex forward to readindex, unchecked because that code was not among the fetched artifacts.",
+ "parent_measured_rows": {
+  "prebuf_default_slow_feed_nonzero_frames": [55099, 55099, 55099],
+  "prebuf_zero_slow_feed_nonzero_frames": [2645, 2645, 4612],
+  "prebuf_zero_fast_feed_nonzero_frames": [38385, 38385],
+  "receipt": "corpus/live/r96-scout/receipts/r96s_cork_prebuf.json"
+ },
+ "note": "The child ran read-only (no exec) and wrote nothing; this receipt was written by the parent seat."
+}

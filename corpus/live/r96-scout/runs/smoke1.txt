@@ -1,0 +1,58 @@
+== smoke with true rc, 2026-10-15T20:06:21Z
+### env PULSE_SERVER=unix:/nonexistent :: pactl info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+pa_context_connect() failed: Connection refused
+
+### env PULSE_SERVER=tcp:127.0.0.1:4713 :: pactl info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+
+### env PULSE_SERVER=127.0.0.1:4713 :: pactl info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+
+### env PULSE_SERVER=nonexistent-r96s :: pactl info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+
+### env PULSE_RUNTIME_PATH=/tmp/r96s_nope :: pactl info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+pa_context_connect() failed: Connection refused
+
+### env PULSE_COOKIE=/dev/null :: pactl info
+rc=0
+--stdout
+Server String: /run/user/1000/pulse/native
+Library Protocol Version: 35
+Server Protocol Version: 35
+Is Local: yes
+--stderr
+Failed to truncate cookie file: Invalid argument
+
+### env PULSE_SERVER=tcp:127.0.0.1:1 :: pactl -s unix:/run/user/1000/pulse/native info
+rc=0
+--stdout
+Server String: unix:/run/user/1000/pulse/native
+Library Protocol Version: 35
+Server Protocol Version: 35
+Is Local: yes
+--stderr
+
+### env PULSE_SERVER=unix:/run/user/1000/pulse/native :: pactl -s tcp:127.0.0.1:1 info
+rc=1
+--stdout
+--stderr
+Connection failure: Connection refused
+
