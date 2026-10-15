@@ -1,0 +1,716 @@
+[
+ {
+  "leg": "unload_fc_az90",
+  "rep": 0,
+  "tag": "unload_fc_az90_r0",
+  "rate": 44100,
+  "azimuth": 90.0,
+  "utc": "2026-10-15T21:58:45Z",
+  "elevation": 0.0,
+  "radius": 1.0,
+  "argv_order": "base",
+  "ctl_order": "config_first",
+  "quote": false,
+  "sib": false,
+  "post": [
+   {
+    "t": 1.2,
+    "do": "unload_fc"
+   }
+  ],
+  "swap_channels": false,
+  "ref_tap": false,
+  "tone": {
+   "freq": 440.0,
+   "secs": 4.0,
+   "amp": 0.5
+  },
+  "loadavg_start": {
+   "l1": 124.64,
+   "l5": 117.27,
+   "l15": 111.85,
+   "running": "65/2880",
+   "lastpid": "2403797"
+  },
+  "pre_sweep": {
+   "before": {
+    "nodes": [],
+    "node_states": {},
+    "modules": [],
+    "procs": [],
+    "foreign_nodes": [
+     "r83a_2305712_prop_chpos_feed",
+     "r83a_2305712_prop_chpos_tap",
+     "r83a_ns_a_2305712",
+     "r83a_ns_b_2305712",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in",
+     "r93b_ref"
+    ],
+    "foreign_modules": [
+     "536870921",
+     "536870922",
+     "536870926"
+    ],
+    "foreign_hogs": 48
+   },
+   "killed": [],
+   "after": {
+    "nodes": [],
+    "node_states": {},
+    "modules": [],
+    "procs": [],
+    "foreign_nodes": [
+     "r83a_2305712_prop_chpos_feed",
+     "r83a_ns_a_2305712",
+     "r83a_ns_b_2305712",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in",
+     "r93b_ref"
+    ],
+    "foreign_modules": [
+     "536870921",
+     "536870922",
+     "536870926"
+    ],
+    "foreign_hogs": 48
+   },
+   "clean": true
+  },
+  "node_tok": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0,Elevation=0.0,Radius=1.0}}",
+  "argv_args": "node.description=r100b_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0,Elevation=0.0,Radius=1.0}}]},audio.channels=1,audio.position=[MONO],audio.rate=44100,capture.props={node.name=r100b_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100b_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+  "sinks": {
+   "in": {
+    "argv": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r100b_in",
+     "channels=1 rate=44100 sink_properties=state.restore-props=false"
+    ],
+    "rc": 0,
+    "out": "536870916",
+    "id": 536870916
+   }
+  },
+  "load_out": "at mono audio\"\n \t\tnode.id = \"152\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100b_sofa:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 added global: \tid 204, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"200345\"\n \t\tobject.path = \"r100b_sofa_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"152\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100b_sofa:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 node 152 changed\nremote 0 node 152 changed",
+  "module_var": 1,
+  "nodes_now": [
+   "r100b_in",
+   "r100b_sofa_in",
+   "r100b_sofa_out"
+  ],
+  "ports_fc_in": [
+   "r100b_sofa_in:monitor_MONO",
+   "r100b_sofa_in:playback_MONO"
+  ],
+  "ports_fc_out": [
+   "r100b_sofa_out:output_FL",
+   "r100b_sofa_out:output_FR"
+  ],
+  "props_enum_in": {
+   "node": "r100b_sofa_in",
+   "id": 194,
+   "rc": 0,
+   "bytes": 2724,
+   "has_azimuth": true,
+   "has_elevation": true,
+   "has_radius": true,
+   "raw": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/raw/enum_unload_fc_az90_r0_in.txt",
+   "lines": [
+    "Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)",
+    "    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:params (524289), flags 00000000",
+    "  Object: size 144, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)",
+    "    Prop: key Spa:Pod:Object:Param:Props:params (524289), flags 00000000",
+    "        String \"s0:Azimuth\"",
+    "        String \"s0:Elevation\"",
+    "        String \"s0:Radius\""
+   ]
+  },
+  "props_enum_out": {
+   "node": "r100b_sofa_out",
+   "id": 152,
+   "rc": 0,
+   "bytes": 2495,
+   "has_azimuth": false,
+   "has_elevation": false,
+   "has_radius": false,
+   "raw": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/raw/enum_unload_fc_az90_r0_out.txt",
+   "lines": [
+    "Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)",
+    "    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000",
+    "    Prop: key Spa:Pod:Object:Param:Props:params (524289), flags 00000000"
+   ]
+  },
+  "ports_rec": [
+   "r100b_rec:input_FL",
+   "r100b_rec:input_FR",
+   "r100b_rec:monitor_FL",
+   "r100b_rec:monitor_FR"
+  ],
+  "links": [
+   {
+    "argv": [
+     "r100b_in:monitor_MONO",
+     "r100b_sofa_in:playback_MONO"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100b_sofa_out:output_FL",
+     "r100b_rec:input_FL"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100b_sofa_out:output_FR",
+     "r100b_rec:input_FR"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100b_play:output_MONO",
+     "r100b_in:playback_MONO"
+    ],
+    "rc": 0,
+    "tries": 1
+   }
+  ],
+  "links_before_play": [
+   "r100b_in:monitor_MONO",
+   "|-> r100b_sofa_in:playback_MONO",
+   "r100b_sofa_in:playback_MONO",
+   "|<- r100b_in:monitor_MONO",
+   "r100b_sofa_out:output_FL",
+   "|-> r100b_rec:input_FL",
+   "r100b_sofa_out:output_FR",
+   "|-> r100b_rec:input_FR",
+   "r100b_rec:input_FL",
+   "|<- r100b_sofa_out:output_FL",
+   "r100b_rec:input_FR",
+   "|<- r100b_sofa_out:output_FR"
+  ],
+  "tone_file": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/scratch/tone_440.0_44100.wav",
+  "tone_file_rms": 0.3535289,
+  "play": {
+   "argv": [
+    "pw-play",
+    "--target",
+    "r100b_in",
+    "-P",
+    "node.name=r100b_play",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/scratch/tone_440.0_44100.wav"
+   ],
+   "mode": "bg"
+  },
+  "ports_play": [
+   "r100b_play:output_MONO"
+  ],
+  "play_link_origin": "manual",
+  "graph_witness_mid": {
+   "loadavg": {
+    "l1": 119.31,
+    "l5": 116.28,
+    "l15": 111.56,
+    "running": "58/2560",
+    "lastpid": "2406000"
+   },
+   "clock": {
+    "core": {
+     "default.clock.rate": "48000",
+     "default.clock.quantum": "4",
+     "clock.power-of-two-quantum": "true",
+     "settings.check-quantum": "false",
+     "settings.check-rate": "false"
+    },
+    "drivers": [
+     {
+      "name": "Dummy-Driver",
+      "state": "idle",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "Freewheel-Driver",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "Midi-Bridge",
+      "state": "idle",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source.29",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "r93b_in",
+      "state": "idle",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "r100b_in",
+      "state": "running",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "r83a_ns_b_2305712",
+      "state": "running",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     },
+     {
+      "name": "r83a_ns_m_2305712",
+      "state": "suspended",
+      "clock.rate": null,
+      "clock.quantum": null,
+      "node.driver": true
+     }
+    ],
+    "core_rc": 0,
+    "core_len": 1181,
+    "core_timed_out": false
+   },
+   "nodes": [
+    "r100b_in",
+    "r100b_play",
+    "r100b_rec",
+    "r100b_sofa_in",
+    "r100b_sofa_out"
+   ],
+   "node_states": {
+    "r100b_in": "running",
+    "r100b_sofa_in": "running",
+    "r100b_sofa_out": "running",
+    "r100b_rec": "running",
+    "r100b_play": "running"
+   }
+  },
+  "post_events": [
+   {
+    "at": 1.2,
+    "action": "unload_fc",
+    "result": "lient/3\n \t\tobject.serial = \"200408\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2406695\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"\n",
+    "nodes_after": [
+     "r100b_in",
+     "r100b_play",
+     "r100b_rec"
+    ]
+   }
+  ],
+  "play_stop": {
+   "argv": [
+    "pw-play",
+    "--target",
+    "r100b_in",
+    "-P",
+    "node.name=r100b_play",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/scratch/tone_440.0_44100.wav"
+   ],
+   "rc": 0,
+   "out": "",
+   "err": ""
+  },
+  "rec": {
+   "argv": [
+    "pw-record",
+    "--channels",
+    "2",
+    "-P",
+    "node.name=r100b_rec",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/scratch/cap_unload_fc_az90_r0.wav"
+   ],
+   "rc": 1,
+   "out": "",
+   "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-boundary/scratch/cap_unload_fc_az90_r0.wav\n"
+  },
+  "analysis": {
+   "bytes": 385564,
+   "frames": 96380,
+   "ch": 2,
+   "file_rate": 48000,
+   "channels": [
+    {
+     "rms": 0.16270475,
+     "rms_full": 0.12966457,
+     "peak": 0.261688,
+     "tone": 0.23009927,
+     "nonzero": 61253,
+     "win_offset": 40320,
+     "rate": 48000
+    },
+    {
+     "rms": 0.0956771,
+     "rms_full": 0.07623944,
+     "peak": 0.155762,
+     "tone": 0.13530785,
+     "nonzero": 61256,
+     "win_offset": 65280,
+     "rate": 48000
+    }
+   ],
+   "ild_db": 4.612,
+   "ild_full_db": 4.613,
+   "peak": 0.261688,
+   "scout": {
+    "win_rate": 44100,
+    "win": 17640,
+    "channels": [
+     {
+      "rms": 0.16278091,
+      "win_offset": 68796,
+      "tone440": 0.23031476,
+      "rate": 48000
+     },
+     {
+      "rms": 0.09572187,
+      "win_offset": 67032,
+      "tone440": 0.13543452,
+      "rate": 48000
+     }
+    ],
+    "ild_db": 4.612
+   }
+  },
+  "series": {
+   "frames": 96380,
+   "file_rate": 48000,
+   "win_ms": 100,
+   "series": [
+    {
+     "ms": 0.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 100.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 200.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 300.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 400.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 500.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 600.0,
+     "rms": [
+      0.0,
+      0.0
+     ],
+     "ild": 0.0
+    },
+    {
+     "ms": 700.0,
+     "rms": [
+      0.13345174,
+      0.07834156
+     ],
+     "ild": 4.627
+    },
+    {
+     "ms": 800.0,
+     "rms": [
+      0.16270473,
+      0.0956771
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 900.0,
+     "rms": [
+      0.16270476,
+      0.09567709
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1000.0,
+     "rms": [
+      0.16270475,
+      0.0956771
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1100.0,
+     "rms": [
+      0.16270476,
+      0.0956771
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1200.0,
+     "rms": [
+      0.16270473,
+      0.0956771
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1300.0,
+     "rms": [
+      0.1627047,
+      0.09567709
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1400.0,
+     "rms": [
+      0.16270474,
+      0.09567709
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1500.0,
+     "rms": [
+      0.16270475,
+      0.09567709
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1600.0,
+     "rms": [
+      0.16270473,
+      0.09567711
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1700.0,
+     "rms": [
+      0.16270478,
+      0.0956771
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1800.0,
+     "rms": [
+      0.16270473,
+      0.09567708
+     ],
+     "ild": 4.612
+    },
+    {
+     "ms": 1900.0,
+     "rms": [
+      0.16270473,
+      0.0956771
+     ],
+     "ild": 4.612
+    }
+   ]
+  },
+  "links_after": [],
+  "unload": "re.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"2407804\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nunload-module 1\nError: \"unload-module: unknown module '1'\"\npipewire-0>> ",
+  "fc_log": [
+   "port.alias = \"r100b_sofa:playback_MONO\"",
+   "object.path = \"r100b_sofa_in:monitor_0\"",
+   "port.alias = \"r100b_sofa:monitor_MONO\"",
+   "object.path = \"r100b_sofa_out:output_0\"",
+   "port.alias = \"r100b_sofa:output_FL\"",
+   "object.path = \"r100b_sofa_out:output_1\"",
+   "port.alias = \"r100b_sofa:output_FR\"",
+   "[I][18:58:49.201691] pw.node      | [     impl-node.c:  509 node_update_state()] (r100b_sofa_in-194) suspended -> running",
+   "[I][18:58:49.202502] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:44100",
+   "[I][18:58:49.252389][   plugin_sofa.c:  222 spatializer_instantiate()] using n_samples:512 256:4096 blocksize gain:1.000000 sofa:/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa",
+   "[I][18:58:49.252700][   plugin_sofa.c:  268 spatializer_reload()] making spatializer with 90.000000 0.000000 1.000000",
+   "[I][18:58:49.254053] pw.node      | [     impl-node.c:  509 node_update_state()] (r100b_sofa_out-152) suspended -> running",
+   "remote 0: error id:94 seq:389 res:-2 (No such file or directory): no global 197",
+   "remote 0: error id:0 seq:393 res:-2 (No such file or directory): unknown resource 94 op:7",
+   "remote 0: error id:95 seq:394 res:-2 (No such file or directory): no global 197",
+   "remote 0: error id:0 seq:398 res:-2 (No such file or directory): unknown resource 95 op:7",
+   "remote 0: error id:106 seq:399 res:-2 (No such file or directory): no global 121",
+   "remote 0: error id:0 seq:401 res:-2 (No such file or directory): unknown resource 106 op:7",
+   "remote 0: error id:80 seq:428 res:-2 (No such file or directory): no global 220",
+   "remote 0: error id:0 seq:430 res:-2 (No such file or directory): unknown resource 80 op:7",
+   "[I][18:58:51.266111] pw.node      | [     impl-node.c:  509 node_update_state()] (r100b_sofa_in-194) running -> suspended",
+   "[I][18:58:51.266151] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100b_sofa_in-194) destroy",
+   "[I][18:58:51.266266] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+   "[I][18:58:51.266298] pw.node      | [     impl-node.c:  509 node_update_state()] (r100b_sofa_out-152) running -> suspended",
+   "[I][18:58:51.266330] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100b_sofa_out-152) destroy",
+   "object.path = \"r100b_sofa_in:playback_0\"",
+   "port.alias = \"r100b_sofa:playback_MONO\"",
+   "object.path = \"r100b_sofa_in:monitor_0\"",
+   "port.alias = \"r100b_sofa:monitor_MONO\"",
+   "node.description = \"r100b_sofa\"",
+   "node.name = \"r100b_sofa_in\"",
+   "object.path = \"r100b_sofa_out:output_0\"",
+   "port.alias = \"r100b_sofa:output_FL\"",
+   "object.path = \"r100b_sofa_out:output_1\"",
+   "port.alias = \"r100b_sofa:output_FR\"",
+   "node.description = \"r100b_sofa\"",
+   "node.name = \"r100b_sofa_out\"",
+   "remote 0: error id:124 seq:492 res:-2 (No such file or directory): no global 194",
+   "remote 0: error id:0 seq:494 res:-2 (No such file or directory): unknown resource 124 op:7",
+   "Error: \"unload-module: unknown module '1'\""
+  ],
+  "sink_unloads": {
+   "in": {
+    "rc": 0,
+    "out": ""
+   }
+  },
+  "post_sweep": {
+   "before": {
+    "nodes": [],
+    "node_states": {},
+    "modules": [],
+    "procs": [],
+    "foreign_nodes": [
+     "r83a_2305712_m1_ndr_0",
+     "r83a_ns_b_2305712",
+     "r83a_ns_m_2305712",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in"
+    ],
+    "foreign_modules": [
+     "536870921",
+     "536870922",
+     "536870926"
+    ],
+    "foreign_hogs": 48
+   },
+   "killed": [],
+   "after": {
+    "nodes": [],
+    "node_states": {},
+    "modules": [],
+    "procs": [],
+    "foreign_nodes": [
+     "r83a_2305712_m1_ndr_1_tap",
+     "r83a_ns_b_2305712",
+     "r83a_ns_m_2305712",
+     "r93b_fc_in",
+     "r93b_fc_out",
+     "r93b_in"
+    ],
+    "foreign_modules": [
+     "536870921",
+     "536870922",
+     "536870926"
+    ],
+    "foreign_hogs": 48
+   },
+   "clean": true
+  },
+  "loadavg_end": {
+   "l1": 114.8,
+   "l5": 115.4,
+   "l15": 111.3,
+   "running": "52/2516",
+   "lastpid": "2408476"
+  },
+  "wall_s": 12.3
+ }
+]
