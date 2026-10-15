@@ -1,0 +1,608 @@
+[
+ {
+  "leg": "noconfig_48k",
+  "rep": 0,
+  "rate": 48000,
+  "azimuth": null,
+  "node": "{type=sofa,name=s0,label=spatializer}",
+  "argv_args": "node.description=r100s_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer}]},audio.channels=1,audio.position=[MONO],audio.rate=48000,capture.props={node.name=r100s_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100s_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+  "pre_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "sinks": {
+   "in": {
+    "argv": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r100s_in",
+     "channels=1 rate=48000 sink_properties=state.restore-props=false"
+    ],
+    "rc": 0,
+    "out": "536870923",
+    "id": 536870923
+   }
+  },
+  "load_out": "at mono audio\"\n \t\tnode.id = \"131\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100s_sofa:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 added global: \tid 168, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"137476\"\n \t\tobject.path = \"r100s_sofa_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"131\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100s_sofa:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 node 131 changed\nremote 0 node 131 changed",
+  "module_var": 1,
+  "nodes_now": [
+   "r100s_in",
+   "r100s_sofa_in",
+   "r100s_sofa_out"
+  ],
+  "ports_fc_in": [
+   "r100s_sofa_in:monitor_MONO",
+   "r100s_sofa_in:playback_MONO"
+  ],
+  "ports_fc_out": [
+   "r100s_sofa_out:output_FL",
+   "r100s_sofa_out:output_FR"
+  ],
+  "ports_rec": [
+   "r100s_rec:input_FL",
+   "r100s_rec:input_FR",
+   "r100s_rec:monitor_FL",
+   "r100s_rec:monitor_FR"
+  ],
+  "links": [
+   {
+    "argv": [
+     "r100s_in:monitor_MONO",
+     "r100s_sofa_in:playback_MONO"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FL",
+     "r100s_rec:input_FL"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FR",
+     "r100s_rec:input_FR"
+    ],
+    "rc": 0,
+    "tries": 1
+   }
+  ],
+  "play": {
+   "argv": [
+    "pw-play",
+    "--target",
+    "r100s_in",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/tone_48000.wav"
+   ],
+   "rc": 0,
+   "dur": 1.653,
+   "timed_out": false,
+   "byte_capped": false,
+   "out": "",
+   "err": ""
+  },
+  "rec": {
+   "argv": [
+    "pw-record",
+    "--channels",
+    "2",
+    "-P",
+    "node.name=r100s_rec",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_noconfig_48k_r0.wav"
+   ],
+   "rc": 1,
+   "out": "",
+   "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_noconfig_48k_r0.wav\n"
+  },
+  "analysis": {
+   "bytes": 421932,
+   "frames": 105472,
+   "ch": 2,
+   "channels": [
+    {
+     "rms": 0.0,
+     "peak": 0.0,
+     "tone440": 0.0,
+     "win_offset": 0,
+     "rate": 48000
+    },
+    {
+     "rms": 0.0,
+     "peak": 0.0,
+     "tone440": 0.0,
+     "win_offset": 0,
+     "rate": 48000
+    }
+   ],
+   "ild_db": 0.0
+  },
+  "links_after": [
+   "r100s_in:monitor_MONO",
+   "|-> r100s_sofa_in:playback_MONO",
+   "r100s_sofa_in:playback_MONO",
+   "|<- r100s_in:monitor_MONO"
+  ],
+  "unload": ".serial = \"137470\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1660473\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 207 changed\n",
+  "fc_log": [
+   "[I][17:38:01.999739] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-0) creating -> suspended",
+   "[I][17:38:01.999943] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-0) creating -> suspended",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_in\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_out\"",
+   "object.path = \"r100s_sofa_in:playback_0\"",
+   "port.alias = \"r100s_sofa:playback_MONO\"",
+   "object.path = \"r100s_sofa_in:monitor_0\"",
+   "port.alias = \"r100s_sofa:monitor_MONO\"",
+   "object.path = \"r100s_sofa_out:output_0\"",
+   "port.alias = \"r100s_sofa:output_FL\"",
+   "object.path = \"r100s_sofa_out:output_1\"",
+   "port.alias = \"r100s_sofa:output_FR\"",
+   "remote 0: error id:149 seq:311 res:-2 (No such file or directory): no global 192",
+   "remote 0: error id:0 seq:315 res:-2 (No such file or directory): unknown resource 149 op:7",
+   "remote 0: error id:149 seq:316 res:-2 (No such file or directory): no global 192",
+   "remote 0: error id:0 seq:320 res:-2 (No such file or directory): unknown resource 149 op:7",
+   "[I][17:38:04.154572] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-104) suspended -> running",
+   "[I][17:38:04.155423] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:48000",
+   "[E][17:38:04.155445][   plugin_sofa.c:   60 spatializer_instantiate()] spatializer: no config was given",
+   "[E][17:38:04.155500] pw.stream    | [        stream.c:  429 stream_set_state()] 0x561ff4f2f5f0: error (-22) can't start graph: Invalid argument",
+   "[I][17:38:04.155527] mod.filter-chain | [module-filter-ch: 1579 playback_state_changed()] module 0x561ff4ee14b0: error: can't start graph: Invalid argument",
+   "[I][17:38:04.155559] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-131) suspended -> running",
+   "[I][17:38:06.625554] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-104) running -> suspended",
+   "[I][17:38:06.625666] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_in-104) destroy",
+   "[I][17:38:06.625838] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-131) running -> suspended",
+   "[I][17:38:06.625894] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_out-131) destroy",
+   "object.path = \"r100s_sofa_in:playback_0\"",
+   "port.alias = \"r100s_sofa:playback_MONO\"",
+   "object.path = \"r100s_sofa_in:monitor_0\"",
+   "port.alias = \"r100s_sofa:monitor_MONO\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_in\"",
+   "object.path = \"r100s_sofa_out:output_0\"",
+   "port.alias = \"r100s_sofa:output_FL\"",
+   "object.path = \"r100s_sofa_out:output_1\"",
+   "port.alias = \"r100s_sofa:output_FR\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_out\""
+  ],
+  "sink_unloads": {
+   "in": {
+    "rc": 0,
+    "out": ""
+   }
+  },
+  "post_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "wall_s": 7.56
+ },
+ {
+  "leg": "sofa_48k",
+  "rep": 0,
+  "rate": 48000,
+  "azimuth": null,
+  "node": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa}}",
+  "argv_args": "node.description=r100s_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa}}]},audio.channels=1,audio.position=[MONO],audio.rate=48000,capture.props={node.name=r100s_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100s_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+  "pre_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "sinks": {
+   "in": {
+    "argv": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r100s_in",
+     "channels=1 rate=48000 sink_properties=state.restore-props=false"
+    ],
+    "rc": 0,
+    "out": "536870923",
+    "id": 536870923
+   }
+  },
+  "load_out": " \t\tport.monitor = \"true\"\n \t\tport.alias = \"r92b_fc:monitor_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 132 changed\nremote 0 node 132 changed\nremote 0 node 124 changed\nremote 0 node 124 changed\nremote 0 added global: \tid 52, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"137566\"\n \t\tobject.path = \"r92b_fc_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"124\"\n \t\taudio.channel = \"MONO\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_MONO\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r92b_fc:output_MONO\"\n \t\tport.group = \"stream.0\"\nremote 0 node 124 changed\nremote 0 node 124 changed",
+  "module_var": 1,
+  "nodes_now": [
+   "r100s_in",
+   "r100s_sofa_in",
+   "r100s_sofa_out"
+  ],
+  "ports_fc_in": [
+   "r100s_sofa_in:monitor_MONO",
+   "r100s_sofa_in:playback_MONO"
+  ],
+  "ports_fc_out": [
+   "r100s_sofa_out:output_FL",
+   "r100s_sofa_out:output_FR"
+  ],
+  "ports_rec": [
+   "r100s_rec:input_FL",
+   "r100s_rec:input_FR",
+   "r100s_rec:monitor_FL",
+   "r100s_rec:monitor_FR"
+  ],
+  "links": [
+   {
+    "argv": [
+     "r100s_in:monitor_MONO",
+     "r100s_sofa_in:playback_MONO"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FL",
+     "r100s_rec:input_FL"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FR",
+     "r100s_rec:input_FR"
+    ],
+    "rc": 0,
+    "tries": 1
+   }
+  ],
+  "play": {
+   "argv": [
+    "pw-play",
+    "--target",
+    "r100s_in",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/tone_48000.wav"
+   ],
+   "rc": 0,
+   "dur": 2.311,
+   "timed_out": false,
+   "byte_capped": false,
+   "out": "",
+   "err": ""
+  },
+  "rec": {
+   "argv": [
+    "pw-record",
+    "--channels",
+    "2",
+    "-P",
+    "node.name=r100s_rec",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_sofa_48k_r0.wav"
+   ],
+   "rc": 1,
+   "out": "",
+   "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_sofa_48k_r0.wav\n"
+  },
+  "analysis": {
+   "bytes": 405548,
+   "frames": 101376,
+   "ch": 2,
+   "channels": [
+    {
+     "rms": 0.12149002,
+     "peak": 0.197937,
+     "tone440": 0.15983773,
+     "win_offset": 61440,
+     "rate": 48000
+    },
+    {
+     "rms": 0.12149002,
+     "peak": 0.197937,
+     "tone440": 0.15983773,
+     "win_offset": 61440,
+     "rate": 48000
+    }
+   ],
+   "ild_db": 0.0
+  },
+  "links_after": [
+   "r100s_in:monitor_MONO",
+   "|-> r100s_sofa_in:playback_MONO",
+   "r100s_sofa_in:playback_MONO",
+   "|<- r100s_in:monitor_MONO"
+  ],
+  "unload": ".serial = \"137554\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1672594\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 207 changed\n",
+  "fc_log": [
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_out\"",
+   "object.path = \"r100s_sofa_in:playback_0\"",
+   "port.alias = \"r100s_sofa:playback_MONO\"",
+   "object.path = \"r100s_sofa_in:monitor_0\"",
+   "port.alias = \"r100s_sofa:monitor_MONO\"",
+   "object.path = \"r100s_sofa_out:output_0\"",
+   "port.alias = \"r100s_sofa:output_FL\"",
+   "object.path = \"r100s_sofa_out:output_1\"",
+   "port.alias = \"r100s_sofa:output_FR\"",
+   "[I][17:38:11.737981] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-168) suspended -> running",
+   "[I][17:38:11.742849] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:48000",
+   "[I][17:38:12.477948][   plugin_sofa.c:  222 spatializer_instantiate()] using n_samples:558 256:4096 blocksize gain:1.000000 sofa:/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa",
+   "[I][17:38:12.478011][   plugin_sofa.c:  268 spatializer_reload()] making spatializer with 0.000000 0.000000 1.000000",
+   "[I][17:38:12.479076] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-194) suspended -> running",
+   "remote 0: error id:133 seq:291 res:-116 (Stale file handle): no global 86 any more",
+   "remote 0: error id:0 seq:295 res:-2 (No such file or directory): unknown resource 133 op:7",
+   "remote 0: error id:136 seq:296 res:-116 (Stale file handle): no global 86 any more",
+   "remote 0: error id:0 seq:300 res:-2 (No such file or directory): unknown resource 136 op:7",
+   "remote 0: error id:142 seq:309 res:-2 (No such file or directory): no global 156",
+   "remote 0: error id:0 seq:311 res:-2 (No such file or directory): unknown resource 142 op:7",
+   "remote 0: error id:121 seq:312 res:-2 (No such file or directory): no global 230",
+   "remote 0: error id:0 seq:314 res:-2 (No such file or directory): unknown resource 121 op:7",
+   "[I][17:38:14.821512] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-168) running -> suspended",
+   "[I][17:38:14.821559] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_in-168) destroy",
+   "[I][17:38:14.821678] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+   "[I][17:38:14.821708] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-194) running -> suspended",
+   "[I][17:38:14.821723] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_out-194) destroy",
+   "object.path = \"r100s_sofa_in:playback_0\"",
+   "port.alias = \"r100s_sofa:playback_MONO\"",
+   "object.path = \"r100s_sofa_in:monitor_0\"",
+   "port.alias = \"r100s_sofa:monitor_MONO\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_in\"",
+   "object.path = \"r100s_sofa_out:output_0\"",
+   "port.alias = \"r100s_sofa:output_FL\"",
+   "object.path = \"r100s_sofa_out:output_1\"",
+   "port.alias = \"r100s_sofa:output_FR\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_out\""
+  ],
+  "sink_unloads": {
+   "in": {
+    "rc": 0,
+    "out": ""
+   }
+  },
+  "post_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "wall_s": 8.18
+ },
+ {
+  "leg": "sofa_44k_az0",
+  "rep": 0,
+  "rate": 44100,
+  "azimuth": null,
+  "node": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=0.0,Elevation=0.0,Radius=1.0}}",
+  "argv_args": "node.description=r100s_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=0.0,Elevation=0.0,Radius=1.0}}]},audio.channels=1,audio.position=[MONO],audio.rate=44100,capture.props={node.name=r100s_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100s_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+  "pre_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "sinks": {
+   "in": {
+    "argv": [
+     "pactl",
+     "load-module",
+     "module-null-sink",
+     "sink_name=r100s_in",
+     "channels=1 rate=44100 sink_properties=state.restore-props=false"
+    ],
+    "rc": 0,
+    "out": "536870929",
+    "id": 536870929
+   }
+  },
+  "load_out": ".sec.pid = \"1699062\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 removed global: \tid 127, type PipeWire:Interface:Client/3\n \t\tobject.serial = \"137813\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1699062\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-link\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 127, type PipeWire:Interface:Client/3",
+  "module_var": 1,
+  "nodes_now": [
+   "r100s_in",
+   "r100s_sofa_in",
+   "r100s_sofa_out"
+  ],
+  "ports_fc_in": [
+   "r100s_sofa_in:monitor_MONO",
+   "r100s_sofa_in:playback_MONO"
+  ],
+  "ports_fc_out": [
+   "r100s_sofa_out:output_FL",
+   "r100s_sofa_out:output_FR"
+  ],
+  "ports_rec": [
+   "r100s_rec:input_FL",
+   "r100s_rec:input_FR",
+   "r100s_rec:monitor_FL",
+   "r100s_rec:monitor_FR"
+  ],
+  "links": [
+   {
+    "argv": [
+     "r100s_in:monitor_MONO",
+     "r100s_sofa_in:playback_MONO"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FL",
+     "r100s_rec:input_FL"
+    ],
+    "rc": 0,
+    "tries": 1
+   },
+   {
+    "argv": [
+     "r100s_sofa_out:output_FR",
+     "r100s_rec:input_FR"
+    ],
+    "rc": 0,
+    "tries": 1
+   }
+  ],
+  "play": {
+   "argv": [
+    "pw-play",
+    "--target",
+    "r100s_in",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/tone_44100.wav"
+   ],
+   "rc": 0,
+   "dur": 1.674,
+   "timed_out": false,
+   "byte_capped": false,
+   "out": "",
+   "err": ""
+  },
+  "rec": {
+   "argv": [
+    "pw-record",
+    "--channels",
+    "2",
+    "-P",
+    "node.name=r100s_rec",
+    "-P",
+    "node.autoconnect=false",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_sofa_44k_az0_r0.wav"
+   ],
+   "rc": 1,
+   "out": "",
+   "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r100-scout/scratch/cap_sofa_44k_az0_r0.wav\n"
+  },
+  "analysis": {
+   "bytes": 409644,
+   "frames": 102400,
+   "ch": 2,
+   "channels": [
+    {
+     "rms": 0.11650363,
+     "peak": 0.261261,
+     "tone440": 0.16483467,
+     "win_offset": 8820,
+     "rate": 48000
+    },
+    {
+     "rms": 0.11650363,
+     "peak": 0.261261,
+     "tone440": 0.16483467,
+     "win_offset": 8820,
+     "rate": 48000
+    }
+   ],
+   "ild_db": 0.0
+  },
+  "links_after": [
+   "r100s_in:monitor_MONO",
+   "|-> r100s_sofa_in:playback_MONO",
+   "r100s_sofa_in:playback_MONO",
+   "|<- r100s_in:monitor_MONO"
+  ],
+  "unload": "\t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1710560\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 added global: \tid 224, type PipeWire:Interface:Client/3\n",
+  "fc_log": [
+   "remote 0: error id:0 seq:792 res:-2 (No such file or directory): unknown resource 141 op:7",
+   "remote 0: error id:0 seq:793 res:-2 (No such file or directory): unknown resource 127 op:7",
+   "remote 0: error id:0 seq:794 res:-2 (No such file or directory): unknown resource 126 op:7",
+   "remote 0: error id:130 seq:795 res:-2 (No such file or directory): no global 90",
+   "remote 0: error id:0 seq:797 res:-2 (No such file or directory): unknown resource 130 op:7",
+   "remote 0: error id:129 seq:798 res:-2 (No such file or directory): no global 90",
+   "remote 0: error id:0 seq:800 res:-2 (No such file or directory): unknown resource 129 op:7",
+   "remote 0: error id:128 seq:801 res:-2 (No such file or directory): no global 90",
+   "remote 0: error id:0 seq:803 res:-2 (No such file or directory): unknown resource 128 op:7",
+   "remote 0: error id:125 seq:804 res:-2 (No such file or directory): no global 90",
+   "remote 0: error id:0 seq:806 res:-2 (No such file or directory): unknown resource 125 op:7",
+   "remote 0: error id:135 seq:807 res:-2 (No such file or directory): no global 90",
+   "remote 0: error id:0 seq:809 res:-2 (No such file or directory): unknown resource 135 op:7",
+   "[I][17:38:27.524488] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_in-207) running -> suspended",
+   "[I][17:38:27.524518] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_in-207) destroy",
+   "[I][17:38:27.524623] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+   "[I][17:38:27.524649] pw.node      | [     impl-node.c:  509 node_update_state()] (r100s_sofa_out-137) running -> suspended",
+   "[I][17:38:27.524665] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100s_sofa_out-137) destroy",
+   "object.path = \"r100s_sofa_in:playback_0\"",
+   "port.alias = \"r100s_sofa:playback_MONO\"",
+   "object.path = \"r100s_sofa_in:monitor_0\"",
+   "port.alias = \"r100s_sofa:monitor_MONO\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_in\"",
+   "object.path = \"r100s_sofa_out:output_0\"",
+   "port.alias = \"r100s_sofa:output_FL\"",
+   "object.path = \"r100s_sofa_out:output_1\"",
+   "port.alias = \"r100s_sofa:output_FR\"",
+   "node.description = \"r100s_sofa\"",
+   "node.name = \"r100s_sofa_out\"",
+   "remote 0: error id:101 seq:817 res:-2 (No such file or directory): no global 234",
+   "remote 0: error id:0 seq:819 res:-2 (No such file or directory): unknown resource 101 op:7",
+   "remote 0: error id:101 seq:822 res:-2 (No such file or directory): no global 234",
+   "remote 0: error id:0 seq:824 res:-2 (No such file or directory): unknown resource 101 op:7",
+   "remote 0: error id:101 seq:827 res:-2 (No such file or directory): no global 234",
+   "remote 0: error id:0 seq:829 res:-2 (No such file or directory): unknown resource 101 op:7",
+   "remote 0: error id:101 seq:856 res:-2 (No such file or directory): no global 234",
+   "remote 0: error id:0 seq:858 res:-2 (No such file or directory): unknown resource 101 op:7",
+   "remote 0: error id:107 seq:867 res:-2 (No such file or directory): no global 224",
+   "remote 0: error id:0 seq:869 res:-2 (No such file or directory): unknown resource 107 op:7"
+  ],
+  "sink_unloads": {
+   "in": {
+    "rc": 0,
+    "out": ""
+   }
+  },
+  "post_sweep": {
+   "before": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "after": {
+    "nodes": [],
+    "modules": [],
+    "procs": []
+   },
+   "clean": true
+  },
+  "wall_s": 14.76
+ }
+]
