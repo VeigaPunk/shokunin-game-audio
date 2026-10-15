@@ -8821,6 +8821,2737 @@ def capture_parec_fix_r78_entry():
     return entry
 
 
+# ---------------------------------------------------------------------------
+# r79 LOOPBACK frontier: what pw-loopback's -C/-P streams actually BIND.
+# A NEW parallel ledger family, --probe-capture-r79; prior rows untouched
+# and the r76/r77/r78 folds' guards are inherited, not relaxed. Surface
+# facts below are the r79 scout's THIS-HOST measurements (PipeWire 1.6.8,
+# pactl 17.0-98-gb096), re-armed through the r78 conventions (tap-witness
+# bound/ran provenance, spawn-time metadata oracle, named confounds,
+# pw-link port-readiness gates, stall envelopes, coverage_blocked):
+#   SHAPE. `pw-loopback -n <n>` publishes TWO nodes on ONE client —
+#     input.<n> (Stream/Input/Audio; input_FL/FR in, monitor_FL/FR out)
+#     and output.<n> (Stream/Output/Audio; output_FL/FR out, NO inputs).
+#     The capture->playback copy is IN-CLIENT: zero graph links have both
+#     endpoints inside the pair (node.link-group is the session-manager
+#     hint, not a link). -i/-o take space- OR comma-separated props and
+#     write only their own node; target.object is stored VERBATIM
+#     (a `.monitor` suffix included — it never resolves).
+#   CAPTURE LATTICE (-C). Two independent switches:
+#     stream.capture.sink=true + resolvable sink -> that sink's MONITOR;
+#     prop set + unresolvable/inapplicable target -> DEFAULT SINK MONITOR
+#     (the r78 fallback law, on the capture side); prop absent/false +
+#     unresolvable/absent target -> DEFAULT SOURCE (the live input) via
+#     plain autoconnect — the arm pw-record does NOT have (pw-record's
+#     unresolvable target is unlinked). "did -C resolve?" is invisible in
+#     rc/stderr/wall: only the link graph separates honored from mic.
+#     Named class `loopback_capture_default_source_fallback`; the
+#     prop-driven monitor arms are `capture_sink_prop_monitor` /
+#     `capture_sink_prop_default_monitor`.
+#   PLAYBACK LATTICE (-P). The r78 write-side law verbatim: ungated,
+#     target.object prop > -P flag > absent, everything unresolvable or
+#     inapplicable -> CURRENT default sink; node.autoconnect=false never
+#     links. `-P 0` is NOT the pw-cat don't-link idiom — it falls back.
+#   MATRIX. audio.position drives the mix, not -c: '-m [ MONO ]'
+#     downmixes 0.5*(L+R) even at audio.channels=2; '-c 1' with a
+#     2-entry position is inert. Port names stay *_FL/*_FR regardless —
+#     the channel count is only visible in props and content.
+#   RECORD TARGETS. pw-record --target output.<lb> links its output_*
+#     ports (the copied stream); --target input.<lb> needs
+#     stream.capture.sink=true to reach the node's monitor_* ports (else
+#     the default source answers); the prop on output.<lb> demotes the
+#     lookup to the sink domain -> default sink monitor.
+#   HOT-PLUG. Target loss -> silent re-link to the default sink (write
+#     side) or default sink monitor (capture side, prop on); target
+#     APPEARANCE re-links to the named node. The client never exits and
+#     never logs — only topology and content move.
+#   PWCAT LATENCY. --latency/-P node.latency store the prop VERBATIM
+#     (prop beats flag); the reported Latency param is RECORDED as a
+#     named verdict, never asserted (r78 measured one value, r79 run 2
+#     measured three that track the request) — the prop is the hard
+#     pin. stream.capture.sink on a playback stream is decoration.
+#   FILTER-CHAIN. libpipewire-module-filter-chain is a CLIENT of the
+#     running session — the documented conf.d recipe and pw-cli
+#     load-module both publish into the live daemon and the nodes die
+#     with the client. A fragment SYNTAX error is a warning and later
+#     fragments still load; an unknown filter label without `nofail`
+#     exits the loader rc=254; `unload-module @module:<n>` is refused
+#     'unknown module' — teardown is client exit, and a scraped reply id
+#     is NEVER fed to `destroy` (the reply interleaves the async global
+#     dump; a wrong id can name a daemon-owned module).
+LOOPBACK_R79_SETTLE_S = 0.6
+LOOPBACK_R79_NODE_WAIT_S = 5.0
+LOOPBACK_R79_LEG_BOUND_S = 4.6
+LOOPBACK_R79_HP_BOUND_S = 7.2
+LOOPBACK_R79_TONE_S = 9.0          # feed file outlives every leg bound
+LOOPBACK_R79_FC_SETTLE_S = 2.2     # loader publish window
+LOOPBACK_R79_FC_KILL_S = 1.0       # nodes-gone check delay after kill
+# Per-run resource names — the r77/r78 contention lesson: every name is
+# pid-stamped so a concurrent seat can neither collide nor be unloaded
+# by-name (module unload goes by the id captured at OUR load, never by
+# name; the r79lb_ prefix additionally satisfies the round's node-tag
+# rule for pw-loopback legs).
+LOOPBACK_R79_PID = os.getpid()
+LOOPBACK_R79_NS_A = f"r79lb_ns_a_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_NS_B = f"r79lb_ns_b_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_NS_B2 = f"r79lb_ns_b2_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_HP = f"r79lb_hp_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_HP2 = f"r79lb_hp2_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_FC_SINK = f"r79lb_fc_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_PREFIX = f"r79lb_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_FC_PREFIX = f"r79fc_{LOOPBACK_R79_PID}"
+
+
+def _loopback_r79_metadata_default(key):
+    """`pw-metadata -n default 0 <key>` — the session-manager authority a
+    stream's fallback FOLLOWS (default.audio.sink for the write side,
+    default.audio.source for the capture side). Same verbatim-raw
+    contract as the r78 reader; an absent key yields name=None — this
+    host carries NO default.audio.source key, so pactl's Default Source
+    is the source authority then."""
+    try:
+        proc = subprocess.run(["pw-metadata", "-n", "default", "0", key],
+                              capture_output=True, timeout=10)
+        m = re.search(r"value:'(.*?)'(?:\s*type|\s*$)",
+                      proc.stdout.decode(errors="replace"))
+        raw = m.group(1) if m else None
+        name = None
+        if raw:
+            mm = re.search(r'"?name"?\s*[:=]\s*"?([^",}\s]+)"?', raw)
+            name = mm.group(1) if mm else None
+        return {"name": name, "raw": raw, "exit": proc.returncode}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"name": None, "raw": None, "error": str(exc)[:120]}
+
+
+def _loopback_r79_pactl_defaults():
+    """pactl info's Default Sink/Source pair — the SECOND authority.
+    Divergence from the metadata names is a named confound
+    (`authority_divergence`), never silently averaged."""
+    out = {"sink": None, "source": None}
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        text = proc.stdout.decode(errors="replace")
+        for key, pat in (("sink", r"^Default Sink:\s*(.*)$"),
+                         ("source", r"^Default Source:\s*(.*)$")):
+            m = re.search(pat, text, re.M)
+            out[key] = m.group(1).strip() if m else None
+        out["exit"] = proc.returncode
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        out["error"] = str(exc)[:120]
+    return out
+
+
+def _loopback_r79_oracle():
+    """The spawn-time authorities for one leg — metadata first (the r78
+    live-default lesson: pactl's stored default can lag the metadata
+    write), pactl second. Legs record the whole snapshot so a mid-leg
+    re-assert is readable as data (`default_reasserted`)."""
+    pa = _loopback_r79_pactl_defaults()
+    return {"sink_meta": _loopback_r79_metadata_default(
+                "default.audio.sink").get("name"),
+            "source_meta": _loopback_r79_metadata_default(
+                "default.audio.source").get("name"),
+            "sink_pactl": pa.get("sink"),
+            "source_pactl": pa.get("source"),
+            "pactl_exit": pa.get("exit")}
+
+
+def _loopback_r79_nodes(names):
+    """One pw-dump -> {name: props/state leaf} for every name in `names` —
+    a single snapshot covering all watched nodes (cheaper than the r78
+    per-node reader and consistent within one instant)."""
+    want = set(names)
+    out = {n: {"found": False} for n in want}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        for n in want:
+            out[n] = {"found": False, "error": type(exc).__name__}
+        return out
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        info = node.get("info") or {}
+        props = info.get("props") or {}
+        nm = props.get("node.name")
+        if nm not in want:
+            continue
+        params = info.get("params") or {}
+        out[nm] = {
+            "found": True, "state": info.get("state"),
+            "media_class": props.get("media.class"),
+            "media_name": props.get("media.name"),
+            "media_role": props.get("media.role"),
+            "target_object": props.get("target.object"),
+            "node_autoconnect": props.get("node.autoconnect"),
+            "stream_capture_sink": props.get("stream.capture.sink"),
+            "audio_channels": props.get("audio.channels"),
+            "audio_position": props.get("audio.position"),
+            "node_latency": props.get("node.latency"),
+            "node_force_latency": props.get("node.force-latency"),
+            "client_id": props.get("client.id"),
+            "node_link_group": props.get("node.link-group"),
+            "node_group": props.get("node.group"),
+            "node_virtual": props.get("node.virtual"),
+            "latency_param": params.get("Latency")}
+    return out
+
+
+def _loopback_r79_own_nodes():
+    """Live node names still carrying this run's tags — the teardown
+    witness (nothing r79lb_/r79fc_ may survive an entry)."""
+    names = _playback_r78_node_names()
+    if names is None:
+        return None
+    return sorted(n for n in names
+                  if LOOPBACK_R79_PREFIX in n or
+                  LOOPBACK_R79_FC_PREFIX in n)
+
+
+def _loopback_r79_wait_ports(name, timeout_s=LOOPBACK_R79_NODE_WAIT_S):
+    """Port-readiness gate (the r78 rule applied to stream nodes): a node
+    is READY when pw-link lists at least one of its ports in either
+    direction. A listed node whose ports are absent binds nothing, and a
+    leg spawned in the gap measures a phantom fallback. Returns
+    (ready, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < timeout_s:
+        if _playback_r78_output_ports(name) or \
+                _playback_r78_input_ports(name):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _loopback_r79_guard_playback(tail, own):
+    """FAIL-CLOSED contamination guard — the r79 scout's harness defect
+    armed permanently: a tone-fed leg's EFFECTIVE playback target must be
+    a probe-owned sink. `-o target.object=` beats `-P`; a missing pin or
+    a name outside `own` refuses the leg rather than leaking the tag tone
+    into the shared default sink."""
+    eff = None
+    if "-o" in tail:
+        otxt = tail[tail.index("-o") + 1]
+        m = re.search(r"target\.object\s*=\s*([^\s,\]]+)", otxt)
+        if m:
+            eff = m.group(1)
+    if eff is None and "-P" in tail:
+        eff = tail[tail.index("-P") + 1]
+    if eff not in own:
+        raise ValueError(
+            f"tone-fed leg's playback resolves to {eff!r} — outside the "
+            f"probe-owned set {sorted(own)}; refusing to feed")
+
+
+def _loopback_r79_feed(target, tag, ctx):
+    """Spawn the tag-tone feed — pw-cat playing ctx['tone'] into a
+    probe-owned sink. `-P node.name=` tags the stream r79lb_* so it is
+    distinguishable from a foreign player on every link listing."""
+    return subprocess.Popen(
+        ["pw-cat", "-p", "-P", f"node.name={tag}",
+         "--target", target, str(ctx["tone"])],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True)
+
+
+def _loopback_r79_write_silence(path, seconds):
+    """Digital silence in the tag tone's exact shape (48 kHz stereo s16).
+
+    The fallback legs of the pw-cat vector must still PLAY and LINK — the
+    landing node is the verdict — but their destination is the shared
+    default sink, and the r79 scout's fail-closed rule is that the tag
+    tone never leaves a probe-owned sink. A silent feed keeps the leg
+    topology-complete with zero shared-sink content; the receipt declares
+    `content_witness = declined_shared_default` for those legs."""
+    n = int(PLAYBACK_R78_TONE_RATE * seconds)
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(PLAYBACK_R78_TONE_RATE)
+        w.writeframes(b"\x00\x00\x00\x00" * n)
+
+
+def _loopback_r79_watch_sample(watch, ctx):
+    """One sample of `watch` — the exact leaf `_loopback_r79_run`
+    records, reusable by an entry whose watched client must stay alive
+    across several bounded sub-legs (the record-target entry: a client
+    run through the blocking runner is already dead when the sub-legs
+    spawn, which is the scout's own recorded harness defect)."""
+    links = _playback_r78_links()
+    tap_wit = {}
+    for ttag, ttarget in ctx.get("tap_witnesses", ()):
+        prods = _playback_r78_producers(ttag, links)
+        tap_wit[ttag] = {
+            "producers": prods["nodes"],
+            "bound_to_target": prods["nodes"] == [ttarget]}
+    w = {}
+    for wn in watch:
+        prods = _playback_r78_producers(wn, links)
+        cons = _playback_r78_consumers(wn, links)
+        w[wn] = {"input_ports": _playback_r78_input_ports(wn),
+                 "output_ports": _playback_r78_output_ports(wn),
+                 "producers": prods["nodes"],
+                 "producer_ports": prods["producer_ports"],
+                 "consumers": cons["nodes"],
+                 "consumer_ports": cons["consumer_ports"]}
+    return {"watch": w, "nodes": _loopback_r79_nodes(watch),
+            "tap_witnesses": tap_wit}
+
+
+def _loopback_r79_run(argv, ctx, watch=(), events=(), bound_s=None,
+                      wait_nodes=(), env=None):
+    """Spawn a watched command and fire timed events — the loopback-family
+    runner. pw-loopback is a persistent client: killed_at_bound (rc=-9)
+    is its NORMAL exit shape, not a stall; stalls are proven by topology
+    (ports published, zero links). Event kinds: sample / feed_start /
+    feed_stop / unload_module / load_sink / pwlink / pwlink_d /
+    metadata_default. `wait_nodes` gates the event clock on port
+    readiness; `watch` names get per-sample port lists plus producer and
+    consumer node sets; ctx['tap_witnesses'] binds monitor taps (the r78
+    provenance rule — `mine` only counts while the tap listens to the
+    claimed node)."""
+    proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True, env=env)
+    waits = {}
+    for wn in wait_nodes:
+        waits[wn] = dict(zip(("ready", "waited_s"),
+                             _loopback_r79_wait_ports(wn)))
+    feeds, loaded = {}, []
+    samples, fired = [], []
+    t0 = time.monotonic()          # the event clock starts post-gate
+    for at, kind, arg in sorted(events, key=lambda e: e[0]):
+        left = at - (time.monotonic() - t0)
+        if left > 0:
+            time.sleep(left)
+        when = round(time.monotonic() - t0, 3)
+        if kind == "sample":
+            leaf = _loopback_r79_watch_sample(watch, ctx)
+            samples.append({"at_s": at, "when_s": when,
+                            "live": proc.poll() is None, **leaf})
+        elif kind == "feed_start":
+            target, ftag = arg
+            feeds[ftag] = _loopback_r79_feed(target, ftag, ctx)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "target": target, "tag": ftag})
+        elif kind == "feed_stop":
+            f = feeds.pop(arg, None)
+            rc = None
+            if f is not None:
+                if f.poll() is None:
+                    os.killpg(f.pid, signal.SIGKILL)
+                f.wait()
+                rc = f.returncode
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "tag": arg, "feed_exit": rc})
+        elif kind == "unload_module":
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "module_id": arg,
+                          "exit_code": _playback_r78_unload(arg)})
+        elif kind == "load_sink":
+            mid, rc, err = _playback_r78_null_sink_load(arg)
+            if mid is not None:
+                loaded.append(mid)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "name": arg, "module_id": mid, "exit_code": rc,
+                          "error": err})
+        elif kind in ("pwlink", "pwlink_d"):
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "links": _playback_r78_pwlink_batch(
+                              arg, kind == "pwlink_d")})
+        elif kind == "metadata_default":
+            res = _playback_r78_metadata_set_default(arg)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          **res})
+    bound = bound_s if bound_s is not None else ctx["bound_s"]
+    left = bound - (time.monotonic() - t0)
+    killed = False
+    try:
+        proc.wait(timeout=max(0.05, left))
+    except subprocess.TimeoutExpired:
+        killed = True
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    wall = round(time.monotonic() - t0, 2)
+    for ftag, f in feeds.items():
+        if f.poll() is None:
+            os.killpg(f.pid, signal.SIGKILL)
+        f.wait()
+        fired.append({"kind": "feed_reap", "tag": ftag,
+                      "exit_code": f.returncode})
+    err = proc.stderr.read().decode(errors="replace")
+    cls, _ = _playback_r78_errclass(err)
+    shown = " ".join(argv)
+    for name in ctx.get("redact", ()):
+        if name:
+            shown = shown.replace(name, "<n>")
+    return {"argv": shown, "wait_nodes": waits, "samples": samples,
+            "fired": fired, "loaded": loaded,
+            "exit_code": proc.returncode, "killed_at_bound": killed,
+            "wall_s": wall, "error_class": cls,
+            "stderr_tail": _capture_tail(err, LOOPBACK_R79_PREFIX)}
+
+
+def _loopback_r79_leg(name, tail, ctx, *, tap_target=None, tap_seconds=0.0,
+                      feed_sink=None, feed_at=0.5, events_extra=(),
+                      sample_at=(1.3, 2.7),
+                      bound_s=LOOPBACK_R79_LEG_BOUND_S):
+    """One tagged pw-loopback leg — `-n r79lb_<pid>_<name>` — plus an
+    optional monitor tap and an optional tone feed. The tap spawns FIRST
+    (r78 lead convention); the feed is an in-run event so a leg can stop
+    the tone before an unload (the scout's silence-before-loss
+    discipline) and a fed leg's playback side is refused unless it
+    resolves probe-owned."""
+    ltag = f"{LOOPBACK_R79_PREFIX}_{name}"
+    if feed_sink is not None:
+        _loopback_r79_guard_playback(tail, ctx["own_sinks"])
+        if feed_sink not in ctx["own_sinks"]:
+            raise ValueError(f"feed sink {feed_sink!r} is not probe-owned")
+    tap = tapf = None
+    if tap_target is not None:
+        tapf = Path(ctx["tmp"]) / f"tap_{name}.wav"
+        tap = _playback_r78_tap(tap_target, tapf,
+                                int(PLAYBACK_R78_TONE_RATE * tap_seconds),
+                                f"{ltag}_tap")
+        # the r78 provenance rule, unchanged: every sample records the
+        # tap's own producers so `mine` counts only while it listens to
+        # the claimed node's monitor.
+        ctx = dict(ctx, tap_witnesses=list(ctx.get("tap_witnesses", ())) +
+                   [(f"{ltag}_tap", tap_target)])
+        time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+    ev = list(events_extra)
+    if feed_sink is not None:
+        ev.append((feed_at, "feed_start", (feed_sink, f"{ltag}_feed")))
+    for a in sample_at:
+        ev.append((a, "sample", None))
+    run = _loopback_r79_run(
+        ["pw-loopback", "-n", ltag, *tail], ctx,
+        watch=(f"input.{ltag}", f"output.{ltag}"),
+        wait_nodes=(f"input.{ltag}", f"output.{ltag}"),
+        events=ev, bound_s=bound_s)
+    cell = {"name": name, "ltag": ltag, "tail": tail,
+            "default_sink_at_leg": ctx["default_at_start"],
+            "default_source_at_leg": ctx.get("source_at_start"),
+            **run,
+            "input_producers_union": _loopback_r79_union(
+                run["samples"], f"input.{ltag}", "producers"),
+            "output_consumers_union": _loopback_r79_union(
+                run["samples"], f"output.{ltag}", "consumers")}
+    if tap is not None:
+        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+        twit = [s.get("tap_witnesses", {}).get(f"{ltag}_tap")
+                for s in run["samples"]]
+        bound = [t["bound_to_target"] for t in twit if t]
+        cell["tap"] = {
+            "target": tap_target, "exit_code": tap.returncode,
+            "bound_to_target": any(bound),
+            "bound_producers": sorted(
+                {p for t in twit if t for p in t.get("producers", [])}),
+            "never_bound": bool(twit) and not any(bound),
+            "stderr_tail": _capture_tail(
+                tap.stderr.read().decode(errors="replace"), str(tapf)),
+            **_playback_r78_tone_windows(tapf)}
+        cell["tap"]["ran"] = bool(cell["tap"].get("windows"))
+    cell["carries_tone"] = (cell.get("tap") or {}).get("carries_tone")
+    return cell
+
+
+def _loopback_r79_union(samples, node, key):
+    """Union of a watch leaf's `key` set across samples."""
+    return sorted({n for s in samples
+                   for n in (s["watch"].get(node) or {}).get(key) or []})
+
+
+def _loopback_r79_check_side(entry, failures, lname, leg, side_key,
+                             node_suffix, want, ora_at_leg,
+                             dsource_probe=None):
+    """The shared leg verdict: the watched set equals the expected
+    singleton (or is empty for `none`). Churn handling is the r78
+    convention — the expected node missing is a FAILURE; extras inside
+    the live default set are the `default_reasserted` confound; foreign
+    extras are the `foreign-node` confound. side_key is 'producers' for
+    the capture node, 'consumers' for the playback node.
+
+    `dsource_probe` marks the capture-side default-source legs: when the
+    session has NO default source to hand out (probe unavailable), the
+    expected default-source producer can never appear — the leg then
+    records the named outcome `capture_default_source_unnegotiated`
+    instead of failing, and ONLY when the watched node really published
+    unnegotiated (zero ports, zero links). With a live default source the
+    old strictness is unchanged."""
+    union = _loopback_r79_union(leg["samples"], node_suffix, side_key)
+    leg[side_key + "_union"] = union
+    leg["expected_" + side_key] = [] if want is None else [want]
+    if want is None:
+        if union:
+            failures.append(
+                f"{lname}: expected NO {side_key}, got {union}")
+        return
+    if union == [want]:
+        return
+    # The capture-side fallback is CONDITIONAL on the session actually
+    # having a default source. That authority flaps under multi-seat
+    # load (measured 07:04Z: a concurrent lane's `r86ctl_src` was the
+    # live default source for legs b01-b04 — where the fallback DID
+    # link — and gone by b05, which then published unnegotiated), so the
+    # correlate is read PER LEG from the leg's own oracle; the run-level
+    # probe is the secondary witness.
+    # C1 (r79 critic): both conjuncts are required — the leg's own oracle
+    # must show no metadata source AND the run-level probe must agree. The
+    # earlier `or` let the once-per-run probe constant excuse a leg whose
+    # per-leg oracle actually saw a live default source.
+    if not union and _loopback_r79_unnegotiated(leg, node_suffix) and \
+            ora_at_leg.get("source_meta") is None and \
+            dsource_probe is not None and \
+            not dsource_probe.get("available"):
+        leg["outcome"] = "capture_default_source_unnegotiated"
+        leg["outcome_correlate"] = {
+            "default_source_probe_class":
+                (dsource_probe or {}).get("error_class"),
+            "default_source_probe_available":
+                (dsource_probe or {}).get("available"),
+            "source_meta_at_leg": ora_at_leg.get("source_meta"),
+            "pactl_default_source": ora_at_leg.get("source_pactl")}
+        entry.setdefault("named_outcomes", []).append(
+            f"{lname}: capture_default_source_unnegotiated — no session "
+            "default source at this leg "
+            f"(source_meta={ora_at_leg.get('source_meta')!r}); the "
+            "capture stream published with zero ports and never linked")
+        entry["confound_observed"] = True
+        return
+    live_now = {ora_at_leg.get("sink_meta") or ora_at_leg.get("sink_pactl"),
+                ora_at_leg.get("source_meta") or
+                ora_at_leg.get("source_pactl")} - {None}
+    if want not in union and union and set(union) <= live_now and \
+            want not in live_now:
+        # the authority moved between oracle read and the samples — the
+        # leg measured the CURRENT default, not a wrong node.
+        leg["confound"] = (
+            f"default re-asserted: expected {want}, authority now "
+            f"{sorted(live_now)} — consumers track the live default")
+        entry["confound_observed"] = True
+        entry.setdefault("coverage_blocked", []).append(
+            f"{lname}: default_reasserted mid-leg")
+        return
+    if want in union:
+        extras = [n for n in union if n != want]
+        foreign = [n for n in extras if n not in live_now]
+        if foreign:
+            leg["confound"] = (
+                f"foreign node(s) {foreign} ALSO {side_key} — a "
+                "concurrent seat linked onto this stream; the landing "
+                "is kept, the extras are not a verdict")
+            entry["confound_observed"] = True
+            return
+        if set(extras) <= live_now:
+            leg["confound"] = (
+                f"default re-asserted mid-leg: {side_key} {union} "
+                "straddle the old and live authority")
+            entry["confound_observed"] = True
+            return
+    failures.append(
+        f"{lname}: expected {side_key} [{want}], got {union}")
+
+
+def _loopback_r79_check_tap(entry, failures, lname, leg, *,
+                            want_tone=None):
+    """The content-witness contract (r78): a tap that produced no windows
+    is vacuous; a tap that never bound to its target attributes `mine`
+    to nothing. want_tone=True requires carries_tone; False forbids ANY
+    `mine` window (our tag may never appear on this path); None records
+    only."""
+    tap = leg.get("tap") or {}
+    if not tap:
+        failures.append(f"{lname}: no tap recorded — the content "
+                        "pin is absent")
+        return
+    if not tap.get("ran"):
+        failures.append(f"{lname}: the monitor tap produced no windows "
+                        "— the content pin is vacuous")
+        return
+    # C2 (r79 critic): `&` binds tighter than `|` — the old expression was
+    # `(B & O) | I`, so ANY non-empty input-producer set made the clause
+    # truthy and the unattributed confound could never fire on a linked
+    # leg. The peer test must be `B & (O | I)`.
+    if not (tap.get("bound_to_target") or
+            set(tap.get("bound_producers", [])) &
+            (set(leg.get("output_consumers_union") or []) |
+             set(leg.get("input_producers_union") or []))):
+        leg["confound"] = (
+            f"tap bound to {tap.get('bound_producers')} — never to "
+            f"{tap.get('target')} or the stream's own peers; `mine` is "
+            "unattributed")
+        entry["confound_observed"] = True
+        if want_tone is False:
+            # A2 (r79 verifier): on a never-fed leg an unattributed tap
+            # makes the `mine`-absence pin vacuous — it asserts nothing
+            # measured. Name the vacuity instead of crediting it.
+            entry.setdefault("named_outcomes", []).append(
+                f"{lname}: content_pin_unmeasured — tap bound to "
+                f"{tap.get('bound_producers')}, not the target; the "
+                "no-mine verdict asserts an unmeasured surface")
+    if want_tone is True and not tap.get("carries_tone"):
+        failures.append(f"{lname}: the tap on {tap.get('target')} "
+                        "carried no tag-tone windows — consumption "
+                        "without content is not a playout verdict")
+    if want_tone is False and tap.get("mine_windows"):
+        # A `mine` window on a never-fed leg is contamination — but WHO
+        # fed it is decidable: our tag tone is written at
+        # PLAYBACK_R78_TONE_AMP (8192) and no stage of the arm amplifies
+        # it, so a tag-shaped tone LOUDER than that ceiling cannot be
+        # ours. Measured 07:16Z: the b09 leg (capture side = the SHARED
+        # default sink monitor) tapped 1 kHz/1.5 kHz at peaks
+        # 11997/8997 — a concurrent lane's tone on the shared sink,
+        # forwarded into our probe sink by the very fallback this leg
+        # measures. The class is named and the peaks recorded; a
+        # tag-shaped tone at or below our own ceiling still FAILS.
+        peak = max(tap.get("peak_l") or 0, tap.get("peak_r") or 0)
+        # C3 (r79 critic): amplitude alone cannot prove origin — our own
+        # tone summed with a foreign tone at the same frequency can read
+        # above the ceiling and be excused as "foreign". The excuse needs
+        # an ORIGIN witness: a producer on this leg's capture path that
+        # carries none of this run's probe tags. No foreign producer, no
+        # excuse — the tone is unexplained contamination and FAILS.
+        foreign_producers = sorted(
+            n for n in (leg.get("input_producers_union") or [])
+            if LOOPBACK_R79_PREFIX not in n
+            and LOOPBACK_R79_FC_PREFIX not in n)
+        if foreign_producers:
+            leg["foreign_tone_witness_producers"] = foreign_producers
+        if not leg.get("fed") and foreign_producers and \
+                peak > PLAYBACK_R78_TONE_AMP * 1.05:
+            leg["foreign_tone_witness"] = {
+                "peak_l": tap.get("peak_l"), "peak_r": tap.get("peak_r"),
+                "tag_tone_amp_ceiling": PLAYBACK_R78_TONE_AMP,
+                "fed_by_this_arm": False,
+                "capture_producers": leg.get("input_producers_union")}
+            leg["confound"] = (
+                f"foreign tag-shaped tone on {tap.get('target')} (peaks "
+                f"{tap.get('peak_l')}/{tap.get('peak_r')} > our "
+                f"{PLAYBACK_R78_TONE_AMP} ceiling) — the leg was never "
+                "fed; the capture side reads the SHARED default sink "
+                "monitor, so a concurrent lane's tone is forwarded here")
+            entry["confound_observed"] = True
+            entry.setdefault("named_outcomes", []).append(
+                f"{lname}: foreign_tone_on_shared_monitor — tap peaks "
+                f"{tap.get('peak_l')}/{tap.get('peak_r')} exceed this "
+                f"arm's {PLAYBACK_R78_TONE_AMP} tag ceiling and the leg "
+                "was never fed")
+            return
+        failures.append(f"{lname}: tag tone on {tap.get('target')} — "
+                        "this leg was never fed our tone; a `mine` "
+                        "window is contamination, not coverage")
+
+
+def _loopback_r79_two_tone(path):
+    """Per-channel amplitude AT the two tag frequencies — the matrix
+    classifier. The mono-mix signature is both channels carrying BOTH
+    components at ~0.5 amplitude (0.5*(L+R) summed, duplicated by the
+    sink's upmix); stereo passthrough is L-component on ch0 / R-component
+    on ch1 only. Uses the r78 Hann coherent-gain correction (4|X|/N) via
+    a windowed DTFT at the exact frequencies — bin alignment never
+    decides.
+
+    Bands are MEASURED, not guessed: on this host a full-amplitude (8192)
+    single-frequency component reads 4538.6 and its half-gain mono mix
+    reads 2269.3 (run 2, cm2 vs cm1). The bands below admit the r79
+    scout's own classifier values (4095.3 / 2047.6) too; the absolute
+    half-gain relation is additionally asserted cross-leg by the matrix
+    entry, so a band that is merely wide cannot pass a wrong mix."""
+    insp = _capture_wav_inspect(path)
+    pcm = _playback_r78_pcm_array(path, insp)
+    out = {"exists": insp.get("exists"), "bytes": insp.get("bytes")}
+    if pcm is None:
+        out["unsupported"] = "no s16 stereo data chunk"
+        return out
+    rate = (insp.get("fmt") or {}).get("rate") or PLAYBACK_R78_TONE_RATE
+    # a stable mid-file segment: skip the first 0.4 s of connect/setup
+    # slop, take up to 1.5 s.
+    start = min(len(pcm), int(rate * 0.4))
+    n = min(len(pcm) - start, int(rate * 1.5))
+    if n < 2048:
+        out["unsupported"] = f"only {n} frames"
+        return out
+    n -= n % 2
+    seg = pcm[start:start + n].astype(np.float64)
+    t = np.arange(n) / rate
+    han = np.hanning(n)
+    res = []
+    for ch in range(2):
+        xs = seg[:, ch] * han
+        amps = {}
+        for f, key in ((PLAYBACK_R78_TONE_L_HZ, "at_l"),
+                       (PLAYBACK_R78_TONE_R_HZ, "at_r")):
+            amps[key] = round(float(
+                4.0 * abs(np.sum(xs * np.exp(-2j * np.pi * f * t)))
+                / n), 1)
+        res.append({**amps,
+                    "peak": int(np.abs(seg[:, ch]).max())})
+    out["channels"] = res
+    mix_lo, mix_hi = 1400.0, 3200.0
+    out["mix_signature"] = all(
+        mix_lo <= c["at_l"] <= mix_hi and mix_lo <= c["at_r"] <= mix_hi
+        and abs(c["at_l"] - c["at_r"]) <= 0.25 * max(c["at_l"],
+                                                     c["at_r"])
+        for c in res) and all(5500 <= c["peak"] <= 9800 for c in res)
+    out["stereo_signature"] = (
+        res[0]["at_l"] >= 3200 and res[0]["at_r"] <= 900 and
+        res[1]["at_r"] >= 3200 and res[1]["at_l"] <= 900)
+    return out
+
+
+def _loopback_r79_wait_monitor(name, timeout_s=LOOPBACK_R79_NODE_WAIT_S):
+    """Port-readiness gate for a probe null sink's MONITOR.
+
+    MEASURED this host (PipeWire 1.6.8): `pactl list sources` exposes the
+    monitor as `<sink>.monitor`, but the graph's monitor ports are owned
+    by the SINK node and are named `<sink>:monitor_FL/FR` — no `.monitor`
+    node exists in `pw-link -o` at any point (checked idle, suspended and
+    actively recorded; polled for 6 s). The r78 helper
+    `_playback_r78_wait_source` requires the port tag to EQUAL the source
+    name, so it can never confirm a null-sink monitor here: its two r78
+    arms are consequently `coverage_blocked` (the 05:37:41Z receipt shows
+    `enumerated: True` from the pre-fold variant, every receipt from
+    05:50:13Z on shows `False`). The r79 arm must not inherit that, so the
+    gate is local and both halves are still required: the pactl source
+    listing AND the real port owner's monitor ports. Returns
+    (ready, waited_s, diag)."""
+    t0 = time.monotonic()
+    listed = ports = False
+    while time.monotonic() - t0 < timeout_s:
+        listed = f"{name}.monitor" in _playback_r78_source_names()
+        ports = bool(_playback_r78_output_ports(name))
+        if listed and ports:
+            return True, round(time.monotonic() - t0, 3), {
+                "pactl_listed": listed, "monitor_ports": ports}
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3), {
+        "pactl_listed": listed, "monitor_ports": ports}
+
+
+LOOPBACK_R79_DSOURCE_CACHE = {}
+
+
+def _loopback_r79_default_source_probe(tmpdir):
+    """Is there a DEFAULT SOURCE the session manager can hand a capture
+    stream?
+
+    Measured directly, because `pactl info`'s `Default Source:` line is
+    NOT evidence: on 2026-10-15 this host reports
+    `alsa_input.…HiFi__Line__source` while WirePlumber resolves nothing —
+    a plain `pw-record` with NO --target dies `no target node available`
+    (res:-2), `wpctl status` marks no source with `*`, and
+    `pw-metadata -n default 0 default.audio.source` has no key at all
+    (writing one is dropped again by the session manager mid-leg, and
+    keeping the source RUNNING changes nothing). The probe is the same
+    shape the loopback's capture stream needs, so it is the correlate the
+    fallback legs are gated on. Cached per process (one bounded
+    pw-record, ~1 s)."""
+    if "v" in LOOPBACK_R79_DSOURCE_CACHE:
+        return LOOPBACK_R79_DSOURCE_CACHE["v"]
+    tag = f"{LOOPBACK_R79_PREFIX}_dsprobe"
+    path = Path(tmpdir) / "dsprobe.wav"
+    res = {"tag": tag, "available": False}
+    try:
+        proc = subprocess.Popen(
+            ["pw-record", "-P", f"node.name={tag}", "-n", "4800",
+             "--rate", "48000", "--channels", "2", "--format", "s16",
+             str(path)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            start_new_session=True)
+        time.sleep(0.6)
+        res["node_published"] = tag in (_playback_r78_node_names() or [])
+        try:
+            proc.wait(timeout=5)
+            res["timed_out"] = False
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            res["timed_out"] = True
+        err = proc.stderr.read().decode(errors="replace")
+        cls, _ = _playback_r78_errclass(err)
+        res["exit_code"] = proc.returncode
+        res["error_class"] = cls
+        res["stderr_tail"] = _capture_tail(err, str(path))
+        # availability is the ABSENCE of the failure class: a successful
+        # bounded capture exits rc=1 by convention and its node is gone
+        # by the time the process is reaped, so a post-exit node check
+        # would report every healthy session as unavailable.
+        res["available"] = (cls is None and not res["timed_out"] and
+                            res["exit_code"] in (0, 1))
+    except OSError as exc:
+        res["error"] = str(exc)[:120]
+    LOOPBACK_R79_DSOURCE_CACHE["v"] = res
+    return res
+
+
+def _loopback_r79_unnegotiated(leg, node):
+    """True when a watched stream node published but NEVER negotiated:
+    found at every sample with ZERO ports in both directions and zero
+    links either way. This is the shape the `-C` default-source fallback
+    collapses into when the session has no default source to hand out
+    (measured 2026-10-15; the r79 scout's mic-fallback arm needs a live
+    default source — see `_loopback_r79_default_source_probe`)."""
+    samples = leg.get("samples") or []
+    if not samples:
+        return False
+    for s in samples:
+        w = (s.get("watch") or {}).get(node)
+        if not w:
+            return False
+        if w.get("input_ports") or w.get("output_ports") or \
+                w.get("producers") or w.get("consumers"):
+            return False
+        if not ((s.get("nodes") or {}).get(node) or {}).get("found"):
+            return False
+    return True
+
+
+def _loopback_r79_sinks_load(names):
+    """Load each probe null sink with the port-readiness gate (r78); the
+    monitor SOURCE of each is also gated — a record spawned in the gap
+    hangs to its bound. Returns {name: {module_id, rc, error, sink_seen,
+    monitor_seen}}."""
+    out = {}
+    for nm in names:
+        mid, rc, err = _playback_r78_null_sink_load(nm)
+        leaf = {"module_id": mid, "rc": rc, "error": err,
+                "sink_seen": mid is not None}
+        if mid is not None:
+            mseen, mwait, mdiag = _loopback_r79_wait_monitor(nm)
+            leaf["monitor_seen"] = mseen
+            leaf["monitor_waited_s"] = mwait
+            leaf["monitor_gate"] = mdiag
+        out[nm] = leaf
+    return out
+
+
+def _loopback_r79_sinks_unload(loads):
+    """Unload ONLY the module ids captured at our loads — never a name
+    lookup, never a foreign module (the round's by-name ban)."""
+    for leaf in loads.values():
+        _playback_r78_unload(leaf.get("module_id"))
+
+
+def _loopback_r79_teardown(entry, failures, loads):
+    """Shared post-checks: owned sinks gone from the listing, no r79-tagged
+    node survives."""
+    sinks_now = _capture_r77_sink_names()
+    gone = {nm: nm not in sinks_now for nm in loads}
+    entry["sinks_gone"] = gone
+    if not all(gone.values()):
+        failures.append(f"teardown: probe sinks survived unload: "
+                        f"{[n for n, g in gone.items() if not g]}")
+    rest = _loopback_r79_own_nodes()
+    entry["own_nodes_after"] = rest
+    if rest:
+        failures.append(f"teardown: r79-tagged nodes survived: {rest}")
+
+
+def _loopback_r79_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares: record it, unload
+    anything this entry loaded, and return the entry — a blocked leg is
+    named coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry["coverage_blocked"] = [msg]
+    if loads is not None:
+        _loopback_r79_sinks_unload(loads)
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (1) SHAPE — one client, two nodes, the copy is in-client; -i/-o prop
+#     syntax and the verbatim target.object.
+# --------------------------------------------------------------------------
+def loopback_shape_r79_entry():
+    """(1) The pw-loopback object shape: `input.<n>`+`output.<n>` share one
+    client.id, the port inventories are asymmetric (the output node has
+    NO input ports — the copy cannot be a graph link), zero links join
+    the pair, target.object is stored verbatim, and -i/-o accept BOTH
+    space- and comma-separated prop lists (writing only their own side).
+    A5/A6 pin the two autoconnect defaults one-sided (the no-argument
+    shape is DECLINED — it would route the live default source into the
+    shared default sink; the scout's contamination class)."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback shape — one client, two nodes, "
+                      "in-client copy",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-shape-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0],
+                   "default_at_start": d0, "source_at_start": s0}
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            # A1: full shape + content path (tone ns_a -> lb -> ns_b tap).
+            legs["a1_shape"] = _loopback_r79_leg(
+                "a1", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", ns_b], ctx,
+                feed_sink=ns_a, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                PLAYBACK_R78_TAP_LEAD_S + 0.5,
+                sample_at=(1.6, 2.9))
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A2: prop syntax — space-separated vs comma-separated.
+            for sid, propstr in (("a2_space",
+                                  "stream.capture.sink=true "
+                                  "media.role=DSP"),
+                                 ("a2_comma",
+                                  "stream.capture.sink=true,"
+                                  "media.role=DSP")):
+                legs[sid] = _loopback_r79_leg(
+                    sid, ["-C", ns_a, "-i", propstr, "-P", ns_b], ctx,
+                    sample_at=(1.4,),
+                    bound_s=2.6)
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A5: -P only -> capture autoconnects to the DEFAULT SOURCE.
+            ora = _loopback_r79_oracle()
+            ctx["source_at_start"] = ora["source_meta"] or \
+                ora["source_pactl"]
+            legs["a5_capture_default"] = _loopback_r79_leg(
+                "a5", ["-P", ns_b], ctx, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S + 0.9)
+            legs["a5_capture_default"]["expected_source"] = \
+                ctx["source_at_start"]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A6: -C only (silent probe monitor) -> playback autoconnects
+            # to the DEFAULT SINK. No feed: a fed A6 would pump tone into
+            # the shared default (the scout's contamination window).
+            ora = _loopback_r79_oracle()
+            ctx["default_at_start"] = ora["sink_meta"] or \
+                ora["sink_pactl"]
+            legs["a6_playback_default"] = _loopback_r79_leg(
+                "a6", ["-C", ns_a, "-i", "stream.capture.sink=true"],
+                ctx, tap_target=d0,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S + 0.9)
+            legs["a6_playback_default"]["expected_sink"] = \
+                ctx["default_at_start"]
+            legs["a7_noargs_declined"] = {
+                "verdict": "declined",
+                "reason": "no -C/-P routes the live default source into "
+                          "the shared default sink — the scout's "
+                          "measured contamination window; A5+A6 cover "
+                          "both autoconnect defaults one-sided."}
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    a1 = legs.get("a1_shape") or {}
+    a1s = a1.get("samples") or []
+    last = a1s[-1] if a1s else {}
+    in_n = f"input.{a1.get('ltag', '')}"
+    out_n = f"output.{a1.get('ltag', '')}"
+    inode = (last.get("nodes") or {}).get(in_n) or {}
+    onode = (last.get("nodes") or {}).get(out_n) or {}
+    iw = (last.get("watch") or {}).get(in_n) or {}
+    ow = (last.get("watch") or {}).get(out_n) or {}
+    if not (inode.get("found") and onode.get("found")):
+        failures.append(f"shape a1: both nodes must publish — got "
+                        f"input={inode.get('found')} "
+                        f"output={onode.get('found')}")
+    if inode.get("media_class") != "Stream/Input/Audio" or \
+            onode.get("media_class") != "Stream/Output/Audio":
+        failures.append(f"shape a1: media classes "
+                        f"{inode.get('media_class')}/"
+                        f"{onode.get('media_class')}")
+    if sorted(iw.get("input_ports") or []) != \
+            [f"{in_n}:input_FL", f"{in_n}:input_FR"] or \
+            sorted(iw.get("output_ports") or []) != \
+            [f"{in_n}:monitor_FL", f"{in_n}:monitor_FR"]:
+        failures.append(f"shape a1: input-node port inventory "
+                        f"in={iw.get('input_ports')} "
+                        f"out={iw.get('output_ports')}")
+    if ow.get("input_ports") not in ([], None) or \
+            sorted(ow.get("output_ports") or []) != \
+            [f"{out_n}:output_FL", f"{out_n}:output_FR"]:
+        failures.append(f"shape a1: output-node port inventory "
+                        f"in={ow.get('input_ports')} "
+                        f"out={ow.get('output_ports')} — the output "
+                        "node must have NO input ports")
+    if not inode.get("client_id") or \
+            inode.get("client_id") != onode.get("client_id"):
+        failures.append("shape a1: both nodes must share one client.id "
+                        f"— got {inode.get('client_id')}/"
+                        f"{onode.get('client_id')}")
+    # no link may have both endpoints inside the pair — the copy is
+    # in-client. Check every sample's port-level sets for a self-edge.
+    for s in a1s:
+        for edge in (s.get("watch") or {}).get(in_n, {}).get(
+                "producer_ports") or []:
+            if edge.startswith(f"{out_n}:"):
+                failures.append("shape a1: a link joins output->input "
+                                "— the copy would be a graph link")
+    for s in a1s:
+        for edge in (s.get("watch") or {}).get(out_n, {}).get(
+                "consumer_ports") or []:
+            if edge.startswith(f"{in_n}:"):
+                failures.append("shape a1: a link joins output->input "
+                                "— the copy would be a graph link")
+    if not (inode.get("node_link_group") and
+            inode.get("node_link_group") == onode.get("node_link_group")):
+        failures.append("shape a1: node.link-group missing/mismatched — "
+                        "the link-group is the session-manager hint")
+    if inode.get("target_object") != ns_a or \
+            onode.get("target_object") != ns_b:
+        failures.append("shape a1: target.object not stored verbatim "
+                        f"({inode.get('target_object')}/"
+                        f"{onode.get('target_object')})")
+    if a1.get("input_producers_union") != [ns_a] or \
+            a1.get("output_consumers_union") != [ns_b]:
+        failures.append(f"shape a1: expected "
+                        f"{ns_a}->lb->{ns_b}, got "
+                        f"{a1.get('input_producers_union')} -> "
+                        f"{a1.get('output_consumers_union')}")
+    _loopback_r79_check_tap(entry, failures, "shape a1", a1,
+                            want_tone=True)
+    if not a1.get("killed_at_bound"):
+        failures.append(f"shape a1: loopback exited rc="
+                        f"{a1.get('exit_code')} inside the bound — a "
+                        "persistent client must be killed at bound")
+    for sid in ("a2_space", "a2_comma"):
+        leg = legs.get(sid) or {}
+        sn = (leg.get("samples") or [{}])[-1].get("nodes") or {}
+        il = sn.get(f"input.{leg.get('ltag', '')}") or {}
+        ol = sn.get(f"output.{leg.get('ltag', '')}") or {}
+        if not (il.get("stream_capture_sink") in (True, "true") and
+                il.get("media_role") == "DSP" and
+                il.get("target_object") == ns_a):
+            failures.append(f"shape {sid}: -i props did not all land on "
+                            f"the capture node: {il}")
+        if ol.get("media_role") is not None or \
+                ol.get("stream_capture_sink") is not None:
+            failures.append(f"shape {sid}: -i props leaked onto the "
+                            f"playback node: {ol}")
+    a5 = legs.get("a5_capture_default") or {}
+    _loopback_r79_check_side(entry, failures, "shape a5 (input)",
+                            a5, "producers", in_n.replace(
+                                a1.get('ltag', ''),
+                                a5.get('ltag', '')),
+                            a5.get("expected_source"),
+                            ora0,
+                            dsource_probe=entry.get(
+                                "default_source_probe")) if a5 else \
+        failures.append("shape a5: leg absent")
+    if a5:
+        _loopback_r79_check_side(
+            entry, failures, "shape a5 (output)", a5, "consumers",
+            f"output.{a5['ltag']}", ns_b, ora0)
+        _loopback_r79_check_tap(entry, failures, "shape a5", a5,
+                                want_tone=False)
+    a6 = legs.get("a6_playback_default") or {}
+    if a6:
+        _loopback_r79_check_side(
+            entry, failures, "shape a6 (input)", a6, "producers",
+            f"input.{a6['ltag']}", ns_a, ora0)
+        _loopback_r79_check_side(
+            entry, failures, "shape a6 (output)", a6, "consumers",
+            f"output.{a6['ltag']}", a6.get("expected_sink"), ora0)
+        _loopback_r79_check_tap(entry, failures, "shape a6", a6,
+                                want_tone=False)
+    else:
+        failures.append("shape a6: leg absent")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) CAPTURE LATTICE — the -C arm that differs from pw-record: absent the
+#     sink prop the fallback is the DEFAULT SOURCE, never unlinked.
+# --------------------------------------------------------------------------
+def loopback_capture_lattice_r79_entry():
+    """(2) The -C lattice, the scout's B01-B12 armed: with
+    `stream.capture.sink=true` a resolvable sink yields its MONITOR and
+    anything else yields the DEFAULT sink monitor; without it (absent,
+    false, or an unresolvable/inapplicable name — garbage, `.monitor`,
+    `0`, a source name) the capture stream autoconnects to the DEFAULT
+    SOURCE. `target.object` in -i beats the -C flag. `-C 0` is NOT the
+    pw-cat don't-link idiom. node.autoconnect=false holds the input
+    unlinked while the playback side still routes. Every leg's playback
+    side is pinned to a probe-owned sink — the fail-closed rule."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback -C capture lattice — ungated "
+                      "default-source fallback vs the sink-prop monitor "
+                      "arm",
+             "class": "loopback_capture_default_source_fallback",
+             "classes_extra": ["capture_sink_prop_monitor",
+                               "capture_sink_prop_default_monitor",
+                               "node_autoconnect_unlinked",
+                               "target_0_not_unlinked"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"],
+                           "sources": inv["sources"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    # a REAL non-monitor, non-default source for the honored-source arms —
+    # a monitor name resolves only through the sink domain, and foreign
+    # probe monitors (r84alsa_ns.monitor etc.) never qualify.
+    real_sources = [s for s in inv["sources"]
+                    if not s.endswith(".monitor")]
+    nondef = next((s for s in real_sources if s != s0), None)
+    entry["sources"] = {"default": s0, "non_default": nondef,
+                        "all_real": real_sources}
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    SRC = nondef or s0
+    # (name, extra tail, expected producers of input.<n>, feed, want_tone)
+    # -P ns_b pins playback on EVERY leg (fail-closed). Expected kinds:
+    #   "node"   -> [name]            (the named node's own ports)
+    #   "dsource"-> [default source]  (loopback_capture_default_source_fallback)
+    #   "dsink"  -> [default sink]    (capture_sink_prop_default_monitor)
+    #   "none"   -> []                (node_autoconnect_unlinked)
+    LEGS = (
+        ("b01_sink_prop",
+         ["-C", ns_a, "-i", "stream.capture.sink=true"],
+         ("node", ns_a), True, True),
+        ("b02_sink_noprop", ["-C", ns_a], ("dsource", None), False, False),
+        ("b03_dotmonitor", ["-C", ns_a + ".monitor"],
+         ("dsource", None), False, False),
+        ("b04_real_source", ["-C", "@SRC@"], ("node", "@SRC@"),
+         False, False),
+        ("b05_garbage", ["-C", "no_such_node_r79"],
+         ("dsource", None), False, False),
+        ("b06_zero", ["-C", "0"], ("dsource", None), False, False),
+        ("b07_prop_false",
+         ["-C", ns_a, "-i", "stream.capture.sink=false"],
+         ("dsource", None), False, False),
+        ("b08_prop_beats_flag",
+         ["-C", "@SRC@",
+          "-i", f"target.object={ns_a} stream.capture.sink=true"],
+         ("node", ns_a), True, True),
+        ("b09_prop_garbage_sinkprop",
+         ["-i", "target.object=no_such_node_r79 stream.capture.sink=true"],
+         ("dsink", None), False, False),
+        ("b10_autoconnect_off",
+         ["-C", ns_a,
+          "-i", "stream.capture.sink=true node.autoconnect=false"],
+         ("none", None), True, False),
+        ("b11_autoconnect_off_notarget",
+         ["-i", "node.autoconnect=false"], ("none", None), False, False),
+        ("b12_source_sinkprop",
+         ["-C", "@SRC@", "-i", "stream.capture.sink=true"],
+         ("dsink", None), False, False),
+        # b13 (r79 critic C7): the fallback law as a POSITIVE two-branch
+        # assertion, not an excuse path. An unresolvable -C either links
+        # to the live default source (branch `linked`) or publishes
+        # unnegotiated when no source exists (branch `unnegotiated`).
+        # Both outcomes are asserted classes with their correlates —
+        # whichever the host realizes, the leg measured the law.
+        ("b13_nullsource_law", ["-C", "no_such_node_r79_b13"],
+         ("unneg", None), False, False),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-lat-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0, nondef, SRC],
+                   "default_at_start": d0, "source_at_start": s0}
+            # the capture-side fallback legs are gated on the session
+            # actually having a default source to hand out (measured,
+            # never assumed from pactl).
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            for name, tail, (kind, arg), feed, want_tone in LEGS:
+                if "@SRC@" in tail and nondef is None:
+                    legs[name] = {"blocked": "no real source enumerated"}
+                    continue
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctx["source_at_start"] = ora["source_meta"] or \
+                    ora["source_pactl"]
+                tail = [t.replace("@SRC@", SRC) for t in tail]
+                want = (arg.replace("@SRC@", SRC) if kind == "node" else
+                        ctx["source_at_start"] if kind == "dsource" else
+                        ctx["default_at_start"] if kind == "dsink" else
+                        None)
+                legs[name] = _loopback_r79_leg(
+                    name, tail + ["-P", ns_b] if "-P" not in tail
+                    else tail, ctx,
+                    feed_sink=ns_a if feed else None,
+                    tap_target=ns_b,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5)
+                legs[name]["expected_kind"] = kind
+                legs[name]["expected_producers"] = \
+                    [] if want is None else [want]
+                legs[name]["oracle_at_leg"] = ora
+                legs[name]["fed"] = feed
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, tail, (kind, arg), feed, want_tone in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"capture {name}: leg absent — the lattice "
+                            "is the coverage contract")
+            continue
+        if "blocked" in leg:
+            entry.setdefault("coverage_blocked", []).append(
+                f"{name}: {leg['blocked']}")
+            entry["confound_observed"] = True
+            continue
+        ltag = leg["ltag"]
+        in_n = f"input.{ltag}"
+        out_n = f"output.{ltag}"
+        ora = leg.get("oracle_at_leg") or ora0
+        want = leg["expected_producers"][0] \
+            if leg["expected_producers"] else None
+        if kind == "unneg":
+            # C7: two asserted branches — `linked` (a live default source
+            # answered) or `unnegotiated` (no source existed: zero ports,
+            # zero links, and BOTH per-leg oracle and run probe agree the
+            # default source was absent). Anything else fails.
+            union = _loopback_r79_union(leg["samples"], in_n, "producers")
+            leg["producers_union"] = union
+            leg["expected_producers"] = []
+            live_src = ora.get("source_meta") or ora.get("source_pactl")
+            ds = entry.get("default_source_probe") or {}
+            if union == [] and \
+                    _loopback_r79_unnegotiated(leg, in_n) and \
+                    ora.get("source_meta") is None and \
+                    not ds.get("available"):
+                leg["outcome"] = "capture_default_source_unnegotiated"
+                entry.setdefault("named_outcomes", []).append(
+                    f"capture {name}: unnegotiated branch measured — "
+                    "no default source at this leg "
+                    f"(source_meta={ora.get('source_meta')!r})")
+            elif union == [live_src] and live_src is not None:
+                leg["outcome"] = "capture_fallback_linked"
+                entry.setdefault("named_outcomes", []).append(
+                    f"capture {name}: linked branch measured — "
+                    f"garbage -C resolved to default source {live_src}")
+            else:
+                failures.append(
+                    f"capture {name}: null-source law drift — "
+                    f"producers={union} source={live_src!r} "
+                    f"unneg={_loopback_r79_unnegotiated(leg, in_n)} "
+                    f"probe_avail={ds.get('available')}")
+        else:
+            _loopback_r79_check_side(entry, failures, f"capture {name}",
+                                    leg, "producers", in_n, want, ora,
+                                    dsource_probe=entry.get(
+                                        "default_source_probe")
+                                    if kind == "dsource" else None)
+        _loopback_r79_check_side(entry, failures,
+                                f"capture {name} (output)", leg,
+                                "consumers", out_n, ns_b, ora)
+        # the port-level pin: a sink-prop arm reads monitor_* ports, a
+        # default-source arm reads the source's capture_* ports.
+        pports = set(_loopback_r79_union(
+            leg["samples"], in_n, "producer_ports"))
+        if leg["producers_union"] == leg["expected_producers"] and pports:
+            if kind == "node" and want == ns_a and not all(
+                    ":monitor_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the sink prop must "
+                                "read monitor_*")
+            if kind == "dsource" and not all(
+                    ":capture_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the default-source "
+                                "arm reads capture_*")
+            if kind == "dsink" and not all(
+                    ":monitor_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the fallback reads "
+                                "the default sink's monitor_*")
+        if not leg.get("killed_at_bound") and \
+                leg.get("exit_code") not in (0,):
+            failures.append(f"capture {name}: loopback exited rc="
+                            f"{leg.get('exit_code')} inside the bound")
+        _loopback_r79_check_tap(entry, failures, f"capture {name}",
+                                leg, want_tone=want_tone)
+        # intent-vs-consumption leaf: on a fallback leg the node still
+        # advertises the REQUEST (a `.monitor` suffix included).
+        node = (leg["samples"][-1]["nodes"].get(in_n)
+                if leg["samples"] else {}) or {}
+        if node.get("found"):
+            leg["target_object_advertised"] = node.get("target_object")
+            req = None
+            if "-C" in tail:
+                req = tail[tail.index("-C") + 1]
+            else:
+                itxt = tail[tail.index("-i") + 1] if "-i" in tail else ""
+                m = re.search(r"target\.object\s*=\s*([^\s,]+)", itxt)
+                req = m.group(1) if m else None
+            leg["target_requested"] = req
+            if req and node.get("target_object") == req and \
+                    want is not None and req != want:
+                leg["target_object_lies"] = True
+    # the lattice must contain at least one intent-vs-consumption lie —
+    # the r78 provenance trap on the capture side.
+    if not any(l.get("target_object_lies") for l in legs.values()):
+        failures.append("capture lattice: no leg advertised the request "
+                        "while producing from a different node — the "
+                        "intent/consumption split did not reproduce")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) PLAYBACK LATTICE — -P reproduces the r78 write-side law verbatim.
+# --------------------------------------------------------------------------
+def loopback_playback_lattice_r79_entry():
+    """(3) The -P lattice, the scout's C01-C10 armed: ungated write side —
+    a resolvable sink is honored (two distinct probe sinks), EVERY
+    unresolvable/inapplicable form (garbage, a source name, `0`, the
+    absent flag, a garbage -o target.object) lands the CURRENT default
+    sink; -o target.object beats the -P flag with a silent-sink content
+    control; -o node.autoconnect=false publishes unlinked; -o
+    stream.capture.sink=true is decoration on a playback stream. The
+    capture side is pinned to a probe-owned monitor on every leg, and
+    tone only flows when the destination is probe-owned (fallback legs
+    forward digital silence — topology is their witness)."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback -P playback lattice — the ungated "
+                      "default-sink fallback on the write side",
+             "class": "loopback_playback_default_fallback",
+             "classes_extra": ["loopback_prop_beats_flag",
+                               "node_autoconnect_unlinked",
+                               "capsink_prop_decoration"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    real_sources = [s for s in inv["sources"]
+                    if not s.endswith(".monitor")]
+    nondef = next((s for s in real_sources
+                   if s != s0), None) or (real_sources or [None])[0]
+    ns_a, ns_b, ns_b2 = (LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B,
+                         LOOPBACK_R79_NS_B2)
+    loads = _loopback_r79_sinks_load((ns_a, ns_b, ns_b2))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    CAP = ["-C", ns_a, "-i", "stream.capture.sink=true"]
+    # (name, playback tail, expected consumers, feed+tone)
+    #   "node" -> [name]; "dsink" -> [default sink]; "none" -> []
+    LEGS = (
+        ("c01_sink", ["-P", ns_b], ("node", ns_b), True),
+        ("c02_second_sink", ["-P", ns_b2], ("node", ns_b2), True),
+        ("c03_garbage", ["-P", "no_such_sink_r79"], ("dsink", None),
+         False),
+        ("c04_source_name", ["-P", "@SRC@"], ("dsink", None), False),
+        ("c05_zero", ["-P", "0"], ("dsink", None), False),
+        ("c06_absent", [], ("dsink", None), False),
+        ("c07_prop_beats_flag",
+         ["-P", ns_b, "-o", f"target.object={ns_b2}"],
+         ("node", ns_b2), True),
+        ("c08_autoconnect_off",
+         ["-P", ns_b, "-o", "node.autoconnect=false"], ("none", None),
+         False),
+        ("c09_capsink_decoration",
+         ["-P", ns_b, "-o", "stream.capture.sink=true"],
+         ("node", ns_b), True),
+        ("c10_prop_garbage",
+         ["-P", ns_b, "-o", "target.object=no_such_sink_r79"],
+         ("dsink", None), False),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-play-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b, ns_b2},
+                   "redact": [ns_a, ns_b, ns_b2, d0, nondef],
+                   "default_at_start": d0, "source_at_start": s0}
+            for name, tail, (kind, arg), feed in LEGS:
+                if "@SRC@" in tail and nondef is None:
+                    legs[name] = {"blocked": "no real source enumerated"}
+                    continue
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctx["source_at_start"] = ora["source_meta"] or \
+                    ora["source_pactl"]
+                tail = [t.replace("@SRC@", nondef) for t in tail]
+                want = (arg if kind == "node" else
+                        ctx["default_at_start"] if kind == "dsink" else
+                        None)
+                tap_t = want if want is not None else ns_b
+                # c07's content control needs a second tap on the flag
+                # sink — bound+ran in the witness list, silent on `mine`.
+                ctx_l = dict(ctx, tap_witnesses=list(
+                    ctx.get("tap_witnesses", ())) + [
+                        (f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap", ns_b)]
+                    if name == "c07_prop_beats_flag" else
+                    ctx.get("tap_witnesses", ()))
+                if name == "c07_prop_beats_flag":
+                    tapc_f = Path(tmp) / "tap_c07_ctrl.wav"
+                    tapc = _playback_r78_tap(
+                        ns_b, tapc_f,
+                        int(PLAYBACK_R78_TONE_RATE *
+                            (LOOPBACK_R79_LEG_BOUND_S +
+                             PLAYBACK_R78_TAP_LEAD_S + 0.5)),
+                        f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap")
+                legs[name] = _loopback_r79_leg(
+                    name, CAP + tail, ctx_l,
+                    feed_sink=ns_a if feed else None,
+                    tap_target=tap_t,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5)
+                if name == "c07_prop_beats_flag":
+                    _capture_r77_reap(tapc, PLAYBACK_R78_TIMEOUT_S)
+                    ctrl_tw = [s.get("tap_witnesses", {}).get(
+                        f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap")
+                        for s in legs[name]["samples"]]
+                    legs[name]["tap_flag_sink"] = {
+                        "target": ns_b, "exit_code": tapc.returncode,
+                        "bound_to_target": any(
+                            t["bound_to_target"] for t in ctrl_tw if t),
+                        **_playback_r78_tone_windows(tapc_f)}
+                    legs[name]["tap_flag_sink"]["ran"] = bool(
+                        legs[name]["tap_flag_sink"].get("windows"))
+                legs[name]["expected_kind"] = kind
+                legs[name]["expected_consumers"] = \
+                    [] if want is None else [want]
+                legs[name]["oracle_at_leg"] = ora
+                legs[name]["fed"] = feed
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, tail, (kind, arg), feed in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"playback {name}: leg absent — the lattice "
+                            "is the coverage contract")
+            continue
+        if "blocked" in leg:
+            entry.setdefault("coverage_blocked", []).append(
+                f"{name}: {leg['blocked']}")
+            entry["confound_observed"] = True
+            continue
+        ltag = leg["ltag"]
+        in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+        ora = leg.get("oracle_at_leg") or ora0
+        want = leg["expected_consumers"][0] \
+            if leg["expected_consumers"] else None
+        _loopback_r79_check_side(entry, failures, f"playback {name}",
+                                leg, "consumers", out_n, want, ora)
+        _loopback_r79_check_side(entry, failures,
+                                f"playback {name} (input)", leg,
+                                "producers", in_n, ns_a, ora)
+        if not leg.get("killed_at_bound") and \
+                leg.get("exit_code") not in (0,):
+            failures.append(f"playback {name}: loopback exited rc="
+                            f"{leg.get('exit_code')} inside the bound")
+        _loopback_r79_check_tap(entry, failures, f"playback {name}",
+                                leg, want_tone=True if feed else False)
+        if name == "c07_prop_beats_flag":
+            ctl = leg.get("tap_flag_sink") or {}
+            if not ctl.get("ran"):
+                failures.append("playback c07: the flag-sink control "
+                                "tap produced no windows — the silent "
+                                "half is unproven")
+            elif ctl.get("bound_to_target") is not True:
+                failures.append("playback c07: the control tap never "
+                                "bound to the flag sink")
+            elif ctl.get("mine_windows"):
+                failures.append("playback c07: tag tone on the FLAG "
+                                "sink — target.object did not beat -P")
+        # intent-vs-consumption on the write side, too: the playback
+        # node advertises the verbatim request.
+        node = (leg["samples"][-1]["nodes"].get(out_n)
+                if leg["samples"] else {}) or {}
+        if node.get("found"):
+            leg["target_object_advertised"] = node.get("target_object")
+            req = None
+            if "-o" in tail:
+                m = re.search(r"target\.object\s*=\s*([^\s,]+)",
+                              tail[tail.index("-o") + 1])
+                req = m.group(1) if m else None
+            if req is None and "-P" in tail:
+                req = tail[tail.index("-P") + 1]
+            leg["target_requested"] = req
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) MATRIX — audio.position drives the mix; -c alone is inert.
+# --------------------------------------------------------------------------
+def loopback_matrix_r79_entry():
+    """(4) The channel-map matrix, the scout's CM1-CM4 armed: `-m
+    '[ MONO ]'` (bracketed or bare) downmixes 0.5*(L+R) even at
+    audio.channels=2, while `-c 1` alone with the default 2-entry
+    position is INERT — stereo passthrough. Port names stay *_FL/*_FR in
+    every case; the matrix is only visible in props + content. The
+    content pin is the per-channel two-tone signature on the playback
+    sink's monitor."""
+    failures = []
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback channel matrix — audio.position "
+                      "drives the mix",
+             "class": "loopback_channel_matrix",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    # (name, extra tail, expected audio.channels, expected
+    #  audio.position, expected signature)
+    LEGS = (
+        ("cm1_mono_c1_m", ["-c", "1", "-m", "[ MONO ]"], 1, "[ MONO ]",
+         "mix"),
+        ("cm2_c1_only", ["-c", "1"], 1, "[ FL, FR ]", "stereo"),
+        ("cm3_m_only", ["-m", "[ MONO ]"], 2, "[ MONO ]", "mix"),
+        ("cm4_m_bare", ["-m", "MONO"], 2, "MONO", "mix"),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-cm-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b],
+                   "default_at_start": ora0["sink_meta"] or
+                   ora0["sink_pactl"],
+                   "source_at_start": ora0["source_meta"] or
+                   ora0["source_pactl"]}
+            for name, extra, ch, pos, sig in LEGS:
+                legs[name] = _loopback_r79_leg(
+                    name, ["-C", ns_a, "-i", "stream.capture.sink=true",
+                           "-P", ns_b] + extra, ctx,
+                    feed_sink=ns_a, tap_target=ns_b,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5,
+                    sample_at=(2.0,))
+                legs[name]["expected"] = {"channels": ch, "position": pos,
+                                          "signature": sig}
+                tf = Path(tmp) / f"tap_{name}.wav"
+                legs[name]["two_tone"] = _loopback_r79_two_tone(tf)
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, extra, ch, pos, sig in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"matrix {name}: leg absent")
+            continue
+        ltag = leg["ltag"]
+        in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+        _loopback_r79_check_side(entry, failures, f"matrix {name}",
+                                leg, "producers", in_n, ns_a, ora0)
+        _loopback_r79_check_side(entry, failures,
+                                f"matrix {name} (output)", leg,
+                                "consumers", out_n, ns_b, ora0)
+        s0n = (leg["samples"][-1]["nodes"] if leg["samples"] else {})
+        for nn in (in_n, out_n):
+            nd = s0n.get(nn) or {}
+            if nd.get("audio_channels") != ch or \
+                    nd.get("audio_position") != pos:
+                failures.append(f"matrix {name}: {nn} props "
+                                f"ch={nd.get('audio_channels')} pos="
+                                f"{nd.get('audio_position')!r} — "
+                                f"expected {ch}/{pos!r}")
+        tt = leg.get("two_tone") or {}
+        if tt.get("unsupported") or not tt.get("channels"):
+            failures.append(f"matrix {name}: no two-tone content — "
+                            f"{tt.get('unsupported')}")
+        elif sig == "mix" and not tt.get("mix_signature"):
+            failures.append(f"matrix {name}: expected the 0.5*(L+R) "
+                            f"mix signature, got {tt['channels']}")
+        elif sig == "stereo" and not tt.get("stereo_signature"):
+            failures.append(f"matrix {name}: expected stereo "
+                            f"passthrough, got {tt['channels']}")
+        # the tap's strict tone classifier cannot see a MONO mix (both
+        # channels carry both components) — mix legs are content-pinned
+        # by the two-tone signature instead, so only `mine` windows are
+        # forbidden there, never required.
+        _loopback_r79_check_tap(entry, failures, f"matrix {name}",
+                                leg, want_tone=True if sig == "stereo"
+                                else None)
+    # cross-leg, self-calibrating: the mono mix must be the stereo
+    # passthrough at HALF gain (the analytic 0.5*(L+R)), so no absolute
+    # band can pass a merely-loud wrong result.
+    st = (legs.get("cm2_c1_only") or {}).get("two_tone") or {}
+    ref = ((st.get("channels") or [{}])[0] or {}).get("at_l")
+    if ref:
+        for name, _, _, _, sig in LEGS:
+            if sig != "mix":
+                continue
+            chs = ((legs.get(name) or {}).get("two_tone") or {}).get(
+                "channels") or []
+            if not chs:
+                continue
+            half = (chs[0]["at_l"] + chs[0]["at_r"]) / 2.0
+            ratio = half / ref
+            legs[name]["mix_half_gain_ratio"] = round(ratio, 3)
+            if not 0.35 <= ratio <= 0.65:
+                failures.append(
+                    f"matrix {name}: mix/stereo amplitude ratio {ratio:.3f} "
+                    f"— 0.5*(L+R) must read half the passthrough's "
+                    f"component ({half} vs {ref})")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) RECORD TARGETS — pw-record --target against loopback-created nodes.
+# --------------------------------------------------------------------------
+def loopback_record_target_r79_entry():
+    """(5) pw-record --target against the loopback pair, the scout's
+    D2a-D2d + D17 armed: the playback node's output_* ports record by
+    name (the copied stream); the capture node's monitor_* ports need
+    stream.capture.sink=true — without the prop the record autoconnects
+    to the DEFAULT SOURCE (the same ungated arm); the prop on
+    output.<lb> demotes the lookup to the sink domain -> default sink
+    monitor. D17 pins input.<lb>:monitor_* onto a `--target 0` record
+    stream manually."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-record --target vs loopback nodes — three "
+                      "distinct arms",
+             "class": "loopback_record_target_lattice",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    legs = {}
+    frames = int(1.4 * PLAYBACK_R78_TONE_RATE)
+    lb_proc = None
+    feed = None
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-rect-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            # longer than the shared 9 s tag tone: the feed must outlive
+            # four bounded record legs plus the D17 pin leg.
+            _playback_r78_write_tone(tone, 26.0)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_HP_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0],
+                   "default_at_start": d0, "source_at_start": s0}
+            # the loopback under test: tone ns_a -> lb -> ns_b, pinned.
+            # It must stay ALIVE across every record sub-leg, so it is
+            # spawned directly instead of through the blocking runner —
+            # the blocking runner reaps it at its bound and every record
+            # leg below then resolves a target that no longer exists
+            # (measured: `no target node available` on d2a/d2b, ENOENT on
+            # the D17 pin). The scout recorded the same defect class.
+            ltag = f"{LOOPBACK_R79_PREFIX}_rect_lb"
+            in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            lb_proc = subprocess.Popen(
+                ["pw-loopback", "-n", ltag,
+                 "-C", ns_a, "-i", "stream.capture.sink=true",
+                 "-P", ns_b],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                start_new_session=True)
+            lb = {"name": "loopback", "ltag": ltag,
+                  "argv": f"pw-loopback -n {ltag} -C <ns_a> -i "
+                          "stream.capture.sink=true -P <ns_b>",
+                  "wait_nodes": {n: dict(zip(("ready", "waited_s"),
+                                             _loopback_r79_wait_ports(n)))
+                                 for n in (in_n, out_n)},
+                  "samples": [], "fired": []}
+            lb_t0 = time.monotonic()
+            for at in (1.2, 2.6):
+                left = at - (time.monotonic() - lb_t0)
+                if left > 0:
+                    time.sleep(left)
+                leaf = _loopback_r79_watch_sample((in_n, out_n), ctx)
+                lb["samples"].append(
+                    {"at_s": at, "live": lb_proc.poll() is None, **leaf})
+            legs["loopback"] = lb
+            # four record legs DURING the live loopback — the scout's
+            # first pass sampled after exit and was vacuous; the arm
+            # samples mid-record.
+            RECS = (
+                ("d2a_input_node", in_n, False, ("source",)),
+                ("d2b_output_node", out_n, False, ("node", out_n)),
+                ("d2c_input_capsink", in_n, True, ("node", in_n)),
+                ("d2d_output_capsink", out_n, True, ("dsink",)),
+            )
+            # the tone feed outlives every record sub-leg (the entry's
+            # own file, longer than the shared 9 s tag tone).
+            feed = _loopback_r79_feed(ns_a, f"{ltag}_feed", ctx)
+            lb["fired"].append({"kind": "feed_start", "target": ns_a,
+                                "tag": f"{ltag}_feed"})
+            for name, target, capprop, (kind, *karg) in RECS:
+                ora = _loopback_r79_oracle()
+                rtag = f"{LOOPBACK_R79_PREFIX}_{name}"
+                out = Path(tmp) / f"rec_{name}.wav"
+                prop = (["-P", "stream.capture.sink=true"]
+                        if capprop else [])
+                run = _loopback_r79_run(
+                    ["pw-record", *prop, "-P", f"node.name={rtag}",
+                     "--target", target, "-n", str(frames),
+                     "--rate", "48000", "--channels", "2",
+                     "--format", "s16", str(out)],
+                    ctx, watch=(rtag,), wait_nodes=(rtag,),
+                    events=[(0.7, "sample", None)],
+                    bound_s=frames / PLAYBACK_R78_TONE_RATE + 4.0)
+                wins = _playback_r78_tone_windows(out)
+                want = {"source": ora["source_meta"] or
+                        ora["source_pactl"],
+                        "node": karg[0] if karg else None,
+                        "dsink": ora["sink_meta"] or
+                        ora["sink_pactl"]}[kind]
+                legs[name] = {**run, "target": target,
+                              "capture_sink_prop": capprop,
+                              "expected_producers": [want],
+                              "oracle_at_leg": ora, "content": wins,
+                              "carries_tone": wins.get("carries_tone")}
+                time.sleep(0.4)
+            # D17: manual pins onto input.<lb>:monitor_* on a --target 0
+            # record stream.
+            rtag = f"{LOOPBACK_R79_PREFIX}_d17"
+            out17 = Path(tmp) / "rec_d17.wav"
+            run = _loopback_r79_run(
+                ["pw-record", "-P", f"node.name={rtag}",
+                 "--target", "0", "-n", str(frames), "--rate", "48000",
+                 "--channels", "2", "--format", "s16", str(out17)],
+                ctx, watch=(rtag,), wait_nodes=(rtag,),
+                events=[(0.5, "sample", None),
+                        (0.9, "pwlink",
+                         [(f"{in_n}:monitor_FL", f"{rtag}:input_FL"),
+                          (f"{in_n}:monitor_FR", f"{rtag}:input_FR")]),
+                        (1.4, "sample", None)],
+                bound_s=frames / PLAYBACK_R78_TONE_RATE + 4.0)
+            legs["d17_manual_pin"] = {**run, "content":
+                                      _playback_r78_tone_windows(out17)}
+            # reap the feed and the loopback LAST: every sub-leg above
+            # resolved a target that was still alive.
+            if feed.poll() is None:
+                os.killpg(feed.pid, signal.SIGKILL)
+            feed.wait()
+            leaf = _loopback_r79_watch_sample((in_n, out_n), ctx)
+            lb["samples"].append({"at_s": round(time.monotonic() - lb_t0, 2),
+                                  "live": lb_proc.poll() is None, **leaf})
+            lb["killed_at_bound"] = True
+            lb["feed_exit"] = feed.returncode
+            if lb_proc.poll() is None:
+                os.killpg(lb_proc.pid, signal.SIGKILL)
+            lb_proc.wait()
+            lb["exit_code"] = lb_proc.returncode
+            lb["wall_s"] = round(time.monotonic() - lb_t0, 2)
+            lb["stderr_tail"] = _capture_tail(
+                lb_proc.stderr.read().decode(errors="replace"), ltag)
+    finally:
+        if feed is not None and feed.poll() is None:
+            os.killpg(feed.pid, signal.SIGKILL)
+            feed.wait()
+        if lb_proc is not None and lb_proc.poll() is None:
+            os.killpg(lb_proc.pid, signal.SIGKILL)
+            lb_proc.wait()
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    lb = legs.get("loopback") or {}
+    if _loopback_r79_union(lb.get("samples", []), in_n, "producers") \
+            != [ns_a] or _loopback_r79_union(
+                lb.get("samples", []), out_n, "consumers") != [ns_b]:
+        failures.append("record lattice: the loopback under test never "
+                        "showed the pinned ns_a->lb->ns_b route — every "
+                        "record verdict below is unanchored")
+    for name, target, capprop, (kind, *karg) in RECS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"record {name}: leg absent")
+            continue
+        want = leg["expected_producers"][0]
+        prods = _loopback_r79_union(leg.get("samples", []),
+                                    f"{LOOPBACK_R79_PREFIX}_{name}",
+                                    "producers")
+        dsrc = entry.get("default_source_probe") or {}
+        if prods != [want]:
+            # d2a is a capture-side DEFAULT-SOURCE arm: the scout's law
+            # is that an unresolvable target falls back to the session
+            # default source. With NO default source to hand out, the
+            # stream cannot be created at all — measured class
+            # `no_target_node` (res:-2), zero producers, no ports. The
+            # correlate is the LEG's own oracle (the authority flaps
+            # under multi-seat load); the run-level probe is secondary.
+            if name == "d2a_input_node" and not prods and \
+                    leg.get("error_class") == "no_target_node" and \
+                    (leg["oracle_at_leg"].get("source_meta") is None or
+                     not dsrc.get("available")):
+                leg["outcome"] = "capture_default_source_unnegotiated"
+                leg["outcome_correlate"] = {
+                    "default_source_probe_class":
+                        dsrc.get("error_class"),
+                    "stderr_tail": leg.get("stderr_tail")}
+                entry.setdefault("named_outcomes", []).append(
+                    "record d2a: capture_default_source_unnegotiated — "
+                    "no default source exists, so `--target input.<lb>` "
+                    "without the sink prop cannot fall back; the record "
+                    "stream dies `no target node available`")
+                entry["confound_observed"] = True
+                continue
+            live_now = {ora0.get("sink_meta"), ora0.get("sink_pactl"),
+                        ora0.get("source_meta"),
+                        ora0.get("source_pactl")} - {None}
+            if want in live_now and prods and \
+                    set(prods) <= live_now:
+                leg["confound"] = ("default re-asserted mid-leg — "
+                                   f"producers {prods}")
+                entry["confound_observed"] = True
+            else:
+                failures.append(f"record {name}: expected producers "
+                                f"[{want}], got {prods}")
+        if leg.get("exit_code") not in (0, 1) and \
+                not leg.get("killed_at_bound"):
+            failures.append(f"record {name}: pw-record rc="
+                            f"{leg.get('exit_code')} — expected the "
+                            "-n bound exit (1) or clean")
+        ct = leg.get("content") or {}
+        expect_tone = name in ("d2b_output_node", "d2c_input_capsink")
+        if expect_tone and not ct.get("mine_windows"):
+            failures.append(f"record {name}: the record carried no tag "
+                            "tone — the copied stream is unproven")
+        if not expect_tone and ct.get("mine_windows"):
+            failures.append(f"record {name}: tag tone recorded — this "
+                            "arm never touches our tone path")
+        if name == "d2c_input_capsink":
+            pports = _loopback_r79_union(
+                leg.get("samples", []),
+                f"{LOOPBACK_R79_PREFIX}_{name}", "producer_ports")
+            if not any(":monitor_" in p for p in pports):
+                failures.append("record d2c: the capture node's "
+                                "monitor_* ports must be the producers, "
+                                f"got {pports}")
+    d17 = legs.get("d17_manual_pin") or {}
+    pins = [l for f in d17.get("fired", []) if f["kind"] == "pwlink"
+            for l in f.get("links", [])]
+    if not pins or any(l["exit"] != 0 for l in pins):
+        failures.append(f"record d17: the manual monitor_* pins failed "
+                        f"{pins}")
+    d17_prods = _loopback_r79_union(d17.get("samples", []),
+                                    f"{LOOPBACK_R79_PREFIX}_d17",
+                                    "producers")
+    if in_n not in d17_prods:
+        failures.append(f"record d17: producers {d17_prods} — expected "
+                        f"{in_n} after the manual pins")
+    if not (d17.get("content") or {}).get("mine_windows"):
+        failures.append("record d17: no tag tone — the monitor ports "
+                        "carried nothing")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) HOT-PLUG — the route follows its named target BOTH ways.
+# --------------------------------------------------------------------------
+def loopback_hotplug_r79_entry():
+    """(6) The scout's E1-E3 armed: unloading the playback target
+    re-links output.<n> to the CURRENT default sink in <=0.5 s; loading
+    the named target re-links output.<n> to it (the return direction);
+    unloading the capture target re-links input.<n> to the default sink
+    MONITOR (the sink-prop fallback — the capture side has no unlinked
+    state). Tone stops before every unload (silence-before-loss); the
+    client stays alive throughout, rc=-9 at the bound."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback hot-plug — target loss and target "
+                      "appearance re-link both ways",
+             "class": "loopback_target_follow",
+             "classes_extra": ["playback_relink_on_target_loss",
+                               "capture_prop_monitor_fallback"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    hp, hp2 = LOOPBACK_R79_HP, LOOPBACK_R79_HP2
+    loads = _loopback_r79_sinks_load((ns_a, ns_b, hp))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    hp_mid = loads[hp]["module_id"]
+    nsa_mid = loads[ns_a]["module_id"]
+    legs = {}
+    loaded_late = []
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-hp-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_HP_BOUND_S,
+                   "own_sinks": {ns_a, ns_b, hp, hp2},
+                   "redact": [ns_a, ns_b, hp, hp2, d0],
+                   "default_at_start": d0, "source_at_start":
+                   ora0["source_meta"] or ora0["source_pactl"]}
+            # E1: unload the PLAYBACK target mid-route.
+            ora = _loopback_r79_oracle()
+            legs["e1_unload_playback"] = _loopback_r79_leg(
+                "e1", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", hp], dict(
+                           ctx, default_at_start=ora["sink_meta"]
+                           or ora["sink_pactl"]),
+                feed_sink=ns_a, tap_target=hp,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(2.2, "feed_stop",
+                               f"{LOOPBACK_R79_PREFIX}_e1_feed"),
+                              (3.0, "unload_module", hp_mid)],
+                sample_at=(1.4, 2.0, 3.6, 4.6, 6.2),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            legs["e1_unload_playback"]["expected_pre"] = [hp]
+            legs["e1_unload_playback"]["expected_post"] = [
+                legs["e1_unload_playback"]["default_sink_at_leg"]]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # E2: -P names a sink that does not exist yet; load it
+            # mid-route -> the stream re-links to it (the return leg).
+            legs["e2_load_playback"] = _loopback_r79_leg(
+                "e2", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", hp2],
+                dict(ctx, own_sinks={ns_a, ns_b, hp, hp2}),
+                feed_sink=ns_a, feed_at=3.4, tap_target=hp2,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(1.6, "load_sink", hp2)],
+                sample_at=(1.0, 2.4, 3.2, 4.2, 5.6),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            loaded_late.extend(
+                legs["e2_load_playback"].get("loaded") or [])
+            ora = legs["e2_load_playback"].get("oracle_at_leg") or ora0
+            legs["e2_load_playback"]["expected_pre"] = [
+                ctx["default_at_start"]]
+            legs["e2_load_playback"]["expected_post"] = [hp2]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # E3: unload the CAPTURE target mid-route — the sink prop's
+            # fallback is the default sink MONITOR, not silence.
+            ora = _loopback_r79_oracle()
+            legs["e3_unload_capture"] = _loopback_r79_leg(
+                "e3", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", ns_b], dict(
+                           ctx, default_at_start=ora["sink_meta"]
+                           or ora["sink_pactl"],
+                           own_sinks={ns_a, ns_b, hp, hp2}),
+                feed_sink=ns_a, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(2.2, "feed_stop",
+                               f"{LOOPBACK_R79_PREFIX}_e3_feed"),
+                              (3.0, "unload_module", nsa_mid)],
+                sample_at=(1.4, 2.0, 3.6, 4.6, 6.2),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            legs["e3_unload_capture"]["expected_pre"] = [ns_a]
+            legs["e3_unload_capture"]["expected_post"] = [
+                legs["e3_unload_capture"]["default_sink_at_leg"]]
+    finally:
+        _loopback_r79_sinks_unload(loads)
+        for m in loaded_late:
+            _playback_r78_unload(m)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures,
+                           dict(loads, **{hp2: {"module_id": m}
+                                          for m in loaded_late}))
+    e1 = legs.get("e1_unload_playback") or {}
+    if not e1:
+        failures.append("hotplug e1: leg absent")
+    else:
+        out_n = f"output.{e1['ltag']}"
+        pre = e1["samples"][0] if e1["samples"] else {}
+        post = e1["samples"][2:] if len(e1["samples"]) > 2 else []
+        if (pre.get("watch") or {}).get(out_n, {}).get("consumers") \
+                != [hp]:
+            failures.append(f"hotplug e1: pre-unload consumers "
+                            f"{(pre.get('watch') or {}).get(out_n)}")
+        d0e = e1["expected_post"][0]
+        for s in post:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [d0e]:
+                failures.append(f"hotplug e1: post-unload consumers "
+                                f"{cs} at +{s['at_s']} — the write side "
+                                f"must re-link to the default {d0e}")
+                break
+        if not e1.get("killed_at_bound"):
+            failures.append("hotplug e1: the loopback client did not "
+                            "survive its target's loss")
+        unfired = [f for f in e1.get("fired", [])
+                   if f["kind"] == "unload_module"
+                   and f.get("exit_code") != 0]
+        if unfired or not any(f["kind"] == "unload_module"
+                              for f in e1.get("fired", [])):
+            failures.append("hotplug e1: the module unload did not "
+                            "fire cleanly — no real loss event")
+        _loopback_r79_check_tap(entry, failures, "hotplug e1", e1,
+                                want_tone=True)
+    e2 = legs.get("e2_load_playback") or {}
+    if not e2:
+        failures.append("hotplug e2: leg absent")
+    else:
+        out_n = f"output.{e2['ltag']}"
+        pre = e2["samples"][0] if e2["samples"] else {}
+        pre_want = e2["expected_pre"][0]
+        if (pre.get("watch") or {}).get(out_n, {}).get("consumers") \
+                != [pre_want]:
+            failures.append(f"hotplug e2: pre-load consumers "
+                            f"{(pre.get('watch') or {}).get(out_n)} — "
+                            f"expected the fallback {pre_want}")
+        post = e2["samples"][1:]
+        for s in post:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [hp2]:
+                failures.append(f"hotplug e2: post-load consumers {cs} "
+                                f"at +{s['at_s']} — the named target "
+                                "never re-acquired the stream")
+                break
+        loaded = [f for f in e2.get("fired", [])
+                  if f["kind"] == "load_sink" and f.get("module_id")]
+        if not loaded:
+            failures.append("hotplug e2: the mid-route module load "
+                            "never returned an id")
+        if not e2.get("killed_at_bound"):
+            failures.append("hotplug e2: the loopback client did not "
+                            "survive the hot-plug")
+        _loopback_r79_check_tap(entry, failures, "hotplug e2", e2,
+                                want_tone=True)
+    e3 = legs.get("e3_unload_capture") or {}
+    if not e3:
+        failures.append("hotplug e3: leg absent")
+    else:
+        in_n, out_n = f"input.{e3['ltag']}", f"output.{e3['ltag']}"
+        pre = e3["samples"][0] if e3["samples"] else {}
+        if (pre.get("watch") or {}).get(in_n, {}).get("producers") \
+                != [ns_a]:
+            failures.append(f"hotplug e3: pre-unload producers "
+                            f"{(pre.get('watch') or {}).get(in_n)}")
+        d0e = e3["expected_post"][0]
+        for s in e3["samples"][2:]:
+            pr = (s.get("watch") or {}).get(in_n, {}).get("producers")
+            if pr != [d0e]:
+                failures.append(f"hotplug e3: post-unload producers "
+                                f"{pr} at +{s['at_s']} — the sink-prop "
+                                f"fallback must land {d0e}'s monitor")
+                break
+            pports = (s.get("watch") or {}).get(in_n, {}).get(
+                "producer_ports") or []
+            if pports and not all(":monitor_" in p for p in pports):
+                failures.append(f"hotplug e3: producer ports {pports} "
+                                "— the fallback reads monitor_*")
+        for s in e3["samples"]:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [ns_b]:
+                failures.append(f"hotplug e3: playback side moved to "
+                                f"{cs} — a capture-target loss must "
+                                "not touch the write side")
+                break
+        if not e3.get("killed_at_bound"):
+            failures.append("hotplug e3: the loopback client did not "
+                            "survive its target's loss")
+        _loopback_r79_check_tap(entry, failures, "hotplug e3", e3,
+                                want_tone=True)
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) PWCAT LATENCY — the -P node.latency vector on the playback side.
+# --------------------------------------------------------------------------
+def pwcat_latency_r79_entry():
+    """(7) pw-cat's playback latency vector, the scout's D01-D13 armed:
+    --latency and -P node.latency store the prop VERBATIM (prop beats
+    flag; --latency 0 is a non-fatal argv error while -P node.latency=0
+    is stored unvalidated); the reported Latency param is RECORDED as
+    a named verdict, never asserted — the prop is the hard pin; and
+    stream.capture.sink on a PLAYBACK stream is decoration."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-cat playback -P latency vector — prop "
+                      "verbatim, param inert",
+             "class": "pwcat_latency_prop_only",
+             "classes_extra": ["capsink_prop_decoration",
+                               "latency_argv_nonfatal"],
+             "contention": _playback_r78_foreign_clients(),
+             "contamination": {
+                 "shared_default_tone": False,
+                 "note": "every leg whose destination is not a "
+                         "probe-owned sink (the garbage-target fallback) "
+                         "is fed digital silence; its verdict is "
+                         "topology-only and declares "
+                         "content_witness=declined_shared_default"},
+             "oracle_at_start": ora0}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    ns_b = LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_b,))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "the probe null sink/monitor did not enumerate", loads)
+    # (name, extra tail, target, expected node.latency (as string —
+    #   pw-dump JSON types vary), expected node.force-latency)
+    LEGS = (
+        ("d01_default", [], ns_b, "4800/48000", None),
+        ("d02_flag_10ms", ["--latency", "10ms"], ns_b, "480/48000", None),
+        ("d03_flag_256", ["--latency", "256"], ns_b, "256/48000", None),
+        ("d04_prop_480", ["-P", "node.latency=480"], ns_b, "480", None),
+        ("d05_prop_fraction", ["-P", "node.latency=1024/48000"], ns_b,
+         "1024/48000", None),
+        ("d06_prop_beats_flag",
+         ["--latency", "5ms", "-P", "node.latency=2048/48000"], ns_b,
+         "2048/48000", None),
+        ("d07_flag_zero", ["--latency", "0"], ns_b, None, None),
+        ("d08_prop_zero", ["-P", "node.latency=0"], ns_b, "0", None),
+        ("d09_flag_500ms", ["--latency", "500ms"], ns_b,
+         "24000/48000", None),
+        ("d10_force_latency",
+         ["--latency", "10ms", "-P", "node.force-latency=true"], ns_b,
+         "480/48000", True),
+        ("d11_capsink_valid", ["-P", "stream.capture.sink=true"], ns_b,
+         "4800/48000", None),
+        ("d12_capsink_garbage", ["-P", "stream.capture.sink=true"],
+         "no_such_sink_r79", "4800/48000", None),
+        ("d13_autoconnect_off", ["-P", "node.autoconnect=false"], ns_b,
+         "4800/48000", None),
+    )
+    legs = {}
+    frames = 48000
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-pwcat-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, 2.0)
+            silence = Path(tmp) / "tag_silence.wav"
+            _loopback_r79_write_silence(silence, 2.0)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s": 4.0,
+                   "own_sinks": {ns_b}, "redact": [ns_b, d0],
+                   "default_at_start": ora0["sink_meta"] or
+                   ora0["sink_pactl"],
+                   "source_at_start": ora0["source_meta"] or
+                   ora0["source_pactl"]}
+            for name, extra, target, want_lat, want_fl in LEGS:
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctag = f"{LOOPBACK_R79_PREFIX}_{name}"
+                stall = name == "d13_autoconnect_off"
+                # a leg whose destination is NOT probe-owned feeds
+                # digital silence — the landing is still measured by
+                # topology, but the shared default sink never receives
+                # the tag tone (the r79 scout's fail-closed rule).
+                shared_default = target != ns_b
+                run = _loopback_r79_run(
+                    ["pw-cat", "-p", "-P", f"node.name={ctag}", *extra,
+                     "--target", target, "-n", str(frames),
+                     str(silence if shared_default else tone)],
+                    ctx, watch=(ctag,), wait_nodes=() if stall else
+                    (ctag,),
+                    events=[(0.8, "sample", None),
+                            (1.5, "sample", None)] if not stall else
+                    [(1.0, "sample", None), (2.5, "sample", None)],
+                    bound_s=3.5 if not stall else 4.5)
+                legs[name] = {**run, "target": target,
+                              "expected_latency": want_lat,
+                              "expected_force_latency": want_fl,
+                              "oracle_at_leg": ora,
+                              "feed_content": "silence" if
+                              shared_default else "tone",
+                              "content_witness":
+                              "declined_shared_default"
+                              if shared_default else
+                              "tag_tone_on_probe_sink"}
+                time.sleep(0.3)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    params_seen = set()
+    for name, extra, target, want_lat, want_fl in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"pwcat {name}: leg absent")
+            continue
+        ctag = f"{LOOPBACK_R79_PREFIX}_{name}"
+        samples = leg.get("samples") or []
+        node = next((s["nodes"][ctag] for s in reversed(samples)
+                     if (s.get("nodes") or {}).get(ctag, {}).get("found")),
+                    None)
+        leg["node_seen"] = node is not None
+        if node is not None:
+            lat = node.get("node_latency")
+            leg["measured_latency"] = lat
+            if want_lat is None:
+                if lat is not None:
+                    failures.append(f"pwcat {name}: node.latency must "
+                                    f"be ABSENT, got {lat!r}")
+            elif str(lat) != want_lat:
+                failures.append(f"pwcat {name}: node.latency {lat!r} "
+                                f"!= {want_lat!r}")
+            if want_fl is not None and \
+                    node.get("node_force_latency") not in (True, "true"):
+                failures.append(f"pwcat {name}: node.force-latency "
+                                f"{node.get('node_force_latency')!r} "
+                                "!= true")
+            lp = node.get("latency_param")
+            leg["latency_param"] = lp
+            if lp is not None:
+                params_seen.add(json.dumps(lp, sort_keys=True))
+        if name == "d07_flag_zero":
+            err = leg.get("stderr_tail") or ""
+            if "bad latency value" not in err:
+                failures.append(f"pwcat {name}: expected the non-fatal "
+                                f"argv error, stderr={err!r}")
+        if name == "d13_autoconnect_off":
+            if not leg.get("killed_at_bound"):
+                failures.append(f"pwcat {name}: an unlinked stream "
+                                "must stall to the bound")
+            for s in samples:
+                cons = (s.get("watch") or {}).get(ctag, {}).get(
+                    "consumers")
+                if cons:
+                    failures.append(f"pwcat {name}: autoconnect=false "
+                                    f"fed consumers {cons}")
+            continue
+        want_cons = [ns_b] if target == ns_b else \
+            [leg.get("oracle_at_leg", {}).get("sink_meta") or
+             leg.get("oracle_at_leg", {}).get("sink_pactl")]
+        cons = _loopback_r79_union(samples, ctag, "consumers")
+        if node is not None and cons != want_cons:
+            live_now = {ora0.get("sink_meta"), ora0.get("sink_pactl")} \
+                - {None}
+            if cons and set(cons) <= live_now:
+                leg["confound"] = ("default re-asserted mid-leg — "
+                                   f"consumers {cons}")
+                entry["confound_observed"] = True
+            else:
+                failures.append(f"pwcat {name}: expected consumers "
+                                f"{want_cons}, got {cons}")
+        if name == "d11_capsink_valid":
+            nd = node or {}
+            if nd.get("stream_capture_sink") not in (True, "true"):
+                failures.append(f"pwcat {name}: the prop must be "
+                                "recorded on the node")
+    # The reported Latency PARAM is a host/version surface, not the
+    # verdict: the r78 author measured it byte-identical across ten legs
+    # ("intent, never a negotiated param"), while run 2 here measured
+    # THREE distinct values that track the request (minQuantum 0.0 / 1.0
+    # / 2.0 with minRate 0 / 0 / 512). Both are recorded as named
+    # verdicts; the hard assertion stays on the PROP, which is what the
+    # tool actually stores.
+    entry["latency_param_set"] = sorted(params_seen)
+    entry["latency_param_verdict"] = (
+        "latency_param_inert" if len(params_seen) <= 1
+        else "latency_param_tracks_request")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (8) FILTER-CHAIN — libpipewire-module-filter-chain is a CLIENT of the
+#     running session; conf.d merge is per-fragment, the failure split is
+#     parse-soft / runtime-fatal.
+# --------------------------------------------------------------------------
+def _loopback_r79_fc_args(node_in, node_out, target, label="mixer"):
+    """The plugin-free builtin-mixer fragment body (the scout's recipe),
+    FAIL-CLOSED: playback.props ALWAYS pins target.object to a probe-owned
+    sink — never node.passive (an implicit destination is the scout's
+    second contamination defect)."""
+    return ("{ filter.graph = { nodes = [ { name = mix type = builtin "
+            f"label = {label} control = {{ \"Gain 1\" = 0.5 "
+            "\"Gain 2\" = 0.5 } } ] inputs = [ \"mix:In 1\" "
+            "\"mix:In 2\" ] outputs = [ \"mix:Out\" ] } "
+            f"capture.props = {{ node.name = \"{node_in}\" "
+            "audio.position = [ FL FR ] media.class = \"Audio/Sink\" } "
+            f"playback.props = {{ node.name = \"{node_out}\" "
+            "audio.position = [ FL ] stream.dont-remix = true "
+            f"target.object = \"{target}\" }} }}")
+
+
+def _loopback_r79_fc_fragment(node_in, node_out, target, label="mixer",
+                              flags=""):
+    """A conf.d fragment wrapping the module args."""
+    return ("context.modules = [ { name = libpipewire-module-filter-chain "
+            f"{flags} args = "
+            + _loopback_r79_fc_args(node_in, node_out, target, label)
+            + " } ]\n")
+
+
+def _loopback_r79_fc_reply_lines(text):
+    """The command replies inside a pw-cli transcript — the reply
+    interleaves the async global dump, so only unindented non-dump lines
+    are replies (the scout's filter)."""
+    return [ln for ln in text.splitlines()
+            if ln.strip() and not ln.startswith((" ", "\t"))
+            and "added global" not in ln and "remote 0" not in ln
+            and "Welcome" not in ln and "unsupported type" not in ln]
+
+
+def filterchain_module_r79_entry():
+    """(8) The filter-chain module, the scout's F1-F11 armed. conf.d path
+    (PIPEWIRE_CONFIG_DIR -> `pipewire -c filter-chain.conf` as a CLIENT):
+    a good fragment publishes both chain nodes into the live session and
+    killing the loader removes them; a syntax-error fragment is a
+    fail-soft warning and later fragments still load (per-fragment
+    merge); an unknown label with `nofail` is silently tolerated while
+    the same label without it exits the loader rc=254. pw-cli path:
+    `load-module` on ONE line publishes client-scoped nodes;
+    `unload-module @module:<n>` is refused 'unknown module' (never
+    `destroy` a scraped id — the reply stream can name a daemon-owned
+    module); `quit` is the teardown. The DSP witness: tone pinned onto
+    the chain's input ports -> 0.5*(L+R) on FL only."""
+    failures = []
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "filter-chain module — client-scoped conf.d/pw-cli "
+                      "loading, parse-soft vs runtime-fatal",
+             "class": "filterchain_client_scope",
+             "classes_extra": ["filterchain_parse_soft",
+                               "filterchain_runtime_fatal"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    fc = LOOPBACK_R79_FC_SINK
+    loads = _loopback_r79_sinks_load((fc,))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "the fc null sink/monitor did not enumerate", loads)
+    base = "/usr/share/pipewire/filter-chain.conf"
+    if not Path(base).exists():
+        return _loopback_r79_block(entry, failures,
+                                   "no shipped filter-chain.conf", loads)
+    fc_tag = LOOPBACK_R79_FC_PREFIX
+    bad_frag = "context.modules = [ { name = x\n"
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="r79fc-") as tmp:    # SHORT — the AF_UNIX limit
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+
+            def mkcfg(legname, fragments):
+                d = Path(tmp) / legname
+                (d / "filter-chain.conf.d").mkdir(parents=True)
+                shutil.copy(base, d / "filter-chain.conf")
+                for fn, body in fragments.items():
+                    (d / "filter-chain.conf.d" / fn).write_text(body)
+                return str(d)
+
+            def confd_leg(name, cfgdir, expect_node, content_check,
+                          suffix):
+                """One loader-client leg: spawn bounded, sample nodes,
+                pin tone for the content check, kill, verify gone. The
+                published node names carry the fragment's SHORT tag
+                (`mix_input.<fc_tag>_<suffix>`), not the leg's long name —
+                matching by the long name is how run 2 read an empty
+                `nodes_seen` from a perfectly healthy loader."""
+                ltag = f"{fc_tag}_{suffix}"
+                env = dict(os.environ, PIPEWIRE_CONFIG_DIR=cfgdir)
+                proc = subprocess.Popen(
+                    ["pipewire", "-c", "filter-chain.conf"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                    start_new_session=True, env=env)
+                leg = {"name": name, "cfg": cfgdir,
+                       "expect_node": expect_node, "ltag": ltag}
+                feed = None
+                try:
+                    time.sleep(LOOPBACK_R79_FC_SETTLE_S)
+                    leg["loader_alive"] = proc.poll() is None
+                    leg["loader_rc_early"] = proc.returncode
+                    # nodes are named mix_input.<ltag> — find by prefix.
+                    allnames = _playback_r78_node_names() or []
+                    seen = sorted(n for n in allnames if ltag in n)
+                    leg["nodes_seen"] = seen
+                    leg["expect_met"] = (expect_node in seen
+                                         if expect_node else
+                                         not seen)
+                    if expect_node and expect_node in seen and \
+                            content_check:
+                        ports = _playback_r78_input_ports(expect_node)
+                        leg["chain_input_ports"] = ports
+                        feed = subprocess.Popen(
+                            ["pw-cat", "-p", "-P",
+                             f"node.name={ltag}_feed",
+                             "--target", "0", str(tone)],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            start_new_session=True)
+                        time.sleep(0.8)
+                        pairs = [(f"{ltag}_feed:output_FL", p)
+                                 for p in ports[:1]] + \
+                                [(f"{ltag}_feed:output_FR", p)
+                                 for p in ports[1:2]]
+                        leg["pins"] = _playback_r78_pwlink_batch(
+                            pairs, False)
+                        tapf = Path(tmp) / f"tap_fc_{name}.wav"
+                        tap = _playback_r78_tap(
+                            fc, tapf,
+                            int(PLAYBACK_R78_TONE_RATE * 2.4),
+                            f"{ltag}_tap")
+                        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+                        leg["tap"] = {
+                            "target": fc, "exit_code": tap.returncode,
+                            **_playback_r78_tone_windows(tapf)}
+                        leg["tap"]["ran"] = bool(
+                            leg["tap"].get("windows"))
+                        leg["two_tone"] = _loopback_r79_two_tone(tapf)
+                finally:
+                    if feed is not None and feed.poll() is None:
+                        os.killpg(feed.pid, signal.SIGKILL)
+                        feed.wait()
+                    if proc.poll() is None:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    proc.wait()
+                    leg["loader_rc"] = proc.returncode
+                    full = proc.stderr.read().decode(errors="replace")
+                    leg["stderr_tail"] = _capture_tail(full, cfgdir)
+                    # the parse warning is followed by the offending line
+                    # and a caret, so the TAIL alone loses the message —
+                    # keep a redacted head for the parse-soft check.
+                    leg["stderr_scan"] = full.replace(cfgdir, "<cfg>")[:800]
+                    time.sleep(LOOPBACK_R79_FC_KILL_S)
+                    after = _playback_r78_node_names() or []
+                    leg["nodes_after_kill"] = sorted(
+                        n for n in after if ltag in n)
+                return leg
+
+            cfgs = {
+                "f1_good": ("mix_input." + fc_tag + "_f1", mkcfg(
+                    "f1", {"10-good.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f1",
+                        f"mix_output.{fc_tag}_f1", fc)})),
+                "f2_bad_syntax": (None, mkcfg(
+                    "f2", {"10-bad.conf": bad_frag})),
+                "f3_good_then_bad": (
+                    f"mix_input.{fc_tag}_f3", mkcfg(
+                        "f3", {"10-good.conf":
+                               _loopback_r79_fc_fragment(
+                                   f"mix_input.{fc_tag}_f3",
+                                   f"mix_output.{fc_tag}_f3", fc),
+                               "20-bad.conf": bad_frag})),
+                "f3b_bad_then_good": (
+                    f"mix_input.{fc_tag}_f3b", mkcfg(
+                        "f3b", {"10-bad.conf": bad_frag,
+                                "20-good.conf":
+                                _loopback_r79_fc_fragment(
+                                    f"mix_input.{fc_tag}_f3b",
+                                    f"mix_output.{fc_tag}_f3b", fc)})),
+                "f4_badlabel_nofail": (None, mkcfg(
+                    "f4", {"10-bl.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f4",
+                        f"mix_output.{fc_tag}_f4", fc,
+                        label="nosuchfilter",
+                        flags="flags = [ nofail ]")})),
+                "f5_badlabel": (None, mkcfg(
+                    "f5", {"10-bl.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f5",
+                        f"mix_output.{fc_tag}_f5", fc,
+                        label="nosuchfilter")})),
+                "f6_base_only": (None, mkcfg("f6", {})),
+            }
+            for name, (expect, cfgdir) in cfgs.items():
+                legs[name] = confd_leg(
+                    name, cfgdir, expect,
+                    content_check=name == "f1_good",
+                    suffix=name.split("_")[0])
+                time.sleep(0.4)
+
+            # ---------------- pw-cli path (one-line commands) ---------
+            cli = subprocess.Popen(
+                ["pw-cli"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, start_new_session=True)
+
+            def cli_cmd(cmd, wait_s=2.0):
+                try:
+                    cli.stdin.write((cmd + "\n").encode())
+                    cli.stdin.flush()
+                except (OSError, ValueError):
+                    return ""
+                buf = b""
+                deadline = time.monotonic() + wait_s
+                while time.monotonic() < deadline:
+                    r, _, _ = select.select([cli.stdout.fileno()], [],
+                                            [], 0.25)
+                    if not r:
+                        continue
+                    chunk = os.read(cli.stdout.fileno(), 65536)
+                    if not chunk:
+                        break
+                    buf += chunk
+                return buf.decode(errors="replace")
+
+            live_in = f"mix_input.{fc_tag}_live"
+            live_out = f"mix_output.{fc_tag}_live"
+            try:
+                text = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    + _loopback_r79_fc_args(live_in, live_out, fc), 2.5)
+                time.sleep(0.6)
+                names = _playback_r78_node_names() or []
+                seen = sorted(n for n in names if fc_tag + "_live" in n)
+                leg = {"name": "f7_cli_load",
+                       "reply": _loopback_r79_fc_reply_lines(text),
+                       "nodes_seen": seen}
+                feed = None
+                if live_in in seen:
+                    ports = _playback_r78_input_ports(live_in)
+                    leg["chain_input_ports"] = ports
+                    feed = subprocess.Popen(
+                        ["pw-cat", "-p", "-P",
+                         f"node.name={fc_tag}_f7feed",
+                         "--target", "0", str(tone)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        start_new_session=True)
+                    try:
+                        time.sleep(0.8)
+                        pairs = [(f"{fc_tag}_f7feed:output_FL", p)
+                                 for p in ports[:1]] + \
+                                [(f"{fc_tag}_f7feed:output_FR", p)
+                                 for p in ports[1:2]]
+                        leg["pins"] = _playback_r78_pwlink_batch(
+                            pairs, False)
+                        tapf = Path(tmp) / "tap_fc_live.wav"
+                        tap = _playback_r78_tap(
+                            fc, tapf,
+                            int(PLAYBACK_R78_TONE_RATE * 2.4),
+                            f"{fc_tag}_f7tap")
+                        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+                        leg["two_tone"] = _loopback_r79_two_tone(tapf)
+                    finally:
+                        if feed.poll() is None:
+                            os.killpg(feed.pid, signal.SIGKILL)
+                        feed.wait()
+                legs["f7_cli_load"] = leg
+                # the unload refusal: the printed var goes back VERBATIM
+                # (with the @module: prefix) — never a bare id, never
+                # `destroy`.
+                mvar = None
+                for tok in " ".join(leg["reply"]).split():
+                    if tok.startswith("@module:"):
+                        mvar = tok
+                reply2 = cli_cmd(
+                    f"unload-module {mvar}" if mvar else
+                    "unload-module @module:0", 1.5)
+                names = _playback_r78_node_names() or []
+                legs["f8_unload_refusal"] = {
+                    "mvar": mvar,
+                    "reply": _loopback_r79_fc_reply_lines(reply2),
+                    "nodes_still": sorted(
+                        n for n in names if fc_tag + "_live" in n)}
+                bad_in = f"mix_input.{fc_tag}_bad"
+                reply3 = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    + _loopback_r79_fc_args(bad_in,
+                                            f"mix_output.{fc_tag}_bad",
+                                            fc, label="nosuchfilter"),
+                    2.5)
+                names = _playback_r78_node_names() or []
+                legs["f9_bad_label"] = {
+                    "reply": _loopback_r79_fc_reply_lines(reply3),
+                    "nodes_after": sorted(
+                        n for n in names if fc_tag + "_bad" in n),
+                    "daemon_alive": bool(_playback_r78_node_names()
+                                         is not None)}
+                reply4 = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    "{ args = { oops", 1.5)
+                legs["f10_bad_args"] = {
+                    "reply": _loopback_r79_fc_reply_lines(reply4),
+                    "daemon_alive": _playback_r78_node_names()
+                    is not None}
+            finally:
+                try:
+                    cli.stdin.write(b"quit\n")
+                    cli.stdin.flush()
+                    cli.wait(timeout=4)
+                except (OSError, ValueError, subprocess.TimeoutExpired):
+                    pass
+                if cli.poll() is None:
+                    os.killpg(cli.pid, signal.SIGKILL)
+                    cli.wait()
+                time.sleep(0.8)
+                names = _playback_r78_node_names() or []
+                legs["f11_quit_teardown"] = {
+                    "nodes_after_quit": sorted(
+                        n for n in names if fc_tag + "_live" in n)}
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    # -- conf.d verdicts
+    f1 = legs.get("f1_good") or {}
+    if not f1.get("loader_alive") or not f1.get("expect_met"):
+        failures.append(f"fc f1: loader must stay up and publish the "
+                        f"chain node — got alive={f1.get('loader_alive')} "
+                        f"nodes={f1.get('nodes_seen')}")
+    if f1.get("pins") and any(p["exit"] != 0 for p in f1["pins"]):
+        failures.append(f"fc f1: the manual input-port pins failed "
+                        f"{f1['pins']}")
+    tt1 = f1.get("two_tone") or {}
+    if not tt1.get("channels"):
+        failures.append("fc f1: no two-tone content — the DSP path is "
+                        "unwitnessed")
+    else:
+        chs = tt1["channels"]
+        if not (2600 <= chs[0]["at_l"] <= 5800 and
+                2600 <= chs[0]["at_r"] <= 5800 and
+                chs[1]["at_l"] <= 1600 and chs[1]["at_r"] <= 1600):
+            failures.append(f"fc f1: expected 0.5*(L+R) on FL and "
+                            f"silence on FR, got {chs}")
+    if f1.get("nodes_after_kill"):
+        failures.append(f"fc f1: nodes survived the loader kill "
+                        f"{f1['nodes_after_kill']} — client-scoped "
+                        "teardown violated")
+    f2 = legs.get("f2_bad_syntax") or {}
+    if not f2.get("loader_alive") or f2.get("nodes_seen"):
+        failures.append(f"fc f2: a syntax-error fragment must leave the "
+                        f"loader alive with no nodes — got "
+                        f"{f2.get('loader_alive')}/"
+                        f"{f2.get('nodes_seen')}")
+    f2text = (f2.get("stderr_scan") or "") + (f2.get("stderr_tail") or "")
+    if "conf_load()" not in f2text and "error in config" not in f2text:
+        failures.append(f"fc f2: expected the parse warning on stderr, "
+                        f"got {f2.get('stderr_scan')!r}")
+    for name in ("f3_good_then_bad", "f3b_bad_then_good"):
+        fl = legs.get(name) or {}
+        if not fl.get("loader_alive") or not fl.get("expect_met"):
+            failures.append(f"fc {name}: a bad sibling fragment must "
+                            f"not poison the good one — alive="
+                            f"{fl.get('loader_alive')} nodes="
+                            f"{fl.get('nodes_seen')}")
+    f4 = legs.get("f4_badlabel_nofail") or {}
+    if not f4.get("loader_alive") or f4.get("nodes_seen"):
+        failures.append(f"fc f4: nofail must tolerate the bad label — "
+                        f"alive={f4.get('loader_alive')} nodes="
+                        f"{f4.get('nodes_seen')}")
+    f5 = legs.get("f5_badlabel") or {}
+    if f5.get("loader_alive") or f5.get("loader_rc") != 254:
+        failures.append(f"fc f5: an unknown label without nofail must "
+                        f"kill the loader rc=254 — got alive="
+                        f"{f5.get('loader_alive')} rc="
+                        f"{f5.get('loader_rc')}")
+    f6 = legs.get("f6_base_only") or {}
+    if not f6.get("loader_alive") or f6.get("nodes_seen"):
+        failures.append(f"fc f6: the base-only control must publish "
+                        f"nothing — alive={f6.get('loader_alive')} "
+                        f"nodes={f6.get('nodes_seen')}")
+    # -- pw-cli verdicts
+    f7 = legs.get("f7_cli_load") or {}
+    if f"mix_input.{fc_tag}_live" not in f7.get("nodes_seen", []):
+        failures.append(f"fc f7: the cli load published no live nodes "
+                        f"{f7.get('nodes_seen')}")
+    tt7 = f7.get("two_tone") or {}
+    if f7.get("nodes_seen") and not tt7.get("channels"):
+        failures.append("fc f7: nodes published but the DSP path is "
+                        "unwitnessed")
+    f8 = legs.get("f8_unload_refusal") or {}
+    if not any("Error" in r or "unknown module" in r
+               for r in f8.get("reply", [])):
+        failures.append(f"fc f8: unload-module must be refused — got "
+                        f"{f8.get('reply')}")
+    if not f8.get("nodes_still"):
+        failures.append("fc f8: the live nodes vanished on a refused "
+                        "unload — teardown is client exit only")
+    f9 = legs.get("f9_bad_label") or {}
+    if not any("Could not load module" in r for r in f9.get("reply", [])):
+        failures.append(f"fc f9: expected the load refusal, got "
+                        f"{f9.get('reply')}")
+    if f9.get("nodes_after"):
+        failures.append(f"fc f9: the bad label published nodes "
+                        f"{f9['nodes_after']}")
+    if f9.get("daemon_alive") is not True:
+        failures.append("fc f9: the daemon died on a client-scoped "
+                        "module refusal")
+    f10 = legs.get("f10_bad_args") or {}
+    if not any("Could not load module" in r or "Error" in r
+               for r in f10.get("reply", [])):
+        failures.append(f"fc f10: expected a refusal, got "
+                        f"{f10.get('reply')}")
+    if f10.get("daemon_alive") is not True:
+        failures.append("fc f10: the daemon died on malformed args")
+    f11 = legs.get("f11_quit_teardown") or {}
+    if f11.get("nodes_after_quit"):
+        failures.append(f"fc f11: live nodes survived the client quit "
+                        f"{f11['nodes_after_quit']}")
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -8943,11 +11674,12 @@ def main():
     parser.add_argument("--probe-consumers-r73", action="store_true")
     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
     parser.add_argument("--probe-consumers2-r75", action="store_true")
+    parser.add_argument("--probe-capture-r79", action="store_true")
     parser.add_argument("--probe-capture-r78", action="store_true")
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -9238,6 +11970,34 @@ def main():
             path = ROOT / "live" / directory / filename
             measurements[f"consumer2_{member}_r75_probe"] = \
                 consumer2_transport_entry(member, path)
+    if args.probe_capture_r79:
+        # r79: the pw-loopback frontier — one client, two stream nodes
+        # (input.<n>/output.<n>), the in-client copy; the -C capture
+        # lattice whose unpropped fallback arm is the DEFAULT SOURCE
+        # (pw-record's law does not transfer); the -P write side
+        # reproducing the r78 ungated default-sink law; the
+        # audio.position-driven channel matrix; pw-record --target vs the
+        # loopback pair; the both-ways hot-plug re-link; pw-cat's
+        # verbatim node.latency prop vector; and the client-scoped
+        # filter-chain module (conf.d merge + pw-cli load, parse-soft vs
+        # runtime-fatal). A NEW parallel ledger family, prior rows
+        # untouched.
+        measurements["loopback_shape_r79_probe"] = \
+            loopback_shape_r79_entry()
+        measurements["loopback_capture_lattice_r79_probe"] = \
+            loopback_capture_lattice_r79_entry()
+        measurements["loopback_playback_lattice_r79_probe"] = \
+            loopback_playback_lattice_r79_entry()
+        measurements["loopback_matrix_r79_probe"] = \
+            loopback_matrix_r79_entry()
+        measurements["loopback_record_target_r79_probe"] = \
+            loopback_record_target_r79_entry()
+        measurements["loopback_hotplug_r79_probe"] = \
+            loopback_hotplug_r79_entry()
+        measurements["pwcat_latency_r79_probe"] = \
+            pwcat_latency_r79_entry()
+        measurements["filterchain_module_r79_probe"] = \
+            filterchain_module_r79_entry()
     if args.probe_capture_r78:
         # r78: PLAYBACK direction — the write-side target lattice (ungated
         # default-sink fallback), the live-default follow with the
@@ -9768,7 +12528,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -9788,7 +12548,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
