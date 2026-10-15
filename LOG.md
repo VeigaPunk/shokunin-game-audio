@@ -1349,3 +1349,5 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   lifecycle scout, r81 gst client); #6 port-readiness fails folded.
 - Seats: scout, author(Sol), boundary, baseline, critic, reviewer,
   simplifier, verifier, scribe; fold+adjudicator swe-2. ADMIT-corr.
+
+- **r79** (2026-10-15): ADMIT-corr. pw-loopback -C/-P binding frontier — 66 legs over 8 entries: loopback two-node shape + prop lattice; capture-side default-source fallback is conditional (b13 two-branch leg measured the unnegotiated branch formally — source_meta absent while pactl enumerated a Line source, the two authorities split live); playback lattice honors r78's law verbatim with -o beating -P; channel matrix mix is position-driven (half-gain ratio 0.500); pw-record --target three arms + D17; hot-plug re-links both directions; node.latency prop vector + prop-beats-flag; filter-chain module surface. Critic C1-C7 all applied and live-verified (constant-source gate, tap precedence, origin-gated excuse, positive law leg); verifier A2 vacuity named; simplifier vfold proven 0+0 over 23k leaves; r78 wait_source defect disclosed pre-existing (queued r80). Commit d170df9.
