@@ -1,0 +1,1179 @@
+{
+ "generated_utc": "2026-10-15T21:12:54Z",
+ "counts": {
+  "CONFIRMED": 66,
+  "FALSIFIED": 2
+ },
+ "verdicts": [
+  {
+   "id": "D1",
+   "claim": "default s16 effect output is nondeterministic (auto-dither)",
+   "source": "r94-scout \u00a71.1 / \u00a72",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "gain_m6_default shas/rep": [
+     "5/5",
+     "5/5"
+    ]
+   }
+  },
+  {
+   "id": "D2",
+   "claim": "`-D` makes gain -6 exact to \u00b10.5 LSB (mismatch vs rint = 0) and byte-stable",
+   "source": "r94-scout \u00a71.1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "mismatch_vs_rint": [
+     0,
+     0
+    ],
+    "max_abs_diff": [
+     0,
+     0
+    ],
+    "sha": "d011774f2a3f0466",
+    "quiet_sha_set_equals_load": true
+   }
+  },
+  {
+   "id": "D3",
+   "claim": "an explicit `dither` is nondeterministic (time-seeded RNG)",
+   "source": "r94-scout \u00a71.2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "shas/rep": "5/5"
+   }
+  },
+  {
+   "id": "D4",
+   "claim": "`-R` makes an explicit `dither` reproducible (1 sha) and cross-pass identical",
+   "source": "r94-scout \u00a71.2 + r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "shas/rep": [
+     "1/5",
+     "1/5"
+    ],
+    "sha": "3b6c7ea83ff31da0",
+    "cross_pass_equal": true
+   }
+  },
+  {
+   "id": "D5",
+   "claim": "`-D` does NOT fix an explicit `dither` (still >1 sha)",
+   "source": "r94-scout \u00a71.2 / \u00a74.2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "shas/rep": "5/5"
+   }
+  },
+  {
+   "id": "D6",
+   "claim": "`-R -D` explicit dither output == `-R` explicit dither output (extension)",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "combo_sha": "3b6c7ea83ff31da0471f7ca713bdee8e9a948d61161b9f1a37a0f6a0113c9a5e",
+    "canonical_sha": "3b6c7ea83ff31da0471f7ca713bdee8e9a948d61161b9f1a37a0f6a0113c9a5e"
+   }
+  },
+  {
+   "id": "D7",
+   "claim": "`dither -s` noise-shaping error envelope (max ~21-22 LSB, rms ~5.8)",
+   "source": "r94-scout \u00a73.7 D3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "max_abs_err": 21,
+    "err_rms": 5.740680853928971
+   }
+  },
+  {
+   "id": "D8",
+   "claim": "f32\u2192s16 conversion is nondeterministic by default",
+   "source": "r94-scout \u00a72",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "shas/rep": "5/5"
+   }
+  },
+  {
+   "id": "D9",
+   "claim": "f32\u2192s24 / f32\u2192s32 are byte-stable (the `< 24` auto-dither clause)",
+   "source": "r94-scout \u00a72",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "s24": 1,
+    "s32": 1
+   }
+  },
+  {
+   "id": "D10",
+   "claim": "`copy` is byte-identical to the input; `rate <same>` is SOX_EFF_NULL identity; `gain 0` is byte-identical (extension)",
+   "source": "r94-scout \u00a73.2 R4 + r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "copy": true,
+    "rate_same": true,
+    "gain_0": true
+   }
+  },
+  {
+   "id": "D11",
+   "claim": "s16\u2192s24 + gain is stable (output precision \u2265 24 suppresses auto-dither)",
+   "source": "r94-scout \u00a72",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "shas/rep": "1/3"
+   }
+  },
+  {
+   "id": "G1",
+   "claim": "dB\u2192factor is exact to \u00b10.5 LSB with `-D` (rint)",
+   "source": "r94-scout \u00a73.1 G1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "mismatch_vs_rint": 0,
+    "peak_db": [
+     -12.0211,
+     -18.0406
+    ]
+   }
+  },
+  {
+   "id": "G2",
+   "claim": "`vol` amplitude form rounds ceil; dB and power forms round to nearest",
+   "source": "r94-scout \u00a73.1 G2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "vol_amp": {
+     "ceil": 0,
+     "rint": 23000
+    },
+    "vol_db": 0,
+    "vol_pow": 0
+   }
+  },
+  {
+   "id": "G3",
+   "claim": "`vol 0.5` and `vol -6.0206 d` differ by exactly 1 LSB (not interchangeable)",
+   "source": "r94-scout \u00a73.1 G2 / C2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "max_abs_diff": 3.0517578125e-05,
+    "same_sha": false
+   }
+  },
+  {
+   "id": "G4",
+   "claim": "`gain -n` normalizes the file peak to 0 dBFS; `-e`/`-b` lift both channels",
+   "source": "r94-scout \u00a73.1 G4",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "gain_n_peak": [
+     0.0,
+     -6.0206
+    ],
+    "gain_e_peak": [
+     -6.0206,
+     -6.0206
+    ],
+    "gain_b_peak": [
+     -6.0206,
+     -6.0206
+    ]
+   }
+  },
+  {
+   "id": "G5",
+   "claim": "`-h` reserves headroom that a following `gain -r` reclaims",
+   "source": "r94-scout \u00a73.1 G4",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "h_m6": [
+     -12.0211,
+     -18.0406
+    ],
+    "reclaim": [
+     -6.0206,
+     -12.0412
+    ]
+   }
+  },
+  {
+   "id": "R1",
+   "claim": "rate output length reproduces the scout's matrix exactly and is within \u00b11 frame of in\u00b7out/in_rate",
+   "source": "r94-scout \u00a73.2 R1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "rows": [
+     {
+      "cell": "rate11025_b",
+      "in_frames": 12000,
+      "out_rate": 11025,
+      "exact": 2756.25,
+      "scout_frames": 2756,
+      "mine": 2756,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate22050_b",
+      "in_frames": 12000,
+      "out_rate": 22050,
+      "exact": 5512.5,
+      "scout_frames": 5512,
+      "mine": 5512,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate22050_i",
+      "in_frames": 12001,
+      "out_rate": 22050,
+      "exact": 5512.95938,
+      "scout_frames": 5513,
+      "mine": 5513,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate22054_b",
+      "in_frames": 12000,
+      "out_rate": 22054,
+      "exact": 5513.5,
+      "scout_frames": 5514,
+      "mine": 5514,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate22054_i",
+      "in_frames": 12001,
+      "out_rate": 22054,
+      "exact": 5513.95946,
+      "scout_frames": 5514,
+      "mine": 5514,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate24050_b",
+      "in_frames": 12000,
+      "out_rate": 24050,
+      "exact": 6012.5,
+      "scout_frames": 6013,
+      "mine": 6013,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate32000_b",
+      "in_frames": 12000,
+      "out_rate": 32000,
+      "exact": 8000.0,
+      "scout_frames": 8000,
+      "mine": 8000,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate32000_i",
+      "in_frames": 12001,
+      "out_rate": 32000,
+      "exact": 8000.66667,
+      "scout_frames": 8001,
+      "mine": 8001,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate44100_b",
+      "in_frames": 12000,
+      "out_rate": 44100,
+      "exact": 11025.0,
+      "scout_frames": 11025,
+      "mine": 11025,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate44100_i",
+      "in_frames": 12001,
+      "out_rate": 44100,
+      "exact": 11025.91875,
+      "scout_frames": 11026,
+      "mine": 11026,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate44101_b",
+      "in_frames": 12000,
+      "out_rate": 44101,
+      "exact": 11025.25,
+      "scout_frames": 11025,
+      "mine": 11025,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate48000_b",
+      "in_frames": 12000,
+      "out_rate": 48000,
+      "exact": 12000.0,
+      "scout_frames": 12000,
+      "mine": 12000,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate8000_b",
+      "in_frames": 12000,
+      "out_rate": 8000,
+      "exact": 2000.0,
+      "scout_frames": 2000,
+      "mine": 2000,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate96000_b",
+      "in_frames": 12000,
+      "out_rate": 96000,
+      "exact": 24000.0,
+      "scout_frames": 24000,
+      "mine": 24000,
+      "matches_scout": true,
+      "within_1_frame": true
+     },
+     {
+      "cell": "rate96000_i",
+      "in_frames": 12001,
+      "out_rate": 96000,
+      "exact": 24002.0,
+      "scout_frames": 24002,
+      "mine": 24002,
+      "matches_scout": true,
+      "within_1_frame": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "R2",
+   "claim": "no single rounding rule fits the .5-boundary rows (rate approximates the ratio)",
+   "source": "r94-scout \u00a73.2 R1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "half_rows_exact->mine": [
+     [
+      5512.5,
+      5512
+     ],
+     [
+      5513.5,
+      5514
+     ],
+     [
+      6012.5,
+      6013
+     ]
+    ],
+    "rules_that_fit_all": []
+   }
+  },
+  {
+   "id": "R3",
+   "claim": "`-q` folds a 23 kHz tone to 21.1 kHz at ~-6.3 dB (content hazard)",
+   "source": "r94-scout \u00a71.5 / \u00a73.2 R3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "band_21100hz_db": -6.289,
+    "peak_db": [
+     -6.1725
+    ],
+    "default_band_21100hz_db": -104.386,
+    "a_band_21100hz_db": -86.3,
+    "m_a_band_21100hz_db": -73.494
+   }
+  },
+  {
+   "id": "R4",
+   "claim": "at 20 kHz `-q` rolls off -3.9 dB where default/`-v` are flat",
+   "source": "r94-scout \u00a71.5",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "q": -3.942,
+    "default": -0.001,
+    "v": -0.002
+   }
+  },
+  {
+   "id": "R5",
+   "claim": "report claim: 23 kHz `-v` rejects at -130 dB (scout \u00a71.5 text)",
+   "source": "r94-scout \u00a71.5 (claim text)",
+   "verdict": "FALSIFIED",
+   "evidence": {
+    "mine_v_band_21100hz_db": -104.386,
+    "mine_v_peak_db": [
+     -84.2884
+    ],
+    "default_band_21100hz_db": -104.386,
+    "scout_receipt_has_v_leg": false,
+    "scout_analysis_rate_row_for_v_at_23k": null,
+    "note": "the -130 dB figure appears in the scout's own table only as band21.1k=-129.576 for the *20 kHz* stimulus default leg; no 23k -v leg exists in rate_D.json, and direct replay gives -104.386 dB == default"
+   }
+  },
+  {
+   "id": "R5b",
+   "claim": "dedicated high-precision probe of the `-v` claim (3 fresh processes per option, 10 Hz-half-width own DFT, both passes)",
+   "source": "r94b r5 probe",
+   "verdict": "FALSIFIED",
+   "evidence": {
+    "23k_v": {
+     "band10hz_21100": -104.385935,
+     "peak_db": -84.288399,
+     "sha": "51aa41a12e1fd3244ec393c37350cd648833805e2f2eb08c646cb7d914bf580c",
+     "load_band10hz_21100": -104.385935,
+     "load_sha": "51aa41a12e1fd3244ec393c37350cd648833805e2f2eb08c646cb7d914bf580c"
+    },
+    "23k_default": {
+     "band10hz_21100": -104.385934,
+     "peak_db": -84.288399,
+     "sha": "8f842d06847b13e54d097f2db5b06f540c0f80290d265de7ebb4826ee8b53441"
+    },
+    "23k_h": {
+     "band10hz_21100": -104.385934,
+     "sha": "8f842d06847b13e54d097f2db5b06f540c0f80290d265de7ebb4826ee8b53441"
+    },
+    "20k_default": {
+     "band10hz_21100": -129.57621,
+     "peak_db": -6.02113
+    },
+    "claim_gap_db": 25.614065,
+    "note": "`-v` == default == `-h` to 1e-6 dB at 21.1 kHz (-104.38593); the only -129.58 dB figure in the lattice belongs to the 20 kHz stimulus default leg"
+   }
+  },
+  {
+   "id": "R7",
+   "claim": "pitch is preserved at every resample rate (estimator-identical 996.8 Hz)",
+   "source": "r94-scout \u00a73.2 R2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "44100": 996.8,
+    "22050": 996.81,
+    "24050": 996.794,
+    "96000": 996.8,
+    "8000": 996.8
+   }
+  },
+  {
+   "id": "R6",
+   "claim": "`-q -a` is refused ('override options only work at higher quality levels')",
+   "source": "r94-scout \u00a75 bimodal note",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "rcs": [
+     1,
+     1,
+     1
+    ],
+    "stderr": "sox FAIL rate: override options only work at higher quality levels"
+   }
+  },
+  {
+   "id": "M1",
+   "claim": "`remix 1` selects L (does not downmix)",
+   "source": "r94-scout \u00a71.6 M1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "mismatch_L_only": 0,
+    "mismatch_half_up_floor": 47000
+   }
+  },
+  {
+   "id": "M2",
+   "claim": "auto downmix = floor((L+R+1)/2); `channels 1` \u2261 auto",
+   "source": "r94-scout \u00a71.6 M2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "remix_1_2_halfup": 0,
+    "remix_1_2_nearest_even": 17000,
+    "channels_1_halfup": 0,
+    "channels_1_sha_eq_remix_1_2": true
+   }
+  },
+  {
+   "id": "M3",
+   "claim": "`-m 1,2` = exact L+R; `-p 1,2` = rint((L+R)/\u221a2)",
+   "source": "r94-scout \u00a71.6 M2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "m_L_plus_R": 0,
+    "p_sqrt2": 0
+   }
+  },
+  {
+   "id": "M4",
+   "claim": "channel selection/swap/upmix are bit-exact",
+   "source": "r94-scout \u00a73.3 M3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "swap": 1,
+    "left_only": 1,
+    "v_half": 1,
+    "p_minus6": 1
+   }
+  },
+  {
+   "id": "T1",
+   "claim": "`s` suffix means samples (`1s` = 1 frame, `4800s` = 4800 frames)",
+   "source": "r94-scout \u00a71.7 T1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "1s": 1,
+    "4800s": 4800
+   }
+  },
+  {
+   "id": "T2",
+   "claim": "`1sec` / `0.1s` / `1e-9` are refused (rc 1); `trim 0 0` is a valid 0-frame WAV",
+   "source": "r94-scout \u00a71.7 T2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "1sec": [
+     1,
+     1,
+     1
+    ],
+    "0.1s": [
+     1,
+     1,
+     1
+    ],
+    "1e-9": [
+     1,
+     1,
+     1
+    ],
+    "trim_0_0": 0
+   }
+  },
+  {
+   "id": "T3",
+   "claim": "trim rounding boundary matrix (round(len\u00b7rate) follows float32)",
+   "source": "r94-scout \u00a73.4 T2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "trim_0_0.09995": 4798,
+    "trim_0_0.09997917": 4799,
+    "trim_0_0.09998958": 4799,
+    "trim_0_0.1000104": 4800,
+    "trim_0_0.1000208": 4801,
+    "trim_0_0.10003125": 4802
+   }
+  },
+  {
+   "id": "T4",
+   "claim": "trim forms: `-0.1` drops the tail, `=0.1` absolute end, `0.05+0.05` = 0.1 s to EOF",
+   "source": "r94-scout \u00a73.4 T3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "minus0.1": 7200,
+    "eq0.1": 4800,
+    "0.05+0.05": 7200
+   }
+  },
+  {
+   "id": "T5",
+   "claim": "trim content is sample-exact (output == first 4800 frames of input)",
+   "source": "r94-scout \u00a73.4 T4",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "mismatch_vs_input_head": 0
+   }
+  },
+  {
+   "id": "F1",
+   "claim": "`fade` truncates the output at the stop position (silent data loss)",
+   "source": "r94-scout \u00a71.8 / \u00a73.5 F1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "stop0.15": 7200,
+    "stop0.2": 9600,
+    "stop0.25": 12000
+   }
+  },
+  {
+   "id": "F2",
+   "claim": "log fade = exactly 100 dB across the span (gain 0.003169 @x=.5, 0.056235 @x=.75)",
+   "source": "r94-scout \u00a71.8 / \u00a73.5 F2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "x=0.5": 0.00316862,
+    "x=0.75": 0.05623532,
+    "x=0.9": 0.3162104
+   }
+  },
+  {
+   "id": "F3",
+   "claim": "curve table matches (q/h/t/l/p/s at x=.25/.5/.75) and default type = l",
+   "source": "r94-scout \u00a73.5 F3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "curve": {
+     "q": {
+      "1200": 0.38262974,
+      "2400": 0.70712939,
+      "3600": 0.92386602
+     },
+     "h": {
+      "1200": 0.14641033,
+      "2400": 0.49996228,
+      "3600": 0.85354097
+     },
+     "t": {
+      "1200": 0.24993278,
+      "2400": 0.49996228,
+      "3600": 0.7499691
+     },
+     "l": {
+      "1200": 0.00013444,
+      "2400": 0.00316862,
+      "3600": 0.05623532
+     },
+     "p": {
+      "1200": 0.43748319,
+      "2400": 0.74998114,
+      "3600": 0.93752317
+     },
+     "s": {
+      "1200": 0.06251681,
+      "2400": 0.25001886,
+      "3600": 0.56247683
+     }
+    },
+    "default_eq_l": true
+   }
+  },
+  {
+   "id": "F4",
+   "claim": "first frame of a fade is 0 under `-D`",
+   "source": "r94-scout \u00a73.5 F4",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "first_frame": 0
+   }
+  },
+  {
+   "id": "P1",
+   "claim": "`repeat N` = N additional sample-exact copies; 0 = identity; negative refused",
+   "source": "r94-scout \u00a71.9 / \u00a73.6 P1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "repeat_2": [
+     36000,
+     0
+    ],
+    "repeat_1": [
+     24000,
+     0
+    ],
+    "repeat_0": [
+     12000,
+     0
+    ],
+    "repeat_neg1_rc": [
+     1,
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "P2",
+   "claim": "`pad %50` is a silent no-op \u2014 and the output is byte-identical to the input",
+   "source": "r94-scout \u00a71.15 / \u00a74.12",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "frames": 12000,
+    "out_sha": "6a2a6b0cad8058ad17849057b28bdc6323d2bf1931e4db73ed9184eb5c9430cd",
+    "stim_b_sha": "6a2a6b0cad8058ad17849057b28bdc6323d2bf1931e4db73ed9184eb5c9430cd",
+    "byte_identical_to_input": true,
+    "rc": [
+     0,
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": "P3",
+   "claim": "`pad <len>@<pos>` inserts at a sample position; `pad len1 len2` = head+len1+len2",
+   "source": "r94-scout \u00a71.15",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "pad_0.05@0.05": 14400,
+    "pad_0.1_0.2": 26400
+   }
+  },
+  {
+   "id": "P4",
+   "claim": "silence below-periods keeps window_size-1 = 959 frames; `-l` keeps 959+duration",
+   "source": "r94-scout \u00a71.10 / \u00a73.6 P3",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "both": 959,
+    "leave": 5759,
+    "above_only_frames": 16796,
+    "above_only_leading_trim": 4804
+   }
+  },
+  {
+   "id": "P5",
+   "claim": "silence threshold units 1%/0.01/-60d all accepted; `silence 0 ...` refused",
+   "source": "r94-scout \u00a71.10",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "neg60d": [
+     0,
+     0,
+     0
+    ],
+    "frac": [
+     0,
+     0,
+     0
+    ],
+    "silence_0": [
+     1,
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "S1",
+   "claim": "`stat` RMS amplitude is the per-channel quadratic mean; delta fields are interleaved; Rough frequency 10803 on the stereo stimulus",
+   "source": "r94-scout \u00a71.11 S1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "RMS amplitude": "0.279509",
+    "Maximum delta": "0.728180",
+    "Rough frequency": "10803",
+    "Volume adjustment": "2.000"
+   }
+  },
+  {
+   "id": "S2",
+   "claim": "`stat -e` yields EBU R128 momentary/short-term; Integrated only on the 1 s file",
+   "source": "r94-scout \u00a71.12 S2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "b_momentary": -11.071128,
+    "b_short_term": -19.821741,
+    "b_true_peak": 0.500332,
+    "a_integrated": -7.752591
+   }
+  },
+  {
+   "id": "S3",
+   "claim": "lane-canonical ffmpeg ebur128 gates to -70 LUFS on the same 0.25 s file",
+   "source": "r94-scout \u00a71.12 S2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "ffmpeg_I_LUFS": "-70.0"
+   }
+  },
+  {
+   "id": "S4",
+   "claim": "stat text is byte-stable across reps and across load (extension)",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet_shas": 1,
+    "load_shas": 1
+   }
+  },
+  {
+   "id": "C1",
+   "claim": "effect order is semantics: `gain -6 norm -3` -> -3.0 dB; `norm -3 gain -6` -> -9.0 dB",
+   "source": "r94-scout \u00a71.14 C1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "order1": [
+     -3.0,
+     -9.0206
+    ],
+    "order2": [
+     -8.9996,
+     -15.021
+    ]
+   }
+  },
+  {
+   "id": "C2",
+   "claim": "`norm` (0 dBFS peak 32767) and global `--norm` (-0.0003 dB, 32666) differ by 1 LSB",
+   "source": "r94-scout \u00a71.14 C1",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "norm": [
+     0.0,
+     -6.0206
+    ],
+    "global_norm": [
+     -0.0003,
+     -6.0206
+    ]
+   }
+  },
+  {
+   "id": "X1",
+   "claim": "`-G` is not a limiter: clipping counts are equal with and without it",
+   "source": "r94-scout \u00a71.13 D2",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "no_G_ge32766": 7979,
+    "with_G_ge32766": 7979,
+    "no_G_ge32767": 7979,
+    "with_G_ge32767": 7979,
+    "default_path_ge32767": [
+     7979,
+     4043
+    ]
+   }
+  },
+  {
+   "id": "AX-D_between_in_out",
+   "claim": "`-D` placement `D_between_in_out` yields byte-identical output to the canonical form",
+   "source": "r94b extension (gopts may appear anywhere before the first effect)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variant_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53",
+    "canonical_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53"
+   }
+  },
+  {
+   "id": "AX-D_after_out_before_effect",
+   "claim": "`-D` placement `D_after_out_before_effect` yields byte-identical output to the canonical form",
+   "source": "r94b extension (gopts may appear anywhere before the first effect)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variant_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53",
+    "canonical_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53"
+   }
+  },
+  {
+   "id": "AX-no_dither_longform",
+   "claim": "`-D` placement `no_dither_longform` yields byte-identical output to the canonical form",
+   "source": "r94b extension (gopts may appear anywhere before the first effect)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variant_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53",
+    "canonical_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53"
+   }
+  },
+  {
+   "id": "AX-D_R_order",
+   "claim": "`-D` placement `D_R_order` yields byte-identical output to the canonical form",
+   "source": "r94b extension (gopts may appear anywhere before the first effect)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variant_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53",
+    "canonical_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53"
+   }
+  },
+  {
+   "id": "AX-R_D_order",
+   "claim": "`-D` placement `R_D_order` yields byte-identical output to the canonical form",
+   "source": "r94b extension (gopts may appear anywhere before the first effect)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variant_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53",
+    "canonical_sha": "d011774f2a3f0466e5f64b0215d16e876ac0580c3daf2239ae01671dd6ccdd53"
+   }
+  },
+  {
+   "id": "AX-D-after-effect",
+   "claim": "`-D` after the effect name is NOT accepted as a global option",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "rcs": [
+     1,
+     1,
+     1
+    ],
+    "stderr": "sox FAIL gain: usage: [-e|-b|-B|-r] [-n] [-l|-h] [gain]\nsox FAIL gain: for help, say sox --help-effect gain"
+   }
+  },
+  {
+   "id": "AX-R-after-effect",
+   "claim": "`-R` after the effect name is NOT accepted as a global option",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "rcs": [
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "stderr": "sox WARN wav: wave header missing extended part of fmt chunk\nsox FAIL dither: invalid option `-R'\nsox FAIL dither: usage: [-S|-s|-f filter] [-a] [-p precision]\n"
+   }
+  },
+  {
+   "id": "AX-R-after-infile",
+   "claim": "`-R` between infile and outfile is accepted and reproduces the canonical `-R` bytes",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "after_infile_sha": "3b6c7ea83ff31da0471f7ca713bdee8e9a948d61161b9f1a37a0f6a0113c9a5e",
+    "canonical_sha": "3b6c7ea83ff31da0471f7ca713bdee8e9a948d61161b9f1a37a0f6a0113c9a5e"
+   }
+  },
+  {
+   "id": "AX-PWENV",
+   "claim": "PipeWire client-config axes (PIPEWIRE_QUANTUM/RATE/LATENCY/NODE, PULSE_SINK/SOURCE) do not change sox file output",
+   "source": "r94b extension (scout \u00a78 asserted 'process-local'; this pins it)",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variants": {
+     "pw_quantum_64": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_quantum_2048": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_quantum_8192": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_rate_44100": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_rate_96000": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_latency": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pw_node_other_sink": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pulse_sink_other": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "pulse_source_mic": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     },
+     "all_pw_env": {
+      "gain_D_same_as_canonical": true,
+      "rate_D_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "rate_D_load_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c"
+     }
+    }
+   }
+  },
+  {
+   "id": "AX-BUFFER",
+   "claim": "sox `--buffer`/`--input-buffer` do not change gain/rate/silence output",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "variants": {
+     "buffer_4096": {
+      "gain_same": true,
+      "rate_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "silence_trailing": 959
+     },
+     "buffer_16384": {
+      "gain_same": true,
+      "rate_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "silence_trailing": 959
+     },
+     "buffer_1024": {
+      "gain_same": true,
+      "rate_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "silence_trailing": 959
+     },
+     "input_buffer_4096": {
+      "gain_same": true,
+      "rate_sha": "3c98a7deef2f80018c8c33f89924fde947e078defffc34c07bd3353865dbac1c",
+      "silence_trailing": 959
+     }
+    }
+   }
+  },
+  {
+   "id": "CONC-1",
+   "claim": "16 concurrent `-D` processes produce one identical output (no cross-process interference)",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet": [
+     1,
+     16
+    ],
+    "load": [
+     1,
+     16
+    ]
+   }
+  },
+  {
+   "id": "CONC-2",
+   "claim": "16 concurrent `-R dither` processes produce one identical output",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet": [
+     1,
+     16
+    ],
+    "load": [
+     1,
+     16
+    ]
+   }
+  },
+  {
+   "id": "CONC-3",
+   "claim": "16 concurrent default `gain -6` processes are mutually nondeterministic",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet": [
+     16,
+     16
+    ],
+    "load": [
+     16,
+     16
+    ]
+   }
+  },
+  {
+   "id": "CONC-4",
+   "claim": "16 concurrent `rate 44100` processes produce one identical output",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet": [
+     1,
+     16
+    ],
+    "load": [
+     1,
+     16
+    ]
+   }
+  },
+  {
+   "id": "LOAD-1",
+   "claim": "every deterministic content law is byte-identical under load (quiet sha set == load sha set)",
+   "source": "r94b extension (task: 'replay under load AND quiet-ish')",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "identical_across_load": 124,
+    "nondet_in_both": 7,
+    "mismatched": []
+   }
+  },
+  {
+   "id": "LOAD-2",
+   "claim": "nondeterminism is a property of the effect, not of the load: every dither-noisy cell is noisy in both passes",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "nondet_in_both": [
+     "D/gain_m6_default",
+     "D/dither_explicit_default",
+     "D/dither_explicit_D",
+     "D/f32_to_s16_plain",
+     "R/rate44100_default_nodither_off",
+     "X/gain_p12_default",
+     "X/gain_p12_G_default"
+    ]
+   }
+  },
+  {
+   "id": "XSEAT-1",
+   "claim": "every deterministic leg reproduces the r94 scout's output bytes exactly (different seat, ~1 h later, different filenames, different load)",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "byte_identical": 87,
+    "differing": 6,
+    "differing_legs": [
+     "dither_explicit_default",
+     "dither_explicit_D",
+     "f32_to_s16_plain",
+     "gain_m6_default",
+     "gain_p12_default",
+     "gain_p12_G_default"
+    ],
+    "note": "all 6 differing legs are default-path auto-dither legs (time-seeded RNG); every `-D` and `-R` leg is byte-identical across seats"
+   }
+  },
+  {
+   "id": "XSEAT-2",
+   "claim": "the `-R` dither stream is byte-identical across seats and passes (a reproducible PRNG stream, not merely a reproducible length)",
+   "source": "r94b extension",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "sha": "98e704b8663b4b512d2a3aee95eeeff6eac548c2423c160a7be943854784b572",
+    "cross_pass_equal": true,
+    "err_rms": 5.740680853928971,
+    "scout_err_rms": 5.740680853928971
+   }
+  },
+  {
+   "id": "HOG-1",
+   "claim": "load pass really held >=12 own concurrent hogs, all argv-marked and all reaped",
+   "source": "task requirement",
+   "verdict": "CONFIRMED",
+   "evidence": {
+    "quiet_hogs": 0,
+    "load_hogs": 16,
+    "load_pids": 16,
+    "markers_ok": true,
+    "skip_entries": [],
+    "final_alive": [],
+    "loadavg_before": "78.23 75.04 76.81 96/2266 3732170",
+    "loadavg_after": "110.14 88.20 81.41 120/2309 67785",
+    "per_stage_loadavg": {
+     "quiet": "76.86 74.72 76.71 95/2250 3705299",
+     "load": "109.37 87.68 81.20 117/2301 28654"
+    }
+   }
+  }
+ ],
+ "lattice_summary": {
+  "identical_across_load": 124,
+  "nondet_in_both": 7,
+  "mismatched": []
+ },
+ "cross_seat": {
+  "byte_identical": 87,
+  "differing": 6
+ }
+}

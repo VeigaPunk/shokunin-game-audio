@@ -1,0 +1,80 @@
+== prep (stimulus + cross-seat output sha smoke) ==
+[prep-quiet] 2 cells, 12 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/prep-quiet.json
+== settle 120s so the 1-min loadavg reflects only foreign load ==
+  loadavg at quiet start: 72.81 73.88 76.48 89/2190 3676015
+== quiet-ish pass: own hogs = 0 (foreign load recorded, not controlled) ==
+[witness-quiet] 1 cells, 0 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/witness-quiet.json
+[laws-quiet] 125 cells, 385 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/laws-quiet.json
+[axes-quiet] 44 cells, 140 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/axes-quiet.json
+  conc conc16_gain_D: 1 distinct shas / 16
+  conc conc16_gain_default: 16 distinct shas / 16
+  conc conc16_dither_R: 1 distinct shas / 16
+  conc conc16_dither_default: 16 distinct shas / 16
+  conc conc16_rate_D: 1 distinct shas / 16
+[conc-quiet] 5 cells, 80 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/conc-quiet.json
+== focused claim probe, quiet (r94-scout §1.5 '-v rejects at -130 dB') ==
+  23k_default  rc=0 band21.1k=-104.385934 peak=-84.288399 sha=8f842d06847b
+  23k_q        rc=0 band21.1k=-6.289203 peak=-6.172481 sha=adb5b6f393fb
+  23k_l        rc=0 band21.1k=-103.98012 peak=-90.308999 sha=7ac948b0e6f9
+  23k_m        rc=0 band21.1k=-104.385932 peak=-84.288399 sha=78189b04c0a0
+  23k_h        rc=0 band21.1k=-104.385934 peak=-84.288399 sha=8f842d06847b
+  23k_v        rc=0 band21.1k=-104.385935 peak=-84.288399 sha=51aa41a12e1f
+  23k_u        rc=0 band21.1k=-104.385935 peak=-84.288399 sha=51aa41a12e1f
+  23k_a        rc=0 band21.1k=-86.300366 peak=-80.766574 sha=62e75ffb542b
+  23k_q_a      rc=1 band21.1k=None peak=None sha=None
+  23k_v_a      rc=0 band21.1k=-103.69937 peak=-80.766574 sha=71b64aa35d08
+  23k_u_a      rc=0 band21.1k=-103.69937 peak=-80.766574 sha=ef3ba151e3ec
+  20k_default  rc=0 band21.1k=-129.57621 peak=-6.02113 sha=7b9150613043
+  20k_q        rc=0 band21.1k=-88.628805 peak=-6.090328 sha=74eb82e048bc
+  20k_l        rc=0 band21.1k=-118.844039 peak=-29.042332 sha=6f293744ecb9
+  20k_m        rc=0 band21.1k=-114.146493 peak=-6.089259 sha=223dfb4d4021
+  20k_h        rc=0 band21.1k=-129.57621 peak=-6.02113 sha=7b9150613043
+  20k_v        rc=0 band21.1k=-118.281488 peak=-6.022721 sha=7e11b7c944ac
+  20k_u        rc=0 band21.1k=-116.92044 peak=-6.023251 sha=86d92d1b8c1f
+  20k_a        rc=0 band21.1k=-142.179998 peak=-6.02113 sha=553063b9b96e
+  20k_q_a      rc=1 band21.1k=None peak=None sha=None
+  20k_v_a      rc=0 band21.1k=-118.282133 peak=-6.022721 sha=cf34c9eb341a
+  20k_u_a      rc=0 band21.1k=-116.921234 peak=-6.023251 sha=e739777b64f3
+[r5-quiet] 22 cells -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/r5-quiet.json
+== load pass: own hogs = 16 held across witness/laws/axes/conc (90 s warmup) ==
+  warming 16 hogs for 90s ...
+[witness-load] 1 cells, 0 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/witness-load.json
+[laws-load] 125 cells, 385 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/laws-load.json
+[axes-load] 44 cells, 140 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/axes-load.json
+  conc conc16_gain_D: 1 distinct shas / 16
+  conc conc16_gain_default: 16 distinct shas / 16
+  conc conc16_dither_R: 1 distinct shas / 16
+  conc conc16_dither_default: 16 distinct shas / 16
+  conc conc16_rate_D: 1 distinct shas / 16
+[conc-load] 5 cells, 80 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/conc-load.json
+  hogs stopped: alive=[] loadavg=110.14 88.20 81.41 120/2309 67785 cpu={'cpu_seconds_total': 542.78, 'procs_counted': 16, 'cpu_seconds_per_proc': 33.924, 'nproc': 32}
+== focused claim probe, under load ==
+  warming 16 hogs for 90s ...
+  23k_default  rc=0 band21.1k=-104.385934 peak=-84.288399 sha=8f842d06847b
+  23k_q        rc=0 band21.1k=-6.289203 peak=-6.172481 sha=adb5b6f393fb
+  23k_l        rc=0 band21.1k=-103.98012 peak=-90.308999 sha=7ac948b0e6f9
+  23k_m        rc=0 band21.1k=-104.385932 peak=-84.288399 sha=78189b04c0a0
+  23k_h        rc=0 band21.1k=-104.385934 peak=-84.288399 sha=8f842d06847b
+  23k_v        rc=0 band21.1k=-104.385935 peak=-84.288399 sha=51aa41a12e1f
+  23k_u        rc=0 band21.1k=-104.385935 peak=-84.288399 sha=51aa41a12e1f
+  23k_a        rc=0 band21.1k=-86.300366 peak=-80.766574 sha=62e75ffb542b
+  23k_q_a      rc=1 band21.1k=None peak=None sha=None
+  23k_v_a      rc=0 band21.1k=-103.69937 peak=-80.766574 sha=71b64aa35d08
+  23k_u_a      rc=0 band21.1k=-103.69937 peak=-80.766574 sha=ef3ba151e3ec
+  20k_default  rc=0 band21.1k=-129.57621 peak=-6.02113 sha=7b9150613043
+  20k_q        rc=0 band21.1k=-88.628805 peak=-6.090328 sha=74eb82e048bc
+  20k_l        rc=0 band21.1k=-118.844039 peak=-29.042332 sha=6f293744ecb9
+  20k_m        rc=0 band21.1k=-114.146493 peak=-6.089259 sha=223dfb4d4021
+  20k_h        rc=0 band21.1k=-129.57621 peak=-6.02113 sha=7b9150613043
+  20k_v        rc=0 band21.1k=-118.281488 peak=-6.022721 sha=7e11b7c944ac
+  20k_u        rc=0 band21.1k=-116.92044 peak=-6.023251 sha=86d92d1b8c1f
+  20k_a        rc=0 band21.1k=-142.179998 peak=-6.02113 sha=553063b9b96e
+  20k_q_a      rc=1 band21.1k=None peak=None sha=None
+  20k_v_a      rc=0 band21.1k=-118.282133 peak=-6.022721 sha=cf34c9eb341a
+  20k_u_a      rc=0 band21.1k=-116.921234 peak=-6.023251 sha=e739777b64f3
+[r5-load] 22 cells -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/r5-load.json
+  hogs stopped: alive=[]
+== census ==
+[census-final] 1 cells, 0 reps -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r94-boundary/receipts/census-final.json
+done
+EXIT=0

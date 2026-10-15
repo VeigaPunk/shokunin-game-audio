@@ -1,0 +1,79 @@
+r94b verdict table — every pinnable r94 scout claim attacked
+
+id               verdict     claim
+----------------------------------------------------------------------------------------------------------------------
+D1               CONFIRMED   default s16 effect output is nondeterministic (auto-dither)
+D2               CONFIRMED   `-D` makes gain -6 exact to ±0.5 LSB (mismatch vs rint = 0) and byte-stable
+D3               CONFIRMED   an explicit `dither` is nondeterministic (time-seeded RNG)
+D4               CONFIRMED   `-R` makes an explicit `dither` reproducible (1 sha) and cross-pass identical
+D5               CONFIRMED   `-D` does NOT fix an explicit `dither` (still >1 sha)
+D6               CONFIRMED   `-R -D` explicit dither output == `-R` explicit dither output (extension)
+D7               CONFIRMED   `dither -s` noise-shaping error envelope (max ~21-22 LSB, rms ~5.8)
+D8               CONFIRMED   f32→s16 conversion is nondeterministic by default
+D9               CONFIRMED   f32→s24 / f32→s32 are byte-stable (the `< 24` auto-dither clause)
+D10              CONFIRMED   `copy` is byte-identical to the input; `rate <same>` is SOX_EFF_NULL identity; `gain 0` is byte-
+D11              CONFIRMED   s16→s24 + gain is stable (output precision ≥ 24 suppresses auto-dither)
+G1               CONFIRMED   dB→factor is exact to ±0.5 LSB with `-D` (rint)
+G2               CONFIRMED   `vol` amplitude form rounds ceil; dB and power forms round to nearest
+G3               CONFIRMED   `vol 0.5` and `vol -6.0206 d` differ by exactly 1 LSB (not interchangeable)
+G4               CONFIRMED   `gain -n` normalizes the file peak to 0 dBFS; `-e`/`-b` lift both channels
+G5               CONFIRMED   `-h` reserves headroom that a following `gain -r` reclaims
+R1               CONFIRMED   rate output length reproduces the scout's matrix exactly and is within ±1 frame of in·out/in_rat
+R2               CONFIRMED   no single rounding rule fits the .5-boundary rows (rate approximates the ratio)
+R3               CONFIRMED   `-q` folds a 23 kHz tone to 21.1 kHz at ~-6.3 dB (content hazard)
+R4               CONFIRMED   at 20 kHz `-q` rolls off -3.9 dB where default/`-v` are flat
+R5               FALSIFIED   report claim: 23 kHz `-v` rejects at -130 dB (scout §1.5 text)
+R5b              FALSIFIED   dedicated high-precision probe of the `-v` claim (3 fresh processes per option, 10 Hz-half-width
+R7               CONFIRMED   pitch is preserved at every resample rate (estimator-identical 996.8 Hz)
+R6               CONFIRMED   `-q -a` is refused ('override options only work at higher quality levels')
+M1               CONFIRMED   `remix 1` selects L (does not downmix)
+M2               CONFIRMED   auto downmix = floor((L+R+1)/2); `channels 1` ≡ auto
+M3               CONFIRMED   `-m 1,2` = exact L+R; `-p 1,2` = rint((L+R)/√2)
+M4               CONFIRMED   channel selection/swap/upmix are bit-exact
+T1               CONFIRMED   `s` suffix means samples (`1s` = 1 frame, `4800s` = 4800 frames)
+T2               CONFIRMED   `1sec` / `0.1s` / `1e-9` are refused (rc 1); `trim 0 0` is a valid 0-frame WAV
+T3               CONFIRMED   trim rounding boundary matrix (round(len·rate) follows float32)
+T4               CONFIRMED   trim forms: `-0.1` drops the tail, `=0.1` absolute end, `0.05+0.05` = 0.1 s to EOF
+T5               CONFIRMED   trim content is sample-exact (output == first 4800 frames of input)
+F1               CONFIRMED   `fade` truncates the output at the stop position (silent data loss)
+F2               CONFIRMED   log fade = exactly 100 dB across the span (gain 0.003169 @x=.5, 0.056235 @x=.75)
+F3               CONFIRMED   curve table matches (q/h/t/l/p/s at x=.25/.5/.75) and default type = l
+F4               CONFIRMED   first frame of a fade is 0 under `-D`
+P1               CONFIRMED   `repeat N` = N additional sample-exact copies; 0 = identity; negative refused
+P2               CONFIRMED   `pad %50` is a silent no-op — and the output is byte-identical to the input
+P3               CONFIRMED   `pad <len>@<pos>` inserts at a sample position; `pad len1 len2` = head+len1+len2
+P4               CONFIRMED   silence below-periods keeps window_size-1 = 959 frames; `-l` keeps 959+duration
+P5               CONFIRMED   silence threshold units 1%/0.01/-60d all accepted; `silence 0 ...` refused
+S1               CONFIRMED   `stat` RMS amplitude is the per-channel quadratic mean; delta fields are interleaved; Rough freq
+S2               CONFIRMED   `stat -e` yields EBU R128 momentary/short-term; Integrated only on the 1 s file
+S3               CONFIRMED   lane-canonical ffmpeg ebur128 gates to -70 LUFS on the same 0.25 s file
+S4               CONFIRMED   stat text is byte-stable across reps and across load (extension)
+C1               CONFIRMED   effect order is semantics: `gain -6 norm -3` -> -3.0 dB; `norm -3 gain -6` -> -9.0 dB
+C2               CONFIRMED   `norm` (0 dBFS peak 32767) and global `--norm` (-0.0003 dB, 32666) differ by 1 LSB
+X1               CONFIRMED   `-G` is not a limiter: clipping counts are equal with and without it
+AX-D_between_in_out CONFIRMED   `-D` placement `D_between_in_out` yields byte-identical output to the canonical form
+AX-D_after_out_before_effect CONFIRMED   `-D` placement `D_after_out_before_effect` yields byte-identical output to the canonical form
+AX-no_dither_longform CONFIRMED   `-D` placement `no_dither_longform` yields byte-identical output to the canonical form
+AX-D_R_order     CONFIRMED   `-D` placement `D_R_order` yields byte-identical output to the canonical form
+AX-R_D_order     CONFIRMED   `-D` placement `R_D_order` yields byte-identical output to the canonical form
+AX-D-after-effect CONFIRMED   `-D` after the effect name is NOT accepted as a global option
+AX-R-after-effect CONFIRMED   `-R` after the effect name is NOT accepted as a global option
+AX-R-after-infile CONFIRMED   `-R` between infile and outfile is accepted and reproduces the canonical `-R` bytes
+AX-PWENV         CONFIRMED   PipeWire client-config axes (PIPEWIRE_QUANTUM/RATE/LATENCY/NODE, PULSE_SINK/SOURCE) do not chang
+AX-BUFFER        CONFIRMED   sox `--buffer`/`--input-buffer` do not change gain/rate/silence output
+CONC-1           CONFIRMED   16 concurrent `-D` processes produce one identical output (no cross-process interference)
+CONC-2           CONFIRMED   16 concurrent `-R dither` processes produce one identical output
+CONC-3           CONFIRMED   16 concurrent default `gain -6` processes are mutually nondeterministic
+CONC-4           CONFIRMED   16 concurrent `rate 44100` processes produce one identical output
+LOAD-1           CONFIRMED   every deterministic content law is byte-identical under load (quiet sha set == load sha set)
+LOAD-2           CONFIRMED   nondeterminism is a property of the effect, not of the load: every dither-noisy cell is noisy in
+XSEAT-1          CONFIRMED   every deterministic leg reproduces the r94 scout's output bytes exactly (different seat, ~1 h la
+XSEAT-2          CONFIRMED   the `-R` dither stream is byte-identical across seats and passes (a reproducible PRNG stream, no
+HOG-1            CONFIRMED   load pass really held >=12 own concurrent hogs, all argv-marked and all reaped
+
+counts: CONFIRMED=66, FALSIFIED=2
+
+--- R5 [FALSIFIED] report claim: 23 kHz `-v` rejects at -130 dB (scout §1.5 text)
+    evidence: {"mine_v_band_21100hz_db": -104.386, "mine_v_peak_db": [-84.2884], "default_band_21100hz_db": -104.386, "scout_receipt_has_v_leg": false, "scout_analysis_rate_row_for_v_at_23k": null, "note": "the -130 dB figure appears in the scout's own table only as band21.1k=-129.576 for the *20 kHz* stimulus default leg; no 23k -v leg exists in rate_D.json, and direct replay gives -104.386 dB == default"}
+--- R5b [FALSIFIED] dedicated high-precision probe of the `-v` claim (3 fresh processes per option, 10 Hz-half-width own DFT, both passes)
+    evidence: {"23k_v": {"band10hz_21100": -104.385935, "peak_db": -84.288399, "sha": "51aa41a12e1fd3244ec393c37350cd648833805e2f2eb08c646cb7d914bf580c", "load_band10hz_21100": -104.385935, "load_sha": "51aa41a12e1fd3244ec393c37350cd648833805e2f2eb08c646cb7d914bf580c"}, "23k_default": {"band10hz_21100": -104.385934, "peak_db": -84.288399, "sha": "8f842d06847b13e54d097f2db5b06f540c0f80290d265de7ebb4826ee8b53441"}, "23k_h": {"band10hz_21100": -104.385934, "sha": "8f842d06847b13e54d097f2db5b06f540c0f80290d265de7ebb4826ee8b53441"}, "20k_default": {"band10hz_21100": -129.57621, "peak_db": -6.02113}, "claim_gap_db": 25.614065, "note": "`-v` == default == `-h` to 1e-6 dB at 21.1 kHz (-104.38593); the only -129.58 dB figure in the lattice belongs to the 20 kHz stimulus default leg"}
