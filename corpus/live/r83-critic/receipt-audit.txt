@@ -1,0 +1,87 @@
+== run1 (corpus/live/r83-author/measurements-run1.json)
+  pwcat_props_parse_r83_probe: legs=29 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2305712': 0, 'r83a_ns_b_2305712': 0} sinks_gone={'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_empty_props_segv_r83_probe: legs=19 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2305712': 0, 'r83a_ns_b_2305712': 0} sinks_gone={'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_latency_props_r83_probe: legs=26 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2305712': 0, 'r83a_ns_b_2305712': 0} sinks_gone={'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_channel_matrix_r83_probe: legs=13 failures=[] blocked=None named_outcomes=['c1_mono_1: tap carried no audio — the band pin is unmeasured on this leg', "m_alone arm realization: ['stable_mono', 'unmeasured', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+      unloads={'r83a_ns_a_2305712': 0, 'r83a_ns_b_2305712': 0} sinks_gone={'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_remix_props_r83_probe: legs=18 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_2305712': 0, 'r83a_ns_m_2305712': 0} sinks_gone={'r83a_ns_b_2305712': True, 'r83a_ns_m_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_resample_props_r83_probe: legs=15 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_2305712': 0, 'r83a_ns44_2305712': 0} sinks_gone={'r83a_ns_b_2305712': True, 'r83a_ns44_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_failopen_args_r83_probe: legs=8 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2305712': 0, 'r83a_ns_b_2305712': 0} sinks_gone={'r83a_ns_a_2305712': True, 'r83a_ns_b_2305712': True} own_nodes_after=[] generic_capture_props=[]
+  TOTAL=128  all-failures={}
+  onset: ctl=[0.0934, 0.1, 0.1054] med=0.1 d10=[1.1429, 1.0997, 1.0934] d10_deltas=[1.0429, 0.9997, 0.9934] d025=[0.3918, 0.3516] l1000=[0.1348, 0.0973]
+  matrix: {'control_full_amp_median': 8191.0, 'control_tone_arms': 3, 'mono_ratio_envelope': [0.42, 0.58], 'c1_audio_legs': 2, 'm_alone_realized_arms': ['stable_mono', 'unmeasured', 'stable_mono']}
+  matrix named_outcomes: ['c1_mono_1: tap carried no audio — the band pin is unmeasured on this leg', "m_alone arm realization: ['stable_mono', 'unmeasured', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+  resample: {'clean_amp_median': 8172.5, 'artifact_class': 'peaks_abs_octave_artifact'}  s4={'s4_peaks_0': 'full_wave_abs_octave', 's4_peaks_1': 'full_wave_abs_octave', 's4_peaks_2': 'full_wave_abs_octave', 's4b_matched': 'clean', 's4c_downsample': 'clean'}
+   s4_peaks_0 chans=[{'min': 0, 'max': 8192, 'mean': 4452.65, 'zero_frac': 0.1462, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.48, 'zero_frac': 0.1519, 'neg_frac': 0.0}]
+   s4_peaks_1 chans=[{'min': 0, 'max': 8192, 'mean': 4452.65, 'zero_frac': 0.1462, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.48, 'zero_frac': 0.1519, 'neg_frac': 0.0}]
+   s4_peaks_2 chans=[{'min': 0, 'max': 8192, 'mean': 4452.65, 'zero_frac': 0.1462, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.48, 'zero_frac': 0.1519, 'neg_frac': 0.0}]
+  segv rc/signal set: [(-11, 'SIGSEGV')]  ctl={'ctl_lb': (-9, True)}
+  err rc/class set: [(1, 'pwcat_props_syntax_error'), (255, 'props_syntax_error')]
+  drop legs rc/killed/stderr_tail: {'drop_0_0': (-9, True, None), 'drop_0_1': (-9, True, None), 'drop_1_0': (-9, True, None), 'drop_2_0': (-9, True, None), 'drop_3_0': (-9, True, None), 'drop_4_0': (-9, True, None), 'drop_partial': (-9, True, None)}
+  failopen n_empty=failopen_foreign_sink serials={'nsa': 201022, 'nsb': 201033}
+  remix: {'control_full_amp_median': 8181.6, 'mono_ratio_envelope': [0.42, 0.58]} dm_move rc=0 post=['r83a_ns_b_2305712'] skipped=None
+
+== run2 (corpus/live/r83-author/measurements-run2.json)
+  pwcat_props_parse_r83_probe: legs=29 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2535010': 0, 'r83a_ns_b_2535010': 0} sinks_gone={'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_empty_props_segv_r83_probe: legs=19 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2535010': 0, 'r83a_ns_b_2535010': 0} sinks_gone={'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_latency_props_r83_probe: legs=26 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2535010': 0, 'r83a_ns_b_2535010': 0} sinks_gone={'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_channel_matrix_r83_probe: legs=13 failures=[] blocked=None named_outcomes=["m_alone arm realization: ['stable_mono', 'stable_mono', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+      unloads={'r83a_ns_a_2535010': 0, 'r83a_ns_b_2535010': 0} sinks_gone={'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_remix_props_r83_probe: legs=18 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_2535010': 0, 'r83a_ns_m_2535010': 0} sinks_gone={'r83a_ns_b_2535010': True, 'r83a_ns_m_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_resample_props_r83_probe: legs=15 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_2535010': 0, 'r83a_ns44_2535010': 0} sinks_gone={'r83a_ns_b_2535010': True, 'r83a_ns44_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_failopen_args_r83_probe: legs=8 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_2535010': 0, 'r83a_ns_b_2535010': 0} sinks_gone={'r83a_ns_a_2535010': True, 'r83a_ns_b_2535010': True} own_nodes_after=[] generic_capture_props=[]
+  TOTAL=128  all-failures={}
+  onset: ctl=[0.084, 0.1054, 0.1056] med=0.1054 d10=[1.1483, 1.1053, 1.1046] d10_deltas=[1.0429, 0.9999, 0.9992] d025=[0.3981, 0.3547] l1000=[0.1057, 0.1053]
+  matrix: {'control_full_amp_median': 8191.0, 'control_tone_arms': 3, 'mono_ratio_envelope': [0.42, 0.58], 'c1_audio_legs': 3, 'm_alone_realized_arms': ['stable_mono', 'stable_mono', 'stable_mono']}
+  matrix named_outcomes: ["m_alone arm realization: ['stable_mono', 'stable_mono', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+  resample: {'clean_amp_median': 8172.5, 'artifact_class': 'peaks_abs_octave_artifact'}  s4={'s4_peaks_0': 'full_wave_abs_octave', 's4_peaks_1': 'full_wave_abs_octave', 's4_peaks_2': 'full_wave_abs_octave', 's4b_matched': 'clean', 's4c_downsample': 'clean'}
+   s4_peaks_0 chans=[{'min': 0, 'max': 8192, 'mean': 4452.6, 'zero_frac': 0.1463, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.68, 'zero_frac': 0.1462, 'neg_frac': 0.0}]
+   s4_peaks_1 chans=[{'min': 0, 'max': 8192, 'mean': 4452.6, 'zero_frac': 0.1463, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.68, 'zero_frac': 0.1462, 'neg_frac': 0.0}]
+   s4_peaks_2 chans=[{'min': 0, 'max': 8192, 'mean': 4452.6, 'zero_frac': 0.1463, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.68, 'zero_frac': 0.1462, 'neg_frac': 0.0}]
+  segv rc/signal set: [(-11, 'SIGSEGV')]  ctl={'ctl_lb': (-9, True)}
+  err rc/class set: [(1, 'pwcat_props_syntax_error'), (255, 'props_syntax_error')]
+  drop legs rc/killed/stderr_tail: {'drop_0_0': (-9, True, None), 'drop_0_1': (-9, True, None), 'drop_1_0': (-9, True, None), 'drop_2_0': (-9, True, None), 'drop_3_0': (-9, True, None), 'drop_4_0': (-9, True, None), 'drop_partial': (-9, True, None)}
+  failopen n_empty=failopen_foreign_sink serials={'nsa': 204263, 'nsb': 204274}
+  remix: {'control_full_amp_median': 8172.5, 'mono_ratio_envelope': [0.42, 0.58]} dm_move rc=0 post=['r83a_ns_b_2535010'] skipped=None
+
+== critic-replay (/tmp/r83critic-src/corpus/live/runs/20261015T221700821010Z-pwcat-r83/measurements.json)
+  pwcat_props_parse_r83_probe: legs=29 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_3512630': 0, 'r83a_ns_b_3512630': 0} sinks_gone={'r83a_ns_a_3512630': True, 'r83a_ns_b_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_empty_props_segv_r83_probe: legs=19 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_3512630': 0, 'r83a_ns_b_3512630': 0} sinks_gone={'r83a_ns_a_3512630': True, 'r83a_ns_b_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_latency_props_r83_probe: legs=26 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_3512630': 0, 'r83a_ns_b_3512630': 0} sinks_gone={'r83a_ns_a_3512630': True, 'r83a_ns_b_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_channel_matrix_r83_probe: legs=13 failures=[] blocked=None named_outcomes=["m_alone arm realization: ['stable_mono', 'stable_mono', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+      unloads={'r83a_ns_a_3512630': 0, 'r83a_ns_b_3512630': 0} sinks_gone={'r83a_ns_a_3512630': True, 'r83a_ns_b_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_remix_props_r83_probe: legs=18 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_3512630': 0, 'r83a_ns_m_3512630': 0} sinks_gone={'r83a_ns_b_3512630': True, 'r83a_ns_m_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_resample_props_r83_probe: legs=15 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_b_3512630': 0, 'r83a_ns44_3512630': 0} sinks_gone={'r83a_ns_b_3512630': True, 'r83a_ns44_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  pwcat_failopen_args_r83_probe: legs=8 failures=[] blocked=None named_outcomes=[]
+      unloads={'r83a_ns_a_3512630': 0, 'r83a_ns_b_3512630': 0} sinks_gone={'r83a_ns_a_3512630': True, 'r83a_ns_b_3512630': True} own_nodes_after=[] generic_capture_props=[]
+  TOTAL=128  all-failures={}
+  onset: ctl=[0.1031, 0.105, 0.1232] med=0.105 d10=[1.1033, 1.1033, 1.1431] d10_deltas=[0.9983, 0.9983, 1.0381] d025=[0.3956, 0.3976] l1000=[0.1032, 0.1439]
+  matrix: {'control_full_amp_median': 8191.0, 'control_tone_arms': 3, 'mono_ratio_envelope': [0.42, 0.58], 'c1_audio_legs': 3, 'm_alone_realized_arms': ['stable_mono', 'stable_mono', 'stable_mono']}
+  matrix named_outcomes: ["m_alone arm realization: ['stable_mono', 'stable_mono', 'stable_mono'] — the boundary arm is 'time_varying' (measured under load); stable_mono and stereo_passthrough are the alternate realizations; only -c 1 -m is the pinned stable arm"]
+  resample: {'clean_amp_median': 8172.5, 'artifact_class': 'peaks_abs_octave_artifact'}  s4={'s4_peaks_0': 'full_wave_abs_octave', 's4_peaks_1': 'full_wave_abs_octave', 's4_peaks_2': 'full_wave_abs_octave', 's4b_matched': 'clean', 's4c_downsample': 'clean'}
+   s4_peaks_0 chans=[{'min': 0, 'max': 8192, 'mean': 4452.6, 'zero_frac': 0.1463, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4452.68, 'zero_frac': 0.1462, 'neg_frac': 0.0}]
+   s4_peaks_1 chans=[{'min': 0, 'max': 8192, 'mean': 4414.82, 'zero_frac': 0.1535, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4414.81, 'zero_frac': 0.1535, 'neg_frac': 0.0}]
+   s4_peaks_2 chans=[{'min': 0, 'max': 8192, 'mean': 4414.82, 'zero_frac': 0.1535, 'neg_frac': 0.0}, {'min': 0, 'max': 8191, 'mean': 4414.81, 'zero_frac': 0.1535, 'neg_frac': 0.0}]
+  segv rc/signal set: [(-11, 'SIGSEGV')]  ctl={'ctl_lb': (-9, True)}
+  err rc/class set: [(1, 'pwcat_props_syntax_error'), (255, 'props_syntax_error')]
+  drop legs rc/killed/stderr_tail: {'drop_0_0': (-9, True, None), 'drop_0_1': (-9, True, None), 'drop_1_0': (-9, True, None), 'drop_2_0': (-9, True, None), 'drop_3_0': (-9, True, None), 'drop_4_0': (-9, True, None), 'drop_partial': (-9, True, None)}
+  failopen n_empty=failopen_foreign_sink serials={'nsa': 209470, 'nsb': 209481}
+  remix: {'control_full_amp_median': 8172.5, 'mono_ratio_envelope': [0.42, 0.58]} dm_move rc=0 post=['r83a_ns_b_3512630'] skipped=None
+

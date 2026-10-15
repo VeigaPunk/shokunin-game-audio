@@ -1,0 +1,40 @@
+{
+ "ctl": {
+  "env": null,
+  "argv": "pw-loopback -n r83c_fo_ctl -C r83c_e1 -i stream.capture.sink=true -P ",
+  "out_consumers": [
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+  ],
+  "in_producers": [
+   "r83c_e1"
+  ],
+  "pactl_default": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+ },
+ "pw_node": {
+  "env": {
+   "PIPEWIRE_NODE": "r83c_e2"
+  },
+  "argv": "pw-loopback -n r83c_fo_pn -C r83c_e1 -i stream.capture.sink=true -P ",
+  "out_consumers": [
+   "r83c_e2"
+  ],
+  "in_producers": [
+   "r83c_e2"
+  ],
+  "pactl_default": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+ },
+ "pulse_sink": {
+  "env": {
+   "PULSE_SINK": "r83c_e2"
+  },
+  "argv": "pw-loopback -n r83c_fo_ps -C r83c_e1 -i stream.capture.sink=true -P ",
+  "out_consumers": [
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+  ],
+  "in_producers": [
+   "r83c_e1"
+  ],
+  "pactl_default": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+ },
+ "residual": []
+}

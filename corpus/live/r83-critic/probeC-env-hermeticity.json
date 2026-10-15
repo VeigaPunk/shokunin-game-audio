@@ -1,0 +1,278 @@
+{
+ "sinks": {
+  "e1": 536870921,
+  "e2": 536870926,
+  "e1_seen": true,
+  "e2_seen": true
+ },
+ "legs": {
+  "lb_ctl": {
+   "argv": "pw-loopback -n r83c_pl_ctl -C r83c_e1 -i stream.capture.sink=true -P r83c_e2 -l 5",
+   "env": null,
+   "node": {
+    "object_id": 183,
+    "name": "input.r83c_pl_ctl",
+    "state": "running",
+    "props": {
+     "adapt.follower.spa-node": "",
+     "audio.channels": 2,
+     "audio.position": "[ FL, FR ]",
+     "clock.quantum-limit": 8192,
+     "media.class": "Stream/Input/Audio",
+     "media.name": "r83c_pl_ctl input",
+     "node.autoconnect": true,
+     "node.description": "r83c_pl_ctl",
+     "node.group": "pw-loopback-4020573",
+     "node.latency": "240/48000",
+     "node.link-group": "loopback-4020573-20",
+     "node.loop.name": "data-loop.0",
+     "node.name": "input.r83c_pl_ctl",
+     "node.virtual": true,
+     "node.want-driver": true,
+     "port.group": "stream.0",
+     "resample.disable": true,
+     "resample.prefill": true,
+     "stream.capture.sink": true,
+     "target.object": "r83c_e1"
+    }
+   },
+   "consumers": [],
+   "producers": [
+    "r83c_e1"
+   ],
+   "streams": {
+    "output.r83c_pl_ctl": {
+     "consumers": [
+      "r83c_e2"
+     ],
+     "producers": [],
+     "node.name": "output.r83c_pl_ctl",
+     "node.latency": "240/48000",
+     "media.class": "Stream/Output/Audio"
+    },
+    "input.r83c_pl_ctl": {
+     "consumers": [],
+     "producers": [
+      "r83c_e1"
+     ],
+     "node.name": "input.r83c_pl_ctl",
+     "node.latency": "240/48000",
+     "media.class": "Stream/Input/Audio"
+    }
+   }
+  },
+  "lb_pwlat": {
+   "argv": "pw-loopback -n r83c_pl_lat -C r83c_e1 -i stream.capture.sink=true -P r83c_e2 -l 5",
+   "env": {
+    "PIPEWIRE_LATENCY": "1024/48000"
+   },
+   "node": {
+    "object_id": 226,
+    "name": "input.r83c_pl_lat",
+    "state": "running",
+    "props": {
+     "adapt.follower.spa-node": "",
+     "audio.channels": 2,
+     "audio.position": "[ FL, FR ]",
+     "clock.quantum-limit": 8192,
+     "media.class": "Stream/Input/Audio",
+     "media.name": "r83c_pl_lat input",
+     "node.autoconnect": true,
+     "node.description": "r83c_pl_lat",
+     "node.group": "pw-loopback-4021693",
+     "node.latency": "1024/48000",
+     "node.link-group": "loopback-4021693-20",
+     "node.loop.name": "data-loop.0",
+     "node.name": "input.r83c_pl_lat",
+     "node.virtual": true,
+     "node.want-driver": true,
+     "port.group": "stream.0",
+     "resample.disable": true,
+     "resample.prefill": true,
+     "stream.capture.sink": true,
+     "target.object": "r83c_e1"
+    }
+   },
+   "consumers": [],
+   "producers": [
+    "r83c_e1"
+   ],
+   "streams": {
+    "output.r83c_pl_lat": {
+     "consumers": [
+      "r83c_e2"
+     ],
+     "producers": [],
+     "node.name": "output.r83c_pl_lat",
+     "node.latency": "1024/48000",
+     "media.class": "Stream/Output/Audio"
+    },
+    "input.r83c_pl_lat": {
+     "consumers": [],
+     "producers": [
+      "r83c_e1"
+     ],
+     "node.name": "input.r83c_pl_lat",
+     "node.latency": "1024/48000",
+     "media.class": "Stream/Input/Audio"
+    }
+   }
+  },
+  "pc_ctl": {
+   "argv": "pw-cat -p -P node.name=r83c_pc_ctl --target r83c_e2 /tmp/r83critic-out/r83c_tone.wav",
+   "env": null,
+   "node": {
+    "object_id": 226,
+    "name": "r83c_pc_ctl",
+    "state": "running",
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-cat",
+     "clock.quantum-limit": 8192,
+     "media.category": "Playback",
+     "media.class": "Stream/Output/Audio",
+     "media.filename": "/tmp/r83critic-out/r83c_tone.wav",
+     "media.format": "WAV (Microsoft)",
+     "media.name": "/tmp/r83critic-out/r83c_tone.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.latency": "4800/48000",
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r83c_pc_ctl",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "port.group": "stream.0",
+     "target.object": "r83c_e2"
+    }
+   },
+   "consumers": [
+    "r83c_e2"
+   ],
+   "producers": [],
+   "streams": {
+    "r83c_pc_ctl": {
+     "consumers": [
+      "r83c_e2"
+     ],
+     "producers": [],
+     "node.name": "r83c_pc_ctl",
+     "node.latency": "4800/48000",
+     "media.class": "Stream/Output/Audio"
+    }
+   }
+  },
+  "pc_envprops": {
+   "argv": "pw-cat -p --target r83c_e2 /tmp/r83critic-out/r83c_tone.wav",
+   "env": {
+    "PIPEWIRE_PROPS": "{ node.name=r83c_envname }"
+   },
+   "node": {
+    "object_id": 226,
+    "name": "r83c_envname",
+    "state": "running",
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-cat",
+     "clock.quantum-limit": 8192,
+     "media.category": "Playback",
+     "media.class": "Stream/Output/Audio",
+     "media.filename": "/tmp/r83critic-out/r83c_tone.wav",
+     "media.format": "WAV (Microsoft)",
+     "media.name": "/tmp/r83critic-out/r83c_tone.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.latency": "4800/48000",
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r83c_envname",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "port.group": "stream.0",
+     "target.object": "r83c_e2"
+    }
+   },
+   "consumers": [
+    "r83c_e2"
+   ],
+   "producers": [],
+   "streams": {
+    "r83c_envname": {
+     "consumers": [
+      "r83c_e2"
+     ],
+     "producers": [],
+     "node.name": "r83c_envname",
+     "node.latency": "4800/48000",
+     "media.class": "Stream/Output/Audio"
+    }
+   }
+  },
+  "pc_nametarget": {
+   "argv": "pw-cat -p --target  /tmp/r83critic-out/r83c_tone.wav",
+   "env": null,
+   "node": null,
+   "consumers": [],
+   "producers": [],
+   "streams": {
+    "pw-cat": {
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ],
+     "producers": [],
+     "node.name": "pw-cat",
+     "node.latency": "4800/48000",
+     "media.class": "Stream/Output/Audio"
+    }
+   }
+  },
+  "pc_pulsesink": {
+   "argv": "pw-cat -p --target  /tmp/r83critic-out/r83c_tone.wav",
+   "env": {
+    "PULSE_SINK": "r83c_e2"
+   },
+   "node": null,
+   "consumers": [],
+   "producers": [],
+   "streams": {
+    "pw-cat": {
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ],
+     "producers": [],
+     "node.name": "pw-cat",
+     "node.latency": "4800/48000",
+     "media.class": "Stream/Output/Audio"
+    }
+   }
+  },
+  "pc_pwnode": {
+   "argv": "pw-cat -p /tmp/r83critic-out/r83c_tone.wav",
+   "env": {
+    "PIPEWIRE_NODE": "r83c_e2"
+   },
+   "node": null,
+   "consumers": [],
+   "producers": [],
+   "streams": {
+    "pw-cat": {
+     "consumers": [
+      "r83c_e2"
+     ],
+     "producers": [],
+     "node.name": "pw-cat",
+     "node.latency": "4800/48000",
+     "media.class": "Stream/Output/Audio"
+    }
+   }
+  }
+ },
+ "residual": {
+  "r83c_e1": [],
+  "r83c_e2": []
+ }
+}
