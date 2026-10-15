@@ -1,0 +1,99 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-d",
+  "0.25"
+ ],
+ "edges": [
+  "output.r83b_s5_D025:130 -> r83b_nsb:168",
+  "output.r83b_s5_D025:141 -> r83b_nsb:204",
+  "r83b_nsa:116 -> input.r83b_s5_D025:187",
+  "r83b_nsa:212 -> input.r83b_s5_D025:106"
+ ],
+ "leg": "D025",
+ "load_after": [
+  98.33447265625,
+  87.73486328125,
+  56.3681640625
+ ],
+ "load_before": [
+  101.93310546875,
+  88.25390625,
+  56.36474609375
+ ],
+ "name": "r83b_s5_D025",
+ "nodes": [
+  "input.r83b_s5_D025",
+  "output.r83b_s5_D025"
+ ],
+ "props": {
+  "input.r83b_s5_D025": {
+   "id": 196,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "r83b_s5_D025 input",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-1374175",
+    "node.latency": "4000/48000",
+    "node.link-group": "loopback-1374175-20",
+    "node.name": "input.r83b_s5_D025",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsa"
+   }
+  },
+  "output.r83b_s5_D025": {
+   "id": 188,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s5_D025 output",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-1374175",
+    "node.latency": "4000/48000",
+    "node.link-group": "loopback-1374175-20",
+    "node.name": "output.r83b_s5_D025",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  }
+ },
+ "rc": -9,
+ "stderr": "",
+ "wait_s": 0.254
+}

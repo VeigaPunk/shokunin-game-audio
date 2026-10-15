@@ -1,0 +1,55 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-o",
+  "media.name=OUTV bogus.prop=7"
+ ],
+ "edges": [
+  "output.r83b_s1_A9:144 -> r83b_nsb:168",
+  "output.r83b_s1_A9:90 -> r83b_nsb:204",
+  "r83b_nsa:116 -> input.r83b_s1_A9:52",
+  "r83b_nsa:212 -> input.r83b_s1_A9:216"
+ ],
+ "leg": "A9_o_props",
+ "load_after": [
+  11.36474609375,
+  52.81396484375,
+  53.20068359375
+ ],
+ "load_before": [
+  11.7451171875,
+  53.58740234375,
+  53.4501953125
+ ],
+ "name": "r83b_s1_A9",
+ "nodes": [
+  "input.r83b_s1_A9",
+  "output.r83b_s1_A9"
+ ],
+ "props": {
+  "input.r83b_s1_A9": {
+   "id": 188,
+   "picked": {
+    "bogus.prop": null,
+    "media.name": "r83b_s1_A9 input",
+    "node.name": "input.r83b_s1_A9"
+   }
+  },
+  "output.r83b_s1_A9": {
+   "id": 244,
+   "picked": {
+    "bogus.prop": 7,
+    "media.name": "OUTV",
+    "node.name": "output.r83b_s1_A9"
+   }
+  }
+ },
+ "rc": -9,
+ "stderr": "",
+ "wait_s": 0.016
+}

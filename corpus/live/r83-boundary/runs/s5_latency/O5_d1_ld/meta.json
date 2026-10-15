@@ -1,0 +1,209 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-d",
+  "1.0"
+ ],
+ "content": {
+  "all_zero": false,
+  "amp_at": [
+   {
+    "1000": 2186.6,
+    "1500": 4.0
+   },
+   {
+    "1000": 5.4,
+    "1500": 3724.4
+   }
+  ],
+  "bytes": 576044,
+  "carries_tone": true,
+  "ch": 2,
+  "class": [
+   "tone1000",
+   "tone1500"
+  ],
+  "dom": [
+   {
+    "amp": 1699.0,
+    "hz": 1001.0
+   },
+   {
+    "amp": 1830.3,
+    "hz": 1500.0
+   }
+  ],
+  "exists": true,
+  "frames": 144000,
+  "max": [
+   8192,
+   8192
+  ],
+  "mean": [
+   0.68,
+   0.0
+  ],
+  "min": [
+   -8192,
+   -8192
+  ],
+  "neg_frac": 0.3088,
+  "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/O5_d1_ld_mon.wav",
+  "peak": [
+   8192,
+   8192
+  ],
+  "rate": 48000,
+  "rms": [
+   4675.22,
+   4675.42
+  ],
+  "width": 2,
+  "zero_run_hist": {
+   "1": 3908,
+   "45185": 1,
+   "4993": 1
+  },
+  "zero_runs_n": 3910
+ },
+ "edges": [
+  "output.r83b_s5_O5_d1_ld:121 -> r83b_nsb:168",
+  "output.r83b_s5_O5_d1_ld:236 -> r83b_nsb:204",
+  "r83b_nsa:116 -> input.r83b_s5_O5_d1_ld:87",
+  "r83b_nsa:212 -> input.r83b_s5_O5_d1_ld:85",
+  "r83b_nsb:105 -> r83b_s5_O5_d1_ld_rec:97",
+  "r83b_nsb:209 -> r83b_s5_O5_d1_ld_rec:205",
+  "r83b_s5_O5_d1_ld_tone:178 -> r83b_nsa:99",
+  "r83b_s5_O5_d1_ld_tone:239 -> r83b_nsa:138"
+ ],
+ "leg": "O5_d1_ld",
+ "load_after": [
+  110.22216796875,
+  93.23095703125,
+  61.57275390625
+ ],
+ "load_before": [
+  108.8486328125,
+  92.677734375,
+  61.224609375
+ ],
+ "mon_sink": "r83b_nsb",
+ "name": "r83b_s5_O5_d1_ld",
+ "nodes": [
+  "input.r83b_s5_O5_d1_ld",
+  "output.r83b_s5_O5_d1_ld",
+  "r83b_s5_O5_d1_ld_rec"
+ ],
+ "props": {
+  "input.r83b_s5_O5_d1_ld": {
+   "id": 166,
+   "picked": {
+    "adapt.follower.spa-node": "",
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "client.id": 148,
+    "clock.quantum-limit": 8192,
+    "factory.id": 9,
+    "library.name": "audioconvert/libspa-audioconvert",
+    "media.class": "Stream/Input/Audio",
+    "media.name": "r83b_s5_O5_d1_ld input",
+    "node.autoconnect": true,
+    "node.description": "r83b_s5_O5_d1_ld",
+    "node.driver-id": 124,
+    "node.group": "pw-loopback-1578912",
+    "node.latency": "16000/48000",
+    "node.link-group": "loopback-1578912-20",
+    "node.loop.name": "data-loop.0",
+    "node.name": "input.r83b_s5_O5_d1_ld",
+    "node.virtual": true,
+    "node.want-driver": true,
+    "object.id": 166,
+    "object.register": false,
+    "object.serial": 100377,
+    "port.group": "stream.0",
+    "resample.disable": true,
+    "resample.prefill": true,
+    "stream.capture.sink": true,
+    "stream.is-live": true,
+    "target.object": "r83b_nsa"
+   }
+  },
+  "output.r83b_s5_O5_d1_ld": {
+   "id": 119,
+   "picked": {
+    "adapt.follower.spa-node": "",
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "client.id": 148,
+    "clock.quantum-limit": 8192,
+    "factory.id": 9,
+    "library.name": "audioconvert/libspa-audioconvert",
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s5_O5_d1_ld output",
+    "node.autoconnect": true,
+    "node.description": "r83b_s5_O5_d1_ld",
+    "node.driver-id": 124,
+    "node.group": "pw-loopback-1578912",
+    "node.latency": "16000/48000",
+    "node.link-group": "loopback-1578912-20",
+    "node.loop.name": "data-loop.0",
+    "node.name": "output.r83b_s5_O5_d1_ld",
+    "node.trigger": true,
+    "node.virtual": true,
+    "node.want-driver": true,
+    "object.id": 119,
+    "object.register": false,
+    "object.serial": 100376,
+    "port.group": "stream.0",
+    "resample.disable": true,
+    "resample.prefill": true,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  },
+  "r83b_s5_O5_d1_ld_rec": {
+   "id": 106,
+   "picked": {
+    "adapt.follower.spa-node": "",
+    "application.name": "pw-record",
+    "client.id": 55,
+    "clock.quantum-limit": 8192,
+    "factory.id": 9,
+    "library.name": "audioconvert/libspa-audioconvert",
+    "media.category": "Capture",
+    "media.class": "Stream/Input/Audio",
+    "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/O5_d1_ld_mon.wav",
+    "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/O5_d1_ld_mon.wav",
+    "media.role": "Music",
+    "media.type": "Audio",
+    "node.async": true,
+    "node.autoconnect": true,
+    "node.driver-id": 124,
+    "node.loop.class": "main",
+    "node.loop.name": "main-loop",
+    "node.name": "r83b_s5_O5_d1_ld_rec",
+    "node.rate": "1/48000",
+    "node.want-driver": true,
+    "object.id": 106,
+    "object.register": false,
+    "object.serial": 100374,
+    "port.group": "stream.0",
+    "stream.capture.sink": true,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  }
+ },
+ "rc": -9,
+ "rec_err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/O5_d1_ld_mon.wav",
+ "rec_rc": 1,
+ "stderr": "",
+ "tone_src": "r83b_nsa",
+ "tone_wav": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/tone48.wav",
+ "wait_s": 0.087
+}

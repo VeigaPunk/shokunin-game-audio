@@ -1,0 +1,99 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-i",
+  "{ \"media.name\": \"COLONV\" }"
+ ],
+ "edges": [
+  "output.r83b_s1_A4_colon:172 -> r83b_nsb:168",
+  "output.r83b_s1_A4_colon:88 -> r83b_nsb:204",
+  "r83b_nsa:116 -> input.r83b_s1_A4_colon:92",
+  "r83b_nsa:212 -> input.r83b_s1_A4_colon:52"
+ ],
+ "leg": "A4_colon",
+ "load_after": [
+  27.57080078125,
+  30.2666015625,
+  24.22802734375
+ ],
+ "load_before": [
+  27.8642578125,
+  30.4130859375,
+  24.20849609375
+ ],
+ "name": "r83b_s1_A4_colon",
+ "nodes": [
+  "input.r83b_s1_A4_colon",
+  "output.r83b_s1_A4_colon"
+ ],
+ "props": {
+  "input.r83b_s1_A4_colon": {
+   "id": 174,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "COLONV",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3681198",
+    "node.latency": null,
+    "node.link-group": "loopback-3681198-20",
+    "node.name": "input.r83b_s1_A4_colon",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsa"
+   }
+  },
+  "output.r83b_s1_A4_colon": {
+   "id": 128,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s1_A4_colon output",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3681198",
+    "node.latency": null,
+    "node.link-group": "loopback-3681198-20",
+    "node.name": "output.r83b_s1_A4_colon",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  }
+ },
+ "rc": -9,
+ "stderr": "",
+ "wait_s": 0.02
+}

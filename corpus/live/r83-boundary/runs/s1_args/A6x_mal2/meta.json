@@ -1,0 +1,99 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-i",
+  "[1,2"
+ ],
+ "edges": [
+  "output.r83b_s1_A6x_mal2:150 -> r83b_nsb:204",
+  "output.r83b_s1_A6x_mal2:213 -> r83b_nsb:168",
+  "r83b_nsa:116 -> input.r83b_s1_A6x_mal2:128",
+  "r83b_nsa:212 -> input.r83b_s1_A6x_mal2:172"
+ ],
+ "leg": "A6x_mal2",
+ "load_after": [
+  29.24853515625,
+  30.3642578125,
+  24.44970703125
+ ],
+ "load_before": [
+  28.05126953125,
+  30.15087890625,
+  24.34912109375
+ ],
+ "name": "r83b_s1_A6x_mal2",
+ "nodes": [
+  "input.r83b_s1_A6x_mal2",
+  "output.r83b_s1_A6x_mal2"
+ ],
+ "props": {
+  "input.r83b_s1_A6x_mal2": {
+   "id": 117,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "r83b_s1_A6x_mal2 input",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3823814",
+    "node.latency": null,
+    "node.link-group": "loopback-3823814-20",
+    "node.name": "input.r83b_s1_A6x_mal2",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsa"
+   }
+  },
+  "output.r83b_s1_A6x_mal2": {
+   "id": 93,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s1_A6x_mal2 output",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3823814",
+    "node.latency": null,
+    "node.link-group": "loopback-3823814-20",
+    "node.name": "output.r83b_s1_A6x_mal2",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  }
+ },
+ "rc": -9,
+ "stderr": "",
+ "wait_s": 0.022
+}

@@ -1,0 +1,117 @@
+{
+ "filter_graph_dir": {
+  "cmd": [
+   "bash",
+   "-c",
+   "ls /usr/lib/spa-0.2/filter-graph/ 2>/dev/null"
+  ],
+  "err": "",
+  "out": "libspa-filter-graph-plugin-builtin.so\nlibspa-filter-graph-plugin-ebur128.so\nlibspa-filter-graph-plugin-ladspa.so\nlibspa-filter-graph-plugin-lv2.so\nlibspa-filter-graph-plugin-sofa.so\nlibspa-filter-graph.so\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.001
+ },
+ "filter_man": {
+  "cmd": [
+   "man",
+   "-w",
+   "libpipewire-module-filter-chain"
+  ],
+  "err": "",
+  "out": "/usr/share/man/man7/libpipewire-module-filter-chain.7.gz\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.009
+ },
+ "find": {
+  "cmd": [
+   "bash",
+   "-c",
+   "find /usr -name 'pw-filter*' 2>/dev/null | head -5"
+  ],
+  "err": "",
+  "out": "",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.251
+ },
+ "legs": [],
+ "load": [
+  23.52587890625,
+  67.677734375,
+  57.56689453125
+ ],
+ "man": {
+  "cmd": [
+   "man",
+   "-w",
+   "pw-filter"
+  ],
+  "err": "No manual entry for pw-filter\n",
+  "out": "",
+  "rc": 16,
+  "timeout": false,
+  "wall": 0.007
+ },
+ "pkg_pipewire": {
+  "cmd": [
+   "bash",
+   "-c",
+   "pacman -Ql pipewire | grep bin/ || true"
+  ],
+  "err": "",
+  "out": "pipewire /usr/bin/\npipewire /usr/bin/pipewire\npipewire /usr/bin/pw-cli\npipewire /usr/bin/pw-config\npipewire /usr/bin/pw-container\npipewire /usr/bin/pw-dot\npipewire /usr/bin/pw-dump\npipewire /usr/bin/pw-link\npipewire /usr/bin/pw-metadata\npipewire /usr/bin/pw-mon\npipewire /usr/bin/pw-profiler\npipewire /usr/bin/pw-reserve\npipewire /usr/bin/pw-top\npipewire /usr/bin/spa-inspect\npipewire /usr/bin/spa-json-dump\npipewire /usr/bin/spa-monitor\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.007
+ },
+ "pkg_pipewire_audio": {
+  "cmd": [
+   "bash",
+   "-c",
+   "pacman -Ql pipewire-audio | grep bin/ || true"
+  ],
+  "err": "",
+  "out": "pipewire-audio /usr/bin/\npipewire-audio /usr/bin/pipewire-aes67\npipewire-audio /usr/bin/pipewire-avb\npipewire-audio /usr/bin/pw-cat\npipewire-audio /usr/bin/pw-dsdplay\npipewire-audio /usr/bin/pw-encplay\npipewire-audio /usr/bin/pw-loopback\npipewire-audio /usr/bin/pw-midi2play\npipewire-audio /usr/bin/pw-midi2record\npipewire-audio /usr/bin/pw-mididump\npipewire-audio /usr/bin/pw-midiplay\npipewire-audio /usr/bin/pw-midirecord\npipewire-audio /usr/bin/pw-play\npipewire-audio /usr/bin/pw-record\npipewire-audio /usr/bin/pw-sysex\npipewire-audio /usr/bin/spa-acp-tool\npipewire-audio /usr/bin/spa-resample\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.008
+ },
+ "pw_cli_help": {
+  "cmd": [
+   "bash",
+   "-c",
+   "pw-cli help 2>&1 | head -40"
+  ],
+  "err": "",
+  "out": "Available commands:\n\thelp | h            \tShow this help\n\tlist-vars | lv      \tList all variables\n\tload-module | lm    \tLoad a module. <module-name> [<module-arguments>]\n\tunload-module | um  \tUnload a module. <module-var>\n\tconnect | con       \tConnect to a remote. [<remote-name>]\n\tdisconnect | dis    \tDisconnect from a remote. [<remote-var>]\n\tlist-remotes | lr   \tList connected remotes.\n\tswitch-remote | sr  \tSwitch between current remotes. [<remote-var>]\n\tlist-objects | ls   \tList objects or current remote. [<interface>]\n\tinfo | i            \tGet info about an object. <object-id>|all\n\tcreate-device | cd  \tCreate a device from a factory. <factory-name> [<properties>]\n\tcreate-node | cn    \tCreate a node from a factory. <factory-name> [<properties>]\n\tdestroy | d         \tDestroy a global object. <object-id>\n\tcreate-link | cl    \tCreate a link between nodes. <node-id> <port-id> <node-id> <port-id> [<properties>]\n\texport-node | en    \tExport a local node to the current remote. <node-id> [remote-var]\n\tenum-params | e     \tEnumerate params of an object <object-id> <param-id>\n\tset-param | s       \tSet param of an object <object-id> <param-id> <param-json>\n\tpermissions | sp    \tSet permissions for a client <client-id> <object> <permission>\n\tget-permissions | gp\tGet permissions of a client <client-id>\n\tsend-command | c    \tSend a command <object-id>\n\tquit | q            \tQuit\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.005
+ },
+ "pw_cli_modules": {
+  "cmd": [
+   "bash",
+   "-c",
+   "pw-cli ls Module 2>&1 | grep -c 'id ' || true"
+  ],
+  "err": "",
+  "out": "13\n",
+  "rc": 0,
+  "timeout": false,
+  "wall": 0.004
+ },
+ "stage": "s7_filter",
+ "start": "16:51:17",
+ "which": {
+  "cmd": [
+   "which",
+   "pw-filter"
+  ],
+  "err": "which: no pw-filter in (/home/vgpnk/.grok/bin:/home/vgpnk/.kimi-code/bin:/run/user/1000/fnm_multishells/3093344_1792092850308/bin:/home/vgpnk/.local/share/fnm:/home/vgpnk/.local/share/mise/installs/node/latest/bin:/home/vgpnk/.local/share/mise/shims:/home/vgpnk/.local/share/omarchy/bin:/home/vgpnk/.opencode/bin:/home/vgpnk/.local/bin:/run/user/1000/fnm_multishells/3894_1792082356955/bin:/run/user/1000/fnm_multishells/1632_1792082289940/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl)\n",
+  "out": "",
+  "rc": 1,
+  "timeout": false,
+  "wall": 0.001
+ }
+}

@@ -1,0 +1,99 @@
+{
+ "args": [
+  "-C",
+  "r83b_nsa",
+  "-i",
+  "stream.capture.sink=true",
+  "-P",
+  "r83b_nsb",
+  "-i",
+  "}{ garbage"
+ ],
+ "edges": [
+  "output.r83b_s1_A6_malformed:199 -> r83b_nsb:168",
+  "output.r83b_s1_A6_malformed:211 -> r83b_nsb:204",
+  "r83b_nsa:116 -> input.r83b_s1_A6_malformed:52",
+  "r83b_nsa:212 -> input.r83b_s1_A6_malformed:111"
+ ],
+ "leg": "A6_malformed",
+ "load_after": [
+  27.64404296875,
+  30.154296875,
+  24.2880859375
+ ],
+ "load_before": [
+  27.20458984375,
+  30.1455078125,
+  24.22119140625
+ ],
+ "name": "r83b_s1_A6_malformed",
+ "nodes": [
+  "input.r83b_s1_A6_malformed",
+  "output.r83b_s1_A6_malformed"
+ ],
+ "props": {
+  "input.r83b_s1_A6_malformed": {
+   "id": 172,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "r83b_s1_A6_malformed input",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3765218",
+    "node.latency": null,
+    "node.link-group": "loopback-3765218-20",
+    "node.name": "input.r83b_s1_A6_malformed",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsa"
+   }
+  },
+  "output.r83b_s1_A6_malformed": {
+   "id": 103,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s1_A6_malformed output",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-3765218",
+    "node.latency": null,
+    "node.link-group": "loopback-3765218-20",
+    "node.name": "output.r83b_s1_A6_malformed",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_nsb"
+   }
+  }
+ },
+ "rc": -9,
+ "stderr": "",
+ "wait_s": 0.018
+}

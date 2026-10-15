@@ -1,0 +1,148 @@
+{
+ "legs": [
+  {
+   "argv": [
+    "pw-mididump",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/r83b_note.mid"
+   ],
+   "leg": "m1_file",
+   "load_before": [
+    20.67724609375,
+    65.61328125,
+    57.0029296875
+   ],
+   "rc": 0,
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "pw-mididump",
+    "/tmp/r83b_no.mid"
+   ],
+   "leg": "m2_missing",
+   "load_before": [
+    20.67724609375,
+    65.61328125,
+    57.0029296875
+   ],
+   "rc": 255,
+   "stderr": "error opening /tmp/r83b_no.mid: No such file or directory"
+  },
+  {
+   "edges": [],
+   "leg": "m3_live",
+   "load_before": [
+    19.26123046875,
+    64.57373046875,
+    56.71240234375
+   ],
+   "nodes": [
+    "midi-dump"
+   ],
+   "props": {
+    "midi-dump": {
+     "media.category": "Filter",
+     "media.class": null,
+     "media.role": "DSP",
+     "media.type": "Midi",
+     "node.autoconnect": null,
+     "node.name": "midi-dump",
+     "node.want-driver": true
+    }
+   },
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/r83b_note.mid"
+   ],
+   "leg": "m4_play_auto",
+   "load_before": [
+    18.359375,
+    63.63427734375,
+    56.45068359375
+   ],
+   "rc": 1,
+   "stderr": "stream node 255 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available"
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "Midi-Bridge",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/r83b_note.mid"
+   ],
+   "leg": "m5_play_name",
+   "load_before": [
+    18.359375,
+    63.63427734375,
+    56.45068359375
+   ],
+   "rc": 1,
+   "stderr": "stream node 255 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available"
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "no_such_midi_r83b",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/r83b_note.mid"
+   ],
+   "leg": "m6_play_bogus",
+   "load_before": [
+    18.359375,
+    63.63427734375,
+    56.45068359375
+   ],
+   "rc": 1,
+   "stderr": "stream node 255 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available"
+  },
+  {
+   "edges": [],
+   "leg": "m7_play_serial0",
+   "load_before": [
+    18.359375,
+    63.63427734375,
+    56.45068359375
+   ],
+   "nodes": [
+    "r83b_mplay"
+   ],
+   "props": {
+    "r83b_mplay": {
+     "media.class": "Stream/Output/Midi",
+     "media.type": "Midi",
+     "node.name": "r83b_mplay",
+     "stream.is-live": true
+    }
+   },
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "0",
+    "/tmp/r83b_no.mid"
+   ],
+   "leg": "m8_play_missing",
+   "load_before": [
+    17.77001953125,
+    62.76025390625,
+    56.20654296875
+   ],
+   "rc": 1,
+   "stderr": "midifile: can't read midi file '/tmp/r83b_no.mid': No such file or directory\nerror: open failed: No such file or directory\npw-midiplay [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role                      Set media role (default Music)\n      --target                          Set node target serial or name (default auto)\n                                          0 means don't link\n      --latency                         Set node latency (default 100ms)\n                                          Xunit (unit = s, ms, us, ns)\n                                          or direct samples (256)\n                                          the rate is the one of the source file\n  -P  --properties                      Set node properties\n\n      --rate                            Sample rate (default 48000)\n      --channels                        Number of channels (default 2)\n      --channel-map                     Channel map\n                                            a channel layout: \"Stereo\", \"5.1\",... or\n                                            comma separated list of channel names: eg. \"FL,FR\"\n      --list-layouts                    List supported channel layouts\n      --list-channel-names              List supported channel maps\n      --format                          Sample format (default s16)\n      --list-formats                    List supported sample formats\n      --container                       Container format\n      --list-containers                 List supported containers and extensions\n      --volume                          Stream volume 0-1.0 (default 1.000)\n  -q  --quality              "
+  }
+ ],
+ "load": [
+  20.67724609375,
+  65.61328125,
+  57.0029296875
+ ],
+ "stage": "s6_midi",
+ "start": "16:51:30"
+}

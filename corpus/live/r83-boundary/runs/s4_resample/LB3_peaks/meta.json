@@ -1,0 +1,200 @@
+{
+ "args": [
+  "-C",
+  "r83b_ns44",
+  "-i",
+  "stream.capture.sink=true",
+  "-i",
+  "resample.peaks=true",
+  "-P",
+  "r83b_ns48"
+ ],
+ "content": {
+  "all_zero": false,
+  "amp_at": [
+   {
+    "1000": 8191.3,
+    "1500": 0.0
+   },
+   {
+    "1000": 0.0,
+    "1500": 8191.3
+   }
+  ],
+  "bytes": 576044,
+  "carries_tone": true,
+  "ch": 2,
+  "class": [
+   "tone1000",
+   "tone1500"
+  ],
+  "dom": [
+   {
+    "amp": 4095.6,
+    "hz": 1000.0
+   },
+   {
+    "amp": 4095.6,
+    "hz": 1500.0
+   }
+  ],
+  "exists": true,
+  "frames": 144000,
+  "max": [
+   8193,
+   8191
+  ],
+  "mean": [
+   0.01,
+   0.0
+  ],
+  "min": [
+   -8191,
+   -8191
+  ],
+  "neg_frac": 0.3307,
+  "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/LB3_peaks_mon.wav",
+  "peak": [
+   8193,
+   8191
+  ],
+  "rate": 48000,
+  "rms": [
+   4710.3,
+   4710.31
+  ],
+  "width": 2,
+  "zero_run_hist": {
+   "42624": 1,
+   "6144": 1
+  },
+  "zero_runs_n": 2
+ },
+ "edges": [
+  "output.r83b_s4_LB3:102 -> r83b_ns48:84",
+  "output.r83b_s4_LB3:224 -> r83b_ns48:145",
+  "r83b_ns44:125 -> input.r83b_s4_LB3:107",
+  "r83b_ns44:193 -> input.r83b_s4_LB3:215",
+  "r83b_ns48:133 -> r83b_s4_LB3_rec:52",
+  "r83b_ns48:195 -> r83b_s4_LB3_rec:93",
+  "r83b_s4_LB3_tone:113 -> r83b_ns44:189",
+  "r83b_s4_LB3_tone:213 -> r83b_ns44:182"
+ ],
+ "leg": "LB3_peaks",
+ "load_after": [
+  96.03173828125,
+  80.59033203125,
+  50.1982421875
+ ],
+ "load_before": [
+  104.21337890625,
+  81.5986328125,
+  50.189453125
+ ],
+ "mon_sink": "r83b_ns48",
+ "name": "r83b_s4_LB3",
+ "nodes": [
+  "input.r83b_s4_LB3",
+  "output.r83b_s4_LB3",
+  "r83b_s4_LB3_rec"
+ ],
+ "props": {
+  "input.r83b_s4_LB3": {
+   "id": 222,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "r83b_s4_LB3 input",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-974263",
+    "node.latency": null,
+    "node.link-group": "loopback-974263-20",
+    "node.name": "input.r83b_s4_LB3",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": true,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_ns44"
+   }
+  },
+  "output.r83b_s4_LB3": {
+   "id": 223,
+   "picked": {
+    "audio.channels": 2,
+    "audio.position": "[ FL, FR ]",
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Output/Audio",
+    "media.name": "r83b_s4_LB3 output",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": "pw-loopback-974263",
+    "node.latency": null,
+    "node.link-group": "loopback-974263-20",
+    "node.name": "output.r83b_s4_LB3",
+    "node.passive": null,
+    "resample.disable": true,
+    "resample.peaks": null,
+    "resample.prefill": true,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_ns48"
+   }
+  },
+  "r83b_s4_LB3_rec": {
+   "id": 225,
+   "picked": {
+    "audio.channels": null,
+    "audio.position": null,
+    "bogus.prop": null,
+    "channelmap.map": null,
+    "channelmix.disabled": null,
+    "channelmix.stereo-widen": null,
+    "channelmix.upmix": null,
+    "media.class": "Stream/Input/Audio",
+    "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/LB3_peaks_mon.wav",
+    "node.autoconnect": true,
+    "node.dont-move": null,
+    "node.dont-remix": null,
+    "node.force-latency": null,
+    "node.group": null,
+    "node.latency": null,
+    "node.link-group": null,
+    "node.name": "r83b_s4_LB3_rec",
+    "node.passive": null,
+    "resample.disable": null,
+    "resample.peaks": null,
+    "resample.prefill": null,
+    "resample.quality": null,
+    "stream.dont-remix": null,
+    "stream.is-live": true,
+    "target.object": "r83b_ns48"
+   }
+  }
+ },
+ "rc": -9,
+ "rec_err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/raw/LB3_peaks_mon.wav",
+ "rec_rc": 1,
+ "stderr": "",
+ "tone_src": "r83b_ns44",
+ "tone_wav": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-boundary/scratch/tone44.wav",
+ "wait_s": 0.072
+}
