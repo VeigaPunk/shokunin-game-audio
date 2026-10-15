@@ -1,0 +1,2841 @@
+Module #1
+	Name: libpipewire-module-rt
+	Argument: {
+            nice.level    = -11
+            rt.prio       = 88
+            #rt.time.soft = -1
+            #rt.time.hard = -1
+            #rlimits.enabled = true
+            rtportal.enabled = false
+            #rtkit.enabled = true
+            #uclamp.min = 0
+            #uclamp.max = 1024
+        }
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-rt"
+		object.id = "1"
+		object.serial = "1"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Use realtime thread scheduling, falling back to RTKit"
+		module.usage = "( nice.level=<priority: default 20(don't change)> ) ( rt.prio=<priority: default 83> ) ( rt.time.soft=<in usec: default -1> ) ( rt.time.hard=<in usec: default -1> ) ( rlimits.enabled=<default true> ) ( rtportal.enabled=<default true> ) ( rtkit.enabled=<default true> ) ( uclamp.min=<default 0> ) ( uclamp.max=<default 1024> )"
+		module.version = "1.6.8"
+		nice.level = "-11"
+		rt.prio = "88"
+		rtportal.enabled = "false"
+
+Module #2
+	Name: libpipewire-module-protocol-native
+	Argument: {
+            # List of server Unix sockets, and optionally permissions
+            #sockets = [ { name = "pipewire-0" }, { name = "pipewire-0-manager" } ]
+        }
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-protocol-native"
+		object.id = "2"
+		object.serial = "2"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Native protocol using unix sockets"
+		module.version = "1.6.8"
+
+Module #4
+	Name: libpipewire-module-profiler
+	Argument: {
+            #profile.interval.ms = 0
+        }
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-profiler"
+		object.id = "4"
+		object.serial = "4"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Generate Profiling data"
+		module.usage = "( profile.interval.ms=<minimum interval for sampling data (in ms) ) "
+		module.version = "1.6.8"
+
+Module #6
+	Name: libpipewire-module-metadata
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-metadata"
+		object.id = "6"
+		object.serial = "6"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Allow clients to create metadata store"
+		module.version = "1.6.8"
+
+Module #8
+	Name: libpipewire-module-spa-device-factory
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-spa-device-factory"
+		object.id = "8"
+		object.serial = "8"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Provide a factory to make SPA devices"
+		module.version = "1.6.8"
+
+Module #10
+	Name: libpipewire-module-spa-node-factory
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-spa-node-factory"
+		object.id = "10"
+		object.serial = "10"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Provide a factory to make SPA nodes"
+		module.version = "1.6.8"
+
+Module #12
+	Name: libpipewire-module-client-node
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-client-node"
+		object.id = "12"
+		object.serial = "12"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Allow clients to create and control remote nodes"
+		module.version = "1.6.8"
+
+Module #14
+	Name: libpipewire-module-client-device
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-client-device"
+		object.id = "14"
+		object.serial = "14"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Allow clients to create and control remote devices"
+		module.version = "1.6.8"
+
+Module #16
+	Name: libpipewire-module-portal
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-portal"
+		object.id = "16"
+		object.serial = "16"
+
+Module #17
+	Name: libpipewire-module-access
+	Argument: {
+            # Socket-specific access permissions
+            #access.socket = { pipewire-0 = "default", pipewire-0-manager = "unrestricted" }
+
+            # Deprecated legacy mode (not socket-based),
+            # for now enabled by default if access.socket is not specified
+            #access.legacy = true
+        }
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-access"
+		object.id = "17"
+		object.serial = "17"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Perform access check"
+		module.usage = "( access.socket={ <socket>=<access>, ... } ) ( access.legacy=true ) "
+		module.version = "1.6.8"
+
+Module #18
+	Name: libpipewire-module-adapter
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-adapter"
+		object.id = "18"
+		object.serial = "18"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Manage adapter nodes"
+		module.version = "1.6.8"
+
+Module #20
+	Name: libpipewire-module-link-factory
+	Argument: {
+            #allow.link.passive = false
+	}
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-link-factory"
+		object.id = "20"
+		object.serial = "20"
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Allow clients to create links"
+		module.usage = "( allow.link.passive=<bool, default false> ) "
+		module.version = "1.6.8"
+
+Module #22
+	Name: libpipewire-module-session-manager
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.name = "libpipewire-module-session-manager"
+		object.id = "22"
+		object.serial = "22"
+		module.author = "George Kiagiadakis <george.kiagiadakis@collabora.com>"
+		module.description = "Implements objects for session management"
+		module.version = "1.6.8"
+
+Module #536870912
+	Name: module-always-sink
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Pauli Virtanen <pav@iki.fi>"
+		module.description = "Always keeps at least one sink loaded even if it's a null one"
+		module.usage = "sink_name=<name of sink>"
+		module.version = "1.6.8"
+
+Module #536870913
+	Name: module-device-manager
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Keep track of devices (and their descriptions) both past and present and prioritise by role"
+		module.usage = "do_routing=<Automatically route streams based on a priority list (unique per-role)?> on_hotplug=<When new device becomes available, recheck streams?> on_rescue=<When device becomes unavailable, recheck streams?>"
+		module.version = "1.6.8"
+
+Module #536870914
+	Name: module-device-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Automatically restore the volume/mute state of devices"
+		module.usage = "restore_port=<Save/restore port?> restore_volume=<Save/restore volumes?> restore_muted=<Save/restore muted states?> restore_formats=<Save/restore saved formats?>"
+		module.version = "1.6.8"
+
+Module #536870915
+	Name: module-stream-restore
+	Argument: 
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "Automatically restore the volume/mute/device state of streams"
+		module.usage = "restore_device=<Save/restore sinks/sources?> restore_volume=<Save/restore volumes?> restore_muted=<Save/restore muted states?> on_hotplug=<This argument is obsolete, please remove it from configuration> on_rescue=<This argument is obsolete, please remove it from configuration> fallback_table=<filename>"
+		module.version = "1.6.8"
+
+Module #536870916
+	Name: module-null-sink
+	Argument: sink_name=r96s_ns rate=48000 channels=1 sink_properties=state.restore-props=false
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "A NULL sink"
+		module.usage = "sink_name=<name of sink> sink_properties=<properties for the sink> format=<sample format> rate=<sample rate> channels=<number of channels> channel_map=<channel map>"
+		module.version = "1.6.8"
+
+Module #536870918
+	Name: module-null-sink
+	Argument: sink_name=r86b_ns
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "A NULL sink"
+		module.usage = "sink_name=<name of sink> sink_properties=<properties for the sink> format=<sample format> rate=<sample rate> channels=<number of channels> channel_map=<channel map>"
+		module.version = "1.6.8"
+
+Module #536870922
+	Name: module-null-sink
+	Argument: sink_name=r93s_in channels=1
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "A NULL sink"
+		module.usage = "sink_name=<name of sink> sink_properties=<properties for the sink> format=<sample format> rate=<sample rate> channels=<number of channels> channel_map=<channel map>"
+		module.version = "1.6.8"
+
+Module #536870923
+	Name: module-null-sink
+	Argument: sink_name=r82ff_ns_2422178
+	Usage counter: n/a
+	Properties:
+		module.author = "Wim Taymans <wim.taymans@gmail.com>"
+		module.description = "A NULL sink"
+		module.usage = "sink_name=<name of sink> sink_properties=<properties for the sink> format=<sample format> rate=<sample rate> channels=<number of channels> channel_map=<channel map>"
+		module.version = "1.6.8"
+
+Sink #61
+	State: RUNNING
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+	Description: USB Audio S/PDIF Output
+	Driver: PipeWire
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 26214 /  40% / -23.88 dB,   front-right: 26214 /  40% / -23.88 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE HW_MUTE_CTRL DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:10:playback"
+		api.alsa.path = "hw:Audio,3"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-speakers"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #3"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: SPDIF: sink"
+		device.profile.description = "S/PDIF Output"
+		card.profile.device = "10"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "796"
+		priority.session = "796"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+		node.nick = "USB Audio #3"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "61"
+		object.serial = "61"
+		node.max-latency = "16384/48000"
+		api.alsa.period-size = "512"
+		api.alsa.period-num = "64"
+		api.alsa.headroom = "512"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] SPDIF: S/PDIF Output (type: SPDIF, priority: 100, availability unknown)
+	Active Port: [Out] SPDIF
+	Formats:
+		pcm
+
+Sink #62
+	State: SUSPENDED
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink
+	Description: USB Audio Speakers
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:11:playback"
+		api.alsa.path = "hw:Audio,0"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-speakers"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Speaker: sink"
+		device.profile.description = "Speakers"
+		card.profile.device = "11"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "1100"
+		priority.session = "1100"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+		node.nick = "USB Audio"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "62"
+		object.serial = "62"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] Speaker: Speakers (type: Speaker, priority: 200, availability group: Speaker - Output, not available)
+	Active Port: [Out] Speaker
+	Formats:
+		pcm
+
+Sink #63
+	State: SUSPENDED
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink
+	Description: USB Audio Front Headphones
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:12:playback"
+		api.alsa.path = "hw:Audio,1"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-headphones"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #1"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "1"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Headphones: sink"
+		device.profile.description = "Front Headphones"
+		card.profile.device = "12"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "828"
+		priority.session = "828"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink"
+		node.nick = "USB Audio #1"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "63"
+		object.serial = "63"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] Headphones: Front Headphones (type: Headphones, priority: 300, availability group: Headphone - Output, not available)
+	Active Port: [Out] Headphones
+	Formats:
+		pcm
+
+Sink #60843
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_01_00.1.hdmi-stereo
+	Description: GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 26214 /  40% / -23.88 dB,   front-right: 26214 /  40% / -23.88 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY SET_FORMATS 
+	Properties:
+		object.path = "alsa:acp:NVidia:4:playback"
+		api.alsa.path = "hdmi:1"
+		api.alsa.pcm.card = "1"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-card-analog"
+		device.bus = "pci"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		iec958.codecs = "[\"PCM\"]"
+		device.routes = "1"
+		alsa.resolution_bits = "16"
+		alsa.card = "1"
+		alsa.card_name = "HDA NVidia"
+		alsa.long_card_name = "HDA NVidia at 0xdc080000 irq 168"
+		alsa.driver_name = "snd_hda_intel"
+		alsa.mixer_name = "Nvidia GPU af HDMI/DP"
+		alsa.components = "HDA:10de00af,10de0000,00100100"
+		alsa.id = "NVidia"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "LG ULTRAWIDE"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "hdmi-stereo"
+		device.profile.description = "Digital Stereo (HDMI)"
+		card.profile.device = "4"
+		device.id = "44"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "696"
+		priority.session = "696"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+		node.nick = "LG ULTRAWIDE"
+		device.description = "GB205 High Definition Audio Controller"
+		api.alsa.card.name = "HDA NVidia"
+		api.alsa.card.longname = "HDA NVidia at 0xdc080000 irq 168"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "175"
+		object.serial = "60843"
+		device.enum.api = "udev"
+		api.alsa.card = "1"
+		device.plugged.usec = "19717690"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.1/0000:01:00.1/sound/card1"
+		device.subsystem = "sound"
+		device.vendor.id = "0x10de"
+		device.vendor.name = "NVIDIA Corporation"
+		device.product.id = "0x2f80"
+		device.product.name = "GB205 High Definition Audio Controller"
+		device.name = "alsa_card.pci-0000_01_00.1"
+		device.nick = "HDA NVidia"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio1"
+		spa.object.id = "4"
+		device.string = "1"
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (type: HDMI, priority: 5900, availability group: Legacy 1, available)
+	Active Port: hdmi-output-0
+	Formats:
+		pcm
+
+Sink #116459
+	State: SUSPENDED
+	Name: r96s_ns
+	Description: r96s_ns Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 536870916
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: r96s_ns.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r96s_ns"
+		state.restore-props = "false"
+		audio.rate = "48000"
+		audio.channels = "1"
+		audio.position = "[ MONO ]"
+		media.class = "Audio/Sink"
+		device.description = "r96s_ns Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870916"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "94"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "110"
+		object.serial = "116459"
+	Formats:
+		pcm
+
+Sink #116556
+	State: SUSPENDED
+	Name: r86b_ns
+	Description: r86b_ns Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 536870918
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: r86b_ns.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r86b_ns"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		media.class = "Audio/Sink"
+		device.description = "r86b_ns Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870918"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "152"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "181"
+		object.serial = "116556"
+	Formats:
+		pcm
+
+Sink #116957
+	State: IDLE
+	Name: r82ff_ns_2422178
+	Description: r82ff_ns_2422178 Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 536870923
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: r82ff_ns_2422178.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r82ff_ns_2422178"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		media.class = "Audio/Sink"
+		device.description = "r82ff_ns_2422178 Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870923"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "247"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "146"
+		object.serial = "116957"
+	Formats:
+		pcm
+
+Sink #117017
+	State: IDLE
+	Name: r93s_in
+	Description: r93s_in Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 536870922
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: r93s_in.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r93s_in"
+		audio.channels = "1"
+		audio.position = "[ MONO ]"
+		media.class = "Audio/Sink"
+		device.description = "r93s_in Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870922"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "166"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "234"
+		object.serial = "117017"
+	Formats:
+		pcm
+
+Sink #117395
+	State: RUNNING
+	Name: r93s_fc_in
+	Description: r93s_fc
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 4294967295
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor Source: r93s_fc_in.monitor
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r93s_fc_in"
+		node.autoconnect = "false"
+		media.class = "Audio/Sink"
+		audio.channels = "1"
+		audio.position = "[MONO]"
+		device.description = "r93s_fc"
+		node.group = "filter-chain-2438918-22"
+		node.link-group = "filter-chain-2438918-22"
+		node.virtual = "true"
+		resample.prefill = "true"
+		resample.disable = "true"
+		media.name = "r93s_fc input"
+		stream.is-live = "true"
+		node.want-driver = "true"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "9"
+		clock.quantum-limit = "8192"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "130"
+		object.id = "52"
+		object.serial = "117395"
+		node.driver-id = "234"
+	Formats:
+		pcm
+
+Source #61
+	State: RUNNING
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor
+	Description: Monitor of USB Audio S/PDIF Output
+	Driver: PipeWire
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:10:playback"
+		api.alsa.path = "hw:Audio,3"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-speakers"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "monitor"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #3"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: SPDIF: sink"
+		device.profile.description = "S/PDIF Output"
+		card.profile.device = "10"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "796"
+		priority.session = "796"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+		node.nick = "USB Audio #3"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "61"
+		object.serial = "61"
+		node.max-latency = "16384/48000"
+		api.alsa.period-size = "512"
+		api.alsa.period-num = "64"
+		api.alsa.headroom = "512"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] SPDIF: S/PDIF Output (type: SPDIF, priority: 100, availability unknown)
+	Active Port: [Out] SPDIF
+	Formats:
+		pcm
+
+Source #62
+	State: SUSPENDED
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor
+	Description: Monitor of USB Audio Speakers
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:11:playback"
+		api.alsa.path = "hw:Audio,0"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-speakers"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "monitor"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "0"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Speaker: sink"
+		device.profile.description = "Speakers"
+		card.profile.device = "11"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "1100"
+		priority.session = "1100"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+		node.nick = "USB Audio"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "62"
+		object.serial = "62"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] Speaker: Speakers (type: Speaker, priority: 200, availability group: Speaker - Output, not available)
+	Active Port: [Out] Speaker
+	Formats:
+		pcm
+
+Source #63
+	State: SUSPENDED
+	Name: alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor
+	Description: Monitor of USB Audio Front Headphones
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:12:playback"
+		api.alsa.path = "hw:Audio,1"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-headphones"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "monitor"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #1"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "1"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Headphones: sink"
+		device.profile.description = "Front Headphones"
+		card.profile.device = "12"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "828"
+		priority.session = "828"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink"
+		node.nick = "USB Audio #1"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "63"
+		object.serial = "63"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[Out] Headphones: Front Headphones (type: Headphones, priority: 300, availability group: Headphone - Output, not available)
+	Active Port: [Out] Headphones
+	Formats:
+		pcm
+
+Source #64
+	State: SUSPENDED
+	Name: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+	Description: USB Audio Line Input
+	Driver: PipeWire
+	Sample Specification: s24le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:13:capture"
+		api.alsa.path = "hw:Audio,1"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "capture"
+		port.group = "capture"
+		device.icon_name = "audio-input-microphone"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #1"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "1"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Line: source"
+		device.profile.description = "Line Input"
+		card.profile.device = "13"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.source"
+		node.pause-on-idle = "false"
+		priority.driver = "1828"
+		priority.session = "1828"
+		media.class = "Audio/Source"
+		node.name = "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+		node.nick = "USB Audio #1"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "64"
+		object.serial = "64"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[In] Line: Line Input (type: Line, priority: 100, availability group: Line - Input, not available)
+	Active Port: [In] Line
+	Formats:
+		pcm
+
+Source #65
+	State: SUSPENDED
+	Name: alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source
+	Description: USB Audio Microphone
+	Driver: PipeWire
+	Sample Specification: s24le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: n/a
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:Audio:14:capture"
+		api.alsa.path = "hw:Audio,2"
+		api.alsa.open.ucm = "true"
+		api.alsa.pcm.card = "0"
+		api.alsa.pcm.stream = "capture"
+		port.group = "capture"
+		device.icon_name = "audio-input-microphone"
+		device.bus = "usb"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		device.routes = "1"
+		alsa.mixer_device = "_ucm0005.hw:Audio"
+		alsa.resolution_bits = "16"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.api = "alsa"
+		device.class = "sound"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "USB Audio #2"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "2"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "HiFi: Mic: source"
+		device.profile.description = "Microphone"
+		card.profile.device = "14"
+		device.id = "60"
+		factory.name = "api.alsa.pcm.source"
+		node.pause-on-idle = "false"
+		priority.driver = "1812"
+		priority.session = "1812"
+		media.class = "Audio/Source"
+		node.name = "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source"
+		node.nick = "USB Audio #2"
+		device.description = "USB Audio"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "65"
+		object.serial = "65"
+		device.enum.api = "udev"
+		api.alsa.card = "0"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.nick = "USB Audio"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		device.string = "0"
+	Ports:
+		[In] Mic: Microphone (type: Mic, priority: 300, availability group: Mic - Input, not available)
+	Active Port: [In] Mic
+	Formats:
+		pcm
+
+Source #60843
+	State: SUSPENDED
+	Name: alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor
+	Description: Monitor of GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE]
+	Driver: PipeWire
+	Sample Specification: s32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 4294967295
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: alsa_output.pci-0000_01_00.1.hdmi-stereo
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		object.path = "alsa:acp:NVidia:4:playback"
+		api.alsa.path = "hdmi:1"
+		api.alsa.pcm.card = "1"
+		api.alsa.pcm.stream = "playback"
+		port.group = "playback"
+		device.icon_name = "audio-card-analog"
+		device.bus = "pci"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		iec958.codecs = "[\"PCM\"]"
+		device.routes = "1"
+		alsa.resolution_bits = "16"
+		alsa.card = "1"
+		alsa.card_name = "HDA NVidia"
+		alsa.long_card_name = "HDA NVidia at 0xdc080000 irq 168"
+		alsa.driver_name = "snd_hda_intel"
+		alsa.mixer_name = "Nvidia GPU af HDMI/DP"
+		alsa.components = "HDA:10de00af,10de0000,00100100"
+		alsa.id = "NVidia"
+		device.api = "alsa"
+		device.class = "monitor"
+		alsa.class = "generic"
+		alsa.subclass = "generic-mix"
+		alsa.name = "LG ULTRAWIDE"
+		alsa.subdevice = "0"
+		alsa.subdevice_name = "subdevice #0"
+		alsa.device = "3"
+		alsa.sync.id = "00000000:00000000:00000000:00000000"
+		device.profile.name = "hdmi-stereo"
+		device.profile.description = "Digital Stereo (HDMI)"
+		card.profile.device = "4"
+		device.id = "44"
+		factory.name = "api.alsa.pcm.sink"
+		node.pause-on-idle = "false"
+		priority.driver = "696"
+		priority.session = "696"
+		media.class = "Audio/Sink"
+		node.name = "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+		node.nick = "LG ULTRAWIDE"
+		device.description = "GB205 High Definition Audio Controller"
+		api.alsa.card.name = "HDA NVidia"
+		api.alsa.card.longname = "HDA NVidia at 0xdc080000 irq 168"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "33"
+		node.driver = "true"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "175"
+		object.serial = "60843"
+		device.enum.api = "udev"
+		api.alsa.card = "1"
+		device.plugged.usec = "19717690"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.1/0000:01:00.1/sound/card1"
+		device.subsystem = "sound"
+		device.vendor.id = "0x10de"
+		device.vendor.name = "NVIDIA Corporation"
+		device.product.id = "0x2f80"
+		device.product.name = "GB205 High Definition Audio Controller"
+		device.name = "alsa_card.pci-0000_01_00.1"
+		device.nick = "HDA NVidia"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio1"
+		spa.object.id = "4"
+		device.string = "1"
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (type: HDMI, priority: 5900, availability group: Legacy 1, available)
+	Active Port: hdmi-output-0
+	Formats:
+		pcm
+
+Source #116459
+	State: SUSPENDED
+	Name: r96s_ns.monitor
+	Description: Monitor of r96s_ns Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 536870916
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: r96s_ns
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r96s_ns"
+		state.restore-props = "false"
+		audio.rate = "48000"
+		audio.channels = "1"
+		audio.position = "[ MONO ]"
+		media.class = "Audio/Sink"
+		device.description = "r96s_ns Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870916"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "94"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "110"
+		object.serial = "116459"
+		device.class = "monitor"
+	Formats:
+		pcm
+
+Source #116556
+	State: SUSPENDED
+	Name: r86b_ns.monitor
+	Description: Monitor of r86b_ns Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 536870918
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: r86b_ns
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r86b_ns"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		media.class = "Audio/Sink"
+		device.description = "r86b_ns Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870918"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "152"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "181"
+		object.serial = "116556"
+		device.class = "monitor"
+	Formats:
+		pcm
+
+Source #116957
+	State: IDLE
+	Name: r82ff_ns_2422178.monitor
+	Description: Monitor of r82ff_ns_2422178 Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Owner Module: 536870923
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: r82ff_ns_2422178
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r82ff_ns_2422178"
+		audio.channels = "2"
+		audio.position = "[ FL, FR ]"
+		media.class = "Audio/Sink"
+		device.description = "r82ff_ns_2422178 Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870923"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "247"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "146"
+		object.serial = "116957"
+		device.class = "monitor"
+	Formats:
+		pcm
+
+Source #117017
+	State: IDLE
+	Name: r93s_in.monitor
+	Description: Monitor of r93s_in Audio/Sink sink
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 536870922
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: r93s_in
+	Latency: 0 usec, configured 0 usec
+	Flags: HARDWARE DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r93s_in"
+		audio.channels = "1"
+		audio.position = "[ MONO ]"
+		media.class = "Audio/Sink"
+		device.description = "r93s_in Audio/Sink sink"
+		factory.name = "support.null-audio-sink"
+		monitor.channel-volumes = "true"
+		monitor.passthrough = "true"
+		pulse.module.id = "536870922"
+		factory.id = "19"
+		clock.quantum-limit = "8192"
+		client.id = "166"
+		node.driver = "true"
+		port.group = "stream.0"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		object.id = "234"
+		object.serial = "117017"
+		device.class = "monitor"
+	Formats:
+		pcm
+
+Source #117395
+	State: RUNNING
+	Name: r93s_fc_in.monitor
+	Description: Monitor of r93s_fc
+	Driver: PipeWire
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Owner Module: 4294967295
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Base Volume: 65536 / 100% / 0.00 dB
+	Monitor of Sink: r93s_fc_in
+	Latency: 0 usec, configured 0 usec
+	Flags: DECIBEL_VOLUME LATENCY 
+	Properties:
+		node.name = "r93s_fc_in"
+		node.autoconnect = "false"
+		media.class = "Audio/Sink"
+		audio.channels = "1"
+		audio.position = "[MONO]"
+		device.description = "r93s_fc"
+		node.group = "filter-chain-2438918-22"
+		node.link-group = "filter-chain-2438918-22"
+		node.virtual = "true"
+		resample.prefill = "true"
+		resample.disable = "true"
+		media.name = "r93s_fc input"
+		stream.is-live = "true"
+		node.want-driver = "true"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "9"
+		clock.quantum-limit = "8192"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "130"
+		object.id = "52"
+		object.serial = "117395"
+		node.driver-id = "234"
+		device.class = "monitor"
+	Formats:
+		pcm
+
+Sink Input #117396
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: n/a
+	Sink: 4294967295
+	Sample Specification: float32le 1ch 48000Hz
+	Channel Map: mono
+	Format: pcm, format.sample_format = "\"float32ne\""  format.rate = "48000"  format.channels = "1"  format.channel_map = "\"mono\""
+	Corked: no
+	Mute: no
+	Volume: mono: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Sink Latency: 0 usec
+	Resample method: PipeWire
+	Properties:
+		node.name = "r93s_fc_out"
+		node.autoconnect = "false"
+		audio.channels = "1"
+		audio.position = "[MONO]"
+		device.description = "r93s_fc"
+		node.group = "filter-chain-2438918-22"
+		node.link-group = "filter-chain-2438918-22"
+		node.virtual = "true"
+		resample.prefill = "true"
+		resample.disable = "true"
+		media.name = "r93s_fc output"
+		stream.is-live = "true"
+		node.want-driver = "true"
+		node.trigger = "true"
+		media.class = "Stream/Output/Audio"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "9"
+		clock.quantum-limit = "8192"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "130"
+		object.id = "197"
+		object.serial = "117396"
+		node.driver-id = "234"
+		module-stream-restore.id = "sink-input-by-media-name:r93s_fc output"
+
+Sink Input #117499
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: 117498
+	Sink: 61
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"s16le\""  format.rate = "48000"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Corked: no
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Sink Latency: 0 usec
+	Resample method: PipeWire
+	Properties:
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.name = "Lavf63.1.101"
+		application.process.id = "2445894"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.binary = "ffmpeg"
+		application.language = "C"
+		window.x11.display = ":0"
+		application.process.machine_id = "432d02b544a5459ebbff9c42ec68334d"
+		application.process.session_id = "2"
+		media.name = "r82ff-play-2422178"
+		pulse.corked = "false"
+		node.rate = "1/48000"
+		node.latency = "8192/48000"
+		target.object = "default"
+		stream.is-live = "true"
+		node.name = "Lavf63.1.101"
+		node.want-driver = "true"
+		node.autoconnect = "true"
+		media.class = "Stream/Output/Audio"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "7"
+		clock.quantum-limit = "8192"
+		node.loop.name = "data-loop.0"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "151"
+		object.id = "139"
+		object.serial = "117499"
+		node.driver-id = "61"
+		pulse.attr.maxlength = "4194304"
+		pulse.attr.tlength = "384000"
+		pulse.attr.prebuf = "380164"
+		pulse.attr.minreq = "3840"
+		module-stream-restore.id = "sink-input-by-application-name:Lavf63.1.101"
+
+Source Output #117484
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: 117483
+	Source: 61
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"s16le\""  format.rate = "48000"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Corked: no
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Source Latency: 0 usec
+	Resample method: PipeWire
+	Properties:
+		application.name = "pw-record"
+		node.name = "r82ff_2422178_tdef_p4_default_kw"
+		stream.capture.sink = "true"
+		node.rate = "1/48000"
+		media.type = "Audio"
+		media.category = "Capture"
+		media.role = "music"
+		media.filename = "/tmp/r82ff-play-rb9jzejw/p4_default_kw_def.wav"
+		media.name = "/tmp/r82ff-play-rb9jzejw/p4_default_kw_def.wav"
+		target.object = "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+		stream.is-live = "true"
+		node.want-driver = "true"
+		node.autoconnect = "true"
+		node.loop.class = "main"
+		node.async = "true"
+		media.class = "Stream/Input/Audio"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "9"
+		clock.quantum-limit = "8192"
+		node.loop.name = "main-loop"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "127"
+		object.id = "242"
+		object.serial = "117484"
+		node.driver-id = "61"
+		module-stream-restore.id = "source-output-by-media-role:music"
+
+Source Output #117485
+	Driver: PipeWire
+	Owner Module: n/a
+	Client: 117482
+	Source: 116957
+	Sample Specification: s16le 2ch 48000Hz
+	Channel Map: front-left,front-right
+	Format: pcm, format.sample_format = "\"s16le\""  format.rate = "48000"  format.channels = "2"  format.channel_map = "\"front-left,front-right\""
+	Corked: no
+	Mute: no
+	Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB
+	        balance 0.00
+	Buffer Latency: 0 usec
+	Source Latency: 0 usec
+	Resample method: PipeWire
+	Properties:
+		application.name = "pw-record"
+		node.name = "r82ff_2422178_tns_p4_default_kw"
+		stream.capture.sink = "true"
+		node.rate = "1/48000"
+		media.type = "Audio"
+		media.category = "Capture"
+		media.role = "music"
+		media.filename = "/tmp/r82ff-play-rb9jzejw/p4_default_kw_ns.wav"
+		media.name = "/tmp/r82ff-play-rb9jzejw/p4_default_kw_ns.wav"
+		target.object = "r82ff_ns_2422178"
+		stream.is-live = "true"
+		node.want-driver = "true"
+		node.autoconnect = "true"
+		node.loop.class = "main"
+		node.async = "true"
+		media.class = "Stream/Input/Audio"
+		port.group = "stream.0"
+		adapt.follower.spa-node = ""
+		object.register = "false"
+		factory.id = "9"
+		clock.quantum-limit = "8192"
+		node.loop.name = "main-loop"
+		library.name = "audioconvert/libspa-audioconvert"
+		client.id = "182"
+		object.id = "56"
+		object.serial = "117485"
+		node.driver-id = "146"
+		module-stream-restore.id = "source-output-by-media-role:music"
+
+Client #32
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-1991"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "1991"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "32"
+		object.serial = "32"
+		pipewire.access.portal.is_portal = "true"
+		portal.monitor = "Camera"
+		module.rt = "false"
+		application.name = "xdg-desktop-portal"
+		application.process.binary = "xdg-desktop-portal"
+		application.language = "en_US.UTF-8"
+		application.process.id = "1991"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #33
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2063"
+		pipewire.sec.socket = "pipewire-0-manager"
+		pipewire.sec.pid = "2063"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "33"
+		object.serial = "33"
+		application.version = "0.5.17"
+		wireplumber.daemon = "true"
+		wireplumber.profile = "main"
+		application.name = "WirePlumber"
+		remote.name = "[pipewire-0-manager,pipewire-0]"
+		config.name = "null"
+		context.modules.allow-empty = "true"
+		application.process.binary = "wireplumber"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2063"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.portal.gate-supported = "true"
+		pipewire.access.effective = "unrestricted"
+		session.services = "[bluetooth.audio, api.alsa, policy.default-nodes, api.libcamera, audio, api.alsa-seq, policy.device.routes, midi, bluetooth.midi, policy.linking.role-based, policy.linking.standard, api.bluez, policy.device.profile, api.v4l2, video-capture]"
+
+Client #40
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2077"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2077"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "40"
+		object.serial = "40"
+		application.name = "xdg-desktop-portal-hyprland"
+		application.process.binary = "xdg-desktop-portal-hyprland"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2077"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #43
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2063"
+		pipewire.sec.socket = "pipewire-0-manager"
+		pipewire.sec.pid = "2063"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "43"
+		object.serial = "43"
+		application.version = "0.5.17"
+		wireplumber.daemon = "true"
+		wireplumber.profile = "main"
+		application.name = "WirePlumber [client]"
+		remote.name = "[pipewire-0-manager,pipewire-0]"
+		config.name = "null"
+		context.modules.allow-empty = "true"
+		application.process.binary = "wireplumber"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2063"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access.portal.gate-supported = "true"
+		wireplumber.client-context = "true"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #57
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "57"
+		object.serial = "57"
+		config.name = "pipewire-pulse.conf"
+		application.name = "pipewire"
+		application.process.binary = "pipewire"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2694"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #47326
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "131"
+		object.serial = "47326"
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.name = "Chromium input"
+		application.process.id = "1402156"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.binary = "grok-bot"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "432d02b544a5459ebbff9c42ec68334d"
+		application.process.session_id = "2"
+		config.name = "pipewire-pulse.conf"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #60858
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "58"
+		object.serial = "60858"
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.name = "waybar"
+		application.process.id = "1828"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.binary = "waybar"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "432d02b544a5459ebbff9c42ec68334d"
+		application.process.session_id = "2"
+		config.name = "pipewire-pulse.conf"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #116458
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "94"
+		object.serial = "116458"
+		config.name = "pipewire-pulse.conf"
+		application.name = "pipewire"
+		application.process.binary = "pipewire"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2694"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #116555
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "152"
+		object.serial = "116555"
+		config.name = "pipewire-pulse.conf"
+		application.name = "pipewire"
+		application.process.binary = "pipewire"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2694"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #116956
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "247"
+		object.serial = "116956"
+		config.name = "pipewire-pulse.conf"
+		application.name = "pipewire"
+		application.process.binary = "pipewire"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2694"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117015
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "166"
+		object.serial = "117015"
+		config.name = "pipewire-pulse.conf"
+		application.name = "pipewire"
+		application.process.binary = "pipewire"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2694"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117049
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2438918"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2438918"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "201"
+		object.serial = "117049"
+		application.name = "pw-cli"
+		application.process.binary = "pw-cli"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2438918"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117394
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2438918"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2438918"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "130"
+		object.serial = "117394"
+		application.name = "pw-cli"
+		application.process.binary = "pw-cli"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2438918"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117482
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2445892"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2445892"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "182"
+		object.serial = "117482"
+		application.name = "pw-cat"
+		application.process.binary = "pw-cat"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2445892"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117483
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2445893"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2445893"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "127"
+		object.serial = "117483"
+		application.name = "pw-cat"
+		application.process.binary = "pw-cat"
+		application.language = "en_US.UTF-8"
+		application.process.id = "2445893"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.session_id = "2"
+		window.x11.display = ":0"
+		log.level = "0"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117498
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "151"
+		object.serial = "117498"
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.name = "Lavf63.1.101"
+		application.process.id = "2445894"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.binary = "ffmpeg"
+		application.language = "C"
+		window.x11.display = ":0"
+		application.process.machine_id = "432d02b544a5459ebbff9c42ec68334d"
+		application.process.session_id = "2"
+		config.name = "pipewire-pulse.conf"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Client #117555
+	Driver: PipeWire
+	Owner Module: 2
+	Properties:
+		pipewire.protocol = "protocol-native"
+		core.name = "pipewire-vgpnk-2694"
+		pipewire.sec.socket = "pipewire-0"
+		pipewire.sec.pid = "2694"
+		pipewire.sec.uid = "1000"
+		pipewire.sec.gid = "1000"
+		module.id = "2"
+		object.id = "153"
+		object.serial = "117555"
+		client.api = "pipewire-pulse"
+		pulse.server.type = "unix"
+		application.process.id = "2446339"
+		application.process.user = "vgpnk"
+		application.process.host = "plazir27"
+		application.process.binary = "pactl"
+		application.name = "pactl"
+		application.language = "en_US.UTF-8"
+		window.x11.display = ":0"
+		application.process.machine_id = "432d02b544a5459ebbff9c42ec68334d"
+		application.process.session_id = "2"
+		config.name = "pipewire-pulse.conf"
+		cpu.max-align = "64"
+		default.clock.rate = "48000"
+		default.clock.quantum = "1024"
+		default.clock.min-quantum = "32"
+		default.clock.max-quantum = "2048"
+		default.clock.quantum-limit = "8192"
+		default.clock.quantum-floor = "4"
+		default.video.width = "640"
+		default.video.height = "480"
+		default.video.rate.num = "25"
+		default.video.rate.denom = "1"
+		log.level = "2"
+		clock.power-of-two-quantum = "true"
+		link.max-buffers = "64"
+		mem.warn-mlock = "false"
+		mem.allow-mlock = "true"
+		settings.check-quantum = "false"
+		settings.check-rate = "false"
+		core.version = "1.6.8"
+		pipewire.access = "unrestricted"
+		pipewire.access.effective = "unrestricted"
+
+Card #44
+	Name: alsa_card.pci-0000_01_00.1
+	Driver: alsa
+	Owner Module: n/a
+	Properties:
+		device.enum.api = "udev"
+		device.api = "alsa"
+		media.class = "Audio/Device"
+		api.alsa.path = "hw:1"
+		api.alsa.card = "1"
+		api.alsa.card.name = "HDA NVidia"
+		api.alsa.card.longname = "HDA NVidia at 0xdc080000 irq 168"
+		device.plugged.usec = "19717690"
+		device.bus_path = "pci-0000:01:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:01.1/0000:01:00.1/sound/card1"
+		device.bus = "pci"
+		device.subsystem = "sound"
+		device.vendor.id = "0x10de"
+		device.vendor.name = "NVIDIA Corporation"
+		device.product.id = "0x2f80"
+		device.product.name = "GB205 High Definition Audio Controller"
+		device.name = "alsa_card.pci-0000_01_00.1"
+		device.description = "GB205 High Definition Audio Controller"
+		device.nick = "HDA NVidia"
+		device.icon_name = "audio-card-analog-pci"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio1"
+		spa.object.id = "4"
+		factory.id = "15"
+		client.id = "43"
+		object.id = "44"
+		object.serial = "44"
+		object.path = "alsa:acp:NVidia"
+		alsa.card = "1"
+		alsa.card_name = "HDA NVidia"
+		alsa.long_card_name = "HDA NVidia at 0xdc080000 irq 168"
+		alsa.driver_name = "snd_hda_intel"
+		alsa.mixer_name = "Nvidia GPU af HDMI/DP"
+		alsa.components = "HDA:10de00af,10de0000,00100100"
+		alsa.id = "NVidia"
+		device.string = "1"
+	Profiles:
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+		output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: yes)
+		output:hdmi-stereo-extra1: Digital Stereo (HDMI 2) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-stereo-extra2: Digital Stereo (HDMI 3) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-stereo-extra3: Digital Stereo (HDMI 4) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-surround-extra1: Digital Surround 5.1 (HDMI 2) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra1: Digital Surround 7.1 (HDMI 2) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround-extra2: Digital Surround 5.1 (HDMI 3) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra2: Digital Surround 7.1 (HDMI 3) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround-extra3: Digital Surround 5.1 (HDMI 4) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra3: Digital Surround 7.1 (HDMI 4) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		pro-audio: Pro Audio (sinks: 4, sources: 0, priority: 1, available: yes)
+	Active Profile: output:hdmi-stereo
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (type: HDMI, priority: 5900, latency offset: 0 usec, availability group: Legacy 1, available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 1"
+				device.icon_name = "video-display"
+				card.profile.port = "0"
+				device.product.name = "LG ULTRAWIDE"
+				iec958.codecs.detected = "[\"PCM\"]"
+				audio.channels.detected = "2"
+				audio.position.detected = "[FL,FR]"
+			Part of profile(s): output:hdmi-stereo
+		hdmi-output-1: HDMI / DisplayPort 2 (type: HDMI, priority: 5800, latency offset: 0 usec, availability group: Legacy 2, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 2"
+				device.icon_name = "video-display"
+				card.profile.port = "1"
+			Part of profile(s): output:hdmi-stereo-extra1, output:hdmi-surround-extra1, output:hdmi-surround71-extra1
+		hdmi-output-2: HDMI / DisplayPort 3 (type: HDMI, priority: 5700, latency offset: 0 usec, availability group: Legacy 3, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 3"
+				device.icon_name = "video-display"
+				card.profile.port = "2"
+			Part of profile(s): output:hdmi-stereo-extra2, output:hdmi-surround-extra2, output:hdmi-surround71-extra2
+		hdmi-output-3: HDMI / DisplayPort 4 (type: HDMI, priority: 5600, latency offset: 0 usec, availability group: Legacy 4, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 4"
+				device.icon_name = "video-display"
+				card.profile.port = "3"
+			Part of profile(s): output:hdmi-stereo-extra3, output:hdmi-surround-extra3, output:hdmi-surround71-extra3
+
+Card #45
+	Name: alsa_card.pci-0000_79_00.1
+	Driver: alsa
+	Owner Module: n/a
+	Properties:
+		device.enum.api = "udev"
+		device.api = "alsa"
+		media.class = "Audio/Device"
+		api.alsa.path = "hw:2"
+		api.alsa.card = "2"
+		api.alsa.card.name = "HD-Audio Generic"
+		api.alsa.card.longname = "HD-Audio Generic at 0xdcf80000 irq 170"
+		device.plugged.usec = "19699626"
+		device.bus_path = "pci-0000:79:00.1"
+		sysfs.path = "/devices/pci0000:00/0000:00:08.1/0000:79:00.1/sound/card2"
+		device.bus = "pci"
+		device.subsystem = "sound"
+		device.vendor.id = "0x1002"
+		device.vendor.name = "Advanced Micro Devices, Inc. [AMD/ATI]"
+		device.product.id = "0x1640"
+		device.product.name = "Radeon High Definition Audio Controller"
+		device.name = "alsa_card.pci-0000_79_00.1"
+		device.description = "Radeon High Definition Audio Controller"
+		device.nick = "HD-Audio Generic"
+		device.icon_name = "audio-card-analog-pci"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio2"
+		spa.object.id = "6"
+		factory.id = "15"
+		client.id = "43"
+		object.id = "45"
+		object.serial = "45"
+		object.path = "alsa:acp:Generic"
+		alsa.card = "2"
+		alsa.card_name = "HD-Audio Generic"
+		alsa.long_card_name = "HD-Audio Generic at 0xdcf80000 irq 170"
+		alsa.driver_name = "snd_hda_intel"
+		alsa.mixer_name = "ATI R6xx HDMI"
+		alsa.components = "HDA:1002aa01,00aa0100,00100800"
+		alsa.id = "Generic"
+		device.string = "2"
+	Profiles:
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+		output:hdmi-stereo: Digital Stereo (HDMI) Output (sinks: 1, sources: 0, priority: 5900, available: no)
+		output:hdmi-stereo-extra1: Digital Stereo (HDMI 2) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-stereo-extra2: Digital Stereo (HDMI 3) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-stereo-extra3: Digital Stereo (HDMI 4) Output (sinks: 1, sources: 0, priority: 5700, available: no)
+		output:hdmi-surround: Digital Surround 5.1 (HDMI) Output (sinks: 1, sources: 0, priority: 800, available: no)
+		output:hdmi-surround71: Digital Surround 7.1 (HDMI) Output (sinks: 1, sources: 0, priority: 800, available: no)
+		output:hdmi-surround-extra1: Digital Surround 5.1 (HDMI 2) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra1: Digital Surround 7.1 (HDMI 2) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround-extra2: Digital Surround 5.1 (HDMI 3) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra2: Digital Surround 7.1 (HDMI 3) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround-extra3: Digital Surround 5.1 (HDMI 4) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		output:hdmi-surround71-extra3: Digital Surround 7.1 (HDMI 4) Output (sinks: 1, sources: 0, priority: 600, available: no)
+		pro-audio: Pro Audio (sinks: 4, sources: 0, priority: 1, available: yes)
+	Active Profile: off
+	Ports:
+		hdmi-output-0: HDMI / DisplayPort (type: HDMI, priority: 5900, latency offset: 0 usec, availability group: Legacy 1, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 1"
+				device.icon_name = "video-display"
+				card.profile.port = "0"
+			Part of profile(s): output:hdmi-stereo, output:hdmi-surround, output:hdmi-surround71
+		hdmi-output-1: HDMI / DisplayPort 2 (type: HDMI, priority: 5800, latency offset: 0 usec, availability group: Legacy 2, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 2"
+				device.icon_name = "video-display"
+				card.profile.port = "1"
+			Part of profile(s): output:hdmi-stereo-extra1, output:hdmi-surround-extra1, output:hdmi-surround71-extra1
+		hdmi-output-2: HDMI / DisplayPort 3 (type: HDMI, priority: 5700, latency offset: 0 usec, availability group: Legacy 3, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 3"
+				device.icon_name = "video-display"
+				card.profile.port = "2"
+			Part of profile(s): output:hdmi-stereo-extra2, output:hdmi-surround-extra2, output:hdmi-surround71-extra2
+		hdmi-output-3: HDMI / DisplayPort 4 (type: HDMI, priority: 5600, latency offset: 0 usec, availability group: Legacy 4, not available)
+			Properties:
+				port.type = "hdmi"
+				port.availability-group = "Legacy 4"
+				device.icon_name = "video-display"
+				card.profile.port = "3"
+			Part of profile(s): output:hdmi-stereo-extra3, output:hdmi-surround-extra3, output:hdmi-surround71-extra3
+
+Card #60
+	Name: alsa_card.usb-Generic_USB_Audio-00
+	Driver: alsa
+	Owner Module: n/a
+	Properties:
+		device.enum.api = "udev"
+		device.api = "alsa"
+		media.class = "Audio/Device"
+		api.alsa.path = "hw:0"
+		api.alsa.card = "0"
+		api.alsa.card.name = "USB Audio"
+		api.alsa.card.longname = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		device.plugged.usec = "25137184"
+		device.bus_path = "pci-0000:11:00.0-usb-0:12:1.0"
+		sysfs.path = "/devices/pci0000:00/0000:00:02.1/0000:03:00.0/0000:04:08.0/0000:09:00.0/0000:0a:0c.0/0000:11:00.0/usb8/8-12/8-12:1.0/sound/card0"
+		device.bus-id = "usb-Generic_USB_Audio-00"
+		device.bus = "usb"
+		device.subsystem = "sound"
+		device.vendor.id = "0x0db0"
+		device.vendor.name = "Micro Star International"
+		device.product.id = "0xcd0e"
+		device.product.name = "USB Audio"
+		device.serial = "Generic_USB_Audio"
+		device.name = "alsa_card.usb-Generic_USB_Audio-00"
+		device.description = "USB Audio"
+		device.nick = "USB Audio"
+		device.icon_name = "audio-card-analog-usb"
+		api.alsa.use-acp = "true"
+		api.acp.auto-profile = "false"
+		api.acp.auto-port = "false"
+		api.dbus.ReserveDevice1.Priority = "-20"
+		api.alsa.split-enable = "true"
+		api.dbus.ReserveDevice1 = "Audio0"
+		spa.object.id = "2"
+		factory.id = "15"
+		client.id = "43"
+		object.id = "60"
+		object.serial = "60"
+		object.path = "alsa:acp:Audio"
+		alsa.card = "0"
+		alsa.card_name = "USB Audio"
+		alsa.long_card_name = "Generic USB Audio at usb-0000:11:00.0-12, high speed"
+		alsa.driver_name = "snd_usb_audio"
+		alsa.mixer_name = "USB Mixer"
+		alsa.components = "USB0db0:cd0e"
+		alsa.id = "Audio"
+		device.string = "0"
+	Profiles:
+		off: Off (sinks: 0, sources: 0, priority: 0, available: yes)
+		HiFi: HiFi 2.0 channels (sinks: 3, sources: 2, priority: 9000, available: yes)
+		HiFi 7+1: HiFi 7.1 channels (sinks: 3, sources: 2, priority: 1000, available: yes)
+		HiFi 5+1: HiFi 5.1 channels (sinks: 3, sources: 2, priority: 1000, available: yes)
+		pro-audio: Pro Audio (sinks: 4, sources: 3, priority: 1, available: yes)
+	Active Profile: HiFi
+	Ports:
+		[Out] SPDIF: S/PDIF Output (type: SPDIF, priority: 100, latency offset: 0 usec, availability unknown)
+			Properties:
+				port.type = "spdif"
+				device.icon_name = "audio-speakers"
+				card.profile.port = "0"
+			Part of profile(s): HiFi 7+1, HiFi 5+1, HiFi
+		[Out] Speaker: Speakers (type: Speaker, priority: 200, latency offset: 0 usec, availability group: Speaker - Output, not available)
+			Properties:
+				port.type = "speaker"
+				port.availability-group = "Speaker - Output"
+				device.icon_name = "audio-speakers"
+				card.profile.port = "1"
+			Part of profile(s): HiFi 7+1, HiFi 5+1, HiFi
+		[Out] Headphones: Front Headphones (type: Headphones, priority: 300, latency offset: 0 usec, availability group: Headphone - Output, not available)
+			Properties:
+				port.type = "headphones"
+				port.availability-group = "Headphone - Output"
+				device.icon_name = "audio-headphones"
+				card.profile.port = "2"
+			Part of profile(s): HiFi 7+1, HiFi 5+1, HiFi
+		[In] Line: Line Input (type: Line, priority: 100, latency offset: 0 usec, availability group: Line - Input, not available)
+			Properties:
+				port.type = "line"
+				port.availability-group = "Line - Input"
+				device.icon_name = "audio-input-microphone"
+				card.profile.port = "3"
+			Part of profile(s): HiFi 7+1, HiFi 5+1, HiFi
+		[In] Mic: Microphone (type: Mic, priority: 300, latency offset: 0 usec, availability group: Mic - Input, not available)
+			Properties:
+				port.type = "mic"
+				port.availability-group = "Mic - Input"
+				device.icon_name = "audio-input-microphone"
+				card.profile.port = "4"
+			Part of profile(s): HiFi 7+1, HiFi 5+1, HiFi

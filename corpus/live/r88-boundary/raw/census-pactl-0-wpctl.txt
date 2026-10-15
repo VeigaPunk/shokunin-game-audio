@@ -1,0 +1,106 @@
+PipeWire 'pipewire-0' [1.6.8, vgpnk@plazir27, cookie:397153254]
+ └─ Clients:
+        32. xdg-desktop-portal                  [1.6.8, vgpnk@plazir27, pid:1991]
+        33. WirePlumber                         [1.6.8, vgpnk@plazir27, pid:2063]
+        40. xdg-desktop-portal-hyprland         [1.6.8, vgpnk@plazir27, pid:2077]
+        43. WirePlumber [client]                [1.6.8, vgpnk@plazir27, pid:2063]
+        52. pw-top                              [1.6.8, vgpnk@plazir27, pid:2794608]
+        57. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+        58. waybar                              [1.6.8, vgpnk@plazir27, pid:1828]
+        86. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+        94. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+        98. wpctl                               [1.6.8, vgpnk@plazir27, pid:2798325]
+        99. blender                             [1.6.8, vgpnk@plazir27, pid:2791279]
+       109. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2731127]
+       114. pw-profiler                         [1.6.8, vgpnk@plazir27, pid:2791196]
+       118. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2796712]
+       124. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       128. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2792067]
+       131. Chromium input                      [1.6.8, vgpnk@plazir27, pid:1402156]
+       136. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2782751]
+       138. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       145. pw-cli                              [1.6.8, vgpnk@plazir27, pid:2796399]
+       146. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2796724]
+       152. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       162. pw-cli                              [1.6.8, vgpnk@plazir27, pid:2775177]
+       182. Lavf63.1.101                        [1.6.8, vgpnk@plazir27, pid:2796740]
+       183. pw-cat                              [1.6.8, vgpnk@plazir27, pid:2731123]
+       190. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       194. pw-cli                              [1.6.8, vgpnk@plazir27, pid:2775177]
+       198. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       204. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       235. pipewire                            [1.6.8, vgpnk@plazir27, pid:2694]
+       240. pw-dump                             [1.6.8, vgpnk@plazir27, pid:2798295]
+
+Audio
+ ├─ Devices:
+ │      44. GB205 High Definition Audio Controller [alsa]
+ │      45. Radeon High Definition Audio Controller [alsa]
+ │      60. USB Audio                           [alsa]
+ │  
+ ├─ Sinks:
+ │  *   61. USB Audio S/PDIF Output             [vol: 0.40]
+ │      62. USB Audio Speakers                  [vol: 1.00]
+ │      63. USB Audio Front Headphones          [vol: 1.00]
+ │      87. r82ff_ns_2737990 Audio/Sink sink    [vol: 1.00]
+ │      95. r98s_ns Audio/Sink sink             [vol: 1.00]
+ │     110. r96s_ns Audio/Sink sink             [vol: 1.00]
+ │     121. r87b_ns2                            [vol: 1.00]
+ │     125. r87b_ns                             [vol: 1.00]
+ │     130. r93s_in Audio/Sink sink             [vol: 1.00]
+ │     142. r89b_ns Audio/Sink sink             [vol: 1.00]
+ │     175. GB205 High Definition Audio Controller Digital Stereo (HDMI) [LG ULTRAWIDE] [vol: 0.40]
+ │     181. r86b_ns Audio/Sink sink             [vol: 1.00]
+ │     239. r89b_ns44 Audio/Sink sink           [vol: 1.00]
+ │  
+ ├─ Sources:
+ │      64. USB Audio Line Input                [vol: 1.00]
+ │      65. USB Audio Microphone                [vol: 1.00]
+ │  
+ ├─ Filters:
+ │    - filter-chain-2775177-22                                     
+ │      83. r93s_fc_out                                                  [Stream/Output/Audio]
+ │     169. r93s_fc_in                                                   [Audio/Sink]
+ │  
+ └─ Streams:
+        56. pw-play                                                     
+            133. output_FL       > r89b_ns44 Audio/Sink sink:playback_FL	[active]
+            209. output_FR       > r89b_ns44 Audio/Sink sink:playback_FR	[active]
+       188. pw-record                                                   
+            116. input_MONO      < r93s_fc:output_MONO	[active]
+            155. monitor_MONO   
+       192. pw-play                                                     
+            117. output_FL       > r89b_ns Audio/Sink sink:playback_FL	[active]
+            207. output_FR       > r89b_ns Audio/Sink sink:playback_FR	[active]
+       197. Lavf63.1.101                                                
+            123. output_FL       > USB Audio #3:playback_FL	[active]
+            220. output_FR       > USB Audio #3:playback_FR	[active]
+       215. pw-record                                                   
+            126. input_FR        < USB Audio #3:monitor_FR	[active]
+            159. input_FL        < USB Audio #3:monitor_FL	[active]
+            163. monitor_FR     
+            258. monitor_FL     
+       226. pw-play                                                     
+            229. output_FR       > r87b_ns:playback_FR	[active]
+            236. output_FL       > r87b_ns:playback_FL	[active]
+       234. pw-record                                                   
+            189. input_FL        < r82ff_ns_2737990 Audio/Sink sink:monitor_FL	[active]
+            221. monitor_FL     
+            243. monitor_FR     
+            250. input_FR        < r82ff_ns_2737990 Audio/Sink sink:monitor_FR	[active]
+
+Video
+ ├─ Devices:
+ │  
+ ├─ Sinks:
+ │  
+ ├─ Sources:
+ │  
+ ├─ Filters:
+ │  
+ └─ Streams:
+
+Settings
+ └─ Default Configured Devices:
+         0. Audio/Sink    alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+         1. Audio/Source  alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source

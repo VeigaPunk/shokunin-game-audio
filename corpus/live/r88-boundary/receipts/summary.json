@@ -1,0 +1,1322 @@
+{
+ "generated_utc": "2026-10-15T20:14:16+00:00",
+ "verdicts": [
+  {
+   "id": "V1",
+   "claim": "bluez audio device class absent; paired DualSense is HID-only and cannot become audio",
+   "verdict": "SURVIVES (re-measured post-reboot)",
+   "evidence": "bluez tree = adapter + dev_BC_C7_46_34_C5_66 only; device Class 1288, Icon input-gaming, Connected=false, Paired=true, UUIDs = HID 0x1124 + PnP 0x1200; pactl cards = 3 ALSA only; pactl-list bluez|a2dp|sco matches = 1 (session.services); no bluez5 Device in pw-dump"
+  },
+  {
+   "id": "V2",
+   "claim": "module-bluez5 does not exist on this host (pactl load-module refuses rc 1)",
+   "verdict": "SURVIVES",
+   "evidence": "6/6 load-module refusals rc 1 'Failure: No such entity' (3 discover + 3 device + path + arg variant); find /usr/lib* = 0; pacman -Ql pipewire bluez = 0; SPA lib owned by pipewire-audio; module-id set identical before/after"
+  },
+  {
+   "id": "V3",
+   "claim": "the rc-1 refusal text identifies a missing object (scout's inference)",
+   "verdict": "WEAKENED (confound)",
+   "evidence": "control: set-card-profile on an existing ALSA card with a BOGUS profile also returns rc 1 'Failure: No such entity' \u2014 the text cannot distinguish 'no such card' from 'no such profile'; the card's absence is established only by the independent pactl list cards witness"
+  },
+  {
+   "id": "V4",
+   "claim": "the bluez stack is alive with 21 A2DP endpoints and zero devices",
+   "verdict": "SURVIVES across reboot",
+   "evidence": "post-reboot journal: 21 'Endpoint registered' from a single sender (:1.47 = wireplumber pid 2063), 0 unregistered; adapter Powered=true, Connectable=false, 11 UUIDs; node bluez_midi.server live (id 49, api.bluez5.midi.node)"
+  },
+  {
+   "id": "V5",
+   "claim": "codec switch / SBC-XQ params unmeasurable (device-absence, not stack-absence)",
+   "verdict": "SURVIVES (+ new witness)",
+   "evidence": "no bluez media node; create-node with api.bluez5.a2dp-sink/sink/source and api.bluez5.midi.node all refused (res -2/-22), nothing created; 14 SPA bluez5 files present"
+  },
+  {
+   "id": "V6",
+   "claim": "'bluez5.codecs is not a string in libspa-bluez5.so (measured absence)'",
+   "verdict": "FALSIFIED",
+   "evidence": "strings -a libspa-bluez5.so (sha256 a2e8537a\u2026, byte-identical to the scout's inventory line) gives 2 hits: 'spa.bluez5.codecs' and \"property bluez5.codecs '%s' is not an array\"; the error string proves the library parses bluez5.codecs as an array property. Standalone exact-line form is absent (grep -xc = 0), which is the likely origin of the error; the report's guidance 'do not cite bluez5.codecs as live' does not follow"
+  },
+  {
+   "id": "V7",
+   "claim": "'15 files in /usr/lib/spa-0.2/bluez5/'",
+   "verdict": "FALSIFIED (off-by-one)",
+   "evidence": "ls -1 = 14; the scout's own raw/spa-bluez5-inventory.1.txt lists 14 entries and the same sentence names 1+13=14"
+  },
+  {
+   "id": "V8",
+   "claim": "'56/62 legs byte-identical across fresh x3'",
+   "verdict": "FALSIFIED (arithmetic)",
+   "evidence": "recomputed from the scout's own receipts: 64 legs total, 58 stable; the 6 unstable legs named in the report are exactly right"
+  },
+  {
+   "id": "V9",
+   "claim": "pw-dump <N> returns exactly {object.id==N} U {object.serial==N}",
+   "verdict": "SURVIVES (exact, and mode-invariant)",
+   "evidence": "133/133 stable keys match; 17 non-matches are all objects that died mid-sweep (rc 0, empty stdout); 0 bundles; 40/40 checks show no nested-reference expansion (ports are never returned by their node.id); membership identical under -s/-R/-i 0"
+  },
+  {
+   "id": "V10",
+   "claim": "'the serial collision is not exotic: 3 of 7 live keys return a two-object bundle'",
+   "verdict": "NOT REPRODUCIBLE (mechanism identified)",
+   "evidence": "0 bundle keys in a 150-key universe; bundle requires a live id to equal some object's serial, and here max live id 258 < min shifted serial 47326 \u2014 the two ranges are disjoint by construction. The 3/7 rate was boot-local (fresh counters)"
+  },
+  {
+   "id": "V11",
+   "claim": "pw-cli info is a singleton keyed by native id only",
+   "verdict": "SURVIVES (extended)",
+   "evidence": "40/40 serial-only keys: rc 0 + unknown global; 0 id-keys misreported; NEW silent classes: 6 ids return rc 0 with empty stdout and (4 of them) empty stderr; `info all` describes 135 of 141 objects; `ls <iface>` DOES expose object.serial (serial resolvable there)"
+  },
+  {
+   "id": "V12",
+   "claim": "pw-cli info and pw-dump agree on prop keys but not on types/params/state",
+   "verdict": "SURVIVES, extended to Device and Client",
+   "evidence": "device 44: 40/40 keys equal, 0 either-side-only; client 32: 41/41; bools become quoted strings (api.acp.auto-port false -> \"false\"); param values absent in cli, empty lists in dump"
+  },
+  {
+   "id": "V13",
+   "claim": "pw-top -n 1 is a trap (every row C = CREATING)",
+   "verdict": "SURVIVES under load",
+   "evidence": "12/12 all-C in the busy window; 6/6 all-C under +16 own burners; 32/32 including the scout"
+  },
+  {
+   "id": "V14",
+   "claim": "pw-top cadence 3-21 ms busy vs 1002 ms idle; mechanism unresolved",
+   "verdict": "REPRODUCED + MECHANISM RESOLVED",
+   "evidence": "second frame carries the driver row QUANT=1024 RATE=48000 (=21.3 ms cycle); measured per-frame wall times cluster at one cycle (n2 6.8-25.5 ms, n3 40-44 ms, n4 40-49 ms) while the graph runs, and 1010 ms when idle; unchanged under CPU hog -> stats/graph-driven, not timer- or CPU-driven"
+  },
+  {
+   "id": "V15",
+   "claim": "pactl index is the native serial, not the native id",
+   "verdict": "SURVIVES, strengthened",
+   "evidence": "14/14 sinks, 16/16 sources (monitor-resolved), 5/5 sink-inputs; 11 witnesses have serial!=id and every one follows the serial (e.g. r96s_ns: idx 116459, id 110, serial 116459); cards 3/3 but non-discriminating (id==serial)"
+  },
+  {
+   "id": "V16",
+   "claim": "'expect the pulse vocabulary to disagree with the native vocabulary on the same object'",
+   "verdict": "NOT REPRODUCIBLE as a rule",
+   "evidence": "24/24 agreement over 6 sinks x 3 tight reps; controlled A/B on my own r88b_state null sink: idle = pactl SUSPENDED / native suspended / ptop S, active (own pw-cat stream) = RUNNING / running / R, 3/3 each"
+  },
+  {
+   "id": "V17",
+   "claim": "scout 4.5: a pulse-only sink observed while its native node was absent",
+   "verdict": "NOT REPRODUCED",
+   "evidence": "0 pulse-only events in 70 tight brackets, including 15 while my own r88b_ns existed in both witnesses and 40 after unloading it (sensitivity verified: the object appeared/disappeared in step)"
+  },
+  {
+   "id": "V18",
+   "claim": "scout 2: `pactl set-card-profile bluez_card.BC_C7_46_34_C5_66 a2dp-sink` -> 1,1,1 'No such entity'",
+   "verdict": "PROVENANCE GAP + REPLICATED",
+   "evidence": "no receipt for that probe anywhere in corpus/live/r88-scout/; re-run 3/3 rc 1 'Failure: No such entity' (receipts B1) \u2014 but see V3 for the confound"
+  },
+  {
+   "id": "V19",
+   "claim": "NEW: pw-cli ls Metadata vs pw-dump disagree on the same object class",
+   "verdict": "NEW FINDING (reproducible)",
+   "evidence": "ls Metadata = 9 ids, pw-dump = 4 ids, extra [35,37,38,41,42] in 4/4 tight brackets and on both sockets; pw-dump 35 and pw-cli info 35 both return rc 0 with empty stdout while ls Metadata prints the object"
+  },
+  {
+   "id": "V20",
+   "claim": "NEW: pw-cli info all silently omits 6 objects",
+   "verdict": "NEW FINDING",
+   "evidence": "135 described vs 141 in pw-dump; missing exactly [3,5,31,34,36,39] = SecurityContext, Profiler and all 4 visible Metadata objects"
+  },
+  {
+   "id": "V21",
+   "claim": "NEW: rc-0 failure modes beyond the scout's list",
+   "verdict": "NEW FINDINGS",
+   "evidence": "pw-dump <non-numeric|overflow> = rc 0 + empty stdout + empty stderr; pw-dump '' = FULL dump; pw-dump <id1> <id2> returns only id1; pw-dump --color=always injects ANSI escapes (invalid JSON); pw-dump -1 = rc 255; pw-cli create-node failure = rc 0; pw-top -n 0 = one frame, -n -1 and -n abc = infinite (timeout), -r bogus = rc 255 'Can't connect: Host is down'"
+  },
+  {
+   "id": "V22",
+   "claim": "NEW: pw-cli info prop-block layout is class-dependent",
+   "verdict": "NEW HAZARD",
+   "evidence": "nodes/ports print flat `key = value`; Device/Client print a `* properties:` header with `*\\t\\tkey = value`; a parser tuned to nodes silently yields 0 props for devices/clients (observed while building this analysis)"
+  }
+ ],
+ "numbers": {
+  "replay_legs_compared": 18,
+  "replay_rc_value_mismatches": [],
+  "replay_rc_shape_diffs_repcount_only": [
+   "bluez-tree",
+   "bluez-device-props",
+   "bluez-adapter-props",
+   "bluez-media1",
+   "bluez-dev-connected",
+   "bluez-dev-paired",
+   "bluez-dev-uuids",
+   "bluez-dev-class",
+   "bluez-dev-icon",
+   "bluez-endpoint-log"
+  ],
+  "replay_stderr_mismatches": [],
+  "replay_exact_rc_and_text_matches": [
+   "refuse-load-bluez5-discover",
+   "refuse-load-bluez5-device",
+   "refuse-load-bluez5-device-path",
+   "refuse-sendmsg-bluez",
+   "refuse-pwcli-info-99999",
+   "refuse-pwcli-format-99999",
+   "refuse-pwdump-99999",
+   "spa-bluez5-inventory"
+  ],
+  "setrule": {
+   "keys": 150,
+   "stable_keys_all_match": true,
+   "n_stable": 133,
+   "n_mismatch": 17,
+   "n_mismatch_stable": 0,
+   "n_bundles": 0,
+   "serial_only_unknown_by_pwcli": "40/40",
+   "nested_checks": 40,
+   "nested_violations": 0,
+   "cli_violations": [],
+   "silent_empty_rc0_ids": [
+    3,
+    5,
+    31,
+    34,
+    36,
+    39,
+    47326,
+    60843,
+    60844,
+    60845,
+    60846,
+    60847,
+    60858,
+    116458,
+    116459,
+    116460,
+    116461,
+    116555,
+    116556,
+    116557,
+    116558,
+    116559,
+    116560,
+    116956,
+    116957,
+    116958,
+    116959,
+    116960,
+    116961,
+    116966,
+    116967,
+    116968,
+    116969,
+    116970,
+    116971,
+    116972,
+    116973,
+    116974,
+    116975,
+    116976,
+    116977,
+    116978,
+    116979,
+    116980,
+    116981,
+    116994
+   ]
+  },
+  "bundle_mechanism": {
+   "max_live_id": 258,
+   "min_shifted_serial": 47326,
+   "disjoint": true,
+   "n_shifted_objects": 40
+  },
+  "pwt": {
+   "n1_all_C": "12/12",
+   "n1_wall_ms": [
+    6.4,
+    6.8,
+    7.2,
+    7.7,
+    7.8,
+    9.4,
+    9.6,
+    10.3,
+    11.0,
+    12.4,
+    13.7,
+    15.4
+   ],
+   "first_frame_all_C": "9/9",
+   "wall_ms_n2": [
+    25.5,
+    22.1,
+    21.3
+   ],
+   "wall_ms_n3": [
+    44.3,
+    43.0,
+    40.4
+   ],
+   "wall_ms_n4": [
+    49.3,
+    40.0,
+    43.6
+   ],
+   "frame_counts": {
+    "pwt-n2-rep1": 2,
+    "pwt-n2-rep2": 2,
+    "pwt-n2-rep3": 2,
+    "pwt-n3-rep1": 3,
+    "pwt-n3-rep2": 4,
+    "pwt-n3-rep3": 3,
+    "pwt-n4-rep1": 4,
+    "pwt-n4-rep2": 4,
+    "pwt-n4-rep3": 4
+   },
+   "corr_wall_ms": [
+    20.3,
+    14.6,
+    6.8,
+    17.5,
+    18.6,
+    20.1,
+    21.0,
+    21.4
+   ]
+  },
+  "pwt_under_hog": {
+   "n1_all_C": "6/6",
+   "load_before": [
+    "72.51 57.51 46.00 91/2277 2891686",
+    "some avg10=72.92 avg60=63.04 avg300=49.89 total=1196605912",
+    "foreign_yes=48"
+   ],
+   "load_under": [
+    "73.67 58.00 46.22 95/2567 2914541",
+    "some avg10=74.42 avg60=64.62 avg300=50.59 total=1202881987",
+    "foreign_yes=64"
+   ],
+   "load_after": [
+    "75.30 58.60 46.48 92/2494 2921110",
+    "some avg10=70.58 avg60=64.54 avg300=50.77 total=1204729291",
+    "65"
+   ],
+   "mine": 16,
+   "killed": 16,
+   "final": [],
+   "setrule_spot": {
+    "leg": "hog-setrule-spot",
+    "results": [
+     {
+      "key": 1,
+      "predicted": [
+       1
+      ],
+      "got": [
+       1
+      ],
+      "match": true,
+      "wall_ms": 22.6
+     },
+     {
+      "key": 2,
+      "predicted": [
+       2
+      ],
+      "got": [
+       2
+      ],
+      "match": true,
+      "wall_ms": 21.1
+     },
+     {
+      "key": 6,
+      "predicted": [
+       6
+      ],
+      "got": [
+       6
+      ],
+      "match": true,
+      "wall_ms": 11.1
+     },
+     {
+      "key": 8,
+      "predicted": [
+       8
+      ],
+      "got": [
+       8
+      ],
+      "match": true,
+      "wall_ms": 16.5
+     },
+     {
+      "key": 11,
+      "predicted": [
+       11
+      ],
+      "got": [
+       11
+      ],
+      "match": true,
+      "wall_ms": 21.6
+     },
+     {
+      "key": 13,
+      "predicted": [
+       13
+      ],
+      "got": [
+       13
+      ],
+      "match": true,
+      "wall_ms": 17.8
+     },
+     {
+      "key": 15,
+      "predicted": [
+       15
+      ],
+      "got": [
+       15
+      ],
+      "match": true,
+      "wall_ms": 18.2
+     },
+     {
+      "key": 19,
+      "predicted": [
+       19
+      ],
+      "got": [
+       19
+      ],
+      "match": true,
+      "wall_ms": 12.3
+     },
+     {
+      "key": 47326,
+      "predicted": [
+       131
+      ],
+      "got": [
+       131
+      ],
+      "match": true,
+      "wall_ms": 19.5
+     },
+     {
+      "key": 60843,
+      "predicted": [
+       175
+      ],
+      "got": [
+       175
+      ],
+      "match": true,
+      "wall_ms": 17.0
+     },
+     {
+      "key": 60844,
+      "predicted": [
+       108
+      ],
+      "got": [
+       108
+      ],
+      "match": true,
+      "wall_ms": 10.8
+     },
+     {
+      "key": 60845,
+      "predicted": [
+       120
+      ],
+      "got": [
+       120
+      ],
+      "match": true,
+      "wall_ms": 12.5
+     },
+     {
+      "key": 60846,
+      "predicted": [
+       101
+      ],
+      "got": [
+       101
+      ],
+      "match": true,
+      "wall_ms": 11.7
+     },
+     {
+      "key": 60847,
+      "predicted": [
+       54
+      ],
+      "got": [
+       54
+      ],
+      "match": true,
+      "wall_ms": 15.3
+     }
+    ],
+    "n_match": 14,
+    "n": 14
+   }
+  },
+  "pactl_map": {
+   "sinks": "14/14",
+   "sources": "16/16",
+   "cards": "3/3",
+   "sink_inputs": "5/5",
+   "discriminators_serial_ne_id": [
+    {
+     "idx": "60843",
+     "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "native_id": 175,
+     "serial": 60843,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "116459",
+     "name": "r96s_ns",
+     "native_id": 110,
+     "serial": 116459,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "116556",
+     "name": "r86b_ns",
+     "native_id": 181,
+     "serial": 116556,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "118652",
+     "name": "r87b_ns",
+     "native_id": 125,
+     "serial": 118652,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "118670",
+     "name": "r87b_ns2",
+     "native_id": 121,
+     "serial": 118670,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "119427",
+     "name": "r98s_ns",
+     "native_id": 95,
+     "serial": 119427,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "120298",
+     "name": "r89b_ns",
+     "native_id": 142,
+     "serial": 120298,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "120306",
+     "name": "r89b_ns44",
+     "native_id": 239,
+     "serial": 120306,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "121052",
+     "name": "r93s_in",
+     "native_id": 130,
+     "serial": 121052,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "121061",
+     "name": "r93s_fc_in",
+     "native_id": 169,
+     "serial": 121061,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    },
+    {
+     "idx": "121099",
+     "name": "r82ff_ns_2737990",
+     "native_id": 87,
+     "serial": 121099,
+     "idx_eq_serial": true,
+     "idx_eq_id": false
+    }
+   ]
+  },
+  "ghost": {
+   "brackets": 70,
+   "pulse_only_events": 0,
+   "load_rc": 0,
+   "unload_rc": 0,
+   "pulse_n_alive": [
+    17
+   ],
+   "pulse_n_post": [
+    16,
+    18,
+    19
+   ]
+  },
+  "state_ab": {
+   "idle": [
+    {
+     "pactl": "SUSPENDED",
+     "native": "suspended",
+     "ptop": "S"
+    },
+    {
+     "pactl": "SUSPENDED",
+     "native": "suspended",
+     "ptop": "S"
+    },
+    {
+     "pactl": "SUSPENDED",
+     "native": "suspended",
+     "ptop": "S"
+    }
+   ],
+   "active": [
+    {
+     "pactl": "RUNNING",
+     "native": "running",
+     "ptop": "R"
+    },
+    {
+     "pactl": "RUNNING",
+     "native": "running",
+     "ptop": "R"
+    },
+    {
+     "pactl": "RUNNING",
+     "native": "running",
+     "ptop": "R"
+    }
+   ],
+   "notes": {
+    "load": {
+     "rc": 0,
+     "module": "536870931"
+    },
+    "pwcat_pid": 3000711,
+    "pwcat_alive_during_B": true,
+    "pwcat_returncode": 1,
+    "unload": {
+     "rc": 0
+    },
+    "cleanup_pactl_dump": [
+     "0",
+     "0"
+    ],
+    "stray_pwcat": "0"
+   }
+  },
+  "witness_coverage": {
+   "ls_counts": {
+    "Node": {
+     "n": 22,
+     "expected": 22,
+     "missing": [],
+     "extra": []
+    },
+    "Device": {
+     "n": 3,
+     "expected": 3,
+     "missing": [],
+     "extra": []
+    },
+    "Client": {
+     "n": 22,
+     "expected": 22,
+     "missing": [],
+     "extra": []
+    },
+    "Port": {
+     "n": 54,
+     "expected": 54,
+     "missing": [],
+     "extra": []
+    },
+    "Link": {
+     "n": 7,
+     "expected": 7,
+     "missing": [],
+     "extra": []
+    },
+    "Factory": {
+     "n": 13,
+     "expected": 13,
+     "missing": [],
+     "extra": []
+    },
+    "Metadata": {
+     "n": 9,
+     "expected": 4,
+     "missing": [],
+     "extra": [
+      35,
+      37,
+      38,
+      41,
+      42
+     ]
+    },
+    "Module": {
+     "n": 13,
+     "expected": 13,
+     "missing": [],
+     "extra": []
+    },
+    "Core": {
+     "n": 1,
+     "expected": 1,
+     "missing": [],
+     "extra": []
+    },
+    "Profiler": {
+     "n": 1,
+     "expected": 1,
+     "missing": [],
+     "extra": []
+    },
+    "SecurityContext": {
+     "n": 1,
+     "expected": 1,
+     "missing": [],
+     "extra": []
+    },
+    "ClientEndpoint": {
+     "n": 0,
+     "expected": 0,
+     "missing": [],
+     "extra": []
+    },
+    "Session": {
+     "n": 0,
+     "expected": 0,
+     "missing": [],
+     "extra": []
+    },
+    "Endpoint": {
+     "n": 0,
+     "expected": 0,
+     "missing": [],
+     "extra": []
+    }
+   },
+   "info_all": {
+    "n": 135,
+    "rc": 0,
+    "missing_vs_dump": [
+     3,
+     5,
+     31,
+     34,
+     36,
+     39
+    ],
+    "extra_vs_dump": [],
+    "has_core": true
+   },
+   "param_names_rejected": [
+    "BogusXYZ",
+    "Profiles"
+   ],
+   "param_class_limits": [
+    "Error: \"enum-params not implemented on object 32 type:PipeWire:Interface:Client\""
+   ],
+   "stale_global_error": [
+    "remote 0: error id:149 seq:296 res:-116 (Stale file handle): no global 180 any more\nremote 0: error id:0 seq:300 res:-2 (No such file or directory): u"
+   ]
+  },
+  "keyset": {
+   "device": {
+    "id": 44,
+    "n_dump": 40,
+    "n_cli": 40,
+    "only_in_dump": [],
+    "only_in_cli": [],
+    "n_typed": 0
+   },
+   "client": {
+    "id": 32,
+    "n_dump": 41,
+    "n_cli": 41,
+    "only_in_dump": [],
+    "only_in_cli": [],
+    "n_typed": 0
+   }
+  },
+  "ls_metadata_disagreement": [
+   {
+    "round": 0,
+    "dump": [
+     31,
+     34,
+     36,
+     39
+    ],
+    "ls": [
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     41,
+     42
+    ],
+    "ls_extra": [
+     35,
+     37,
+     38,
+     41,
+     42
+    ]
+   },
+   {
+    "round": 1,
+    "dump": [
+     31,
+     34,
+     36,
+     39
+    ],
+    "ls": [
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     41,
+     42
+    ],
+    "ls_extra": [
+     35,
+     37,
+     38,
+     41,
+     42
+    ]
+   },
+   {
+    "round": 2,
+    "dump": [
+     31,
+     34,
+     36,
+     39
+    ],
+    "ls": [
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     41,
+     42
+    ],
+    "ls_extra": [
+     35,
+     37,
+     38,
+     41,
+     42
+    ]
+   },
+   {
+    "round": 3,
+    "dump": [
+     31,
+     34,
+     36,
+     39
+    ],
+    "ls": [
+     31,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39,
+     41,
+     42
+    ],
+    "ls_extra": [
+     35,
+     37,
+     38,
+     41,
+     42
+    ]
+   }
+  ],
+  "scout_provenance": {
+   "legs_total": 64,
+   "stable_stdout": 58,
+   "unstable": [
+    "pactl-list",
+    "pactl-info",
+    "wpctl-status",
+    "pw-dump-census",
+    "add-pwtop-n2",
+    "add-pwtop-n3"
+   ],
+   "claim_in_report": "56/62 legs byte-identical",
+   "set_card_profile_receipt_present": false
+  }
+ },
+ "contention": [
+  "g3d lane `yes` burners, cwd /home/vgpnk/Projects/shokunin/game-dev-3d-shokunin (48-64 procs, ppid 1537) \u2014 the host was already at loadavg ~70 on 32 CPUs before my hog",
+  "audio siblings live in the graph throughout: r82ff_ns_2737990 + r82ff_2737990_tns/tdef_*_alias/env_sink, r86b_ns, r87b_ns, r87b_ns2, r87bfmt, r89b_ns, r89b_ns44, r93s_in (graph driver, QUANT 1024), r93s_fc_in, r93s_fc_out, r93s_rec, r96s_ns, r98s_ns, r98s_stall, Lavf63.1.101, pw-play x2, pw-cat, pipewire -c filter-chain.conf (pid 2377877)",
+  "my own objects, all removed: r88b_ctl, r88b_ns, r88b_state (null sinks), r88b_tone.wav, 16 r88b_hog burners (16/16 killed), r88b_stream (pw-cat, terminated)"
+ ],
+ "replay_comparison": [
+  {
+   "leg": "refuse-load-bluez5-discover",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    1,
+    1,
+    1
+   ],
+   "scout_rcs": [
+    1,
+    1,
+    1
+   ],
+   "mine_stderr": [
+    "Failure: No such entity"
+   ],
+   "scout_stderr": [
+    "Failure: No such entity"
+   ]
+  },
+  {
+   "leg": "refuse-load-bluez5-device",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    1,
+    1,
+    1
+   ],
+   "scout_rcs": [
+    1,
+    1,
+    1
+   ],
+   "mine_stderr": [
+    "Failure: No such entity"
+   ],
+   "scout_stderr": [
+    "Failure: No such entity"
+   ]
+  },
+  {
+   "leg": "refuse-load-bluez5-device-path",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    1,
+    1,
+    1
+   ],
+   "scout_rcs": [
+    1,
+    1,
+    1
+   ],
+   "mine_stderr": [
+    "Failure: No such entity"
+   ],
+   "scout_stderr": [
+    "Failure: No such entity"
+   ]
+  },
+  {
+   "leg": "refuse-sendmsg-bluez",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    1,
+    1,
+    1
+   ],
+   "scout_rcs": [
+    1,
+    1,
+    1
+   ],
+   "mine_stderr": [
+    "Send message failed: No such entity"
+   ],
+   "scout_stderr": [
+    "Send message failed: No such entity"
+   ]
+  },
+  {
+   "leg": "refuse-pwcli-info-99999",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0,
+    0,
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    "Error: \"info: unknown global '99999'\""
+   ],
+   "scout_stderr": [
+    "Error: \"info: unknown global '99999'\""
+   ]
+  },
+  {
+   "leg": "refuse-pwcli-format-99999",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0,
+    0,
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    "Error: \"enum-params: unknown global '99999'\""
+   ],
+   "scout_stderr": [
+    "Error: \"enum-params: unknown global '99999'\""
+   ]
+  },
+  {
+   "leg": "refuse-pwdump-99999",
+   "reps_mine": 3,
+   "reps_scout": 3,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0,
+    0,
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "spa-bluez5-inventory",
+   "reps_mine": 1,
+   "reps_scout": 1,
+   "rc_match": true,
+   "rc_values_match": true,
+   "rep_count_differs": false,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-tree",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-device-props",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-adapter-props",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-media1",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-dev-connected",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-dev-paired",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-dev-uuids",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-dev-class",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-dev-icon",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  },
+  {
+   "leg": "bluez-endpoint-log",
+   "reps_mine": 1,
+   "reps_scout": 3,
+   "rc_match": false,
+   "rc_values_match": true,
+   "rep_count_differs": true,
+   "stderr_text_match": true,
+   "mine_rcs": [
+    0
+   ],
+   "scout_rcs": [
+    0,
+    0,
+    0
+   ],
+   "mine_stderr": [
+    ""
+   ],
+   "scout_stderr": [
+    ""
+   ]
+  }
+ ]
+}

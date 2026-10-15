@@ -1,0 +1,49 @@
+== pactl ==
+61	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink	PipeWire	s16le 2ch 48000Hz	RUNNING
+62	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+63	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+60843	alsa_output.pci-0000_01_00.1.hdmi-stereo	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+116459	r96s_ns	PipeWire	float32le 1ch 48000Hz	SUSPENDED
+116556	r86b_ns	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+== dump ==
+29	idle	Dummy-Driver
+30	suspended	Freewheel-Driver
+46	idle	Midi-Bridge
+49	idle	bluez_midi.server
+61	running	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+62	suspended	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink
+63	suspended	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink
+64	suspended	alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+65	suspended	alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source
+175	suspended	alsa_output.pci-0000_01_00.1.hdmi-stereo
+110	suspended	r96s_ns
+181	suspended	r86b_ns
+125	running	r87b_ns
+121	suspended	r87b_ns2
+95	suspended	r98s_ns
+142	running	r89b_ns
+239	running	r89b_ns44
+192	running	pw-play
+56	running	pw-play
+130	running	r93s_in
+169	running	r93s_fc_in
+83	running	r93s_fc_out
+87	running	r82ff_ns_2737990
+188	running	r93s_rec
+226	running	r87bfmt
+234	running	r82ff_2737990_tns_p2_src_name
+215	running	r82ff_2737990_tdef_p2_src_name
+197	running	Lavf63.1.101
+== ptop ==
+R  239      0      0   0.0us   0.0us  ???   ???     0     F32P 2 44100 r89b_ns44
+R  192      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 48000 pw-play
+R   56      0      0   0.0us   0.0us  ???   ???     0    S16LE 1 44100 pw-play
+R  130   1024  48000 611.0us   5.7us  0.03  0.00    0     F32P 1 48000 r93s_in
+R  169      0      0 277.4us   9.0us  0.01  0.00    0         F32P 1 0  + r93s_fc_in
+R   83      0      0   2.8us 318.2us  0.00  0.01    0         F32P 1 0  + r93s_fc_out
+R  188      0  48000  23.4us  24.8us  0.00  0.00    0    F32LE 1 48000  = r93s_rec
+R   87      0      0   0.0us   0.0us  ???   ???     0     F32P 2 48000 r82ff_ns_2737990
+R  226      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 r87bfmt
+R  234      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 r82ff_2737990_tns_p2_src_name
+R  215      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 r82ff_2737990_tdef_p2_src_name
+R  197      0      0   0.0us   0.0us  ???   ???     0    S16LE 2 48000 Lavf63.1.101
