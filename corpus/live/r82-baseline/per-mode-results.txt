@@ -1,0 +1,20 @@
+per-mode results (frozen tree b7d80d0, fixture 5eaba74b) — r82-baseline
+runs-a normal: entries=17 legs=0 cases_with_failures=0 nonquiet_cases=0
+runs-a capture-r78: entries=25 legs=59 cases_with_failures=1 nonquiet_cases=4
+    FAIL playback_props_r78_probe: props prop_garbage: monitor tap on ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] carried no tag tone
+    NONQUIET playback_target_loss_r78_probe: {'ffmpeg': 2, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET playback_props_r78_probe: {'ffmpeg': 2, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET playback_class_segv_r78_probe: {'ffmpeg': 1, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET playback_aplay_axis_r78_probe: {'ffmpeg': 1, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+runs-a capture-r79: entries=25 legs=67 cases_with_failures=0 nonquiet_cases=4
+    NONQUIET loopback_matrix_r79_probe: {'ffmpeg': 2, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET loopback_record_target_r79_probe: {'ffmpeg': 2, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET loopback_hotplug_r79_probe: {'ffmpeg': 2, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+    NONQUIET pwcat_latency_r79_probe: {'ffmpeg': 1, 'pw_play': 0, 'pw_record': 0, 'pw_cat': 0, 'pw_loopback': 0, 'fixture_runs': 0}
+runs-a module-r80: entries=19 legs=10 cases_with_failures=1 nonquiet_cases=0
+    FAIL module_topology_r80_probe: topo t1: module count moved 47 -> 48 on refused loads
+runs-b normal: entries=17 legs=0 cases_with_failures=0 nonquiet_cases=0
+runs-b capture-r78: entries=25 legs=59 cases_with_failures=1 nonquiet_cases=0
+    FAIL playback_default_follow_r78_probe: follow moved: last live consumers ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] — the stream never settled on the live default at ITS spawn (r78_def_sink_699104)
+runs-b capture-r79: entries=25 legs=67 cases_with_failures=0 nonquiet_cases=0
+runs-b module-r80: entries=19 legs=10 cases_with_failures=0 nonquiet_cases=0
