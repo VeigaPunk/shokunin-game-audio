@@ -1,0 +1,29 @@
+# r86 reviewer — run log (lane /home/vgpnk/Projects/shokunin/audio-shokunin)
+# pinned source: git show fa5994a0:corpus/fixtures/measure_audio.py
+#   -> measure_audio_fa5994a0.py (blob e030588c, sha256 5ceba940…)
+#   -> tree/corpus/fixtures/measure_audio.py (same blob; minimal tree with
+#      committed build_artifacts.py + a copy of committed corpus/artifacts)
+TMPDIR=/home/vgpnk/Projects/shokunin/tmp; PYTHONDONTWRITEBYTECODE=1
+
+# 1. independent re-derivation from receipts (no host)
+python3 r86r_audit.py <run1> <run2> --out audit-checks.json
+python3 r86r_audit.py <run1> <run2> <live> --out audit-live-run.json
+python3 r86r_surface.py <run1> <run2> <live> --json surface-diff.json
+
+# 2. r84-F1 fold probe (lock paths + flock serialization A/B/C)
+python3 labrat/r86r_lock_driver.py            # -> labrat/lock-probe.json
+
+# 3. live run of the pinned blob (cwd = tree/)
+2026-10-16T06:36:46Z start (local 03:36:46), loadavg 88.89 76.93 63.69
+cmd: cd tree && TMPDIR=~/Projects/shokunin/tmp PYTHONDONTWRITEBYTECODE=1 \
+     timeout 2700 python3 corpus/fixtures/measure_audio.py --probe-pwctl-r86
+receipt: tree/corpus/live/runs/20261016T063726014052Z-pwctl-r86/measurements.json
+copy:    runs/r86r1/measurements.json (sha256 9a31073e6de3e3e4258208468f5dac9928bc3ce10b02babfb8ff21c18db6c636)
+2026-10-16T06:37:26Z end (local 03:37:26) — failures {}, stderr 0 B
+
+# 4. independent spots (own r86r_ namespace)
+2026-10-16T06:38:03Z python3 spot/r86r_spots.py -> spot/spots.json
+2026-10-16T06:38:2xZ port spot (inline, own r86r_pns_<pid>) -> spot/port-spot.json
+
+# 5. co-tenancy + residue censuses
+cotenancy-at-entry.txt, residue-census.txt
