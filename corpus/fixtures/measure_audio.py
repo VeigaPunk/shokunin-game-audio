@@ -52254,28 +52254,23 @@ def rtp_e2e_r99_entry():
             # does not receive — measured), with the sink's multicast
             # looped back on lo, exactly the scout's and boundary's shape.
             #
-            # The law is armed only where it is measurable.  This seat
-            # measures the SINK's side exactly (a wildcard, lo-joined tap
-            # reads 204-byte packets at 1 kHz carrying the exact
-            # 0.499969482 peak) and the SOURCE's side as silence: the
-            # sink's socket is `192.168.0.253%lo:<port>` — the host's LAN
-            # address stamped on a packet that leaves lo, because
-            # module-rtp-sink sets no IP_MULTICAST_IF — and the
-            # group-bound source socket did not accept it.  The loopback
-            # UNICAST form is not available either: module-rtp-source's
+            # The native pair must share a port. The source helper's +1
+            # default belongs to standalone packet-injection legs. The
+            # earlier integrated pair used different ports, so its silent
+            # source does not establish a host-dependent receive law.
+            # The loopback UNICAST form is not available either:
+            # module-rtp-source's
             # unicast branch CONNECTS its socket, so it accepts only
             # datagrams whose source port is exactly `source.port`, while
             # the sink binds 0.0.0.0:0 — C8b's own law makes that pair
-            # impossible.  The r99 boundary's e2e_native receipt recorded
-            # the tone (peak 0.580841) over this same multicast path, so
-            # the difference is host state, not a module law; the leg is
-            # therefore a NAMED COVERAGE BLOCK carrying both sides'
-            # measurements, never a silent green and never a false red.
+            # impossible. A non-reproducing native leg remains named
+            # unmeasured, not a silent green.
             native = {"fragment": _rtp_r99_write_fragment(inst, [
                 ("libpipewire-module-rtp-sink",
                  _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST, ifname="lo",
                                     module_extra="net.loop = true")),
-                ("libpipewire-module-rtp-source", _rtp_r99_source_args())])}
+                ("libpipewire-module-rtp-source",
+                 _rtp_r99_source_args(src_port=RTP_R99_PORT))])}
             nok, nmsg = _rtp_r99_core_up(inst)
             native["core_up"], native["msg"] = nok, nmsg
             if nok:
@@ -52334,15 +52329,10 @@ def rtp_e2e_r99_entry():
                                    nrec.get("goertzel_L"))
             else:
                 entry.setdefault("coverage_blocked", []).append(
-                    "e_native: the native multicast pair is unmeasurable on "
-                    "this pass — the sink emitted (see "
-                    "legs.e_native.verdict.sink_emitted and the wire peak) "
-                    "but the co-located source recorded silence; the source "
-                    "socket is bound to the group and the sink's socket "
-                    "carries the host's LAN address on lo "
-                    f"({native['verdict']['sink_socket']!r}). The r99 "
-                    "boundary recorded the tone over this same path, so "
-                    "C6 is not falsified here, it is unmeasured.")
+                    "e_native: the native multicast pair did not yield a "
+                    "measurable recording this pass; inspect the core/node "
+                    "readiness, play result, wire tap, source props and "
+                    "legs.e_native.verdict. C6 remains unmeasured.")
 
             # ---- e_sap: the arming law on a loopback-reachable group.
             # The native leg above ran on the fragment route and left the
@@ -52485,6 +52475,7 @@ def rtp_e2e_r99_entry():
                         # green and never a false red.
                         band = max(idle1, idle2)
                         excess = arm - band
+                        allowance = 0.2 * max(1, lan["emitted"])
                         lan["resolution"] = {
                             "idle_band": band, "emitted": lan["emitted"],
                             "excess_over_band": excess,
@@ -52496,16 +52487,18 @@ def rtp_e2e_r99_entry():
                             # The boundary's own strongest form: the arm
                             # window came in at or BELOW the bracketing
                             # idle band while N packets were emitted on lo.
-                            # Noise can only make a clean arm look dirty,
-                            # never the reverse, so this needs no band
-                            # guard.
+                            # This is a sampled NIC-counter comparison,
+                            # not proof that background traffic is stable.
                             lan["resolution"]["verdict"] = "armed_below_band"
                             _rtp_r99_true(
                                 failures, "e_lan",
                                 f"the arm window added no {iface} packets "
                                 f"above the bracketing idle band",
                                 True)
-                        elif band > 0.25 * max(1, lan["emitted"]):
+                        # Noise can block small excess, not an excess
+                        # already outside the existing confinement bound.
+                        elif (excess <= allowance
+                              and band > 0.25 * max(1, lan["emitted"])):
                             entry.setdefault("coverage_blocked", []).append(
                                 f"e_lan: idle band {band} pkts/20 s is too "
                                 f"wide to resolve the confinement of "
@@ -52526,7 +52519,6 @@ def rtp_e2e_r99_entry():
                             # 20 000 emitted packets would blow straight
                             # through that bound, and the positive control
                             # below measures what a real leak looks like.
-                            allowance = 0.2 * max(1, lan["emitted"])
                             lan["resolution"]["verdict"] = "armed"
                             lan["resolution"]["allowance_pkts"] = allowance
                             _rtp_r99_true(
