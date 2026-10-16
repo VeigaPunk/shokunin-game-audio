@@ -1,0 +1,157 @@
+{
+ "pid": 2623545,
+ "tmpdir": "/home/vgpnk/Projects/shokunin/tmp",
+ "hypothesis": "cdup either-way",
+ "steps": {
+  "load_a": {
+   "name": "r85r_a_2623545",
+   "rc": 0,
+   "module_id": "536870924"
+  },
+  "load_b": {
+   "name": "r85r_b_2623545",
+   "rc": 0,
+   "module_id": "536870916"
+  },
+  "load_digits_named": {
+   "name": "240353",
+   "rc": 0,
+   "module_id": "536870926"
+  },
+  "run_a": {
+   "tag": "r85r_cap1_2623545",
+   "target": "240353",
+   "argv": "pw-record -P node.name=r85r_cap1_2623545 --target 240353 --rate 48000 --channels 2 --format s16 /home/vgpnk/Projects/shokunin/tmp/r85r_cap1_2623545.wav",
+   "samples": [
+    {
+     "at_s": 0.92,
+     "links": [
+      {
+       "out": "r85r_a_2623545:monitor_FL",
+       "in": "r85r_cap1_2623545:input_FL",
+       "out_node": "r85r_a_2623545",
+       "out_port": "monitor_FL",
+       "in_port": "input_FL"
+      },
+      {
+       "out": "r85r_a_2623545:monitor_FR",
+       "in": "r85r_cap1_2623545:input_FR",
+       "out_node": "r85r_a_2623545",
+       "out_port": "monitor_FR",
+       "in_port": "input_FR"
+      }
+     ],
+     "node_alive": true,
+     "size": 176172
+    },
+    {
+     "at_s": 1.92,
+     "links": [
+      {
+       "out": "r85r_a_2623545:monitor_FL",
+       "in": "r85r_cap1_2623545:input_FL",
+       "out_node": "r85r_a_2623545",
+       "out_port": "monitor_FL",
+       "in_port": "input_FL"
+      },
+      {
+       "out": "r85r_a_2623545:monitor_FR",
+       "in": "r85r_cap1_2623545:input_FR",
+       "out_node": "r85r_a_2623545",
+       "out_port": "monitor_FR",
+       "in_port": "input_FR"
+      }
+     ],
+     "node_alive": true,
+     "size": 368684
+    }
+   ],
+   "alive_at_end": true,
+   "exit_code": 1,
+   "stderr_tail": "/home/vgpnk/Projects/shokunin/tmp/r85r_cap1_2623545.wav\n",
+   "file_bytes": 479276
+  },
+  "unload_a": {
+   "field": "sink_name",
+   "value": "r85r_a_2623545",
+   "idx": 536870924,
+   "rc": 0
+  },
+  "run_b": {
+   "tag": "r85r_cap2_2623545",
+   "target": "240353",
+   "argv": "pw-record -P node.name=r85r_cap2_2623545 --target 240353 --rate 48000 --channels 2 --format s16 /home/vgpnk/Projects/shokunin/tmp/r85r_cap2_2623545.wav",
+   "samples": [
+    {
+     "at_s": 0.92,
+     "links": [],
+     "node_alive": false,
+     "size": 44
+    },
+    {
+     "at_s": 1.92,
+     "links": [],
+     "node_alive": false,
+     "size": 44
+    }
+   ],
+   "alive_at_end": false,
+   "exit_code": 1,
+   "stderr_tail": "/home/vgpnk/Projects/shokunin/tmp/r85r_cap2_2623545.wav\nstream node 102 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available\n",
+   "file_bytes": 44
+  },
+  "teardown_b": {
+   "field": "sink_name",
+   "value": "r85r_b_2623545",
+   "idx": 536870916,
+   "rc": 0
+  },
+  "teardown_a": {
+   "field": "sink_name",
+   "value": "r85r_a_2623545",
+   "skipped": "not_listed"
+  },
+  "teardown_digits": {
+   "field": "sink_name",
+   "value": "240353",
+   "idx": 536870926,
+   "rc": 0
+  }
+ },
+ "serial_a": 240353,
+ "residue_nodes": [],
+ "a_links": [
+  {
+   "out": "r85r_a_2623545:monitor_FL",
+   "in": "r85r_cap1_2623545:input_FL",
+   "out_node": "r85r_a_2623545",
+   "out_port": "monitor_FL",
+   "in_port": "input_FL"
+  },
+  {
+   "out": "r85r_a_2623545:monitor_FR",
+   "in": "r85r_cap1_2623545:input_FR",
+   "out_node": "r85r_a_2623545",
+   "out_port": "monitor_FR",
+   "in_port": "input_FR"
+  },
+  {
+   "out": "r85r_a_2623545:monitor_FL",
+   "in": "r85r_cap1_2623545:input_FL",
+   "out_node": "r85r_a_2623545",
+   "out_port": "monitor_FL",
+   "in_port": "input_FL"
+  },
+  {
+   "out": "r85r_a_2623545:monitor_FR",
+   "in": "r85r_cap1_2623545:input_FR",
+   "out_node": "r85r_a_2623545",
+   "out_port": "monitor_FR",
+   "in_port": "input_FR"
+  }
+ ],
+ "b_links": [],
+ "a_monitor_links_to_holder": true,
+ "b_monitor_links_to_digits_sink": false,
+ "verdict": "CONFIRMED (both sides realized: serial-first with holder alive; no digits-sink monitor link with holder unloaded)"
+}

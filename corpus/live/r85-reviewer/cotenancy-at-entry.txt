@@ -1,0 +1,9 @@
+# co-tenancy census at reviewer entry (UTC 2026-10-16T06:18:46Z)
+## measure_audio/build_artifacts processes:
+2597932    4116       00:00 Ss   do_wait                  bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && R=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier && { echo "# CWD=$(pwd) TMPDIR=$TMPDIR"; echo "# normal start $(date -u +%Y-%m-%dT%H:%M:%SZ)"; } >> "$R/runs/commands.log" && python3 corpus/fixtures/measure_audio.py > "$R/runs/normal.stdout.json" 2> "$R/runs/normal.stderr.log"; echo "normal rc=$?" >> "$R/runs/commands.log"; echo "# normal end $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$R/runs/commands.log"; { echo "# r85v1 start $(date -u +%Y-%m-%dT%H:%M:%SZ)"; } >> "$R/runs/commands.log" && python3 corpus/fixtures/measure_audio.py --probe-pactlmon-r85 > "$R/runs/r85v1.stdout.json" 2> "$R/runs/r85v1.stderr.log"; echo "r85v1 rc=$?" >> "$R/runs/commands.log"; echo "# r85v1 end $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$R/runs/commands.log"; { echo "# r85v2 start $(date -u +%Y-%m-%dT%H:%M:%SZ)"; } >> "$R/runs/commands.log" && python3 corpus/fixtures/measure_audio.py --probe-pactlmon-r85 > "$R/runs/r85v2.stdout.json" 2> "$R/runs/r85v2.stderr.log"; echo "r85v2 rc=$?" >> "$R/runs/commands.log"; echo "# r85v2 end $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$R/runs/commands.log"; echo DONE
+2597938 2597932       00:00 S    poll_schedule_timeout.co python3 corpus/fixtures/measure_audio.py
+## lock files:
+-rw-r--r-- 1 vgpnk vgpnk 52 Oct 15 21:55 /home/vgpnk/Projects/shokunin/tmp/measure_audio-alsapw-r84.lock
+-rw-r--r-- 1 vgpnk vgpnk 52 Oct 16 03:12 /home/vgpnk/Projects/shokunin/tmp/measure_audio-pactlmon-r85.lock
+## loadavg:
+51.32 51.93 52.58 52/1861 2597987
