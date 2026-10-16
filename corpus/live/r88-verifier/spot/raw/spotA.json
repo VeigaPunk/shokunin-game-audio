@@ -1,0 +1,260 @@
+{
+ "tree": {
+  "argv": "busctl --system tree org.bluez",
+  "timeout": false,
+  "rc": 0,
+  "out": "\u2514\u2500 /org\n  \u2514\u2500 /org/bluez\n    \u2514\u2500 /org/bluez/hci0\n      \u2514\u2500 /org/bluez/hci0/dev_BC_C7_46_34_C5_66\n",
+  "err": "",
+  "wall_s": 0.003,
+  "out_head": [
+   "\u2514\u2500 /org",
+   "  \u2514\u2500 /org/bluez",
+   "    \u2514\u2500 /org/bluez/hci0",
+   "      \u2514\u2500 /org/bluez/hci0/dev_BC_C7_46_34_C5_66"
+  ],
+  "err_head": []
+ },
+ "adapters": [
+  "/org/bluez/hci0"
+ ],
+ "devices": [
+  "/org/bluez/hci0/dev_BC_C7_46_34_C5_66"
+ ],
+ "device_records": [
+  {
+   "path": "/org/bluez/hci0/dev_BC_C7_46_34_C5_66",
+   "UUIDs": "as 2 \"00001124-0000-1000-8000-00805f9b34fb\" \"00001200-0000-1000-8000-00805f9b34fb\"",
+   "Class": "u 1288",
+   "Connected": "b false",
+   "Paired": "b true",
+   "Modalias": "s \"usb:v054Cp0CE6d0100\"",
+   "uuid16": [
+    "1124",
+    "1200"
+   ],
+   "audio_uuids": []
+  }
+ ],
+ "adapter_powered": {
+  "argv": "busctl --system get-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered",
+  "timeout": false,
+  "rc": 0,
+  "out": "b true\n",
+  "err": "",
+  "wall_s": 0.002,
+  "out_head": [
+   "b true"
+  ],
+  "err_head": []
+ },
+ "media1": {
+  "argv": "busctl --system get-property org.bluez /org/bluez/hci0 org.bluez.Media1 SupportedUUIDs",
+  "timeout": false,
+  "rc": 0,
+  "out": "as 2 \"0000110a-0000-1000-8000-00805f9b34fb\" \"0000110b-0000-1000-8000-00805f9b34fb\"\n",
+  "err": "",
+  "wall_s": 0.002,
+  "out_head": [
+   "as 2 \"0000110a-0000-1000-8000-00805f9b34fb\" \"0000110b-0000-1000-8000-00805f9b34fb\""
+  ],
+  "err_head": []
+ },
+ "media_transport": [],
+ "pactl_bluez_lines": [
+  "session.services = \"[bluetooth.audio, api.alsa, policy.default-nodes, api.libcamera, audio, api.alsa-seq, policy.device.routes, midi, bluetooth.midi, policy.linking.role-based, policy.linking.standard, api.bluez, policy.device.profile, api.v4l2, video-capture]\""
+ ],
+ "pactl_cards": [
+  "172867\talsa_card.pci-0000_79_00.1\talsa",
+  "172868\talsa_card.usb-Generic_USB_Audio-00\talsa"
+ ],
+ "pactl_sinks": [
+  "172871\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+  "172872\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+  "172873\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+  "220907\tr84a_probe_548706\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED",
+  "245442\tr87t_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED",
+  "254248\tr89a_dev_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED"
+ ],
+ "bluez_objects": [
+  {
+   "id": 49,
+   "name": "bluez_midi.server",
+   "media_class": "Midi/Bridge",
+   "factory": "api.bluez5.midi.node"
+  }
+ ],
+ "spa_files": [
+  "libspa-bluez5.so",
+  "libspa-codec-bluez5-aac.so",
+  "libspa-codec-bluez5-aptx.so",
+  "libspa-codec-bluez5-faststream.so",
+  "libspa-codec-bluez5-g722.so",
+  "libspa-codec-bluez5-hfp-cvsd.so",
+  "libspa-codec-bluez5-hfp-lc3-a127.so",
+  "libspa-codec-bluez5-hfp-lc3-swb.so",
+  "libspa-codec-bluez5-hfp-msbc.so",
+  "libspa-codec-bluez5-lc3.so",
+  "libspa-codec-bluez5-ldac.so",
+  "libspa-codec-bluez5-opus-g.so",
+  "libspa-codec-bluez5-opus.so",
+  "libspa-codec-bluez5-sbc.so"
+ ],
+ "codecs_strings": [
+  "property bluez5.codecs '%s' is not an array",
+  "spa.bluez5.codecs"
+ ],
+ "codecs_standalone": 0,
+ "find_module": [],
+ "mods_before": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870921\tmodule-null-sink\tsink_name=r87t_ns\t\n536870922\tmodule-null-sink\tsink_name=r89a_dev_ns\t\n536870923\tmodule-null-sink\tsink_name=r84a_probe_548706\t\n",
+ "refusals": {
+  "discover": {
+   "argv": "pactl load-module module-bluez5-discover",
+   "timeout": false,
+   "rc": 1,
+   "out": "",
+   "err": "Failure: No such entity\n",
+   "wall_s": 0.005,
+   "out_head": [],
+   "err_head": [
+    "Failure: No such entity"
+   ]
+  },
+  "device": {
+   "argv": "pactl load-module module-bluez5-device",
+   "timeout": false,
+   "rc": 1,
+   "out": "",
+   "err": "Failure: No such entity\n",
+   "wall_s": 0.007,
+   "out_head": [],
+   "err_head": [
+    "Failure: No such entity"
+   ]
+  },
+  "device_path": {
+   "argv": "pactl load-module module-bluez5-device path=/org/bluez/hci0",
+   "timeout": false,
+   "rc": 1,
+   "out": "",
+   "err": "Failure: No such entity\n",
+   "wall_s": 0.005,
+   "out_head": [],
+   "err_head": [
+    "Failure: No such entity"
+   ]
+  },
+  "discover_arg": {
+   "argv": "pactl load-module module-bluez5-discover a2dp_source=false",
+   "timeout": false,
+   "rc": 1,
+   "out": "",
+   "err": "Failure: No such entity\n",
+   "wall_s": 0.005,
+   "out_head": [],
+   "err_head": [
+    "Failure: No such entity"
+   ]
+  }
+ },
+ "sendmsg": {
+  "argv": "pactl send-message /org/bluez/hci0 /org/bluez/hci0",
+  "timeout": false,
+  "rc": 1,
+  "out": "",
+  "err": "Send message failed: No such entity\n",
+  "wall_s": 0.008,
+  "out_head": [],
+  "err_head": [
+   "Send message failed: No such entity"
+  ]
+ },
+ "setcard_absent": {
+  "argv": "pactl set-card-profile bluez_card.BC_C7_46_34_C5_66 a2dp-sink",
+  "timeout": false,
+  "rc": 1,
+  "out": "",
+  "err": "Failure: No such entity\n",
+  "wall_s": 0.004,
+  "out_head": [],
+  "err_head": [
+   "Failure: No such entity"
+  ]
+ },
+ "setcard_bogusctl": {
+  "argv": "pactl set-card-profile alsa_card.pci-0000_79_00.1 bogus-profile-r88v",
+  "timeout": false,
+  "rc": 1,
+  "out": "",
+  "err": "Failure: No such entity\n",
+  "wall_s": 0.007,
+  "out_head": [],
+  "err_head": [
+   "Failure: No such entity"
+  ]
+ },
+ "setcard_validctl": {
+  "argv": "pactl set-card-profile alsa_card.pci-0000_79_00.1 off",
+  "timeout": false,
+  "rc": 0,
+  "out": "",
+  "err": "",
+  "wall_s": 0.005,
+  "out_head": [],
+  "err_head": []
+ },
+ "setcard_real_card": "alsa_card.pci-0000_79_00.1",
+ "setcard_active": "off",
+ "mods_after": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870921\tmodule-null-sink\tsink_name=r87t_ns\t\n536870922\tmodule-null-sink\tsink_name=r89a_dev_ns\t\n536870923\tmodule-null-sink\tsink_name=r84a_probe_548706\t\n",
+ "fabrications": {
+  "a2dp_sink": {
+   "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.a2dp-sink node.name = r88v_ns_1528136_fab_a2dp_sink }",
+   "timeout": false,
+   "rc": 0,
+   "out": "",
+   "err": "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory\n",
+   "wall_s": 0.008,
+   "out_head": [],
+   "err_head": [
+    "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory"
+   ]
+  },
+  "sink": {
+   "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.sink node.name = r88v_ns_1528136_fab_sink }",
+   "timeout": false,
+   "rc": 0,
+   "out": "",
+   "err": "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory\n",
+   "wall_s": 0.005,
+   "out_head": [],
+   "err_head": [
+    "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory"
+   ]
+  },
+  "a2dp_source": {
+   "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.a2dp.source node.name = r88v_ns_1528136_fab_a2dp_source }",
+   "timeout": false,
+   "rc": 0,
+   "out": "",
+   "err": "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument\n",
+   "wall_s": 0.01,
+   "out_head": [],
+   "err_head": [
+    "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument"
+   ]
+  },
+  "midi_node": {
+   "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.midi.node node.name = r88v_ns_1528136_fab_midi_node }",
+   "timeout": false,
+   "rc": 0,
+   "out": "",
+   "err": "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument\n",
+   "wall_s": 0.006,
+   "out_head": [],
+   "err_head": [
+    "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument"
+   ]
+  }
+ },
+ "fab_residue": [],
+ "fab_new_ids": []
+}

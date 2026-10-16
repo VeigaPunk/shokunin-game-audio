@@ -1,0 +1,2200 @@
+{
+ "pid": 1528136,
+ "ns": "r88v_ns_1528136",
+ "spots": {
+  "A_bluez_absent_class": {
+   "tree": {
+    "argv": "busctl --system tree org.bluez",
+    "timeout": false,
+    "rc": 0,
+    "out": "\u2514\u2500 /org\n  \u2514\u2500 /org/bluez\n    \u2514\u2500 /org/bluez/hci0\n      \u2514\u2500 /org/bluez/hci0/dev_BC_C7_46_34_C5_66\n",
+    "err": "",
+    "wall_s": 0.003,
+    "out_head": [
+     "\u2514\u2500 /org",
+     "  \u2514\u2500 /org/bluez",
+     "    \u2514\u2500 /org/bluez/hci0",
+     "      \u2514\u2500 /org/bluez/hci0/dev_BC_C7_46_34_C5_66"
+    ],
+    "err_head": []
+   },
+   "adapters": [
+    "/org/bluez/hci0"
+   ],
+   "devices": [
+    "/org/bluez/hci0/dev_BC_C7_46_34_C5_66"
+   ],
+   "device_records": [
+    {
+     "path": "/org/bluez/hci0/dev_BC_C7_46_34_C5_66",
+     "UUIDs": "as 2 \"00001124-0000-1000-8000-00805f9b34fb\" \"00001200-0000-1000-8000-00805f9b34fb\"",
+     "Class": "u 1288",
+     "Connected": "b false",
+     "Paired": "b true",
+     "Modalias": "s \"usb:v054Cp0CE6d0100\"",
+     "uuid16": [
+      "1124",
+      "1200"
+     ],
+     "audio_uuids": []
+    }
+   ],
+   "adapter_powered": {
+    "argv": "busctl --system get-property org.bluez /org/bluez/hci0 org.bluez.Adapter1 Powered",
+    "timeout": false,
+    "rc": 0,
+    "out": "b true\n",
+    "err": "",
+    "wall_s": 0.002,
+    "out_head": [
+     "b true"
+    ],
+    "err_head": []
+   },
+   "media1": {
+    "argv": "busctl --system get-property org.bluez /org/bluez/hci0 org.bluez.Media1 SupportedUUIDs",
+    "timeout": false,
+    "rc": 0,
+    "out": "as 2 \"0000110a-0000-1000-8000-00805f9b34fb\" \"0000110b-0000-1000-8000-00805f9b34fb\"\n",
+    "err": "",
+    "wall_s": 0.002,
+    "out_head": [
+     "as 2 \"0000110a-0000-1000-8000-00805f9b34fb\" \"0000110b-0000-1000-8000-00805f9b34fb\""
+    ],
+    "err_head": []
+   },
+   "media_transport": [],
+   "pactl_bluez_lines": [
+    "session.services = \"[bluetooth.audio, api.alsa, policy.default-nodes, api.libcamera, audio, api.alsa-seq, policy.device.routes, midi, bluetooth.midi, policy.linking.role-based, policy.linking.standard, api.bluez, policy.device.profile, api.v4l2, video-capture]\""
+   ],
+   "pactl_cards": [
+    "172867\talsa_card.pci-0000_79_00.1\talsa",
+    "172868\talsa_card.usb-Generic_USB_Audio-00\talsa"
+   ],
+   "pactl_sinks": [
+    "172871\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+    "172872\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+    "172873\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+    "220907\tr84a_probe_548706\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED",
+    "245442\tr87t_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED",
+    "254248\tr89a_dev_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED"
+   ],
+   "bluez_objects": [
+    {
+     "id": 49,
+     "name": "bluez_midi.server",
+     "media_class": "Midi/Bridge",
+     "factory": "api.bluez5.midi.node"
+    }
+   ],
+   "spa_files": [
+    "libspa-bluez5.so",
+    "libspa-codec-bluez5-aac.so",
+    "libspa-codec-bluez5-aptx.so",
+    "libspa-codec-bluez5-faststream.so",
+    "libspa-codec-bluez5-g722.so",
+    "libspa-codec-bluez5-hfp-cvsd.so",
+    "libspa-codec-bluez5-hfp-lc3-a127.so",
+    "libspa-codec-bluez5-hfp-lc3-swb.so",
+    "libspa-codec-bluez5-hfp-msbc.so",
+    "libspa-codec-bluez5-lc3.so",
+    "libspa-codec-bluez5-ldac.so",
+    "libspa-codec-bluez5-opus-g.so",
+    "libspa-codec-bluez5-opus.so",
+    "libspa-codec-bluez5-sbc.so"
+   ],
+   "codecs_strings": [
+    "property bluez5.codecs '%s' is not an array",
+    "spa.bluez5.codecs"
+   ],
+   "codecs_standalone": 0,
+   "find_module": [],
+   "mods_before": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870921\tmodule-null-sink\tsink_name=r87t_ns\t\n536870922\tmodule-null-sink\tsink_name=r89a_dev_ns\t\n536870923\tmodule-null-sink\tsink_name=r84a_probe_548706\t\n",
+   "refusals": {
+    "discover": {
+     "argv": "pactl load-module module-bluez5-discover",
+     "timeout": false,
+     "rc": 1,
+     "out": "",
+     "err": "Failure: No such entity\n",
+     "wall_s": 0.005,
+     "out_head": [],
+     "err_head": [
+      "Failure: No such entity"
+     ]
+    },
+    "device": {
+     "argv": "pactl load-module module-bluez5-device",
+     "timeout": false,
+     "rc": 1,
+     "out": "",
+     "err": "Failure: No such entity\n",
+     "wall_s": 0.007,
+     "out_head": [],
+     "err_head": [
+      "Failure: No such entity"
+     ]
+    },
+    "device_path": {
+     "argv": "pactl load-module module-bluez5-device path=/org/bluez/hci0",
+     "timeout": false,
+     "rc": 1,
+     "out": "",
+     "err": "Failure: No such entity\n",
+     "wall_s": 0.005,
+     "out_head": [],
+     "err_head": [
+      "Failure: No such entity"
+     ]
+    },
+    "discover_arg": {
+     "argv": "pactl load-module module-bluez5-discover a2dp_source=false",
+     "timeout": false,
+     "rc": 1,
+     "out": "",
+     "err": "Failure: No such entity\n",
+     "wall_s": 0.005,
+     "out_head": [],
+     "err_head": [
+      "Failure: No such entity"
+     ]
+    }
+   },
+   "sendmsg": {
+    "argv": "pactl send-message /org/bluez/hci0 /org/bluez/hci0",
+    "timeout": false,
+    "rc": 1,
+    "out": "",
+    "err": "Send message failed: No such entity\n",
+    "wall_s": 0.008,
+    "out_head": [],
+    "err_head": [
+     "Send message failed: No such entity"
+    ]
+   },
+   "setcard_absent": {
+    "argv": "pactl set-card-profile bluez_card.BC_C7_46_34_C5_66 a2dp-sink",
+    "timeout": false,
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity\n",
+    "wall_s": 0.004,
+    "out_head": [],
+    "err_head": [
+     "Failure: No such entity"
+    ]
+   },
+   "setcard_bogusctl": {
+    "argv": "pactl set-card-profile alsa_card.pci-0000_79_00.1 bogus-profile-r88v",
+    "timeout": false,
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity\n",
+    "wall_s": 0.007,
+    "out_head": [],
+    "err_head": [
+     "Failure: No such entity"
+    ]
+   },
+   "setcard_validctl": {
+    "argv": "pactl set-card-profile alsa_card.pci-0000_79_00.1 off",
+    "timeout": false,
+    "rc": 0,
+    "out": "",
+    "err": "",
+    "wall_s": 0.005,
+    "out_head": [],
+    "err_head": []
+   },
+   "setcard_real_card": "alsa_card.pci-0000_79_00.1",
+   "setcard_active": "off",
+   "mods_after": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870921\tmodule-null-sink\tsink_name=r87t_ns\t\n536870922\tmodule-null-sink\tsink_name=r89a_dev_ns\t\n536870923\tmodule-null-sink\tsink_name=r84a_probe_548706\t\n",
+   "fabrications": {
+    "a2dp_sink": {
+     "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.a2dp-sink node.name = r88v_ns_1528136_fab_a2dp_sink }",
+     "timeout": false,
+     "rc": 0,
+     "out": "",
+     "err": "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory\n",
+     "wall_s": 0.008,
+     "out_head": [],
+     "err_head": [
+      "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory"
+     ]
+    },
+    "sink": {
+     "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.sink node.name = r88v_ns_1528136_fab_sink }",
+     "timeout": false,
+     "rc": 0,
+     "out": "",
+     "err": "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory\n",
+     "wall_s": 0.005,
+     "out_head": [],
+     "err_head": [
+      "remote 0: error id:98 seq:194 res:-2 (No such file or directory): can't create node: No such file or directory"
+     ]
+    },
+    "a2dp_source": {
+     "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.a2dp.source node.name = r88v_ns_1528136_fab_a2dp_source }",
+     "timeout": false,
+     "rc": 0,
+     "out": "",
+     "err": "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument\n",
+     "wall_s": 0.01,
+     "out_head": [],
+     "err_head": [
+      "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument"
+     ]
+    },
+    "midi_node": {
+     "argv": "pw-cli create-node spa-node-factory { factory.name = api.bluez5.midi.node node.name = r88v_ns_1528136_fab_midi_node }",
+     "timeout": false,
+     "rc": 0,
+     "out": "",
+     "err": "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument\n",
+     "wall_s": 0.006,
+     "out_head": [],
+     "err_head": [
+      "remote 0: error id:98 seq:194 res:-22 (Invalid argument): can't create node: Invalid argument"
+     ]
+    }
+   },
+   "fab_residue": [],
+   "fab_new_ids": []
+  },
+  "B_set_rule": {
+   "census_objects": 92,
+   "keys": 138,
+   "rows": [
+    {
+     "key": "0",
+     "got": [
+      "0"
+     ],
+     "predicted": [
+      "0"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "1",
+     "got": [
+      "1"
+     ],
+     "predicted": [
+      "1"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "10",
+     "got": [
+      "10"
+     ],
+     "predicted": [
+      "10"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "100",
+     "got": [
+      "100"
+     ],
+     "predicted": [
+      "100"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "102",
+     "got": [
+      "102"
+     ],
+     "predicted": [
+      "102"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "103",
+     "got": [
+      "103"
+     ],
+     "predicted": [
+      "103"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "105",
+     "got": [
+      "105"
+     ],
+     "predicted": [
+      "105"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "11",
+     "got": [
+      "11"
+     ],
+     "predicted": [
+      "11"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "117",
+     "got": [
+      "117"
+     ],
+     "predicted": [
+      "117"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "12",
+     "got": [
+      "12"
+     ],
+     "predicted": [
+      "12"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "129",
+     "got": [
+      "129"
+     ],
+     "predicted": [
+      "129"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "13",
+     "got": [
+      "13"
+     ],
+     "predicted": [
+      "13"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "133299",
+     "got": [
+      "179"
+     ],
+     "predicted": [
+      "179"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "138",
+     "got": [
+      "138"
+     ],
+     "predicted": [
+      "138"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "14",
+     "got": [
+      "14"
+     ],
+     "predicted": [
+      "14"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "142",
+     "got": [
+      "142"
+     ],
+     "predicted": [
+      "142"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "143",
+     "got": [
+      "143"
+     ],
+     "predicted": [
+      "143"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "144",
+     "got": [
+      "144"
+     ],
+     "predicted": [
+      "144"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "146",
+     "got": [
+      "146"
+     ],
+     "predicted": [
+      "146"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "148",
+     "got": [
+      "148"
+     ],
+     "predicted": [
+      "148"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "15",
+     "got": [
+      "15"
+     ],
+     "predicted": [
+      "15"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "151",
+     "got": [
+      "151"
+     ],
+     "predicted": [
+      "151"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "153",
+     "got": [
+      "153"
+     ],
+     "predicted": [
+      "153"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "154",
+     "got": [
+      "154"
+     ],
+     "predicted": [
+      "154"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "159",
+     "got": [
+      "159"
+     ],
+     "predicted": [
+      "159"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "16",
+     "got": [
+      "16"
+     ],
+     "predicted": [
+      "16"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "162",
+     "got": [
+      "162"
+     ],
+     "predicted": [
+      "162"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "168",
+     "got": [
+      "168"
+     ],
+     "predicted": [
+      "168"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "17",
+     "got": [
+      "17"
+     ],
+     "predicted": [
+      "17"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172867",
+     "got": [
+      "174"
+     ],
+     "predicted": [
+      "174"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172868",
+     "got": [
+      "100"
+     ],
+     "predicted": [
+      "100"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172871",
+     "got": [
+      "232"
+     ],
+     "predicted": [
+      "232"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172872",
+     "got": [
+      "97"
+     ],
+     "predicted": [
+      "97"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172873",
+     "got": [
+      "175"
+     ],
+     "predicted": [
+      "175"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172874",
+     "got": [
+      "234"
+     ],
+     "predicted": [
+      "234"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172875",
+     "got": [
+      "162"
+     ],
+     "predicted": [
+      "162"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172878",
+     "got": [
+      "154"
+     ],
+     "predicted": [
+      "154"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172879",
+     "got": [
+      "117"
+     ],
+     "predicted": [
+      "117"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172880",
+     "got": [
+      "142"
+     ],
+     "predicted": [
+      "142"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172881",
+     "got": [
+      "168"
+     ],
+     "predicted": [
+      "168"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172882",
+     "got": [
+      "69"
+     ],
+     "predicted": [
+      "69"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172883",
+     "got": [
+      "148"
+     ],
+     "predicted": [
+      "148"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172884",
+     "got": [
+      "159"
+     ],
+     "predicted": [
+      "159"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172885",
+     "got": [
+      "105"
+     ],
+     "predicted": [
+      "105"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172886",
+     "got": [
+      "151"
+     ],
+     "predicted": [
+      "151"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172887",
+     "got": [
+      "86"
+     ],
+     "predicted": [
+      "86"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172888",
+     "got": [
+      "74"
+     ],
+     "predicted": [
+      "74"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172889",
+     "got": [
+      "144"
+     ],
+     "predicted": [
+      "144"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172890",
+     "got": [
+      "103"
+     ],
+     "predicted": [
+      "103"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172891",
+     "got": [
+      "225"
+     ],
+     "predicted": [
+      "225"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172892",
+     "got": [
+      "81"
+     ],
+     "predicted": [
+      "81"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "172893",
+     "got": [
+      "94"
+     ],
+     "predicted": [
+      "94"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "174",
+     "got": [
+      "174"
+     ],
+     "predicted": [
+      "174"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "175",
+     "got": [
+      "175"
+     ],
+     "predicted": [
+      "175"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "179",
+     "got": [
+      "179"
+     ],
+     "predicted": [
+      "179"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "18",
+     "got": [
+      "18"
+     ],
+     "predicted": [
+      "18"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "19",
+     "got": [
+      "19"
+     ],
+     "predicted": [
+      "19"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "198",
+     "got": [
+      "198"
+     ],
+     "predicted": [
+      "198"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "2",
+     "got": [
+      "2"
+     ],
+     "predicted": [
+      "2"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "20",
+     "got": [
+      "20"
+     ],
+     "predicted": [
+      "20"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "202251",
+     "got": [
+      "75"
+     ],
+     "predicted": [
+      "75"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "204",
+     "got": [
+      "204"
+     ],
+     "predicted": [
+      "204"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "209",
+     "got": [
+      "209"
+     ],
+     "predicted": [
+      "209"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "21",
+     "got": [
+      "21"
+     ],
+     "predicted": [
+      "21"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "215",
+     "got": [
+      "215"
+     ],
+     "predicted": [
+      "215"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "22",
+     "got": [
+      "22"
+     ],
+     "predicted": [
+      "22"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220906",
+     "got": [
+      "209"
+     ],
+     "predicted": [
+      "209"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220907",
+     "got": [
+      "77"
+     ],
+     "predicted": [
+      "77"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220908",
+     "got": [
+      "146"
+     ],
+     "predicted": [
+      "146"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220909",
+     "got": [
+      "143"
+     ],
+     "predicted": [
+      "143"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220910",
+     "got": [
+      "198"
+     ],
+     "predicted": [
+      "198"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "220911",
+     "got": [
+      "221"
+     ],
+     "predicted": [
+      "221"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "221",
+     "got": [
+      "221"
+     ],
+     "predicted": [
+      "221"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "225",
+     "got": [
+      "225"
+     ],
+     "predicted": [
+      "225"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "23",
+     "got": [
+      "23"
+     ],
+     "predicted": [
+      "23"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "232",
+     "got": [
+      "232"
+     ],
+     "predicted": [
+      "232"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "234",
+     "got": [
+      "234"
+     ],
+     "predicted": [
+      "234"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "237",
+     "got": [
+      "237"
+     ],
+     "predicted": [
+      "237"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "24",
+     "got": [
+      "24"
+     ],
+     "predicted": [
+      "24"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245441",
+     "got": [
+      "138"
+     ],
+     "predicted": [
+      "138"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245442",
+     "got": [
+      "65"
+     ],
+     "predicted": [
+      "65"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245443",
+     "got": [
+      "85"
+     ],
+     "predicted": [
+      "85"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245444",
+     "got": [
+      "129"
+     ],
+     "predicted": [
+      "129"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245445",
+     "got": [
+      "215"
+     ],
+     "predicted": [
+      "215"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "245446",
+     "got": [
+      "67"
+     ],
+     "predicted": [
+      "67"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "25",
+     "got": [
+      "25"
+     ],
+     "predicted": [
+      "25"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "252",
+     "got": [
+      "252"
+     ],
+     "predicted": [
+      "252"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254247",
+     "got": [
+      "102"
+     ],
+     "predicted": [
+      "102"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254248",
+     "got": [
+      "60"
+     ],
+     "predicted": [
+      "60"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254249",
+     "got": [
+      "237"
+     ],
+     "predicted": [
+      "237"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254250",
+     "got": [
+      "84"
+     ],
+     "predicted": [
+      "84"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254251",
+     "got": [
+      "78"
+     ],
+     "predicted": [
+      "78"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254252",
+     "got": [
+      "204"
+     ],
+     "predicted": [
+      "204"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254619",
+     "got": [
+      "252"
+     ],
+     "predicted": [
+      "252"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "254641",
+     "got": null,
+     "predicted": [
+      "153"
+     ],
+     "rc": 0,
+     "out_empty": true,
+     "recensus_predicted": [],
+     "silent_absence": true,
+     "match": true
+    },
+    {
+     "key": "26",
+     "got": [
+      "26"
+     ],
+     "predicted": [
+      "26"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "27",
+     "got": [
+      "27"
+     ],
+     "predicted": [
+      "27"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "28",
+     "got": [
+      "28"
+     ],
+     "predicted": [
+      "28"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "29",
+     "got": [
+      "29"
+     ],
+     "predicted": [
+      "29"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "3",
+     "got": [
+      "3"
+     ],
+     "predicted": [
+      "3"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "30",
+     "got": [
+      "30"
+     ],
+     "predicted": [
+      "30"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "31",
+     "got": [
+      "31"
+     ],
+     "predicted": [
+      "31"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "32",
+     "got": [
+      "32"
+     ],
+     "predicted": [
+      "32"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "33",
+     "got": [
+      "33"
+     ],
+     "predicted": [
+      "33"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "34",
+     "got": [
+      "34"
+     ],
+     "predicted": [
+      "34"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "36",
+     "got": [
+      "36"
+     ],
+     "predicted": [
+      "36"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "39",
+     "got": [
+      "39"
+     ],
+     "predicted": [
+      "39"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "4",
+     "got": [
+      "4"
+     ],
+     "predicted": [
+      "4"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "40",
+     "got": [
+      "40"
+     ],
+     "predicted": [
+      "40"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "43",
+     "got": [
+      "43"
+     ],
+     "predicted": [
+      "43"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "46",
+     "got": [
+      "46"
+     ],
+     "predicted": [
+      "46"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "47",
+     "got": [
+      "47"
+     ],
+     "predicted": [
+      "47"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "48",
+     "got": [
+      "48"
+     ],
+     "predicted": [
+      "48"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "49",
+     "got": [
+      "49"
+     ],
+     "predicted": [
+      "49"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "5",
+     "got": [
+      "5"
+     ],
+     "predicted": [
+      "5"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "50",
+     "got": [
+      "50"
+     ],
+     "predicted": [
+      "50"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "51",
+     "got": [
+      "51"
+     ],
+     "predicted": [
+      "51"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "57",
+     "got": [
+      "57"
+     ],
+     "predicted": [
+      "57"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "58",
+     "got": [
+      "58"
+     ],
+     "predicted": [
+      "58"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "6",
+     "got": [
+      "6"
+     ],
+     "predicted": [
+      "6"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "60",
+     "got": [
+      "60"
+     ],
+     "predicted": [
+      "60"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "60858",
+     "got": [
+      "58"
+     ],
+     "predicted": [
+      "58"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "65",
+     "got": [
+      "65"
+     ],
+     "predicted": [
+      "65"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "67",
+     "got": [
+      "67"
+     ],
+     "predicted": [
+      "67"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "69",
+     "got": [
+      "69"
+     ],
+     "predicted": [
+      "69"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "7",
+     "got": [
+      "7"
+     ],
+     "predicted": [
+      "7"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "74",
+     "got": [
+      "74"
+     ],
+     "predicted": [
+      "74"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "75",
+     "got": [
+      "75"
+     ],
+     "predicted": [
+      "75"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "77",
+     "got": [
+      "77"
+     ],
+     "predicted": [
+      "77"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "78",
+     "got": [
+      "78"
+     ],
+     "predicted": [
+      "78"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "8",
+     "got": [
+      "8"
+     ],
+     "predicted": [
+      "8"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "81",
+     "got": [
+      "81"
+     ],
+     "predicted": [
+      "81"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "84",
+     "got": [
+      "84"
+     ],
+     "predicted": [
+      "84"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "85",
+     "got": [
+      "85"
+     ],
+     "predicted": [
+      "85"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "86",
+     "got": [
+      "86"
+     ],
+     "predicted": [
+      "86"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "9",
+     "got": [
+      "9"
+     ],
+     "predicted": [
+      "9"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "94",
+     "got": [
+      "94"
+     ],
+     "predicted": [
+      "94"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    },
+    {
+     "key": "97",
+     "got": [
+      "97"
+     ],
+     "predicted": [
+      "97"
+     ],
+     "rc": 0,
+     "out_empty": false,
+     "match": true
+    }
+   ],
+   "mismatches": [],
+   "churn_recensus": 0,
+   "silent_empty_keys": 1,
+   "silent_examples": [
+    "254641"
+   ]
+  },
+  "C_metadata_split": {
+   "ls_ids": [
+    "31",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "41",
+    "42"
+   ],
+   "dump_ids": [
+    "31",
+    "34",
+    "36",
+    "39"
+   ],
+   "extra": [
+    "35",
+    "37",
+    "38",
+    "41",
+    "42"
+   ],
+   "ls_superset": true,
+   "info_extra_silent": {
+    "rc": 0,
+    "out_empty": true,
+    "err_empty": true
+   },
+   "info_all_described": 86,
+   "info_all_dump": 92,
+   "info_all_meta_described": [],
+   "ls_raw": "\tid 31, type PipeWire:Interface:Metadata/3\n \t\tobject.serial = \"31\"\n \t\tmetadata.name = \"settings\"\n\tid 34, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"schema-sm-settings\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"34\"\n\tid 35, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"persistent-sm-settings\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"35\"\n\tid 36, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"sm-settings\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"36\"\n\tid 37, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"sm-objects\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"37\"\n\tid 38, type PipeWire:Interface:Metadata/3\n \t\twireplumber.state = \"true\"\n \t\tmetadata.name = \"default-profile\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"38\"\n\tid 39, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"default\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"39\"\n\tid 41, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"filters\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"41\"\n\tid 42, type PipeWire:Interface:Metadata/3\n \t\tmetadata.name = \"route-settings\"\n \t\tfactory.id = \"7\"\n \t\tmodule.id = \"6\"\n \t\tclient.id = \"33\"\n \t\tobject.serial = \"42\"\n"
+  },
+  "D_pactl_serial": {
+   "sinks": [
+    {
+     "index": 172871,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+     "serial": "172871",
+     "monitor": false,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+     "match": true
+    },
+    {
+     "index": 172872,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29",
+     "serial": "172872",
+     "monitor": false,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29",
+     "match": true
+    },
+    {
+     "index": 172873,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29",
+     "serial": "172873",
+     "monitor": false,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29",
+     "match": true
+    },
+    {
+     "index": 220907,
+     "name": "r84a_probe_548706",
+     "serial": "220907",
+     "monitor": false,
+     "resolved_as": "r84a_probe_548706",
+     "match": true
+    },
+    {
+     "index": 245442,
+     "name": "r87t_ns",
+     "serial": "245442",
+     "monitor": false,
+     "resolved_as": "r87t_ns",
+     "match": true
+    },
+    {
+     "index": 254248,
+     "name": "r89a_dev_ns",
+     "serial": "254248",
+     "monitor": false,
+     "resolved_as": "r89a_dev_ns",
+     "match": true
+    }
+   ],
+   "sources": [
+    {
+     "index": 172874,
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29",
+     "serial": "172874",
+     "monitor": false,
+     "resolved_as": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29",
+     "match": true
+    },
+    {
+     "index": 172875,
+     "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source.29",
+     "serial": "172875",
+     "monitor": false,
+     "resolved_as": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source.29",
+     "match": true
+    }
+   ],
+   "violations": [],
+   "monitor_rows": [
+    {
+     "index": 172871,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29.monitor",
+     "serial": "172871",
+     "monitor": true,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+     "match": true
+    },
+    {
+     "index": 172872,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29.monitor",
+     "serial": "172872",
+     "monitor": true,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29",
+     "match": true
+    },
+    {
+     "index": 172873,
+     "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29.monitor",
+     "serial": "172873",
+     "monitor": true,
+     "resolved_as": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29",
+     "match": true
+    },
+    {
+     "index": 220907,
+     "name": "r84a_probe_548706.monitor",
+     "serial": "220907",
+     "monitor": true,
+     "resolved_as": "r84a_probe_548706",
+     "match": true
+    },
+    {
+     "index": 245442,
+     "name": "r87t_ns.monitor",
+     "serial": "245442",
+     "monitor": true,
+     "resolved_as": "r87t_ns",
+     "match": true
+    },
+    {
+     "index": 254248,
+     "name": "r89a_dev_ns.monitor",
+     "serial": "254248",
+     "monitor": true,
+     "resolved_as": "r89a_dev_ns",
+     "match": true
+    }
+   ],
+   "matched": 14,
+   "total": 14
+  },
+  "E_pwtop_traps": {
+   "n1": {
+    "frames": [
+     12
+    ],
+    "status_sets": [
+     [
+      "C"
+     ]
+    ]
+   },
+   "n0": {
+    "frames": [
+     12
+    ]
+   },
+   "n3": {
+    "frames": [
+     12,
+     12,
+     12
+    ],
+    "status_sets": [
+     [
+      "C"
+     ],
+     [
+      "I",
+      "S"
+     ],
+     [
+      "I",
+      "S"
+     ]
+    ]
+   },
+   "nneg": {
+    "rc": -9,
+    "timeout": true,
+    "frames": [
+     12,
+     12,
+     12,
+     1
+    ],
+    "lines": 41
+   },
+   "nabc": {
+    "rc": -9,
+    "timeout": true,
+    "frames": [],
+    "lines": 0
+   },
+   "rbogus": {
+    "rc": 255,
+    "err": "Can't connect: Host is down"
+   }
+  },
+  "F_state_agreement": {
+   "load": {
+    "rc": 0,
+    "module_id": "536870917",
+    "err": ""
+   },
+   "own": {
+    "id": "55",
+    "serial": "254798"
+   },
+   "idle": {
+    "tag": "idle",
+    "pactl": "SUSPENDED",
+    "dump": "suspended",
+    "cli": "suspended",
+    "top": "S",
+    "top_frames": 3,
+    "vocab": {
+     "pactl": "suspended",
+     "dump": "suspended",
+     "cli": "suspended",
+     "top": "suspended"
+    }
+   },
+   "linked": true,
+   "active": {
+    "tag": "active",
+    "pactl": "RUNNING",
+    "dump": "running",
+    "cli": "running",
+    "top": "R",
+    "top_frames": 3,
+    "vocab": {
+     "pactl": "running",
+     "dump": "running",
+     "cli": "running",
+     "top": "running"
+    }
+   },
+   "unload": {
+    "mod_line": [
+     "536870917\tmodule-null-sink\tsink_name=r88v_ns_1528136 node.description=r88v probe 1528136\t"
+    ],
+    "sink_name_ok": true,
+    "rc": 0
+   },
+   "sink_gone": true,
+   "residue_after": []
+  }
+ }
+}
