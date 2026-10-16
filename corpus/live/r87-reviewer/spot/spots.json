@@ -1,0 +1,164 @@
+{
+ "S1_routing": {
+  "ns": "r87r_ns_16973",
+  "ns2": "r87r_ns2_16973",
+  "ns_id": 210,
+  "ns_serial": null,
+  "legs": {
+   "own": {
+    "argv": "--target r87r_ns_16973",
+    "consumers": [
+     "r87r_ns_16973"
+    ]
+   },
+   "nt_vs_flag": {
+    "argv": "-P node.target=r87r_ns2_16973 --target r87r_ns_16973",
+    "consumers": [
+     "r87r_ns_16973"
+    ]
+   },
+   "nt_rev": {
+    "argv": "-P node.target=r87r_ns_16973 --target r87r_ns2_16973",
+    "consumers": [
+     "r87r_ns2_16973"
+    ]
+   },
+   "nt_garbage": {
+    "argv": "-P node.target=r87r_ns2_16973 --target r87r_no_such_target",
+    "consumers": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+    ]
+   },
+   "pb1": {
+    "argv": "--target r87r_ns_16973 -P target.object=r87r_no_such_target",
+    "consumers": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+    ]
+   },
+   "pb2": {
+    "argv": "--target r87r_no_such_target -P target.object=r87r_ns_16973",
+    "consumers": [
+     "r87r_ns_16973"
+    ]
+   },
+   "serial": {
+    "argv": "--target 0",
+    "consumers": []
+   },
+   "objid": {
+    "argv": "--target 210",
+    "consumers": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+    ]
+   }
+  },
+  "verdict": {
+   "flag_beats_node_target": true,
+   "garbage_flag_no_fallthrough": true,
+   "prop_beats_flag": true,
+   "serial_resolves": false,
+   "objid_never": true
+  }
+ },
+ "S2_live_dsp": {
+  "dsp_node": 219,
+  "write_rc": 0,
+  "solo_rms": null,
+  "vol25_rms": null,
+  "vol25_ratio": null,
+  "v150_rms": null,
+  "solo2_rms": null,
+  "verdict": {
+   "props_live_ratio_025": false,
+   "spawn_volume_15_unclamped": false
+  }
+ },
+ "S3_sysex_past_eof": {
+  "fixture_seconds": 4.0,
+  "samples": [
+   {
+    "at_s": 0.9,
+    "present": true,
+    "proc_alive": true
+   },
+   {
+    "at_s": 1.7,
+    "present": true,
+    "proc_alive": true
+   },
+   {
+    "at_s": 3.0,
+    "present": true,
+    "proc_alive": true
+   },
+   {
+    "at_s": 5.0,
+    "present": true,
+    "proc_alive": true
+   },
+   {
+    "at_s": 9.0,
+    "present": true,
+    "proc_alive": true
+   }
+  ],
+  "rc_after_kill": 1,
+  "verdict": {
+   "alive_past_eof": true
+  }
+ },
+ "S4_cold_registry": {
+  "live_id": 210,
+  "cold_unknown_global": true,
+  "cold_class": "unknown global '210'",
+  "warm_rc": 0,
+  "warm_has_id": true
+ },
+ "S5_remote_census": {
+  "remote_named_nodes": [],
+  "module_dir_count": 34,
+  "net_modules": [],
+  "verdict": {
+   "absent": true
+  }
+ },
+ "S6_create_node": {
+  "session_bound": {
+   "in_session": true,
+   "after_quit_id": null
+  },
+  "linger": {
+   "in_session": true,
+   "after_quit_id": 247,
+   "destroy": {
+    "argv": "pw-cli destroy 247",
+    "rc": 0,
+    "stdout": "",
+    "stderr": ""
+   },
+   "after_destroy": false
+  },
+  "verdict": {
+   "session_dies_with_client": true,
+   "linger_survives_until_destroy": true
+  }
+ },
+ "_residual_destroy": [],
+ "_unloads": {
+  "r87r_ns_16973": {
+   "verified_index": null,
+   "unload": null,
+   "reason": "own sink_name= line not found at captured index"
+  },
+  "r87r_ns2_16973": {
+   "verified_index": null,
+   "unload": null,
+   "reason": "own sink_name= line not found at captured index"
+  }
+ },
+ "_residue": {
+  "sinks_left": [],
+  "nodes_left": [],
+  "own_procs_left": []
+ }
+}

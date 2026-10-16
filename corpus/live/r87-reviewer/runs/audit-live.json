@@ -1,0 +1,47 @@
+[
+ {
+  "receipt": "corpus/live/r87-reviewer/runs/r87r1-live.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 171,
+  "fail": 2,
+  "failures": [
+   {
+    "check": "cli/create_badfac/res-2",
+    "pass": false,
+    "detail": ".name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 239 changed\nquit\npipewire-0>> "
+   },
+   {
+    "check": "cli/create_usage/usage",
+    "pass": false,
+    "detail": " \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nquit\npipewire-0>> "
+   }
+  ],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [
+    "create_badfac: no async res:-2 refusal ( \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 client 239 changed\nquit\npipewire-0>> )",
+    "create_usage: no usage refusal (\"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nquit\npipewire-0>> )"
+   ],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ },
+ {
+  "receipt": "corpus/live/r87-reviewer/runs/r87r2-live.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 173,
+  "fail": 0,
+  "failures": [],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ }
+]
+SUMMARY: [('runs', 171, 2), ('runs', 173, 0)]

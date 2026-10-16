@@ -1,0 +1,45 @@
+{
+ "seat": "r87-reviewer",
+ "what": "name-verified unload of the reviewer's own spot modules",
+ "true_cause": "the spot harness's own `run()` helper truncates subprocess stdout to 200-800 chars; `pactl list modules short` is ~2.4 kB (43 modules), so the harness's verification line (and the residue census) never saw its own sink_name= row and the unload silently no-op'd. NOT a pactl reader failure \u2014 corrected after the volume spot reproduced it.",
+ "leftovers_and_unloads": [
+  {
+   "idx": "536870917",
+   "sink": "r87r_ns_945642",
+   "rc": 0,
+   "stderr": ""
+  }
+ ],
+ "post_state": {
+  "r87r_modules": [],
+  "r87r_sinks": [],
+  "r87r_nodes": []
+ },
+ "verification": "each unload re-read the module table and fired only the index whose arg carried sink_name=r87r_<own name>; every spot object was r87r_<pid>-named; no r87a_/foreign object touched; no set-default-*",
+ "all_unloads_this_seat": [
+  {
+   "idx": "536870916",
+   "sink": "r87r_ns2_16973",
+   "rc": 0,
+   "when": "04:19 local (spot battery leftovers)"
+  },
+  {
+   "idx": "536870924",
+   "sink": "r87r_ns_16973",
+   "rc": 0,
+   "when": "04:19 local (spot battery leftovers)"
+  },
+  {
+   "idx": "536870926",
+   "sink": "r87r_ns_195564",
+   "rc": 0,
+   "when": "04:19 local (fixups leftovers)"
+  },
+  {
+   "idx": "536870917",
+   "sink": "r87r_ns_945642",
+   "rc": 0,
+   "when": "04:24 local (volume spot leftover)"
+  }
+ ]
+}

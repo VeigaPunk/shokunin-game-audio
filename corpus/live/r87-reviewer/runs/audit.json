@@ -1,0 +1,184 @@
+[
+ {
+  "receipt": "corpus/live/runs/20261016T070036115509Z-pwbind-r87/measurements.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 173,
+  "fail": 0,
+  "failures": [],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ },
+ {
+  "receipt": "corpus/live/runs/20261016T070305393338Z-pwbind-r87/measurements.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 173,
+  "fail": 0,
+  "failures": [],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ },
+ {
+  "receipt": "corpus/live/runs/20261016T064958137082Z-pwbind-r87/measurements.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 170,
+  "pass": 156,
+  "fail": 14,
+  "failures": [
+   {
+    "check": "modes/m_p_r/input_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_r_p/output_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_p_r_p/output_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_r_p_r/input_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_play_r/input_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_record_p/output_ports",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_midi_p/output_1",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "modes/m_midi_r/input_1",
+    "pass": false,
+    "detail": "[]"
+   },
+   {
+    "check": "cli/unknowns/enum-params",
+    "pass": false,
+    "detail": "pwcli_usage"
+   },
+   {
+    "check": "cli/fmt_stream/post_valid-seal",
+    "pass": false,
+    "detail": "{'pre': {'rate': None, 'format_id': 259}, 'post': {'rate': None, 'format_id': 259}}"
+   },
+   {
+    "check": "cli/fmt_stream/post_empty-seal",
+    "pass": false,
+    "detail": "{'pre': {'rate': None, 'format_id': 259}, 'post': {'rate': None, 'format_id': 259}}"
+   },
+   {
+    "check": "cli/fmt_unlinked/format-res-2",
+    "pass": false,
+    "detail": "\nError: \"enum-params: unknown global '196'\"\n"
+   },
+   {
+    "check": "cli/fmt_unlinked/props-read",
+    "pass": false,
+    "detail": "\nError: \"enum-params: unknown global '196'\"\n"
+   },
+   {
+    "check": "cli/create_usage/usage",
+    "pass": false,
+    "detail": " \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nquit\npipewire-0>> "
+   }
+  ],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [
+    "m_p_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}",
+    "m_r_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}",
+    "m_p_r_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}",
+    "m_r_p_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}",
+    "m_play_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}",
+    "m_record_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}",
+    "m_midi_p: midi output_1 absent on {'output_1': 'output'}",
+    "m_midi_r: midi input_1 absent on {'input_1': 'input'}"
+   ],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [
+    "warm_control: a warm pw-cli info failed \u2014 the artifact contrast is unmeasured",
+    "unknowns/enum-params: the unknown-global class failed (pwcli_usage)",
+    "fmt_stream: negotiated Format moved {'rate': None, 'format_id': None} -> {'rate': None, 'format_id': None} \u2014 the seal fails",
+    "fmt_stream: negotiated Format moved {'rate': None, 'format_id': None} -> {'rate': None, 'format_id': None} \u2014 the seal fails",
+    "fmt_unlinked: enum Format did not fail res:-2 (Error: \"enum-params: unknown global '196'\"\n)",
+    "fmt_unlinked: enum Props did not read on the unlinked node (Error: \"enum-params: unknown global '196'\"\n)",
+    "create_usage: no usage refusal (\"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nquit\npipewire-0>> )"
+   ],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {
+   "pwbind_midi_r87_probe": [
+    "midi pin leg unmeasured \u2014 bridge capture port or seq 14:0 absent"
+   ]
+  }
+ },
+ {
+  "receipt": "corpus/live/runs/20261016T065456126915Z-pwbind-r87/measurements.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 171,
+  "fail": 2,
+  "failures": [
+   {
+    "check": "cli/fmt_stream/post_valid-seal",
+    "pass": false,
+    "detail": "{'pre': {'rate': None, 'format_id': 259}, 'post': {'rate': None, 'format_id': 259}}"
+   },
+   {
+    "check": "cli/fmt_stream/post_empty-seal",
+    "pass": false,
+    "detail": "{'pre': {'rate': None, 'format_id': 259}, 'post': {'rate': None, 'format_id': 259}}"
+   }
+  ],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [
+    "fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': None, 'format_id': 259} \u2014 the seal fails",
+    "fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': None, 'format_id': 259} \u2014 the seal fails"
+   ],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ },
+ {
+  "receipt": "corpus/live/runs/20261016T065750423328Z-pwbind-r87/measurements.json",
+  "mode": "probe-pwbind-r87",
+  "checks": 173,
+  "pass": 173,
+  "fail": 0,
+  "failures": [],
+  "entry_failures": {
+   "pwbind_modes_r87_probe": [],
+   "pwbind_target_r87_probe": [],
+   "pwbind_cli_r87_probe": [],
+   "pwbind_midi_r87_probe": []
+  },
+  "entry_coverage_blocked": {}
+ }
+]
+SUMMARY: [('20261016T070036115509Z-pwbind-r87', 173, 0), ('20261016T070305393338Z-pwbind-r87', 173, 0), ('20261016T064958137082Z-pwbind-r87', 156, 14), ('20261016T065456126915Z-pwbind-r87', 171, 2), ('20261016T065750423328Z-pwbind-r87', 173, 0)]
