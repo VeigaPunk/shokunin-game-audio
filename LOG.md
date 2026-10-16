@@ -1424,3 +1424,10 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   flushed vs KILL -9 truncated; 49152 B incremental write; schema
   invariants 40 blocks; suspension 21->0; nohup SIGHUP inheritance is
   launcher-scoped (sigreset required); x_foot census own-scope only.
+- ROUND 94 (2026-10-16): SoX_ng effect/DSP lattice. ADMIT-with-findings
+  at aaf56d30 (merge; 150 legs, +2231/-3). Verifier PASS on merged bytes
+  (1518 cells re-derived); critic named fail-open census control (fold
+  queue); simplifier 23-26 folds queued. Largest single landing.
+- LAWS: auto-dither precision-tracking; -D vs -R split; vol ceil vs
+  rint (1 LSB); resampler +/-1 frame; alias lattice corrected (-q -6.3);
+  remix select-not-sum; fade stop-truncate + 100 dB log; window r/50-1.
