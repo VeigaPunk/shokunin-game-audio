@@ -46824,7 +46824,8 @@ def _pwstream_r98_teardown(entry, failures, loads, players=()):
     g = _pwstream_r98_graph(attempts=1, timeout=30.0)
     residual = sorted(
         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
-        if n.get("name") and f"r98a_{PWSTREAM_R98_PID}" in n["name"])
+        if n.get("name")
+        and n["name"].startswith(f"r98a_{PWSTREAM_R98_PID}_"))
     if residual:
         entry["residual_destroy"] = [
             {"id": nid, "name": nm,
@@ -46851,7 +46852,7 @@ def _pwstream_r98_teardown(entry, failures, loads, players=()):
             "teardown: node reader failed — own_nodes_after unmeasured")
     else:
         rest = sorted(n for n in names
-                      if f"r98a_{PWSTREAM_R98_PID}" in n
+                      if n.startswith(f"r98a_{PWSTREAM_R98_PID}_")
                       or n in load_names)
         entry["own_nodes_after"] = rest
         if rest:
@@ -49633,7 +49634,7 @@ def _ebur_r93_entry_head(probe):
             "oracle_at_start": _loopback_r79_oracle(),
             "foreign_r93a_nodes": sorted(
                 n for n in names if "r93a_" in n
-                and EBUR_R93_PREFIX not in n),
+                and not n.startswith(EBUR_R93_PREFIX + "_")),
             "inventory": {"default_sink": inv["default_sink"],
                           "default_source": inv["default_source"],
                           "sources_count": len(inv["sources"]),
@@ -49660,7 +49661,7 @@ def _ebur_r93_teardown(entry, failures, ctx):
     g = _pactlmon_r85_graph()
     residual = sorted(
         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
-        if n.get("name") and EBUR_R93_PREFIX in n["name"])
+        if n.get("name") and n["name"].startswith(EBUR_R93_PREFIX + "_"))
     if residual:
         entry["residual_destroy"] = [
             {"id": nid, "name": nm,
@@ -49686,7 +49687,8 @@ def _ebur_r93_teardown(entry, failures, ctx):
         entry.setdefault("coverage_blocked", []).append(
             "teardown: node reader failed — own_nodes_after unmeasured")
     else:
-        rest = sorted(n for n in names if EBUR_R93_PREFIX in n)
+        rest = sorted(n for n in names
+                      if n.startswith(EBUR_R93_PREFIX + "_"))
         entry["own_nodes_after"] = rest
         if rest:
             failures.append(
@@ -51467,8 +51469,8 @@ def _rtp_r99_entry_head(probe):
 
 def _rtp_r99_teardown(entry, failures, inst):
     """Bring the private instance down, then witness the SHARED host state
-    this seat must not have touched: 0 r99a nodes anywhere, 0 r99a rows in
-    the operator's WirePlumber store, the shared settings lattice intact."""
+    this seat must not have touched: 0 own-namespace nodes, 0 own-namespace
+    rows in the operator's WirePlumber store, settings recorded separately."""
     _rtp_r99_reap(inst, inst.get("children"))
     _rtp_r99_core_down(inst)
     entry["core_log_tail"] = _rtp_r99_log_tail(inst, 40)
@@ -51491,10 +51493,13 @@ def _rtp_r99_teardown(entry, failures, inst):
     own_rows = None
     if store.exists():
         try:
-            own_rows = sorted({
-                ln.split("=", 1)[0] for ln in
-                store.read_text(errors="replace").splitlines()
-                if f"r99a_{RTP_R99_PID}" in ln})
+            matched = set()
+            for ln in store.read_text(errors="replace").splitlines():
+                key = ln.split("=", 1)[0]
+                parts = key.strip().split(":", 2)
+                if len(parts) == 3 and parts[2].startswith(RTP_R99_PREFIX + "_"):
+                    matched.add(key)
+            own_rows = sorted(matched)
         except OSError:
             own_rows = None
     entry["shared_stream_properties_own_rows"] = own_rows
@@ -51512,8 +51517,11 @@ def _rtp_r99_teardown(entry, failures, inst):
             "teardown: shared node reader failed — the shared-graph witness "
             "is unmeasured")
     else:
-        rest = sorted(n for n in names if "r99a_" in n)
+        rest = sorted(n for n in names
+                      if n.startswith(RTP_R99_PREFIX + "_"))
         entry["shared_r99a_nodes_after"] = rest
+        entry["foreign_r99a_nodes_after"] = sorted(
+            n for n in names if "r99a_" in n and n not in rest)
         if rest:
             failures.append(f"teardown: r99a nodes in the SHARED graph: {rest}")
     sinks = _capture_r77_sink_names_strict()
@@ -53402,12 +53410,13 @@ def _sofa_r100_teardown(entry, failures, loads=None, shared=False):
             "census is unmeasured on this host (the per-leg post_sweep and "
             "the sandbox stop are the node witnesses)")
     else:
-        rest = sorted(n for n in names if SOFA_R100_NS in n)
+        rest = sorted(n for n in names if n.startswith(SOFA_R100_NS + "_"))
         if rest:
             entry["residual_destroy"] = []
             for nid, meta in sorted((_jack_r95_graph().get("nodes") or {})
                                     .items()):
-                if not meta.get("name") or SOFA_R100_NS not in meta["name"]:
+                if (not meta.get("name")
+                        or not meta["name"].startswith(SOFA_R100_NS + "_")):
                     continue
                 try:
                     subprocess.run(["pw-cli", "destroy", str(nid)],
@@ -53418,22 +53427,31 @@ def _sofa_r100_teardown(entry, failures, loads=None, shared=False):
                     entry["residual_destroy"].append(
                         {"id": nid, "error": str(exc)[:120]})
             time.sleep(0.4)
-            after = _playback_r78_node_names() or []
-            entry["own_nodes_after"] = sorted(n for n in after
-                                              if SOFA_R100_NS in n)
-            if entry["own_nodes_after"]:
-                failures.append("teardown: r100a-tagged nodes survived: "
-                                f"{entry['own_nodes_after']}")
+            after = _playback_r78_node_names()
+            if after is None:
+                entry["own_nodes_after"] = "reader_error"
+                msg = "teardown: residual-node reader failed; cleanup unmeasured"
+                entry.setdefault("coverage_blocked", []).append(msg)
+                failures.append(msg)
+            else:
+                entry["own_nodes_after"] = sorted(
+                    n for n in after if n.startswith(SOFA_R100_NS + "_"))
+                if entry["own_nodes_after"]:
+                    failures.append("teardown: r100a-tagged nodes survived: "
+                                    f"{entry['own_nodes_after']}")
         else:
             entry["own_nodes_after"] = []
     store = Path.home() / ".local/state/wireplumber" / "stream-properties"
     own_rows = None
     if store.exists():
         try:
-            own_rows = sorted({
-                ln.split("=", 1)[0] for ln in
-                store.read_text(errors="replace").splitlines()
-                if f"r100a_{SOFA_R100_PID}" in ln})
+            matched = set()
+            for ln in store.read_text(errors="replace").splitlines():
+                key = ln.split("=", 1)[0]
+                parts = key.strip().split(":", 2)
+                if len(parts) == 3 and parts[2].startswith(SOFA_R100_NS + "_"):
+                    matched.add(key)
+            own_rows = sorted(matched)
         except OSError:
             own_rows = None
     entry["stream_properties_own_rows"] = own_rows

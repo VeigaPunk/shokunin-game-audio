@@ -1522,3 +1522,13 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   use per-command audio-shokunin/audio@shokunin.local identity without
   changing Git/global config. Round adjudication, remaining required
   folds, evidence publication and the blocked audio push remain open.
+- FINAL NAMESPACE FOLD (2026-10-16): prefix substring matches could adopt
+  another PID's or embedded namespace; shared/store censuses could also
+  attribute unrelated nodes and target values to this seat. Four focused
+  production-teardown tests expose ten failing subcases. Separator-bound
+  names and key-only store attribution close them. One more r100 test
+  exposes a missing post-destroy reader coerced to an empty census; it
+  now records unmeasured cleanup and fails. All five changed-path tests
+  pass. These are inert metadata cases, not new native audio evidence
+  or universal namespace/PID-reuse ownership certification. See
+  reports/final-namespace-fold.md. Remaining adjudication is still open.

@@ -23,7 +23,8 @@ class FinalGuardTest(unittest.TestCase):
                  "_pwstream_r98_sb_stop", "pwstream_core_r98_probe",
                  "ebur_modes_r93_entry", "_ebur_r93_json_safe",
                  "_ebur_r93_num", "_ebur_r93_ctx", "_ebur_r93_teardown",
-                 "_ebur_r93_block"}
+                 "_ebur_r93_block", "_rtp_r99_teardown",
+                 "_sofa_r100_teardown"}
         optional = {"_ebur_r93_cleanup_tapdir"}
         body = [n for n in cls.tree.body
                 if isinstance(n, ast.FunctionDef) and n.name in names | optional]
@@ -225,6 +226,126 @@ class FinalGuardTest(unittest.TestCase):
                 self.assertEqual(entry["sinks_gone"],
                                  {"real-owned-sink": not present})
                 self.assertEqual(bool(failures), present)
+
+    def test_ebur_cleanup_does_not_adopt_another_namespace(self):
+        for name, own in (("r93a_123_probe", True), ("r93a_1234_probe", False),
+                          ("foreign_r93a_123_probe", False)):
+            with self.subTest(name=name):
+                ns, destroyed = self.tap_namespace(), []
+                ns.update({"EBUR_R93_PREFIX": "r93a_123",
+                           "_pactlmon_r85_graph": lambda: {
+                               "nodes": {"1": {"name": name}}},
+                           "_playback_r78_node_names": lambda: [name],
+                           "_btwit_r88_cli": lambda *a, **kw:
+                               destroyed.append(a) or {"exit_code": 0}})
+                entry, failures = {}, []
+                ns["_ebur_r93_teardown"](entry, failures, {})
+                self.assertEqual(bool(destroyed), own)
+                self.assertEqual(bool(failures), own)
+                self.assertEqual(entry["own_nodes_after"], [name] if own else [])
+
+    def test_stream_cleanup_does_not_adopt_another_namespace(self):
+        for name, own in (("r98a_123_probe", True), ("r98a_1234_probe", False),
+                          ("foreign_r98a_123_probe", False)):
+            with self.subTest(name=name):
+                ns, destroyed = self.namespace(), []
+                ns.update({"_pwstream_r98_graph": lambda **_: {
+                               "nodes": {"1": {"name": name}}},
+                           "_capture_r77_sink_names_strict": lambda: [],
+                           "_playback_r78_node_names": lambda: [name],
+                           "_pwprof_r89_stream":
+                               lambda *a, **kw:
+                                   destroyed.append(a) or {"exit_code": 0}})
+                entry, failures = {}, []
+                ns["_pwstream_r98_teardown"](entry, failures, {}, [])
+                self.assertEqual(bool(destroyed), own)
+                self.assertEqual(bool(failures), own)
+                self.assertEqual(entry["own_nodes_after"], [name] if own else [])
+
+    def write_store_fixture(self, prefix, name, value_only=False):
+        root = Path(self.tmp.name)
+        store = root / ".local/state/wireplumber"
+        store.mkdir(parents=True, exist_ok=True)
+        text = (f"Output/Audio:media.name:unrelated = "
+                f'{{ target = "{prefix}_probe" }}\n' if value_only else
+                f"Output/Audio:media.name:{name} = {{}}\n")
+        (store / "stream-properties").write_text(text)
+        return root
+
+    def test_rtp_census_attributes_only_its_namespace_and_store_keys(self):
+        for suffix, own in (("_probe", True), ("4_probe", False),
+                            ("embedded", False), ("value-only", False)):
+            with self.subTest(case=suffix):
+                prefix = "r99a_123"
+                name = ("foreign_" + prefix + "_probe" if suffix == "embedded"
+                        else prefix + suffix)
+                root = self.write_store_fixture(
+                    prefix, name, value_only=suffix == "value-only")
+                names = [] if suffix == "value-only" else [name]
+                ns = self.namespace()
+                ns.update({"RTP_R99_PID": 123, "RTP_R99_PREFIX": prefix,
+                           "Path": SimpleNamespace(home=lambda: root),
+                           "_rtp_r99_reap": lambda *_: None,
+                           "_rtp_r99_core_down": lambda *_: None,
+                           "_rtp_r99_log_tail": lambda *_: "",
+                           "_rtp_r99_wp_tail": lambda *_: "",
+                           "_rtp_r99_core_pids": lambda *_: [],
+                           "_playback_r78_node_names": lambda: names,
+                           "_capture_r77_sink_names_strict": lambda: [],
+                           "_jack_r95_settings": lambda: {}})
+                entry, failures = {}, []
+                ns["_rtp_r99_teardown"](
+                    entry, failures, {"root": root, "run": root, "children": []})
+                self.assertEqual(bool(failures), own)
+                self.assertEqual(bool(entry["shared_r99a_nodes_after"]), own)
+                self.assertEqual(bool(entry["shared_stream_properties_own_rows"]),
+                                 own)
+
+    def test_sofa_cleanup_and_store_keys_do_not_adopt_another_namespace(self):
+        for suffix, own in (("_probe", True), ("4_probe", False),
+                            ("embedded", False), ("value-only", False)):
+            with self.subTest(case=suffix):
+                prefix = "r100a_123"
+                name = ("foreign_" + prefix + "_probe" if suffix == "embedded"
+                        else prefix + suffix)
+                root = self.write_store_fixture(
+                    prefix, name, value_only=suffix == "value-only")
+                names = [] if suffix == "value-only" else [name]
+                ns, destroyed = self.namespace(), []
+                ns.update({"SOFA_R100_PID": 123, "SOFA_R100_NS": prefix,
+                           "Path": SimpleNamespace(home=lambda: root),
+                           "_sofa_r100_own_procs": lambda: [],
+                           "_playback_r78_node_names": lambda: names,
+                           "_jack_r95_graph": lambda: {
+                               "nodes": {"1": {"name": name}}},
+                           "subprocess": SimpleNamespace(
+                               run=lambda *a, **kw: destroyed.append(a),
+                               TimeoutExpired=subprocess.TimeoutExpired)})
+                entry, failures = {}, []
+                ns["_sofa_r100_teardown"](entry, failures)
+                self.assertEqual(bool(destroyed), own)
+                self.assertEqual(bool(failures), own)
+                self.assertEqual(entry["own_nodes_after"], [name] if own else [])
+                self.assertEqual(bool(entry["stream_properties_own_rows"]), own)
+
+    def test_sofa_cleanup_recheck_cannot_turn_reader_failure_into_empty_nodes(self):
+        prefix, name = "r100a_123", "r100a_123_probe"
+        root = self.write_store_fixture(prefix, "unrelated")
+        readings = iter(([name], None))
+        ns = self.namespace()
+        ns.update({"SOFA_R100_PID": 123, "SOFA_R100_NS": prefix,
+                   "Path": SimpleNamespace(home=lambda: root),
+                   "_sofa_r100_own_procs": lambda: [],
+                   "_playback_r78_node_names": lambda: next(readings),
+                   "_jack_r95_graph": lambda: {"nodes": {"1": {"name": name}}},
+                   "subprocess": SimpleNamespace(
+                       run=lambda *_a, **_kw: None,
+                       TimeoutExpired=subprocess.TimeoutExpired)})
+        entry, failures = {}, []
+        ns["_sofa_r100_teardown"](entry, failures)
+        self.assertEqual(entry["own_nodes_after"], "reader_error")
+        self.assertTrue(failures)
+        self.assertTrue(entry["coverage_blocked"])
 
     def test_exception_after_load_still_runs_core_entry_teardown(self):
         ns = self.namespace()

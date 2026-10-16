@@ -86,3 +86,8 @@ Exact script, before/after JSON, stderr and rc files:
 /home/vgpnk/Projects/shokunin/audio-final-guard-proof/replay_r93.py and
 replay-{before,after}.{json,stderr,rc}. The old 13-test proof remains
 unchanged and must not be relabeled as the 15-test comparison.
+
+The replay preserves block classes and cardinality, not byte-identical
+message numerals: receipt serialization has rounded capture RMS values,
+so recomposed g_default messages use the stored precision. It restores
+only non-finite series types and does not recover lost float precision.
