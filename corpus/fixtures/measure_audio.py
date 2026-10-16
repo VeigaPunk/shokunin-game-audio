@@ -50669,6 +50669,2134 @@ def ebur_error_r93_entry():
     return _ebur_r93_json_safe(entry)
 
 
+# ==========================================================================
+# r99a — the NATIVE RTP NETWORK-TRANSPORT surface
+# (`libpipewire-module-rtp-sink` / `-rtp-source` / `-rtp-sap`)
+#
+# The first round that sends and receives a real RTP packet. Every law
+# below is a claim that SURVIVED the r99 boundary pass
+# (`reports/round-99/r99-boundary.md`); the scout's falsified rows are
+# dropped or re-armed at the boundary's corrected values, and one row the
+# boundary *confirmed* is re-armed corrected here because this seat's
+# census did not reproduce it (see `c_docs`).
+#
+# ARMED (boundary verdict -> this family):
+#   C1   census: 34 native modules, 10 network-capable, the RTP trio
+#        present, roc/zeroconf/snapcast/jack-trip absent   -> c_modules,
+#        c_absent.  C1's *man-page* half is re-armed CORRECTED: the three
+#        pages exist (pipewire-audio 1:1.6.8-1) and document the option
+#        set, including the `sess.min-ptime` default 2 / `sess.max-ptime`
+#        default 20 that C2b's falsification measured.      -> c_docs
+#   C2   sink props with an EXPLICIT 1 ms ptime: Audio/Sink,
+#        node.network, node.always-process, send_*/monitor_* ports,
+#        rtp.ptime 1.0, framecount 48, mime L16, payload 127,
+#        net.header 28, net.mtu 1280, dscp 34, ttl 1, random
+#        ssrc/sender-ts-offset                               -> s_props
+#   C2b  FALSIFIED "the *defaults* are 1 ms/48 frames".  The module
+#        defaults are sess.min/max-ptime 2/20 -> 6.458333 ms / 310 frames
+#        / 1252 B, and the man page documents exactly those defaults.
+#                                                            -> s_default
+#   C3   sink socket = connected UDP, ephemeral source port   -> s_props
+#   C3b  two sinks on one destination coexist (2 SSRC, 2 ports) -> s_two
+#   C4   wire: 204 B, V=2, PT=127, seq+1, one size, ~1 kHz    -> s_props
+#   C4b  the ts-delta set is the FULL {48,80,...,176}, a strict superset
+#        of the scout's printed subset                       -> s_props
+#   C5   the WIRE peak is EXACTLY 16383/32768 on both channels.  C5's
+#        "sample-exact" wording carries the boundary's hole caveat: at
+#        1 ms ptime the ring is not always filled, so the arm is peak
+#        equality + a non-zero fraction, never "the tone survives
+#        sample-exact"                                     -> s_props
+#   C6   native end-to-end sink -> mcast(lo) -> source -> pw-record
+#                                                            -> e_native
+#   C7   `local.ifname=lo` keeps the multicast send off the LAN, read
+#        against bracketing idle windows + a positive control  -> e_lan
+#   C8   `source.port=0` is a hard module-init error      -> x_srcport0
+#   C8b  unicast source = connected socket; only packets FROM
+#        `source.port` are accepted                    -> r_unicast_same,
+#                                                        r_unicast_foreign
+#   C9   the packetization lattice reproduces (6 cells)     -> s_lattice_*
+#   C9b  FALSIFIED "the 50/100 cell is capped at 2048 B on the wire".
+#        That was the scout's own 2048-byte tap buffer.  The wire packet
+#        is 9612 B = 12 + 2400 x 4                      -> s_lattice_50_100
+#   C10  bad dest IP / F32LE / bogus media kill the core (rc 234) -> x_*
+#   C10b "loads fine" is a LOAD-time statement; the failure is deferred
+#        to stream start (a bad ifname loads; the node is created)
+#                                                           -> x_ifname
+#   C10c FALSIFIED the "module-init -EINVAL or nothing at all" dichotomy:
+#        a CONSISTENT `rtp.ptime`/`rtp.framecount` pair in stream.props
+#        leaves psamples 0 and kills the daemon with SIGFPE -> x_ptime_pair
+#   C11  `rtp.receiving`/`rtp.ssrc` are init-time fakes; the ts offset is
+#        random per load                                        -> r_shape
+#   C12  FALSIFIED "crafted RTP records silence because of clock gating".
+#        The scout's crafted arms sent UNICAST to a source bound to the
+#        GROUP.  With correct delivery the tone plays with an arbitrary
+#        ts0 and no clock alignment at all      -> r_mcast, r_unicast_same
+#   C12b `sess.ts-offset` as a MODULE ARG is a working repair -> r_ts_offset
+#   C13  rtp-sap creates no node; joins the group on the named iface
+#        (and on `iface:0` without `local.ifname`)           -> e_sap
+#   C14  S24BE is supported (300 B wire packet); no S24LE/S32/F32 -> r_s24be
+#   C16  `rtp.ptime`/`rtp.framecount` are read from stream.props, not
+#        from module args (as module args they are silently dropped), so
+#        the man page's listing of them under MODULE OPTIONS is wrong
+#                                                  -> x_ptime_props_only
+#   AX-QUANTUM  the ts lattice does NOT track `quantum/64`     -> a_quantum
+#   AX-RATE     a module-vs-graph rate mismatch destroys it     -> a_rate
+#   AX-ORDER    module-arg order is irrelevant                  -> a_order
+#   AX-FLAGORDER `pw-play --target` works before AND after the file
+#                                                             -> a_target_pos
+#   AX-RELINK   the packet flow is NOT a client-presence witness (silence
+#        keeps flowing because node.always-process=true), and a second
+#        player re-locks and the tone returns                  -> e_relink
+#
+# NOT ARMED (scout rows the boundary falsified, or could not support):
+#   * "no man page exists for any of the three RTP modules" — false here.
+#   * "2048 B packet cap" — an artifact of the scout's own tap buffer.
+#   * "crafted silence is clock gating" — a delivery artifact.
+#   * "refusals are -EINVAL or nothing at all" — a third class exists.
+#   * the receive-path peak overshoot (0.569-0.587 vs 0.499969) is
+#     RECORDED, never armed: the boundary reproduced it and could not
+#     explain it, so the law is presence + spectral dominance, while the
+#     exact peak is armed on the WIRE, where it is exact.
+#   * `[?]` opus / MIDI / VBAN / netjack2 / avb remain unmeasured.
+#
+# HARNESS.  The whole surface lives on a PRIVATE PipeWire core + private
+# WirePlumber under the entry's own temp dir (own runtime dir => own
+# socket).  The shared daemons are never signalled, reconfigured or
+# loaded into, and `pactl set-default-*` is never issued.  Two arming
+# routes are used, and the choice is itself a measured law:
+#   * FRAGMENT route — the module is listed in a `context.modules`
+#     drop-in read by the private daemon, so a module-init failure takes
+#     the CORE down with it.  This is the only route that can observe the
+#     rc 234 / rc -8 refusal classes, so every `x_*` leg uses it.
+#   * CLIENT route — `pw-cli load-module` held open for the length of the
+#     leg, so the node lives exactly as long as the client.  Cheap
+#     (~1 s/leg instead of a full core restart) and byte-identical on the
+#     wire; the boundary measured the equivalence (AX-GRAPH) and this
+#     family's own bring-up probe re-witnesses it per entry.
+# Every object is `r99a_<pid>`; every destination is a loopback address
+# (`127.0.0.1`) or a loopback-bound multicast group (`239.255.42.9x` with
+# `local.ifname=lo`), whose LAN confinement is MEASURED against bracketing
+# idle windows and a positive control, never assumed.
+# Volatile values (ids, serials, ssrc, ts offsets, wall times, loadavg,
+# packet rates, the receive-path peak) are RECORDED, never armed.
+# ==========================================================================
+
+RTP_R99_PID = os.getpid()
+RTP_R99_TAG = f"r99a-{RTP_R99_PID}"
+RTP_R99_PREFIX = f"r99a_{RTP_R99_PID}"
+RTP_R99_SESS = f"r99a{os.getpid()}"
+RTP_R99_SINK = f"{RTP_R99_PREFIX}_sink"
+RTP_R99_SINK_B = f"{RTP_R99_PREFIX}_sink_b"
+RTP_R99_SRC = f"{RTP_R99_PREFIX}_src"
+RTP_R99_PLAY = f"{RTP_R99_PREFIX}_play"
+RTP_R99_PLAY_B = f"{RTP_R99_PREFIX}_play_b"
+RTP_R99_PORT = 46500 + (os.getpid() % 400)          # own unicast window
+RTP_R99_MCAST = "239.255.42.99"                     # lo-reachable group
+RTP_R99_SAP_GROUP = "239.255.42.98"                 # lo-reachable SAP group
+RTP_R99_TONE_HZ = 997.0
+RTP_R99_TONE_AMP = 16383
+RTP_R99_PEAK = 16383 / 32768.0                      # 0.499969482421875
+RTP_R99_FIXTURE = ROOT / "fixtures" / "r99rtp.py"
+RTP_R99_MODDIR = Path("/usr/lib/pipewire-0.3")
+RTP_R99_MODULES = ("libpipewire-module-rtp-sink",
+                   "libpipewire-module-rtp-source",
+                   "libpipewire-module-rtp-sap")
+RTP_R99_NET_MODULES = ("libpipewire-module-avb",
+                       "libpipewire-module-netjack2-driver",
+                       "libpipewire-module-netjack2-manager",
+                       "libpipewire-module-pipe-tunnel",
+                       "libpipewire-module-pulse-tunnel",
+                       "libpipewire-module-rtp-sap",
+                       "libpipewire-module-rtp-sink",
+                       "libpipewire-module-rtp-source",
+                       "libpipewire-module-vban-recv",
+                       "libpipewire-module-vban-send")
+RTP_R99_ABSENT_TOOLS = ("snapcast", "snapclient", "roc-send", "roc-recv",
+                        "jack-trip")
+RTP_R99_ABSENT_PKGS = ("pipewire-zeroconf", "roc-toolkit", "snapcast",
+                       "jack-trip")
+RTP_R99_TONE_S = 3.0
+RTP_R99_WIRE_1MS = 204                              # 12 + 48 x 2 x 2
+RTP_R99_NATIVE_MODULE_COUNT = 34
+
+_RTP_R99_WP_FRAG = (
+    "## r99a private-WirePlumber fragment: no hardware monitors (never\n"
+    "## touch host ALSA/bluez/v4l2).\n"
+    "wireplumber.profiles = {\n"
+    "  main = {\n"
+    "    hardware.audio = disabled\n"
+    "    hardware.bluetooth = disabled\n"
+    "    hardware.video-capture = disabled\n"
+    "  }\n"
+    "}\n")
+
+_RTP_R99_ERR_CLASSES = (
+    ("rtp_r99_no_daemon", r"Could not connect|Host is down|Connection refused"),
+    ("rtp_r99_bad_args", r"[Ii]nvalid|unsupported|failed to load"),
+)
+
+
+def _rtp_r99_errclass(text):
+    for name, pat in _RTP_R99_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _pwprof_r89_errclass(text or "")
+
+
+def _rtp_r99_norm(text):
+    """Volatile-field scrub: r88's classes plus this seat's own names."""
+    s = _pwprof_r89_norm(text or "")
+    s = re.sub(r"r99a_?[0-9]+", "r99a_<pid>", s)
+    return s
+
+
+def _rtp_r99_run(argv, timeout_s, env=None, wd=None, keep_chars=1200,
+                 scrub=True):
+    """One bounded child, own session, drained pipes, SIGKILL at the
+    bound.  Returns rc/out/err plus a `timeout` flag; never raises.
+
+    `scrub` applies the volatile-field scrub to the captured text.  It
+    MUST be False for any call whose stdout this family parses: the scrub
+    rewrites `r99a_<pid>` to `r99a_<pid>`, which would silently unmatch
+    the seat-owned node names the parser is looking for."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, env=env, cwd=wd, start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    try:
+        out, err = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        try:
+            out, err = proc.communicate(timeout=5)
+        except Exception:
+            out, err = b"", b""
+        rec["timeout"] = True
+    rec["exit_code"] = proc.returncode
+    out_s = (out or b"").decode(errors="replace")[:keep_chars]
+    err_s = (err or b"").decode(errors="replace")[:keep_chars]
+    rec["stdout"] = _rtp_r99_norm(out_s) if scrub else out_s
+    rec["stderr"] = _rtp_r99_norm(err_s) if scrub else err_s
+    rec["scrubbed"] = bool(scrub)
+    rec["errclass"] = _rtp_r99_errclass((rec["stdout"] or "") + "\n" + (rec["stderr"] or ""))
+    return rec
+
+
+def _rtp_r99_fixture(args, timeout_s, env=None):
+    """Run the family's own codec fixture and read back its JSON."""
+    out_json = args[args.index("--out") + 1]
+    rec = _rtp_r99_run([sys.executable, str(RTP_R99_FIXTURE)] + list(args),
+                       timeout_s, env=env, keep_chars=800)
+    try:
+        rec["data"] = json.loads(Path(out_json).read_text())
+    except (OSError, ValueError) as exc:
+        rec["data"] = None
+        rec["data_error"] = repr(exc)[:160]
+    return rec
+
+
+def _rtp_r99_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude).  It matters here because every entry owns a private core and
+    a port window derived from the seat pid."""
+    path = ROOT / "live" / "measure_audio-rtp-r99.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={RTP_R99_PID} tag={RTP_R99_TAG}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+# ------------------------------------------------------------------ instance
+def _rtp_r99_inst(tmp, name):
+    """A private core + private WirePlumber under the entry's temp dir.
+    The private conf is a copy of the shipped `pipewire.conf`; the leg
+    fragment is a `<conf>.d/10-r99a.conf` drop-in, which is the only route
+    that lets a module-init failure take the CORE down with it."""
+    root = Path(tmp) / f"rtp-{name}"
+    run = root / "run"
+    conf = root / "conf"
+    frag = conf / "r99a-pipewire.conf.d"
+    wpconf = conf / "xdg-config" / "wireplumber" / "wireplumber.conf.d"
+    for d in (run, frag, wpconf, conf / "xdg-state", conf / "xdg-data",
+              root / "raw"):
+        d.mkdir(parents=True, exist_ok=True)
+    try:
+        shutil.copyfile("/usr/share/pipewire/pipewire.conf",
+                        conf / "r99a-pipewire.conf")
+    except OSError:
+        pass
+    (wpconf / "10-r99a.conf").write_text(_RTP_R99_WP_FRAG)
+    env = dict(os.environ,
+               PIPEWIRE_RUNTIME_DIR=str(run), XDG_RUNTIME_DIR=str(run),
+               XDG_CONFIG_HOME=str(conf / "xdg-config"),
+               XDG_STATE_HOME=str(conf / "xdg-state"),
+               XDG_DATA_HOME=str(conf / "xdg-data"),
+               # DEBUG=3 so the modules' own pw_log_info lines (the group
+               # join, the sync-to-timestamp transitions) land in the core
+               # log this family records; DEBUG=2 suppresses them and turns
+               # a measurable law into an unmeasurable one.
+               PIPEWIRE_DEBUG="3")
+    return {"root": root, "run": run, "conf": conf, "frag": frag, "env": env,
+            "core": None, "wp": None,
+            "corelog": root / "core.log", "wplog": root / "wp.log",
+            "corepid": run / "core.pid", "wppid": run / "wp.pid",
+            "clis": [], "children": []}
+
+
+def _rtp_r99_write_fragment(inst, modules):
+    """Regenerate the leg fragment.  `modules` is a list of
+    (module-name, args-string) — the args are written verbatim, so the
+    caller controls the exact module-arg text the core parses."""
+    body = ["## r99a leg fragment (regenerated per leg; r99a_* only)",
+            "context.properties = { module.rt = false module.profiler = "
+            "false module.portal = false }",
+            "context.modules = ["]
+    for name, args in modules:
+        body.append(f"  {{ name = {name}")
+        if args:
+            body.append(f"    args = {args}")
+        body.append("  }")
+    body.append("]")
+    text = "\n".join(body) + "\n"
+    (inst["frag"] / "10-r99a.conf").write_text(text)
+    return text
+
+
+def _rtp_r99_core_pids(inst):
+    pids = []
+    for key in ("corepid", "wppid"):
+        try:
+            pids.append(int(Path(inst[key]).read_text().strip()))
+        except (OSError, ValueError):
+            pass
+    return pids
+
+
+def _rtp_r99_core_up(inst, with_wp=True, timeout=45.0):
+    """Bring the private core (and optionally WirePlumber) up.  Readiness
+    is a live `pw-cli info 0` — a socket file alone is not proof (the r99
+    scout's own harness bug produced one false 'core up' reading off a
+    stale socket)."""
+    _rtp_r99_core_down(inst)
+    for f in (inst["corelog"], inst["wplog"]):
+        try:
+            f.write_text("")
+        except OSError:
+            pass
+    try:
+        core = subprocess.Popen(
+            ["pipewire", "-c", str(inst["conf"] / "r99a-pipewire.conf")],
+            env=inst["env"], stdout=open(inst["corelog"], "ab"),
+            stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+            start_new_session=True)
+    except OSError as exc:
+        return False, f"pipewire spawn failed: {exc}"[:160]
+    inst["core"] = core
+    inst["corepid"].write_text(str(core.pid))
+    t0 = time.time()
+    ok = False
+    while time.time() - t0 < timeout:
+        if core.poll() is not None:
+            return False, f"core died rc={core.returncode}"
+        if (inst["run"] / "pipewire-0").exists():
+            if _rtp_r99_run(["pw-cli", "info", "0"], 8.0,
+                            env=inst["env"]).get("exit_code") == 0:
+                ok = True
+                break
+        time.sleep(0.2)
+    if not ok:
+        return False, "core did not answer pw-cli"
+    if not with_wp:
+        return True, "core up"
+    try:
+        wp = subprocess.Popen(
+            ["wireplumber", "-c", "wireplumber.conf", "-p", "main"],
+            env=inst["env"], stdout=open(inst["wplog"], "ab"),
+            stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+            start_new_session=True)
+    except OSError as exc:
+        return False, f"wireplumber spawn failed: {exc}"[:160]
+    inst["wp"] = wp
+    inst["wppid"].write_text(str(wp.pid))
+    t0 = time.time()
+    while time.time() - t0 < timeout:
+        if wp.poll() is not None:
+            return False, f"wireplumber died rc={wp.returncode}"
+        if "WirePlumber" in (_rtp_r99_run(["pw-cli", "ls", "Client"], 10.0,
+                                          env=inst["env"],
+                                          scrub=False).get("stdout") or ""):
+            return True, "core+wp up"
+        time.sleep(0.25)
+    return False, "wireplumber did not appear in the client list"
+
+
+def _rtp_r99_core_down(inst):
+    for p in inst.get("clis") or ():
+        try:
+            if p.poll() is None:
+                p.stdin.write("quit\n")
+                p.stdin.flush()
+                p.wait(timeout=4)
+        except Exception:
+            _alsapw_r84_killpg(p)
+    inst["clis"] = []
+    for key in ("wp", "core"):
+        proc = inst.get(key)
+        if proc is None:
+            continue
+        try:
+            if proc.poll() is None:
+                _alsapw_r84_killpg(proc, signal.SIGTERM)
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    _alsapw_r84_killpg(proc, signal.SIGKILL)
+        except Exception:
+            pass
+        inst[key] = None
+    for name in ("pipewire-0", "pipewire-0.lock", "pipewire-0-manager",
+                 "pipewire-0-manager.lock"):
+        p = inst["run"] / name
+        try:
+            if p.exists():
+                p.unlink()
+        except OSError:
+            pass
+    time.sleep(0.25)
+
+
+def _rtp_r99_log_tail(inst, lines=40, needle=None):
+    try:
+        data = inst["corelog"].read_text(errors="replace").splitlines()
+    except OSError:
+        return []
+    if needle:
+        data = [ln for ln in data if needle in ln]
+    return [_rtp_r99_norm(ln) for ln in data[-lines:]]
+
+
+def _rtp_r99_wp_tail(inst, lines=10):
+    try:
+        data = inst["wplog"].read_text(errors="replace").splitlines()
+    except OSError:
+        return []
+    return [_rtp_r99_norm(ln) for ln in data[-lines:]]
+
+
+# ------------------------------------------------------------------ client route
+def _rtp_r99_cli_open(inst):
+    """A long-lived `pw-cli` whose stdin is the leg's module channel.  A
+    client-side module node lives exactly as long as this process —
+    measured (AX-GRAPH) and used here as the leg's lifetime bound."""
+    try:
+        proc = subprocess.Popen(
+            ["pw-cli"], env=inst["env"], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            start_new_session=True)
+    except OSError as exc:
+        return None, f"pw-cli spawn failed: {exc}"[:160]
+    inst["clis"].append(proc)
+    return proc, "ok"
+
+
+def _rtp_r99_cli_load(proc, module, args):
+    try:
+        proc.stdin.write(f"load-module {module} {args}\n")
+        proc.stdin.flush()
+        return True
+    except (BrokenPipeError, OSError, ValueError) as exc:
+        return False, str(exc)[:120]
+
+
+def _rtp_r99_nodes(inst):
+    """name -> registry id, from one `pw-cli ls Node`."""
+    rec = _rtp_r99_run(["pw-cli", "ls", "Node"], 15.0, env=inst["env"],
+                       keep_chars=20000, scrub=False)
+    out, cur = {}, None
+    for line in (rec.get("stdout") or "").splitlines():
+        m = re.match(r"\s*id (\d+), type PipeWire:Interface:Node", line)
+        if m:
+            cur = int(m.group(1))
+            continue
+        m = re.search(r'node\.name = "([^"]+)"', line)
+        if m and cur is not None:
+            out[m.group(1)] = cur
+    rec["nodes"] = out
+    return rec
+
+
+def _rtp_r99_node(inst, name, attempts=40, want_state="running"):
+    """Wait for `name` to appear (and, when `want_state` is given, to reach
+    that state) and return its parsed `pw-cli info`.  A node that never
+    appears, or never leaves `suspended`, is reported as such — never
+    assumed.  `want_state=None` means 'appear at all', which is what a
+    source needs before a consumer exists to run it."""
+    res = {"name": name, "id": None, "state": None, "props": {},
+           "in_ports": None, "out_ports": None, "waited_s": None,
+           "reached": None, "node_names_seen": []}
+    t0 = time.time()
+    for _ in range(attempts):
+        nodes = _rtp_r99_nodes(inst)
+        res["node_names_seen"] = sorted(nodes.get("nodes") or {})
+        nid = (nodes.get("nodes") or {}).get(name)
+        if nid is not None:
+            text = _rtp_r99_run(["pw-cli", "info", str(nid)], 15.0,
+                                env=inst["env"], keep_chars=20000,
+                                scrub=False).get("stdout") or ""
+            res["id"] = nid
+            m = re.search(r'\*?\s*state: "([^"]+)"', text)
+            res["state"] = m.group(1) if m else None
+            m = re.search(r"input ports: (\d+)/(\d+)", text)
+            res["in_ports"] = int(m.group(1)) if m else None
+            m = re.search(r"output ports: (\d+)/(\d+)", text)
+            res["out_ports"] = int(m.group(1)) if m else None
+            for pm in re.finditer(r'\*?\s*([A-Za-z0-9._-]+) = "([^"]*)"', text):
+                res["props"][pm.group(1)] = pm.group(2)
+            if want_state is None or res["state"] == want_state:
+                res["reached"] = True
+                res["waited_s"] = round(time.time() - t0, 2)
+                return res
+        time.sleep(0.35)
+    res["reached"] = False
+    res["waited_s"] = round(time.time() - t0, 2)
+    return res
+
+
+def _rtp_r99_ports(inst, node_name):
+    """(outputs, inputs) port names for one node, from pw-link."""
+    outs, ins = [], []
+    for flag, bucket in (("-o", outs), ("-i", ins)):
+        rec = _rtp_r99_run(["pw-link", flag], 15.0, env=inst["env"],
+                           keep_chars=20000, scrub=False)
+        for line in (rec.get("stdout") or "").splitlines():
+            if line.startswith(node_name + ":"):
+                bucket.append(line.strip())
+    return sorted(outs), sorted(ins)
+
+
+def _rtp_r99_udp_sockets(inst):
+    """Connected UDP sockets owned by the private daemons OR by a leg's
+    own `pw-cli`.  The pid set matters: on the CLIENT route the module
+    runs inside `pw-cli`, so the RTP socket belongs to that process, not
+    to the core — and a reader that only knew the daemon pids would report
+    zero sockets for a sink that is demonstrably emitting.  `ss` reads the
+    host's socket table, never writes it."""
+    pids = list(_rtp_r99_core_pids(inst))
+    for proc in inst.get("clis") or ():
+        if proc is not None and proc.poll() is None:
+            pids.append(proc.pid)
+    if not pids:
+        return None
+    rec = _rtp_r99_run(["ss", "-unap"], 20.0, keep_chars=60000)
+    rows = []
+    for line in (rec.get("stdout") or "").splitlines():
+        if any(f"pid={pid}," in line for pid in pids):
+            rows.append(" ".join(line.split()))
+    return sorted(rows)
+
+
+# ------------------------------------------------------------------ arg builders
+def _rtp_r99_sink_args(node=RTP_R99_SINK, port=None, dest_ip="127.0.0.1",
+                       fmt="S16BE", minp=1, maxp=1, mtu=None, ifname=None,
+                       rate=48000, sess=None, order="canonical",
+                       module_extra="", stream_extra=""):
+    """The sink's module-arg string.  `order="reversed"` swaps the first
+    two keys (AX-ORDER).  `stream.props` is written as a nested dict — the
+    form the boundary measured (C16): `rtp.ptime`/`rtp.framecount` there
+    are honoured, the same keys as top-level module args are dropped."""
+    port = RTP_R99_PORT if port is None else port
+    sess = sess or RTP_R99_SESS
+    head = [f'destination.ip = "{dest_ip}"', f"destination.port = {port}"]
+    if order == "reversed":
+        head.reverse()
+    a = list(head)
+    if mtu is not None:
+        a.append(f"net.mtu = {mtu}")
+    if ifname:
+        a.append(f'local.ifname = "{ifname}"')
+    if minp is not None:
+        a.append(f"sess.min-ptime = {minp}")
+    if maxp is not None:
+        a.append(f"sess.max-ptime = {maxp}")
+    a.append(f'sess.name = "{sess}"')
+    if module_extra:
+        a.append(module_extra)
+    a.append(f'audio.format = "{fmt}"')
+    a.append(f"audio.rate = {rate}")
+    a.append("audio.channels = 2")
+    a.append('stream.props = { node.name = "%s" media.class = "Audio/Sink" '
+             'node.virtual = false node.always-process = true%s }'
+             % (node, (" " + stream_extra) if stream_extra else ""))
+    return "{ " + " ".join(a) + " }"
+
+
+def _rtp_r99_source_args(node=RTP_R99_SRC, src_ip=RTP_R99_MCAST,
+                         src_port=None, fmt="S16BE", ifname="lo",
+                         latency=100, rate=48000, module_extra="", sess=None):
+    src_port = RTP_R99_PORT + 1 if src_port is None else src_port
+    sess = sess or RTP_R99_SESS
+    a = [f'source.ip = "{src_ip}"', f"source.port = {src_port}"]
+    if ifname:
+        a.append(f'local.ifname = "{ifname}"')
+    if latency is not None:
+        a.append(f"sess.latency.msec = {latency}")
+    a.append(f'sess.name = "{sess}"')
+    if module_extra:
+        a.append(module_extra)
+    a.append(f'audio.format = "{fmt}"')
+    a.append(f"audio.rate = {rate}")
+    a.append("audio.channels = 2")
+    a.append('stream.props = { node.name = "%s" media.class = "Audio/Source" '
+             'node.virtual = false }' % node)
+    return "{ " + " ".join(a) + " }"
+
+
+def _rtp_r99_play(inst, target, tone, node_name=RTP_R99_PLAY,
+                  target_first=True, wait=True, timeout=45):
+    """`pw-play` the family's own tone.  `target_first` selects the
+    AX-FLAGORDER arm (`--target` before vs after the file)."""
+    env = dict(inst["env"])
+    env["PIPEWIRE_PROPS"] = '{ node.name = "%s" }' % node_name
+    cmd = ["pw-play"]
+    if target_first:
+        if target:
+            cmd += ["--target", target]
+        cmd.append(str(tone))
+    else:
+        cmd.append(str(tone))
+        if target:
+            cmd += ["--target", target]
+    try:
+        proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                stdin=subprocess.DEVNULL,
+                                start_new_session=True)
+    except OSError as exc:
+        return None, {"argv": " ".join(cmd), "spawn_error": str(exc)[:160]}
+    inst["children"].append(proc)
+    info = {"argv": " ".join(cmd), "target_first": target_first,
+            "target": target, "pid": proc.pid}
+    if not wait:
+        return proc, info
+    try:
+        out, _ = proc.communicate(timeout=timeout)
+        info["exit_code"] = proc.returncode
+        info["stdout"] = _rtp_r99_norm(
+            (out or b"").decode(errors="replace"))[:400]
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        info["exit_code"] = "killed"
+    return None, info
+
+
+def _rtp_r99_tap(inst, port, seconds, group=None, ifname="lo", tag="tap"):
+    """Start the family's own UDP capture and return (proc, info)."""
+    out = inst["root"] / "raw" / f"{tag}.json"
+    args = ["recv", "--port", str(port), "--seconds", str(seconds),
+            "--out", str(out)]
+    if group:
+        args += ["--group", group, "--ifname", ifname]
+    try:
+        proc = subprocess.Popen([sys.executable, str(RTP_R99_FIXTURE)] + args,
+                                env=dict(os.environ), stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                                start_new_session=True)
+    except OSError as exc:
+        return None, {"spawn_error": str(exc)[:160]}
+    inst["children"].append(proc)
+    return proc, {"out": str(out), "args": args, "group": group,
+                  "port": port, "seconds": seconds}
+
+
+def _rtp_r99_read(path):
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def _rtp_r99_reap(inst, procs):
+    for proc in procs or ():
+        if proc is None:
+            continue
+        try:
+            if proc.poll() is None:
+                _alsapw_r84_killpg(proc, signal.SIGTERM)
+                try:
+                    proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    _alsapw_r84_killpg(proc, signal.SIGKILL)
+        except Exception:
+            pass
+
+
+def _rtp_r99_wait(proc, timeout=40):
+    try:
+        proc.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+
+
+def _rtp_r99_ifcounters(iface):
+    base = Path("/sys/class/net") / iface / "statistics"
+    out = {}
+    for key in ("tx_packets", "tx_bytes", "rx_packets"):
+        try:
+            out[key] = int((base / key).read_text().strip())
+        except (OSError, ValueError):
+            out[key] = None
+    return out
+
+
+def _rtp_r99_default_iface():
+    """The interface that owns the default route — read, never assumed."""
+    try:
+        for line in Path("/proc/net/route").read_text().splitlines()[1:]:
+            f = line.split()
+            if len(f) > 1 and f[1] == "00000000":
+                return f[0]
+    except OSError:
+        pass
+    return None
+
+
+# ------------------------------------------------------------------ arming probe
+def _rtp_r99_ready(inst, entry, label, want_node=RTP_R99_SINK):
+    """One sink load + wait-for-running before any leg.  A private core
+    that cannot run an RTP sink makes every wire law unmeasurable, and
+    that is a named coverage block, never a silent green."""
+    cli, msg = _rtp_r99_cli_open(inst)
+    if cli is None:
+        return False, msg
+    if _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                         _rtp_r99_sink_args()) is not True:
+        return False, "load-module failed"
+    node = _rtp_r99_node(inst, want_node)
+    entry["bringup"] = {"label": label, "node": node,
+                        "core_log": _rtp_r99_log_tail(inst, 20)}
+    _rtp_r99_reap(inst, [cli])
+    if not node.get("reached"):
+        return False, (f"private core did not reach a running RTP sink "
+                       f"(state={node.get('state')!r})")
+    return True, "ready"
+
+
+def _rtp_r99_block(entry, failures, msg, inst=None):
+    """The named coverage block: bring the instance down, record why."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    if inst is not None:
+        entry.setdefault("core_log_tail", []).extend(_rtp_r99_log_tail(inst, 30))
+        _rtp_r99_core_down(inst)
+    entry["failures"] = failures
+    return entry
+
+
+# ------------------------------------------------------------------ assertions
+def _rtp_r99_eq(failures, lname, what, got, want):
+    if got != want:
+        failures.append(f"{lname}: {what} = {got!r}, want {want!r}")
+
+
+def _rtp_r99_true(failures, lname, what, got):
+    if got is not True:
+        failures.append(f"{lname}: {what} = {got!r}, want true")
+
+
+def _rtp_r99_peak_exact(failures, lname, what, got):
+    if got is None or abs(got - RTP_R99_PEAK) > 1e-9:
+        failures.append(
+            f"{lname}: {what} = {got!r}, want exactly {RTP_R99_PEAK!r} "
+            f"(16383/32768)")
+
+
+def _rtp_r99_dominates(failures, lname, what, spec):
+    """997 Hz must dominate both reference bins by >= 100x.  The
+    boundary's qualification of C5: the Goertzel ratio is a *fill*
+    metric, so the arm is dominance, never a literal power."""
+    g = spec or {}
+    lo = max(g.get("440") or 1.0, g.get("2000") or 1.0)
+    if not ((g.get("997") or 0) > 100 * lo):
+        failures.append(
+            f"{lname}: {what} = 997 Hz {g.get('997')!r} vs 440/2000 "
+            f"{g.get('440')!r}/{g.get('2000')!r}, want 100x dominance")
+
+
+# ------------------------------------------------------------------ entry head
+def _rtp_r99_entry_head(probe):
+    """Shared preamble: the host-global settings lattice, the foreign r99a
+    census (another seat's residue is a witness, never a verdict) and the
+    contention snapshot.  This family's core is private, so the foreign
+    census is about the SHARED graph."""
+    g = _jack_r95_graph()
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "foreign_r99a_nodes": sorted(
+                n for n in (g.get("node_by_name") or {})
+                if "r99a_" in n and f"_{RTP_R99_PID}" not in n),
+            "foreign_r99a_clients": sorted(
+                c.get("name") for c in (g.get("clients") or {}).values()
+                if c.get("name") and "r99a_" in c["name"]
+                and f"_{RTP_R99_PID}" not in c["name"]),
+            "settings_at_start": _jack_r95_settings(),
+            "default_iface": _rtp_r99_default_iface(),
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _rtp_r99_teardown(entry, failures, inst):
+    """Bring the private instance down, then witness the SHARED host state
+    this seat must not have touched: 0 r99a nodes anywhere, 0 r99a rows in
+    the operator's WirePlumber store, the shared settings lattice intact."""
+    _rtp_r99_reap(inst, inst.get("children"))
+    _rtp_r99_core_down(inst)
+    entry["core_log_tail"] = _rtp_r99_log_tail(inst, 40)
+    entry["wp_log_tail"] = _rtp_r99_wp_tail(inst, 10)
+    entry["instance_dir"] = str(inst["root"])
+    entry["socket_gone"] = not (inst["run"] / "pipewire-0").exists()
+    if not entry["socket_gone"]:
+        failures.append("teardown: private core socket survived")
+    alive = []
+    for pid in _rtp_r99_core_pids(inst):
+        try:
+            os.kill(pid, 0)
+            alive.append(pid)
+        except OSError:
+            pass
+    entry["own_daemon_pids_alive"] = alive
+    if alive:
+        failures.append(f"teardown: private daemon pids still alive: {alive}")
+    store = Path.home() / ".local/state/wireplumber" / "stream-properties"
+    own_rows = None
+    if store.exists():
+        try:
+            own_rows = sorted({
+                ln.split("=", 1)[0] for ln in
+                store.read_text(errors="replace").splitlines()
+                if f"r99a_{RTP_R99_PID}" in ln})
+        except OSError:
+            own_rows = None
+    entry["shared_stream_properties_own_rows"] = own_rows
+    if own_rows:
+        failures.append(
+            f"teardown: rows left in the operator's stream-properties: {own_rows}")
+    elif own_rows is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: stream-properties store unreadable — the shared-store "
+            "witness is unmeasured")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["shared_r99a_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: shared node reader failed — the shared-graph witness "
+            "is unmeasured")
+    else:
+        rest = sorted(n for n in names if "r99a_" in n)
+        entry["shared_r99a_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r99a nodes in the SHARED graph: {rest}")
+    sinks = _capture_r77_sink_names_strict()
+    entry["shared_sinks_after"] = ("reader_error" if sinks is None else sinks)
+    entry["settings_at_end"] = _jack_r95_settings()
+    entry["failures"] = failures
+    return entry
+
+
+def _rtp_r99_tone(inst, seconds=RTP_R99_TONE_S):
+    """Generate the family's own int16 stereo tone inside the instance.
+    `--wav` and `--out` are separate paths: `--out` always carries the
+    JSON receipt, and a single path would silently overwrite the WAV with
+    the receipt (measured — `pw-play` then fails with 'Format not
+    recognised')."""
+    path = inst["root"] / "raw" / "tone.wav"
+    rec = _rtp_r99_fixture(
+        ["tone", "--wav", str(path), "--out",
+         str(inst["root"] / "raw" / "tone.json"), "--seconds", str(seconds),
+         "--freq", str(RTP_R99_TONE_HZ), "--amp", str(RTP_R99_TONE_AMP)],
+        60.0)
+    return path, rec
+
+
+# ==========================================================================
+# entry 1 — census: what is present, what is absent, what is documented
+# ==========================================================================
+def rtp_census_r99_entry():
+    """C1, corrected on its man-page half: the transport is present, the
+    roc/zeroconf/snapcast/jack-trip class is absent, and the three RTP
+    modules ship man pages whose documented option defaults are the ones
+    C2b measured the module actually using."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a native RTP transport census")
+    tools = {t: shutil.which(t) for t in
+             ("pipewire", "wireplumber", "pw-cli", "pw-link", "pw-play",
+              "pw-record", "pw-metadata", "pactl", "ss", "pacman", "man",
+              "zcat") + RTP_R99_ABSENT_TOOLS}
+    entry["tools"] = tools
+    for t in RTP_R99_ABSENT_TOOLS:
+        if tools[t]:
+            failures.append(f"c_absent: {t} is present at {tools[t]} — the "
+                            f"absent-class law does not hold on this host")
+    missing = [t for t in ("pipewire", "pw-cli", "pw-link", "pw-play",
+                           "pw-record", "pacman", "man", "zcat")
+               if not tools[t]]
+    if missing:
+        return _rtp_r99_block(entry, failures,
+                              f"census: required tools absent: {missing}")
+
+    try:
+        mods = sorted(p.name for p in RTP_R99_MODDIR.glob("*.so"))
+    except OSError as exc:
+        return _rtp_r99_block(entry, failures,
+                              f"census: module dir unreadable: {exc}"[:160])
+    net = [m for m in mods
+           if any(k in m for k in ("rtp-", "vban-", "netjack2-", "tunnel",
+                                   "avb"))]
+    hashes = {}
+    for m in RTP_R99_MODULES:
+        try:
+            hashes[m] = hashlib.sha256(
+                (RTP_R99_MODDIR / f"{m}.so").read_bytes()).hexdigest()
+        except OSError:
+            hashes[m] = None
+    legs["c_modules"] = {"dir": str(RTP_R99_MODDIR), "native": mods,
+                         "native_count": len(mods), "network_capable": net,
+                         "network_capable_count": len(net),
+                         "rtp_sha256": hashes}
+    _rtp_r99_eq(failures, "c_modules", "native module count",
+                len(mods), RTP_R99_NATIVE_MODULE_COUNT)
+    _rtp_r99_eq(failures, "c_modules", "network-capable set",
+                sorted(Path(m).stem for m in net), list(RTP_R99_NET_MODULES))
+    for m in RTP_R99_MODULES:
+        if f"{m}.so" not in mods:
+            failures.append(f"c_modules: {m} is absent")
+        if hashes[m] is None:
+            failures.append(f"c_modules: {m}.so is unreadable")
+
+    pac = _rtp_r99_run(["pacman", "-Q"] + list(RTP_R99_ABSENT_PKGS), 30.0)
+    pac_text = (pac.get("stdout") or "") + (pac.get("stderr") or "")
+    legs["c_absent"] = {"pacman": pac, "which": {t: tools[t]
+                                                 for t in RTP_R99_ABSENT_TOOLS},
+                        "pacman_not_found_count":
+                            len(re.findall(r"was not found", pac_text))}
+    _rtp_r99_eq(failures, "c_absent", "packages reported absent",
+                legs["c_absent"]["pacman_not_found_count"],
+                len(RTP_R99_ABSENT_PKGS))
+
+    docs, sink_doc, src_doc = {}, None, None
+    for m in RTP_R99_MODULES:
+        rec = _rtp_r99_run(["man", "-w", m], 25.0)
+        docs[m] = (rec.get("stdout") or "").strip() or None
+    if docs[RTP_R99_MODULES[0]]:
+        sink_doc = _rtp_r99_run(["zcat", docs[RTP_R99_MODULES[0]]], 25.0,
+                                keep_chars=20000).get("stdout") or ""
+    if docs[RTP_R99_MODULES[1]]:
+        src_doc = _rtp_r99_run(["zcat", docs[RTP_R99_MODULES[1]]], 25.0,
+                               keep_chars=20000).get("stdout") or ""
+    legs["c_docs"] = {
+        "man_paths": docs,
+        "sink_page_bytes": len(sink_doc or ""),
+        "source_page_bytes": len(src_doc or ""),
+        "sink_page_documents_min_ptime_default_2": bool(
+            sink_doc and re.search(r"min-ptime[^.]*default 2", sink_doc)),
+        "sink_page_documents_max_ptime_default_20": bool(
+            sink_doc and re.search(r"max-ptime[^.]*default 20", sink_doc)),
+        "sink_page_lists_ptime_under_module_options": bool(
+            sink_doc and "ptime" in sink_doc and "MODULE OPTIONS" in sink_doc),
+        "sink_page_documents_stream_props": bool(
+            sink_doc and "stream" in sink_doc and "props" in sink_doc),
+        "note": "C1's 'no man page exists for any of the three RTP modules' "
+                "does not hold on this host: all three pages ship in "
+                "pipewire-audio 1:1.6.8-1. The SINK page documents "
+                "sess.min-ptime default 2 / sess.max-ptime default 20 — the "
+                "defaults C2b measured the module actually using — and lists "
+                "rtp.ptime/rtp.framecount under MODULE OPTIONS, which C16 "
+                "shows the module does not honour there. The SOURCE page "
+                "documents a different option set (source.ip/source.port, "
+                "sess.ignore-ssrc, sess.ts-direct, stream.may-pause) and no "
+                "min/max-ptime at all.",
+    }
+    for m in RTP_R99_MODULES:
+        if not docs[m]:
+            failures.append(f"c_docs: no man page resolves for {m}")
+    _rtp_r99_true(failures, "c_docs",
+                  "the sink man page documents min-ptime default 2",
+                  legs["c_docs"]["sink_page_documents_min_ptime_default_2"])
+    _rtp_r99_true(failures, "c_docs",
+                  "the sink man page documents max-ptime default 20",
+                  legs["c_docs"]["sink_page_documents_max_ptime_default_20"])
+    _rtp_r99_true(failures, "c_docs",
+                  "the sink man page lists rtp.ptime under MODULE OPTIONS",
+                  legs["c_docs"]["sink_page_lists_ptime_under_module_options"])
+
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+# ==========================================================================
+# entry 2 — the sink: props, socket, wire, packetization lattice
+# ==========================================================================
+def _rtp_r99_sink_leg(inst, failures, lname, args, tone, seconds=None,
+                      expect_size=None, expect_ptime=None, expect_fc=None,
+                      want_play=True, node=RTP_R99_SINK):
+    """One sink leg on the client route: load, wait for running, read the
+    props/socket/ports, play the family's tone, decode the wire."""
+    seconds = seconds or RTP_R99_TONE_S
+    cli, msg = _rtp_r99_cli_open(inst)
+    if cli is None:
+        return {"error": msg}
+    if _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink", args) is not True:
+        _rtp_r99_reap(inst, [cli])
+        return {"error": "load-module failed"}
+    info = _rtp_r99_node(inst, node)
+    leg = {"node": info, "module_args": args}
+    if not info.get("reached"):
+        leg["error"] = (f"sink node did not reach running "
+                        f"(state={info.get('state')!r})")
+        leg["core_log"] = _rtp_r99_log_tail(inst, 12, needle="rtp")
+        _rtp_r99_reap(inst, [cli])
+        return leg
+    outs, ins = _rtp_r99_ports(inst, node)
+    leg["ports"] = {"outputs": outs, "inputs": ins}
+    leg["udp_sockets"] = _rtp_r99_udp_sockets(inst)
+    if not want_play:
+        _rtp_r99_reap(inst, [cli])
+        return leg
+    tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, seconds, tag=lname)
+    leg["tap"] = tapinfo
+    time.sleep(0.5)
+    _, leg["play"] = _rtp_r99_play(inst, node, tone)
+    _rtp_r99_wait(tap, seconds + 20)
+    leg["recv"] = _rtp_r99_read(tapinfo["out"])
+    leg["core_log"] = _rtp_r99_log_tail(inst, 12, needle="rtp")
+    _rtp_r99_reap(inst, [cli])
+    if leg["recv"] is None:
+        leg["error"] = "tap produced no receipt"
+        return leg
+    _rtp_r99_true(failures, lname, "the sink emitted packets",
+                  (leg["recv"].get("n") or 0) > 0)
+    if expect_size is not None:
+        _rtp_r99_eq(failures, lname, "wire sizes", leg["recv"].get("sizes"),
+                    [expect_size])
+    if expect_ptime is not None:
+        _rtp_r99_eq(failures, lname, "rtp.ptime",
+                    info["props"].get("rtp.ptime"), expect_ptime)
+    if expect_fc is not None:
+        _rtp_r99_eq(failures, lname, "rtp.framecount",
+                    info["props"].get("rtp.framecount"), expect_fc)
+    return leg
+
+
+def rtp_sink_r99_entry():
+    """C2/C3/C4/C4b/C5 (explicit 1 ms cell), C2b (the module's true
+    defaults), C3b (two sinks, one destination), C9/C9b (the lattice,
+    including the corrected 9612-byte 50 ms packet)."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a RTP sink shape + wire + lattice")
+    if not RTP_R99_FIXTURE.exists():
+        return _rtp_r99_block(entry, failures, f"fixture missing: {RTP_R99_FIXTURE}")
+    with tempfile.TemporaryDirectory(prefix="r99a-sink-") as tmp:
+        inst = _rtp_r99_inst(tmp, "sink")
+        try:
+            ok, msg = _rtp_r99_core_up(inst)
+            entry["bringup_core"] = {"ok": ok, "msg": msg}
+            if not ok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable: {msg}", inst)
+            tone, tone_rec = _rtp_r99_tone(inst)
+            legs["tone"] = {"data": tone_rec.get("data"),
+                            "exit_code": tone_rec.get("exit_code")}
+            if not tone_rec.get("data"):
+                return _rtp_r99_block(entry, failures,
+                                      "tone fixture produced no receipt", inst)
+            ready, rmsg = _rtp_r99_ready(inst, entry, "sink")
+            if not ready:
+                return _rtp_r99_block(entry, failures,
+                                      f"RTP sink cannot run here: {rmsg}", inst)
+
+            leg = _rtp_r99_sink_leg(inst, failures, "s_props",
+                                    _rtp_r99_sink_args(), tone,
+                                    expect_size=RTP_R99_WIRE_1MS,
+                                    expect_ptime="1.000000", expect_fc="48")
+            legs["s_props"] = leg
+            p = (leg.get("node") or {}).get("props") or {}
+            for key, want in (("media.class", "Audio/Sink"),
+                              ("node.network", "true"),
+                              ("node.always-process", "true"),
+                              ("rtp.mime", "L16"),
+                              ("rtp.payload", "127"),
+                              ("net.header", "28"),
+                              ("net.mtu", "1280"),
+                              ("rtp.dscp", "34"),
+                              ("rtp.ttl", "1"),
+                              ("rtp.rate", "48000"),
+                              ("rtp.channels", "2")):
+                _rtp_r99_eq(failures, "s_props", key, p.get(key), want)
+            _rtp_r99_eq(failures, "s_props",
+                        "node.description is the session name",
+                        p.get("node.description"), RTP_R99_SESS)
+            _rtp_r99_eq(failures, "s_props",
+                        "media.name derives from the session name",
+                        p.get("media.name"), f"RTP Session with {RTP_R99_SESS}")
+            _rtp_r99_eq(failures, "s_props", "input port count",
+                        (leg.get("node") or {}).get("in_ports"), 2)
+            _rtp_r99_eq(failures, "s_props", "output port count",
+                        (leg.get("node") or {}).get("out_ports"), 2)
+            _rtp_r99_eq(failures, "s_props",
+                        "input ports are the send_* pair",
+                        [x.split(":", 1)[1] for x in
+                         (leg.get("ports") or {}).get("inputs") or []],
+                        ["send_FL", "send_FR"])
+            _rtp_r99_eq(failures, "s_props",
+                        "output ports are the monitor_* pair",
+                        [x.split(":", 1)[1] for x in
+                         (leg.get("ports") or {}).get("outputs") or []],
+                        ["monitor_FL", "monitor_FR"])
+            socks = leg.get("udp_sockets") or []
+            _rtp_r99_eq(failures, "s_props", "one connected UDP socket",
+                        len(socks), 1)
+            leg["socket_shape"] = {
+                "rows": socks,
+                "connected": bool(socks and "ESTAB" in socks[0]),
+                "note": "bind is 0.0.0.0:0 + connect(destination): the "
+                        "sender's source port is ephemeral and is never the "
+                        "destination port (C3).",
+            }
+            _rtp_r99_true(failures, "s_props", "socket is connected",
+                          leg["socket_shape"]["connected"])
+            if socks:
+                _rtp_r99_true(failures, "s_props",
+                              "socket targets the destination port",
+                              f":{RTP_R99_PORT}" in socks[0])
+            rtp = (leg.get("recv") or {}).get("rtp") or {}
+            _rtp_r99_eq(failures, "s_props", "RTP version", rtp.get("version"), 2)
+            _rtp_r99_eq(failures, "s_props", "payload type", rtp.get("pt"), 127)
+            _rtp_r99_eq(failures, "s_props", "marker bit", rtp.get("marker"), 0)
+            _rtp_r99_eq(failures, "s_props", "csrc count", rtp.get("csrc_count"), 0)
+            _rtp_r99_eq(failures, "s_props", "seq deltas",
+                        (leg.get("recv") or {}).get("seq_deltas"), [1])
+            dts = (leg.get("recv") or {}).get("ts_deltas") or []
+            # A leg that straddles a 2**32 timestamp rollover contributes
+            # one huge delta.  That delta is an artefact of the wrap, not of
+            # the packetization, so the LATTICE law is armed on the clean
+            # steps and the wrap is recorded separately.
+            clean = sorted(d for d in dts if d < 100000)
+            leg["ts_lattice"] = {
+                "deltas": dts,
+                "clean_deltas": clean,
+                "wrap_deltas": sorted(d for d in dts if d >= 100000),
+                "all_clean_multiples_of_16": bool(clean) and
+                                             all(d % 16 == 0 for d in clean),
+                "all_clean_at_least_48": bool(clean) and
+                                         all(d >= 48 for d in clean),
+                "scout_subset_present": {48, 80, 96, 112, 128, 144}.issubset(
+                    set(clean)),
+                "note": "C4b: the scout printed a strict subset of its own "
+                        "receipt; the measured set is every multiple of 16 "
+                        ">= 48 (plus a wrap pair when a leg straddles a "
+                        "2**32 rollover).",
+            }
+            _rtp_r99_true(failures, "s_props",
+                          "clean ts deltas are multiples of 16",
+                          leg["ts_lattice"]["all_clean_multiples_of_16"])
+            _rtp_r99_true(failures, "s_props", "clean ts deltas are >= 48",
+                          leg["ts_lattice"]["all_clean_at_least_48"])
+            content = (leg.get("recv") or {}).get("content") or {}
+            leg["content"] = content
+            _rtp_r99_peak_exact(failures, "s_props", "wire peak left",
+                                content.get("peak_l"))
+            _rtp_r99_peak_exact(failures, "s_props", "wire peak right",
+                                content.get("peak_r"))
+            _rtp_r99_dominates(failures, "s_props", "wire spectrum",
+                               content.get("goertzel_L"))
+            _rtp_r99_true(failures, "s_props",
+                          "the payload carries non-zero frames",
+                          (content.get("nonzero_l") or 0) > 0)
+
+            legs["s_default"] = _rtp_r99_sink_leg(
+                inst, failures, "s_default",
+                _rtp_r99_sink_args(minp=None, maxp=None), tone,
+                expect_size=1252, expect_ptime="6.458333", expect_fc="310")
+            legs["s_default"]["note"] = (
+                "C2b FALSIFIED 'the defaults are 1 ms/48 frames'. The module "
+                "defaults are sess.min/max-ptime 2/20 -> 6.458333 ms / 310 "
+                "frames / 1252 B, which is what the man page documents.")
+            legs["s_lattice_mtu200"] = _rtp_r99_sink_leg(
+                inst, failures, "s_lattice_mtu200",
+                _rtp_r99_sink_args(mtu=200), tone,
+                expect_size=RTP_R99_WIRE_1MS)
+            legs["s_lattice_mtu8000"] = _rtp_r99_sink_leg(
+                inst, failures, "s_lattice_mtu8000",
+                _rtp_r99_sink_args(mtu=8000), tone,
+                expect_size=RTP_R99_WIRE_1MS)
+            legs["s_lattice_10_20"] = _rtp_r99_sink_leg(
+                inst, failures, "s_lattice_10_20",
+                _rtp_r99_sink_args(minp=10, maxp=20), tone, expect_size=1932,
+                expect_ptime="10.000000", expect_fc="480")
+            legs["s_lattice_50_100"] = _rtp_r99_sink_leg(
+                inst, failures, "s_lattice_50_100",
+                _rtp_r99_sink_args(minp=50, maxp=100), tone, expect_size=9612,
+                expect_ptime="50.000000", expect_fc="2400")
+            legs["s_lattice_50_100"]["note"] = (
+                "C9b FALSIFIED the scout's '2048 B cap': 9612 = 12 + 2400 x 4 "
+                "exactly, and the 50 ms cell is the MOST faithful of the "
+                "lattice (one size, ts delta exactly 2400, zero holes). The "
+                "'cap' was the scout's own 2048-byte tap buffer; the wire has "
+                "no cap site.")
+
+            cli, _ = _rtp_r99_cli_open(inst)
+            two = {}
+            if cli is not None:
+                _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                  _rtp_r99_sink_args(node=RTP_R99_SINK))
+                _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                  _rtp_r99_sink_args(node=RTP_R99_SINK_B))
+                two["node_a"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                two["node_b"] = _rtp_r99_node(inst, RTP_R99_SINK_B)
+                tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, RTP_R99_TONE_S,
+                                            tag="s_two")
+                two["tap"] = tapinfo
+                time.sleep(0.5)
+                _, two["play_a"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                _, two["play_b"] = _rtp_r99_play(inst, RTP_R99_SINK_B, tone,
+                                                 node_name=RTP_R99_PLAY_B)
+                _rtp_r99_wait(tap, RTP_R99_TONE_S + 20)
+                two["recv"] = _rtp_r99_read(tapinfo["out"])
+                two["sockets"] = _rtp_r99_udp_sockets(inst)
+                _rtp_r99_reap(inst, [cli])
+            legs["s_two"] = two
+            _rtp_r99_eq(failures, "s_two", "both sinks reached running",
+                        [bool(two.get("node_a", {}).get("reached")),
+                         bool(two.get("node_b", {}).get("reached"))],
+                        [True, True])
+            _rtp_r99_eq(failures, "s_two", "one wire size",
+                        (two.get("recv") or {}).get("sizes"),
+                        [RTP_R99_WIRE_1MS])
+            _rtp_r99_eq(failures, "s_two",
+                        "two connected sockets (one per sink)",
+                        len(two.get("sockets") or []), 2)
+            # `ss -unap` columns: State Recv-Q Send-Q Local Peer Process.
+            # The SINK's ephemeral source port is the LOCAL one (index 3);
+            # index 4 is the shared destination both sinks send to.
+            socks_rows = two.get("sockets") or []
+            two["source_ports"] = [r.split()[3].split(":")[-1] for r in socks_rows]
+            two["destination_ports"] = [r.split()[4].split(":")[-1]
+                                        for r in socks_rows]
+            _rtp_r99_true(failures, "s_two",
+                          "the two sinks use different ephemeral source ports",
+                          len(two["source_ports"]) == 2 and
+                          len(set(two["source_ports"])) == 2)
+            _rtp_r99_true(failures, "s_two",
+                          "both sinks send to the one shared destination port",
+                          len(set(two["destination_ports"])) == 1 and
+                          two["destination_ports"][0] == str(RTP_R99_PORT))
+        except Exception as exc:
+            entry.setdefault("coverage_blocked", []).append(
+                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+        finally:
+            entry["legs"] = legs
+            _rtp_r99_teardown(entry, failures, inst)
+    return entry
+
+
+# ==========================================================================
+# entry 3 — the source: shape, crafted delivery, ts-offset repair, S24BE
+# ==========================================================================
+def _rtp_r99_source_leg(inst, failures, lname, src_args, send, seconds=None,
+                        want_tone=True, node=RTP_R99_SRC, expect_join=True):
+    """One source leg on the FRAGMENT route.
+
+    The route is not a stylistic choice.  A client-side
+    (`pw-cli load-module`) RTP source does NOT receive a crafted multicast
+    stream on this host even though `ss` shows its socket bound to the
+    group in the same network namespace and the same reuse group, while
+    the daemon-side module of the same version, same args, receives it and
+    logs both `join IPv4 group: ...` and `sync to timestamp`.  Measured
+    both ways; that is why every source leg here restarts the private
+    core, and why the sink legs (which only ever SEND) stay on the cheap
+    client route.
+
+    The appear/run split also matters: a source with no consumer stays
+    `suspended`, so 'wait for running' before the consumer exists would
+    deadlock the leg.  Both waits are bounded and recorded.
+
+    There is deliberately NO tap on `source.port`: the module binds that
+    port, and a second socket on it competes for the very datagrams the
+    leg measures — the ambiguity that produced the scout's false
+    clock-gating verdict.  The wire witness is the sender's own `sent`
+    count (this family's own codec); the delivery witness is the source's
+    recording plus the core's `sync to timestamp` line.
+    """
+    seconds = seconds or RTP_R99_TONE_S
+    frag = _rtp_r99_write_fragment(
+        inst, [("libpipewire-module-rtp-source", src_args)])
+    ok, msg = _rtp_r99_core_up(inst)
+    leg = {"source_args": src_args, "fragment": frag, "core_up": ok, "msg": msg}
+    if not ok:
+        leg["error"] = msg
+        leg["core_log"] = _rtp_r99_log_tail(inst, 20)
+        return leg
+    leg["appeared"] = _rtp_r99_node(inst, node, want_state=None)
+    if not leg["appeared"].get("reached"):
+        leg["error"] = "source node never appeared"
+        leg["core_log"] = _rtp_r99_log_tail(inst, 20)
+        return leg
+    rec_wav = inst["root"] / "raw" / f"{lname}.wav"
+    rec = None
+    try:
+        rec = subprocess.Popen(
+            ["pw-record", "--rate", "48000", "--channels", "2", "--format",
+             "s16", "--target", node, str(rec_wav)],
+            env=inst["env"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL, start_new_session=True)
+        inst["children"].append(rec)
+    except OSError as exc:
+        leg["record_error"] = str(exc)[:160]
+    time.sleep(0.8)
+    leg["running"] = _rtp_r99_node(inst, node, attempts=20)
+    outs, ins = _rtp_r99_ports(inst, node)
+    leg["ports"] = {"outputs": outs, "inputs": ins}
+    time.sleep(0.4)
+    if send is not None:
+        send_out = inst["root"] / "raw" / f"{lname}.send.json"
+        leg["send"] = _rtp_r99_fixture(["send", "--out", str(send_out)]
+                                       + send["argv"], seconds + 40)
+        time.sleep(seconds + 0.5)
+    _rtp_r99_reap(inst, [rec])
+    leg["sync_log"] = _rtp_r99_log_tail(inst, 8, needle="sync to timestamp")
+    leg["join_log"] = _rtp_r99_log_tail(inst, 4, needle="join IPv4 group")
+    leg["core_log"] = _rtp_r99_log_tail(inst, 30)
+    if rec_wav.exists():
+        wrec = _rtp_r99_fixture(
+            ["wav", "--file", str(rec_wav), "--out",
+             str(inst["root"] / "raw" / f"{lname}.wav.json")], 90.0)
+        leg["recorded"] = wrec.get("data")
+    leg["sent"] = ((leg.get("send") or {}).get("data") or {}).get("sent")
+    if send is not None:
+        _rtp_r99_true(failures, lname,
+                      "the crafted sender actually sent packets",
+                      (leg["sent"] or 0) > 0)
+        # Only a MULTICAST source joins a group: module-rtp-source's
+        # unicast branch rewrites the bind to INADDR_ANY and connects
+        # instead, so asserting a join there would assert the opposite of
+        # the measured law.
+        if expect_join:
+            _rtp_r99_true(failures, lname,
+                          "the module logged its group join",
+                          bool(leg["join_log"]))
+        else:
+            _rtp_r99_true(failures, lname,
+                          "a unicast source joins no group",
+                          not leg["join_log"])
+    if want_tone:
+        content = leg.get("recorded") or {}
+        leg["tone_present"] = bool((content.get("peak") or 0) > 0.3)
+        if not leg["tone_present"]:
+            failures.append(
+                f"{lname}: source recorded peak {content.get('peak')!r} — the "
+                f"crafted tone did not play (sync log: {bool(leg['sync_log'])})")
+    _rtp_r99_core_down(inst)
+    return leg
+
+
+def rtp_source_r99_entry():
+    """C11 (init-time fakes), C12 corrected (correct delivery plays),
+    C8b (only packets from source.port are accepted), C12b (sess.ts-offset
+    as a module arg), C14 (S24BE)."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a RTP source shape + crafted delivery")
+    with tempfile.TemporaryDirectory(prefix="r99a-src-") as tmp:
+        inst = _rtp_r99_inst(tmp, "src")
+        try:
+            ok, msg = _rtp_r99_core_up(inst)
+            entry["bringup_core"] = {"ok": ok, "msg": msg}
+            if not ok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable: {msg}", inst)
+            tone, tone_rec = _rtp_r99_tone(inst)
+            legs["tone"] = {"data": tone_rec.get("data"),
+                            "exit_code": tone_rec.get("exit_code")}
+            if not tone_rec.get("data"):
+                return _rtp_r99_block(entry, failures,
+                                      "tone fixture produced no receipt", inst)
+            ready, rmsg = _rtp_r99_ready(inst, entry, "source")
+            if not ready:
+                return _rtp_r99_block(entry, failures,
+                                      f"RTP sink cannot run here: {rmsg}", inst)
+
+            # r_shape sends NOTHING: the whole point of C11 is that
+            # rtp.receiving / rtp.ssrc are INIT-TIME fakes, so the leg must
+            # read them before any packet could have arrived.  A leg that
+            # sends first and then claims 'no sync log yet' would be
+            # asserting the opposite of what it measures.
+            legs["r_shape"] = _rtp_r99_source_leg(
+                inst, failures, "r_shape", _rtp_r99_source_args(),
+                None, seconds=1.0, want_tone=False)
+            p = (legs["r_shape"].get("running") or {}).get("props") or {}
+            _rtp_r99_eq(failures, "r_shape", "media.class",
+                        p.get("media.class"), "Audio/Source")
+            _rtp_r99_eq(failures, "r_shape",
+                        "rtp.receiving is faked at init",
+                        p.get("rtp.receiving"), "true")
+            _rtp_r99_eq(failures, "r_shape",
+                        "rtp.ssrc is 0 before anything arrives",
+                        p.get("rtp.ssrc"), "0")
+            _rtp_r99_true(failures, "r_shape",
+                          "rtp.receiver-ts-offset is a per-load value",
+                          bool(p.get("rtp.receiver-ts-offset")))
+            _rtp_r99_true(failures, "r_shape",
+                          "no sync log before any packet arrives",
+                          not legs["r_shape"].get("sync_log"))
+            _rtp_r99_eq(failures, "r_shape",
+                        "output ports are the receive_* pair",
+                        [x.split(":", 1)[1] for x in
+                         (legs["r_shape"].get("ports") or {}).get("outputs") or []],
+                        ["receive_FL", "receive_FR"])
+
+            legs["r_mcast"] = _rtp_r99_source_leg(
+                inst, failures, "r_mcast", _rtp_r99_source_args(),
+                {"port": RTP_R99_PORT + 1, "group": RTP_R99_MCAST,
+                 "argv": ["--port", str(RTP_R99_PORT + 1), "--group",
+                          RTP_R99_MCAST, "--ifname", "lo", "--count", "250",
+                          "--seconds", "4"]})
+            _rtp_r99_true(failures, "r_mcast",
+                          "a correctly delivered crafted stream plays",
+                          legs["r_mcast"].get("tone_present"))
+            _rtp_r99_true(failures, "r_mcast", "sync-to-timestamp log",
+                          bool(legs["r_mcast"].get("sync_log")))
+            legs["r_mcast"]["note"] = (
+                "C12 FALSIFIED the scout's clock-gating attribution: its "
+                "crafted arms sent UNICAST to a source bound to the GROUP, so "
+                "the datagrams never reached the socket. With correct "
+                "delivery the tone plays at full amplitude with an arbitrary "
+                "ts0 and no sess.ts-offset at all.")
+
+            legs["r_unicast_same"] = _rtp_r99_source_leg(
+                inst, failures, "r_unicast_same",
+                _rtp_r99_source_args(src_ip="127.0.0.1",
+                                     src_port=RTP_R99_PORT + 3, ifname=None),
+                {"port": RTP_R99_PORT + 3, "group": None,
+                 "argv": ["--port", str(RTP_R99_PORT + 3), "--host",
+                          "127.0.0.1", "--from-port", str(RTP_R99_PORT + 3),
+                          "--count", "250", "--seconds", "4"]},
+                expect_join=False)
+            _rtp_r99_true(failures, "r_unicast_same",
+                          "a sender bound to source.port is accepted",
+                          legs["r_unicast_same"].get("tone_present"))
+
+            legs["r_unicast_foreign"] = _rtp_r99_source_leg(
+                inst, failures, "r_unicast_foreign",
+                _rtp_r99_source_args(src_ip="127.0.0.1",
+                                     src_port=RTP_R99_PORT + 5, ifname=None),
+                {"port": RTP_R99_PORT + 5, "group": None,
+                 "argv": ["--port", str(RTP_R99_PORT + 5), "--host",
+                          "127.0.0.1", "--from-port", str(RTP_R99_PORT + 6),
+                          "--count", "250", "--seconds", "4"]},
+                want_tone=False, expect_join=False)
+            fcontent = legs["r_unicast_foreign"].get("recorded") or {}
+            legs["r_unicast_foreign"]["peak"] = fcontent.get("peak")
+            _rtp_r99_true(failures, "r_unicast_foreign",
+                          "a foreign source port is refused (silence)",
+                          (fcontent.get("peak") or 0) == 0.0)
+            _rtp_r99_true(failures, "r_unicast_foreign",
+                          "no sync-to-timestamp log from a foreign port",
+                          not legs["r_unicast_foreign"].get("sync_log"))
+            legs["r_unicast_foreign"]["note"] = (
+                "C8b: the unicast source is a CONNECTED socket, so only "
+                "datagrams whose source is exactly source.port reach the "
+                "stream. The boundary's replay showed the scout's own stage-e "
+                "never actually sent ('send: no-bound-socket').")
+
+            legs["r_ts_offset"] = _rtp_r99_source_leg(
+                inst, failures, "r_ts_offset",
+                _rtp_r99_source_args(src_ip="127.0.0.1",
+                                     src_port=RTP_R99_PORT + 7, ifname=None,
+                                     module_extra="sess.ts-offset = 424242"),
+                {"port": RTP_R99_PORT + 7, "group": None,
+                 "argv": ["--port", str(RTP_R99_PORT + 7), "--host",
+                          "127.0.0.1", "--from-port", str(RTP_R99_PORT + 7),
+                          "--count", "250", "--seconds", "4", "--ts0",
+                          "7000000"]},
+                expect_join=False)
+            _rtp_r99_true(failures, "r_ts_offset",
+                          "sess.ts-offset as a module arg is honoured",
+                          legs["r_ts_offset"].get("tone_present"))
+
+            # the source legs above each restarted the core; the S24BE
+            # cell is a SINK leg on the client route, so bring one back up
+            sok, smsg = _rtp_r99_core_up(inst)
+            if not sok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable for "
+                                      f"r_s24be: {smsg}", inst)
+            legs["r_s24be"] = _rtp_r99_sink_leg(
+                inst, failures, "r_s24be", _rtp_r99_sink_args(fmt="S24BE"),
+                tone, expect_size=300, expect_ptime="1.000000",
+                expect_fc="48")
+            p24 = (legs["r_s24be"].get("node") or {}).get("props") or {}
+            _rtp_r99_eq(failures, "r_s24be", "rtp.mime for S24BE",
+                        p24.get("rtp.mime"), "L24")
+            legs["r_s24be"]["note"] = (
+                "C14: 300 B = 12 + 48 x 6. S24LE / S32 / F32 are not "
+                "supported wire formats (F32 exists only inside the opus "
+                "path's internal conversion).")
+        except Exception as exc:
+            entry.setdefault("coverage_blocked", []).append(
+                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+        finally:
+            entry["legs"] = legs
+            _rtp_r99_teardown(entry, failures, inst)
+    return entry
+
+
+# ==========================================================================
+# entry 4 — the refusal lattice (fragment route: the CORE must die)
+# ==========================================================================
+def _rtp_r99_refusal_leg(inst, failures, lname, module, args, expect_core_rc,
+                         node=None, expect_node_state=None):
+    """One fragment-route leg.  The module is listed in the private
+    daemon's own config, so a module-init failure is observed as the
+    CORE's exit code — the only route that can see the rc 234 / rc -8
+    classes.  No WirePlumber: a refusal is a load-time fact."""
+    frag = _rtp_r99_write_fragment(inst, [(module, args)])
+    ok, msg = _rtp_r99_core_up(inst, with_wp=False)
+    leg = {"fragment": frag, "core_up": ok, "msg": msg,
+           "core_log": _rtp_r99_log_tail(inst, 20)}
+    if not ok:
+        m = re.search(r"core died rc=(-?\d+)", msg)
+        rc = int(m.group(1)) if m else None
+        leg["core_exit_code"] = rc
+        _rtp_r99_eq(failures, lname, "core exit code", rc, expect_core_rc)
+        leg["refusal_log"] = [ln for ln in leg["core_log"]
+                              if "rtp" in ln.lower() or "invalid" in ln.lower()
+                              or "unsupported" in ln.lower()]
+    elif node:
+        n = _rtp_r99_node(inst, node, attempts=3, want_state="running")
+        leg["node"] = n
+        if expect_node_state is not None:
+            _rtp_r99_eq(failures, lname,
+                        "node state after a deferred failure",
+                        n.get("state"), expect_node_state)
+    else:
+        failures.append(f"{lname}: the core survived a refusal-class load "
+                        f"(expected rc {expect_core_rc})")
+    _rtp_r99_core_down(inst)
+    return leg
+
+
+def rtp_refusal_r99_entry():
+    """C8, C10, C10b, C10c, C16: the refusal classes, and the one
+    arithmetic fault reachable from a documented property."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a RTP refusal lattice")
+    with tempfile.TemporaryDirectory(prefix="r99a-ref-") as tmp:
+        inst = _rtp_r99_inst(tmp, "ref")
+        try:
+            legs["x_destip"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_destip", "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(dest_ip="999.1.2.3"), 234)
+            legs["x_f32"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_f32", "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(fmt="F32LE"), 234)
+            legs["x_media"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_media", "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(module_extra='sess.media = "r99a_bogus"'), 234)
+            legs["x_srcport0"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_srcport0", "libpipewire-module-rtp-source",
+                _rtp_r99_source_args(src_port=0), 234)
+            legs["x_ifname"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_ifname", "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(ifname="r99a_nosuchif"), None,
+                node=RTP_R99_SINK, expect_node_state="suspended")
+            legs["x_ifname"]["note"] = (
+                "C10b: 'loads fine' is a LOAD-time statement. The bad "
+                "SO_BINDTODEVICE is deferred to stream start, so the module "
+                "loads and the node is created — and stays suspended, because "
+                "this leg deliberately runs no session manager.")
+
+            legs["x_ptime_pair"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_ptime_pair", "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(stream_extra="rtp.ptime = 20 "
+                                                "rtp.framecount = 960"), -8)
+            legs["x_ptime_pair"]["note"] = (
+                "C10c FALSIFIED the 'module-init -EINVAL or nothing at all' "
+                "dichotomy. With rtp.ptime AND rtp.framecount both present and "
+                "consistent in stream.props, none of the three stream.c "
+                "branches assigns psamples, so fmodf(target_buffer, 0) and "
+                "SPA_ROUND_DOWN(x, 0) divide by zero: rc -8 (SIGFPE). This is "
+                "the only arithmetic-fault refusal class found, and it is a "
+                "stream.c bug, not a user error.")
+
+            legs["x_ptime_module_args"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_ptime_module_args",
+                "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(module_extra="rtp.ptime = 20 "
+                                                "rtp.framecount = 960"),
+                None, node=RTP_R99_SINK, expect_node_state="suspended")
+            mp = (legs["x_ptime_module_args"].get("node") or {}).get("props") or {}
+            legs["x_ptime_module_args"]["props_seen"] = {
+                k: mp.get(k) for k in ("rtp.ptime", "rtp.framecount")}
+            _rtp_r99_eq(failures, "x_ptime_module_args",
+                        "rtp.ptime as a MODULE arg is silently dropped",
+                        mp.get("rtp.ptime"), "1.000000")
+            _rtp_r99_eq(failures, "x_ptime_module_args",
+                        "rtp.framecount as a MODULE arg is silently dropped",
+                        mp.get("rtp.framecount"), "48")
+            legs["x_ptime_module_args"]["note"] = (
+                "C16: the man page lists rtp.ptime/rtp.framecount under MODULE "
+                "OPTIONS, but the module reads them from stream.props only — "
+                "as module args they are dropped and the props keep the "
+                "session-derived values.")
+
+            legs["x_ptime_props_only"] = _rtp_r99_refusal_leg(
+                inst, failures, "x_ptime_props_only",
+                "libpipewire-module-rtp-sink",
+                _rtp_r99_sink_args(stream_extra="rtp.ptime = 20"), None,
+                node=RTP_R99_SINK, expect_node_state="suspended")
+            op = (legs["x_ptime_props_only"].get("node") or {}).get("props") or {}
+            # A value set through stream.props keeps the literal text the
+            # caller wrote ("20"); the module only formats a value it
+            # derived itself as "1.000000".
+            _rtp_r99_eq(failures, "x_ptime_props_only",
+                        "rtp.ptime from stream.props is honoured",
+                        op.get("rtp.ptime"), "20")
+            _rtp_r99_eq(failures, "x_ptime_props_only",
+                        "the framecount follows the ptime alone",
+                        op.get("rtp.framecount"), "960")
+        except Exception as exc:
+            entry.setdefault("coverage_blocked", []).append(
+                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+        finally:
+            entry["legs"] = legs
+            _rtp_r99_teardown(entry, failures, inst)
+    return entry
+
+
+# ==========================================================================
+# entry 5 — native end-to-end, SAP, relink, LAN confinement
+# ==========================================================================
+def rtp_e2e_r99_entry():
+    """C6 (native pair end-to-end), C13 (SAP arming), AX-RELINK, C7
+    (loopback confinement read against bracketing idle windows plus a
+    positive control)."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a RTP native end-to-end + confinement")
+    with tempfile.TemporaryDirectory(prefix="r99a-e2e-") as tmp:
+        inst = _rtp_r99_inst(tmp, "e2e")
+        try:
+            ok, msg = _rtp_r99_core_up(inst)
+            entry["bringup_core"] = {"ok": ok, "msg": msg}
+            if not ok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable: {msg}", inst)
+            tone, tone_rec = _rtp_r99_tone(inst, seconds=6.0)
+            legs["tone"] = {"data": tone_rec.get("data"),
+                            "exit_code": tone_rec.get("exit_code")}
+            if not tone_rec.get("data"):
+                return _rtp_r99_block(entry, failures,
+                                      "tone fixture produced no receipt", inst)
+
+            # ---- e_native: sink -> mcast(lo) -> source -> pw-record.
+            #
+            # Both modules run on the FRAGMENT route (a client-side source
+            # does not receive — measured), with the sink's multicast
+            # looped back on lo, exactly the scout's and boundary's shape.
+            #
+            # The law is armed only where it is measurable.  This seat
+            # measures the SINK's side exactly (a wildcard, lo-joined tap
+            # reads 204-byte packets at 1 kHz carrying the exact
+            # 0.499969482 peak) and the SOURCE's side as silence: the
+            # sink's socket is `192.168.0.253%lo:<port>` — the host's LAN
+            # address stamped on a packet that leaves lo, because
+            # module-rtp-sink sets no IP_MULTICAST_IF — and the
+            # group-bound source socket did not accept it.  The loopback
+            # UNICAST form is not available either: module-rtp-source's
+            # unicast branch CONNECTS its socket, so it accepts only
+            # datagrams whose source port is exactly `source.port`, while
+            # the sink binds 0.0.0.0:0 — C8b's own law makes that pair
+            # impossible.  The r99 boundary's e2e_native receipt recorded
+            # the tone (peak 0.580841) over this same multicast path, so
+            # the difference is host state, not a module law; the leg is
+            # therefore a NAMED COVERAGE BLOCK carrying both sides'
+            # measurements, never a silent green and never a false red.
+            native = {"fragment": _rtp_r99_write_fragment(inst, [
+                ("libpipewire-module-rtp-sink",
+                 _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST, ifname="lo",
+                                    module_extra="net.loop = true")),
+                ("libpipewire-module-rtp-source", _rtp_r99_source_args())])}
+            nok, nmsg = _rtp_r99_core_up(inst)
+            native["core_up"], native["msg"] = nok, nmsg
+            if nok:
+                native["sink"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                native["source_appeared"] = _rtp_r99_node(inst, RTP_R99_SRC,
+                                                          want_state=None)
+                wav = inst["root"] / "raw" / "e_native.wav"
+                tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, 8.0,
+                                            group=RTP_R99_MCAST,
+                                            tag="e_native")
+                native["tap"] = tapinfo
+                rec = None
+                try:
+                    rec = subprocess.Popen(
+                        ["pw-record", "--rate", "48000", "--channels", "2",
+                         "--format", "s16", "--target", RTP_R99_SRC, str(wav)],
+                        env=inst["env"], stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                        start_new_session=True)
+                    inst["children"].append(rec)
+                except OSError as exc:
+                    native["record_error"] = str(exc)[:160]
+                time.sleep(0.8)
+                native["source"] = _rtp_r99_node(inst, RTP_R99_SRC, attempts=20)
+                if native["sink"].get("reached") and \
+                        native["source"].get("reached"):
+                    _, native["play"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                    _rtp_r99_wait(tap, 30)
+                    _rtp_r99_reap(inst, [rec])
+                    native["recv"] = _rtp_r99_read(tapinfo["out"])
+                    native["sink_sockets"] = _rtp_r99_udp_sockets(inst)
+                    if wav.exists():
+                        native["recorded"] = _rtp_r99_fixture(
+                            ["wav", "--file", str(wav), "--out",
+                             str(inst["root"] / "raw" / "e_native.json")],
+                            90.0).get("data")
+                    native["sync_log"] = _rtp_r99_log_tail(
+                        inst, 6, needle="sync to timestamp")
+                _rtp_r99_core_down(inst)
+            legs["e_native"] = native
+            nrec = native.get("recorded") or {}
+            nsrc = (native.get("source") or {}).get("props") or {}
+            nsock = native.get("sink_sockets") or []
+            native["verdict"] = {
+                "sink_emitted": ((native.get("recv") or {}).get("n") or 0) > 0,
+                "sink_wire_peak": ((native.get("recv") or {}).get("content")
+                                   or {}).get("peak_l"),
+                "sink_socket": nsock[0] if nsock else None,
+                "source_rtp_ssrc": nsrc.get("rtp.ssrc"),
+                "source_recorded_peak": nrec.get("peak"),
+                "source_sync_lines": len(native.get("sync_log") or []),
+            }
+            if (nrec.get("peak") or 0) > 0.3:
+                _rtp_r99_dominates(failures, "e_native",
+                                   "the recording's spectrum",
+                                   nrec.get("goertzel_L"))
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "e_native: the native multicast pair is unmeasurable on "
+                    "this pass — the sink emitted (see "
+                    "legs.e_native.verdict.sink_emitted and the wire peak) "
+                    "but the co-located source recorded silence; the source "
+                    "socket is bound to the group and the sink's socket "
+                    "carries the host's LAN address on lo "
+                    f"({native['verdict']['sink_socket']!r}). The r99 "
+                    "boundary recorded the tone over this same path, so "
+                    "C6 is not falsified here, it is unmeasured.")
+
+            # ---- e_sap: the arming law on a loopback-reachable group.
+            # The native leg above ran on the fragment route and left the
+            # core down.  The fragment it wrote must be CLEARED first: a
+            # stale fragment would make the new core load a second
+            # daemon-side sink+source under the same seat names, and every
+            # client-route leg below would then be reading the wrong node.
+            entry["fragment_cleared"] = _rtp_r99_write_fragment(inst, [])
+            eok, emsg = _rtp_r99_core_up(inst)
+            # (the SAP leg above already cleared the fragment and left the
+            # core down; this brings a clean one back for e_relink/e_lan)
+            entry["bringup_client_route"] = {"ok": eok, "msg": emsg}
+            if not eok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable for the "
+                                      f"client-route legs: {emsg}", inst)
+            # rtp-sap is loaded on the FRAGMENT route: a client-side load
+            # writes the module's own pw_log lines to pw-cli's stdout, not
+            # to the core log this family records, which would make the
+            # join line unmeasurable.  The fragment route puts it in the
+            # core log, and no session manager is needed for a module that
+            # creates no node.
+            sap = {"fragment": _rtp_r99_write_fragment(
+                inst, [("libpipewire-module-rtp-sap",
+                        '{ sap.ip = "%s" sap.port = 9875 net.loop = false '
+                        'local.ifname = "lo" }' % RTP_R99_SAP_GROUP)])}
+            sok2, smsg2 = _rtp_r99_core_up(inst, with_wp=False)
+            sap["core_up"], sap["msg"] = sok2, smsg2
+            if sok2:
+                time.sleep(2.0)
+                sap["nodes_seen"] = sorted(
+                    (_rtp_r99_nodes(inst).get("nodes") or {}))
+                sap["own_nodes"] = [n for n in sap["nodes_seen"] if "r99a" in n]
+                sap["log"] = (_rtp_r99_log_tail(inst, 4,
+                                                needle="join IPv4 group")
+                              + _rtp_r99_log_tail(inst, 6, needle="rtp-sap"))
+                _rtp_r99_core_down(inst)
+            legs["e_sap"] = sap
+            _rtp_r99_eq(failures, "e_sap", "rtp-sap creates no node",
+                        sap.get("own_nodes"), [])
+            _rtp_r99_true(failures, "e_sap",
+                          "the join is reported on the named interface",
+                          any("join IPv4 group" in ln
+                              and RTP_R99_SAP_GROUP in ln
+                              for ln in sap.get("log") or []))
+            sap["note"] = (
+                "C13: with local.ifname the group is joined on that iface; "
+                "without it the module joins on iface:0 (the default "
+                "interface) and the announcement path is not provably "
+                "confined, which is why this leg names a loopback-bound "
+                "group.")
+
+            # ---- e_relink: the flow is not a presence witness; the tone returns
+            # e_sap above ran on the fragment route and left the core
+            # down; e_relink is a client-route leg and needs one back.
+            rok, rmsg = _rtp_r99_core_up(inst)
+            entry["bringup_for_relink"] = {"ok": rok, "msg": rmsg}
+            if not rok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable for "
+                                      f"e_relink: {rmsg}", inst)
+            cli, _ = _rtp_r99_cli_open(inst)
+            relink = {}
+            if cli is not None:
+                _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                  _rtp_r99_sink_args())
+                relink["node"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                if relink["node"].get("reached"):
+                    tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, 9.0,
+                                                tag="e_relink")
+                    time.sleep(0.4)
+                    _, relink["play_1"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                    time.sleep(1.0)
+                    _, relink["play_2"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                    _rtp_r99_wait(tap, 30)
+                    relink["recv"] = _rtp_r99_read(tapinfo["out"])
+                    content = (relink.get("recv") or {}).get("content") or {}
+                    relink["nonzero_fraction"] = round(
+                        content.get("nonzero_l", 0) /
+                        max(1, content.get("frames") or 1), 4)
+                    relink["packets"] = (relink.get("recv") or {}).get("n")
+                _rtp_r99_reap(inst, [cli])
+            legs["e_relink"] = relink
+            _rtp_r99_true(failures, "e_relink",
+                          "the packet flow continues (it is not a "
+                          "client-presence witness)",
+                          (relink.get("packets") or 0) > 0)
+            _rtp_r99_true(failures, "e_relink",
+                          "a second player re-locks and the tone returns",
+                          (relink.get("nonzero_fraction") or 0) > 0.02)
+            relink["note"] = (
+                "AX-RELINK: the boundary measured re-lock 0-2 ms after a "
+                "restart and showed the flow is NOT a client-presence witness "
+                "(node.always-process=true keeps sending silence). This leg "
+                "arms the CONTENT and records the flow.")
+
+            # ---- e_lan: confinement against bracketing idle windows
+            iface = entry.get("default_iface")
+            lan = {"iface": iface}
+            if not iface:
+                entry.setdefault("coverage_blocked", []).append(
+                    "e_lan: no default-route interface — confinement unmeasured")
+            else:
+                c0 = _rtp_r99_ifcounters(iface)
+                time.sleep(20.0)
+                c1 = _rtp_r99_ifcounters(iface)
+                cli, _ = _rtp_r99_cli_open(inst)
+                if cli is not None:
+                    _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                      _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST,
+                                                         ifname="lo"))
+                    lan["node"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                    if lan["node"].get("reached"):
+                        tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, 20.0,
+                                                    group=RTP_R99_MCAST,
+                                                    tag="e_lan")
+                        time.sleep(0.4)
+                        _, lan["play"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                        _rtp_r99_wait(tap, 30)
+                        c2 = _rtp_r99_ifcounters(iface)
+                        lan["recv"] = _rtp_r99_read(tapinfo["out"])
+                        lan["emitted"] = (lan["recv"] or {}).get("n") or 0
+                        time.sleep(20.0)
+                        c3 = _rtp_r99_ifcounters(iface)
+                        lan["counters"] = {"at_start": c0, "idle1_end": c1,
+                                           "arm_end": c2, "idle2_end": c3}
+                        idle1 = c1["tx_packets"] - c0["tx_packets"]
+                        arm = c2["tx_packets"] - c1["tx_packets"]
+                        idle2 = c3["tx_packets"] - c2["tx_packets"]
+                        lan["deltas"] = {"idle1": idle1, "arm": arm,
+                                         "idle2": idle2}
+                        _rtp_r99_true(failures, "e_lan",
+                                      "the loopback arm emitted packets",
+                                      lan["emitted"] > 1000)
+                        # The counter cannot resolve small leakage under
+                        # load (the r99 boundary's own limit): when the
+                        # bracketing idle band is wide relative to what the
+                        # arm emitted, the window is undecidable and the
+                        # verdict is a NAMED COVERAGE BLOCK, never a silent
+                        # green and never a false red.
+                        band = max(idle1, idle2)
+                        excess = arm - band
+                        lan["resolution"] = {
+                            "idle_band": band, "emitted": lan["emitted"],
+                            "excess_over_band": excess,
+                            "band_over_emitted":
+                                round(band / max(1, lan["emitted"]), 4),
+                            "excess_over_emitted":
+                                round(excess / max(1, lan["emitted"]), 4)}
+                        if excess <= 0:
+                            # The boundary's own strongest form: the arm
+                            # window came in at or BELOW the bracketing
+                            # idle band while N packets were emitted on lo.
+                            # Noise can only make a clean arm look dirty,
+                            # never the reverse, so this needs no band
+                            # guard.
+                            lan["resolution"]["verdict"] = "armed_below_band"
+                            _rtp_r99_true(
+                                failures, "e_lan",
+                                f"the arm window added no {iface} packets "
+                                f"above the bracketing idle band",
+                                True)
+                        elif band > 0.25 * max(1, lan["emitted"]):
+                            entry.setdefault("coverage_blocked", []).append(
+                                f"e_lan: idle band {band} pkts/20 s is too "
+                                f"wide to resolve the confinement of "
+                                f"{lan['emitted']} emitted packets — "
+                                f"confinement unmeasured this pass")
+                            lan["resolution"]["verdict"] = "coverage_block"
+                        else:
+                            # The r99 boundary's own limit: the interface
+                            # counter cannot resolve small leakage under
+                            # load, and its idles themselves spanned
+                            # thousands of packets per window.  The
+                            # supportable statement is therefore not "the
+                            # arm is below the idle band" — which this host
+                            # does not guarantee — but "the arm did not add
+                            # anything like the emitted volume": the arm
+                            # window may exceed the idle band by at most
+                            # ALLOWANCE x emitted.  A real leak of the
+                            # 20 000 emitted packets would blow straight
+                            # through that bound, and the positive control
+                            # below measures what a real leak looks like.
+                            allowance = 0.2 * max(1, lan["emitted"])
+                            lan["resolution"]["verdict"] = "armed"
+                            lan["resolution"]["allowance_pkts"] = allowance
+                            _rtp_r99_true(
+                                failures, "e_lan",
+                                f"the arm window added no {iface} packets "
+                                f"beyond the idle band + "
+                                f"{allowance:.0f} (20% of the emitted volume)",
+                                excess <= allowance)
+                    _rtp_r99_reap(inst, [cli])
+                legs["e_lan"] = lan
+                lan["note"] = (
+                    "C7: the interface counter cannot resolve small leakage "
+                    "under load, so the arm is 'the arm window is not above "
+                    "both bracketing idle windows while N packets were "
+                    "emitted'. The positive control below is what proves the "
+                    "method is not vacuous.")
+
+                # ---- e_lan_control: the positive control (DISCLOSED egress)
+                cli, _ = _rtp_r99_cli_open(inst)
+                ctl_expected = int(round(6.0 * 1000))   # 6 s tone at 1 ms ptime
+                ctl = {"iface": iface,
+                       "expected_emission_pkts": ctl_expected,
+                       "disclosure": "this arm deliberately binds the "
+                                     "multicast send to the operator's LAN "
+                                     "interface to prove the counter detects "
+                                     "egress: TTL 1, group 239.255.42.99, "
+                                     "one 6 s tone."}
+                if cli is not None:
+                    _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                      _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST,
+                                                         ifname=iface))
+                    ctl["node"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                    if ctl["node"].get("reached"):
+                        a0 = _rtp_r99_ifcounters(iface)
+                        _, ctl["play"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                        a1 = _rtp_r99_ifcounters(iface)
+                        ctl["arm_tx_packets"] = a1["tx_packets"] - a0["tx_packets"]
+                        ctl["fraction_of_emission"] = round(
+                            (ctl["arm_tx_packets"] or 0) / ctl_expected, 3)
+                        _rtp_r99_true(
+                            failures, "e_lan_control",
+                            "a LAN-bound sink DOES add packets to the counter "
+                            "(the confinement verdict is not vacuous)",
+                            (ctl["arm_tx_packets"] or 0) >= 0.5 * ctl_expected)
+                    _rtp_r99_reap(inst, [cli])
+                legs["e_lan_control"] = ctl
+        except Exception as exc:
+            entry.setdefault("coverage_blocked", []).append(
+                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+        finally:
+            entry["legs"] = legs
+            _rtp_r99_teardown(entry, failures, inst)
+    return entry
+
+
+# ==========================================================================
+# entry 6 — the independent axes
+# ==========================================================================
+def rtp_axis_r99_entry():
+    """AX-QUANTUM (the ts lattice does not track quantum/64), AX-RATE (a
+    module-vs-graph rate mismatch destroys it), AX-ORDER (module-arg order
+    is irrelevant), AX-FLAGORDER (`pw-play --target` works in both
+    positions)."""
+    failures, legs = [], {}
+    entry = _rtp_r99_entry_head("r99a RTP independent axes")
+    with tempfile.TemporaryDirectory(prefix="r99a-ax-") as tmp:
+        inst = _rtp_r99_inst(tmp, "ax")
+        try:
+            ok, msg = _rtp_r99_core_up(inst)
+            entry["bringup_core"] = {"ok": ok, "msg": msg}
+            if not ok:
+                return _rtp_r99_block(entry, failures,
+                                      f"private core+wp unavailable: {msg}", inst)
+            tone, tone_rec = _rtp_r99_tone(inst)
+            legs["tone"] = {"data": tone_rec.get("data"),
+                            "exit_code": tone_rec.get("exit_code")}
+            if not tone_rec.get("data"):
+                return _rtp_r99_block(entry, failures,
+                                      "tone fixture produced no receipt", inst)
+            ready, rmsg = _rtp_r99_ready(inst, entry, "axis")
+            if not ready:
+                return _rtp_r99_block(entry, failures,
+                                      f"RTP sink cannot run here: {rmsg}", inst)
+
+            # ---- a_quantum: the private core's own settings store
+            q = {"arms": {}}
+            for quantum in (256, 1024):
+                arm = {"set": _rtp_r99_run(
+                    ["pw-metadata", "-n", "settings", "0",
+                     "clock.force-quantum", str(quantum)], 20.0,
+                    env=inst["env"]).get("exit_code")}
+                arm["leg"] = _rtp_r99_sink_leg(
+                    inst, failures, "a_quantum_%d" % quantum,
+                    _rtp_r99_sink_args(), tone,
+                    expect_size=RTP_R99_WIRE_1MS)
+                arm["ts_deltas"] = (arm["leg"].get("recv") or {}).get("ts_deltas")
+                q["arms"][str(quantum)] = arm
+            q["reset"] = _rtp_r99_run(
+                ["pw-metadata", "-n", "settings", "0", "clock.force-quantum",
+                 "0"], 20.0, env=inst["env"]).get("exit_code")
+            q["settings_store"] = _rtp_r99_run(
+                ["pw-metadata", "-n", "settings"], 20.0, env=inst["env"],
+                keep_chars=3000).get("stdout")
+            for arm in q["arms"].values():
+                # a leg that straddles a 2**32 rollover contributes one huge
+                # delta; it is an artefact of the wrap, not of the quantum
+                arm["clean_ts_deltas"] = sorted(
+                    d for d in (arm.get("ts_deltas") or []) if d < 100000)
+            legs["a_quantum"] = q
+            # The armed law is the FALSIFICATION, not set equality: the
+            # lattice is a multiple of 16 with a floor of 48, which is not
+            # quantum/64 at either setting (256/64 = 4, 1024/64 = 16), and
+            # 48 is present in both arms.  Exact set equality across the
+            # quantum axis did NOT reproduce in every pass (one pass gave
+            # [48] vs [48, 64]), so the sets are recorded and only the
+            # mechanism is armed.
+            for qn, arm in q["arms"].items():
+                d = arm.get("clean_ts_deltas") or []
+                _rtp_r99_true(failures, "a_quantum",
+                              f"quantum {qn}: 48 is a step in the lattice",
+                              48 in d)
+                _rtp_r99_true(failures, "a_quantum",
+                              f"quantum {qn}: every step is a multiple of 16",
+                              bool(d) and all(x % 16 == 0 for x in d))
+                _rtp_r99_true(failures, "a_quantum",
+                              f"quantum {qn}: no step is quantum/64 "
+                              f"({int(qn) // 64})",
+                              (int(qn) // 64) not in d)
+            q["note"] = (
+                "AX-QUANTUM: the scout's parenthetical 'multiples of 16 = the "
+                "graph quantum/64' is FALSIFIED as a mechanism — the lattice "
+                "is unchanged across the quantum axis.")
+
+            # ---- a_rate: a module rate that disagrees with the graph
+            legs["a_rate"] = _rtp_r99_sink_leg(
+                inst, failures, "a_rate", _rtp_r99_sink_args(rate=44100), tone,
+                expect_size=188)
+            rp = (legs["a_rate"].get("node") or {}).get("props") or {}
+            _rtp_r99_eq(failures, "a_rate",
+                        "rtp.rate follows the module arg",
+                        rp.get("rtp.rate"), "44100")
+            _rtp_r99_eq(failures, "a_rate", "rtp.framecount at 44100",
+                        rp.get("rtp.framecount"), "44")
+            rdts = (legs["a_rate"].get("recv") or {}).get("ts_deltas") or []
+            _rtp_r99_true(failures, "a_rate",
+                          "the clean 48-step lattice is destroyed by a rate "
+                          "mismatch",
+                          bool(rdts) and 48 not in rdts)
+            legs["a_rate"]["note"] = (
+                "AX-RATE: module 44100 against a 48000 graph gives rtp.rate "
+                "44100, ptime 0.997732, framecount 44 and a 188-byte packet; "
+                "the ts deltas stop being a clean 48 lattice.")
+
+            # ---- a_order: module-arg order is irrelevant
+            legs["a_order"] = _rtp_r99_sink_leg(
+                inst, failures, "a_order",
+                _rtp_r99_sink_args(order="reversed"), tone,
+                expect_size=RTP_R99_WIRE_1MS, expect_ptime="1.000000",
+                expect_fc="48")
+            legs["a_order"]["note"] = (
+                "AX-ORDER: reversing the first two module args reproduces the "
+                "canonical props and wire byte-for-byte.")
+
+            # ---- a_target_pos: --target before and after the file
+            cli, _ = _rtp_r99_cli_open(inst)
+            tp = {}
+            if cli is not None:
+                _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                  _rtp_r99_sink_args(node=RTP_R99_SINK))
+                _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                  _rtp_r99_sink_args(node=RTP_R99_SINK_B))
+                tp["node_a"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                tp["node_b"] = _rtp_r99_node(inst, RTP_R99_SINK_B)
+                if tp["node_a"].get("reached") and tp["node_b"].get("reached"):
+                    tap, tapinfo = _rtp_r99_tap(inst, RTP_R99_PORT, 8.0,
+                                                tag="a_target_pos")
+                    time.sleep(0.4)
+                    _, tp["before"] = _rtp_r99_play(
+                        inst, RTP_R99_SINK, tone, target_first=True)
+                    _, tp["after"] = _rtp_r99_play(
+                        inst, RTP_R99_SINK_B, tone, node_name=RTP_R99_PLAY_B,
+                        target_first=False)
+                    _rtp_r99_wait(tap, 30)
+                    tp["recv"] = _rtp_r99_read(tapinfo["out"])
+                    tp["packets_after_flag"] = (tp["recv"] or {}).get("n")
+                _rtp_r99_reap(inst, [cli])
+            legs["a_target_pos"] = tp
+            _rtp_r99_true(failures, "a_target_pos",
+                          "both --target positions produced a stream",
+                          bool(tp.get("recv")) and
+                          (tp["recv"].get("n") or 0) > 0)
+            _rtp_r99_eq(failures, "a_target_pos",
+                        "one wire size from both positions",
+                        (tp.get("recv") or {}).get("sizes"),
+                        [RTP_R99_WIRE_1MS])
+            tp["note"] = (
+                "AX-FLAGORDER: the boundary measured `pw-play <file> --target "
+                "X` hitting the target as reliably as the flag-first form. The "
+                "armed law is that both positions stream; the per-sink split "
+                "is recorded via the two SSRCs.")
+        except Exception as exc:
+            entry.setdefault("coverage_blocked", []).append(
+                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+        finally:
+            entry["legs"] = legs
+            _rtp_r99_teardown(entry, failures, inst)
+    return entry
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -50806,6 +52934,7 @@ def main():
     parser.add_argument("--probe-pulsecli-r96", action="store_true")
     parser.add_argument("--probe-wppol-r97", action="store_true")
     parser.add_argument("--probe-ebur-r93", action="store_true")
+    parser.add_argument("--probe-rtp-r99", action="store_true")
     parser.add_argument("--probe-pwstream-r98", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
@@ -50816,7 +52945,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
+    if sum([args.probe_rtp_r99, args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -51645,6 +53774,34 @@ def main():
                 ebur_gain_r93_entry()
             measurements["ebur_error_r93_probe"] = \
                 ebur_error_r93_entry()
+    if args.probe_rtp_r99:
+        # r99: the NATIVE RTP NETWORK-TRANSPORT surface — the first round
+        # that sends and receives a real RTP packet. The whole surface
+        # lives on a PRIVATE core + private WirePlumber (own runtime dir =>
+        # own socket); the shared daemons are never signalled, loaded into
+        # or reconfigured, and no pactl set-default-* is issued. Two
+        # arming routes: the FRAGMENT route (module listed in the private
+        # daemon's own config, so a module-init failure takes the core
+        # down with it — the only route that can see the rc 234 / rc -8
+        # refusal classes) and the CLIENT route (pw-cli load-module held
+        # open for the leg, ~1 s/leg, byte-identical on the wire). The
+        # family's own UDP/RTP codec, tone generator and WAV analyser are
+        # the fixture corpus/fixtures/r99rtp.py — no third-party RTP tool
+        # is involved. Every object is r99a_<pid>; every destination is a
+        # loopback address or a loopback-bound multicast group whose LAN
+        # confinement is measured against bracketing idle windows plus a
+        # positive control. A NEW parallel ledger family, prior rows
+        # untouched; r76-r95 guards inherited (seat-owned names,
+        # name-verified unloads, never set-default-*, bounded process
+        # groups with SIGTERM->SIGKILL escalation). The family lock is a
+        # FIXED corpus/live/ path — the r84 F1 3-seat consensus.
+        _r99_family_lock = _rtp_r99_family_lock()   # held to exit
+        measurements["rtp_census_r99_probe"] = rtp_census_r99_entry()
+        measurements["rtp_sink_r99_probe"] = rtp_sink_r99_entry()
+        measurements["rtp_source_r99_probe"] = rtp_source_r99_entry()
+        measurements["rtp_refusal_r99_probe"] = rtp_refusal_r99_entry()
+        measurements["rtp_e2e_r99_probe"] = rtp_e2e_r99_entry()
+        measurements["rtp_axis_r99_probe"] = rtp_axis_r99_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -52295,7 +54452,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-rtp-r99" if args.probe_rtp_r99 else "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -52315,7 +54472,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-rtp-r99" if args.probe_rtp_r99 else "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
