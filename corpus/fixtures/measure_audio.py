@@ -25449,6 +25449,2061 @@ def pwctl_tools_r86_entry():
     return entry
 
 
+# r87: the DEVICE-BINDING lattice — pw-cat/pw-play/pw-record/pw-midi*
+#     mode+direction flags (argv0 vs last-wins flag pair, no duplex), the
+#     playback --target / target.object / node.target / PIPEWIRE_PROPS
+#     routing lattice (boundary-CORRECTED precedence), pw-cli on a live
+#     stream (Props scalar = live DSP at exact ratio, Format sealed
+#     post-negotiation, send-command state machine, destroy/create-node
+#     lifecycle), the no-FOREIGN-gate surface, the midi target-dead +
+#     pin-carries lattice, and the remote/RAOP refusal family --
+#     --probe-pwbind-r87.
+#
+# A NEW parallel ledger family; prior rows untouched; every r76-r86
+# guard inherited (seat-owned r87a_<pid> names, the private
+# r87arole<pid> restore key, name-verified module unloads by the
+# module's OWN sink_name= arg, never set-default-*, bounded process
+# groups, link-validated monitor taps). The family lock is a FIXED lane
+# path under corpus/live/ (the r84 F1 3-seat consensus — never TMPDIR).
+# Surface facts are the r87 scout's THIS-HOST measurements (PipeWire
+# 1.6.8, WirePlumber 0.5.17, libpulse 17.0-98-gb096 protocol 35,
+# python 3.14.7) as CORRECTED by the r87 boundary — falsified rows are
+# dropped or re-armed at the boundary's values, never the scout's:
+#
+#   ONE BINARY, LAST-WINS DIRECTION: pw-play/pw-record/pw-midiplay/
+#     pw-midirecord are symlinks to pw-cat; pw-mididump and pw-cli are
+#     distinct. argv[0] picks mode+direction; -p/-r are a mutually
+#     exclusive last-wins pair that OVERRIDES argv0 (-p -r -> record
+#     Stream/Input/Audio, -r -p -> playback Stream/Output/Audio,
+#     extended -p -r -p -> Output, -r -p -r -> Input); there is NO
+#     --capture/--duplex option (unrecognized-option refusal); bare
+#     pw-cat and `pw-cat -m` (media mode is orthogonal to direction)
+#     both die `one of the playback/record options must be provided`;
+#     -d on a wav -> dsdfile refusal; -c on an SMF -> midiclip refusal;
+#     -s -p accepts an SMF as a sysex stream and stays up; -M ump
+#     prints the same node shape. No leg ever carries both input_* and
+#     non-monitor output_* ports (no duplex shape exists).
+#
+#   BINDING PRECEDENCE (boundary's corrected chain — the scout's
+#     `node.target > --target` row is FALSIFIED): --target 0 and
+#     node.autoconnect=false are HARD NO-LINK switches above everything
+#     (0 beats even target.object); env PIPEWIRE_PROPS target.object >
+#     -P target.object (last -P wins) > --target flag > node.target
+#     (consulted only when target.object is absent — a garbage
+#     target.object lands the DEFAULT, never falls through to
+#     node.target) > absent. object.serial is a first-class name on
+#     both flag and prop paths; object.id NEVER resolves (flag, prop,
+#     own id, foreign id — all default); every unresolvable or
+#     wrong-class string (.monitor suffix, an Audio/Source name or
+#     serial, a stale serial, an empty target) lands the CURRENT
+#     default sink; media.role/stream.capture.sink props are decoration
+#     on playback. A same-named stream does NOT shadow a sink —
+#     --target resolves to the Audio/Sink.
+#
+#   PW-CLI ON A LIVE STREAM: set-param Props { volume: 0.25 } on a
+#     RUNNING stream node is live DSP at exact ratio (monitor peak
+#     x0.2500, mute -> 0, restore -> x1.0); the scalar volume key is
+#     live HERE (contrast r86's dead scalar on the null SINK — the
+#     subject node class differs). set-param Format (any pod: valid,
+#     invalid-enum, or empty) is silently discarded once running —
+#     negotiated format unchanged on a stream (S16LE/48000) AND on the
+#     sink (F32P/48000); on an UNLINKED stream enum-params Format fails
+#     server-side res:-2 while Props still reads. send-command
+#     Suspend/Pause land state:"suspended"; Resume is refused
+#     `unknown node command type: Resume`; Start is ACCEPTED but a
+#     no-op (state stays suspended). set-param Latency { } on the sink
+#     -> async res:-95. destroy <stream-id> kills the node and pw-play
+#     exits rc=1 `stream node N unconnected`; destroy <sink-id>
+#     unloads the WHOLE module. create-node adapter is SESSION-BOUND
+#     (dies with the pw-cli connection) unless object.linger=true;
+#     nonexistent factory -> res:-2 unknown factory name; missing
+#     factory.name -> res:-22 usage. Zero-warmup info on a LIVE id is
+#     the cold-registry artifact (`unknown global '<id>'`, warmup
+#     1.4 s suffices); every verb on a bogus id is the same class.
+#     --volume at spawn is exact and UNCLAMPED (0->0, 0.5->0.5x,
+#     1.5->1.5x despite "0-1.0" help text).
+#
+#   NO FOREIGN GATE: enum-params + identical-value set-param Props on a
+#     WirePlumber-owned sink are accepted with zero errors (no
+#     permission class exists on the default socket); unknown-key Props
+#     writes parse to an empty pod and drop silently; BogusType ->
+#     `unknown param type`. Destructive verbs on foreign objects stay
+#     unexercised (scout/boundary both deferred them — recorded, not
+#     armed).
+#
+#   MIDI: every --target form (name, serial, object.id, garbage) and
+#     every prop path (target.object, node.target, autoconnect) is the
+#     SAME dead path `no target node available` + res:-2 + rc!=0 —
+#     only --target 0 / node.autoconnect=false publish an unlinked
+#     Stream/*/Midi node. A manual pw-link pin from the Midi-Bridge
+#     capture port carries REAL events end-to-end (pw-midirecord writes
+#     a ~45 B SMF with the injected 0x90/0x80 payloads; a target-refused
+#     midirecord still writes the 26 B MThd+MTrk+EOT skeleton).
+#     pw-mididump parses a file offline (rc=0, Note On/Off lines); the
+#     LIVE dump is startup-flaky under contention (boundary §9 — armed
+#     only when a node publishes, never single-shot).
+#
+#   REMOTE/RAOP ABSENT: no remote*-classed graph objects, no
+#     raop/zeroconf/airplay .so in /usr/lib/pipewire-0.3 (avahi runs but
+#     nothing consumes it); every missing-name module load is ONE class
+#     — pactl `Failure: No such entity`, pw-cli `Could not load module`;
+#     -R/PIPEWIRE_REMOTE to a bogus socket -> rc!=0 `pw_context_connect()
+#     failed: Host is down` (pw-cli -r -> `failed to connect: Host is
+#     down`); -R pipewire-0 --target 0 connects then stalls unlinked
+#     (r78's stall law, recorded only).
+#
+# Rows assert rc + error class + media.class/port shape + link-witness
+# consumers + amplitude envelopes; volatile text (node ids, serials,
+# seq numbers, wall times) is recorded, never armed.
+
+PWBIND_R87_PID = os.getpid()
+PWBIND_R87_PREFIX = f"r87a_{PWBIND_R87_PID}"
+PWBIND_R87_NS = f"r87a_ns_{PWBIND_R87_PID}"        # probe null sink A
+PWBIND_R87_NS2 = f"r87a_ns2_{PWBIND_R87_PID}"      # second sink (prop-vs-prop)
+PWBIND_R87_TAP = f"r87a_tap_{PWBIND_R87_PID}"      # monitor-tap node name
+PWBIND_R87_VREC = f"r87a_vrec_{PWBIND_R87_PID}"    # --volume witness tap
+PWBIND_R87_ROLE = f"r87arole{PWBIND_R87_PID}"      # private restore key —
+                                                  # NEVER shared `music`
+PWBIND_R87_BOGUS = "no_such_r87a"
+PWBIND_R87_DEAD = "99999999"          # bogus global for the refusal family
+PWBIND_R87_STALE_SERIAL = "98765432"  # never-allocated serial on this host
+PWBIND_R87_AMP = PLAYBACK_R78_TONE_AMP            # 8192
+PWBIND_R87_TONE_S = 16.0           # one player covers the lattice legs
+PWBIND_R87_LINK_WAIT_S = 5.0
+PWBIND_R87_TAP_WAIT_S = 6.0
+PWBIND_R87_STREAM_WAIT_S = 8.0
+PWBIND_R87_OBSERVE_S = (0.9, 1.7)   # watch-leg sample times (boundary's)
+PWBIND_R87_SOLO_ENV = (0.85, 1.18)  # x8192 solo/restore window
+PWBIND_R87_V25_ENV = (0.15, 0.35)   # exact 0.25x (boundary: 0.2500)
+PWBIND_R87_MUTE_MAX = 128           # post-mute peak cap (measured 0.0)
+PWBIND_R87_V50_ENV = (0.40, 0.60)   # --volume 0.5 (measured 0.500x)
+PWBIND_R87_V150_ENV = (1.35, 1.65)  # --volume 1.5 unclamped (1.500x)
+PWBIND_R87_V000_MAX = 200           # --volume 0 (measured 0)
+PWBIND_R87_MIDI_BRIDGE = "Midi-Bridge"
+
+
+# r87-local error classes — family-local, checked before the r86->r84
+# chain (never prepended into any shared table). Order matters: the
+# named refusal classes precede the generic remote/usage catch-alls.
+_PWBIND_R87_ERR_CLASSES = (
+    ("pwcat_mode_required",
+     r"one of the playback/record options must be provided"),
+    ("pwcat_unknown_longopt", r"unrecognized option '--[a-z-]+'"),
+    ("dsd_read_fail", r"dsdfile: can't read dsd file"),
+    ("midiclip_read_fail", r"midiclip: can't read midi file"),
+    ("remote_host_down",
+     r"pw_context_connect\(\) failed: Host is down"),
+    ("pwcli_connect_down", r"failed to connect: Host is down"),
+    ("no_target_node_midi", r"no target node available"),
+    ("stream_unconnected", r"stream node \d+ unconnected"),
+    ("pwcli_unknown_global", r"unknown global '[^\n']*'"),
+    ("pwcli_unknown_param", r"unknown param type: [^\n'\"]+"),
+    ("pwcli_invalid_pod", r"invalid pod: [^\n'\"]+"),
+    ("pwcli_module_load_fail", r"Could not load module"),
+    ("pwcli_factory_usage", r"usage: factory\.name="),
+    ("pwcli_unknown_factory", r"unknown factory name [^\n'\"]+"),
+    ("sendcommand_unknown", r"unknown node command type: [^\n'\"]+"),
+    ("pwcli_remote_enoent", r"res:-2 \(No such file or directory\)"),
+    ("pwcli_remote_eio", r"res:-5 \(Input/output error\)"),
+    ("pwcli_remote_notsup", r"res:-95 \(Operation not supported\)"),
+    ("pwcli_remote_einval", r"res:-22 \(Invalid argument\)"),
+    ("pwcli_remote", r"remote \d+: error id:\d+ seq:\d+ res:-\d+"),
+    ("pwcli_usage", r"Error: \"[a-z-]+[^\"]*<[^\"]+>\""),
+    ("pa_module_noent", r"Failure: No such entity"),
+    ("pwlink_exists", r"failed to link ports: File exists"),
+    ("pwlink_noent",
+     r"failed to (?:un)?link ports: No such file or directory"),
+)
+
+
+def _pwbind_r87_errclass(text):
+    """r87-local classes first, then the r86 pwctl table (which falls
+    through to r84->r78->capture)."""
+    for name, pat in _PWBIND_R87_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _pwctl_r86_errclass(text or "")
+
+
+def _pwbind_r87_errors(text):
+    """The local `Error: "..."` lines of a pw-cli log (session or
+    one-shot)."""
+    return re.findall(r'Error: "([^"]+)"', text or "")
+
+
+def _pwbind_r87_norm(text):
+    """Volatile-field scrub for recorded text — node ids/serials/seq
+    counters/heap addresses are never armed."""
+    s = re.sub(r"0x[0-9a-fA-F]+", "0xPTR", text or "")
+    s = re.sub(r"node \d+", "node <n>", s)
+    s = re.sub(r"id=\d+ seq[:=]\d+", "id=<n> seq=<n>", s)
+    s = re.sub(r"seq[:=]\s*\d+", "seq=<n>", s)
+    return s
+
+
+def _pwbind_r87_run(argv, timeout_s, env=None, stdin_data=None,
+                    keep_chars=700):
+    """One bounded spawn -> rc/signal/stdout/stderr + r87 error class.
+    `stdin_data` feeds a PIPE (the cold-registry leg writes its command
+    at t=0 this way); killed_at_bound separates the harness kill from
+    an application refusal. `keep_chars` widens the recorded text for
+    legs whose parse target sits deep in a pod (enum-params Format's
+    rate key lands past 700 chars on a running stream)."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=(subprocess.PIPE if stdin_data is not None
+                   else subprocess.DEVNULL),
+            env=env, start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    killed = False
+    try:
+        out, err = proc.communicate(input=stdin_data, timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        killed = True
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        out, err = proc.communicate()
+    errt = err.decode(errors="replace")
+    outt = out.decode(errors="replace")
+    cls, hit = _pwbind_r87_errclass(errt + "\n" + outt)
+    rec.update({"exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed_at_bound": killed,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "has_pod": "Object:" in outt,
+                "stdout_head": outt.strip().splitlines()[:4],
+                "stdout": _pwbind_r87_norm(outt)[:keep_chars],
+                "stderr_head": errt.strip().splitlines()[:4],
+                "stderr": _pwbind_r87_norm(errt)[:keep_chars],
+                "errors": _pwbind_r87_errors(outt + "\n" + errt),
+                "error_class": cls, "error_hit": hit})
+    return rec
+
+
+def _pwbind_r87_pwcli(*args, timeout_s=10.0, keep_chars=700):
+    """One-shot argv pw-cli — verbs run after pw-cli's own registry
+    sync, so no warmup is needed (the cold-registry artifact exists
+    only on piped stdin, which is its own leg)."""
+    return _pwbind_r87_run(["pw-cli", *[str(a) for a in args]],
+                          timeout_s, keep_chars=keep_chars)
+
+
+def _pwbind_r87_cli_open():
+    """A held pw-cli session (stdin PIPE, merged output drained by a
+    thread — the interleaved async events can fill the pipe). Returns
+    (proc, chunks); feed commands with _pwbind_r87_cli_send."""
+    proc = subprocess.Popen(["pw-cli"], stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            start_new_session=True)
+    chunks = []
+
+    def drain():
+        try:
+            while True:
+                b = proc.stdout.read(65536)
+                if not b:
+                    return
+                chunks.append(b)
+        except (OSError, ValueError):
+            return
+
+    threading.Thread(target=drain, daemon=True).start()
+    return proc, chunks
+
+
+def _pwbind_r87_cli_send(proc, line):
+    try:
+        proc.stdin.write(line.encode() + b"\n")
+        proc.stdin.flush()
+        return True
+    except (BrokenPipeError, OSError, ValueError):
+        return False
+
+
+def _pwbind_r87_cli_close(proc, chunks, bound_s=8.0):
+    """Send `quit`, close stdin, bounded wait, return merged log."""
+    _pwbind_r87_cli_send(proc, "quit")
+    try:
+        proc.stdin.close()
+    except OSError:
+        pass
+    try:
+        proc.wait(timeout=bound_s)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc)
+        proc.wait(timeout=3)
+    return b"".join(chunks).decode(errors="replace")
+
+
+def _pwbind_r87_graph():
+    return _pactlmon_r85_graph()
+
+
+def _pwbind_r87_node(g, name):
+    return _pactlmon_r85_node(g, name)
+
+
+def _pwbind_r87_ports(g, nid):
+    """{port_name: "in"|"out"} for node `nid` — pw-dump direction
+    reads "input"/"output"; normalized so every check is one token."""
+    out = {}
+    for p in (g.get("ports") or {}).values():
+        if str(p.get("node_id")) != str(nid):
+            continue
+        d = str(p.get("direction") or "")
+        out[p.get("name")] = ("in" if d.startswith("in")
+                              else "out" if d.startswith("out")
+                              else d)
+    return out
+
+
+def _pwbind_r87_watch(tag, argv, env=None, observe_s=PWBIND_R87_OBSERVE_S,
+                      bound_s=9.0):
+    """Spawn a tagged stream process and sample the graph at each
+    observe_s (presence, media.class, port names, edges in/out);
+    SIGTERM the group at the last sample (KILL backstop). The verdict
+    fields are snapshots — never the node's intent props."""
+    rec = {"argv": " ".join(str(a) for a in argv), "tag": tag}
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
+                                stdin=subprocess.DEVNULL, env=env,
+                                start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    snaps = []
+    for at in observe_s:
+        left = at - (time.monotonic() - t0)
+        if left > 0:
+            time.sleep(left)
+        g = _pwbind_r87_graph()
+        node = _pwbind_r87_node(g, tag)
+        nid = (node or {}).get("node_id")
+        snaps.append({
+            "at_s": round(time.monotonic() - t0, 3),
+            "present": node is not None,
+            "node_id": nid,
+            "object_serial": (node or {}).get("object_serial"),
+            "object_id": (node or {}).get("object_id"),
+            "state": (node or {}).get("state"),
+            "media_class": (node or {}).get("media_class"),
+            "ports": (_pwbind_r87_ports(g, nid)
+                      if nid is not None else {}),
+            "edges_out": _pactlmon_r85_edges_out(g, tag),
+            "edges_in": _pactlmon_r85_edges_in(g, tag)})
+    early_rc = proc.poll()
+    if early_rc is None:
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+    try:
+        _, err = proc.communicate(
+            timeout=max(0.4, bound_s - (time.monotonic() - t0)))
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc)
+        _, err = proc.communicate()
+    errt = err.decode(errors="replace")
+    cls, hit = _pwbind_r87_errclass(errt)
+    rec.update({"exit_code": proc.returncode,
+                "exited_before_observe": early_rc is not None,
+                "snaps": snaps,
+                "stderr": _pwbind_r87_norm(errt)[-400:],
+                "error_class": cls, "error_hit": hit})
+    return rec
+
+
+def _pwbind_r87_consumers(leg):
+    """The union of in_node names across a watch leg's edges_out —
+    the link-witness routing verdict."""
+    out = set()
+    for s in (leg.get("snaps") or []):
+        for e in s.get("edges_out") or []:
+            if e.get("in_node"):
+                out.add(e["in_node"])
+    return sorted(out)
+
+
+def _pwbind_r87_last_snap(leg):
+    """The last present snap (the stable one)."""
+    for s in reversed(leg.get("snaps") or []):
+        if s.get("present"):
+            return s
+    return (leg.get("snaps") or [{}])[-1]
+
+
+def _pwbind_r87_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus: a $TMPDIR-scoped lock lets cross-TMPDIR same-family runs
+    race, so this lives under corpus/live/ (outside $TMPDIR). A second
+    --probe-pwbind-r87 waits HERE (the r82/r86 convention)."""
+    path = ROOT / "live" / "measure_audio-pwbind-r87.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={PWBIND_R87_PID} ns={PWBIND_R87_NS} "
+                     f"role={PWBIND_R87_ROLE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _pwbind_r87_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, and the foreign-r87a census (another seat's residue is a
+    witness, never a verdict — this pid's namespace is the only
+    teardown target)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r87a_nodes": sorted(
+                n for n in names if "r87a_" in n
+                and f"_{PWBIND_R87_PID}" not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _pwbind_r87_load_ns(name):
+    """Load + gate one null sink (r83 loader: sink enumerated AND
+    monitor source AND monitor ports); the leaf carries field/value
+    for the name-verified unload."""
+    leaf = _pwcat_r83_ns_load(name)
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    return leaf
+
+
+def _pwbind_r87_teardown(entry, failures, loads):
+    """Name-verified unload of every own module, then the residue
+    destroy: any surviving r87a_<pid>-tagged node (a lingering
+    create-node object is pactl-invisible) is destroyed by id via
+    pw-cli before the final sweep — the sweep is a witness, never a
+    bludgeon."""
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    g = _pwbind_r87_graph()
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and f"r87a_{PWBIND_R87_PID}" in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_pwbind_r87_pwcli("destroy", nid, timeout_s=8.0)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after "
+            "unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if f"r87a_{PWBIND_R87_PID}" in n
+                      or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r87a-tagged nodes survived: {rest}")
+
+
+def _pwbind_r87_block(entry, failures, msg, loads=None):
+    """The named coverage block: record it, unload anything loaded."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _pwbind_r87_vlq(n):
+    b = [n & 0x7f]
+    n >>= 7
+    while n:
+        b.append((n & 0x7f) | 0x80)
+        n >>= 7
+    return bytes(reversed(b))
+
+
+def _pwbind_r87_write_smf(path):
+    """The midi fixture — SMF fmt0 480tpq: C4 on/off then E4 on/off
+    (~4 s at 120 bpm), the boundary's injection pattern verbatim."""
+    trk = b""
+    trk += _pwbind_r87_vlq(0) + b"\xff\x51\x03" + struct.pack(">I", 500000)[1:]
+    trk += _pwbind_r87_vlq(0) + bytes([0x90, 60, 96])
+    trk += _pwbind_r87_vlq(1920) + bytes([0x80, 60, 0])
+    trk += _pwbind_r87_vlq(960) + bytes([0x90, 64, 96])
+    trk += _pwbind_r87_vlq(960) + bytes([0x80, 64, 0])
+    trk += _pwbind_r87_vlq(0) + b"\xff\x2f\x00"
+    Path(path).write_bytes(
+        b"MThd" + struct.pack(">IHHH", 6, 0, 1, 480)
+        + b"MTrk" + struct.pack(">I", len(trk)) + trk)
+    return path
+
+
+def _pwbind_r87_smf_witness(path):
+    """{bytes, has_mthd, note_ons, note_offs} of a midirecord output —
+    the pin-carries verdict payload."""
+    try:
+        data = Path(path).read_bytes()
+    except OSError:
+        return {"exists": False}
+    return {"exists": True, "bytes": len(data),
+            "has_mthd": data.startswith(b"MThd"),
+            "note_ons": [b"\x90\x3c\x60" in data, b"\x90\x40\x60" in data],
+            "note_offs": [b"\x80\x3c\x00" in data, b"\x80\x40\x00" in data],
+            "head_hex": data[:40].hex()}
+
+
+def _pwbind_r87_parse_volume(text):
+    """The Float behind `Props:volume` in an enum-params pod dump."""
+    m = re.search(r"Props:volume \(65539\).*?\n\s*Float ([0-9.]+)",
+                  text or "")
+    return float(m.group(1)) if m else None
+
+
+def _pwbind_r87_parse_format(text):
+    """{rate, format_id} of an enum-params Format pod dump — the
+    negotiated value sits a Choice: line away on running nodes, so the
+    match is DOTALL up to the FIRST following Int/Id literal."""
+    rate = re.search(
+        r"Format:Audio:rate \(65539\).*?Int (\d+)", text or "", re.S)
+    fmt = re.search(
+        r"Format:Audio:format \(65537\).*?Id (\d+)", text or "", re.S)
+    return {"rate": int(rate.group(1)) if rate else None,
+            "format_id": int(fmt.group(1)) if fmt else None}
+
+
+def _pwbind_r87_default_sink():
+    """`pactl get-default-sink` — the live fallback target the routing
+    lattice compares against (== its node.name on this host)."""
+    try:
+        proc = subprocess.run(["pactl", "get-default-sink"],
+                              capture_output=True, timeout=10)
+        return proc.stdout.decode(errors="replace").strip() or None
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _pwbind_r87_state(node_id):
+    """`pw-cli info <id>` -> the `state:` field — a dedicated read
+    because the recorded `stdout` keeps only 700 chars of a large pod."""
+    try:
+        proc = subprocess.run(["pw-cli", "info", str(node_id)],
+                              capture_output=True, timeout=10)
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    m = re.search(r'state: "([a-z]+)"',
+                  proc.stdout.decode(errors="replace"))
+    return m.group(1) if m else None
+
+
+def _pwbind_r87_bridge():
+    """The Midi-Bridge node + its capture (direction-out) port — the
+    pin source. None when the bridge is absent."""
+    g = _pwbind_r87_graph()
+    node = _pwbind_r87_node(g, PWBIND_R87_MIDI_BRIDGE)
+    if not node:
+        return None
+    outs = sorted(p.get("name") for p in
+                  (g.get("ports") or {}).values()
+                  if str(p.get("node_id")) == str(node["node_id"])
+                  and str(p.get("direction") or "").startswith("out"))
+    return {"node": node, "capture_port": outs[0] if outs else None}
+
+
+def _pwbind_r87_seq_port():
+    """`aplaymidi -l` -> the 'Midi Through' seq client:port (14:0 on
+    this host) — the injection endpoint; None when absent."""
+    try:
+        proc = subprocess.run(["aplaymidi", "-l"], capture_output=True,
+                              timeout=10)
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    for ln in proc.stdout.decode(errors="replace").splitlines():
+        m = re.match(r"\s*(\d+:\d+)\s+Midi Through", ln)
+        if m:
+            return m.group(1)
+    return None
+
+
+def _pwbind_r87_target_leg(legs, name, argv, env=None):
+    """A watch leg + the routing verdict fields (consumers + last-snap
+    port/class summary)."""
+    leg = _pwbind_r87_watch(f"{PWBIND_R87_PREFIX}_{name}", argv, env=env)
+    leg["consumers"] = _pwbind_r87_consumers(leg)
+    snap = _pwbind_r87_last_snap(leg)
+    leg["last"] = {"media_class": snap.get("media_class"),
+                   "ports": sorted((snap.get("ports") or {}).keys())}
+    legs[name] = leg
+    return leg
+
+
+def _pwbind_r87_expect(legs, failures, name, want):
+    """Arm a routing leg: consumers == want (list)."""
+    got = _pwbind_r87_consumers(legs[name])
+    if got != want:
+        failures.append(
+            f"{name}: consumers={got} expected {want} — the binding "
+            "lattice fails")
+
+
+def pwbind_modes_r87_entry():
+    """The one-binary + mode-flag lattice: the symlink identity, the
+    usage refusals (bare, -m-only, --capture/--duplex long-opts), the
+    last-wins direction pair incl. argv0 override, the media-mode
+    nodes (-m/-M/-s publish, -c/-d read-refuse), and the never-duplex
+    port-shape law. No sink needed — every stream leg publishes
+    unlinked via --target 0."""
+    failures, legs = [], {}
+    entry = _pwbind_r87_entry_head(
+        "r87a pw-cat one-binary + mode/direction flag lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-cat", "pw-play", "pw-record", "pw-midiplay",
+              "pw-midirecord", "pw-mididump", "pw-cli")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwbind_r87_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads = {}
+    try:
+        with tempfile.TemporaryDirectory(prefix="r87a-modes-") as tmp:
+            tone = Path(tmp) / "r87a_tone.wav"
+            _playback_r78_write_tone(tone, PWBIND_R87_TONE_S)
+            smf = _pwbind_r87_write_smf(Path(tmp) / "r87a.mid")
+            # ---------- the symlink lattice ----------
+            cats = {}
+            base = Path(tools["pw-cat"]).resolve()
+            base_sha = hashlib.sha256(base.read_bytes()).hexdigest()
+            for t in ("pw-play", "pw-record", "pw-midiplay",
+                      "pw-midirecord", "pw-mididump", "pw-cli"):
+                p = Path(tools[t])
+                real = p.resolve()
+                cats[t] = {"realpath": str(real), "same_as_pwcat":
+                           real == base,
+                           "sha256": hashlib.sha256(
+                               real.read_bytes()).hexdigest()[:16]}
+            legs["binaries"] = {"pw_cat": str(base),
+                                "pw_cat_sha": base_sha[:16],
+                                "members": cats}
+            # ---------- usage refusals (run to exit) ----------
+            legs["m_bare"] = _pwbind_r87_run(
+                ["pw-cat"], 10.0)
+            legs["m_mflag_only"] = _pwbind_r87_run(
+                ["pw-cat", "-m", str(smf)], 10.0)
+            legs["m_noflag_target"] = _pwbind_r87_run(
+                ["pw-cat", "-P", f"node.name={PWBIND_R87_PREFIX}_nf",
+                 "--target", PWBIND_R87_BOGUS, str(tone)], 10.0)
+            legs["m_capture"] = _pwbind_r87_run(
+                ["pw-cat", "--capture", str(tone)], 10.0)
+            legs["m_duplex"] = _pwbind_r87_run(
+                ["pw-cat", "--duplex", str(tone)], 10.0)
+            legs["m_clip"] = _pwbind_r87_run(
+                ["pw-cat", "-c", "-p", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_cl", "--target", "0",
+                 str(smf)], 10.0)
+            legs["m_dsd"] = _pwbind_r87_run(
+                ["pw-cat", "-d", "-p", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_d", "--target", "0",
+                 str(tone)], 10.0)
+            # ---------- direction/mode watch legs (--target 0) ----------
+            watch = [
+                ("m_p_r", ["pw-cat", "-p", "-r", "-P",
+                           "stream.capture.sink=true", "-n",
+                           "384000", str(Path(tmp) / "m_pr.wav")],
+                 "Stream/Input/Audio"),
+                ("m_r_p", ["pw-cat", "-r", "-p", "--target", "0",
+                           str(tone)], "Stream/Output/Audio"),
+                ("m_p_r_p", ["pw-cat", "-p", "-r", "-p",
+                             "--target", "0", str(tone)],
+                 "Stream/Output/Audio"),
+                ("m_r_p_r", ["pw-cat", "-r", "-p", "-r", "-P",
+                             "stream.capture.sink=true", "-n",
+                             "384000", str(Path(tmp) / "m_rpr.wav")],
+                 "Stream/Input/Audio"),
+                ("m_play_r", ["pw-play", "-r", "-P",
+                              "stream.capture.sink=true", "-n",
+                              "384000", str(Path(tmp) / "m_plr.wav")],
+                 "Stream/Input/Audio"),
+                ("m_record_p", ["pw-record", "-p", "--target", "0",
+                                str(tone)], "Stream/Output/Audio"),
+                ("m_midi_p", ["pw-cat", "-m", "-p", "--target", "0",
+                              str(smf)], "Stream/Output/Midi"),
+                ("m_midi_r", ["pw-cat", "-m", "-r", "--target", "0",
+                              str(Path(tmp) / "m_mr.mid")],
+                 "Stream/Input/Midi"),
+                ("m_ump", ["pw-cat", "-M", "ump", "-m", "-p",
+                           "--target", "0", str(smf)],
+                 "Stream/Output/Midi"),
+                ("m_sysex", ["pw-cat", "-s", "-p", "--target", "0",
+                             str(smf)], "Stream/Output/Midi"),
+            ]
+            for name, tail, want_cls in watch:
+                argv = tail[:1] + ["-P",
+                                   f"node.name={PWBIND_R87_PREFIX}_{name}"] \
+                    + tail[1:]
+                leg = _pwbind_r87_target_leg(legs, name, argv)
+                leg["want_class"] = want_cls
+            for name, fname in (("m_p_r", "m_pr.wav"),
+                                ("m_r_p_r", "m_rpr.wav"),
+                                ("m_play_r", "m_plr.wav"),
+                                ("m_midi_r", "m_mr.mid")):
+                f = Path(tmp) / fname
+                legs[name]["recorded_file"] = {
+                    "exists": f.exists(),
+                    "bytes": f.stat().st_size if f.exists() else None}
+    finally:
+        _pwbind_r87_teardown(entry, failures, loads)
+    # ---------------- verdicts ----------------
+    cats = legs["binaries"]["members"]
+    for t in ("pw-play", "pw-record", "pw-midiplay", "pw-midirecord"):
+        if not cats[t]["same_as_pwcat"]:
+            failures.append(
+                f"binaries: {t} is not pw-cat ({cats[t]['realpath']})")
+    for t in ("pw-mididump", "pw-cli"):
+        if cats[t]["same_as_pwcat"]:
+            failures.append(
+                f"binaries: {t} unexpectedly aliases pw-cat")
+    for name, cls_pat in (
+            ("m_bare", "pwcat_mode_required"),
+            ("m_mflag_only", "pwcat_mode_required"),
+            ("m_noflag_target", "pwcat_mode_required"),
+            ("m_capture", "pwcat_unknown_longopt"),
+            ("m_duplex", "pwcat_unknown_longopt"),
+            ("m_clip", "midiclip_read_fail"),
+            ("m_dsd", "dsd_read_fail")):
+        l = legs[name]
+        if l.get("exit_code") == 0 or \
+                l.get("error_class") != cls_pat:
+            failures.append(
+                f"{name}: rc={l.get('exit_code')} "
+                f"class={l.get('error_class')} expected "
+                f"rc!=0 {cls_pat}")
+    for name in ("m_capture", "m_duplex", "m_clip", "m_dsd"):
+        if legs[name].get("killed_at_bound"):
+            failures.append(
+                f"{name}: the refusal did not exit inside the bound")
+    want_in = {"m_p_r", "m_r_p_r", "m_play_r"}
+    want_out = {"m_r_p", "m_p_r_p", "m_record_p"}
+    for name in ("m_p_r", "m_r_p", "m_p_r_p", "m_r_p_r", "m_play_r",
+                 "m_record_p", "m_midi_p", "m_midi_r", "m_ump",
+                 "m_sysex"):
+        leg = legs[name]
+        snap = _pwbind_r87_last_snap(leg)
+        ports = snap.get("ports") or {}
+        got = snap.get("media_class")
+        want = leg["want_class"]
+        if not snap.get("present"):
+            failures.append(
+                f"{name}: no node ever published "
+                f"(rc={leg.get('exit_code')})")
+            continue
+        if got != want:
+            failures.append(
+                f"{name}: media_class={got} expected {want} — the "
+                "last-wins direction law fails")
+        ins = sorted(p for p, d in ports.items()
+                     if str(d) == "in")
+        outs = sorted(p for p, d in ports.items()
+                      if str(d) == "out")
+        has_in = bool([p for p in ins if p.startswith("input")])
+        has_out = bool([p for p in outs if p.startswith("output")])
+        leg["port_dirs"] = {"in": ins, "out": outs}
+        # the never-duplex law: no leg carries both a real input_* and
+        # a non-monitor output_*
+        if has_in and has_out:
+            failures.append(
+                f"{name}: duplex shape observed {ports} — falsified")
+        if name in want_in and not has_in:
+            failures.append(f"{name}: no input_* ports on {ports}")
+        if name in want_out and not has_out:
+            failures.append(f"{name}: no output_* ports on {ports}")
+        if name == "m_midi_r" and not any(p == "input_1" for p in ins):
+            failures.append(f"{name}: midi input_1 absent on {ports}")
+        if name == "m_midi_p" and not any(p == "output_1" for p in outs):
+            failures.append(f"{name}: midi output_1 absent on {ports}")
+        if name == "m_sysex" and leg.get("exit_code") == 0:
+            failures.append(
+                "m_sysex: sysex mode exited early — the stream did "
+                "not stay up")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwbind_target_r87_entry():
+    """The playback device-binding lattice — every leg is a tagged
+    pw-play/pw-cat whose CONSUMERS (edges_out in_node names) are the
+    verdict. The boundary-corrected precedence is armed, not the
+    scout's: target.object(prop or env) > --target > node.target;
+    --target 0/autoconnect=false are hard no-link switches above the
+    props; serial resolves, object.id never does; every unresolvable
+    string lands the CURRENT default sink."""
+    failures, legs = [], {}
+    entry = _pwbind_r87_entry_head(
+        "r87a playback --target/prop/env precedence lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-play", "pw-cat", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwbind_r87_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads = {}
+    try:
+        for nm in (PWBIND_R87_NS, PWBIND_R87_NS2):
+            loads[nm] = _pwbind_r87_load_ns(nm)
+            if loads[nm].get("module_id") is None:
+                return _pwbind_r87_block(
+                    entry, failures,
+                    f"probe null sink {nm} never enumerated", loads)
+        g0 = _pwbind_r87_graph()
+        na = _pwbind_r87_node(g0, PWBIND_R87_NS) or {}
+        if na.get("object_id") is None or \
+                na.get("object_serial") is None:
+            return _pwbind_r87_block(
+                entry, failures, "probe sink ids never resolved", loads)
+        ns_id, ns_ser = str(na.get("object_id")), \
+            str(na.get("object_serial"))
+        DEF0 = _pwbind_r87_default_sink()
+        if not DEF0:
+            return _pwbind_r87_block(
+                entry, failures, "pactl get-default-sink unreadable",
+                loads)
+        entry["default_sink_at_start"] = DEF0
+        # a foreign Audio/Source for the wrong-class legs
+        src = next(({"name": n.get("name"),
+                     "serial": str(n.get("object_serial"))}
+                    for n in (g0.get("nodes") or {}).values()
+                    if n.get("media_class") == "Audio/Source"
+                    and n.get("name") and "r87a_" not in n["name"]), None)
+        entry["refs"] = {"ns_id": ns_id, "ns_serial": ns_ser,
+                         "src": src}
+        with tempfile.TemporaryDirectory(prefix="r87a-tgt-") as tmp:
+            tone = Path(tmp) / "r87a_tone.wav"
+            _playback_r78_write_tone(tone, PWBIND_R87_TONE_S)
+
+            def T(name, tail, env=None, tool="pw-play"):
+                return _pwbind_r87_target_leg(
+                    legs, name,
+                    [tool, "-P",
+                     f"node.name={PWBIND_R87_PREFIX}_{name}", *tail,
+                     str(tone)], env=env)
+
+            e_ns = dict(os.environ,
+                        PIPEWIRE_PROPS="{ target.object = %s }"
+                        % PWBIND_R87_NS)
+            e_ns_nb = dict(os.environ,
+                           PIPEWIRE_PROPS="target.object=%s"
+                           % PWBIND_R87_NS)
+            e_garb = dict(os.environ,
+                          PIPEWIRE_PROPS="{ target.object = %s }"
+                          % PWBIND_R87_BOGUS)
+            T("p_own", ["--target", PWBIND_R87_NS])
+            legs["p_cat"] = _pwbind_r87_watch(
+                f"{PWBIND_R87_PREFIX}_p_cat",
+                ["pw-cat", "--playback", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_p_cat",
+                 "--target", PWBIND_R87_NS, str(tone)])
+            legs["p_cat"]["consumers"] = _pwbind_r87_consumers(
+                legs["p_cat"])
+            T("p_garbage", ["--target", PWBIND_R87_BOGUS])
+            T("p_pb1", ["--target", PWBIND_R87_NS, "-P",
+                        f"target.object={PWBIND_R87_BOGUS}"])
+            T("p_pb2", ["--target", PWBIND_R87_BOGUS, "-P",
+                        f"target.object={PWBIND_R87_NS}"])
+            T("p_pb3", ["--target", PWBIND_R87_NS, "-P",
+                        f"target.object={PWBIND_R87_NS2}"])
+            T("p_nt", ["-P", f"node.target={PWBIND_R87_NS}"])
+            T("p_nt_vs_flag", ["-P", f"node.target={PWBIND_R87_NS2}",
+                               "--target", PWBIND_R87_NS])
+            T("p_nt_rev", ["-P", f"node.target={PWBIND_R87_NS}",
+                           "--target", PWBIND_R87_NS2])
+            T("p_nt_garbage", ["-P", f"node.target={PWBIND_R87_NS2}",
+                               "--target", PWBIND_R87_BOGUS])
+            T("p_three", ["-P", f"target.object={PWBIND_R87_NS2}",
+                          "-P", f"node.target={PWBIND_R87_NS}",
+                          "--target", PWBIND_R87_NS])
+            T("p_prop_twice", ["-P", f"target.object={PWBIND_R87_NS}",
+                               "-P", f"target.object={PWBIND_R87_NS2}"])
+            T("p_serial", ["--target", ns_ser])
+            T("p_objid", ["--target", ns_id])
+            T("p_serial_stale", ["--target", PWBIND_R87_STALE_SERIAL])
+            T("p_prop_serial", ["-P", f"target.object={ns_ser}"])
+            T("p_prop_objid", ["-P", f"target.object={ns_id}"])
+            T("p_zero", ["--target", "0"])
+            T("p_zero_prop", ["-P", f"target.object={PWBIND_R87_NS}",
+                              "--target", "0"])
+            T("p_noauto", ["-P", "node.autoconnect=false",
+                           "--target", PWBIND_R87_NS])
+            T("p_mon", ["--target", PWBIND_R87_NS + ".monitor"])
+            T("p_mon_cs", ["-P", "stream.capture.sink=true",
+                           "--target", PWBIND_R87_NS + ".monitor"])
+            if src:
+                T("p_src_name", ["--target", src["name"]])
+                T("p_src_serial", ["--target", src["serial"]])
+            T("p_env", ["--target", PWBIND_R87_BOGUS], env=e_ns)
+            T("p_env_nobrace", ["--target", PWBIND_R87_BOGUS],
+              env=e_ns_nb)
+            T("p_env_vs_prop", ["-P",
+                                f"target.object={PWBIND_R87_NS2}",
+                                "--target", PWBIND_R87_BOGUS],
+              env=e_ns)
+            T("p_env_garbage", ["-P",
+                                f"target.object={PWBIND_R87_NS}",
+                                "--target", PWBIND_R87_NS],
+              env=e_garb)
+            T("p_mediarole", ["--media-role", "Communication",
+                              "--target", PWBIND_R87_BOGUS])
+            T("p_capsink", ["-P", "stream.capture.sink=true",
+                            "--target", PWBIND_R87_BOGUS])
+            T("p_empty", ["--target", ""])
+            # ---------- the name-collision arm ----------
+            coll = subprocess.Popen(
+                ["pw-play", "-P", f"node.name={PWBIND_R87_NS}",
+                 "--target", "0", str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            try:
+                time.sleep(0.9)
+                g = _pwbind_r87_graph()
+                legs["collision_objects"] = [
+                    {"id": nid, "media_class": n.get("media_class")}
+                    for nid, n in (g.get("nodes") or {}).items()
+                    if n.get("name") == PWBIND_R87_NS]
+                T("p_coll", ["--target", PWBIND_R87_NS])
+            finally:
+                _alsapw_r84_killpg(coll, signal.SIGTERM)
+                try:
+                    coll.wait(timeout=3)
+                except subprocess.TimeoutExpired:
+                    _alsapw_r84_killpg(coll)
+                    coll.wait()
+    finally:
+        _pwbind_r87_teardown(entry, failures, loads)
+    # ---------------- verdicts ----------------
+    DEF = entry.get("default_sink_at_start") or "<unreadable-default>"
+    entry["default_sink_at_end"] = _pwbind_r87_default_sink()
+    if entry["default_sink_at_end"] != DEF:
+        failures.append(
+            f"the default sink drifted mid-entry {DEF} -> "
+            f"{entry['default_sink_at_end']} — routing verdicts "
+            "unstable")
+    NS, NS2 = PWBIND_R87_NS, PWBIND_R87_NS2
+    _pwbind_r87_expect(legs, failures, "p_own", [NS])
+    _pwbind_r87_expect(legs, failures, "p_cat", [NS])
+    _pwbind_r87_expect(legs, failures, "p_garbage", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_pb1", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_pb2", [NS])
+    _pwbind_r87_expect(legs, failures, "p_pb3", [NS2])
+    _pwbind_r87_expect(legs, failures, "p_nt", [NS])
+    _pwbind_r87_expect(legs, failures, "p_nt_vs_flag", [NS])
+    _pwbind_r87_expect(legs, failures, "p_nt_rev", [NS2])
+    _pwbind_r87_expect(legs, failures, "p_nt_garbage", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_three", [NS2])
+    _pwbind_r87_expect(legs, failures, "p_prop_twice", [NS2])
+    _pwbind_r87_expect(legs, failures, "p_serial", [NS])
+    _pwbind_r87_expect(legs, failures, "p_objid", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_serial_stale", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_prop_serial", [NS])
+    _pwbind_r87_expect(legs, failures, "p_prop_objid", [DEF])
+    for name in ("p_zero", "p_zero_prop", "p_noauto"):
+        got = _pwbind_r87_consumers(legs[name])
+        snap = _pwbind_r87_last_snap(legs[name])
+        if got or not any(s.get("present")
+                          for s in legs[name]["snaps"]):
+            failures.append(
+                f"{name}: consumers={got} present="
+                f"{snap.get('present')} — the hard no-link switch "
+                "fails")
+    _pwbind_r87_expect(legs, failures, "p_mon", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_mon_cs", [DEF])
+    if src:
+        _pwbind_r87_expect(legs, failures, "p_src_name", [DEF])
+        _pwbind_r87_expect(legs, failures, "p_src_serial", [DEF])
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "no foreign Audio/Source — the wrong-class source legs "
+            "unmeasured")
+    _pwbind_r87_expect(legs, failures, "p_env", [NS])
+    _pwbind_r87_expect(legs, failures, "p_env_nobrace", [NS])
+    _pwbind_r87_expect(legs, failures, "p_env_vs_prop", [NS])
+    _pwbind_r87_expect(legs, failures, "p_env_garbage", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_mediarole", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_capsink", [DEF])
+    _pwbind_r87_expect(legs, failures, "p_empty", [DEF])
+    got = _pwbind_r87_consumers(legs.get("p_coll") or {})
+    if got != [NS]:
+        failures.append(
+            f"p_coll: consumers={got} expected {[NS]} — the "
+            "sink-wins-name-resolution law fails")
+    coll_ports = [e.get("in_port_name")
+                  for s in (legs.get("p_coll") or {}).get("snaps", [])
+                  for e in s.get("edges_out") or []]
+    if coll_ports and not all(str(p).startswith("playback_")
+                              for p in coll_ports):
+        failures.append(
+            f"p_coll: linked to non-playback ports {coll_ports}")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwbind_cli_r87_entry():
+    """pw-cli on live objects: the Props live-DSP mutation witness on
+    the RUNNING stream (exact 0.25x / mute / restore), the Format seal
+    on stream + sink (+ the unlinked res:-2), the send-command state
+    machine, destroy-stream/destroy-sink, the create-node session/lit
+    lifecycle, the unknown-global refusal family, the cold-registry
+    artifact, the no-FOREIGN-gate identical-value write, and the
+    spawn-time --volume surface."""
+    failures, legs = [], {}
+    entry = _pwbind_r87_entry_head(
+        "r87a pw-cli live-object mutation + lifecycle lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-cli", "pw-dump", "pw-play", "pw-record", "pw-link",
+              "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwbind_r87_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads = {}
+    try:
+        loads[PWBIND_R87_NS] = _pwbind_r87_load_ns(PWBIND_R87_NS)
+        if loads[PWBIND_R87_NS].get("module_id") is None:
+            return _pwbind_r87_block(
+                entry, failures, "probe null sink never enumerated",
+                loads)
+        g0 = _pwbind_r87_graph()
+        na = _pwbind_r87_node(g0, PWBIND_R87_NS) or {}
+        nid = na.get("node_id")
+        ns_mod = loads[PWBIND_R87_NS].get("module_id")
+        entry["ns_leaf"] = {"node_id": nid,
+                            "object_serial": na.get("object_serial"),
+                            "media_class": na.get("media_class"),
+                            "module_id": ns_mod}
+        if nid is None:
+            return _pwbind_r87_block(
+                entry, failures, "probe node id never resolved", loads)
+        with tempfile.TemporaryDirectory(prefix="r87a-cli-") as tmp:
+            tone = Path(tmp) / "r87a_tone.wav"
+            _playback_r78_write_tone(tone, PWBIND_R87_TONE_S)
+
+            # ---------- cold-registry artifact (own sink id) ----------
+            legs["cold_nowarm"] = _pwbind_r87_run(
+                ["pw-cli"], 10.0,
+                stdin_data=f"info {nid}\nquit\n".encode())
+            legs["warm_control"] = _pwbind_r87_pwcli(
+                "info", nid, timeout_s=12.0)
+            # ---------- unknown-global refusal family ----------
+            legs["unknowns"] = {
+                v: _pwbind_r87_pwcli(
+                    *((v, PWBIND_R87_DEAD) if v == "info" else
+                      (v, PWBIND_R87_DEAD, "Props")
+                      if v == "enum-params" else
+                      (v, PWBIND_R87_DEAD, "Props", "{ volume: 0.5 }")
+                      if v == "set-param" else
+                      (v, PWBIND_R87_DEAD)),
+                    timeout_s=10.0)
+                for v in ("info", "enum-params", "set-param",
+                          "destroy", "get-permissions")}
+            # ---------- the monitor tap + player ----------
+            tapf = Path(tmp) / "mut_tap.wav"
+            tap = _playback_r78_tap(
+                PWBIND_R87_NS, tapf,
+                int(48000 * (PWBIND_R87_TONE_S + 1.0)),
+                PWBIND_R87_TAP)
+            t0 = time.monotonic()
+            edges, waited = _pactlmon_r85_wait_tap_link(
+                PWBIND_R87_NS, PWBIND_R87_TAP)
+            legs["tap_link"] = {"edges": edges, "wait_s": waited}
+            tag = f"{PWBIND_R87_PREFIX}_dsp"
+            player = _pactlmon_r85_play(tag, PWBIND_R87_NS, tone,
+                                        role=PWBIND_R87_ROLE)
+            leaf, swait = _alsapw_r84_wait_attached(
+                tag, timeout_s=PWBIND_R87_STREAM_WAIT_S)
+            legs["player_attach"] = {
+                "stream_index": (leaf or {}).get("index"),
+                "sink": (leaf or {}).get("sink"), "wait_s": swait}
+            gs = _pwbind_r87_graph()
+            snode = _pwbind_r87_node(gs, tag) or {}
+            sid = snode.get("node_id")
+            legs["stream_leaf"] = {"node_id": sid,
+                                   "media_class":
+                                   snode.get("media_class")}
+
+            def mark():
+                return time.monotonic() - t0
+
+            def sleep_to(at):
+                left = at - mark()
+                if left > 0:
+                    time.sleep(left)
+
+            def setp(param, js):
+                rec = _pwbind_r87_pwcli("set-param", sid, param, js,
+                                        timeout_s=10.0)
+                rec["done_at_s"] = round(mark(), 3)
+                return rec
+
+            writes = {}
+            attached = bool(edges) and sid is not None and \
+                leaf is not None and leaf.get("sink") not in (
+                    None, 4294967295)
+            if attached:
+                sleep_to(mark() + 0.8)
+                solo_lo, solo_hi = mark(), None
+                sleep_to(solo_lo + 0.6)
+                solo_hi = mark()
+                writes["w_v25"] = setp("Props", "{ volume: 0.25 }")
+                sleep_to(writes["w_v25"]["done_at_s"] + 1.1)
+                writes["w_v10"] = setp("Props", "{ volume: 1.0 }")
+                sleep_to(writes["w_v10"]["done_at_s"] + 1.1)
+                writes["w_mute"] = setp("Props", "{ mute: true }")
+                sleep_to(writes["w_mute"]["done_at_s"] + 1.1)
+                writes["w_unmute"] = setp("Props", "{ mute: false }")
+                sleep_to(writes["w_unmute"]["done_at_s"] + 1.0)
+                writes["w_unk"] = setp("Props", "{ no_such_prop: 3 }")
+                legs["props_unk"] = writes["w_unk"]
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "player/tap never attached — dsp arms skipped")
+            # ---------- Format seal on the RUNNING stream ----------
+            fmt = {}
+            if sid is not None:
+                fmt["pre"] = _pwbind_r87_pwcli(
+                    "enum-params", sid, "Format", timeout_s=10.0,
+                                           keep_chars=4000)
+                fmt["write_valid"] = _pwbind_r87_pwcli(
+                    "set-param", sid, "Format",
+                    "{ mediaType: 1, mediaSubtype: 1, format: 259, "
+                    "rate: 96000, channels: 2 }", timeout_s=10.0)
+                fmt["post_valid"] = _pwbind_r87_pwcli(
+                    "enum-params", sid, "Format", timeout_s=10.0,
+                                           keep_chars=4000)
+                fmt["write_empty"] = _pwbind_r87_pwcli(
+                    "set-param", sid, "Format", "{ }",
+                    timeout_s=10.0)
+                fmt["post_empty"] = _pwbind_r87_pwcli(
+                    "enum-params", sid, "Format", timeout_s=10.0,
+                                           keep_chars=4000)
+            legs["fmt_stream"] = fmt
+            # ---------- Format seal on the SINK (stream still linked —
+            # the sink stays running; a suspended sink answers res:-5) --
+            fs = {}
+            if nid is not None:
+                fs["pre"] = _pwbind_r87_pwcli(
+                    "enum-params", nid, "Format", timeout_s=10.0,
+                                           keep_chars=4000)
+                fs["write_valid"] = _pwbind_r87_pwcli(
+                    "set-param", nid, "Format",
+                    "{ mediaType: 1, mediaSubtype: 1, format: 259, "
+                    "rate: 44100, channels: 2 }", timeout_s=10.0)
+                fs["post_valid"] = _pwbind_r87_pwcli(
+                    "enum-params", nid, "Format", timeout_s=10.0,
+                                           keep_chars=4000)
+            legs["fmt_sink"] = fs
+            legs["player_alive_at_end"] = player.poll() is None
+            if player.poll() is None:
+                _alsapw_r84_killpg(player, signal.SIGTERM)
+            try:
+                player.wait(timeout=3.0)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(player)
+                player.wait()
+            if tap.poll() is None:
+                _alsapw_r84_killpg(tap, signal.SIGTERM)
+            try:
+                tap.wait(timeout=5.0)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(tap)
+                tap.wait()
+            legs["tap_exit"] = tap.returncode
+            legs["player_exit"] = player.returncode
+            legs["writes"] = writes
+            # ---------- post-analysis: windowed medians ----------
+            series = _alsapw_r84_amp_series(tapf, 0.1)
+            legs["tap_windows"] = len(series)
+
+            def med(lo_t, hi_t):
+                return _alsapw_r84_amp_med(series, lo_t, hi_t)
+
+            if attached:
+                regs = {"solo": (solo_lo, solo_hi)}
+                for key, gap in (("vol25", "w_v25"),
+                                 ("restore", "w_v10"),
+                                 ("mute", "w_mute"),
+                                 ("unmute", "w_unmute")):
+                    w = writes[gap]["done_at_s"]
+                    regs[key] = (w + 0.35, w + 0.95)
+                legs["regions"] = {
+                    k: {"t": [round(r[0], 2), round(r[1], 2)],
+                        "median_peak": med(*r)}
+                    for k, r in regs.items()}
+            # ---------- spawn-time --volume lattice (BEFORE the
+            # sendcmd battery — Suspend freezes the sink and the
+            # windows would read silence) ----------
+            vrecf = Path(tmp) / "vol_tap.wav"
+            vtap = _playback_r78_tap(
+                PWBIND_R87_NS, vrecf, int(48000 * 15.0),
+                PWBIND_R87_VREC)
+            vt0 = time.monotonic()
+            vedges, vwait = _pactlmon_r85_wait_tap_link(
+                PWBIND_R87_NS, PWBIND_R87_VREC)
+            legs["vol_tap_link"] = {"edges": vedges, "wait_s": vwait}
+            vmarks = {}
+            if vedges:
+                for vk, vol in (("v100", "1.0"), ("v050", "0.5"),
+                                ("v000", "0.0"), ("v150", "1.5")):
+                    vtag = f"{PWBIND_R87_PREFIX}_{vk}"
+                    vp = subprocess.Popen(
+                        ["pw-play", "-P", f"node.name={vtag}",
+                         "-P", f"media.role={PWBIND_R87_ROLE}",
+                         "--volume", vol,
+                         "--target", PWBIND_R87_NS, str(tone)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        stdin=subprocess.DEVNULL,
+                        start_new_session=True)
+                    vmarks[vk] = {"volume": vol,
+                                  "spawn_at_s": round(
+                                      time.monotonic() - vt0, 3)}
+                    time.sleep(2.8)
+                    if vp.poll() is None:
+                        _alsapw_r84_killpg(vp, signal.SIGTERM)
+                    try:
+                        vp.wait(timeout=3.0)
+                    except subprocess.TimeoutExpired:
+                        _alsapw_r84_killpg(vp)
+                        vp.wait()
+                    time.sleep(0.5)
+            if vtap.poll() is None:
+                _alsapw_r84_killpg(vtap, signal.SIGTERM)
+            try:
+                vtap.wait(timeout=5.0)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(vtap)
+                vtap.wait()
+            vseries = _alsapw_r84_amp_series(vrecf, 0.1)
+            for vk, m in vmarks.items():
+                t_s = m["spawn_at_s"]
+                m["median_peak"] = _alsapw_r84_amp_med(
+                    vseries, t_s + 1.2, t_s + 1.9)
+            base = (vmarks.get("v100") or {}).get("median_peak")
+            for vk, m in vmarks.items():
+                mp = m.get("median_peak")
+                m["ratio_vs_v100"] = (
+                    round(mp / base, 4)
+                    if mp is not None and base else None)
+            legs["volume_legs"] = vmarks
+            # ---------- send-command state machine ----------
+            sc = {}
+            for cmd in ("Suspend", "Resume", "Start", "Pause", "0",
+                        "bogus-cmd"):
+                rec = _pwbind_r87_pwcli("send-command", nid, cmd,
+                                        "{ }", timeout_s=10.0)
+                time.sleep(0.35)
+                sc[cmd] = {"cmd": rec,
+                           "state_after": _pwbind_r87_state(nid)}
+            rec = _pwbind_r87_pwcli("send-command", nid, timeout_s=10.0)
+            sc["no_args"] = {"cmd": rec}
+            legs["sendcmd"] = sc
+            # wake leg (recorded only — resume-on-connect is an
+            # observed sequence, not a controlled experiment)
+            wp = subprocess.Popen(
+                ["pw-play", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_wake",
+                 "--target", PWBIND_R87_NS, str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            time.sleep(1.5)
+            wake_rc = wp.poll()
+            if wake_rc is None:
+                _alsapw_r84_killpg(wp, signal.SIGTERM)
+            try:
+                wp.wait(timeout=3.0)
+            except subprocess.TimeoutExpired:
+                pass
+            legs["wake_after_suspend"] = {
+                "play_rc": wp.returncode,
+                "linked_seen": wake_rc is None,
+                "stderr": _pwbind_r87_norm(
+                    wp.stderr.read().decode(errors="replace"))[-300:],
+                "state_after": _pwbind_r87_state(nid)}
+            # ---------- Latency unsupported ----------
+            legs["latency"] = _pwbind_r87_pwcli(
+                "set-param", nid, "Latency", "{ }", timeout_s=10.0)
+            # ---------- unlinked-stream Format enum (the node must be
+            # ALIVE — keep the player up across the enum calls) ----------
+            up = subprocess.Popen(
+                ["pw-play", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_fmtu",
+                 "-P", "node.autoconnect=false", "--target", "0",
+                 str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            uid = None
+            uwait = time.monotonic()
+            while time.monotonic() - uwait < 8.0:
+                g = _pwbind_r87_graph()
+                un = _pwbind_r87_node(g, f"{PWBIND_R87_PREFIX}_fmtu")
+                if un:
+                    uid = un.get("node_id")
+                    break
+                if up.poll() is not None:
+                    break
+                time.sleep(0.15)
+            legs["fmt_unlinked_watch"] = {
+                "node_id": uid, "wait_s":
+                round(time.monotonic() - uwait, 3)}
+            if uid is not None:
+                legs["fmt_unlinked"] = {
+                    "node_id": uid,
+                    "enum_fmt": _pwbind_r87_pwcli(
+                        "enum-params", uid, "Format", timeout_s=10.0,
+                            keep_chars=4000),
+                    "enum_props": _pwbind_r87_pwcli(
+                        "enum-params", uid, "Props", timeout_s=10.0,
+                            keep_chars=4000)}
+            if up.poll() is None:
+                _alsapw_r84_killpg(up, signal.SIGTERM)
+            try:
+                up.wait(timeout=3.0)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(up)
+                up.wait()
+            # ---------- no FOREIGN gate ----------
+            g = _pwbind_r87_graph()
+            foreign = [{"node_id": nid2, "name": n.get("name")}
+                       for nid2, n in (g.get("nodes") or {}).items()
+                       if n.get("media_class") == "Audio/Sink"
+                       and n.get("name")
+                       and "r87a_" not in n["name"]]
+            foreign.sort(key=lambda f: ("hdmi" not in f["name"],
+                                        f["name"]))
+            legs["foreign_candidates"] = foreign
+            if foreign:
+                fid = foreign[0]["node_id"]
+                enum1 = _pwbind_r87_pwcli("enum-params", fid, "Props",
+                                          timeout_s=10.0,
+                                          keep_chars=4000)
+                vol = _pwbind_r87_parse_volume(
+                    (enum1.get("stdout") or ""))
+                write = (_pwbind_r87_pwcli(
+                    "set-param", fid, "Props",
+                    "{ volume: %s }" % vol, timeout_s=10.0)
+                    if vol is not None else
+                    _pwbind_r87_pwcli("set-param", fid, "Props",
+                                      "{ }", timeout_s=10.0))
+                unk = _pwbind_r87_pwcli(
+                    "set-param", fid, "Props", "{ no_such_prop: 3 }",
+                    timeout_s=10.0)
+                bog = _pwbind_r87_pwcli(
+                    "set-param", fid, "BogusType", "{ }",
+                    timeout_s=10.0)
+                enum2 = _pwbind_r87_pwcli("enum-params", fid, "Props",
+                                          timeout_s=10.0,
+                                          keep_chars=4000)
+                legs["foreign"] = {
+                    "id": fid, "name": foreign[0]["name"],
+                    "enum_pre": enum1, "volume_read": vol,
+                    "write_samevalue": write, "write_unk": unk,
+                    "write_bogus": bog, "enum_post": enum2,
+                    "volume_after":
+                    _pwbind_r87_parse_volume(enum2.get("stdout") or "")}
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "no foreign Audio/Sink — the no-gate legs "
+                    "unmeasured")
+            # ---------- destroy own stream ----------
+            dst = subprocess.Popen(
+                ["pw-play", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_dst",
+                 "--target", PWBIND_R87_NS, str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            time.sleep(1.2)
+            g = _pwbind_r87_graph()
+            dn = _pwbind_r87_node(g, f"{PWBIND_R87_PREFIX}_dst") or {}
+            did = dn.get("node_id")
+            drec = {"node_id": did}
+            if did is not None:
+                drec["destroy"] = _pwbind_r87_pwcli(
+                    "destroy", did, timeout_s=10.0)
+                time.sleep(1.0)
+            drec["play_rc_after"] = dst.poll()
+            if dst.poll() is None:
+                _alsapw_r84_killpg(dst)
+            try:
+                dst.wait(timeout=3.0)
+            except subprocess.TimeoutExpired:
+                pass
+            drec["play_rc"] = dst.returncode
+            drec["play_err"] = _pwbind_r87_norm(
+                dst.stderr.read().decode(errors="replace"))[-300:]
+            drec["node_after"] = bool(_pwbind_r87_node(
+                _pwbind_r87_graph(), f"{PWBIND_R87_PREFIX}_dst"))
+            legs["destroy_stream"] = drec
+            # ---------- create-node lifecycle ----------
+            for lname, linger in (("create_session", False),
+                                  ("create_linger", True)):
+                cname = f"{PWBIND_R87_PREFIX}_" + (
+                    "adp" if not linger else "ling")
+                proc, chunks = _pwbind_r87_cli_open()
+                time.sleep(1.2)   # registry warmup on the held session
+                ling = ' object.linger=true' if linger else ''
+                sent = _pwbind_r87_cli_send(
+                    proc, 'create-node adapter { factory.name='
+                    '"support.null-audio-sink" node.name="%s" '
+                    'media.class="Audio/Sink"%s }' % (cname, ling))
+                time.sleep(2.0)
+                g = _pwbind_r87_graph()
+                cn = _pwbind_r87_node(g, cname)
+                log = _pwbind_r87_cli_close(proc, chunks)
+                time.sleep(0.6)
+                g = _pwbind_r87_graph()
+                cn2 = _pwbind_r87_node(g, cname)
+                crec = {"sent": sent, "linger": linger,
+                        "present_in_session": bool(cn),
+                        "id_in_session": (cn or {}).get("node_id"),
+                        "present_after_quit": bool(cn2),
+                        "log_tail": _pwbind_r87_norm(log)[-400:]}
+                if cn2:
+                    crec["destroy"] = _pwbind_r87_pwcli(
+                        "destroy", cn2["node_id"], timeout_s=8.0)
+                    time.sleep(0.5)
+                    crec["present_after_destroy"] = bool(
+                        _pwbind_r87_node(_pwbind_r87_graph(), cname))
+                legs[lname] = crec
+            # ---------- create-node refusals ----------
+            for lname, cargs in (
+                    ("create_badfac",
+                     'create-node adapter { factory.name='
+                     '"no_such_r87_factory" }'),
+                    ("create_usage", 'create-node adapter { }')):
+                proc, chunks = _pwbind_r87_cli_open()
+                time.sleep(1.2)
+                _pwbind_r87_cli_send(proc, cargs)
+                time.sleep(1.6)
+                log = _pwbind_r87_cli_close(proc, chunks)
+                legs[lname] = {
+                    "log_tail": _pwbind_r87_norm(log)[-500:],
+                    "errors": _pwbind_r87_errors(log)}
+            # ---------- destroy sink node -> module unload (LAST: it
+            # removes the module every later leg needs) ----------
+            dk = {"node_id": nid, "module_id": ns_mod}
+            dk["destroy"] = _pwbind_r87_pwcli("destroy", nid,
+                                              timeout_s=10.0)
+            time.sleep(1.0)
+            sinks_now = _capture_r77_sink_names_strict()
+            dk["sink_listed_after"] = (
+                PWBIND_R87_NS in sinks_now
+                if sinks_now is not None else "reader_error")
+            dk["node_after"] = bool(_pwbind_r87_node(
+                _pwbind_r87_graph(), PWBIND_R87_NS))
+            legs["destroy_sink_module"] = dk
+    finally:
+        _pwbind_r87_teardown(entry, failures, loads)
+    # ---------------- verdicts ----------------
+    l = legs["cold_nowarm"]
+    blob = (l.get("stdout") or "") + (l.get("stderr") or "")
+    if f"unknown global '{nid}'" not in blob and \
+            "unknown global" not in blob:
+        failures.append(
+            "cold_nowarm: the cold-registry artifact did not fire "
+            f"({blob[-160:]})")
+    if legs["warm_control"].get("exit_code") != 0 or \
+            "id:" not in (legs["warm_control"].get("stdout") or ""):
+        failures.append(
+            "warm_control: a warm pw-cli info failed — the artifact "
+            "contrast is unmeasured")
+    for v, l in legs["unknowns"].items():
+        if PWBIND_R87_DEAD not in ((l.get("stderr") or "")
+                                   + (l.get("stdout") or "")) \
+                or "unknown global" not in ((l.get("stderr") or "")
+                                            + (l.get("stdout") or "")):
+            failures.append(
+                f"unknowns/{v}: the unknown-global class failed "
+                f"({l.get('error_class')})")
+    if not legs["tap_link"]["edges"]:
+        failures.append("tap_link: the monitor tap never validated")
+    regs = legs.get("regions") or {}
+    solo = (regs.get("solo") or {}).get("median_peak")
+
+    def ratio(name):
+        v = (regs.get(name) or {}).get("median_peak")
+        return (v / solo) if (v is not None and solo) else None
+
+    if solo is None or not (PWBIND_R87_SOLO_ENV[0] * PWBIND_R87_AMP
+                            <= solo <=
+                            PWBIND_R87_SOLO_ENV[1] * PWBIND_R87_AMP):
+        failures.append(
+            f"solo: median_peak={solo} outside the x8192 "
+            f"{PWBIND_R87_SOLO_ENV} envelope — the tap reference fails")
+    else:
+        for name, env in (("vol25", PWBIND_R87_V25_ENV),
+                          ("restore", PWBIND_R87_SOLO_ENV),
+                          ("unmute", PWBIND_R87_SOLO_ENV)):
+            r = ratio(name)
+            if r is None or not (env[0] <= r <= env[1]):
+                failures.append(
+                    f"{name}: ratio={r} outside {env} — the live-DSP "
+                    "law fails")
+        mv = (regs.get("mute") or {}).get("median_peak")
+        if mv is None or mv > PWBIND_R87_MUTE_MAX:
+            failures.append(
+                f"mute: median_peak={mv} > {PWBIND_R87_MUTE_MAX} — "
+                "mute is not live DSP")
+        for wn in ("w_v25", "w_v10", "w_mute", "w_unmute"):
+            if (legs.get("writes") or {}).get(wn, {}).get(
+                    "exit_code") != 0:
+                failures.append(
+                    f"{wn}: the Props write refused "
+                    f"(rc={legs['writes'][wn].get('exit_code')})")
+    if legs.get("props_unk") is not None:
+        pu = legs["props_unk"]
+        if pu.get("exit_code") != 0 or pu.get("errors"):
+            failures.append(
+                "props_unk: the unknown-key write was not the silent "
+                f"drop ({pu.get('errors') or pu.get('error_class')})")
+    for scope, key in (("fmt_stream", "post_valid"),
+                       ("fmt_stream", "post_empty"),
+                       ("fmt_sink", "post_valid")):
+        f = legs.get(scope) or {}
+        pre = _pwbind_r87_parse_format((f.get("pre") or {})
+                                       .get("stdout") or "")
+        post = _pwbind_r87_parse_format((f.get(key) or {})
+                                        .get("stdout") or "")
+        if pre.get("rate") is None or post != pre:
+            failures.append(
+                f"{scope}: negotiated Format moved {pre} -> {post} "
+                "— the seal fails")
+    fu = legs.get("fmt_unlinked") or {}
+    if fu:
+        ef = (fu["enum_fmt"].get("stderr") or "") + \
+            (fu["enum_fmt"].get("stdout") or "")
+        ep = (fu["enum_props"].get("stderr") or "") + \
+            (fu["enum_props"].get("stdout") or "")
+        if "res:-2" not in ef:
+            failures.append(
+                "fmt_unlinked: enum Format did not fail res:-2 "
+                f"({ef[-160:]})")
+        if "Object:" not in ep or "res:-" in ep:
+            failures.append(
+                "fmt_unlinked: enum Props did not read on the "
+                f"unlinked node ({ep[-160:]})")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "unlinked stream node never published — fmt_unlinked "
+            "unmeasured")
+    sc = legs.get("sendcmd") or {}
+    if (sc.get("Suspend") or {}).get("state_after") != "suspended":
+        failures.append(
+            "sendcmd/Suspend: state_after="
+            f"{(sc.get('Suspend') or {}).get('state_after')}")
+    if "unknown node command type: Resume" not in (
+            ((sc.get("Resume") or {}).get("cmd") or {})
+            .get("stderr") or ""):
+        failures.append(
+            "sendcmd/Resume: the unknown-command refusal failed")
+    st = (sc.get("Start") or {})
+    if (st.get("cmd") or {}).get("errors") or \
+            st.get("state_after") != "suspended":
+        failures.append(
+            "sendcmd/Start: not an accepted no-op "
+            f"(errors={st.get('cmd', {}).get('errors')} "
+            f"state={st.get('state_after')})")
+    if (sc.get("Pause") or {}).get("state_after") != "suspended":
+        failures.append("sendcmd/Pause: state did not stay suspended")
+    for c in ("0", "bogus-cmd"):
+        if "unknown node command type" not in (
+                ((sc.get(c) or {}).get("cmd") or {})
+                .get("stderr") or ""):
+            failures.append(
+                f"sendcmd/{c}: the unknown-command class failed")
+    if not ((sc.get("no_args") or {}).get("cmd") or {}).get("errors"):
+        failures.append("sendcmd/no_args: no usage refusal")
+    lat = (legs.get("latency") or {}).get("stderr") or ""
+    if "res:-95" not in lat:
+        failures.append(
+            f"latency: the res:-95 class failed ({lat[-160:]})")
+    fo = legs.get("foreign") or {}
+    if fo:
+        allerr = (fo["write_samevalue"].get("errors") or []) + \
+            (fo["write_unk"].get("errors") or []) + \
+            (fo["enum_pre"].get("errors") or []) + \
+            (fo["enum_post"].get("errors") or [])
+        if allerr:
+            failures.append(
+                f"foreign: errors on foreign verbs {allerr} — a gate "
+                "appeared")
+        if fo.get("volume_read") is not None and \
+                fo.get("volume_after") != fo.get("volume_read"):
+            failures.append(
+                f"foreign: identical-value write moved the volume "
+                f"{fo.get('volume_read')} -> {fo.get('volume_after')}")
+        bog_err = (fo["write_bogus"].get("stderr") or "") + \
+            (fo["write_bogus"].get("stdout") or "")
+        if "unknown param type" not in bog_err:
+            failures.append(
+                "foreign: BogusType did not refuse "
+                f"({bog_err[-160:]})")
+    ds = legs.get("destroy_stream") or {}
+    if ds:
+        if ds.get("play_rc") != 1 or "unconnected" not in (
+                ds.get("play_err") or ""):
+            failures.append(
+                f"destroy_stream: rc={ds.get('play_rc')} "
+                f"err={ds.get('play_err')} — the unconnected-exit "
+                "law fails")
+        if ds.get("node_after"):
+            failures.append("destroy_stream: node survived destroy")
+    cs = legs.get("create_session") or {}
+    if not cs.get("present_in_session") or \
+            cs.get("present_after_quit"):
+        failures.append(
+            f"create_session: in={cs.get('present_in_session')} "
+            f"after={cs.get('present_after_quit')} — the "
+            "session-bound law fails")
+    cl = legs.get("create_linger") or {}
+    if not cl.get("present_after_quit") or \
+            cl.get("present_after_destroy"):
+        failures.append(
+            f"create_linger: after_quit={cl.get('present_after_quit')} "
+            f"after_destroy={cl.get('present_after_destroy')} — the "
+            "linger carve-out fails")
+    bf = (legs.get("create_badfac") or {})
+    if "res:-2" not in (bf.get("log_tail") or ""):
+        failures.append(
+            f"create_badfac: no async res:-2 refusal "
+            f"({(bf.get('log_tail') or '')[-160:]})")
+    cu = (legs.get("create_usage") or {})
+    if "usage: factory.name=" not in (cu.get("log_tail") or "") and \
+            "res:-22" not in (cu.get("log_tail") or ""):
+        failures.append(
+            f"create_usage: no usage refusal "
+            f"({(cu.get('log_tail') or '')[-160:]})")
+    dk = legs.get("destroy_sink_module") or {}
+    if dk.get("sink_listed_after") is not False or \
+            dk.get("node_after"):
+        failures.append(
+            "destroy_sink_module: the module survived "
+            f"(listed={dk.get('sink_listed_after')} "
+            f"node={dk.get('node_after')})")
+    if legs["vol_tap_link"]["edges"]:
+        vm = legs.get("volume_legs") or {}
+        base = (vm.get("v100") or {}).get("median_peak")
+        if base is None or not (
+                PWBIND_R87_SOLO_ENV[0] * PWBIND_R87_AMP
+                <= base <= PWBIND_R87_SOLO_ENV[1] * PWBIND_R87_AMP):
+            failures.append(
+                f"v100: median_peak={base} outside the solo "
+                "envelope — the --volume reference fails")
+        else:
+            for vk, env in (("v050", PWBIND_R87_V50_ENV),
+                            ("v150", PWBIND_R87_V150_ENV)):
+                r = (vm.get(vk) or {}).get("ratio_vs_v100")
+                if r is None or not (env[0] <= r <= env[1]):
+                    failures.append(
+                        f"{vk}: ratio={r} outside {env} — the "
+                        "--volume law fails")
+            mv = (vm.get("v000") or {}).get("median_peak")
+            if mv is None or mv > PWBIND_R87_V000_MAX:
+                failures.append(
+                    f"v000: median_peak={mv} > "
+                    f"{PWBIND_R87_V000_MAX} -- the unclamped-zero law "
+                    "fails")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "--volume monitor tap never linked — vol arms skipped")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwbind_midi_r87_entry():
+    """The midi binding + remote lattice: every --target/prop form is
+    the same `no target node available`+res:-2 dead path; --target 0 /
+    autoconnect=false publish unlinked; the manual pw-link pin from
+    Midi-Bridge carries real events end-to-end (45 B SMF, 0x90/0x80
+    payloads) while a refused midirecord writes the 26 B skeleton;
+    pw-mididump offline parse is deterministic and the live dump is
+    armed only when it publishes (boundary's startup-flake caveat);
+    the remote/RAOP surface is absent with uniform refusal classes."""
+    failures, legs = [], {}
+    entry = _pwbind_r87_entry_head(
+        "r87a midi target-dead + pin-carries + remote refusal lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-midiplay", "pw-midirecord", "pw-mididump", "pw-link",
+              "aplaymidi", "pw-cli", "pw-cat", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwbind_r87_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads = {}
+    try:
+        bridge = _pwbind_r87_bridge()
+        seq = _pwbind_r87_seq_port()
+        entry["bridge"] = bridge
+        entry["seq_port"] = seq
+        with tempfile.TemporaryDirectory(prefix="r87a-midi-") as tmp:
+            smf = _pwbind_r87_write_smf(Path(tmp) / "r87a.mid")
+            # ---------- target-dead legs ----------
+            dead_targets = [("m_t_bridge", ["--target",
+                                            PWBIND_R87_MIDI_BRIDGE])]
+            if bridge:
+                bn = bridge["node"]
+                dead_targets += [
+                    ("m_t_serial",
+                     ["--target", str(bn.get("object_serial"))]),
+                    ("m_t_objid",
+                     ["--target", str(bn.get("object_id"))])]
+            dead_targets += [
+                ("m_t_garbage", ["--target", PWBIND_R87_BOGUS]),
+                ("m_t_prop", ["-P",
+                              "target.object=" +
+                              PWBIND_R87_MIDI_BRIDGE]),
+                ("m_t_nt", ["-P",
+                            "node.target=" +
+                            PWBIND_R87_MIDI_BRIDGE])]
+            for name, tail in dead_targets:
+                legs[name] = _pwbind_r87_run(
+                    ["pw-midiplay", "-P",
+                     f"node.name={PWBIND_R87_PREFIX}_{name}", *tail,
+                     str(smf)], 12.0)
+            # ---------- publish-unlinked legs ----------
+            for name, tail in (
+                    ("m_t_zero", ["--target", "0"]),
+                    ("m_noauto", ["-P", "node.autoconnect=false"])):
+                legs[name] = _pwbind_r87_target_leg(
+                    legs, name,
+                    ["pw-midiplay", "-P",
+                     f"node.name={PWBIND_R87_PREFIX}_{name}", *tail,
+                     str(smf)])
+            # ---------- the pin-carries-events leg ----------
+            pin = {"bridge": bridge and bridge.get("capture_port"),
+                   "seq_port": seq}
+            if bridge and bridge.get("capture_port") and seq:
+                rec = Path(tmp) / "mr_pin.mid"
+                mp = subprocess.Popen(
+                    ["pw-midirecord", "-P",
+                     f"node.name={PWBIND_R87_PREFIX}_mr",
+                     "--target", "0", str(rec)],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                    stdin=subprocess.DEVNULL, start_new_session=True)
+                time.sleep(1.2)
+                g = _pwbind_r87_graph()
+                mn = _pwbind_r87_node(g, f"{PWBIND_R87_PREFIX}_mr")
+                ports = (_pwbind_r87_ports(g, mn["node_id"])
+                         if mn else {})
+                my_in = sorted(p for p, d in ports.items()
+                               if str(d) == "in")
+                pin["my_in"] = my_in
+                if my_in:
+                    lk = _pwbind_r87_run(
+                        ["pw-link",
+                         "%s:%s" % (PWBIND_R87_MIDI_BRIDGE,
+                                    bridge["capture_port"]),
+                         "%s:%s" % (PWBIND_R87_PREFIX + "_mr",
+                                    my_in[0])], 10.0)
+                    pin["pwlink"] = lk
+                    time.sleep(0.4)
+                    pin["links"] = _pactlmon_r85_edges_in(
+                        _pwbind_r87_graph(),
+                        f"{PWBIND_R87_PREFIX}_mr")
+                    inj = _pwbind_r87_run(
+                        ["aplaymidi", "-p", seq, str(smf)], 20.0)
+                    pin["aplaymidi_rc"] = inj.get("exit_code")
+                    time.sleep(1.2)
+                _alsapw_r84_killpg(mp, signal.SIGTERM)
+                try:
+                    mp.wait(timeout=3.0)
+                except subprocess.TimeoutExpired:
+                    pass
+                pin["record_rc"] = mp.returncode
+                pin["stderr"] = _pwbind_r87_norm(
+                    mp.stderr.read().decode(errors="replace"))[-300:]
+                pin["file"] = _pwbind_r87_smf_witness(rec)
+            legs["pin"] = pin
+            # ---------- the refusal skeleton ----------
+            rec2 = Path(tmp) / "mr_bridge.mid"
+            mp2 = subprocess.Popen(
+                ["pw-midirecord", "-P",
+                 f"node.name={PWBIND_R87_PREFIX}_mrb",
+                 "--target", PWBIND_R87_MIDI_BRIDGE, str(rec2)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            time.sleep(1.2)
+            sk_rc = mp2.poll()
+            if sk_rc is None:
+                _alsapw_r84_killpg(mp2)
+            try:
+                mp2.wait(timeout=3.0)
+            except subprocess.TimeoutExpired:
+                pass
+            legs["skeleton"] = {
+                "rc": mp2.returncode,
+                "stderr": _pwbind_r87_norm(
+                    mp2.stderr.read().decode(errors="replace"))[-300:],
+                "file": _pwbind_r87_smf_witness(rec2)}
+            # ---------- pw-mididump offline + live ----------
+            legs["mdump_off"] = _pwbind_r87_run(
+                ["pw-mididump", str(smf)], 10.0)
+            live = {"attempts": []}
+            if bridge and bridge.get("capture_port") and seq:
+                for attempt in range(3):
+                    env = dict(os.environ, PIPEWIRE_PROPS=(
+                        "{ node.name = %s }" %
+                        (PWBIND_R87_PREFIX + "_mdump")))
+                    dp = subprocess.Popen(
+                        ["pw-mididump"], stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        stdin=subprocess.DEVNULL, env=env,
+                        start_new_session=True)
+                    time.sleep(1.3)
+                    g = _pwbind_r87_graph()
+                    dn = (_pwbind_r87_node(
+                        g, PWBIND_R87_PREFIX + "_mdump")
+                        or _pwbind_r87_node(g, "midi-dump"))
+                    arec = {"attempt": attempt,
+                            "node": bool(dn)}
+                    if dn:
+                        ports = _pwbind_r87_ports(g, dn["node_id"])
+                        din = sorted(p for p, d in ports.items()
+                                     if str(d) == "in")
+                        arec["in_ports"] = din
+                        if din:
+                            lk = _pwbind_r87_run(
+                                ["pw-link",
+                                 "%s:%s" % (PWBIND_R87_MIDI_BRIDGE,
+                                            bridge["capture_port"]),
+                                 "%s:%s" % (dn["name"], din[0])], 10.0)
+                            arec["pwlink_rc"] = lk.get("exit_code")
+                            time.sleep(0.4)
+                            _pwbind_r87_run(
+                                ["aplaymidi", "-p", seq, str(smf)],
+                                20.0)
+                            time.sleep(1.3)
+                    _alsapw_r84_killpg(dp, signal.SIGTERM)
+                    try:
+                        dp.wait(timeout=3.0)
+                    except subprocess.TimeoutExpired:
+                        pass
+                    try:
+                        arec["stdout"] = _pwbind_r87_norm(
+                            dp.stdout.read().decode(
+                                errors="replace"))[-500:]
+                    except OSError:
+                        arec["stdout"] = ""
+                    arec["rc"] = dp.returncode
+                    live["attempts"].append(arec)
+                    if dn and "Note On" in (arec["stdout"] or ""):
+                        break
+            legs["mdump_live"] = live
+            # ---------- remote/RAOP refusal lattice ----------
+            for name, mod in (("pactl_raop", "module-raop-discover"),
+                              ("pactl_zc", "module-zeroconf-discover"),
+                              ("pactl_bogus",
+                               "module-totally-bogus-r87a")):
+                legs[name] = _pwbind_r87_run(
+                    ["pactl", "load-module", mod], 12.0)
+            for name, mod in (
+                    ("pwcli_raop", "libpipewire-module-raop-discover"),
+                    ("pwcli_zc",
+                     "libpipewire-module-zeroconf-discover"),
+                    ("pwcli_null", "libpipewire-module-null-sink"),
+                    ("pwcli_panull", "module-null-sink")):
+                legs[name] = _pwbind_r87_pwcli(
+                    "load-module", mod, timeout_s=10.0)
+            tone2 = Path(tmp) / "r87a_tone.wav"
+            _playback_r78_write_tone(tone2, 6.0)
+            legs["remote_flag"] = _pwbind_r87_run(
+                ["pw-cat", "-R", PWBIND_R87_BOGUS, "-p", str(tone2)],
+                12.0)
+            legs["remote_env"] = _pwbind_r87_run(
+                ["pw-play", str(tone2)], 12.0,
+                env=dict(os.environ,
+                         PIPEWIRE_REMOTE=PWBIND_R87_BOGUS))
+            legs["remote_cli"] = _pwbind_r87_run(
+                ["pw-cli", "-r", PWBIND_R87_BOGUS, "ls", "Node"], 12.0)
+            # recorded-only stall arm (r78's law; never armed)
+            legs["remote_stall"] = _pwbind_r87_run(
+                ["pw-cat", "-R", "pipewire-0", "-p", "--target", "0",
+                 str(tone2)], 8.0)
+            # ---------- remote census ----------
+            g = _pwbind_r87_graph()
+            remoted = [
+                {"id": oid, "type": "node",
+                 "name": n.get("name")}
+                for oid, n in (g.get("nodes") or {}).items()
+                if n.get("name") and re.search(
+                    r"raop|zeroconf|airplay|remote", n["name"],
+                    re.I)]
+            moddir = Path("/usr/lib/pipewire-0.3")
+            try:
+                mods = sorted(p.name for p in moddir.iterdir())
+            except OSError:
+                mods = []
+            legs["remote_census"] = {
+                "remote_named_nodes": remoted,
+                "module_dir_count": len(mods),
+                "net_modules": [m for m in mods if re.search(
+                    r"raop|zeroconf|airplay", m)]}
+    finally:
+        _pwbind_r87_teardown(entry, failures, loads)
+    # ---------------- verdicts ----------------
+    for name in ("m_t_bridge", "m_t_serial", "m_t_objid",
+                 "m_t_garbage", "m_t_prop", "m_t_nt"):
+        l = legs.get(name)
+        if l is None:
+            continue
+        blob = (l.get("stderr") or "") + (l.get("stdout") or "")
+        if l.get("exit_code") == 0 or \
+                "no target node available" not in blob or \
+                "res:-2" not in blob:
+            failures.append(
+                f"{name}: rc={l.get('exit_code')} — the target-dead "
+                f"law fails ({blob[-160:]})")
+    for name in ("m_t_zero", "m_noauto"):
+        leg = legs[name]
+        snap = _pwbind_r87_last_snap(leg)
+        got = _pwbind_r87_consumers(leg)
+        if not snap.get("present") or got or \
+                snap.get("media_class") != "Stream/Output/Midi":
+            failures.append(
+                f"{name}: present={snap.get('present')} "
+                f"class={snap.get('media_class')} links={got} — the "
+                "publish-unlinked arm fails")
+    pin = legs["pin"]
+    if pin.get("file"):
+        f = pin["file"]
+        pl = pin.get("pwlink") or {}
+        if pl.get("exit_code") != 0:
+            failures.append(
+                f"pin: pw-link refused rc={pl.get('exit_code')}")
+        if not f.get("has_mthd") or (f.get("bytes") or 0) < 40 or \
+                not all(f.get("note_ons") or []) or \
+                not any(f.get("note_offs") or []):
+            failures.append(
+                f"pin: the pinned capture lacks the injected events "
+                f"{f} — the pin-carries law fails")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "midi pin leg unmeasured — bridge capture port or seq "
+            "14:0 absent")
+    sk = legs["skeleton"]["file"]
+    if legs["skeleton"].get("rc") == 0 or not sk.get("has_mthd") \
+            or not (20 <= (sk.get("bytes") or 0) <= 34) \
+            or any(sk.get("note_ons") or []):
+        failures.append(
+            f"skeleton: refused midirecord wrote {sk} rc="
+            f"{legs['skeleton'].get('rc')}")
+    md = legs["mdump_off"]
+    if md.get("exit_code") != 0 or "Note On" not in (
+            md.get("stdout") or ""):
+        failures.append(
+            f"mdump_off: rc={md.get('exit_code')} — the offline "
+            "parse failed")
+    live = legs["mdump_live"]["attempts"]
+    noted = [a for a in live if a.get("node")]
+    if live and not noted:
+        entry.setdefault("coverage_blocked", []).append(
+            "pw-mididump never published a node in 3 attempts — the "
+            "boundary's startup flake (live dump unmeasured)")
+    elif noted and not any("Note On" in (a.get("stdout") or "")
+                           for a in noted):
+        failures.append(
+            "mdump_live: a live node published and pinned but no "
+            "Note On/Off lines arrived")
+    for name in ("pactl_raop", "pactl_zc", "pactl_bogus"):
+        l = legs[name]
+        if l.get("exit_code") == 0 or \
+                "Failure: No such entity" not in (
+                    (l.get("stderr") or "") + (l.get("stdout") or "")):
+            failures.append(
+                f"{name}: rc={l.get('exit_code')} — the uniform "
+                "module-miss class fails")
+    for name in ("pwcli_raop", "pwcli_zc", "pwcli_null",
+                 "pwcli_panull"):
+        l = legs[name]
+        if "Could not load module" not in (
+                (l.get("stderr") or "") + (l.get("stdout") or "")):
+            failures.append(
+                f"{name}: the pw-cli module-miss class failed")
+    for name in ("remote_flag", "remote_env"):
+        l = legs[name]
+        if l.get("exit_code") == 0 or "Host is down" not in (
+                (l.get("stderr") or "") + (l.get("stdout") or "")):
+            failures.append(
+                f"{name}: rc={l.get('exit_code')} — the host-down "
+                "class fails")
+    l = legs["remote_cli"]
+    if l.get("exit_code") == 0 or "Host is down" not in (
+            (l.get("stderr") or "") + (l.get("stdout") or "")):
+        failures.append(
+            f"remote_cli: rc={l.get('exit_code')} — the -r refusal "
+            "failed")
+    cen = legs["remote_census"]
+    if cen["remote_named_nodes"]:
+        failures.append(
+            f"remote_census: remote-classed nodes exist "
+            f"{cen['remote_named_nodes']}")
+    if cen["net_modules"]:
+        failures.append(
+            f"remote_census: raop/zeroconf modules on disk "
+            f"{cen['net_modules']}")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -25576,6 +27631,7 @@ def main():
     parser.add_argument("--probe-alsapw-r84", action="store_true")
     parser.add_argument("--probe-pactlmon-r85", action="store_true")
     parser.add_argument("--probe-pwctl-r86", action="store_true")
+    parser.add_argument("--probe-pwbind-r87", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
     parser.add_argument("--probe-module-r80", action="store_true")
     parser.add_argument("--probe-capture-r79", action="store_true")
@@ -25583,7 +27639,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -25972,6 +28028,30 @@ def main():
             pwctl_meta_r86_entry()
         measurements["pwctl_tools_r86_probe"] = \
             pwctl_tools_r86_entry()
+    if args.probe_pwbind_r87:
+        # r87: the DEVICE-BINDING lattice — pw-cat/pw-play/pw-record/
+        # pw-midi* one-binary + last-wins direction flags, the playback
+        # --target/target.object/node.target/PIPEWIRE_PROPS precedence
+        # lattice (boundary-corrected), pw-cli on live objects (Props
+        # live-DSP, Format seal, send-command, destroy/create-node,
+        # no-FOREIGN-gate), the midi target-dead + pin-carries legs,
+        # and the remote/RAOP refusal family. A NEW parallel ledger
+        # family, prior rows untouched; r76-r86 guards inherited
+        # (seat-owned r87a_<pid> names, the private r87arole<pid>
+        # key, name-verified sink_name= unloads, never set-default-*,
+        # bounded process groups, link-validated monitor taps). The
+        # family lock is a FIXED corpus/live/ path — the r84 F1
+        # 3-seat consensus (a $TMPDIR-scoped lock does not exclude
+        # cross-TMPDIR same-family runs).
+        _r87_family_lock = _pwbind_r87_family_lock()   # held to exit
+        measurements["pwbind_modes_r87_probe"] = \
+            pwbind_modes_r87_entry()
+        measurements["pwbind_target_r87_probe"] = \
+            pwbind_target_r87_entry()
+        measurements["pwbind_cli_r87_probe"] = \
+            pwbind_cli_r87_entry()
+        measurements["pwbind_midi_r87_probe"] = \
+            pwbind_midi_r87_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -26622,7 +28702,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -26642,7 +28722,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
