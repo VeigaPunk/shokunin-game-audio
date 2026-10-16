@@ -1,0 +1,225 @@
+{
+  "started": "2026-10-16T07:53:25Z",
+  "legs": {
+    "version": {
+      "argv": [
+        "pw-profiler",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "pw-profiler\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8\n",
+      "stderr": "",
+      "stdout_bytes": 74,
+      "stderr_bytes": 0,
+      "wall_s": 0.004
+    },
+    "help": {
+      "argv": [
+        "pw-profiler",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "pw-profiler [options]\n  -h, --help                            Show this help\n      --version                         Show version\n  -r, --remote                          Remote daemon name\n  -o, --output                          Profiler output name (default \"profiler.log\")\n  -J, --json                            Dump raw data as JSON\n  -n, --iterations                      Collect this many samples\n",
+      "stderr": "",
+      "stdout_bytes": 403,
+      "stderr_bytes": 0,
+      "wall_s": 0.004,
+      "mentions_n": true,
+      "mentions_o": true,
+      "mentions_J": true,
+      "mentions_profiler_log": true
+    },
+    "opt_bogus": {
+      "argv": [
+        "pw-profiler",
+        "--r89criticbogus"
+      ],
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "pw-profiler: unrecognized option '--r89criticbogus'\npw-profiler [options]\n  -h, --help                            Show this help\n      --version                         Show version\n  -r, --remote                          Remote daemon name\n  -o, --output                          Profiler output name (default \"profiler.log\")\n  -J, --json                            Dump raw data as JSON\n  -n, --iterations                      Collect this many samples\n",
+      "stdout_bytes": 0,
+      "stderr_bytes": 455,
+      "wall_s": 0.004
+    },
+    "remote_bogus": {
+      "argv": [
+        "pw-profiler",
+        "-r",
+        "r89a_bogus_remote_critic",
+        "-J",
+        "-n",
+        "2"
+      ],
+      "exit_code": 255,
+      "stdout": "",
+      "stderr": "Can't connect: Host is down\n",
+      "stdout_bytes": 0,
+      "stderr_bytes": 28,
+      "wall_s": 0.006
+    },
+    "profiler_obj": {
+      "argv": [
+        "pw-cli",
+        "info",
+        "5"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Error: \"unsupported type PipeWire:Interface:Profiler\"\n",
+      "stdout_bytes": 0,
+      "stderr_bytes": 54,
+      "wall_s": 0.008
+    },
+    "profiler_enum": {
+      "argv": [
+        "pw-cli",
+        "enum-params",
+        "5",
+        "Props"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Error: \"unsupported type PipeWire:Interface:Profiler\"\n",
+      "stdout_bytes": 0,
+      "stderr_bytes": 54,
+      "wall_s": 0.007
+    },
+    "pw_dump": {
+      "argv": [
+        "pw-dump"
+      ],
+      "exit_code": 0,
+      "stdout": "[\n  {\n    \"id\": 0,\n    \"type\": \"PipeWire:Interface:Core\",\n    \"version\": 4,\n    \"permissions\": [ \"r\", \"x\", \"m\" ],\n    \"info\": {\n      \"cookie\": 397153254,\n      \"user-name\": \"vgpnk\",\n      \"host-name\": \"plazir27\",\n      \"version\": \"1.6.8\",\n      \"name\": \"pipewire-0\",\n      \"change-mask\": [ \"props\" ],\n      \"props\": {\n        \"application.language\": \"en_US.UTF-8\",\n        \"application.name\": \"pipewire\",\n        \"application.process.binary\": \"pipewire\",\n        \"application.process.host\": \"plazir27\",\n        \"application.process.id\": 2060,\n        \"application.process.session-id\": 2,\n        \"ap",
+      "stderr": "",
+      "stdout_bytes": 243628,
+      "stderr_bytes": 0,
+      "wall_s": 0.025,
+      "objects": 85,
+      "module_ids": [
+        "1",
+        "10",
+        "12",
+        "14",
+        "16",
+        "17",
+        "18",
+        "2",
+        "20",
+        "22",
+        "4",
+        "6",
+        "8"
+      ],
+      "module_count": 13,
+      "profiler_ids": [
+        5
+      ],
+      "clients": [
+        "Chromium input",
+        "WirePlumber",
+        "WirePlumber [client]",
+        "pactl",
+        "pipewire",
+        "pipewire",
+        "pipewire",
+        "pw-dump",
+        "waybar",
+        "xdg-desktop-portal",
+        "xdg-desktop-portal-hyprland"
+      ],
+      "pwprof_clients": 0,
+      "pwplay_clients": 0,
+      "r89_nodes": [],
+      "foreign_probe_nodes": [
+        "r84a_probe_548706",
+        "r87t_ns"
+      ]
+    },
+    "pactl_modules": {
+      "argv": [
+        "pactl",
+        "list",
+        "modules",
+        "short"
+      ],
+      "exit_code": 0,
+      "stdout": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0",
+      "stderr": "",
+      "stdout_bytes": 1571,
+      "stderr_bytes": 0,
+      "wall_s": 0.007,
+      "lines": 43,
+      "blank_lines": [
+        28
+      ],
+      "r89_modules": [],
+      "r8_modules": [
+        "536870923\tmodule-null-sink\tsink_name=r84a_probe_548706\t"
+      ]
+    },
+    "pwtop": {
+      "argv": [
+        "pw-top",
+        "-b",
+        "-n",
+        "1"
+      ],
+      "exit_code": 0,
+      "stdout": "S   ID  QUANT   RATE    WAIT    BUSY   W/Q   B/Q  ERR FORMAT           NAME \nC   29      0      0    ---     ---   ---   ---     0                  Dummy-Driver\nC   30      0      0    ---     ---   ---   ---     0                  Freewheel-Driver\nC   46      0      0    ---     ---   ---   ---     0                  Midi-Bridge\nC   49      0      0    ---     ---   ---   ---     0                  bluez_midi.server\nC  232      0      0    ---     ---   ---   ---     0                  alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\nC   97      0      0    ---     ---   ---   ---   ",
+      "stderr": "",
+      "stdout_bytes": 1240,
+      "stderr_bytes": 0,
+      "wall_s": 0.006
+    },
+    "ps": {
+      "argv": [
+        "ps",
+        "-eo",
+        "pid,etimes,args"
+      ],
+      "exit_code": 0,
+      "stdout": "    PID ELAPSED COMMAND\n      1   54936 /sbin/init splash\n      2   54936 [kthreadd]\n      3   54936 [pool_workqueue_release]\n      4   54936 [kworker/R-rcu_gp]\n      5   54936 [kworker/R-sync_wq]\n      6   54936 [kworker/R-kvfree_rcu_reclaim]\n      7   54936 [kworker/R-slub_flushwq]\n      8   54936 [kworker/R-netns]\n     11   54936 [kworker/0:0H-kblockd]\n     14   54936 [kworker/R-mm_percpu_wq]\n     15   54936 [ksoftirqd/0]\n     16   54936 [rcu_preempt]\n     17   54936 [rcub/1]\n     18   54936 [rcu_exp_par_gp_kthread_worker/1]\n     19   54936 [rcu_exp_gp_kthread_worker]\n     20   54936 [migra",
+      "stderr": "",
+      "stdout_bytes": 54691,
+      "stderr_bytes": 0,
+      "wall_s": 0.027,
+      "probe_processes": [
+        " 446929   41207 pactl subscribe",
+        "1774466      35 python3 corpus/fixtures/measure_audio.py --probe-pwprof-r89"
+      ]
+    },
+    "loadavg": {
+      "argv": [
+        "cat",
+        "/proc/loadavg"
+      ],
+      "exit_code": 0,
+      "stdout": "73.78 61.46 62.78 76/1977 1781756\n",
+      "stderr": "",
+      "stdout_bytes": 34,
+      "stderr_bytes": 0,
+      "wall_s": 0.002,
+      "loadavg": "73.78 61.46 62.78 76/1977 1781756"
+    },
+    "locks": {
+      "argv": [
+        "ls",
+        "-la",
+        "corpus/live/"
+      ],
+      "exit_code": 0,
+      "stdout": "total 16\ndrwxr-xr-x 1 vgpnk vgpnk   7108 Oct 16 04:51 .\ndrwxr-xr-x 1 vgpnk vgpnk     94 Oct 15 05:27 ..\ndrwxr-xr-x 1 vgpnk vgpnk      0 Oct 14 18:15 capture-r76-roundtrip\ndrwxr-xr-x 1 vgpnk vgpnk   1446 Oct 14 11:10 frontier-pipewire\ndrwxr-xr-x 1 vgpnk vgpnk     82 Oct 14 11:08 frontier-sndfile\ndrwxr-xr-x 1 vgpnk vgpnk    326 Oct 14 16:54 gst-scout\ndrwxr-xr-x 1 vgpnk vgpnk      0 Oct 14 14:13 integrator-r75-fold\n-rw-r--r-- 1 vgpnk vgpnk     52 Oct 16 04:23 measure_audio-btwit-r88.lock\n-rw-r--r-- 1 vgpnk vgpnk     52 Oct 16 04:13 measure_audio-pwbind-r87.lock\n-rw-r--r-- 1 vgpnk vgpnk     49 Oct",
+      "stderr": "",
+      "stdout_bytes": 18792,
+      "stderr_bytes": 0,
+      "wall_s": 0.007,
+      "lock_files": [
+        "measure_audio-btwit-r88.lock",
+        "measure_audio-pwbind-r87.lock",
+        "measure_audio-pwctl-r86.lock",
+        "measure_audio-pwprof-r89.lock"
+      ]
+    }
+  },
+  "finished": "2026-10-16T07:53:25Z"
+}

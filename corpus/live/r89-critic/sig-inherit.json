@@ -1,0 +1,38 @@
+{
+  "cases": [
+    {
+      "case": "A parent default",
+      "parent_ignores_hup": false,
+      "restore_signals": true,
+      "child_SigIgn": "0000000001001000",
+      "child_ignored": [
+        "SIGPIPE",
+        "SIGXFSZ"
+      ]
+    },
+    {
+      "case": "B parent ignores HUP",
+      "parent_ignores_hup": true,
+      "restore_signals": true,
+      "child_SigIgn": "0000000001001003",
+      "child_ignored": [
+        "SIGHUP",
+        "SIGINT",
+        "SIGPIPE",
+        "SIGXFSZ"
+      ]
+    },
+    {
+      "case": "C parent ignores HUP, no restore",
+      "parent_ignores_hup": true,
+      "restore_signals": false,
+      "child_SigIgn": "0000000001001003",
+      "child_ignored": [
+        "SIGHUP",
+        "SIGINT",
+        "SIGPIPE",
+        "SIGXFSZ"
+      ]
+    }
+  ]
+}

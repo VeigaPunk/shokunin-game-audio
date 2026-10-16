@@ -1,0 +1,74 @@
+{
+  "commit": "0d732989",
+  "lock_r89_sha256": "d670b5f574f50efc13b3932f33aaccfa28649abcc7fe72c815a5c26d1fcc2e5d",
+  "lock_r85_sha256": "ba9f24214492a4aedea7849855bf1a219730ab150d48205f2461762880b5ab91",
+  "cases": [
+    {
+      "case": "A",
+      "lock": "r89",
+      "tree1": "A/tree/corpus",
+      "tree2": "A/tree/corpus",
+      "tmp1": "tmpA",
+      "tmp2": "tmpA",
+      "expected": "SERIALIZED",
+      "got": "SERIALIZED",
+      "waited_s": 1.094,
+      "as_designed": true
+    },
+    {
+      "case": "B",
+      "lock": "r89",
+      "tree1": "A/tree/corpus",
+      "tree2": "A/tree/corpus",
+      "tmp1": "tmpA",
+      "tmp2": "tmpB",
+      "expected": "SERIALIZED",
+      "got": "SERIALIZED",
+      "waited_s": 1.097,
+      "as_designed": true
+    },
+    {
+      "case": "C",
+      "lock": "r85",
+      "tree1": "A/tree/corpus",
+      "tree2": "A/tree/corpus",
+      "tmp1": "tmpA",
+      "tmp2": "tmpB",
+      "expected": "RACED",
+      "got": "RACED",
+      "waited_s": 0.0,
+      "as_designed": true
+    },
+    {
+      "case": "D",
+      "lock": "r89",
+      "tree1": "A/tree/corpus",
+      "tree2": "B/tree/corpus",
+      "tmp1": "tmpA",
+      "tmp2": "tmpA",
+      "expected": "RACED",
+      "got": "RACED",
+      "waited_s": 0.0,
+      "as_designed": true
+    },
+    {
+      "case": "E",
+      "lock": "r85",
+      "tree1": "A/tree/corpus",
+      "tree2": "A/tree/corpus",
+      "tmp1": "tmpA",
+      "tmp2": "tmpA",
+      "expected": "SERIALIZED",
+      "got": "SERIALIZED",
+      "waited_s": 1.106,
+      "as_designed": true
+    }
+  ],
+  "lockfiles": [
+    "A/tree/corpus/live/measure_audio-pwprof-r89.lock",
+    "B/tree/corpus/live/measure_audio-pwprof-r89.lock",
+    "tmpA/measure_audio-pactlmon-r85.lock",
+    "tmpB/measure_audio-pactlmon-r85.lock"
+  ],
+  "live_lane_lock_untouched": true
+}

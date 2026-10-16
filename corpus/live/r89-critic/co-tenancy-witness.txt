@@ -1,0 +1,34 @@
+# r89 critic — co-tenancy witness (captured live 2026-10-16T07:53:34Z)
+
+## sibling seat process
+1774466    1537      45 python3 corpus/fixtures/measure_audio.py --probe-pwprof-r89
+
+## cwd
+lrwxrwxrwx 1 vgpnk vgpnk 0 Oct 16 04:53 /proc/1774466/cwd -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-verifier/tree
+
+## open fds (lock + stdout)
+total 0
+lr-x------ 1 vgpnk vgpnk 64 Oct 16 04:53 0 -> /dev/null
+l-wx------ 1 vgpnk vgpnk 64 Oct 16 04:53 1 -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-verifier/runs/r89v3.stdout.json
+lr-x------ 1 vgpnk vgpnk 64 Oct 16 04:53 166 -> anon_inode:sync_file
+l-wx------ 1 vgpnk vgpnk 64 Oct 16 04:53 2 -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-verifier/runs/r89v3.stderr.log
+lrwx------ 1 vgpnk vgpnk 64 Oct 16 04:53 25 -> /dev/dri/renderD128
+lrwx------ 1 vgpnk vgpnk 64 Oct 16 04:53 3 -> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r89-verifier/tree/corpus/live/measure_audio-pwprof-r89.lock
+l-wx------ 1 vgpnk vgpnk 64 Oct 16 04:53 4 -> /dev/full
+lr-x------ 1 vgpnk vgpnk 64 Oct 16 04:53 5 -> pipe:[88084072]
+lr-x------ 1 vgpnk vgpnk 64 Oct 16 04:53 7 -> pipe:[88098350]
+
+## lane lock state (corpus/live/measure_audio-pwprof-r89.lock)
+-rw-r--r-- 1 vgpnk vgpnk 52 2026-10-16 04:47:42.762208275 -0300 corpus/live/measure_audio-pwprof-r89.lock
+pid=1728427 ns=r89a_ns_1728427 role=r89arole1728427
+d4fb899e03a2ad235df28e1e595b8a280d331548e86f27098459393d232c94dd  corpus/live/measure_audio-pwprof-r89.lock
+
+## does the sibling hold an fd on a *tree* lock?
+1
+
+## profiler clients visible now
+['Chromium input', 'WirePlumber', 'WirePlumber [client]', 'pactl', 'pipewire', 'pipewire', 'pipewire', 'pipewire', 'pw-cat', 'pw-dump', 'pw-profiler', 'waybar', 'xdg-desktop-portal', 'xdg-desktop-portal-hyprland']
+
+## r89a nodes / modules visible now
+['r89a_ns_1774466', 'r89a_1774466_pl']
+1
