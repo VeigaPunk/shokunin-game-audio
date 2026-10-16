@@ -52964,53 +52964,60 @@ def _sofa_r100_sandbox_start(root, variant, props):
     logs = root / "logs"
     logs.mkdir(parents=True, exist_ok=True)
     procs = []
-    for name, argv in (("core", ["pipewire", "-c", "pipewire.conf"]),
-                       ("wp", ["wireplumber", "-p", "r100a-nohw"])):
-        if shutil.which(argv[0]) is None:
-            rec["error"] = f"{name} binary missing: {argv[0]}"
-            _sofa_r100_sandbox_stop(procs)
-            return None, rec, None
-        fh = open(logs / f"{variant}-{name}.log", "wb")
-        try:
-            proc = subprocess.Popen(
-                argv, stdout=fh, stderr=fh, stdin=subprocess.DEVNULL,
-                env={**os.environ, **env}, start_new_session=True,
-                preexec_fn=_sofa_r100_preexec)
-        except OSError as exc:
-            fh.close()
-            rec["error"] = f"{name} spawn failed: {exc}"[:160]
-            _sofa_r100_sandbox_stop(procs)
-            return None, rec, None
-        procs.append((name, proc, fh))
-        rec["procs"][name] = {"pid": proc.pid, "argv": argv}
-        if name == "core":
-            sock = root / "rt" / "pipewire-0"
-            waited = 0.0
-            while waited < 25.0:
-                if sock.exists():
-                    break
-                if proc.poll() is not None:
-                    rec["error"] = f"core died rc={proc.returncode}"
-                    _sofa_r100_sandbox_stop(procs)
-                    return None, rec, None
-                time.sleep(0.25)
-                waited += 0.25
-            else:
-                rec["error"] = "core socket never appeared"
+    try:
+        for name, argv in (("core", ["pipewire", "-c", "pipewire.conf"]),
+                           ("wp", ["wireplumber", "-p", "r100a-nohw"])):
+            if shutil.which(argv[0]) is None:
+                rec["error"] = f"{name} binary missing: {argv[0]}"
                 _sofa_r100_sandbox_stop(procs)
                 return None, rec, None
-            rec["socket_waited_s"] = round(waited, 2)
-        else:
-            time.sleep(2.0)
-    rec["procs"] = {k: v for k, v in rec["procs"].items()}
-    # the session manager must actually answer on the private socket
-    probe = _sofa_r100_pwdump(env)
-    rec["pwdump_probe"] = probe
-    if not probe.get("objects"):
-        rec["error"] = "private core/session manager answered no objects"
+            fh = open(logs / f"{variant}-{name}.log", "wb")
+            try:
+                proc = subprocess.Popen(
+                    argv, stdout=fh, stderr=fh, stdin=subprocess.DEVNULL,
+                    env={**os.environ, **env}, start_new_session=True,
+                    preexec_fn=_sofa_r100_preexec)
+            except OSError as exc:
+                fh.close()
+                rec["error"] = f"{name} spawn failed: {exc}"[:160]
+                _sofa_r100_sandbox_stop(procs)
+                return None, rec, None
+            except BaseException:
+                fh.close()
+                raise
+            procs.append((name, proc, fh))
+            rec["procs"][name] = {"pid": proc.pid, "argv": argv}
+            if name == "core":
+                sock = root / "rt" / "pipewire-0"
+                waited = 0.0
+                while waited < 25.0:
+                    if sock.exists():
+                        break
+                    if proc.poll() is not None:
+                        rec["error"] = f"core died rc={proc.returncode}"
+                        _sofa_r100_sandbox_stop(procs)
+                        return None, rec, None
+                    time.sleep(0.25)
+                    waited += 0.25
+                else:
+                    rec["error"] = "core socket never appeared"
+                    _sofa_r100_sandbox_stop(procs)
+                    return None, rec, None
+                rec["socket_waited_s"] = round(waited, 2)
+            else:
+                time.sleep(2.0)
+        rec["procs"] = {k: v for k, v in rec["procs"].items()}
+        # the session manager must actually answer on the private socket
+        probe = _sofa_r100_pwdump(env)
+        rec["pwdump_probe"] = probe
+        if not probe.get("objects"):
+            rec["error"] = "private core/session manager answered no objects"
+            _sofa_r100_sandbox_stop(procs)
+            return None, rec, None
+        return env, rec, procs
+    except BaseException:
         _sofa_r100_sandbox_stop(procs)
-        return None, rec, None
-    return env, rec, procs
+        raise
 
 
 def _sofa_r100_sandbox_stop(procs):
@@ -53270,7 +53277,7 @@ def _sofa_r100_teardown_laws(entry, leg, row):
     if fc_nodes:
         _sofa_r100_fail(entry, f"{leg}: filter-chain nodes survived the "
                                f"unload: {fc_nodes}")
-    if mod and not mod.get("matched"):
+    if not mod.get("matched"):
         _sofa_r100_fail(entry, f"{leg}: the module unload was never verified "
                                f"against its own nodes: {mod}")
 
@@ -54041,6 +54048,10 @@ def sofa_clock_r100_entry():
                 vrec["server_clock"] = mid.get("core")
                 vrec["driver"] = mid.get("drivers") or []
                 vrec["settings"] = mid.get("settings") or {}
+                for prop, value in props.items():
+                    key = prop.removeprefix("default.")
+                    _sofa_r100_eq(entry, leg, f"live {key}",
+                                  vrec["settings"].get(key), str(value))
                 try:
                     vrec["dropin"] = (root / "conf" / variant /
                                       "pipewire.conf.d" /
@@ -54060,23 +54071,31 @@ def sofa_clock_r100_entry():
         # the session manager must never have enumerated a hardware device
         wp_logs = sorted((root / "logs").glob("*-wp.log"))
         alsa_lines = 0
+        log_errors = [] if wp_logs else ["no private WirePlumber logs"]
         for p in wp_logs:
             try:
                 alsa_lines += sum(1 for ln in p.read_text(errors="replace")
                                   .splitlines() if "alsa" in ln.lower())
-            except OSError:
-                alsa_lines = -1
-        entry["wp_alsa_lines"] = alsa_lines
+            except OSError as exc:
+                log_errors.append(f"{p}: {type(exc).__name__}")
+        entry["wp_alsa_lines"] = None if log_errors else alsa_lines
+        entry["wp_alsa_log_errors"] = log_errors
+        if log_errors:
+            _sofa_r100_fail(entry, "clock: private session-manager logs "
+                                   "missing/unreadable; no-hardware premise "
+                                   f"unproven: {log_errors}")
         if alsa_lines != 0:
-            _sofa_r100_fail(entry, "clock: the private session manager log "
+            _sofa_r100_fail(entry, "clock: readable private session-manager logs "
                                    f"mentions alsa {alsa_lines} times -- the "
                                    "no-hardware premise is unproven")
-        _sofa_r100_teardown(entry, failures, {})
     finally:
         try:
-            shutil.rmtree(root, ignore_errors=True)
-        except OSError:
-            pass
+            _sofa_r100_teardown(entry, failures, {})
+        finally:
+            try:
+                shutil.rmtree(root, ignore_errors=True)
+            except OSError:
+                pass
     entry["failures"] = failures
     return entry
 
