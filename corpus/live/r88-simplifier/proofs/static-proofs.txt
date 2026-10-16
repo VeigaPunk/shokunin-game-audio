@@ -1,0 +1,38 @@
+[PASS] S1a pinned blob sha256 
+[PASS] S1b region markers 
+[PASS] S1c landing deletions == 3 wiring splices (3 deletions)
+[PASS] S1d landing additions == 1772 (1772)
+[PASS] S1e every wiring splice replaced by a btwit line 
+[PASS] S2a every r88 module-level def/const referenced >=1x beyond definition (43 names)
+[PASS] S3a runner call sites == 19 
+[PASS] S3b zero call sites bind env/stdin_data 
+[PASS] S3c env/stdin_data appear only inside the runner 
+[PASS] S3d runner body uses both params only in the folded expressions 
+[PASS] S4a teardown has 3 params, 0 defaults 
+[PASS] S4b teardown 3/3 call sites pass 3 positionals, no kwargs 
+[PASS] S4c every loads[...] store is _btwit_r88_load_ns(...) 
+[PASS] S4d loads = {} initialized in all 3 entries 
+[PASS] S5a _pwcat_r83_ns_load has exactly 2 returns, both `leaf` 
+[PASS] S5b leaf is built from 2 dict literals (else-path + except-path) 
+[PASS] S5c load_ns sets field/value unconditionally 
+[PASS] S6a block has default loads=None 
+[PASS] S6b block: 3 call sites omit loads, 5 pass it omit=[28114, 28440, 29024] pass=[28128, 28447, 28453, 28466, 29032]
+[PASS] S6c omitted-loads sites are the missing-tools early blocks [28114, 28440, 29024]
+[PASS] S7a exactly 4 _frames_cache occurrences in the whole file 
+[PASS] S7b top_until never writes _frames_cache 
+[PASS] S7c the only write is on legs['pt_n3'] (line 29047) 
+[PASS] S8a found the (nid, n) comprehension 
+[PASS] S8b `nid` never loaded inside the comprehension 
+[PASS] S9a every r88 function has a symtable entry set()
+[PASS] S9b only _btwit_r88_run's symbol set changes, by exactly {env, stdin_data} {'_btwit_r88_run': {'env', 'stdin_data'}}
+[PASS] S10a leg-key set identical base vs folded (71 keys)
+[PASS] S10b entry-key set identical base vs folded (['blocked', 'coverage_blocked', 'failures', 'legs', 'own_nodes_after', 'refs', 'residual_destroy', 'sinks_gone', 'tools', 'unloads'])
+[PASS] S11a numstat 12 19 (net -7) '12\t19\tcorpus/fixtures/measure_audio.py'
+[PASS] S11b git apply --check clean against live tree ''
+[PASS] S11c folded sha256 == 1beac939... 
+[PASS] S11d folded line count 30497 
+[PASS] S11e all hunks inside the r88 region [27656, 28018, 28043, 28058, 28070, 28261, 29067, 29129]
+[PASS] S11f patch adds 12 / deletes 19 lines (net -7) add=12 del=19
+[PASS] S12a tracked fixture unmodified vs HEAD 
+
+STATIC PROOFS: ALL PASS

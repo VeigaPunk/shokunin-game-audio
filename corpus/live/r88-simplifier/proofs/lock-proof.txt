@@ -1,0 +1,19 @@
+[PASS] L1a r88 lock CODE (docstring/comments excluded) has no tempfile/gettempdir/TMPDIR 
+[PASS] L1b r88 lock path is ROOT/live/measure_audio-btwit-r88.lock 
+[PASS] L1c ROOT derives from the fixture's own location ROOT = Path(__file__).resolve().parents[1]
+[PASS] L1d[r82] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r84] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r85] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1e[r86] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L1e[r87] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L0a committed resolution ROOT=corpus -> the on-disk lane lock /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-btwit-r88.lock
+[PASS] L0b lane lock holds a one-line pid/ns/role witness b'pid=1298372 ns=r88a_ns_1298372 role=r88arole1298372\n'
+      lane lock: size=52 mtime=1792135405.381 (2026-10-16T04:23:25)
+[PASS] L2a both TMPDIRs differ and both resolve the same lock path /home/vgpnk/Projects/shokunin/tmp/r88simp-lock/treeA/corpus/live/measure_audio-btwit-r88.lock
+[PASS] L3a contender (different TMPDIR) blocked until holder exited waited 1.975s (holder held 2.5s)
+[PASS] L3b holder acquired immediately 0.0s
+[PASS] L6a cross-tree runs resolve DIFFERENT lock paths A=/home/vgpnk/Projects/shokunin/tmp/r88simp-lock/treeA/corpus/live/measure_audio-btwit-r88.lock B=/home/vgpnk/Projects/shokunin/tmp/r88simp-lock/treeB/corpus/live/measure_audio-btwit-r88.lock
+[PASS] L7a cross-tree contender did NOT block (race, residual) waited 0.0s while holder held 2.5s
+[PASS] L8a fail-open: missing corpus/live/ -> lock returns None (no exclusion), recorded as inherited caveat {'mode': 'N', 'wait_s': 0.0, 'fd': None, 'resolved': None, 'tmpdir': '/home/vgpnk/Projects/shokunin/tmp/r88simp-lock/tmpA', 'root': '/home/vgpnk/Projects/shokunin/tmp/r88simp-lock/treeNoLive/corpus'}
+
+LOCK PROOFS: ALL PASS

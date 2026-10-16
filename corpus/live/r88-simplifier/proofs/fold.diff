@@ -1,0 +1,109 @@
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+index bc5a978..921c475 100755
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -27656,24 +27656,21 @@ def _btwit_r88_norm(text):
+     return s
+ 
+ 
+-def _btwit_r88_run(argv, timeout_s, env=None, stdin_data=None,
+-                   keep_chars=900, keep_raw=False):
++def _btwit_r88_run(argv, timeout_s, keep_chars=900, keep_raw=False):
+     """One bounded spawn -> rc/signal/stdout/stderr + r88 error class
+     (same kill-group discipline as r87's runner)."""
+     rec = {"argv": " ".join(str(a) for a in argv)}
+     try:
+         proc = subprocess.Popen(
+             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-            stdin=(subprocess.PIPE if stdin_data is not None
+-                   else subprocess.DEVNULL),
+-            env=env, start_new_session=True)
++            stdin=subprocess.DEVNULL, start_new_session=True)
+     except OSError as exc:
+         rec["spawn_error"] = str(exc)[:160]
+         return rec
+     t0 = time.monotonic()
+     killed = False
+     try:
+-        out, err = proc.communicate(input=stdin_data, timeout=timeout_s)
++        out, err = proc.communicate(timeout=timeout_s)
+     except subprocess.TimeoutExpired:
+         killed = True
+         try:
+@@ -28018,13 +28015,12 @@ def _btwit_r88_teardown(entry, failures, loads):
+     """Name-verified unload of every own module, then the residue
+     destroy: any surviving r88a_<pid>-tagged node is destroyed by id
+     via pw-cli before the final sweep."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     g = _pactlmon_r85_graph()
+     residual = sorted(
+         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+@@ -28043,7 +28039,7 @@ def _btwit_r88_teardown(entry, failures, loads):
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -28058,7 +28054,7 @@ def _btwit_r88_teardown(entry, failures, loads):
+     else:
+         rest = sorted(n for n in names
+                       if f"r88a_{BTWIT_R88_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -28070,12 +28066,11 @@ def _btwit_r88_block(entry, failures, msg, loads=None):
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     entry["failures"] = failures
+     return entry
+ 
+@@ -28261,8 +28256,8 @@ def btabs_bluez_r88_entry():
+                 % (fac, f"{BTWIT_R88_PREFIX}_{name}"))
+         g2 = _pactlmon_r85_graph()
+         legs["bz_own_residue"] = sorted(
+-            n.get("name") for nid, n in
+-            (g2.get("nodes") or {}).items()
++            n.get("name") for n in
++            (g2.get("nodes") or {}).values()
+             if n.get("name") and
+             f"{BTWIT_R88_PREFIX}_bz_create" in n["name"])
+     finally:
+@@ -29067,7 +29062,6 @@ def pwtop_r88_entry():
+         m = re.search(r'state: "([a-z]+)"',
+                       r_st.get("stdout_raw") or "")
+         r_top, t_frames = _btwit_r88_top_until(3, 2, tries=2)
+-        r_top.pop("_frames_cache", None)
+         legs["pt_state_idle_toprec"] = r_top
+         own_row = next((r for r in (t_frames[-1] if t_frames else [])
+                         if r["id"] == int(own_id)), None)
+@@ -29129,7 +29123,6 @@ def pwtop_r88_entry():
+                                    r_st2.get("stdout_raw") or "")
+                     r_top2, t2 = _btwit_r88_top_until(
+                         3, 2, bound_s=20.0, tries=2)
+-                    r_top2.pop("_frames_cache", None)
+                     legs["pt_state_active_toprec"] = r_top2
+                     row2 = next(
+                         (r for r in (t2[-1] if t2 else [])

@@ -1,0 +1,66 @@
+# r88 simplifier — frozen-probeParent labrat dispatch (verbatim report)
+
+Agent `8c774af2` (ufo-labrat, bounded depth-2, read-only, single dispatch).
+Hypotheses H1–H4 were derived by this seat from the fold items and the
+round's special ask (fixed-path lock). The labrat answered by reading the
+pinned copy only; no files created/modified/deleted; no commands spawned.
+
+Its H2 line numbers for `_pwcat_r83_ns_load` returns (L16652/L16664) and
+its H3/H4 citations were independently re-derived by this seat's own
+proof scripts (S4/S5/S7, L1/L0) before this report was written.
+
+-----------------------------------------------------------------------
+# LABRAT CENSUS REPORT — pinned blob `base-measure_audio.py` (sha256 ad9d…f4c4)
+
+All evidence below is from the pinned copy; line numbers are the pinned file's (byte-identical to the committed blob). Read-only; no commands executed, no files touched. Two items (lock-file size/mtime, ROOT resolution at runtime) were not directly measurable with read-only file tools and are marked as such.
+
+---
+
+## H1 — `env`/`stdin_data` never bound by any call site — **CONFIRMED**
+
+`_btwit_r88_run` signature (L27659–27660): `(argv, timeout_s, env=None, stdin_data=None, keep_chars=900, keep_raw=False)`.
+
+All 19 call sites enumerated; every one passes `(argv, timeout_s)` then only `keep_chars=`/`keep_raw=` keywords:
+L27711, 27718, 27725 (via `_btwit_r88_cli`/`_pactl`/`_busctl`), L27775, 27870, 28244, 28514, 28599, 28601, 28603, 28613, 28635, 28650, 28721, 29042, 29048, 29051, 29054, 29057. **Zero** pass `env=`, `stdin_data=`, or a third positional. File-wide grep for `stdin_data` in the r88 region hits only the definition (L27659, 27667, 27676); the `stdin_data=` uses at L25247/L26541 belong to `_pwctl_r86_run`/`_pwbind_r87_run`, different functions.
+
+Body usage: L27667–27668 `stdin=(subprocess.PIPE if stdin_data is not None else subprocess.DEVNULL)` — with `stdin_data` always None this is always `DEVNULL`; L27669 `env=env` — always None → inherits parent env; L27676 `proc.communicate(input=stdin_data, timeout=timeout_s)` → always `input=None`.
+
+## H2 — `loads`/leaf guards never select fallback — **CONFIRMED (within-file census)**
+
+- `_pwcat_r83_ns_load` (L16633): exactly two `return` statements — L16652 `return leaf` and L16664 `return leaf` — where `leaf` is built only as dict literals at L16645/L16650. **Every path returns a dict.**
+- `_btwit_r88_load_ns` (L28008–28014): `leaf = _pwcat_r83_ns_load(name)`, sets `leaf["field"]`, `leaf["value"]`, returns dict.
+- All `loads[...]` stores in 27507–29252: L28121, L28445, L28705, L29030 — all assigned from `_btwit_r88_load_ns(...)`. `loads` itself initialized as `loads = {}` at L28117, L28443, L29027.
+- `_btwit_r88_teardown(entry, failures, loads)` (L28017): **no default** for `loads`. Call sites: L28269, L28764, L29158 — all pass `loads` positionally, always a dict.
+- `_btwit_r88_block(entry, failures, msg, loads=None)` (L28068): **has default**. Call sites omitting `loads`: L28114, L28440, L29024 (the "missing tools" early blocks — all fire *before* `loads = {}` is assigned). Call sites passing it: L28128, L28447, L28453, L28466, L29032.
+- Consequence: `(loads or {})` never selects `{}` at teardown (loads always a dict; at block it selects `{}` only via the `None` default, which is intended). `leaf = leaf or {}` (L28022, L28073) never selects `{}` since every stored value is a dict. Caveat: verdict covers all in-file call paths; an external caller could still pass None/non-dict — the guards are dead code *for this file's* call graph.
+
+## H3 — the two `_frames_cache` pops are provable no-ops — **CONFIRMED**
+
+All 4 occurrences of the literal in the file:
+- L29047 `legs["pt_n3"]["_frames_cache"] = legs_pt_n3_frames` — a store into the rec returned by the L29045 call (external post-store, consumer at L29175 `fr = l.pop("_frames_cache", [])`).
+- L29070 `r_top.pop("_frames_cache", None)` — `r_top` from L29069 `_btwit_r88_top_until(3, 2, tries=2)`.
+- L29132 `r_top2.pop("_frames_cache", None)` — `r_top2` from L29130 `_btwit_r88_top_until(...)`.
+- L29175 — pop of the L29047 store on `legs["pt_n3"]`.
+
+`_btwit_r88_top_until` (L27862–27881) builds `rec` solely from `_btwit_r88_run` (keys: argv, spawn_error|exit_code/signal/killed_at_bound/wall_s/stdout_head/stdout/stdout_bytes/stderr_head/stderr/stderr_bytes/error_class/error_hit, ±stdout_raw/stderr_raw) plus `attempt` (L27873), `frames` (L27874), `status_sets` (L27875); it pops `stdout_raw`/`stderr_raw` (L27877–27878). **It never writes `_frames_cache`.** The only store of that key anywhere is L29047, on a different dict from a different call. Ergo L29070 and L29132 pop an absent key — dead statements.
+
+## H4 — fixed-path lock — **CONFIRMED on all four points**
+
+(i) Body L27968–27984 read in full: no `tempfile`, `gettempdir`, or `TMPDIR` reference. L27972: `path = ROOT / "live" / "measure_audio-btwit-r88.lock"`.
+
+(ii) `ROOT` defined at L26: `ROOT = Path(__file__).resolve().parents[1]` — derived from the fixture's own location. For the committed `corpus/fixtures/measure_audio.py`, `parents[1]` = `corpus/`, yielding `corpus/live/measure_audio-btwit-r88.lock`. (Note: evaluated on the *pinned copy*'s own path, parents[1] would be `r88-simplifier/` — a pinned-location artifact, not the committed semantics.)
+
+(iii) `corpus/live/measure_audio-btwit-r88.lock` **exists on disk now**; content read: `pid=1298372 ns=r88a_ns_1298372 role=r88arole1298372` (1 line, ~52 bytes). **Not measurable:** exact byte size/mtime — my substrate exposes no stat; size inferred ≈52 B from content, mtime unmeasured.
+
+(iv) Sole call site L29817: `_r88_family_lock = _btwit_r88_family_lock()   # held to exit`. File-wide grep: `_r88_family_lock` occurs only at L29817 — the binding is never referenced again; it exists only to keep the fd alive (flock held until process exit). The returned-fd binding serves retention only, nothing else.
+
+Other lock functions in the same file that **do** use `tempfile.gettempdir()`:
+- `_ffpw_r82_family_lock` (def L14757): L14764 `path = Path(tempfile.gettempdir()) / "measure_audio-ffmpeg-r82.lock"`
+- `_alsapw_r84_family_lock` (def L19841): L19846 `path = Path(tempfile.gettempdir()) / "measure_audio-alsapw-r84.lock"`
+- `_pactlmon_r85_family_lock` (def L22314): L22318 `path = Path(tempfile.gettempdir()) / \ …` (r85 lock)
+
+Non-TMPDIR precedent: `_pwctl_r86_family_lock` (L24118) and `_pwbind_r87_family_lock` (L25844) already live under `corpus/live/` per comments L24120–24122 and L25846–25847 ("never TMPDIR" consensus). So r88's fixed path follows the r86/r87 pattern; r82/r84/r85 are the TMPDIR-stragglers.
+
+---
+
+Cleanup status: nothing created, modified, or deleted; no processes spawned. Measured vs inferred: all verdicts are direct file reads; lock-file size/mtime and runtime ROOT resolution were inferential only, as flagged.

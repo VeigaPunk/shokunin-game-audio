@@ -1,0 +1,24 @@
+== O1: `_r88_family_lock` is an intentional fd hold, NOT a dead binding ==
+  :27968 def _btwit_r88_family_lock():
+  :29817 _r88_family_lock = _btwit_r88_family_lock()   # held to exit
+  -> removing the assignment would drop the flock and let two same-tree runs interleave; NOT folded.
+
+== O2: unused bindings left in place (cosmetic, no line change) ==
+  :28501 rec, own_dump = _btwit_r88_dump_objs(own_id)  (rec unused; call has the side effect)
+  :28587 pk, _pl = _btwit_r88_cli_props(r_p.get("stdout_raw") or "")  (pk unused; call has the side effect)
+  -> kept: a rename to _rec/_pk is style, not a deletion; the T6 loop-var fold is the only true binding deletion offered.
+
+== O3: duplicate spawns observed (live evidence, not folded) ==
+  wd_dump_color spawns `pw-dump --color=always <id>` 3 times (record, json_parses probe, has_ansi probe)
+  _btwit_r88_dump_objs spawns `pw-dump <args>` twice per call (bounded recorded witness + full JSON parse)
+  -> intentional: the recorded rec truncates at keep_chars=300, the parse needs the full stream; not folded.
+
+== O4: pre-existing tracked dirty .pyc (NOT touched by this seat) ==
+  /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+  size=1670979 mtime=1792135372.953 (2026-10-16T04:22:52) sha256=d758dabd26a5cf8626d869874a560e3162dd5b5dfc8adfe1aa00c8f07d0cbb36
+  git status: M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+  -> dirty before this seat's first command (mtime 04:22:52, inside the author window per r88-scribe ADJ-10); every import in this seat used PYTHONDONTWRITEBYTECODE on scratch copies only.
+
+== O5: tree state at report time ==
+  HEAD=c4de692e (pin c19bec96; fixture sha256 unchanged at HEAD: True)
+  fixture vs HEAD numstat: '' (empty = clean)

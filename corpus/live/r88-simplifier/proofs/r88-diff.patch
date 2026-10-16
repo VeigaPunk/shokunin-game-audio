@@ -1,0 +1,1821 @@
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+index a712ccc6..bc5a978d 100755
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -27504,6 +27504,1754 @@ def pwbind_midi_r87_entry():
+     return entry
+ 
+ 
++# r88: the BLUEZ ABSENT-CLASS + WITNESS-DIFF lattice — bluetooth is
++#     VACUOUS BY ABSENCE on this host (no bluez audio object exists and
++#     none can be fabricated: the only paired device is a HID-only
++#     DualSense, module-bluez5*.so is not installed, every
++#     api.bluez5.* create-node is refused server-side, and the stack
++#     itself is alive — 21 A2DP endpoints registered, the BLE-MIDI
++#     bridge node live). The lattice pins the refusal/absence classes
++#     honestly and diffs the four native witnesses (pw-dump vs pw-cli
++#     info/ls/enum-params vs pw-top vs pactl) — --probe-btwit-r88.
++#
++# A NEW parallel ledger family; prior rows untouched; every r76-r87
++# guard inherited (seat-owned r88a_<pid> names, the private
++# r88arole<pid> key, name-verified sink_name= unloads, never
++# set-default-*, bounded process groups). The family lock is a FIXED
++# lane path under corpus/live/ (the r84 F1 3-seat consensus — never
++# TMPDIR). All claims are the r88 boundary's THIS-HOST survivals
++# (PipeWire 1.6.8, WirePlumber 0.5.17, libpulse 17.0, bluez 5.87,
++# python 3.14.7) — the scout's falsified/weakened rows are dropped or
++# re-armed at the boundary's values:
++#
++#   ABSENT CLASS (V1/V2/V4/V5 survive): `pactl list` matches
++#     bluez|a2dp|sco exactly ONCE and the line is `session.services` —
++#     an ADVERTISED capability, not an object; `pactl list cards` has no
++#     bluez card and no sink/source is bluez; every node with
++#     device.api=bluez5 / api.bluez5.* factory is Midi/Bridge (the live
++#     bluez_midi.server — bluez-MIDI works while bluez-audio is absent;
++#     different axes). The adapter is Powered and Media1 advertises
++#     A2DP 110a/110b (capability ≠ object); the paired device record is
++#     HID/PnP UUIDs only — no A2DP/HFP UUID, so no connect can yield a
++#     bluez audio node (never connected, never fabricated). pactl
++#     load-module module-bluez5-{discover,device} → rc 1
++#     `Failure: No such entity` (4 argv shapes); send-message → rc 1
++#     `Send message failed: No such entity`; set-card-profile on the
++#     absent bluez_card → rc 1 `Failure: No such entity` — but the V3
++#     confound is armed, not hidden: a BOGUS profile on a REAL card
++#     returns the identical text (the refusal text is not
++#     object-diagnostic; the card's absence rests on the independent
++#     cards witness), and the same-profile set on a real card is rc 0
++#     (the verb class works). `find /usr/lib*` has zero
++#     module-bluez5*.so; /usr/lib/spa-0.2/bluez5/ holds 14 files (the
++#     boundary's off-by-one correction) and `strings` shows
++#     `spa.bluez5.codecs` + `property bluez5.codecs '%s' is not an
++#     array` — the property IS parsed (the scout's measured-absence was
++#     falsified; only the standalone line form is absent). pw-cli
++#     create-node api.bluez5.{a2dp-sink,sink,a2dp.source} → res:-2 and
++#     api.bluez5.midi.node → res:-22, all rc 0, nothing created —
++#     fabrication is refused server-side. load-module module-null-sink
++#     rc 0 is the live positive control.
++#
++#   WITNESS-DIFF LAWS (V9/V11-V15/V19-V22 survive; V10/V16/V17 do
++#     not — dropped or re-armed): `pw-dump <N>` is a SET query
++#     {object.id==N} ∪ {object.serial==N} — never a single-object view
++#     (membership mode-invariant under -R/-i 0; -s prints the same set
++#     in SPA form; ports are never returned by their node.id — no
++#     nested expansion). `pw-cli info` is a SINGLETON keyed by native
++#     id only — a live serial gives `unknown global` while `pw-cli ls
++#     Node` DOES expose object.serial (the serial IS resolvable through
++#     ls). Prop KEYS agree between info and dump (own node + Device);
++#     values do not — dump preserves int/bool JSON types, info quotes
++#     everything. Param names agree; values do not — write-side params
++#     (Format, Buffers, Tag, Latency, ProcessLatency) are `[]` in dump
++#     while cli lists the same names with access flags (key presence ≠
++#     value availability). `pactl` index == native object.serial (own
++#     sink + every matched sink). State vocabularies AGREE in a tight
++#     window (the scout's disagreement rule was withdrawn — the
++#     boundary's A/B measured pactl SUSPENDED ↔ dump suspended ↔ cli
++#     suspended ↔ top S and RUNNING ↔ running ↔ R, 3/3 each side).
++#     The silent-failure inventory (rc 0, empty): `pw-dump` on a
++#     never-live/non-numeric/overflow key AND on a DEAD serial all
++#     print nothing — silent absence; `pw-cli info` on a live-but-
++#     invisible Metadata id is rc 0 with NO message at all (vs
++#     `unknown global` which has one); `pw-cli info all` silently omits
++#     every Metadata + SecurityContext + Profiler object; `pw-cli ls
++#     Metadata` sees a strict superset of pw-dump's Metadata set (the
++#     registry-vs-bind visibility split); `pw-dump ''` IS the full
++#     dump; `pw-dump <id1> <id2>` honors id1 only; `--color=always`
++#     breaks JSON; `pw-dump -1` is rc 255. enum-params: a bare param
++#     number ≡ its name (4 ≡ Format, byte-identical modulo remote
++#     counters), unknown name → `unknown param type` rc 0, Client →
++#     `enum-params not implemented on object` rc 0. pw-cli prop-block
++#     layouts are TWO: `ls` flat `key = "v"` vs `info` `* properties:`
++#     + `*\t\t` (a parser tuned on one silently yields 0 on the
++#     other — the honest re-measurement of the boundary's class-
++#     dependent wording, which does not reproduce verbatim on this
++#     host: info is starred for nodes, ports AND devices here).
++#
++#   PW-TOP LAWS (V13/V14): `pw-top -b -n 1` prints ONE frame whose
++#     every row is `C` (CREATING) — 25/25 across scout+boundary incl.
++#     hog windows; `-n 0` is the same single frame; the LAST frame of
++#     `-n 2` carries real S/I/R states (frame count is not guaranteed
++#     to equal N — read the last frame, never the first); `-n -1` and
++#     `-n abc` are INFINITE (bound-killed); `-r` bogus is the family's
++#     one LOUD failure (rc 255 `Can't connect: Host is down`).
++#
++# Rows assert rc + error class + set membership + vocab agreement +
++# silence/non-silence; volatile text (ids, serials, seq counters,
++# wall times, boot-local ordering) is recorded, never armed. Own
++# objects carry the deterministic arms; foreign objects are measured
++# inside tight brackets with one re-census on churn — never armed on
++# a captured id.
++
++BTWIT_R88_PID = os.getpid()
++BTWIT_R88_PREFIX = f"r88a_{BTWIT_R88_PID}"
++BTWIT_R88_NS = f"r88a_ns_{BTWIT_R88_PID}"        # probe null sink
++BTWIT_R88_NS2 = f"r88a_ns2_{BTWIT_R88_PID}"      # dead-serial sink
++BTWIT_R88_ROLE = f"r88arole{BTWIT_R88_PID}"      # private restore key —
++                                               # NEVER shared `music`
++BTWIT_R88_DEAD = "98765432"          # never-live global (id and serial)
++BTWIT_R88_SPA_DIR = "/usr/lib/spa-0.2/bluez5"
++BTWIT_R88_PWT_BOUND_S = 4.0
++BTWIT_R88_STREAM_WAIT_S = 6.0
++# bluez 16-bit UUIDs that would mark a DEVICE record as audio-capable
++# (A2DP src/sink, AVRCP target/ctrl, HFP HF/AG, HSP HS/AG, headset,
++# handsfree, AVCTP/AVDTP/AVRCP_BROWSING transports, LE audio) — the
++# paired DualSense carries 0x1124 (HID) + 0x1200 (PnP) only.
++BTWIT_R88_AUDIO_UUIDS = {
++    "110a", "110b", "110c", "110e", "111e", "111f", "1108", "1112",
++    "1103", "1101", "1131", "1132", "111b", "112d", "112e", "112f",
++    "1130", "1136", "113a", "113b", "1204", "1843", "1844", "1845",
++    "1846"}
++
++
++# r88-local error classes — family-local, checked before the
++# r87->r86->r84 chain (never prepended into any shared table).
++_BTWIT_R88_ERR_CLASSES = (
++    ("pa_sendmsg_noent", r"Send message failed: No such entity"),
++    ("pwtop_connect_down", r"Can't connect[^\n]*Host is down"),
++    ("pwdump_invalid_opt", r"invalid option -- '[^']+'"),
++    ("cli_enum_notimpl",
++     r"enum-params not implemented on object \d+"),
++    ("cli_unsupported_type", r"unsupported type [^\n]+"),
++)
++
++
++def _btwit_r88_errclass(text):
++    for name, pat in _BTWIT_R88_ERR_CLASSES:
++        m = re.search(pat, text or "")
++        if m:
++            return name, m.group(0).strip()
++    return _pwbind_r87_errclass(text or "")
++
++
++def _btwit_r88_norm(text):
++    """Volatile-field scrub: r87's node/seq/hex classes plus the
++    `id:<n> seq:<n>` remote-error counters and `object <n>` (the
++    enum-params not-implemented text embeds the live id)."""
++    s = _pwbind_r87_norm(text or "")
++    s = re.sub(r"id:\d+ seq:\d+", "id:<n> seq:<n>", s)
++    s = re.sub(r"object \d+", "object <n>", s)
++    return s
++
++
++def _btwit_r88_run(argv, timeout_s, env=None, stdin_data=None,
++                   keep_chars=900, keep_raw=False):
++    """One bounded spawn -> rc/signal/stdout/stderr + r88 error class
++    (same kill-group discipline as r87's runner)."""
++    rec = {"argv": " ".join(str(a) for a in argv)}
++    try:
++        proc = subprocess.Popen(
++            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++            stdin=(subprocess.PIPE if stdin_data is not None
++                   else subprocess.DEVNULL),
++            env=env, start_new_session=True)
++    except OSError as exc:
++        rec["spawn_error"] = str(exc)[:160]
++        return rec
++    t0 = time.monotonic()
++    killed = False
++    try:
++        out, err = proc.communicate(input=stdin_data, timeout=timeout_s)
++    except subprocess.TimeoutExpired:
++        killed = True
++        try:
++            os.killpg(proc.pid, signal.SIGKILL)
++        except ProcessLookupError:
++            pass
++        out, err = proc.communicate()
++    errt = err.decode(errors="replace")
++    outt = out.decode(errors="replace")
++    cls, hit = _btwit_r88_errclass(errt + "\n" + outt)
++    rec.update({"exit_code": proc.returncode,
++                "signal": (signal.Signals(-proc.returncode).name
++                           if (proc.returncode or 0) < 0 else None),
++                "killed_at_bound": killed,
++                "wall_s": round(time.monotonic() - t0, 3),
++                "stdout_head": outt.strip().splitlines()[:4],
++                "stdout": _btwit_r88_norm(outt)[:keep_chars],
++                "stdout_bytes": len(outt),
++                "stderr_head": errt.strip().splitlines()[:4],
++                "stderr": _btwit_r88_norm(errt)[:keep_chars],
++                "stderr_bytes": len(errt),
++                "error_class": cls, "error_hit": hit})
++    if keep_raw:
++        # the verbatim channels for in-run parsers — the normed text
++        # above is the recorded witness; ids must survive for the
++        # ls/serial/set parsers (recorded, never armed)
++        rec["stdout_raw"] = outt
++        rec["stderr_raw"] = errt
++    return rec
++
++
++def _btwit_r88_cli(*args, timeout_s=12.0, keep_chars=2400,
++                   keep_raw=False):
++    """One-shot argv pw-cli."""
++    return _btwit_r88_run(["pw-cli", *[str(a) for a in args]],
++                          timeout_s, keep_chars=keep_chars,
++                          keep_raw=keep_raw)
++
++
++def _btwit_r88_pactl(*args, timeout_s=15.0, keep_chars=2400,
++                     keep_raw=False):
++    return _btwit_r88_run(["pactl", *[str(a) for a in args]],
++                          timeout_s, keep_chars=keep_chars,
++                          keep_raw=keep_raw)
++
++
++def _btwit_r88_busctl(*args, timeout_s=15.0, keep_chars=2400,
++                      keep_raw=False):
++    return _btwit_r88_run(
++        ["busctl", "--system", *[str(a) for a in args]],
++        timeout_s, keep_chars=keep_chars, keep_raw=keep_raw)
++
++
++def _btwit_r88_pactl_list_lines(pattern):
++    """`pactl list` lines matching `pattern` (case-insensitive) —
++    a dedicated grep reader: the full listing is ~50 KB, far past any
++    keep_chars bound, so the match is computed on the raw stream."""
++    try:
++        proc = subprocess.run(["pactl", "list"], capture_output=True,
++                              timeout=15)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    return [ln.strip() for ln in
++            proc.stdout.decode(errors="replace").splitlines()
++            if re.search(pattern, ln, re.I)]
++
++
++def _btwit_r88_strings_hits(path, needle):
++    """`strings -a <path>` -> {substring_hits, standalone_lines} for
++    `needle` — the .so is ~1 MB of strings, so hits are filtered
++    in-process rather than trusted to a truncated capture."""
++    try:
++        proc = subprocess.run(["strings", "-a", path],
++                              capture_output=True, timeout=60)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    lines = proc.stdout.decode(errors="replace").splitlines()
++    return {"substring_hits": sorted(
++                {ln.strip() for ln in lines if needle in ln}),
++            "standalone_lines": sum(
++                1 for ln in lines if ln.strip() == needle),
++            "bluez5_names": sum(
++                1 for ln in set(lines) if "bluez5." in ln)}
++
++
++def _btwit_r88_objs():
++    """Full pw-dump census -> raw object list (every interface class,
++    props intact — the set-rule predictor needs props.object.serial)."""
++    try:
++        proc = subprocess.run(["pw-dump"], capture_output=True,
++                              timeout=20)
++        return json.loads(proc.stdout or b"[]")
++    except (subprocess.TimeoutExpired, OSError, ValueError):
++        return None
++
++
++def _btwit_r88_dump_objs(*args, timeout_s=20.0):
++    """`pw-dump <args>` -> (rec, parsed-list-or-None)."""
++    rec = _btwit_r88_run(["pw-dump", *[str(a) for a in args]],
++                         timeout_s, keep_chars=300)
++    try:
++        proc = subprocess.run(
++            ["pw-dump", *[str(a) for a in args]],
++            capture_output=True, timeout=timeout_s)
++        objs = json.loads(proc.stdout)
++        return rec, objs
++    except (subprocess.TimeoutExpired, OSError, ValueError):
++        return rec, None
++
++
++def _btwit_r88_pred(objs, key):
++    """The set-rule predictor: ids of census objects whose object.id
++    or props.object.serial equals `key`."""
++    out = set()
++    for o in objs or []:
++        p = (o.get("info") or {}).get("props") or {}
++        if str(o.get("id")) == str(key) or \
++                str(p.get("object.serial")) == str(key):
++            out.add(str(o.get("id")))
++    return out
++
++
++def _btwit_r88_setrule_leg(name, key, census):
++    """pw-dump <key> vs the predicted {id==K} ∪ {serial==K} set;
++    on mismatch re-census once (mid-leg churn), then judge."""
++    rec, objs = _btwit_r88_dump_objs(key)
++    got = (sorted(str(o.get("id")) for o in objs)
++           if objs is not None else None)
++    pred = sorted(_btwit_r88_pred(census, key))
++    churn = False
++    if got is not None and got != pred:
++        c2 = _btwit_r88_objs()
++        pred2 = sorted(_btwit_r88_pred(c2, key))
++        if pred2 != pred:
++            churn = True
++            pred = pred2
++    return {"key": str(key), "got": got, "predicted": pred,
++            "churn_recensus": churn, "argv": rec.get("argv"),
++            "exit_code": rec.get("exit_code"),
++            "stderr": rec.get("stderr")}
++
++
++def _btwit_r88_ls_ids(text):
++    """ids from `pw-cli ls <iface>` — `id N, type ...` rows (the
++    continuation indent is `id`-line-anchored with optional leading
++    whitespace)."""
++    return sorted(int(m.group(1)) for m in
++                  re.finditer(r"^[ \t]*id (\d+),", text or "", re.M))
++
++
++def _btwit_r88_cli_props(text):
++    """(keys, layout) of a `pw-cli info <id>` prop block — the
++    `* properties:` + `*\\t\\t` starred layout, or the flat
++    `key = "v"` ls layout (ls prefixes continuation lines with a
++    space then tabs). Both are seen on this host depending on the
++    verb, so both are parsed and the shape is recorded."""
++    star = set(re.findall(r"^\*\t\t([^\s=]+) = ", text or "", re.M))
++    flat = set(re.findall(r"^[ \t]+([^\s=]+) = ", text or "", re.M))
++    layout = "star" if re.search(r"^\*\tproperties:", text or "",
++                                 re.M) else ("flat" if flat else "none")
++    return (star | flat), layout
++
++
++def _btwit_r88_cli_params(text):
++    """Param names from the `* params:` block of `pw-cli info`."""
++    return sorted(set(re.findall(
++        r"^\*\s+\d+ \(Spa:Enum:ParamId:([A-Za-z]+)\)",
++        text or "", re.M)))
++
++
++def _btwit_r88_top_frames(text):
++    """pw-top -b output -> [frame]; each frame is [{status,id}] with
++    the header row excluded."""
++    frames, cur = [], None
++    for ln in (text or "").splitlines():
++        if re.match(r"^S\s+ID\s+QUANT", ln):
++            cur = []
++            frames.append(cur)
++            continue
++        m = re.match(r"^([A-Za-z])\s+(\d+)\s", ln)
++        if cur is not None and m:
++            cur.append({"status": m.group(1), "id": int(m.group(2))})
++    return frames
++
++
++def _btwit_r88_top_until(n_arg, min_frames, bound_s=20.0, tries=3):
++    """`pw-top -b -n <n>` up to `tries` times until ≥`min_frames`
++    parse; returns (rec, frames). The printed frame count is
++    advisory relative to N — the boundary saw `-n 3` emit 4 frames
++    and `-n 2` emit 3 on one host, and a same-host dev run emit 1 —
++    so an arm must never hinge on a single capture."""
++    rec, frames = {}, []
++    for attempt in range(1, tries + 1):
++        rec = _btwit_r88_run(["pw-top", "-b", "-n", str(n_arg)],
++                             bound_s, keep_chars=300, keep_raw=True)
++        frames = _btwit_r88_top_frames(rec.get("stdout_raw") or "")
++        rec["attempt"] = attempt
++        rec["frames"] = [len(f) for f in frames]
++        rec["status_sets"] = [sorted({r["status"] for r in f})
++                              for f in frames]
++        rec.pop("stdout_raw", None)
++        rec.pop("stderr_raw", None)
++        if len(frames) >= min_frames:
++            break
++    return rec, frames
++
++
++def _btwit_r88_sinks():
++    """`pactl list sinks short` -> {index: {"name":, "state":}}."""
++    try:
++        proc = subprocess.run(["pactl", "list", "sinks", "short"],
++                              capture_output=True, timeout=10)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    out = {}
++    for ln in proc.stdout.decode(errors="replace").splitlines():
++        f = ln.split("\t")
++        if len(f) >= 2 and f[0].strip().isdigit():
++            out[int(f[0].strip())] = {
++                "name": f[1].strip(),
++                "state": (f[-1].strip() if len(f) >= 3 else "")}
++    return out
++
++
++def _btwit_r88_cards():
++    """`pactl list cards short` -> [{index,name}]."""
++    try:
++        proc = subprocess.run(["pactl", "list", "cards", "short"],
++                              capture_output=True, timeout=10)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    out = []
++    for ln in proc.stdout.decode(errors="replace").splitlines():
++        f = ln.split("\t")
++        if len(f) >= 2 and f[0].strip().isdigit():
++            out.append({"index": int(f[0].strip()),
++                        "name": f[1].strip()})
++    return out
++
++
++def _btwit_r88_card_active(card_name):
++    """`pactl list cards` -> the Active Profile of `card_name`."""
++    try:
++        proc = subprocess.run(["pactl", "list", "cards"],
++                              capture_output=True, timeout=10)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    cur, found = None, None
++    for ln in proc.stdout.decode(errors="replace").splitlines():
++        m = re.match(r"^\s+Name:\s+(\S+)", ln)
++        if m:
++            cur = m.group(1)
++        m2 = re.match(r"^\s+Active Profile:\s+(\S+)", ln)
++        if m2 and cur == card_name:
++            found = m2.group(1)
++    return found
++
++
++def _btwit_r88_module_ids():
++    """`pactl list modules short` -> sorted module indices."""
++    try:
++        proc = subprocess.run(["pactl", "list", "modules", "short"],
++                              capture_output=True, timeout=10)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    return sorted(int(m.group(1)) for m in
++                  re.finditer(r"^\s*(\d+)\t",
++                              proc.stdout.decode(errors="replace"),
++                              re.M))
++
++
++def _btwit_r88_module_lines():
++    try:
++        proc = subprocess.run(["pactl", "list", "modules", "short"],
++                              capture_output=True, timeout=10)
++    except (subprocess.TimeoutExpired, OSError):
++        return None
++    return proc.stdout.decode(errors="replace")
++
++
++def _btwit_r88_state_vocab(state):
++    """Map one witness's state token to the shared vocabulary."""
++    return {"SUSPENDED": "suspended", "IDLE": "idle",
++            "RUNNING": "running", "CORKED": "corked",
++            "S": "suspended", "I": "idle", "R": "running",
++            "E": "error", "C": "creating",
++            "suspended": "suspended", "idle": "idle",
++            "running": "running", "error": "error"}.get(
++                str(state), str(state))
++
++
++def _btwit_r88_family_lock():
++    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
++    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
++    exclude). A second --probe-btwit-r88 waits HERE."""
++    path = ROOT / "live" / "measure_audio-btwit-r88.lock"
++    try:
++        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
++    except OSError:
++        return None
++    fcntl.flock(fd, fcntl.LOCK_EX)
++    try:
++        os.ftruncate(fd, 0)
++        os.write(fd, f"pid={BTWIT_R88_PID} ns={BTWIT_R88_NS} "
++                     f"role={BTWIT_R88_ROLE}\n".encode())
++    except OSError:
++        pass
++    return fd
++
++
++def _btwit_r88_entry_head(probe):
++    """Shared entry preamble: contention census, oracle, inventory,
++    loadavg, and the foreign-r88a census (another seat's residue is a
++    witness, never a verdict)."""
++    inv = _capture_inventory()
++    names = _playback_r78_node_names() or []
++    return {"probe": probe,
++            "contention": _playback_r78_foreign_clients(),
++            "oracle_at_start": _loopback_r79_oracle(),
++            "foreign_r88a_nodes": sorted(
++                n for n in names if "r88a_" in n
++                and f"_{BTWIT_R88_PID}" not in n),
++            "inventory": {"default_sink": inv["default_sink"],
++                          "default_source": inv["default_source"],
++                          "sources_count": len(inv["sources"]),
++                          "monitors_count": len(inv["monitors"]),
++                          "alsa_capture_devices":
++                          inv["alsa_capture_devices"]},
++            "loadavg": _alsapw_r84_loadavg()}
++
++
++def _btwit_r88_load_ns(name):
++    """Load + gate one null sink (r83 loader); carries field/value for
++    the name-verified unload."""
++    leaf = _pwcat_r83_ns_load(name)
++    leaf["field"] = "sink_name"
++    leaf["value"] = name
++    return leaf
++
++
++def _btwit_r88_teardown(entry, failures, loads):
++    """Name-verified unload of every own module, then the residue
++    destroy: any surviving r88a_<pid>-tagged node is destroyed by id
++    via pw-cli before the final sweep."""
++    for tag, leaf in (loads or {}).items():
++        leaf = leaf or {}
++        entry.setdefault("unloads", {})[tag] = \
++            _pactlmon_r85_unload_own(
++                leaf.get("module_id"),
++                leaf.get("field", "sink_name"),
++                leaf.get("value", tag))
++    g = _pactlmon_r85_graph()
++    residual = sorted(
++        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
++        if n.get("name") and f"r88a_{BTWIT_R88_PID}" in n["name"])
++    if residual:
++        entry["residual_destroy"] = [
++            {"id": nid, "name": nm,
++             **_btwit_r88_cli("destroy", nid, timeout_s=8.0,
++                              keep_chars=300)}
++            for nid, nm in residual]
++        time.sleep(0.4)
++    sinks_now = _capture_r77_sink_names_strict()
++    if sinks_now is None:
++        entry["sinks_gone"] = "reader_error"
++        entry.setdefault("coverage_blocked", []).append(
++            "teardown: pactl sink reader failed — sinks_gone "
++            "unmeasured")
++    else:
++        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        entry["sinks_gone"] = gone
++        if not all(gone.values()):
++            failures.append(
++                "teardown: probe sinks survived unload: "
++                f"{[n for n, g in gone.items() if not g]}")
++    names = _playback_r78_node_names()
++    if names is None:
++        entry["own_nodes_after"] = "reader_error"
++        entry.setdefault("coverage_blocked", []).append(
++            "teardown: node reader failed — own_nodes_after "
++            "unmeasured")
++    else:
++        rest = sorted(n for n in names
++                      if f"r88a_{BTWIT_R88_PID}" in n
++                      or n in (loads or {}))
++        entry["own_nodes_after"] = rest
++        if rest:
++            failures.append(
++                f"teardown: r88a-tagged nodes survived: {rest}")
++
++
++def _btwit_r88_block(entry, failures, msg, loads=None):
++    """The named coverage block: record it, unload anything loaded."""
++    entry["blocked"] = msg
++    entry.setdefault("coverage_blocked", []).append(msg)
++    for tag, leaf in (loads or {}).items():
++        leaf = leaf or {}
++        entry.setdefault("unloads", {})[tag] = \
++            _pactlmon_r85_unload_own(
++                leaf.get("module_id"),
++                leaf.get("field", "sink_name"),
++                leaf.get("value", tag))
++    entry["failures"] = failures
++    return entry
++
++
++def _btwit_r88_bluez_objs(objs):
++    """Census objects that ARE bluez — device.api=bluez5 or an
++    api.bluez5* factory. On this host that is exactly the BLE-MIDI
++    bridge; zero Audio/* must ever appear."""
++    out = []
++    for o in objs or []:
++        p = (o.get("info") or {}).get("props") or {}
++        if str(p.get("device.api")) == "bluez5" or \
++                str(p.get("factory.name") or "").startswith("api.bluez5"):
++            out.append({"id": o.get("id"),
++                        "name": p.get("node.name"),
++                        "media_class": p.get("media.class"),
++                        "factory": p.get("factory.name")})
++    return out
++
++
++def btabs_bluez_r88_entry():
++    """The absent class, pinned honestly: zero bluez audio objects
++    exist (cards, sinks, graph nodes — every independent witness), the
++    paired device record is HID-only, the stack itself is alive
++    (adapter Powered, Media1 A2DP UUIDs, the BLE-MIDI bridge node), and
++    every fabrication path refuses. No bluez device is created or
++    connected — the refusal probes assert nothing was created."""
++    failures, legs = [], {}
++    entry = _btwit_r88_entry_head(
++        "r88a bluetooth absent-class lattice")
++    tools = {t: shutil.which(t) for t in
++             ("pactl", "pw-cli", "pw-dump", "busctl", "strings",
++              "find")}
++    entry["tools"] = tools
++    if not all(tools.values()):
++        return _btwit_r88_block(
++            entry, failures,
++            f"missing tools: {[t for t, p in tools.items() if not p]}")
++    loads = {}
++    try:
++        # the positive control: the SAME verb class that refuses
++        # module-bluez5 loads a real module (V2's control)
++        loads[BTWIT_R88_NS] = _btwit_r88_load_ns(BTWIT_R88_NS)
++        legs["bz_nullsink_ctl"] = {
++            "module_id": loads[BTWIT_R88_NS].get("module_id"),
++            "rc": loads[BTWIT_R88_NS].get("rc"),
++            "sink_seen": loads[BTWIT_R88_NS].get("sink_seen"),
++            "monitor_seen": loads[BTWIT_R88_NS].get("monitor_seen")}
++        if loads[BTWIT_R88_NS].get("module_id") is None:
++            return _btwit_r88_block(
++                entry, failures,
++                f"probe null sink {BTWIT_R88_NS} never enumerated",
++                loads)
++        # ---------- absence witnesses (pulse + graph) ----------
++        cards = _btwit_r88_cards()
++        legs["bz_cards"] = {"cards": cards}
++        bluez_lines = _btwit_r88_pactl_list_lines(r"bluez|a2dp|sco")
++        legs["bz_pactl_lines"] = {"matches": bluez_lines,
++                                  "count": (len(bluez_lines)
++                                            if bluez_lines is not None
++                                            else None)}
++        sinks = _btwit_r88_sinks()
++        legs["bz_sinks"] = {
++            "sinks": sorted(v["name"] for v in (sinks or {}).values())}
++        objs = _btwit_r88_objs()
++        legs["bz_midi_bridge"] = {"bluez_objects":
++                                  _btwit_r88_bluez_objs(objs)}
++        # ---------- D-Bus layer: stack alive, devices HID-only -------
++        tree = _btwit_r88_busctl("tree", "org.bluez")
++        devs = sorted(set(re.findall(
++            r"(/org/bluez/hci\d+/dev_[0-9A-Fa-f_]+)",
++            tree.get("stdout") or "")))
++        adapters = sorted(set(re.findall(
++            r"(/org/bluez/hci\d+)", tree.get("stdout") or "")))
++        legs["bz_tree"] = {"adapters": adapters, "devices": devs,
++                           "raw_head": tree.get("stdout_head")}
++        hci = adapters[0] if adapters else None
++        if hci:
++            legs["bz_adapter"] = _btwit_r88_busctl(
++                "get-property", "org.bluez", hci,
++                "org.bluez.Adapter1", "Powered")
++            legs["bz_media1"] = _btwit_r88_busctl(
++                "get-property", "org.bluez", hci,
++                "org.bluez.Media1", "SupportedUUIDs")
++        dev_recs = []
++        for dp in devs:
++            rec = {"path": dp}
++            for prop in ("UUIDs", "Class", "Icon", "Connected",
++                         "Paired", "Modalias"):
++                r = _btwit_r88_busctl(
++                    "get-property", "org.bluez", dp,
++                    "org.bluez.Device1", prop)
++                rec[prop.lower()] = (
++                    (r.get("stdout") or "").strip() or
++                    r.get("error_class"))
++            uuids = set(re.findall(
++                r'"0000([0-9a-fA-F]{4})-', rec.get("uuids") or ""))
++            rec["uuid16"] = sorted(u.lower() for u in uuids)
++            rec["audio_uuids"] = sorted(
++                u for u in rec["uuid16"]
++                if u in BTWIT_R88_AUDIO_UUIDS)
++            dev_recs.append(rec)
++        legs["bz_device"] = {"devices": dev_recs}
++        legs["bz_media_transport"] = {
++            "media_transport_objects": re.findall(
++                r"MediaTransport\S*", tree.get("stdout") or "")}
++        # ---------- the refusal battery (module set unchanged) ------
++        legs["bz_mods_before"] = {
++            "ids": _btwit_r88_module_ids(),
++            "bluez_modules": [ln.strip() for ln in
++                              (_btwit_r88_module_lines() or "")
++                              .splitlines()
++                              if "bluez" in ln]}
++        for name, mod in (
++                ("bz_loadmod_discover", "module-bluez5-discover"),
++                ("bz_loadmod_device", "module-bluez5-device")):
++            legs[name] = _btwit_r88_pactl("load-module", mod)
++        legs["bz_loadmod_device_path"] = _btwit_r88_pactl(
++            "load-module", "module-bluez5-device",
++            "path=" + (hci or "/org/bluez/hci0"))
++        legs["bz_loadmod_discover_arg"] = _btwit_r88_pactl(
++            "load-module", "module-bluez5-discover",
++            "a2dp_source=false")
++        legs["bz_sendmsg"] = _btwit_r88_pactl(
++            "send-message", hci or "/org/bluez/hci0",
++            hci or "/org/bluez/hci0")
++        bcard = ("bluez_card." +
++                 (devs[0].rsplit("dev_", 1)[-1] if devs
++                  else "r88a_deadbeef"))
++        legs["bz_setcard"] = _btwit_r88_pactl(
++            "set-card-profile", bcard, "a2dp-sink")
++        # the V3 confound, armed as a first-class leg: the identical
++        # refusal text on a REAL card + a bogus profile proves the
++        # text is not object-diagnostic
++        real_card = (cards or [{}])[0].get("name")
++        if real_card:
++            legs["bz_setcard_bogusctl"] = _btwit_r88_pactl(
++                "set-card-profile", real_card, "bogus-profile-r88a")
++            active = _btwit_r88_card_active(real_card)
++            legs["bz_setcard_validctl"] = {
++                "card": real_card, "active_profile": active,
++                **_btwit_r88_pactl("set-card-profile", real_card,
++                                   active or "off")}
++        else:
++            legs["bz_setcard_bogusctl"] = {"skipped": "no card"}
++            legs["bz_setcard_validctl"] = {"skipped": "no card"}
++        legs["bz_mods_after"] = {
++            "ids": _btwit_r88_module_ids(),
++            "bluez_modules": [ln.strip() for ln in
++                              (_btwit_r88_module_lines() or "")
++                              .splitlines()
++                              if "bluez" in ln]}
++        # ---------- the SPA/file surface (corrected claims) --------
++        try:
++            spa_files = sorted(os.listdir(BTWIT_R88_SPA_DIR))
++        except OSError as exc:
++            spa_files = None
++            legs["bz_spa_inventory"] = {"error": str(exc)[:120]}
++        if spa_files is not None:
++            legs["bz_spa_inventory"] = {
++                "count": len(spa_files), "files": spa_files}
++            so = str(Path(BTWIT_R88_SPA_DIR) / "libspa-bluez5.so")
++            legs["bz_spa_codecs_str"] = (
++                _btwit_r88_strings_hits(so, "bluez5.codecs")
++                or {"error": "strings unreadable"})
++        find = _btwit_r88_run(
++            ["find", "/usr/lib", "/usr/lib64", "-name",
++             "*module-bluez5*"], 30.0)
++        legs["bz_find_module"] = {
++            "exit_code": find.get("exit_code"),
++            "hits": [ln for ln in
++                     (find.get("stdout") or "").splitlines()
++                     if ln.strip()]}
++        # ---------- fabrication refuses (never creates) ------------
++        for name, fac in (
++                ("bz_create_a2dpsink", "api.bluez5.a2dp-sink"),
++                ("bz_create_sink", "api.bluez5.sink"),
++                ("bz_create_a2dpsource", "api.bluez5.a2dp.source"),
++                ("bz_create_midi", "api.bluez5.midi.node")):
++            legs[name] = _btwit_r88_cli(
++                "create-node", "spa-node-factory",
++                "{ factory.name = %s node.name = %s }"
++                % (fac, f"{BTWIT_R88_PREFIX}_{name}"))
++        g2 = _pactlmon_r85_graph()
++        legs["bz_own_residue"] = sorted(
++            n.get("name") for nid, n in
++            (g2.get("nodes") or {}).items()
++            if n.get("name") and
++            f"{BTWIT_R88_PREFIX}_bz_create" in n["name"])
++    finally:
++        _btwit_r88_teardown(entry, failures, loads)
++    # ---------------- verdicts ----------------
++    l = legs["bz_nullsink_ctl"]
++    if l.get("rc") != 0 or l.get("module_id") is None:
++        failures.append(
++            f"bz_nullsink_ctl: rc={l.get('rc')} — the load-module "
++            "positive control failed")
++    cards = (legs["bz_cards"].get("cards") or [])
++    if not cards:
++        failures.append("bz_cards: no pulse cards — census broken")
++    bluez_cards = [c["name"] for c in cards
++                   if re.search("bluez", c["name"], re.I)]
++    if bluez_cards:
++        failures.append(
++            f"bz_cards: bluez card exists {bluez_cards} — the "
++            "absent class fails")
++    l = legs["bz_pactl_lines"]
++    if l["count"] != 1 or not l["matches"] or \
++            "session.services" not in l["matches"][0]:
++        failures.append(
++            f"bz_pactl_lines: {l['count']} bluez-lines {l['matches']}"
++            " — expected exactly the session.services advertisement")
++    elif "bluetooth.audio" not in l["matches"][0]:
++        failures.append(
++            "bz_pactl_lines: the one match is not the advertised "
++            "bluetooth.audio capability")
++    l = legs["bz_sinks"]
++    bluez_sinks = [n for n in l["sinks"] if re.search("bluez", n, re.I)]
++    if bluez_sinks:
++        failures.append(f"bz_sinks: bluez sink exists {bluez_sinks}")
++    l = legs["bz_midi_bridge"]
++    if not l["bluez_objects"]:
++        failures.append(
++            "bz_midi_bridge: zero bluez5 objects — the stack-alive "
++            "witness (BLE-MIDI bridge) is gone")
++    for o in l["bluez_objects"]:
++        if o.get("media_class") != "Midi/Bridge":
++            failures.append(
++                f"bz_midi_bridge: bluez object {o} is not "
++                "Midi/Bridge — an audio-class bluez node exists")
++    l = legs["bz_tree"]
++    if not l["adapters"]:
++        failures.append("bz_tree: no hci adapter — stack dead?")
++    l = legs.get("bz_adapter") or {}
++    if '"b true"' not in json.dumps(l.get("stdout")) and \
++            not re.search(r"^b true$", (l.get("stdout") or ""),
++                          re.M):
++        failures.append(
++            f"bz_adapter: Powered != true ({l.get('stdout')}) — "
++            "stack-alive fails")
++    l = legs.get("bz_media1") or {}
++    uu = l.get("stdout") or ""
++    if "0000110a-" not in uu or "0000110b-" not in uu:
++        failures.append(
++            f"bz_media1: A2DP src/sink UUIDs not advertised {uu[:80]}")
++    for rec in (legs["bz_device"].get("devices") or []):
++        if rec.get("audio_uuids"):
++            failures.append(
++                f"bz_device: {rec['path']} advertises audio UUIDs "
++                f"{rec['audio_uuids']} — it could become a bluez "
++                "audio node")
++    if legs["bz_media_transport"]["media_transport_objects"]:
++        failures.append(
++            "bz_media_transport: MediaTransport objects exist "
++            f"{legs['bz_media_transport']['media_transport_objects']}")
++    for name in ("bz_loadmod_discover", "bz_loadmod_device",
++                 "bz_loadmod_device_path", "bz_loadmod_discover_arg",
++                 "bz_setcard"):
++        l = legs[name]
++        if l.get("exit_code") == 0 or \
++                l.get("error_class") != "pa_module_noent":
++            failures.append(
++                f"{name}: rc={l.get('exit_code')} "
++                f"class={l.get('error_class')} — the module-miss "
++                "refusal class fails")
++    l = legs["bz_sendmsg"]
++    if l.get("exit_code") == 0 or \
++            l.get("error_class") != "pa_sendmsg_noent":
++        failures.append(
++            f"bz_sendmsg: rc={l.get('exit_code')} "
++            f"class={l.get('error_class')}")
++    l = legs["bz_setcard_bogusctl"]
++    if l.get("skipped"):
++        entry.setdefault("coverage_blocked", []).append(
++            "bz_setcard_bogusctl: no real card — confound control "
++            "unmeasured")
++    elif l.get("exit_code") == 0 or \
++            l.get("error_class") != "pa_module_noent":
++        failures.append(
++            "bz_setcard_bogusctl: rc="
++            f"{l.get('exit_code')} class={l.get('error_class')} — "
++            "the bogus-profile confound did not reproduce")
++    l = legs["bz_setcard_validctl"]
++    if l.get("skipped"):
++        entry.setdefault("coverage_blocked", []).append(
++            "bz_setcard_validctl: no real card — valid control "
++            "unmeasured")
++    elif l.get("exit_code") != 0:
++        failures.append(
++            "bz_setcard_validctl: rc="
++            f"{l.get('exit_code')} — re-setting the current profile "
++            "refused")
++    for tag in ("bz_mods_before", "bz_mods_after"):
++        if legs[tag].get("ids") is None:
++            entry.setdefault("coverage_blocked", []).append(
++                f"{tag}: module census unreadable")
++        elif legs[tag]["bluez_modules"]:
++            failures.append(
++                f"{tag}: a bluez-named module is loaded "
++                f"{legs[tag]['bluez_modules']}")
++    l = legs.get("bz_spa_inventory") or {}
++    if l.get("count") != 14:
++        failures.append(
++            f"bz_spa_inventory: {l.get('count')} files — the "
++            "boundary's 14-file correction fails")
++    elif "libspa-bluez5.so" not in l["files"] or \
++            sum(1 for f in l["files"]
++                if f.startswith("libspa-codec-bluez5-")) < 8:
++        failures.append(
++            f"bz_spa_inventory: codec plugins missing {l['files']}")
++    l = legs.get("bz_spa_codecs_str") or {}
++    hits = l.get("substring_hits") or []
++    if not any("spa.bluez5.codecs" in h for h in hits) or \
++            not any("is not an array" in h for h in hits):
++        failures.append(
++            f"bz_spa_codecs_str: bluez5.codecs strings {hits} — "
++            "the parsed-property evidence fails")
++    if l.get("standalone_lines") != 0:
++        failures.append(
++            f"bz_spa_codecs_str: standalone line count "
++            f"{l.get('standalone_lines')} != 0")
++    if legs["bz_find_module"]["hits"]:
++        failures.append(
++            f"bz_find_module: module-bluez5*.so exists "
++            f"{legs['bz_find_module']['hits']}")
++    want_res = {"bz_create_a2dpsink": "pwcli_remote_enoent",
++                "bz_create_sink": "pwcli_remote_enoent",
++                "bz_create_a2dpsource": "pwcli_remote_einval",
++                "bz_create_midi": "pwcli_remote_einval"}
++    for name, cls in want_res.items():
++        l = legs[name]
++        if l.get("exit_code") != 0 or l.get("error_class") != cls \
++                or "can't create node" not in (
++                    (l.get("stderr") or "") + (l.get("stdout") or "")):
++            failures.append(
++                f"{name}: rc={l.get('exit_code')} "
++                f"class={l.get('error_class')} — the fabrication "
++                "refusal class fails")
++    if legs["bz_own_residue"]:
++        failures.append(
++            f"bz_own_residue: create-node attempts left objects "
++            f"{legs['bz_own_residue']}")
++    entry["legs"] = legs
++    entry["failures"] = failures
++    return entry
++
++
++def witdiff_dump_r88_entry():
++    """The witness-diff lattice on live objects: pw-dump is a
++    {id∪serial} set query, pw-cli info is an id-keyed singleton with
++    stringified values and no param values, ls exposes serials and a
++    larger Metadata set, enum-params has numeric≡name +
++    not-implemented + unknown-type classes, pactl indexes by serial —
++    and every absence is a silent rc-0, never an exit status."""
++    failures, legs = [], {}
++    entry = _btwit_r88_entry_head(
++        "r88a pw-dump/pw-cli/pactl witness-diff lattice")
++    tools = {t: shutil.which(t) for t in
++             ("pw-dump", "pw-cli", "pactl")}
++    entry["tools"] = tools
++    if not all(tools.values()):
++        return _btwit_r88_block(
++            entry, failures,
++            f"missing tools: {[t for t, p in tools.items() if not p]}")
++    loads = {}
++    try:
++        loads[BTWIT_R88_NS] = _btwit_r88_load_ns(BTWIT_R88_NS)
++        if loads[BTWIT_R88_NS].get("module_id") is None:
++            return _btwit_r88_block(
++                entry, failures,
++                f"probe null sink {BTWIT_R88_NS} never enumerated",
++                loads)
++        census = _btwit_r88_objs()
++        if not census:
++            return _btwit_r88_block(
++                entry, failures, "pw-dump census failed", loads)
++        legs["wd_census"] = {
++            "objects": len(census),
++            "by_type": sorted(
++                {str(o.get("type", "")).rsplit(":", 1)[-1]:
++                 sum(1 for x in census
++                     if x.get("type") == o.get("type"))
++                 for o in census}.items())}
++        own = next((o for o in census
++                    if ((o.get("info") or {}).get("props") or {})
++                    .get("node.name") == BTWIT_R88_NS), None)
++        if not own:
++            return _btwit_r88_block(
++                entry, failures,
++                f"own node {BTWIT_R88_NS} absent from census", loads)
++        own_id = str(own["id"])
++        own_ser = str((own["info"]["props"] or {}).get(
++            "object.serial"))
++        foreign = next((o for o in census
++                        if str(o.get("type", "")).endswith("Node")
++                        and "r88a_" not in str(
++                            ((o.get("info") or {}).get("props") or {})
++                            .get("node.name"))), None)
++        f_id = str(foreign["id"]) if foreign else None
++        f_ser = str((foreign["info"]["props"] or {}).get(
++            "object.serial")) if foreign else None
++        dev = next((o for o in census
++                    if str(o.get("type", "")).endswith("Device")),
++                   None)
++        meta_ids_dump = sorted(str(o["id"]) for o in census
++                               if str(o.get("type", ""))
++                               .endswith("Metadata"))
++        entry["refs"] = {"own_id": own_id, "own_serial": own_ser,
++                         "foreign": f_id, "foreign_serial": f_ser,
++                         "device": (dev or {}).get("id"),
++                         "dump_metadata": meta_ids_dump}
++        # ---------- the set-rule family (V9, mode-invariant) -------
++        legs["wd_setrule_own_id"] = _btwit_r88_setrule_leg(
++            "wd_setrule_own_id", own_id, census)
++        legs["wd_setrule_own_serial"] = _btwit_r88_setrule_leg(
++            "wd_setrule_own_serial", own_ser, census)
++        if foreign is not None:
++            legs["wd_setrule_foreign_id"] = _btwit_r88_setrule_leg(
++                "wd_setrule_foreign_id", f_id, census)
++            legs["wd_setrule_foreign_serial"] = \
++                _btwit_r88_setrule_leg(
++                    "wd_setrule_foreign_serial", f_ser, census)
++        rec, own_dump = _btwit_r88_dump_objs(own_id)
++        legs["wd_no_nested"] = {
++            "key": own_id,
++            "port_objects": sum(
++                1 for o in (own_dump or [])
++                if str(o.get("type", "")).endswith("Port")),
++            "members": [o.get("id") for o in (own_dump or [])]}
++        for tag, mode in (("wd_mode_raw", ("-R",)),
++                          ("wd_mode_indent0", ("-i", "0"))):
++            r2, o2 = _btwit_r88_dump_objs(*mode, own_id)
++            legs[tag] = {"mode": mode,
++                         "ids": sorted(str(o.get("id"))
++                                       for o in (o2 or []))}
++        legs["wd_mode_spa"] = _btwit_r88_run(
++            ["pw-dump", "-s", own_id], 20.0, keep_chars=400,
++            keep_raw=True)
++        # ---------- pw-cli singleton keying (V11) ------------------
++        legs["wd_cli_id"] = _btwit_r88_cli("info", own_id,
++                                           keep_raw=True)
++        legs["wd_cli_serial"] = _btwit_r88_cli("info", own_ser)
++        legs["wd_cli_dead"] = _btwit_r88_cli("info", BTWIT_R88_DEAD)
++        legs["wd_silent_cli_enum"] = _btwit_r88_cli(
++            "enum-params", BTWIT_R88_DEAD, "Format")
++        legs["wd_ls_serial"] = _btwit_r88_cli("ls", "Node",
++                                              keep_raw=True)
++        # ---------- the two prop-block layouts (honest V22) --------
++        keys_ls, layout_ls = _btwit_r88_cli_props(
++            legs["wd_ls_serial"].get("stdout_raw") or "")
++        keys_info, layout_info = _btwit_r88_cli_props(
++            legs["wd_cli_id"].get("stdout_raw") or "")
++        legs["wd_propblock"] = {"ls_layout": layout_ls,
++                                "info_layout": layout_info,
++                                "ls_key_count": len(keys_ls),
++                                "info_key_count": len(keys_info)}
++        own_props = ((own.get("info") or {}).get("props") or {})
++        dump_keys = set(own_props.keys())
++        legs["wd_keyset_own"] = {
++            "dump": sorted(dump_keys), "cli": sorted(keys_info),
++            "cli_only": sorted(keys_info - dump_keys),
++            "dump_only": sorted(dump_keys - keys_info)}
++        if dev is not None:
++            r_dev = _btwit_r88_cli("info", dev["id"], keep_raw=True)
++            dkeys, _lay = _btwit_r88_cli_props(
++                r_dev.get("stdout_raw") or "")
++            dprops = set(((dev.get("info") or {}).get("props")
++                          or {}).keys())
++            legs["wd_keyset_dev"] = {
++                "device_id": dev["id"],
++                "dump": sorted(dprops), "cli": sorted(dkeys),
++                "cli_only": sorted(dkeys - dprops),
++                "dump_only": sorted(dprops - dkeys)}
++        # dump preserves JSON types; info stringifies — verify on
++        # every typed prop of the own node
++        typed = []
++        info_text = legs["wd_cli_id"].get("stdout_raw") or ""
++        for k, v in own_props.items():
++            if isinstance(v, bool):
++                want = '"%s"' % ("true" if v else "false")
++            elif isinstance(v, int):
++                want = '"%d"' % v
++            elif isinstance(v, float):
++                want = '"%s"' % v
++            else:
++                continue
++            typed.append({"key": k, "dump_value": v,
++                          "dump_type": type(v).__name__,
++                          "cli_render": want,
++                          "cli_has": want in info_text})
++        legs["wd_types"] = {"pairs": typed}
++        # ---------- params: names equal, values do not -------------
++        cli_pnames = _btwit_r88_cli_params(info_text)
++        dump_pnames = sorted((own.get("info") or {}).get(
++            "params") or {})
++        dump_empty = sorted(
++            n for n, v in ((own.get("info") or {}).get("params")
++                           or {}).items() if v == [])
++        legs["wd_params_own"] = {"cli": cli_pnames,
++                                 "dump": dump_pnames,
++                                 "dump_empty": dump_empty}
++        own_ports = [o for o in census
++                     if str(o.get("type", "")).endswith("Port")
++                     and str(((o.get("info") or {}).get("props") or {})
++                             .get("node.id")) == own_id]
++        if own_ports:
++            p0 = own_ports[0]
++            r_p = _btwit_r88_cli("info", p0["id"], keep_raw=True)
++            pk, _pl = _btwit_r88_cli_props(r_p.get("stdout_raw") or "")
++            pp = sorted(set(re.findall(
++                r"^\*\s+\d+ \(Spa:Enum:ParamId:([A-Za-z]+)\)",
++                r_p.get("stdout_raw") or "", re.M)))
++            dp = sorted((p0.get("info") or {}).get("params") or {})
++            de = sorted(n for n, v in
++                        ((p0.get("info") or {}).get("params")
++                         or {}).items() if v == [])
++            legs["wd_params_port"] = {
++                "port_id": p0["id"], "cli": pp, "dump": dp,
++                "dump_empty": de}
++        # ---------- the silent-failure inventory (rc 0) ------------
++        legs["wd_silent_dump_id"] = _btwit_r88_run(
++            ["pw-dump", BTWIT_R88_DEAD], 15.0, keep_chars=300)
++        legs["wd_silent_dump_abc"] = _btwit_r88_run(
++            ["pw-dump", "abc"], 15.0, keep_chars=300)
++        legs["wd_silent_dump_huge"] = _btwit_r88_run(
++            ["pw-dump", "99999999999999999999"], 15.0,
++            keep_chars=300)
++        if meta_ids_dump:
++            legs["wd_silent_cli_meta"] = _btwit_r88_cli(
++                "info", meta_ids_dump[0])
++        else:
++            legs["wd_silent_cli_meta"] = {
++                "skipped": "no dump-visible metadata"}
++        c1 = _btwit_r88_objs()
++        legs["wd_dump_empty"] = _btwit_r88_run(
++            ["pw-dump", ""], 30.0, keep_chars=200)
++        try:
++            e_objs = json.loads(
++                subprocess.run(
++                    ["pw-dump", ""], capture_output=True,
++                    timeout=30).stdout)
++            e_ids = sorted(str(o.get("id")) for o in e_objs)
++        except (subprocess.TimeoutExpired, OSError, ValueError):
++            e_ids = None
++        c2 = _btwit_r88_objs()
++        legs["wd_dump_empty"].update({
++            "parsed_ids": e_ids,
++            "equals_before": e_ids == sorted(
++                str(o.get("id")) for o in (c1 or [])),
++            "equals_after": e_ids == sorted(
++                str(o.get("id")) for o in (c2 or []))})
++        if f_id:
++            r2, o2 = _btwit_r88_dump_objs(own_id, f_id)
++            legs["wd_dump_two"] = {
++                "argv": r2.get("argv"),
++                "ids": sorted(str(o.get("id")) for o in (o2 or []))}
++        legs["wd_dump_color"] = _btwit_r88_run(
++            ["pw-dump", "--color=always", own_id], 15.0,
++            keep_chars=300)
++        try:
++            json.loads(subprocess.run(
++                ["pw-dump", "--color=always", own_id],
++                capture_output=True, timeout=15).stdout)
++            legs["wd_dump_color"]["json_parses"] = True
++        except (subprocess.TimeoutExpired, OSError, ValueError):
++            legs["wd_dump_color"]["json_parses"] = False
++        legs["wd_dump_color"]["has_ansi"] = (
++            "\x1b[" in subprocess.run(
++                ["pw-dump", "--color=always", own_id],
++                capture_output=True, timeout=15).stdout.decode(
++                    errors="replace"))
++        legs["wd_dump_neg"] = _btwit_r88_run(
++            ["pw-dump", "-1"], 15.0, keep_chars=300)
++        # ---------- ls Metadata superset + info-all omission -------
++        legs["wd_ls_metadata"] = _btwit_r88_cli("ls", "Metadata",
++                                                keep_raw=True)
++        ls_meta = _btwit_r88_ls_ids(
++            legs["wd_ls_metadata"].get("stdout_raw") or "")
++        legs["wd_ls_metadata"]["ls_ids"] = [str(i) for i in ls_meta]
++        legs["wd_ls_metadata"]["dump_ids"] = meta_ids_dump
++        legs["wd_ls_metadata"]["extra"] = sorted(
++            set(ls_meta) - set(int(i) for i in meta_ids_dump))
++        extra = legs["wd_ls_metadata"]["extra"]
++        if extra:
++            legs["wd_cli_meta_extra"] = _btwit_r88_cli(
++                "info", extra[0])
++        else:
++            legs["wd_cli_meta_extra"] = {"skipped": "ls==dump"}
++        legs["wd_info_all"] = _btwit_r88_cli(
++            "info", "all", timeout_s=30.0, keep_chars=400,
++            keep_raw=True)
++        info_all_ids = set(re.findall(
++            r"^\tid: (\d+)", legs["wd_info_all"].get("stdout_raw")
++            or "", re.M))
++        legs["wd_info_all"]["described"] = len(info_all_ids)
++        legs["wd_info_all"]["dump_count"] = len(census)
++        legs["wd_info_all"]["metadata_described"] = sorted(
++            i for i in meta_ids_dump if i in info_all_ids)
++        # ---------- enum-params classes ----------------------------
++        # the name≡number law is armed on a *readable* param
++        # (Props/id:2 — identical byte-for-byte on the own suspended
++        # sink); Format/id:4 is the recorded write-only contrast —
++        # on a suspended node `Format` draws the remote res:-5 while
++        # bare `4` goes silent, so the two addressing paths are NOT
++        # symmetric on write-only params
++        legs["wd_enum_props"] = _btwit_r88_cli(
++            "enum-params", own_id, "Props", keep_raw=True)
++        legs["wd_enum_num2"] = _btwit_r88_cli(
++            "enum-params", own_id, "2", keep_raw=True)
++        legs["wd_enum_fmt"] = _btwit_r88_cli(
++            "enum-params", own_id, "Format")
++        legs["wd_enum_num4"] = _btwit_r88_cli(
++            "enum-params", own_id, "4")
++        legs["wd_enum_bogus"] = _btwit_r88_cli(
++            "enum-params", own_id, "BogusXYZ")
++        r_lsc = _btwit_r88_cli("ls", "Client", keep_raw=True)
++        client_ids = _btwit_r88_ls_ids(r_lsc.get("stdout_raw") or "")
++        legs["wd_enum_client"] = {"tried": []}
++        for cid in client_ids:
++            r = _btwit_r88_cli("enum-params", cid, "Props")
++            legs["wd_enum_client"]["tried"].append(cid)
++            legs["wd_enum_client"].update(r)
++            if r.get("exit_code") == 0 and \
++                    r.get("error_class") == "cli_enum_notimpl":
++                break
++        # ---------- dead serial (silent-absence, fresh) ------------
++        loads[BTWIT_R88_NS2] = _btwit_r88_load_ns(BTWIT_R88_NS2)
++        legs["wd_ns2_load"] = {
++            "module_id": loads[BTWIT_R88_NS2].get("module_id"),
++            "rc": loads[BTWIT_R88_NS2].get("rc")}
++        g3 = _pactlmon_r85_graph()
++        n2 = _pactlmon_r85_node(g3, BTWIT_R88_NS2)
++        dead_ser = (n2 or {}).get("object_serial")
++        if dead_ser is not None:
++            entry.setdefault("unloads", {})[BTWIT_R88_NS2] = \
++                _pactlmon_r85_unload_own(
++                    loads[BTWIT_R88_NS2].get("module_id"),
++                    "sink_name", BTWIT_R88_NS2)
++            loads.pop(BTWIT_R88_NS2, None)
++            time.sleep(0.5)
++            legs["wd_dead_serial"] = {
++                "serial": str(dead_ser),
++                **_btwit_r88_run(["pw-dump", str(dead_ser)], 15.0,
++                                 keep_chars=300)}
++        else:
++            legs["wd_dead_serial"] = {"skipped": "ns2 serial absent"}
++        # ---------- pactl index == serial (V15) --------------------
++        sinks2 = _btwit_r88_sinks()
++        g4 = _pactlmon_r85_graph()
++        name_serial = {n.get("name"): str(n.get("object_serial"))
++                       for n in (g4.get("nodes") or {}).values()
++                       if n.get("name")}
++        matched, unmatched, viol = [], [], []
++        for idx, s in (sinks2 or {}).items():
++            ser = name_serial.get(s["name"])
++            if ser is None:
++                unmatched.append(s["name"])
++            elif str(idx) == ser:
++                matched.append(s["name"])
++            else:
++                viol.append({"name": s["name"], "pactl_index": idx,
++                             "serial": ser})
++        legs["wd_serial_law"] = {"matched": matched,
++                                 "unmatched": unmatched,
++                                 "violations": viol,
++                                 "own_index_follows": (
++                                     BTWIT_R88_NS in matched)}
++        # ---------- tri-witness state agreement (V16 correction) ---
++        own_sink = next((v for v in (sinks2 or {}).values()
++                         if v["name"] == BTWIT_R88_NS), {})
++        g5 = _pactlmon_r85_graph()
++        n5 = _pactlmon_r85_node(g5, BTWIT_R88_NS) or {}
++        r_st = _btwit_r88_cli("info", own_id, keep_raw=True)
++        m = re.search(r'state: "([a-z]+)"',
++                      r_st.get("stdout_raw") or "")
++        legs["wd_state3"] = {
++            "pactl": own_sink.get("state"),
++            "dump": n5.get("state"),
++            "cli": m.group(1) if m else None,
++            "vocab": {"pactl": _btwit_r88_state_vocab(
++                          own_sink.get("state")),
++                      "dump": _btwit_r88_state_vocab(n5.get("state")),
++                      "cli": _btwit_r88_state_vocab(
++                          m.group(1) if m else None)}}
++    finally:
++        _btwit_r88_teardown(entry, failures, loads)
++    # ---------------- verdicts ----------------
++    for name in ("wd_setrule_own_id", "wd_setrule_own_serial",
++                 "wd_setrule_foreign_id", "wd_setrule_foreign_serial"):
++        l = legs.get(name)
++        if not l:
++            continue
++        if l.get("got") is None:
++            entry.setdefault("coverage_blocked", []).append(
++                f"{name}: pw-dump unparsable")
++        elif l["got"] != l["predicted"]:
++            failures.append(
++                f"{name}: pw-dump {l['key']} -> {l['got']} but "
++                f"census predicts {l['predicted']} — the "
++                "{id∪serial} set-query law fails")
++    l = legs["wd_no_nested"]
++    if l["port_objects"] != 0:
++        failures.append(
++            f"wd_no_nested: pw-dump {l['key']} returned "
++            f"{l['port_objects']} Port objects — nested expansion "
++            "falsified")
++    for name in ("wd_mode_raw", "wd_mode_indent0"):
++        if legs[name]["ids"] != [str(legs["wd_no_nested"]
++                                     ["members"][0])]:
++            failures.append(
++                f"{name}: mode output {legs[name]['ids']} — "
++                "membership not mode-invariant")
++    l = legs["wd_mode_spa"]
++    _spa_text = l.get("stdout_raw") or l.get("stdout") or ""
++    if f"id = {entry['refs']['own_id']}" not in _spa_text or \
++            f"object.serial = {entry['refs']['own_serial']}" not in \
++            _spa_text:
++        failures.append(
++            "wd_mode_spa: SPA form lacks the id/serial pair")
++    l = legs["wd_cli_id"]
++    if "PipeWire:Interface:Node" not in (l.get("stdout") or "") or \
++            BTWIT_R88_NS not in (l.get("stdout") or ""):
++        failures.append(
++            f"wd_cli_id: info on the live own id failed "
++            f"(rc={l.get('exit_code')})")
++    for name in ("wd_cli_serial", "wd_cli_dead",
++                 "wd_silent_cli_enum"):
++        l = legs[name]
++        if l.get("exit_code") != 0 or \
++                l.get("error_class") != "pwcli_unknown_global" or \
++                (l.get("stdout") or "").strip():
++            failures.append(
++                f"{name}: rc={l.get('exit_code')} "
++                f"class={l.get('error_class')} — the id-keyed "
++                "singleton law fails")
++    l = legs["wd_ls_serial"]
++    _ls_text = l.get("stdout_raw") or l.get("stdout") or ""
++    if f'object.serial = "{entry["refs"]["own_serial"]}"' not in \
++            _ls_text:
++        failures.append(
++            "wd_ls_serial: ls Node does not expose the own serial — "
++            "the serial IS resolvable through ls fails")
++    l = legs["wd_propblock"]
++    if l["ls_layout"] != "flat" or l["info_layout"] != "star":
++        failures.append(
++            f"wd_propblock: ls={l['ls_layout']} "
++            f"info={l['info_layout']} — the two-layout law fails")
++    l = legs["wd_keyset_own"]
++    if l["cli_only"] or l["dump_only"]:
++        failures.append(
++            f"wd_keyset_own: prop keys diverge "
++            f"cli_only={l['cli_only']} dump_only={l['dump_only']}")
++    l = legs.get("wd_keyset_dev")
++    if l is None:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_keyset_dev: no Device object in census")
++    elif l["cli_only"] or l["dump_only"]:
++        failures.append(
++            f"wd_keyset_dev: prop keys diverge "
++            f"cli_only={l['cli_only']} dump_only={l['dump_only']}")
++    typed = legs["wd_types"]["pairs"]
++    if not typed:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_types: no int/bool prop on the own node — "
++            "stringification unmeasured")
++    else:
++        bad = [t for t in typed if not t["cli_has"]]
++        if bad:
++            failures.append(
++                f"wd_types: cli did not stringify "
++                f"{[(t['key'], t['dump_type']) for t in bad]}")
++    l = legs["wd_params_own"]
++    if l["cli"] != l["dump"]:
++        failures.append(
++            f"wd_params_own: param names diverge "
++            f"cli={l['cli']} dump={l['dump']}")
++    if not l["dump_empty"] or not set(l["dump_empty"]).issubset(
++            set(l["cli"])):
++        failures.append(
++            f"wd_params_own: no unreadable param appears in both "
++            f"lists {l['dump_empty']}")
++    l = legs.get("wd_params_port")
++    if l is None:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_params_port: own sink published no ports")
++    else:
++        if l["cli"] != l["dump"]:
++            failures.append(
++                f"wd_params_port: param names diverge "
++                f"cli={l['cli']} dump={l['dump']}")
++        if not l["dump_empty"]:
++            failures.append(
++                "wd_params_port: no empty-list params — key presence"
++                " ≠ value availability fails")
++    for name in ("wd_silent_dump_id", "wd_silent_dump_abc",
++                 "wd_silent_dump_huge"):
++        l = legs[name]
++        if l.get("exit_code") != 0 or \
++                (l.get("stdout") or "").strip() or \
++                (l.get("stderr") or "").strip():
++            failures.append(
++                f"{name}: rc={l.get('exit_code')} — the silent-"
++                "absence class fails (expected rc 0 + both empty)")
++    l = legs["wd_silent_cli_meta"]
++    if l.get("skipped"):
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_silent_cli_meta: no dump-visible metadata")
++    elif l.get("exit_code") != 0 or \
++            (l.get("stdout") or "").strip() or \
++            (l.get("stderr") or "").strip():
++        failures.append(
++            f"wd_silent_cli_meta: rc={l.get('exit_code')} — the "
++            "messageless silent class fails")
++    l = legs["wd_dump_empty"]
++    if l.get("exit_code") != 0 or not l.get("parsed_ids"):
++        failures.append(
++            f"wd_dump_empty: rc={l.get('exit_code')} parsed="
++            f"{bool(l.get('parsed_ids'))} — '' is not the full dump")
++    elif not (l.get("equals_before") or l.get("equals_after")):
++        failures.append(
++            "wd_dump_empty: object set matches neither bracket "
++            "census — '' is not the full dump")
++    l = legs.get("wd_dump_two")
++    if l and l.get("ids") != [entry["refs"]["own_id"]]:
++        failures.append(
++            f"wd_dump_two: ids {l.get('ids')} — the two-arg form "
++            "does not honor id1 only")
++    l = legs["wd_dump_color"]
++    if l.get("exit_code") != 0 or not l.get("has_ansi") or \
++            l.get("json_parses"):
++        failures.append(
++            f"wd_dump_color: rc={l.get('exit_code')} ansi="
++            f"{l.get('has_ansi')} parses={l.get('json_parses')} — "
++            "the ANSI-breaks-JSON class fails")
++    l = legs["wd_dump_neg"]
++    if l.get("exit_code") == 0 or \
++            l.get("error_class") != "pwdump_invalid_opt":
++        failures.append(
++            f"wd_dump_neg: rc={l.get('exit_code')} "
++            f"class={l.get('error_class')}")
++    l = legs["wd_ls_metadata"]
++    if not l.get("extra") or not set(
++            l.get("dump_ids") or []).issubset(
++            set(str(i) for i in (l.get("ls_ids") or []))):
++        failures.append(
++            f"wd_ls_metadata: ls={l.get('ls_ids')} "
++            f"dump={l.get('dump_ids')} — the ls⊋dump visibility "
++            "split fails")
++    l = legs["wd_cli_meta_extra"]
++    if l.get("skipped"):
++        pass  # the superset arm already carries the claim
++    elif l.get("exit_code") != 0 or \
++            (l.get("stdout") or "").strip() or \
++            (l.get("stderr") or "").strip():
++        failures.append(
++            "wd_cli_meta_extra: info on an ls-only metadata id was "
++            "not silent-rc0")
++    l = legs["wd_info_all"]
++    if l.get("metadata_described"):
++        failures.append(
++            f"wd_info_all: info all describes Metadata objects "
++            f"{l['metadata_described']} — the silent-omission "
++            "class fails")
++    for name in ("wd_enum_fmt", "wd_enum_num4"):
++        l = legs[name]
++        l["has_pod"] = "Object:" in (l.get("stdout") or "")
++        l["outcome"] = ("pod" if l["has_pod"]
++                        else ("silent" if l.get("error_class") is None
++                              else l["error_class"]))
++        if l["has_pod"]:
++            failures.append(
++                f"{name}: a write-only param returned a pod on the "
++                "suspended own sink — the write-only signature fails")
++    p1, p2 = legs["wd_enum_props"], legs["wd_enum_num2"]
++    t1 = ((p1.get("stdout") or "") + "\n" + (p1.get("stderr") or ""))
++    t2 = ((p2.get("stdout") or "") + "\n" + (p2.get("stderr") or ""))
++    if not t1.strip() or "Object:" not in t1:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_enum_props: the readable param answered nothing — "
++            "the ≡ leg was vacuous")
++    elif _btwit_r88_norm(t1) != _btwit_r88_norm(t2):
++        failures.append(
++            "wd_enum_num2: `enum-params <id> 2` differs from "
++            "`enum-params <id> Props` — the numeric≡name law fails")
++    l = legs["wd_enum_bogus"]
++    if l.get("exit_code") != 0 or \
++            l.get("error_class") != "pwcli_unknown_param":
++        failures.append(
++            f"wd_enum_bogus: rc={l.get('exit_code')} "
++            f"class={l.get('error_class')}")
++    l = legs["wd_enum_client"]
++    if l.get("exit_code") != 0 or \
++            l.get("error_class") != "cli_enum_notimpl":
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_enum_client: no client returned the "
++            "not-implemented class "
++            f"(last class={l.get('error_class')})")
++    l = legs["wd_dead_serial"]
++    if l.get("skipped"):
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_dead_serial: ns2 serial never resolved")
++    elif l.get("exit_code") != 0 or \
++            (l.get("stdout") or "").strip() or \
++            (l.get("stderr") or "").strip():
++        failures.append(
++            f"wd_dead_serial: rc={l.get('exit_code')} — the "
++            "dead-serial silent-absence class fails")
++    l = legs["wd_serial_law"]
++    if l["violations"] or not l["own_index_follows"]:
++        failures.append(
++            f"wd_serial_law: violations={l['violations']} "
++            f"own={l['own_index_follows']} — pactl index ≠ "
++            "object.serial")
++    if not l["matched"]:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_serial_law: zero sinks matched both witnesses "
++            "(churn)")
++    l = legs["wd_state3"]
++    voc = l.get("vocab") or {}
++    if len({voc.get("pactl"), voc.get("dump"), voc.get("cli")}) != 1 \
++            or None in (voc.get("pactl"), voc.get("dump"),
++                        voc.get("cli")):
++        failures.append(
++            f"wd_state3: pactl={l.get('pactl')} dump="
++            f"{l.get('dump')} cli={l.get('cli')} — the tight-window "
++            "vocab agreement fails")
++    entry["legs"] = legs
++    entry["failures"] = failures
++    return entry
++
++
++def pwtop_r88_entry():
++    """The pw-top lattice: -n 1's all-CREATING frame is a startup
++    artifact (read the LAST frame of a multi-frame capture — the
++    printed frame count is advisory relative to N, so `-n 3` with a
++    bounded retry is the real-state witness), -n 0 is one frame,
++    -n -1/-n abc are infinite, -r bogus is the family's one loud
++    failure — and the four-witness state vocabulary agrees on our own
++    sink both idle and driven."""
++    failures, legs = [], {}
++    entry = _btwit_r88_entry_head("r88a pw-top frame lattice")
++    tools = {t: shutil.which(t) for t in
++             ("pw-top", "pw-dump", "pw-cli", "pactl", "pw-play")}
++    entry["tools"] = tools
++    if not all(tools.values()):
++        return _btwit_r88_block(
++            entry, failures,
++            f"missing tools: {[t for t, p in tools.items() if not p]}")
++    loads = {}
++    proc = None
++    try:
++        loads[BTWIT_R88_NS] = _btwit_r88_load_ns(BTWIT_R88_NS)
++        if loads[BTWIT_R88_NS].get("module_id") is None:
++            return _btwit_r88_block(
++                entry, failures,
++                f"probe null sink {BTWIT_R88_NS} never enumerated",
++                loads)
++        g0 = _pactlmon_r85_graph()
++        n0 = _pactlmon_r85_node(g0, BTWIT_R88_NS) or {}
++        own_id = str(n0.get("node_id"))
++        entry["refs"] = {"own_id": own_id,
++                         "own_serial": str(n0.get("object_serial"))}
++        # ---------- frame legs (run to exit or bound-killed) -------
++        legs["pt_n1"] = _btwit_r88_run(
++            ["pw-top", "-b", "-n", "1"], 15.0, keep_chars=400,
++            keep_raw=True)
++        legs["pt_n3"], legs_pt_n3_frames = _btwit_r88_top_until(
++            3, 2, bound_s=20.0, tries=3)
++        legs["pt_n3"]["_frames_cache"] = legs_pt_n3_frames
++        legs["pt_n0"] = _btwit_r88_run(
++            ["pw-top", "-b", "-n", "0"], 15.0, keep_chars=400,
++            keep_raw=True)
++        legs["pt_nneg"] = _btwit_r88_run(
++            ["pw-top", "-b", "-n", "-1"], BTWIT_R88_PWT_BOUND_S,
++            keep_chars=200)
++        legs["pt_nabc"] = _btwit_r88_run(
++            ["pw-top", "-b", "-n", "abc"], BTWIT_R88_PWT_BOUND_S,
++            keep_chars=200)
++        legs["pt_rbogus"] = _btwit_r88_run(
++            ["pw-top", "-r", f"r88a-bogus-{BTWIT_R88_PID}"], 15.0,
++            keep_chars=300)
++        # ---------- four-witness state agreement: idle -------------
++        sinks = _btwit_r88_sinks()
++        own_sink = next((v for v in (sinks or {}).values()
++                         if v["name"] == BTWIT_R88_NS), {})
++        g1 = _pactlmon_r85_graph()
++        n1 = _pactlmon_r85_node(g1, BTWIT_R88_NS) or {}
++        r_st = _btwit_r88_cli("info", own_id, keep_raw=True)
++        m = re.search(r'state: "([a-z]+)"',
++                      r_st.get("stdout_raw") or "")
++        r_top, t_frames = _btwit_r88_top_until(3, 2, tries=2)
++        r_top.pop("_frames_cache", None)
++        legs["pt_state_idle_toprec"] = r_top
++        own_row = next((r for r in (t_frames[-1] if t_frames else [])
++                        if r["id"] == int(own_id)), None)
++        legs["pt_state_idle"] = {
++            "top_frames": len(t_frames),
++            "pactl": own_sink.get("state"),
++            "dump": n1.get("state"),
++            "cli": m.group(1) if m else None,
++            "top": (own_row or {}).get("status"),
++            "vocab": {"pactl": _btwit_r88_state_vocab(
++                          own_sink.get("state")),
++                      "dump": _btwit_r88_state_vocab(n1.get("state")),
++                      "cli": _btwit_r88_state_vocab(
++                          m.group(1) if m else None),
++                      "top": _btwit_r88_state_vocab(
++                          (own_row or {}).get("status"))}}
++        # ---------- driven window: stream -> RUNNING ---------------
++        with tempfile.TemporaryDirectory(prefix="r88a-top-") as tmp:
++            tone = Path(tmp) / "r88a_tone.wav"
++            _playback_r78_write_tone(tone, 8.0)
++            tag = f"{BTWIT_R88_PREFIX}_pt"
++            try:
++                proc = subprocess.Popen(
++                    ["pw-play", "-P", f"node.name={tag}",
++                     "-P", f"media.role={BTWIT_R88_ROLE}",
++                     "--target", BTWIT_R88_NS, str(tone)],
++                    stdout=subprocess.DEVNULL,
++                    stderr=subprocess.PIPE,
++                    stdin=subprocess.DEVNULL,
++                    start_new_session=True)
++            except OSError as exc:
++                proc = None
++                legs["pt_state_active"] = {"spawn_error": str(exc)[:120]}
++            if proc is not None:
++                deadline = (time.monotonic() +
++                            BTWIT_R88_STREAM_WAIT_S)
++                linked = False
++                while time.monotonic() < deadline:
++                    g2 = _pactlmon_r85_graph()
++                    sn = _pactlmon_r85_node(g2, tag)
++                    edges = _pactlmon_r85_edges_out(g2, tag)
++                    if sn and sn.get("state") == "running" and any(
++                            e.get("in_node") == BTWIT_R88_NS
++                            for e in edges):
++                        linked = True
++                        break
++                    time.sleep(0.25)
++                legs["pt_state_active"] = {"linked": linked}
++                if linked:
++                    sinks2 = _btwit_r88_sinks()
++                    own_sink2 = next(
++                        (v for v in (sinks2 or {}).values()
++                         if v["name"] == BTWIT_R88_NS), {})
++                    g3 = _pactlmon_r85_graph()
++                    n3 = _pactlmon_r85_node(g3, BTWIT_R88_NS) or {}
++                    r_st2 = _btwit_r88_cli("info", own_id,
++                                           keep_raw=True)
++                    m2 = re.search(r'state: "([a-z]+)"',
++                                   r_st2.get("stdout_raw") or "")
++                    r_top2, t2 = _btwit_r88_top_until(
++                        3, 2, bound_s=20.0, tries=2)
++                    r_top2.pop("_frames_cache", None)
++                    legs["pt_state_active_toprec"] = r_top2
++                    row2 = next(
++                        (r for r in (t2[-1] if t2 else [])
++                         if r["id"] == int(own_id)), None)
++                    legs["pt_state_active"].update({
++                        "top_frames": len(t2),
++                        "pactl": own_sink2.get("state"),
++                        "dump": n3.get("state"),
++                        "cli": m2.group(1) if m2 else None,
++                        "top": (row2 or {}).get("status"),
++                        "vocab": {"pactl": _btwit_r88_state_vocab(
++                                      own_sink2.get("state")),
++                                  "dump": _btwit_r88_state_vocab(
++                                      n3.get("state")),
++                                  "cli": _btwit_r88_state_vocab(
++                                      m2.group(1) if m2 else None),
++                                  "top": _btwit_r88_state_vocab(
++                                      (row2 or {}).get("status"))}})
++    finally:
++        if proc is not None:
++            _alsapw_r84_killpg(proc, signal.SIGTERM)
++            try:
++                proc.wait(timeout=4)
++            except subprocess.TimeoutExpired:
++                _alsapw_r84_killpg(proc)
++        _btwit_r88_teardown(entry, failures, loads)
++    # ---------------- verdicts ----------------
++    for name in ("pt_n1", "pt_n0"):
++        l = legs[name]
++        frames = _btwit_r88_top_frames(l.get("stdout_raw") or "")
++        l["frames"] = [len(f) for f in frames]
++        l["status_sets"] = [sorted({r["status"] for r in f})
++                            for f in frames]
++    l = legs["pt_n1"]
++    fr = _btwit_r88_top_frames(l.get("stdout_raw") or "")
++    if len(fr) != 1 or not fr[0] or \
++            any(r["status"] != "C" for r in fr[0]):
++        failures.append(
++            f"pt_n1: frames={len(fr)} statuses="
++            f"{sorted({r['status'] for f in fr for r in f})} — the "
++            "all-CREATING first frame fails")
++    l = legs["pt_n3"]
++    fr = l.pop("_frames_cache", [])
++    if len(fr) < 2:
++        entry.setdefault("coverage_blocked", []).append(
++            f"pt_n3: {len(fr)} frames in {l.get('attempt')} tries — "
++            "the -n advisory emitted no real-state frame")
++    else:
++        if any(r["status"] != "C" for r in fr[0]):
++            failures.append(
++                "pt_n3: first frame is not all-CREATING")
++        own_row = next((r for r in fr[-1]
++                        if r["id"] == int(entry["refs"]["own_id"])),
++                       None)
++        if own_row is None:
++            failures.append(
++                "pt_n3: own sink row absent from the last frame")
++        elif own_row["status"] == "C":
++            failures.append(
++                "pt_n3: own row still CREATING in the last frame — "
++                "the real-state frame fails")
++        elif own_row["status"] not in ("S", "I", "R", "E"):
++            failures.append(
++                f"pt_n3: own row status {own_row['status']} not a "
++                "known state")
++        l["last_frame_status_hist"] = sorted(
++            {r["status"]: sum(1 for x in fr[-1]
++                             if x["status"] == r["status"])
++             for r in fr[-1]}.items())
++    l = legs["pt_n0"]
++    fr = _btwit_r88_top_frames(l.get("stdout_raw") or "")
++    if len(fr) != 1:
++        failures.append(
++            f"pt_n0: {len(fr)} frames — expected exactly one")
++    for name in ("pt_nneg", "pt_nabc"):
++        l = legs[name]
++        fr = _btwit_r88_top_frames(l.get("stdout") or "")
++        if not l.get("killed_at_bound") or not fr:
++            failures.append(
++                f"{name}: killed={l.get('killed_at_bound')} "
++                f"frames={len(fr)} — the infinite class fails")
++    l = legs["pt_rbogus"]
++    if l.get("exit_code") == 0 or \
++            l.get("error_class") != "pwtop_connect_down":
++        failures.append(
++            f"pt_rbogus: rc={l.get('exit_code')} "
++            f"class={l.get('error_class')} — the loud remote "
++            "refusal fails")
++    l = legs["pt_state_idle"]
++    if (l.get("top_frames") or 0) < 2:
++        entry.setdefault("coverage_blocked", []).append(
++            "pt_state_idle: pw-top never emitted a real-state frame "
++            f"({l.get('top_frames')} frames) — the top witness is "
++            "unmeasured")
++    else:
++        voc = l.get("vocab") or {}
++        if len({voc.get("pactl"), voc.get("dump"), voc.get("cli"),
++                voc.get("top")}) != 1 or None in voc.values():
++            failures.append(
++                f"pt_state_idle: {l} — the four-witness agreement "
++                "fails")
++    l = legs.get("pt_state_active") or {}
++    if not l.get("linked"):
++        entry.setdefault("coverage_blocked", []).append(
++            "pt_state_active: stream never linked/running — the "
++            "RUNNING-side agreement is unmeasured")
++    elif (l.get("top_frames") or 0) < 2:
++        entry.setdefault("coverage_blocked", []).append(
++            "pt_state_active: pw-top never emitted a real-state "
++            "frame under load — the top witness is unmeasured")
++    elif l.get("vocab"):
++        voc = l["vocab"]
++        if len(set(voc.values())) != 1 or \
++                voc.get("dump") != "running" or None in voc.values():
++            failures.append(
++                f"pt_state_active: {l} — the RUNNING-side "
++                "four-witness agreement fails")
++    entry["legs"] = legs
++    entry["failures"] = failures
++    return entry
++
++
+ def main():
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--probe-failing", action="store_true")
+@@ -27632,6 +29380,7 @@ def main():
+     parser.add_argument("--probe-pactlmon-r85", action="store_true")
+     parser.add_argument("--probe-pwctl-r86", action="store_true")
+     parser.add_argument("--probe-pwbind-r87", action="store_true")
++    parser.add_argument("--probe-btwit-r88", action="store_true")
+     parser.add_argument("--probe-gst-r81", action="store_true")
+     parser.add_argument("--probe-module-r80", action="store_true")
+     parser.add_argument("--probe-capture-r79", action="store_true")
+@@ -27639,7 +29388,7 @@ def main():
+     parser.add_argument("--probe-capture-r77", action="store_true")
+     parser.add_argument("--probe-capture-r76", action="store_true")
+     args = parser.parse_args()
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87]) > 1:
++    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88]) > 1:
+         parser.error("choose one probe mode")
+     if args.probe_invalid:
+         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+@@ -28052,6 +29801,26 @@ def main():
+             pwbind_cli_r87_entry()
+         measurements["pwbind_midi_r87_probe"] = \
+             pwbind_midi_r87_entry()
++    if args.probe_btwit_r88:
++        # r88: the BLUEZ ABSENT-CLASS + WITNESS-DIFF lattice —
++        # bluetooth is vacuous by absence (HID-only paired record,
++        # no module-bluez5*.so, refused create-node fabrications,
++        # live adapter + endpoints + BLE-MIDI bridge) plus the
++        # pw-dump set-query / pw-cli singleton / pw-top frame laws
++        # as corrected by the r88 boundary. A NEW parallel ledger
++        # family, prior rows untouched; r76-r87 guards inherited
++        # (seat-owned r88a_<pid> names, the private r88arole<pid>
++        # key, name-verified sink_name= unloads, never
++        # set-default-*, bounded process groups). The family lock
++        # is a FIXED corpus/live/ path — the r84 F1 3-seat
++        # consensus.
++        _r88_family_lock = _btwit_r88_family_lock()   # held to exit
++        measurements["btabs_bluez_r88_probe"] = \
++            btabs_bluez_r88_entry()
++        measurements["witdiff_dump_r88_probe"] = \
++            witdiff_dump_r88_entry()
++        measurements["pwtop_r88_probe"] = \
++            pwtop_r88_entry()
+     if args.probe_pactlmon_r85:
+         # r85: the pactl short-name/serial addressing lattice + the
+         # monitor-stream (N-streams-one-sink mixing + capture-side
+@@ -28702,7 +30471,7 @@ def main():
+             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+-    mode = "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    mode = "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     receipt = {"mode": mode,
+                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+@@ -28722,7 +30491,7 @@ def main():
+                "movement_family_comparisons": movement_family_comparisons,
+                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+-    suffix = "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    suffix = "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     out = ROOT / "live" / "runs" / (stamp + suffix)
+     out.mkdir(parents=True)
+     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
