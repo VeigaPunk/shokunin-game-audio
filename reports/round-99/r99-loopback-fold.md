@@ -42,3 +42,24 @@ these tests or to force a runtime result. Historical controls remain
 historical evidence, not proof of the successor's default behavior.
 No full-family or new native receive measurement accompanies this
 commit; a later scoped e2e observation will be reported separately.
+
+## Subsequent Scoped Runtime Observation
+
+After source commit e302dbce4023cb62198aa532292d8c0c988a89e3, the lead
+runs only rtp_e2e_r99_entry on an immutable export of that commit, using
+the real host-global family lock and an explicitly unset LAN opt-in.
+This is an authored changed-entry observation, not an independent
+verifier or repeat of all six family entries.
+
+The actual native recording peak is 0.5, wire peak 0.499969482, with two
+sync lines. The existing spectral assertion passes; failures is empty.
+Only e_lan_control is blocked by the default-off safety gate. The sampled
+NIC counter comparison is armed (idle band 49, excess 339, emitted 20001);
+it is not a claim of zero physical-interface background traffic.
+
+Teardown records socket_gone true, no owned daemon pids alive, no own
+shared store rows and no shared r99a nodes. The unmodified raw receipt,
+including source commit/sha and explicit changed-entry scope, is durable
+as r99-e2e-repair-receipt.json in this directory. Its runner and exact
+stdout/stderr/rc remain under audio-rtp-loopback-proof/targeted-e2e/.
+Execution: env -u RTP_R99_ALLOW_LAN_CONTROL python3 -B runner.py; rc 0.
