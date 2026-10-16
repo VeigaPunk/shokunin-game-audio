@@ -1,0 +1,15 @@
+rederive_run1: total failures across 5 entries = 0 OK
+rederive_run2: total failures across 5 entries = 0 OK
+A1_dump_id_serial_bytes_differ: failures=[] | expected: pass (absorption: the equality arm compares only the 700-char preview)
+A2_ls_id_partial_row: failures=[] | expected: pass (gap: 'did not resolve' is armed as absence of the serial line only)
+A3_self_clients_two: failures=[] | expected: pass (absorption: arm is self_clients >= 1, not == 1)
+A4_dump_color_eq_other_realization: failures=[] | expected: pass (by design: record-only arm, both realizations inert)
+P1_n_format_pod_absent: failures=[] | expected: pass (documented rc-only arm: pod presence is negotiation-tracked)
+P2_n_format_rc1_control: failures=['n_format: rc=1 — the rc-0 family fails (pod presence is negotiation-tracked, recorded)'] | expected: FAIL (control: rc!=0 must trip the arm)
+P3_d_route_dump_realization: failures=[] | expected: pass (by design: record-only arm)
+P4_notimpl_rows_absent: failures=[] | expected: pass (coverage hole: rows silently skipped, no failure/block)
+M1_census_gap_empty_dump: failures=[] | expected: pass (absorption: empty set is trivially a strict subset)
+M2_census_gap_equal_control: failures=['meta_census: dump [31, 34, 35, 36, 37, 38, 39, 41, 42] is not a strict subset of ls [31, 34, 35, 36, 37, 38, 39, 41, 42] — the census gap fails'] | expected: FAIL (control: no strict subset)
+M3_census_ls_reader_failure: failures=[] | expected: pass (coverage hole: arm skipped when ls_ids empty)
+T1_cli_devnull_clean_control: failures=['cli_devnull: sig=None — the /dev/null abort class fails'] | expected: FAIL (control: the abort class is armed)
+D1_dsp_cv25_full_control: failures=['cv25: median_peak=8192.0 outside [1228.8,2867.2] — the DSP law fails'] | expected: FAIL (control: the linear-DSP envelope is armed)

@@ -1,0 +1,56 @@
+r86-critic co-tenancy witness — the fixed-path lock is TREE-relative
+====================================================================
+Observed by this seat (ufo-executor, r86-critic) during the r86 wave-B
+gate session, 2026-10-16 03:33–03:37 local (06:33–06:37Z), host
+plazir27, loadavg 85–88 (load preferred).
+
+1. A concurrent same-family run was live in this session. `ps`:
+   2810553 2810542 python3 corpus/fixtures/measure_audio.py --probe-pwctl-r86
+   parent 2810542 = bash -c cd .../audio-shokunin/corpus/live/r86-verifier/tree
+   && export TMPDIR=.../shokunin/tmp && R=../runs && ... --probe-pwctl-r86
+   (cwd readlink: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r86-verifier/tree)
+
+2. The concurrent run is the COMMITTED bytes:
+   sha256 <verifier tree>/corpus/fixtures/measure_audio.py
+     = 5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780
+   sha256 <lane>/corpus/fixtures/measure_audio.py = the same sha.
+
+3. The two locks are DIFFERENT FILES, because the lock path is
+   ROOT-relative (ROOT = Path(__file__).resolve().parents[1] = <tree>/corpus):
+     lane:           corpus/live/measure_audio-pwctl-r86.lock
+     verifier tree:  corpus/live/r86-verifier/tree/corpus/live/measure_audio-pwctl-r86.lock
+   Lane lock content at the time: pid=2808000 ns=r86a_ns_2808000
+     (a r86-critic locktest contender, this seat).
+   Verifier-tree lock content: pid=2831406 ns=r86a_ns_2831406 role=r86arole2831406.
+   Neither process waited on the other; the verifier's runs completed
+   rc=0 (their runs/commands.log: normal 06:34:24Z, r86v1 06:34:30Z,
+   r86v2 06:34:59Z, all "rc=0", loadavg 85.87–87.85).
+
+4. In-flight residue seen by this seat's read-only census while r86v1
+   (pid 2810553) was between entries:
+     pw-dump | grep -o 'r86a[a-z_0-9]*' | sort | uniq -c
+          1 r86a_k_f
+         10 r86a_ns_2810553
+     pactl list short modules | grep -c r86a  -> 1
+     pw-metadata -n default | grep -c r86a     -> 1
+   i.e. a foreign same-family run's namespace and metadata key were
+   visible to this lane's readers at the same moment this lane's own
+   lock file was held by this seat's test.
+
+5. Consequence: the r84 fold property (NOT $TMPDIR-scoped) holds — the
+   locktest proves cross-TMPDIR exclusion within one tree (§3 of the
+   report) — but a same-family run from a DIFFERENT TREE is not
+   excluded. Witnessed, not hypothesised.
+
+Commands that produced these lines (this seat, read-only):
+  ps -o pid,ppid,etime,stat,cmd -p 2810553
+  readlink /proc/2810553/cwd ; cat /proc/2810553/cmdline
+  sha256sum corpus/live/r86-verifier/tree/corpus/fixtures/measure_audio.py
+  cat corpus/live/measure_audio-pwctl-r86.lock
+  cat corpus/live/r86-verifier/tree/corpus/live/measure_audio-pwctl-r86.lock
+  cat corpus/live/r86-verifier/runs/commands.log
+  pw-dump | grep -o 'r86a[a-z_0-9]*' | sort | uniq -c
+  pactl list short modules | grep -c r86a
+  pw-metadata -n default | grep -c r86a
+No host state was mutated by this witness; the verifier seat's own
+artifacts are read-only inputs here.

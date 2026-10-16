@@ -1,0 +1,34 @@
+r86-critic receipts MANIFEST — seat ufo-executor (critic duties), wave shokunin-train-20261015-w22
+gate on committed fa5994a0 (r86 pwctl landing); COMMITTED tree only; zero tracked writes; nothing committed.
+session 2026-10-16 03:33-03:38 local (06:33-06:38Z); TMPDIR=/home/vgpnk/Projects/shokunin/tmp; PYTHONDONTWRITEBYTECODE=1;
+loadavg during checks 85.31-88 (load preferred).
+
+== custody inputs ==
+HEAD: fa5994a029507e666315cd40257988510579284f
+fixture committed blob == worktree: 5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780
+green run1 receipt: 1097d9f10ccab4245df4c8624d680e4bb59228c33c52314bb6196d8337fc515b
+green run2 receipt: fe57c1cb10508dd50b173d334df7bbc10f9af3d0296d0b8e3c674b3a8bb2390a
+dev (pre-fix) receipt: 090a50abc0aab98c586be440bfbf44434b7ebc3d84916013d1e960f1a39eaa35
+
+== commands (all with TMPDIR set, PYTHONDONTWRITEBYTECODE=1) ==
+python3 corpus/live/r86-critic/census.py
+python3 corpus/live/r86-critic/locktest.py            # 3 cases, verbatim committed lock fns
+python3 corpus/live/r86-critic/arm-replay.py          # 5 committed verdict blocks: 2 rederive + 13 mutations
+python3 corpus/live/r86-critic/live-readonly/probe.py # read verbs only
+git show fa5994a0 --numstat; git show fa5994a0:corpus/fixtures/measure_audio.py | sha256sum
+
+== artifacts (sha256; MANIFEST.txt itself is not self-hashed) ==
+78c3242bcc5ebb459c562d65960e2328f0c5a925f812fe9ad867508c16006331  arm-replay.json
+fae3aee81c4d523dc22d33b04ebdbf89e113bcc0db6da4d9f6bb34de8bcbbf6a  arm-replay.out
+66e512907e946fc0f6657dc01f74ba56770cb30f179645e0419cefdfbe7531d3  arm-replay.py
+348821672b6a9fb79fd3aed7930205966105a97d48f943bbf9289cb3d7217c60  census.json
+17309f6154fceda5513f7662575d78698fcf652a963d9e49716b80e9d1b1530c  census.out
+a57c32d47340205975ae5e4a1aaaca79fcb0d516f41e28d5c4c0b7740d9c6002  census.py
+c297759fefe79c189417aca069088890b89bf380beb839693f0bb5ad3ec43c00  co-tenancy-witness.txt
+59bb5ac70bb867594d7cd789a257fd1bafd9208f3872914dd4c74d510eed25ac  live-readonly.json
+442e326bd7c4796169f1f48e5c072fab7b197661f3e8c17e0cff157e79ec337c  live-readonly/probe.out
+0c797a3a7da2482c91c84dfde877ebb7f24eec8b2771ae0e3c281d358ad1861d  live-readonly/probe.py
+e53532325049ef5e4be59df469abba29991e2655164e2102def67e1d586a6c50  locktest_child.py
+386dbb2985f2317a277c8cc362943e09134877fecbcab3e913e8a82f360b2715  locktest.json
+e20402400d5fad0212f13ed4239c7feb85648085f7e7e22a050bb8257fb1128d  locktest.out
+e48f3995cfc15d4fc29b61912140e70a37cc851c6b239b6e8fdc14c4234925be  locktest.py
