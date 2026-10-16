@@ -41468,6 +41468,2323 @@ def filterchain_wpx_r92_probe():
     entry["failures"] = failures
     return entry
 
+
+# r96: the PULSEAUDIO-NATIVE CLIENT API as served by pipewire-pulse — the
+#     `pactl`/`pacat`/`paplay` CLI family, the PULSE_* env vectors, the
+#     buffer-attribute law, stream properties, cork/trigger/prebuf
+#     semantics and the sink-input/source-output introspection surface.
+#     A NEW parallel ledger family, --probe-pulsecli-r96; prior rows
+#     untouched; every r76-r89 guard inherited (seat-owned r96a_<pid>
+#     names, the private r96arole<pid> key, name-verified sink_name=
+#     unloads, never set-default-*, bounded process groups, RLIMIT_CORE=0
+#     on the crash-class legs, fixed-path family lock under corpus/live/).
+#
+#     ALL armed claims are the r96 boundary's THIS-HOST survivals; the
+#     scout's falsified statements are dropped or re-armed at the
+#     boundary's values:
+#       * `pa_stream_get_latency` does NOT return 0 — every call returns
+#         -16 (PA_ERR_NODATA); the scout's 0 was its uninitialized caller
+#         variable (return value discarded). The introspection fields
+#         (buffer/sink/source_latency_usec) ARE hardcoded 0.0.
+#       * the `--format=f32le` "frame-size-4 falsifier" was never
+#         measured (rc 1 `Invalid sample specification`, 0 rows); the
+#         corrected falsifiers are `float32le`/`s24le`.
+#       * the uncork onset is NOT a 15-33 ms window (-10.8..36.0 ms across
+#         6 fresh-process reps): nonzero-frame counts are the stable
+#         witness, the onset is recorded only.
+#       * `prebuf=0` + starvation can be silent from the FIRST chunk
+#         (0 nonzero frames in one L rep) — the arm is an upper bound
+#         well below the fed audio, never an equality.
+#       * `pulse.attr.*` can be absent on an already-visible stream (the
+#         props land in a SECOND pw_stream_update_properties call after
+#         registration): every attr leg re-snapshots and treats absence
+#         after the bound as a NAMED coverage block, never as a green.
+#       * the playback fallback DESTINATION is the runtime default at
+#         link time (a moving target under sibling contention) — the law
+#         armed is the MECHANISM (rc 0 + literal target.object + a
+#         landed stream), the landed name is recorded only.
+#
+#     Leg census is printed by the receipt's own leg keys.
+
+PULSECLI_R96_PID = os.getpid()
+PULSECLI_R96_PREFIX = f"r96a_{PULSECLI_R96_PID}"
+PULSECLI_R96_NS = f"r96a_ns_{PULSECLI_R96_PID}"      # probe null sink
+PULSECLI_R96_NS2 = f"r96a_ns2_{PULSECLI_R96_PID}"    # second sink (index)
+PULSECLI_R96_ROLE = f"r96arole{PULSECLI_R96_PID}"    # private restore key
+PULSECLI_R96_DEAD_SINK = "r96a_bogus_sink_zxqw"      # never-live names
+PULSECLI_R96_DEAD_SOURCE = "r96a_bogus_src_zxqw"
+PULSECLI_R96_BAD_INDEX = 2147483000                  # out of any table
+PULSECLI_R96_STREAM_S = 75.0        # long tone: the stream outlives the leg
+PULSECLI_R96_QUIET_S = 8.0          # fallback legs: -60 dBFS, never audible
+PULSECLI_R96_ROW_WAIT_S = 4.0       # row-appearance bound
+PULSECLI_R96_ATTR_WAIT_S = 3.0      # the late-attr re-snapshot bound
+PULSECLI_R96_LEG_BOUND_S = 9.0      # wall cap for a running-stream leg
+PULSECLI_R96_RESTORE_DEBOUNCE_S = 1.8   # WirePlumber restore debounce
+PULSECLI_R96_CORK_HOLD_S = 1.2
+PULSECLI_R96_FEED_S = 1.2
+PULSECLI_R96_TAP_FRAMES = int(48000 * 4.0)   # monitor capture window
+PULSECLI_R96_SUB_S = 3.0            # pactl subscribe window
+
+# ---- the buffer-attribute law (transcribed, not asserted) -------------
+# Source anchors (pipewire 1.6.8, tag 1.6.8, module-protocol-pulse):
+#   pulse-server.c:427-432  clamp_latency
+#   pulse-server.c:434-525  fix_playback_buffer_attr
+#   pulse-server.c:414-422  frac_to_bytes_round_up
+#   pulse-server.c:5550-5567 load_defaults (min.req / default.req /
+#                            default.tlength / min.quantum / quantum_limit)
+#   spa/utils/defs.h:281-289 SPA_ROUND_DOWN / SPA_ROUND_UP (modulo form,
+#                            NOT the power-of-two mask form — frame size 3
+#                            (s24le) is what falsifies a mask reading)
+#   pulse/stream.c:997-1028 (pulseaudio 17.0) patch_buffer_attr —
+#                            PULSE_LATENCY_MSEC overwrites the whole attr
+#                            and sets PA_STREAM_ADJUST_LATENCY.
+PULSE_R96_RATE = 48000
+PULSE_R96_MIN_REQ = (256, 48000)          # pulse.min.req
+PULSE_R96_DEFAULT_REQ = (960, 48000)      # pulse.default.req
+PULSE_R96_DEFAULT_TLENGTH = (96000, 48000)  # pulse.default.tlength = 2 s
+PULSE_R96_MIN_QUANTUM = (256, 48000)      # pulse.min.quantum
+PULSE_R96_QUANTUM_LIMIT = 8192            # def->quantum_limit (load_defaults)
+PULSE_R96_MAXLENGTH = 4 * 1024 * 1024     # MAXLENGTH (4 MiB)
+PULSE_R96_UINT32_MAX = 0xFFFFFFFF
+
+
+def _pulsecli_r96_round_down(num, value):
+    """SPA_ROUND_DOWN (spa/utils/defs.h:281): num - (num % value)."""
+    return num - (num % value)
+
+
+def _pulsecli_r96_round_up(num, value):
+    """SPA_ROUND_UP (spa/utils/defs.h:286): ((num + value - 1) / value) * value."""
+    return ((num + value - 1) // value) * value
+
+
+def _pulsecli_r96_frac_bytes(frac, frame, rate):
+    """frac_to_bytes_round_up (pulse-server.c:414-422)."""
+    num, denom = frac
+    u = (num * 1000000 * rate) // denom
+    u = (u + 1000000 - 1) // 1000000
+    return u * frame
+
+
+def _pulsecli_r96_usec_bytes(usec, frame, rate):
+    """pa_usec_to_bytes (pulse/sample.c): ((usec * rate) / 1e6) * frame."""
+    return ((usec * rate) // 1000000) * frame
+
+
+def _pulsecli_r96_cli_request(latency_ms=None, process_ms=None,
+                              frame=2, rate=PULSE_R96_RATE):
+    """The attr pacat sends: `--latency-msec` sets tlength + ADJUST,
+    `--process-time-msec` sets minreq; everything else is (uint32)-1."""
+    req = {"maxlength": -1, "tlength": -1, "minreq": -1, "prebuf": -1,
+           "adjust": False}
+    if latency_ms is not None:
+        req["tlength"] = _pulsecli_r96_usec_bytes(
+            latency_ms * 1000, frame, rate)
+        req["adjust"] = True
+    if process_ms is not None:
+        req["minreq"] = _pulsecli_r96_usec_bytes(
+            process_ms * 1000, frame, rate)
+    return req
+
+
+def _pulsecli_r96_env_request(ms, frame, rate=PULSE_R96_RATE):
+    """patch_buffer_attr (pulse/stream.c:997-1028): the env rewrites
+    maxlength/tlength/minreq/prebuf/fragsize and forces ADJUST."""
+    if ms is None:
+        return None
+    return {"maxlength": -1,
+            "tlength": _pulsecli_r96_usec_bytes(ms * 1000, frame, rate),
+            "minreq": -1, "prebuf": -1, "adjust": True}
+
+
+def _pulsecli_r96_fix_attr(req, frame, rate=PULSE_R96_RATE):
+    """fix_playback_buffer_attr + clamp_latency, transcribed line for
+    line from pulse-server.c:434-525. Returns the four measured fields
+    plus the node latency fraction."""
+    def _u32(v):
+        """A request field of -1 is (uint32)-1 on the wire."""
+        return PULSE_R96_UINT32_MAX if (v is None or v < 0) else v
+
+    maxlength = _pulsecli_r96_round_down(PULSE_R96_MAXLENGTH, frame)
+    minreq = _pulsecli_r96_frac_bytes(PULSE_R96_MIN_REQ, frame, rate)
+    max_latency = PULSE_R96_QUANTUM_LIMIT * frame
+
+    tlength = _u32(req["tlength"])
+    amax = _u32(req["maxlength"])
+    if amax == PULSE_R96_UINT32_MAX or amax > maxlength:
+        amax = maxlength
+    else:
+        amax = _pulsecli_r96_round_down(amax, frame)
+
+    minreq = min(minreq, amax)
+
+    if tlength == PULSE_R96_UINT32_MAX:
+        tlength = _pulsecli_r96_frac_bytes(PULSE_R96_DEFAULT_TLENGTH,
+                                           frame, rate)
+    tlength = min(max(tlength, minreq), amax)
+    tlength = _pulsecli_r96_round_up(tlength, frame)
+
+    aminreq = _u32(req["minreq"])
+    if aminreq == PULSE_R96_UINT32_MAX:
+        process = _pulsecli_r96_frac_bytes(PULSE_R96_DEFAULT_REQ,
+                                           frame, rate)
+        m = _pulsecli_r96_round_down(tlength // 4, frame)
+        aminreq = min(process, m)
+    aminreq = max(aminreq, minreq)
+
+    if tlength < aminreq + frame:
+        tlength = min(aminreq + frame, amax)
+
+    if req.get("early"):
+        latency = aminreq
+    elif req["adjust"]:
+        if tlength > aminreq * 2:
+            latency = min(max_latency, (tlength - aminreq * 2) // 2)
+        else:
+            latency = aminreq
+        latency = _pulsecli_r96_round_down(latency, frame)
+        if tlength >= latency:
+            tlength -= latency
+    else:
+        if tlength > aminreq * 2:
+            latency = min(max_latency, tlength - aminreq * 2)
+        else:
+            latency = aminreq
+
+    if tlength < latency + 2 * aminreq:
+        tlength = min(latency + 2 * aminreq, amax)
+
+    aminreq = _pulsecli_r96_round_down(aminreq, frame)
+    if aminreq <= 0:
+        aminreq = frame
+        tlength += frame * 2
+    if tlength <= aminreq:
+        tlength = min(aminreq * 2 + frame, amax)
+
+    max_prebuf = tlength + frame - aminreq
+    aprebuf = _u32(req["prebuf"])
+    if aprebuf == PULSE_R96_UINT32_MAX or aprebuf > max_prebuf:
+        aprebuf = max_prebuf
+    aprebuf = _pulsecli_r96_round_down(aprebuf, frame)
+
+    lat_num = latency // frame
+    lat_denom = rate
+    mq_num, mq_denom = PULSE_R96_MIN_QUANTUM
+    if (lat_num * mq_denom) // lat_denom < mq_num:
+        lat_num = (mq_num * lat_denom + (mq_denom - 1)) // mq_denom
+    return {"maxlength": amax, "tlength": tlength, "minreq": aminreq,
+            "prebuf": aprebuf, "latency_num": lat_num,
+            "latency_denom": lat_denom}
+
+
+def _pulsecli_r96_parse_atou(text):
+    """Transcription of PA's pa_atou for NUMTYPE_UINT
+    (pulsecore/core-util.c prepare_number_string + strtoul(.., 0)):
+    a leading space/+/- is rejected, leading zeros are stripped UNLESS the
+    string starts with lowercase `0x`, then strtoul base 0 with a full-
+    string check and the UINT32_MAX bound. Returns the value or None —
+    the r96 boundary's measured parse law is the on-host witness."""
+    s = text if text is not None else ""
+    if not s:
+        return None
+    if s[0].isspace() or s[0] in "+-":
+        return None
+    if not s.startswith("0x"):
+        while len(s) > 1 and s[0] == "0":
+            s = s[1:]
+    if not s:
+        return None
+    m = re.match(r"0[xX][0-9a-fA-F]+|0[0-7]*|[1-9][0-9]*", s)
+    if m is None or m.group(0) != s:
+        return None
+    tok = m.group(0)
+    try:
+        if tok.lower().startswith("0x"):
+            val = int(tok, 16)
+        elif len(tok) > 1 and tok[0] == "0":
+            val = int(tok, 8)
+        else:
+            val = int(tok, 10)
+    except ValueError:
+        return None
+    if val > PULSE_R96_UINT32_MAX:
+        return None
+    return val
+
+
+def _pulsecli_r96_env_ms(text):
+    """PULSE_LATENCY_MSEC -> the ms the client would use, or None when
+    patch_buffer_attr ignores the value (parse failure or ms <= 0)."""
+    val = _pulsecli_r96_parse_atou(text)
+    if val is None or val <= 0:
+        return None
+    return val
+
+
+# ---- r96 family-local error classes (checked before the r88 chain) ----
+_PULSECLI_R96_ERR_CLASSES = (
+    ("pulse_invalid_server", r"Connection failure: Invalid server"),
+    ("pulse_refused", r"Connection failure: Connection refused"),
+    ("pulse_no_cmd", r"No valid command specified"),
+    ("pulse_invalid_property", r"Invalid property '[^']+'"),
+    ("pulse_no_entity", r"(?:Stream error: )?No such entity"),
+    ("pulse_bad_spec", r"Invalid sample specification"),
+    ("pulse_cookie_truncate", r"Failed to truncate cookie file: [^\n]+"),
+    ("pulse_conn_fail", r"Connection failure: [^\n]+"),
+)
+
+
+def _pulsecli_r96_sigreset():
+    """preexec_fn for every r96 arm child (the r89 fold fix): an
+    inherited-ignored SIGHUP/SIGINT/SIGQUIT is discarded at generation
+    because exec() preserves SIG_IGN while subprocess restore_signals
+    covers only PIPE/XFSZ — reset every signal the harness may send to
+    SIG_DFL so each arm sees the host default."""
+    for _s in (signal.SIGHUP, signal.SIGINT, signal.SIGQUIT,
+               signal.SIGTERM, signal.SIGUSR1):
+        try:
+            signal.signal(_s, signal.SIG_DFL)
+        except (OSError, ValueError):
+            pass
+
+
+def _pulsecli_r96_errclass(text):
+    for name, pat in _PULSECLI_R96_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _btwit_r88_errclass(text or "")
+
+
+def _pulsecli_r96_norm(text):
+    """Volatile-field scrub: the r88 chain plus the pulse client index
+    (a per-connection counter that moves every leg) and the long
+    monotonic nsec counters."""
+    s = _btwit_r88_norm(text or "")
+    s = re.sub(r"Client Index: \d+", "Client Index: <ci>", s)
+    s = re.sub(r"\b\d{9,}\b", "<ns>", s)
+    return s
+
+
+def _pulsecli_r96_run(argv, timeout_s=8.0, env=None, keep_chars=1200,
+                      keep_raw=False, cwd=None):
+    """One bounded spawn -> rc/signal/stdout/stderr + the r96 error
+    class (r88's kill-group discipline: own session leader, SIGKILL to
+    the group at the bound)."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    if env is not None:
+        rec["env_keys"] = sorted(k for k in env if k.startswith("PULSE"))
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, env=env, cwd=cwd,
+            start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    killed = False
+    try:
+        out, err = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        killed = True
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        out, err = proc.communicate()
+    outt = out.decode(errors="replace")
+    errt = err.decode(errors="replace")
+    ferr_clean, ferr_dropped = _btwit_r88_scrub_foreign(errt)
+    fout_clean, fout_dropped = _btwit_r88_scrub_foreign(outt)
+    cls, hit = _pulsecli_r96_errclass(ferr_clean + "\n" + fout_clean)
+    rec.update({"exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed_at_bound": killed,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "stdout": _pulsecli_r96_norm(outt)[:keep_chars],
+                "stdout_bytes": len(outt),
+                "stderr_head": errt.strip().splitlines()[:4],
+                "stderr": _pulsecli_r96_norm(errt)[:keep_chars],
+                "stderr_bytes": len(errt),
+                "error_class": cls, "error_hit": hit})
+    if ferr_dropped or fout_dropped:
+        rec["foreign_noise"] = {
+            "stderr": [_pulsecli_r96_norm(x) for x in ferr_dropped],
+            "stdout": [_pulsecli_r96_norm(x) for x in fout_dropped]}
+    if keep_raw:
+        rec["stdout_raw"] = outt
+        rec["stderr_raw"] = errt
+    return rec
+
+
+def _pulsecli_r96_pactl(*args, timeout_s=12.0, env=None, keep_chars=1200,
+                        keep_raw=False):
+    return _pulsecli_r96_run(["pactl", *[str(a) for a in args]],
+                             timeout_s, env=env, keep_chars=keep_chars,
+                             keep_raw=keep_raw)
+
+
+def _pulsecli_r96_pactl_json(what):
+    """`pactl -f json list <what>` -> list (empty on any failure)."""
+    try:
+        proc = subprocess.run(["pactl", "-f", "json", "list", what],
+                              capture_output=True, timeout=12)
+        return json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError):
+        return []
+
+
+def _pulsecli_r96_short_rows(what):
+    """`pactl list <what> short` -> [(index, name)] or None (reader
+    failure is None, never an empty list — the r77 strict-reader law)."""
+    try:
+        proc = subprocess.run(["pactl", "list", what, "short"],
+                              capture_output=True, timeout=12)
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    rows = []
+    for ln in proc.stdout.decode(errors="replace").splitlines():
+        f = ln.split()
+        if len(f) >= 2 and f[0].isdigit():
+            rows.append((int(f[0]), f[1]))
+    return rows
+
+
+def _pulsecli_r96_sink_index(name):
+    for idx, nm in (_pulsecli_r96_short_rows("sinks") or []):
+        if nm == name:
+            return idx
+    return None
+
+
+def _pulsecli_r96_sink_name(index):
+    for idx, nm in (_pulsecli_r96_short_rows("sinks") or []):
+        if idx == index:
+            return nm
+    return None
+
+
+def _pulsecli_r96_row(what, pid):
+    """The live row whose application.process.id is `pid` — the landing
+    witness. A row for a DIFFERENT pid is never returned."""
+    for r in _pulsecli_r96_pactl_json(what):
+        if str((r.get("properties") or {}).get(
+                "application.process.id")) == str(pid):
+            return r
+    return None
+
+
+def _pulsecli_r96_link_ok(row, what):
+    """The LINK witness: a pulse row is introspectable BEFORE its node is
+    linked, and the Sink/Source field then reads (uint32)-1. A landing
+    arm must re-snapshot until the index is real — arming the -1 row
+    would be a vacuous green (the r96 author dev run measured ~40% of
+    first snapshots at -1)."""
+    key = "sink" if what == "sink-inputs" else "source"
+    v = (row or {}).get(key)
+    return isinstance(v, int) and 0 <= v < 0x7FFFFFFF
+
+
+def _pulsecli_r96_attr_fields(props):
+    """pulse.attr.* + node.latency as ints/fractions. Absent keys are
+    None — the late-attr law says absence is a snapshot artifact, not a
+    missing law, so callers re-snapshot."""
+    p = props or {}
+
+    def _int(key):
+        v = p.get(key)
+        try:
+            return int(str(v).strip())
+        except (TypeError, ValueError):
+            return None
+
+    lat = p.get("node.latency")
+    num = den = None
+    if isinstance(lat, str) and "/" in lat:
+        a, b = lat.split("/", 1)
+        try:
+            num, den = int(a), int(b)
+        except ValueError:
+            num = den = None
+    return {"tlength": _int("pulse.attr.tlength"),
+            "prebuf": _int("pulse.attr.prebuf"),
+            "minreq": _int("pulse.attr.minreq"),
+            "maxlength": _int("pulse.attr.maxlength"),
+            "latency_num": num, "latency_denom": den}
+
+
+_PULSECLI_R96_ROW_KEYS = (
+    "index", "sink", "source", "client", "corked", "mute",
+    "buffer_latency_usec", "sink_latency_usec", "source_latency_usec",
+    "sample_specification", "state", "driver",
+)
+_PULSECLI_R96_PROP_KEYS = (
+    "application.name", "application.process.id", "application.process.binary",
+    "media.name", "media.role", "client.api", "pulse.corked",
+    "pulse.attr.tlength", "pulse.attr.prebuf", "pulse.attr.minreq",
+    "pulse.attr.maxlength", "node.latency", "node.rate", "target.object",
+    "stream.is-live", "module-stream-restore.id", "pulse.server.type",
+    "zzz.invented", "zzz.empty", "state.restore-props",
+)
+
+
+def _pulsecli_r96_row_view(row):
+    """The recorded row: scalar fields + the armed prop subset + the
+    parsed attr fields. Volatile ids are recorded, never armed."""
+    if not row:
+        return None
+    props = row.get("properties") or {}
+    view = {k: row.get(k) for k in _PULSECLI_R96_ROW_KEYS}
+    view["props"] = {k: props.get(k) for k in _PULSECLI_R96_PROP_KEYS
+                     if k in props}
+    view["attr"] = _pulsecli_r96_attr_fields(props)
+    return view
+
+
+def _pulsecli_r96_kill(proc, term_wait_s=1.0):
+    """SIGTERM the group, wait, then SIGKILL — bounded reaping."""
+    if proc is None:
+        return None
+    if proc.poll() is None:
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            proc.wait(timeout=term_wait_s)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                pass
+    try:
+        proc._r96_stderr = proc.stderr.read()
+    except (OSError, ValueError, AttributeError):
+        pass
+    return proc.returncode
+
+
+def _pulsecli_r96_stream_leg(tag, argv, env=None, what="sink-inputs",
+                             attr_wait_s=PULSECLI_R96_ATTR_WAIT_S,
+                             row_wait_s=PULSECLI_R96_ROW_WAIT_S,
+                             need_attr=True, need_link=True):
+    """One bounded pulse-client spawn (pacat/paplay/parec) with the
+    landing witness: wait for the client's OWN row, then re-snapshot
+    until pulse.attr.* is present (the r96 boundary's late-attr law —
+    `set_playback_buffer_attr` updates the props AFTER the node is
+    registered, so an early snapshot can legitimately lack them) or the
+    bound expires. The process group is killed either way."""
+    rec = {"tag": tag, "argv": " ".join(str(a) for a in argv)}
+    if env is not None:
+        rec["env_keys"] = sorted(k for k in env if k.startswith("PULSE"))
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, env=env, start_new_session=True,
+            preexec_fn=_pulsecli_r96_sigreset)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    row = None
+    first_attrs = None
+    complete = None
+    linked = False
+    polls = 0
+    row_t = None
+    link_t = None
+    bound = attr_wait_s if need_attr else row_wait_s
+    while time.monotonic() - t0 < max(bound, row_wait_s):
+        polls += 1
+        row = _pulsecli_r96_row(what, proc.pid)
+        if row is not None:
+            if row_t is None:
+                row_t = round(time.monotonic() - t0, 3)
+            attrs = _pulsecli_r96_attr_fields(row.get("properties") or {})
+            if first_attrs is None:
+                first_attrs = attrs
+            if attrs.get("tlength") is not None:
+                complete = attrs
+            if _pulsecli_r96_link_ok(row, what) and not linked:
+                linked = True
+                link_t = round(time.monotonic() - t0, 3)
+            if (not need_attr or complete is not None) and \
+                    (not need_link or linked):
+                break
+        if proc.poll() is not None:
+            break
+        time.sleep(0.08)
+    rec.update({"polls": polls, "row_t": row_t, "link_t": link_t,
+                "row_seen": row is not None,
+                "linked": linked,
+                "first_snapshot_attrs": first_attrs,
+                "attrs_after_resnapshot": complete,
+                "attr_present": (complete is not None) if need_attr else None,
+                "row": _pulsecli_r96_row_view(row),
+                "wall_s": round(time.monotonic() - t0, 3)})
+    if row is not None:
+        sink_i = row.get("sink")
+        src_i = row.get("source")
+        rec["landed_sink_index"] = sink_i if (
+            isinstance(sink_i, int) and 0 <= sink_i < 0x7FFFFFFF) else None
+        rec["landed_sink_name"] = _pulsecli_r96_sink_name(sink_i) \
+            if (what == "sink-inputs" and rec["landed_sink_index"]
+                is not None) else None
+        rec["landed_source_index"] = src_i if (
+            isinstance(src_i, int) and 0 <= src_i < 0x7FFFFFFF) else None
+    rec["exit_code"] = _pulsecli_r96_kill(proc)
+    err = getattr(proc, "_r96_stderr", b"") or b""
+    rec["stderr_bytes"] = len(err)
+    rec["stderr_tail"] = _pulsecli_r96_norm(
+        err.decode(errors="replace"))[:400]
+    rec["error_class"] = _pulsecli_r96_errclass(
+        err.decode(errors="replace"))[0]
+    return rec
+
+
+def _pulsecli_r96_tone(path, seconds, amp, rate=PULSE_R96_RATE):
+    """The r78 tag tone at a chosen amplitude: L 1 kHz / R 1.5 kHz.
+    amp 8192 (-12 dBFS) for monitor-captured legs, amp 33 (-60 dBFS)
+    for every leg that can land on the operator's default sink."""
+    n = int(rate * seconds)
+    t = np.arange(n) / rate
+    left = (amp * np.sin(2 * np.pi * 1000.0 * t)).astype("<i2")
+    right = (amp * np.sin(2 * np.pi * 1500.0 * t)).astype("<i2")
+    pcm = np.empty(n * 2, dtype="<i2")
+    pcm[0::2], pcm[1::2] = left, right
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(pcm.tobytes())
+    return path
+
+
+def _pulsecli_r96_capture_stats(path):
+    """Monitor capture -> {frames, nonzero_frames, peak} read from the
+    WAV the tap wrote. `nonzero` counts frames where ANY channel is
+    nonzero — the stable cork/prebuf witness (the uncork onset is not a
+    window, the boundary falsified it)."""
+    try:
+        with wave.open(str(path), "rb") as w:
+            ch = w.getnchannels()
+            n = w.getnframes()
+            raw = w.readframes(n)
+    except (wave.Error, OSError, EOFError):
+        return {"frames": None, "nonzero_frames": None, "peak": None}
+    if not raw:
+        return {"frames": 0, "nonzero_frames": 0, "peak": 0}
+    pcm = np.frombuffer(raw, dtype="<i2")
+    if ch > 1:
+        pcm = pcm.reshape(-1, ch)
+    peak = int(np.abs(pcm).max()) if pcm.size else 0
+    nonzero = int((np.abs(pcm) > 0).any(axis=1).sum()) if ch > 1 else \
+        int((np.abs(pcm) > 0).sum())
+    return {"frames": int(len(raw) // (2 * max(ch, 1))),
+            "nonzero_frames": nonzero, "peak": peak}
+
+
+def _pulsecli_r96_restore_rows(tag):
+    """Count rows carrying `tag` in WirePlumber's stream-properties
+    store (the r90 C8/C9 restore surface). None on an unreadable file —
+    the suppression arm is then a NAMED coverage block."""
+    path = Path.home() / ".local" / "state" / "wireplumber" / \
+        "stream-properties"
+    try:
+        text = path.read_text(errors="replace")
+    except OSError:
+        return None
+    return {"path": str(path),
+            "rows": sum(1 for ln in text.splitlines() if tag in ln)}
+
+
+def _pulsecli_r96_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude). A second --probe-pulsecli-r96 waits HERE."""
+    path = ROOT / "live" / "measure_audio-pulsecli-r96.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={PULSECLI_R96_PID} ns={PULSECLI_R96_NS} "
+                     f"role={PULSECLI_R96_ROLE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+
+def _pulsecli_r96_server_gate():
+    """One bounded `pactl info` before any leg runs. The shared host's
+    pipewire-pulse daemon stalls under sibling load (the r96 author dev
+    window saw it stop answering `pactl`, `pw-dump` and `wpctl` for
+    minutes); every leg would otherwise burn its own timeout and turn
+    the entry into a wall-clock sink. An unresponsive daemon is a NAMED
+    entry-level coverage block, never a red and never a green."""
+    leaf = _pulsecli_r96_run(["pactl", "info"], 12.0,
+                             env=_pulsecli_r96_env(), keep_chars=400)
+    ok = (leaf.get("exit_code") == 0 and
+          "Server Name:" in (leaf.get("stdout") or ""))
+    return ok, leaf
+
+
+def _pulsecli_r96_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, the foreign-r96a census, and the pulse server identity."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    info = _pulsecli_r96_pactl("info", keep_chars=2000,
+                                keep_raw=True)
+    srv = {}
+    for key, pat in (("server_string", r"^Server String:\s*(.*)$"),
+                     ("server_name", r"^Server Name:\s*(.*)$"),
+                     ("server_version", r"^Server Version:\s*(.*)$"),
+                     ("default_sink", r"^Default Sink:\s*(.*)$"),
+                     ("default_source", r"^Default Source:\s*(.*)$")):
+        m = re.search(pat, (info.get("stdout_raw") or info.get("stdout")
+                            or ""), re.M)
+        srv[key] = m.group(1).strip() if m else None
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r96a_nodes": sorted(
+                n for n in names if "r96a_" in n
+                and f"_{PULSECLI_R96_PID}" not in n),
+            "pulse_server": srv,
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _pulsecli_r96_load_ns(name):
+    """Load + gate one null sink (r83 loader); carries field/value for
+    the name-verified unload."""
+    leaf = _pwcat_r83_ns_load(name)
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    return leaf
+
+
+def _pulsecli_r96_teardown(entry, failures, loads, players=()):
+    """Kill every tracked process group first, then the name-verified
+    unload of every own module, then the residue destroy: any surviving
+    r96a_<pid>-tagged node is destroyed by id via pw-cli before the
+    final sweep."""
+    for proc in players or ():
+        _pulsecli_r96_kill(proc)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    g = _pactlmon_r85_graph()
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and f"r96a_{PULSECLI_R96_PID}" in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_pulsecli_r96_run(["pw-cli", "destroy", nid], 8.0,
+                                 keep_chars=300)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after "
+            "unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if f"r96a_{PULSECLI_R96_PID}" in n
+                      or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r96a-tagged nodes survived: {rest}")
+
+
+def _pulsecli_r96_block(entry, failures, msg, loads=None, players=()):
+    """The named coverage block: kill players, unload anything loaded,
+    record the block."""
+    for proc in players or ():
+        _pulsecli_r96_kill(proc)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _pulsecli_r96_client_build(tmp):
+    """Build the r96 own-libpulse instrument (fixtures/pulse_r96_probe.c
+    -> tmp/pulse_r96_probe). The C client is the ONLY way to arm
+    START_CORKED / trigger / prebuf-0 / record-cork / the
+    pa_stream_get_latency return code: pacat exposes no cork flag. A
+    missing source, missing headers or a failed compile is a NAMED
+    coverage block for the dependent arms — never a silent green."""
+    src = ROOT / "fixtures" / "pulse_r96_probe.c"
+    out = Path(tmp) / "pulse_r96_probe"
+    rec = {"source": str(src), "binary": str(out)}
+    try:
+        rec["source_sha256"] = hashlib.sha256(
+            src.read_bytes()).hexdigest()
+    except OSError as exc:
+        rec["error"] = f"source unreadable: {exc}"[:160]
+        rec["ok"] = False
+        return rec
+    try:
+        proc = subprocess.run(
+            ["gcc", "-O1", "-o", str(out), str(src), "-lpulse", "-lm"],
+            capture_output=True, timeout=120)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        rec["error"] = f"gcc: {exc}"[:160]
+        rec["ok"] = False
+        return rec
+    rec["cc_exit"] = proc.returncode
+    if proc.returncode != 0 or not out.exists():
+        rec["cc_stderr"] = proc.stderr.decode(errors="replace")[-600:]
+        rec["ok"] = False
+        return rec
+    rec["binary_sha256"] = hashlib.sha256(out.read_bytes()).hexdigest()
+    rec["ok"] = True
+    return rec
+
+
+def _pulsecli_r96_env(**kw):
+    """A hermetic env: every inherited PULSE_* is dropped, then the
+    overrides are applied (None deletes). The r83 critic's env-hermeticity
+    finding folded — a foreign PULSE_SERVER in the harness env must never
+    silently redirect a leg."""
+    env = {k: v for k, v in os.environ.items()
+           if not k.startswith("PULSE_")}
+    for k, v in kw.items():
+        if v is None:
+            env.pop(k, None)
+        else:
+            env[k] = str(v)
+    return env
+
+
+def _pulsecli_r96_clientconf(tmp, **keys):
+    """A scratch client.conf (PULSE_CLIENTCONFIG target) with the given
+    keys — the only way to move the client-side default without ever
+    issuing `pactl set-default-*`."""
+    path = Path(tmp) / f"{PULSECLI_R96_PREFIX}_client_{len(keys)}.conf"
+    body = "".join(f"{k} = {v}\n" for k, v in keys.items())
+    path.write_text(body)
+    return path
+
+
+def _pulsecli_r96_reps(entry, failures, name, reps, fn):
+    """Run `fn(rep)` `reps` times, recording every rep under
+    `<name>__r<k>` and arming each rep's own leaf failures."""
+    for k in range(reps):
+        tag = f"{name}__r{k + 1}"
+        leaf = fn(k)
+        entry["legs"][tag] = leaf
+        for f in leaf.get("failures") or []:
+            failures.append(f"{tag}: {f}")
+        if leaf.get("coverage_blocked"):
+            entry.setdefault("coverage_blocked", []).extend(
+                f"{tag}: {c}" for c in leaf["coverage_blocked"])
+
+
+def _pulsecli_r96_avail_entry():
+    """The availability + server-resolution lattice: the CLI family's
+    one-binary shape, the pacmd-equivalents' absence, the PULSE_SERVER
+    5-shape lattice with its distinct error classes, the ~7.8 s bogus-
+    host DNS cost, `-s` vs env precedence, and PULSE_CLIENTCONFIG."""
+    entry = _pulsecli_r96_entry_head(
+        "pulse client availability + server resolution lattice (r96)")
+    failures = []
+    legs = entry["legs"] = {}
+    loads = {}
+    gate_ok, gate = _pulsecli_r96_server_gate()
+    entry["server_gate"] = gate
+    if not gate_ok:
+        return _pulsecli_r96_block(
+            entry, failures,
+            "pulse server unresponsive at entry (pactl info did "
+            "not answer within 12 s) — the whole entry is "
+            "unmeasured", loads)
+    tmp = Path(tempfile.mkdtemp(prefix=f"{PULSECLI_R96_PREFIX}_avail_"))
+    tone = _pulsecli_r96_tone(tmp / f"{PULSECLI_R96_PREFIX}_quiet.wav",
+                              PULSECLI_R96_QUIET_S, 33)
+    try:
+        socks = (entry["pulse_server"].get("server_string") or "").strip()
+        if not socks.startswith("/"):
+            return _pulsecli_r96_block(
+                entry, failures,
+                "pulse server socket unreadable from `pactl info` — the "
+                "whole server lattice is unmeasured", loads)
+        entry["socket"] = socks
+
+        legs["a_bins"] = _pulsecli_r96_run(
+            ["bash", "-c", "for b in pactl pacat paplay parec parecord "
+                           "pamon pacmd pa-info pax11publish pw-pulse; do "
+                           "printf '%s=%s\\n' \"$b\" \"$(command -v $b || "
+                           "echo MISSING)\"; done"],
+            15.0, env=_pulsecli_r96_env(), keep_chars=900)
+        bins = dict(
+            ln.split("=", 1) for ln in
+            (legs["a_bins"].get("stdout") or "").splitlines()
+            if "=" in ln)
+        legs["a_bins"]["parsed"] = bins
+        for absent in ("pacmd", "pa-info", "pax11publish", "pw-pulse"):
+            if bins.get(absent) != "MISSING":
+                failures.append(
+                    f"a_bins: {absent} is present ({bins.get(absent)}) — "
+                    "the pacmd family is supposed to be absent on this "
+                    "host")
+        for present in ("pactl", "pacat", "paplay", "parec"):
+            if not bins.get(present) or bins.get(present) == "MISSING":
+                failures.append(
+                    f"a_bins: {present} missing — the client family "
+                    "under test is not installed")
+
+        sym = {}
+        for b in ("pacat", "paplay", "parec", "parecord", "pamon"):
+            p = shutil.which(b)
+            sym[b] = {"path": p,
+                      "realpath": os.path.realpath(p) if p else None,
+                      "same_inode_as_pacat": None}
+            try:
+                sym[b]["same_inode_as_pacat"] = bool(
+                    p and shutil.which("pacat") and
+                    os.path.samefile(p, shutil.which("pacat")))
+            except OSError:
+                pass
+        legs["a_symlinks"] = sym
+        for b in ("paplay", "parec", "parecord", "pamon"):
+            if sym[b]["same_inode_as_pacat"] is not True:
+                failures.append(
+                    f"a_symlinks: {b} is not the same inode as pacat "
+                    f"({sym[b]}) — the one-binary claim fails")
+
+        shas = {}
+        for b in ("pactl", "pacat"):
+            p = shutil.which(b)
+            try:
+                shas[b] = {"path": p,
+                           "sha256_16": hashlib.sha256(
+                               Path(p).read_bytes()).hexdigest()[:16]}
+            except (OSError, TypeError) as exc:
+                shas[b] = {"path": p, "error": str(exc)[:80]}
+        legs["a_shas"] = shas
+        if shas["pactl"].get("sha256_16") == \
+                shas["pacat"].get("sha256_16"):
+            failures.append(
+                "a_shas: pactl and pacat are the same binary — the "
+                "one-binary claim is about paplay/parec, not pactl")
+
+        legs["a_version"] = {
+            "pactl": _pulsecli_r96_run(["pactl", "--version"], 10.0,
+                                       env=_pulsecli_r96_env()),
+            "pacat": _pulsecli_r96_run(["pacat", "--version"], 10.0,
+                                       env=_pulsecli_r96_env())}
+        for b, leaf in legs["a_version"].items():
+            if leaf.get("exit_code") != 0 or \
+                    "17.0" not in (leaf.get("stdout") or ""):
+                failures.append(
+                    f"a_version: {b} --version did not report the 17.0 "
+                    f"client version ({leaf.get('exit_code')})")
+        legs["a_info"] = _pulsecli_r96_pactl("info", keep_chars=2000,
+                                             keep_raw=True)
+        if "PulseAudio (on PipeWire" not in \
+                (legs["a_info"].get("stdout_raw") or ""):
+            failures.append(
+                "a_info: the server is not pipewire-pulse "
+                "(Server Name did not match)")
+
+        # pacmd-equivalents: the three verbs pactl does not implement.
+        # FAIL-CLOSED: an index-0 sink-input/source-output would make a
+        # hypothetical implementation kill a foreign stream, so the leg
+        # only fires when the table has no index 0.
+        si0 = any(i == 0 for i, _ in
+                  (_pulsecli_r96_short_rows("sink-inputs") or []))
+        so0 = any(i == 0 for i, _ in
+                  (_pulsecli_r96_short_rows("source-outputs") or []))
+        legs["a_pacmd_equiv_guard"] = {"index0_sink_input": si0,
+                                       "index0_source_output": so0}
+        for verb, guarded, args in (
+                ("kill-sink-input", si0, ["kill-sink-input", "0"]),
+                ("kill-source-output", so0, ["kill-source-output", "0"]),
+                ("dump", False, ["dump"])):
+            if guarded:
+                entry.setdefault("coverage_blocked", []).append(
+                    f"a_pacmd_{verb}: an index-0 object exists — the "
+                    "refusal leg would be a blind write, not fired")
+                continue
+            leaf = _pulsecli_r96_pactl(*args, env=_pulsecli_r96_env(),
+                                       keep_chars=600)
+            legs[f"a_pacmd_{verb}"] = leaf
+            if leaf.get("exit_code") == 0:
+                failures.append(
+                    f"a_pacmd_{verb}: pactl accepted a pacmd-only verb "
+                    "(rc 0) — the pacmd-equivalence claim fails")
+            elif leaf.get("error_class") != "pulse_no_cmd":
+                failures.append(
+                    f"a_pacmd_{verb}: refused with "
+                    f"{leaf.get('error_class')!r}, not the "
+                    "`No valid command specified` class")
+
+        # the server lattice (2 reps each, fresh process)
+        def _srv_leg(name, reps, argv, env, expect_rc, expect_class):
+            def fn(k):
+                leaf = _pulsecli_r96_run(argv, 15.0, env=env,
+                                         keep_chars=700)
+                leaf["failures"] = []
+                if leaf.get("exit_code") != expect_rc:
+                    leaf["failures"].append(
+                        f"rc {leaf.get('exit_code')} != {expect_rc} "
+                        f"(class {leaf.get('error_class')!r})")
+                if expect_class is not None and \
+                        leaf.get("error_class") != expect_class:
+                    leaf["failures"].append(
+                        f"error class {leaf.get('error_class')!r} != "
+                        f"{expect_class!r}")
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        _srv_leg("b_default", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(), 0, None)
+        _srv_leg("b_unix_prefix", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER=f"unix:{socks}"), 0, None)
+        _srv_leg("b_bare_path", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER=socks), 0, None)
+        _srv_leg("b_unix_missing", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER="unix:/nonexistent"),
+                 1, "pulse_refused")
+        _srv_leg("b_tcp_refused", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER="tcp:127.0.0.1:4713"),
+                 1, "pulse_refused")
+        _srv_leg("b_tcp6_refused", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER="tcp6:[::1]:4713"),
+                 1, "pulse_refused")
+        _srv_leg("b_trailing_slash", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER=f"unix:{socks}/"),
+                 1, "pulse_refused")
+        _srv_leg("b_runtime_path", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(
+                     PULSE_RUNTIME_PATH=f"/tmp/{PULSECLI_R96_PREFIX}_nope"),
+                 1, "pulse_refused")
+        _srv_leg("b_empty_server", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER=""), 1,
+                 "pulse_invalid_server")
+        _srv_leg("b_flag_beats_env", 2,
+                 ["pactl", "-s", socks, "info"],
+                 _pulsecli_r96_env(PULSE_SERVER="tcp:127.0.0.1:4713"),
+                 0, None)
+        _srv_leg("b_env_loses_to_flag", 2,
+                 ["pactl", "-s", "tcp:127.0.0.1:4713", "info"],
+                 _pulsecli_r96_env(PULSE_SERVER=socks), 1,
+                 "pulse_refused")
+        _srv_leg("b_info_s_after_subcmd", 2,
+                 ["pactl", "info", "-s", socks],
+                 _pulsecli_r96_env(), 0, None)
+
+        def _cookie(k):
+            leaf = _pulsecli_r96_run(
+                ["pactl", "info"],
+                15.0, env=_pulsecli_r96_env(PULSE_COOKIE="/dev/null"),
+                keep_chars=700)
+            leaf["failures"] = []
+            if leaf.get("exit_code") != 0:
+                leaf["failures"].append(
+                    "a /dev/null cookie blocked the connection "
+                    f"(rc {leaf.get('exit_code')}) — the unix-socket "
+                    "peer-cred bypass claim fails")
+            elif "Failed to truncate cookie file" not in \
+                    (leaf.get("stderr") or ""):
+                leaf["failures"].append(
+                    "connected but the cookie warning is absent — the "
+                    "measured warning class is unmeasured")
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "b_cookie_devnull", 2, _cookie)
+
+        def _bogus(k):
+            leaf = _pulsecli_r96_run(
+                ["pactl", "info"], 25.0,
+                env=_pulsecli_r96_env(
+                    PULSE_SERVER=f"{PULSECLI_R96_PREFIX}-nonexistent"),
+                keep_chars=700)
+            leaf["failures"] = []
+            if leaf.get("exit_code") != 1:
+                leaf["failures"].append(
+                    f"rc {leaf.get('exit_code')} != 1")
+            if leaf.get("error_class") != "pulse_refused":
+                leaf["failures"].append(
+                    f"class {leaf.get('error_class')!r} != 'pulse_refused'")
+            # the DNS wait is the measured cost (~7.8 s) — armed as a
+            # floor, never as an equality
+            if (leaf.get("wall_s") or 0) < 2.0:
+                leaf["failures"].append(
+                    f"wall {leaf.get('wall_s')} s < 2.0 s — a bogus "
+                    "hostname resolved/failed too fast to be the "
+                    "measured DNS wait")
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "b_host_bogus", 2, _bogus)
+
+        conf_bad = _pulsecli_r96_clientconf(
+            tmp, **{"default-server": "tcp:127.0.0.1:4713"})
+        _srv_leg("b_clientconfig_badserver", 2, ["pactl", "info"],
+                 _pulsecli_r96_env(PULSE_CLIENTCONFIG=str(conf_bad)),
+                 1, "pulse_refused")
+
+        # the client-side default: PULSE_CLIENTCONFIG default-sink steers
+        # an UNNAMED stream to a seat sink (no set-default-* anywhere)
+        loads["ns"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS)
+        if not loads["ns"].get("module_id"):
+            entry.setdefault("coverage_blocked", []).append(
+                "b_clientconfig_defaultsink: seat null sink never "
+                "enumerated — the client-conf default is unmeasured")
+        else:
+            conf_ok = _pulsecli_r96_clientconf(
+                tmp, **{"default-sink": PULSECLI_R96_NS})
+
+            def _cc(k):
+                leaf = _pulsecli_r96_stream_leg(
+                    "b_clientconfig_defaultsink",
+                    ["paplay", str(tone)],
+                    env=_pulsecli_r96_env(
+                        PULSE_CLIENTCONFIG=str(conf_ok)),
+                    need_attr=False)
+                leaf["failures"] = []
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no sink-input appeared for the unnamed stream")
+                else:
+                    tgt = (leaf["row"]["props"].get("target.object"))
+                    landed = leaf.get("landed_sink_name")
+                    if landed != PULSECLI_R96_NS and \
+                            tgt != PULSECLI_R96_NS:
+                        leaf["failures"].append(
+                            f"the client-conf default-sink did not steer "
+                            f"(landed {landed!r}, target.object {tgt!r})")
+                return leaf
+            _pulsecli_r96_reps(entry, failures,
+                               "b_clientconfig_defaultsink", 2, _cc)
+    finally:
+        _pulsecli_r96_teardown(entry, failures, loads)
+        shutil.rmtree(tmp, ignore_errors=True)
+    entry["failures"] = failures
+    return entry
+
+
+def _pulsecli_r96_target_entry():
+    """The sink/source targeting lattice: the playback-miss silent
+    fallback vs the capture-miss hard refusal, server-side index
+    resolution, `-d` over the env vectors, the client-conf default's
+    limits, and the monitor source semantics."""
+    entry = _pulsecli_r96_entry_head(
+        "pulse sink/source targeting + fallback + index resolution (r96)")
+    failures = []
+    legs = entry["legs"] = {}
+    loads = {}
+    gate_ok, gate = _pulsecli_r96_server_gate()
+    entry["server_gate"] = gate
+    if not gate_ok:
+        return _pulsecli_r96_block(
+            entry, failures,
+            "pulse server unresponsive at entry (pactl info did "
+            "not answer within 12 s) — the whole entry is "
+            "unmeasured", loads)
+    tmp = Path(tempfile.mkdtemp(prefix=f"{PULSECLI_R96_PREFIX}_tgt_"))
+    tone = _pulsecli_r96_tone(tmp / f"{PULSECLI_R96_PREFIX}_quiet.wav",
+                              PULSECLI_R96_QUIET_S, 33)
+    rec_out = tmp / f"{PULSECLI_R96_PREFIX}_rec.wav"
+    census = {"capture_miss": {"measured": 0, "refused": 0, "hung": 0}}
+    try:
+        loads["ns"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS)
+        loads["ns2"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS2)
+        missing = [t for t, l in loads.items()
+                   if not (l or {}).get("module_id")]
+        if missing:
+            return _pulsecli_r96_block(
+                entry, failures,
+                f"seat null sinks never enumerated: {missing} — the "
+                "whole targeting lattice is unmeasured", loads)
+        ns_idx = _pulsecli_r96_sink_index(PULSECLI_R96_NS)
+        ns2_idx = _pulsecli_r96_sink_index(PULSECLI_R96_NS2)
+        entry["seat_sinks"] = {"ns": {"name": PULSECLI_R96_NS,
+                                      "index": ns_idx},
+                               "ns2": {"name": PULSECLI_R96_NS2,
+                                       "index": ns2_idx}}
+        if ns_idx is None or ns2_idx is None:
+            return _pulsecli_r96_block(
+                entry, failures,
+                "seat sink indices unreadable from `pactl list sinks "
+                "short` — the index-resolution arms are unmeasured",
+                loads)
+
+        def _play(name, reps, argv, env, check):
+            def fn(k):
+                leaf = _pulsecli_r96_stream_leg(
+                    name, argv, env=env, need_attr=False)
+                leaf["failures"] = []
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no sink-input appeared for this target vector")
+                    return leaf
+                check(leaf)
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        def _fallback_ok(leaf):
+            """Playback miss: rc 0, a literal target.object and a LINKED
+            stream — the destination identity is a moving target and is
+            never armed, but the stream must demonstrably land somewhere
+            (a (uint32)-1 Sink field is not a landing)."""
+            if not leaf.get("linked"):
+                leaf["failures"].append(
+                    "the fallback stream never linked (Sink stayed "
+                    "(uint32)-1 through the re-snapshot bound) — the "
+                    "silent-fallback mechanism is unmeasured here")
+                return
+            if leaf.get("landed_sink_index") is None:
+                leaf["failures"].append(
+                    "the fallback stream has no Sink index — it never "
+                    "landed anywhere")
+
+        def _lands_on(seat):
+            def check(leaf):
+                if not leaf.get("linked"):
+                    leaf["failures"].append(
+                        "the stream never linked (Sink stayed (uint32)-1 "
+                        "through the re-snapshot bound) — the landing is "
+                        "unmeasured")
+                    return
+                if leaf.get("landed_sink_index") != \
+                        entry["seat_sinks"][seat]["index"]:
+                    leaf["failures"].append(
+                        f"landed on {leaf.get('landed_sink_name')!r} "
+                        f"(index {leaf.get('landed_sink_index')}), not "
+                        f"the seat sink {seat}")
+            return check
+
+        _play("c_env_sink_seat", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=PULSECLI_R96_NS),
+              _lands_on("ns"))
+        _play("c_env_sink_index", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=str(ns_idx)),
+              lambda leaf: (
+                  _lands_on("ns")(leaf),
+                  leaf["failures"].append(
+                      "the numeric PULSE_SINK did not canonicalize to "
+                      "the seat sink NAME in target.object"
+                  ) if leaf["row"]["props"].get("target.object") !=
+                  PULSECLI_R96_NS else None))
+        _play("c_env_sink_index2", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=str(ns2_idx)),
+              _lands_on("ns2"))
+        _play("c_env_sink_badindex", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=str(PULSECLI_R96_BAD_INDEX)),
+              lambda leaf: (
+                  _fallback_ok(leaf),
+                  None if leaf["row"]["props"].get("target.object") ==
+                  str(PULSECLI_R96_BAD_INDEX) else
+                  leaf["failures"].append(
+                      "target.object did not keep the literal bad index")))
+        _play("c_env_sink_missing", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=PULSECLI_R96_DEAD_SINK),
+              lambda leaf: (
+                  _fallback_ok(leaf),
+                  None if leaf["row"]["props"].get("target.object") ==
+                  PULSECLI_R96_DEAD_SINK else
+                  leaf["failures"].append(
+                      "target.object did not keep the literal missing "
+                      "name")))
+        _play("c_env_sink_monitor", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(
+                  PULSE_SINK=f"{PULSECLI_R96_NS}.monitor"),
+              _fallback_ok)
+        _play("c_env_sink_empty", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=""),
+              _fallback_ok)
+
+        def _default_ok(leaf):
+            if not leaf.get("linked"):
+                leaf["failures"].append(
+                    "the stream never linked (Sink stayed (uint32)-1 "
+                    "through the re-snapshot bound) — the default vector "
+                    "is unmeasured")
+            elif leaf.get("landed_sink_index") is None:
+                leaf["failures"].append(
+                    "no landed sink for the @DEFAULT_SINK@ vector")
+
+        _play("c_env_sink_default", 2,
+              ["paplay", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK="@DEFAULT_SINK@"), _default_ok)
+        _play("c_flag_beats_env", 2,
+              ["paplay", "--device=@DEFAULT_SINK@", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK=PULSECLI_R96_NS), _default_ok)
+        _play("c_flag_seat", 2,
+              ["paplay", f"--device={PULSECLI_R96_NS}", str(tone)],
+              _pulsecli_r96_env(PULSE_SINK="@DEFAULT_SINK@"),
+              _lands_on("ns"))
+
+        # capture side: the monitor source lands a source-output on the
+        # SINK index; a missing source refuses (the asymmetry)
+        def _rec_leg(name, reps, argv, env, check):
+            def fn(k):
+                leaf = _pulsecli_r96_stream_leg(
+                    name, argv, env=env, what="source-outputs",
+                    need_attr=False)
+                leaf["failures"] = []
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no source-output appeared for this capture "
+                        "vector")
+                    return leaf
+                check(leaf)
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        def _src_is_sink(leaf):
+            if not leaf.get("linked"):
+                leaf["failures"].append(
+                    "the capture never linked (Source stayed (uint32)-1 "
+                    "through the re-snapshot bound) — the monitor-source "
+                    "semantics are unmeasured here")
+                return
+            if leaf.get("landed_source_index") != ns_idx:
+                leaf["failures"].append(
+                    f"the monitor capture's Source index "
+                    f"{leaf.get('landed_source_index')} is not the seat "
+                    f"sink index {ns_idx} — the monitor-source semantics "
+                    "fail")
+
+        _rec_leg("c_source_seat_monitor", 2,
+                 ["parec", "-d", f"{PULSECLI_R96_NS}.monitor",
+                  "--file-format=wav", str(rec_out)],
+                 _pulsecli_r96_env(), _src_is_sink)
+
+        def _src_missing(k):
+            leaf = _pulsecli_r96_run(
+                ["parec", "-d", PULSECLI_R96_DEAD_SOURCE,
+                 "--file-format=wav", str(rec_out)],
+                8.0, env=_pulsecli_r96_env(), keep_chars=700)
+            leaf["failures"] = []
+            if leaf.get("killed_at_bound"):
+                # the refusal is real (3/3 in the boundary's two
+                # conditions) but NOT always prompt: a rep that hangs to
+                # the wall cap measures nothing about the refusal, so it
+                # is a NAMED coverage block — never a red, never a green
+                leaf["capture_miss"] = "hung_at_bound"
+                entry.setdefault("coverage_blocked", []).append(
+                    f"c_source_missing rep {k + 1}: parec hung to the "
+                    "8 s wall cap with no stderr and no source-output — "
+                    "the capture-miss refusal is unmeasured in this rep "
+                    "(hang class censused in capture_miss_census)")
+                census["capture_miss"]["hung"] += 1
+                return leaf
+            census["capture_miss"]["measured"] += 1
+            if leaf.get("exit_code") != 1:
+                leaf["failures"].append(
+                    f"rc {leaf.get('exit_code')} != 1 — a capture miss "
+                    "did not refuse")
+            elif leaf.get("error_class") != "pulse_no_entity":
+                leaf["failures"].append(
+                    f"class {leaf.get('error_class')!r} != 'pulse_no_entity'")
+            else:
+                census["capture_miss"]["refused"] += 1
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "c_source_missing", 3,
+                           _src_missing)
+        entry["capture_miss_census"] = census["capture_miss"]
+
+        def _default_monitor(k):
+            leaf = _pulsecli_r96_stream_leg(
+                "c_pacat_default_monitor",
+                ["pacat", "-r", "-d", "@DEFAULT_MONITOR@",
+                 "--file-format=wav", str(rec_out)],
+                env=_pulsecli_r96_env(), what="source-outputs",
+                need_attr=False)
+            leaf["failures"] = []
+            if not leaf.get("row_seen"):
+                leaf["failures"].append(
+                    "@DEFAULT_MONITOR@ produced no source-output — the "
+                    "default-monitor token did not resolve")
+            elif not leaf.get("linked"):
+                leaf["failures"].append(
+                    "@DEFAULT_MONITOR@ produced a source-output that "
+                    "never linked (Source stayed (uint32)-1) — the "
+                    "token's resolution is unmeasured here")
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "c_pacat_default_monitor", 2,
+                           _default_monitor)
+    finally:
+        _pulsecli_r96_teardown(entry, failures, loads)
+        shutil.rmtree(tmp, ignore_errors=True)
+    entry["failures"] = failures
+    return entry
+
+
+_PULSECLI_R96_FRAME = {"s16le": 2, "s24le": 3, "float32le": 4}
+
+
+def _pulsecli_r96_attr_entry():
+    """The buffer-attribute law: every measured row is checked against
+    the source transcription (fix_playback_buffer_attr + clamp_latency),
+    across the CLI flags, the PULSE_LATENCY_MSEC vector in both orders,
+    the frame-size falsifiers, the MAXLENGTH clamp and the pa_atou parse
+    lattice. The late-attr race is a census, not a failure: a row whose
+    pulse.attr.* never lands after the re-snapshot bound is a NAMED
+    coverage block."""
+    entry = _pulsecli_r96_entry_head(
+        "pulse buffer-attribute law + PULSE_LATENCY_MSEC precedence (r96)")
+    failures = []
+    legs = entry["legs"] = {}
+    loads = {}
+    gate_ok, gate = _pulsecli_r96_server_gate()
+    entry["server_gate"] = gate
+    if not gate_ok:
+        return _pulsecli_r96_block(
+            entry, failures,
+            "pulse server unresponsive at entry (pactl info did "
+            "not answer within 12 s) — the whole entry is "
+            "unmeasured", loads)
+    tmp = Path(tempfile.mkdtemp(prefix=f"{PULSECLI_R96_PREFIX}_attr_"))
+    tone = _pulsecli_r96_tone(tmp / f"{PULSECLI_R96_PREFIX}_attr.wav",
+                              PULSECLI_R96_STREAM_S, 8192)
+    late = {"legs": 0, "first_snapshot_missing_attrs": 0}
+    try:
+        loads["ns"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS)
+        if not (loads["ns"] or {}).get("module_id"):
+            return _pulsecli_r96_block(
+                entry, failures,
+                "seat null sink never enumerated — the attr lattice is "
+                "unmeasured", loads)
+
+        def _attr_leg(name, reps, fmt="s16le", channels=1, latency_ms=None,
+                      process_ms=None, env_raw=None, extra=()):
+            frame = channels * _PULSECLI_R96_FRAME[fmt]
+
+            def fn(k):
+                argv = ["pacat", "--playback", "--device", PULSECLI_R96_NS,
+                        f"--format={fmt}", f"--channels={channels}",
+                        "--rate=48000"]
+                if latency_ms is not None:
+                    argv.append(f"--latency-msec={latency_ms}")
+                if process_ms is not None:
+                    argv.append(f"--process-time-msec={process_ms}")
+                argv += list(extra) + [str(tone)]
+                env = _pulsecli_r96_env(
+                    PULSE_LATENCY_MSEC=env_raw)
+                leaf = _pulsecli_r96_stream_leg(name, argv, env=env)
+                leaf["failures"] = []
+                leaf["frame_size"] = frame
+                leaf["env_raw"] = env_raw
+                ms = _pulsecli_r96_env_ms(env_raw) \
+                    if env_raw is not None else None
+                leaf["env_ms"] = ms
+                req = _pulsecli_r96_env_request(ms, frame) \
+                    if ms is not None else None
+                if req is None:
+                    req = _pulsecli_r96_cli_request(
+                        latency_ms, process_ms, frame)
+                pred = _pulsecli_r96_fix_attr(req, frame)
+                leaf["predicted"] = pred
+                late["legs"] += 1
+                if leaf.get("first_snapshot_attrs") is not None and \
+                        leaf["first_snapshot_attrs"].get("tlength") is None:
+                    late["first_snapshot_missing_attrs"] += 1
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no sink-input appeared for this attr cell")
+                    return leaf
+                if not leaf.get("attr_present"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{name} rep {k + 1}: pulse.attr.* never landed "
+                        f"within {PULSECLI_R96_ATTR_WAIT_S} s of "
+                        f"{leaf.get('polls')} snapshots — the law is "
+                        "unmeasured for this cell (late-attr race)")
+                    return leaf
+                got = leaf["attrs_after_resnapshot"]
+                for field in ("tlength", "prebuf", "minreq", "maxlength"):
+                    if got.get(field) != pred[field]:
+                        leaf["failures"].append(
+                            f"{field} {got.get(field)} != predicted "
+                            f"{pred[field]}")
+                if (got.get("latency_num"), got.get("latency_denom")) != \
+                        (pred["latency_num"], pred["latency_denom"]):
+                    leaf["failures"].append(
+                        f"node.latency {got.get('latency_num')}/"
+                        f"{got.get('latency_denom')} != predicted "
+                        f"{pred['latency_num']}/{pred['latency_denom']}")
+                if env_raw is not None and ms is None and \
+                        (leaf.get("stderr_bytes") or 0) != 0:
+                    leaf["failures"].append(
+                        "an unparseable PULSE_LATENCY_MSEC produced "
+                        f"stderr ({leaf.get('stderr_tail')!r}) — the "
+                        "silent-ignore law fails")
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        _attr_leg("t_default", 2)
+        _attr_leg("t_lat_100", 2, latency_ms=100)
+        _attr_leg("t_env_100", 2, env_raw="100")
+        _attr_leg("t_env_10", 2, env_raw="10")
+        _attr_leg("t_env_2000", 2, env_raw="2000")
+        _attr_leg("t_env250_flag100", 2, latency_ms=100, env_raw="250")
+        _attr_leg("t_env100_flag250", 2, latency_ms=250, env_raw="100")
+        _attr_leg("t_proc_5", 2, process_ms=5)
+        _attr_leg("t_proc_lat_a", 2, latency_ms=100, process_ms=5)
+        _attr_leg("t_proc_lat_b", 2, latency_ms=100, process_ms=5,
+                  extra=())
+        _attr_leg("t_stereo_100", 2, channels=2, latency_ms=100)
+        _attr_leg("t_f32_100", 2, fmt="float32le", latency_ms=100)
+        _attr_leg("t_f32_default", 2, fmt="float32le")
+        _attr_leg("t_s24_100", 2, fmt="s24le", latency_ms=100)
+        _attr_leg("t_s24_default", 2, fmt="s24le")
+        _attr_leg("t_maxlength", 2, env_raw="100000")
+
+        # the corrected frame-size falsifier: `f32le` is NOT a valid
+        # pacat sample spec (the scout's own receipt shows 3/3 rc 1 with
+        # zero rows — the numbers it published for it were never measured)
+        def _bad_spec(k):
+            leaf = _pulsecli_r96_run(
+                ["pacat", "--playback", "--device", PULSECLI_R96_NS,
+                 "--format=f32le", "--channels=1", "--rate=48000",
+                 "--latency-msec=100", str(tone)],
+                8.0, env=_pulsecli_r96_env(), keep_chars=700)
+            leaf["failures"] = []
+            leaf["row"] = _pulsecli_r96_row_view(
+                _pulsecli_r96_row("sink-inputs", 0))
+            if leaf.get("exit_code") != 1:
+                leaf["failures"].append(
+                    f"rc {leaf.get('exit_code')} != 1")
+            if leaf.get("error_class") != "pulse_bad_spec":
+                leaf["failures"].append(
+                    f"class {leaf.get('error_class')!r} != "
+                    "'pulse_bad_spec'")
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "t_f32le_invalid", 2, _bad_spec)
+
+        # the pa_atou parse lattice (the boundary's measured cells)
+        for cell in ("0x64", "0100", "007", "0X64", "00x64", " 100",
+                     "\t100", "+100", "+0x64", "-0x64", "100.5", "1e3",
+                     "99999999999", "", "abc", "0", "-5"):
+            _attr_leg(f"t_parse_{cell.encode().hex() or 'empty'}", 2,
+                      env_raw=cell)
+        entry["late_attr_census"] = late
+    finally:
+        _pulsecli_r96_teardown(entry, failures, loads)
+        shutil.rmtree(tmp, ignore_errors=True)
+    entry["failures"] = failures
+    return entry
+
+
+def _pulsecli_r96_props_entry():
+    """The stream-property lattice: the CLI `--property` vector lands
+    verbatim and WINS here (the inverse of r84's env finding), last-wins
+    for duplicate keys and for `--stream-name` vs `media.name`, the
+    malformed-property refusal, and the `state.restore-props=false`
+    suppression for playback AND capture (the scout's open question)."""
+    entry = _pulsecli_r96_entry_head(
+        "pulse stream properties + restore-row suppression (r96)")
+    failures = []
+    legs = entry["legs"] = {}
+    loads = {}
+    gate_ok, gate = _pulsecli_r96_server_gate()
+    entry["server_gate"] = gate
+    if not gate_ok:
+        return _pulsecli_r96_block(
+            entry, failures,
+            "pulse server unresponsive at entry (pactl info did "
+            "not answer within 12 s) — the whole entry is "
+            "unmeasured", loads)
+    tmp = Path(tempfile.mkdtemp(prefix=f"{PULSECLI_R96_PREFIX}_props_"))
+    tone = _pulsecli_r96_tone(tmp / f"{PULSECLI_R96_PREFIX}_props.wav",
+                              PULSECLI_R96_QUIET_S, 33)
+    rec_out = tmp / f"{PULSECLI_R96_PREFIX}_prec.wav"
+    try:
+        loads["ns"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS)
+        if not (loads["ns"] or {}).get("module_id"):
+            return _pulsecli_r96_block(
+                entry, failures,
+                "seat null sink never enumerated — the property lattice "
+                "is unmeasured", loads)
+
+        def _prop_leg(name, reps, props, expect, pre=(), post=()):
+            """`pre` lands BEFORE the --property vector and `post` AFTER
+            it: the order-dependence of `--stream-name` vs
+            `--property=media.name` is only measurable when the two
+            vectors really swap places (the r96 author dev run found the
+            legs identical in argv order — a mislabelled pair)."""
+            def fn(k):
+                argv = ["pacat", "--playback", "--device", PULSECLI_R96_NS]
+                argv += list(pre)
+                argv += [f"--property={p}" for p in props]
+                argv += list(post) + [str(tone)]
+                env = _pulsecli_r96_env(
+                    PULSE_PROP_application_name="r96a_envname")
+                leaf = _pulsecli_r96_stream_leg(name, argv, env=env,
+                                                need_attr=False)
+                leaf["failures"] = []
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no sink-input appeared for this property cell")
+                    return leaf
+                got = leaf["row"]["props"]
+                for key, want in expect.items():
+                    if got.get(key) != want:
+                        leaf["failures"].append(
+                            f"{key} {got.get(key)!r} != {want!r}")
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        lab = f"r96a_prop_{PULSECLI_R96_PID}"
+        sn = f"r96a_streamname_{PULSECLI_R96_PID}"
+        _prop_leg("p_vector", 2,
+                  ["media.role=game", f"application.name={lab}",
+                   "zzz.invented=42"],
+                  {"application.name": lab, "media.role": "game",
+                   "zzz.invented": "42"},
+                  post=[f"--stream-name={sn}"])
+        entry["legs"]["p_vector__r1"].setdefault("checks", {})
+        for k in range(2):
+            leaf = entry["legs"].get(f"p_vector__r{k + 1}") or {}
+            if leaf.get("row_seen") and \
+                    leaf["row"]["props"].get("media.name") != sn:
+                failures.append(
+                    f"p_vector__r{k + 1}: media.name "
+                    f"{leaf['row']['props'].get('media.name')!r} != the "
+                    f"--stream-name value {sn!r}")
+        _prop_leg("p_dup", 2,
+                  ["media.role=first", "media.role=second"],
+                  {"media.role": "second"})
+        _prop_leg("p_empty", 2, ["zzz.empty="], {"zzz.empty": ""})
+        # the two orders really differ in argv position: the LAST of the
+        # two wins (the boundary's last-wins law, measured both ways)
+        _prop_leg("p_streamname_then_prop", 2,
+                  [f"media.name={sn}_b"],
+                  {"media.name": f"{sn}_b"},
+                  pre=[f"--stream-name={sn}_a"])
+        _prop_leg("p_prop_then_streamname", 2,
+                  [f"media.name={sn}_b"],
+                  {"media.name": f"{sn}_a"},
+                  post=[f"--stream-name={sn}_a"])
+        _prop_leg("p_clientname", 2, [], {"application.name": lab},
+                  post=[f"--client-name={lab}"])
+        _prop_leg("p_env_loses", 2,
+                  [f"application.name={lab}"],
+                  {"application.name": lab})
+
+        def _malformed(k):
+            leaf = _pulsecli_r96_run(
+                ["pacat", "--playback", "--device", PULSECLI_R96_NS,
+                 "--property=noequals", str(tone)],
+                8.0, env=_pulsecli_r96_env(), keep_chars=700)
+            leaf["failures"] = []
+            if leaf.get("exit_code") != 1:
+                leaf["failures"].append(
+                    f"rc {leaf.get('exit_code')} != 1")
+            if leaf.get("error_class") != "pulse_invalid_property":
+                leaf["failures"].append(
+                    f"class {leaf.get('error_class')!r} != "
+                    "'pulse_invalid_property'")
+            if _pulsecli_r96_row("sink-inputs", 0) is not None:
+                leaf["failures"].append(
+                    "an index-0 sink-input exists while the malformed "
+                    "property leg ran — the no-stream claim is "
+                    "unwitnessed")
+            return leaf
+        _pulsecli_r96_reps(entry, failures, "p_malformed", 2, _malformed)
+
+        # the restore-row suppression: our tag's row count must not move
+        # across the leg + the WirePlumber debounce (playback AND
+        # capture — the scout's open question #6)
+        def _restore_leg(name, reps, argv_builder):
+            def fn(k):
+                tag = f"{PULSECLI_R96_PREFIX}_{name}_{k + 1}"
+                before = _pulsecli_r96_restore_rows(tag)
+                if before is None:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{name}: the WirePlumber stream-properties store "
+                        "is unreadable — the suppression arm is "
+                        "unmeasured")
+                    return {"tag": tag, "failures": [],
+                            "coverage_blocked": True}
+                leaf = _pulsecli_r96_stream_leg(
+                    name, argv_builder(tag), need_attr=False,
+                    what="source-outputs" if "parec" in
+                    argv_builder(tag)[0] else "sink-inputs")
+                leaf["tag"] = tag
+                leaf["restore_before"] = before
+                time.sleep(PULSECLI_R96_RESTORE_DEBOUNCE_S)
+                after = _pulsecli_r96_restore_rows(tag)
+                leaf["restore_after"] = after
+                leaf["failures"] = []
+                if not leaf.get("row_seen"):
+                    leaf["failures"].append(
+                        "no stream row appeared for the suppression leg")
+                if after is None:
+                    leaf["failures"].append(
+                        "the restore store became unreadable after the "
+                        "leg — the suppression witness is lost")
+                elif after["rows"] != before["rows"]:
+                    leaf["failures"].append(
+                        f"the restore store gained our row despite "
+                        f"state.restore-props=false ({before['rows']} -> "
+                        f"{after['rows']})")
+                return leaf
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        _restore_leg("p_restore_off_playback", 2, lambda tag: [
+            "pacat", "--playback", "--device", PULSECLI_R96_NS,
+            f"--property=application.name={tag}",
+            "--property=state.restore-props=false", str(tone)])
+        _restore_leg("p_restore_off_capture", 2, lambda tag: [
+            "parec", "-d", f"{PULSECLI_R96_NS}.monitor",
+            f"--property=application.name={tag}",
+            "--property=state.restore-props=false",
+            "--file-format=wav", str(rec_out)])
+    finally:
+        _pulsecli_r96_teardown(entry, failures, loads)
+        shutil.rmtree(tmp, ignore_errors=True)
+    entry["failures"] = failures
+    return entry
+
+
+def _pulsecli_r96_client_run(argv, bound_s=14.0, what="sink-inputs",
+                             snapshot_hz=8.0, tap=None):
+    """One bounded run of the own-libpulse instrument. The client's
+    stdout is drained continuously (the r89 backpressure law) and its
+    `EV t=... ` lines are recorded with their own timestamps; while it
+    runs, the client's pulse row is snapshotted at `snapshot_hz` so the
+    corked/un-corked transition is witnessed from the SERVER side too.
+    `tap` is a pw-record Popen reaped at the end (rc 1 at its -n bound
+    is its success shape)."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, start_new_session=True,
+            preexec_fn=_pulsecli_r96_sigreset)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    try:
+        os.set_blocking(proc.stdout.fileno(), False)
+    except OSError:
+        pass
+    t0 = time.monotonic()
+    buf = bytearray()
+    events = []
+    raw_lines = []
+    samples = []
+    next_sample = t0
+    killed = False
+    while True:
+        now = time.monotonic()
+        try:
+            chunk = os.read(proc.stdout.fileno(), 65536)
+        except (BlockingIOError, OSError):
+            chunk = b""
+        if chunk:
+            buf += chunk
+            while b"\n" in buf:
+                line, _, rest = buf.partition(b"\n")
+                buf = bytearray(rest)
+                txt = line.decode(errors="replace").strip()
+                if txt.startswith("EV "):
+                    body = txt[3:]
+                    m = re.match(r"t=([0-9.]+)\s+(.*)$", body)
+                    events.append(
+                        {"t": float(m.group(1)) if m else
+                         round(now - t0, 3),
+                         "line": m.group(2) if m else body})
+                elif txt:
+                    raw_lines.append(txt)
+        if now >= next_sample:
+            row = _pulsecli_r96_row(what, proc.pid)
+            if row is not None:
+                samples.append({
+                    "t": round(now - t0, 3),
+                    "corked": row.get("corked"),
+                    "pulse_corked": (row.get("properties") or {}).get(
+                        "pulse.corked"),
+                    "index": row.get("index"),
+                    "sink": row.get("sink"),
+                    "source": row.get("source"),
+                    "buffer_latency_usec": row.get("buffer_latency_usec"),
+                    "sink_latency_usec": row.get("sink_latency_usec"),
+                    "source_latency_usec": row.get("source_latency_usec")})
+            next_sample = now + 1.0 / max(snapshot_hz, 1.0)
+        if proc.poll() is not None:
+            break
+        if now - t0 >= bound_s:
+            killed = True
+            _pulsecli_r96_kill(proc)
+            break
+        time.sleep(0.02)
+    try:
+        rest = os.read(proc.stdout.fileno(), 65536)
+        buf += rest
+    except (BlockingIOError, OSError):
+        pass
+    tail = buf.decode(errors="replace")
+    for line in tail.splitlines():
+        txt = line.strip()
+        if txt.startswith("EV "):
+            body = txt[3:]
+            m = re.match(r"t=([0-9.]+)\s+(.*)$", body)
+            events.append(
+                {"t": float(m.group(1)) if m else
+                 round(time.monotonic() - t0, 3),
+                 "line": m.group(2) if m else body})
+    rec.update({"exit_code": proc.returncode, "killed_at_bound": killed,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "events": events,
+                "corked_samples": samples,
+                "stdout_tail": _pulsecli_r96_norm(tail)[-800:],
+                "summary": next(
+                    (ln for ln in reversed(raw_lines + tail.splitlines())
+                     if ln.startswith("SUMMARY")), None)})
+    err = getattr(proc, "_r96_stderr", b"")
+    if not err:
+        try:
+            err = proc.stderr.read() or b""
+        except (OSError, ValueError):
+            err = b""
+    rec["stderr_bytes"] = len(err)
+    rec["stderr_tail"] = _pulsecli_r96_norm(
+        err.decode(errors="replace"))[:300]
+    if tap is not None:
+        rec["tap_exit_code"] = _pulsecli_r96_kill(tap)
+    return rec
+
+
+def _pulsecli_r96_client_ev(rec, prefix):
+    """The EV lines whose payload starts with `prefix`."""
+    return [e for e in (rec.get("events") or [])
+            if e.get("line", "").startswith(prefix)]
+
+
+def _pulsecli_r96_cork_entry():
+    """The cork / trigger / prebuf / record / latency-query surface,
+    measured through the own-libpulse instrument (fixtures/
+    pulse_r96_probe.c) because no shipped CLI can arm START_CORKED,
+    trigger, an explicit prebuf, or a corked record stream.
+
+    Armed: the flow gate (a corked stream is silent, an uncorked one
+    plays), the trigger negative (a triggered corked stream stays silent
+    for its whole life), the prebuf=0 starvation stall (an UPPER bound
+    far below the fed audio — the stall's onset is not fixed), the
+    record readable-gate, and the pa_stream_get_latency return code
+    (-16 PA_ERR_NODATA, never the scout's "0"). The uncork ONSET is
+    recorded, never armed: the boundary falsified the 15-33 ms window.
+    """
+    entry = _pulsecli_r96_entry_head(
+        "pulse cork/trigger/prebuf/record/latency-query (r96)")
+    failures = []
+    legs = entry["legs"] = {}
+    loads = {}
+    gate_ok, gate = _pulsecli_r96_server_gate()
+    entry["server_gate"] = gate
+    if not gate_ok:
+        return _pulsecli_r96_block(
+            entry, failures,
+            "pulse server unresponsive at entry (pactl info did "
+            "not answer within 12 s) — the whole entry is "
+            "unmeasured", loads)
+    tmp = Path(tempfile.mkdtemp(prefix=f"{PULSECLI_R96_PREFIX}_cork_"))
+    build = _pulsecli_r96_client_build(tmp)
+    entry["client_build"] = build
+    if not build.get("ok"):
+        return _pulsecli_r96_block(
+            entry, failures,
+            "the own-libpulse instrument did not build "
+            f"({build.get('error') or build.get('cc_stderr', '')[-200:]!r}) "
+            "— the cork/trigger/prebuf/record/latency-query surface is "
+            "unmeasured", loads)
+    probe = build["binary"]
+    try:
+        loads["ns"] = _pulsecli_r96_load_ns(PULSECLI_R96_NS)
+        if not (loads["ns"] or {}).get("module_id"):
+            return _pulsecli_r96_block(
+                entry, failures,
+                "seat null sink never enumerated — the cork surface is "
+                "unmeasured", loads)
+        ns_idx = _pulsecli_r96_sink_index(PULSECLI_R96_NS)
+        entry["seat_sink"] = {"name": PULSECLI_R96_NS, "index": ns_idx}
+
+        def _corked_flip(rec):
+            """The server-side cork witness from the live samples: a
+            corked-true sample BEFORE a corked-false one."""
+            s = rec.get("corked_samples") or []
+            t_true = [x for x in s if x.get("corked") is True
+                      and str(x.get("pulse_corked")).lower() == "true"]
+            t_false = [x for x in s if x.get("corked") is False]
+            return {"corked_true_samples": len(t_true),
+                    "uncorked_samples": len(t_false),
+                    "first_corked_t": t_true[0]["t"] if t_true else None,
+                    "first_uncorked_t": t_false[0]["t"] if t_false else None}
+
+        def _playback_leg(name, mode, reps, client_extra, check,
+                          tap_frames=PULSECLI_R96_TAP_FRAMES):
+            def fn(k):
+                cap = tmp / f"{PULSECLI_R96_PREFIX}_{name}_{k + 1}.wav"
+                tap = _playback_r78_tap(
+                    PULSECLI_R96_NS, cap, tap_frames,
+                    f"{PULSECLI_R96_PREFIX}_{name}_tap{k + 1}")
+                time.sleep(0.3)
+                rec = _pulsecli_r96_client_run(
+                    [probe, "--mode", mode,
+                     "--label", f"{PULSECLI_R96_PREFIX}_{name}_{k + 1}",
+                     "--device", PULSECLI_R96_NS, *client_extra],
+                    bound_s=14.0, tap=tap)
+                rec["tap"] = _pulsecli_r96_capture_stats(cap)
+                rec["cork_flip"] = _corked_flip(rec)
+                rec["failures"] = []
+                check(rec)
+                return rec
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+
+        # 1. cork: silent while held, flows after the uncork
+        def _check_cork(rec):
+            fl = rec["cork_flip"]
+            if fl["corked_true_samples"] == 0:
+                rec["failures"].append(
+                    "no corked-true snapshot was taken while the client "
+                    "held the stream corked — the server-side cork "
+                    "witness is unmeasured")
+            if fl["uncorked_samples"] == 0:
+                rec["failures"].append(
+                    "no uncorked snapshot was taken after the client "
+                    "uncorked — the flip is unmeasured")
+            st = rec["tap"]
+            if not st.get("nonzero_frames"):
+                rec["failures"].append(
+                    f"the monitor capture of the seat sink never went "
+                    f"nonzero ({st}) — the uncork flow gate fails")
+            if (st.get("peak") or 0) <= 0:
+                rec["failures"].append("the monitor capture peak is 0")
+        _playback_leg("e_cork", "cork", 2,
+                      ["--start-corked", "1", "--seconds", "1.5",
+                       "--hold-ms", "1200"], _check_cork)
+
+        # 2. trigger does NOT start a corked stream (the negative law)
+        def _check_trigger(rec):
+            st = rec["tap"]
+            if st.get("nonzero_frames") != 0 or st.get("peak") != 0:
+                rec["failures"].append(
+                    f"a triggered corked stream was audible ({st}) — the "
+                    "trigger negative fails")
+            if not _pulsecli_r96_client_ev(rec, "trigger"):
+                rec["failures"].append(
+                    "the client never reported the trigger event")
+        _playback_leg("e_trigger", "trigger", 3,
+                      ["--start-corked", "1", "--seconds", "1.5",
+                       "--hold-ms", "1200"], _check_trigger)
+
+        # 3/4/5/6. the prebuf starvation table
+        def _check_prebuf_plays(rec):
+            st = rec["tap"]
+            if (st.get("nonzero_frames") or 0) < 30000:
+                rec["failures"].append(
+                    f"a starved stream with a DEFAULT prebuf did not play "
+                    f"the fed audio ({st}) — the prebuf-is-not-an-"
+                    "audible-start-gate law fails")
+        _playback_leg("e_prebuf_default_slow", "prebuf", 2,
+                      ["--start-corked", "0", "--prebuf", "-1", "--seconds", "1.2",
+                       "--chunk-ms", "100", "--feed-ms", "250",
+                       "--hold-ms", "5000"], _check_prebuf_plays)
+
+        def _check_prebuf_zero(rec):
+            st = rec["tap"]
+            if (st.get("nonzero_frames") or 0) > 12000:
+                rec["failures"].append(
+                    f"prebuf=0 + starvation did not stall ({st}) — the "
+                    "fed audio played through, so the stall law fails")
+        _playback_leg("e_prebuf_zero_slow", "prebuf", 3,
+                      ["--start-corked", "0", "--prebuf", "0", "--seconds", "1.2",
+                       "--chunk-ms", "100", "--feed-ms", "250",
+                       "--hold-ms", "5000"], _check_prebuf_zero)
+
+        def _check_prebuf_fast(rec):
+            st = rec["tap"]
+            if (st.get("nonzero_frames") or 0) < 20000:
+                rec["failures"].append(
+                    f"prebuf=0 with a single fast write did not play "
+                    f"({st}) — the control arm fails (the stall needs "
+                    "starvation)")
+        _playback_leg("e_prebuf_zero_fast", "prebuf", 2,
+                      ["--start-corked", "0", "--prebuf", "0", "--seconds", "1.2",
+                       "--hold-ms", "5000"], _check_prebuf_fast)
+        _playback_leg("e_prebuf_default_fast", "prebuf", 2,
+                      ["--start-corked", "0", "--prebuf", "-1", "--seconds", "1.2",
+                       "--hold-ms", "5000"], _check_prebuf_plays)
+
+        # 7. the corked RECORD stream: no readable data while corked
+        def _rec_leg(name, reps):
+            def fn(k):
+                rec = _pulsecli_r96_client_run(
+                    [probe, "--mode", "record",
+                     "--label", f"{PULSECLI_R96_PREFIX}_{name}_{k + 1}",
+                     "--device", f"{PULSECLI_R96_NS}.monitor",
+                     "--start-corked", "1", "--drain-max", "262144"],
+                    bound_s=12.0, what="source-outputs")
+                rec["failures"] = []
+                evs = {e["line"].split()[0]: e["line"]
+                       for e in (rec.get("events") or [])}
+                rd_corked = next(
+                    (e["line"] for e in (rec.get("events") or [])
+                     if e["line"].startswith("readable phase=corked")),
+                    None)
+                unc_lines = [e["line"] for e in (rec.get("events") or [])
+                             if e["line"].startswith(
+                                 "readable phase=uncorked")]
+                rd_unc = unc_lines[-1] if unc_lines else None
+                rec["readable_corked_line"] = rd_corked
+                rec["readable_uncorked_line"] = rd_unc
+                if not rd_corked or "bytes=0" not in rd_corked:
+                    rec["failures"].append(
+                        f"a corked record stream reported readable data "
+                        f"({rd_corked!r}) — the record cork gate fails")
+                if not rd_unc:
+                    rec["failures"].append(
+                        "the record leg never reported its uncorked "
+                        "readable size")
+                else:
+                    peaks = [int(tok.split("=", 1)[1])
+                             for ln in unc_lines for tok in ln.split()
+                             if tok.startswith("peak=")]
+                    peak = max(peaks) if peaks else None
+                    rec["readable_peak"] = peak
+                    rec["readable_samples"] = len(peaks)
+                    drained = None
+                    for e in (rec.get("events") or []):
+                        if e["line"].startswith("readable phase=drained"):
+                            for tok in e["line"].split():
+                                if tok.startswith("drained="):
+                                    drained = int(tok.split("=", 1)[1])
+                    rec["drained_bytes"] = drained
+                    if peak is None or peak < 80000:
+                        rec["failures"].append(
+                            f"the uncorked record stream reported "
+                            f"{peak} readable bytes (< 80000) — the "
+                            "record flow gate fails")
+                    if not drained:
+                        rec["failures"].append(
+                            "the uncorked record stream drained 0 bytes "
+                            "— the data was never really there")
+                s = rec.get("corked_samples") or []
+                if not any(x.get("corked") is True for x in s):
+                    rec["failures"].append(
+                        "no corked source-output snapshot was taken — "
+                        "the introspection flip is unmeasured")
+                return rec
+            _pulsecli_r96_reps(entry, failures, name, reps, fn)
+            return entry["legs"][f"{name}__r1"]
+        _rec_leg("e_record_cork", 2)
+
+        # 8. the latency query is an ERROR, not a zero
+        def _lat_leg(k):
+            rec = _pulsecli_r96_client_run(
+                [probe, "--mode", "latency",
+                 "--label", f"{PULSECLI_R96_PREFIX}_lat_{k + 1}",
+                 "--device", PULSECLI_R96_NS, "--start-corked", "0",
+                 "--seconds", "0.6", "--hold-ms", "200",
+                 "--latency-hz", "5"],
+                bound_s=12.0)
+            rec["failures"] = []
+            lats = _pulsecli_r96_client_ev(rec, "latency")
+            rec["latency_samples"] = len(lats)
+            rcs = []
+            for e in lats:
+                m = re.search(r"rc=(-?\d+)", e["line"])
+                rcs.append(int(m.group(1)) if m else None)
+            rec["latency_rcs"] = rcs
+            if len(lats) < 3:
+                rec["failures"].append(
+                    f"only {len(lats)} pa_stream_get_latency calls were "
+                    "made — the negative is unmeasured")
+            elif any(rc != -16 for rc in rcs):
+                rec["failures"].append(
+                    f"pa_stream_get_latency did not return -16 in every "
+                    f"call ({sorted(set(rcs))}) — the boundary's "
+                    "PA_ERR_NODATA law fails")
+            s_live = rec.get("corked_samples") or []
+            fields = sorted({(x.get("buffer_latency_usec"),
+                              x.get("sink_latency_usec"))
+                             for x in s_live})
+            rec["introspection_latency_fields"] = [
+                {"buffer_latency_usec": a, "sink_latency_usec": b}
+                for a, b in fields]
+            if not s_live:
+                rec["failures"].append(
+                    "no live sink-input snapshot was taken — the "
+                    "introspection latency fields are unmeasured")
+            elif any(a != 0.0 or b != 0.0 for a, b in fields):
+                rec["failures"].append(
+                    f"the introspection latency fields are not the "
+                    f"hardcoded zeros ({fields})")
+            return rec
+        _pulsecli_r96_reps(entry, failures, "e_latency_query", 2, _lat_leg)
+
+        # 9. exactly one `change` per uncork (the subscribe law)
+        def _sub_leg(k):
+            """A LIVE reader thread timestamps every subscribe line
+            against the same monotonic clock as the client, so the
+            uncork anchor is real (the r96 boundary's block-buffered
+            piped-subscribe hazard: without `stdbuf -o0` the events
+            arrive in one burst and their ORDER is all that survives)."""
+            try:
+                sub = subprocess.Popen(
+                    ["stdbuf", "-o0", "pactl", "subscribe"],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    stdin=subprocess.DEVNULL, start_new_session=True)
+            except OSError as exc:
+                return {"failures": [], "spawn_error": str(exc)[:120]}
+            try:
+                os.set_blocking(sub.stdout.fileno(), False)
+            except OSError:
+                pass
+            lines = []
+            stop = {"v": False}
+
+            def _reader():
+                while not stop["v"]:
+                    try:
+                        chunk = os.read(sub.stdout.fileno(), 65536)
+                    except (BlockingIOError, OSError):
+                        chunk = b""
+                    if chunk:
+                        for ln in chunk.decode(errors="replace").splitlines():
+                            if ln.strip():
+                                lines.append({"t": round(
+                                    time.monotonic(), 3),
+                                    "line": _pulsecli_r96_norm(ln)})
+                    time.sleep(0.02)
+            th = threading.Thread(target=_reader, daemon=True)
+            th.start()
+            time.sleep(0.5)
+            client_t0 = time.monotonic()
+            rec = _pulsecli_r96_client_run(
+                [probe, "--mode", "cork",
+                 "--label", f"{PULSECLI_R96_PREFIX}_sub_{k + 1}",
+                 "--device", PULSECLI_R96_NS, "--start-corked", "1",
+                 "--seconds", "1.5", "--hold-ms", "1200"],
+                bound_s=12.0)
+            time.sleep(PULSECLI_R96_SUB_S)
+            stop["v"] = True
+            time.sleep(0.1)
+            _pulsecli_r96_kill(sub)
+            uncork_ev = _pulsecli_r96_client_ev(rec, "uncork")
+            uncork_abs = (round(client_t0 + uncork_ev[0]["t"], 3)
+                          if uncork_ev else None)
+            rec["client_uncork_abs"] = uncork_abs
+            rec["subscribe_lines"] = [x for x in lines
+                                      if "sink-input" in x["line"]
+                                      or "source-output" in x["line"]]
+            rec["failures"] = []
+            if uncork_abs is None:
+                rec["failures"].append(
+                    "the cork leg never reported its uncork — the "
+                    "subscribe window is unanchored")
+                return rec
+            # ONLY our own sink-input's events count: the shared host is
+            # full of sibling streams and a subscribe window that counted
+            # them all would report a dozen `change` events for one
+            # uncork (the r96 author's first system-daemon run measured
+            # 13/11 that way).
+            my_idx = {x.get("index") for x in
+                      (rec.get("corked_samples") or [])
+                      if x.get("index") is not None}
+
+            def _mine(ln):
+                m = re.search(r"sink-input #(\d+)", ln)
+                return bool(m) and int(m.group(1)) in my_idx
+
+            rec["own_sink_input_indexes"] = sorted(my_idx)
+            after = [x for x in lines
+                     if x["t"] >= uncork_abs - 0.05
+                     and "Event 'change'" in x["line"] and _mine(x["line"])]
+            before = [x for x in lines
+                      if x["t"] < uncork_abs - 0.05
+                      and "Event 'change'" in x["line"] and _mine(x["line"])]
+            rec["changes_at_uncork"] = len(after)
+            rec["changes_before_uncork"] = len(before)
+            rec["new_events"] = sum(
+                1 for x in lines if "Event 'new'" in x["line"]
+                and _mine(x["line"]))
+            rec["foreign_sink_input_events"] = sum(
+                1 for x in lines
+                if ("Event 'change'" in x["line"]
+                    or "Event 'new'" in x["line"])
+                and "sink-input" in x["line"] and not _mine(x["line"]))
+            if rec["new_events"] < 1:
+                rec["failures"].append(
+                    "pactl subscribe saw no `new` sink-input event — the "
+                    "subscriber is not observing this stream")
+            elif not after:
+                rec["failures"].append(
+                    "no `change` event followed the client's uncork — "
+                    "the one-change-per-uncork law is unmeasured")
+            elif len(after) != 1:
+                rec["failures"].append(
+                    f"{len(after)} `change` events followed the uncork, "
+                    "not exactly one")
+            return rec
+        _pulsecli_r96_reps(entry, failures, "e_subscribe", 2, _sub_leg)
+
+        # 10. a starved NATIVE stream is a pulse sink-input whose
+        # `Corked:` is a node-state projection (no pulse.corked prop)
+        def _native_leg(k):
+            fifo = tmp / f"{PULSECLI_R96_PREFIX}_fifo_{k + 1}"
+            if fifo.exists():
+                fifo.unlink()
+            os.mkfifo(str(fifo))
+            fd = os.open(str(fifo), os.O_RDWR)      # held open: no EOF
+            tag = f"{PULSECLI_R96_PREFIX}_native_{k + 1}"
+            try:
+                proc = subprocess.Popen(
+                    ["pw-play", "--raw", "--format=s16", "--rate=48000",
+                     "--channels=2", "--target", PULSECLI_R96_NS,
+                     "-P", f"node.name={tag}", str(fifo)],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                    stdin=subprocess.DEVNULL, start_new_session=True,
+                    preexec_fn=_pulsecli_r96_sigreset)
+            except OSError as exc:
+                os.close(fd)
+                return {"failures": [], "spawn_error": str(exc)[:120]}
+            row = None
+            deadline = time.monotonic() + 6.0
+            while time.monotonic() < deadline:
+                for r in _pulsecli_r96_pactl_json("sink-inputs"):
+                    if (r.get("properties") or {}).get("node.name") == tag:
+                        row = r
+                        break
+                if row is not None:
+                    break
+                time.sleep(0.15)
+            # the pulse reply carries the state the server's manager
+            # cache held when it answered, so the node state is sampled on
+            # BOTH sides of the snapshot: a state that moves across the
+            # two samples is a race, and the projection is then recorded,
+            # not armed (the r96 author's first system-daemon run caught
+            # exactly that: Corked=true while pw-dump said running).
+            node_a = _pactlmon_r85_node(_pactlmon_r85_graph(), tag) or {}
+            time.sleep(0.05)
+            node_b = _pactlmon_r85_node(_pactlmon_r85_graph(), tag) or {}
+            rec = {"tag": tag, "row": _pulsecli_r96_row_view(row),
+                   "node_state_before": node_a.get("state"),
+                   "node_state_after": node_b.get("state"),
+                   "node_latency": (node_b.get("node_latency")
+                                    or node_a.get("node_latency")),
+                   "failures": []}
+            if row is None:
+                rec["failures"].append(
+                    "the starved native pw-play stream never appeared as "
+                    "a pulse sink-input — the projection claim is "
+                    "unmeasured")
+            else:
+                props = row.get("properties") or {}
+                rec["has_pulse_corked"] = "pulse.corked" in props
+                rec["corked_field"] = row.get("corked")
+                if "pulse.corked" in props:
+                    rec["failures"].append(
+                        "the native stream carries a pulse.corked prop — "
+                        "it is not the no-prop class the projection law "
+                        "is about")
+                # the projection law, armed as the EQUIVALENCE
+                # `Corked == (state != running)`: on a real-hardware
+                # graph a starved native stream is RUNNING and reports
+                # false; on a suspended (undriven) graph it reports true.
+                # Pinning either value alone would arm the graph state,
+                # not the law.
+                # THE ARMED HALF IS THE CLASS, NOT THE VALUE. The pulse
+                # reply's `Corked` for a native stream is
+                # `dev_info.state != STATE_RUNNING` (pulse-server.c:4129)
+                # where dev_info is the pulse server's CACHED manager
+                # object — and that cache demonstrably lags the live node
+                # (measured: Corked=true with the live node stably
+                # `running`, and suspended->running across a 50 ms pair).
+                # What is stable and falsifiable is the CLASS: a native
+                # stream carries no `pulse.corked` prop, so the field
+                # cannot be a cork flag for it. The value is recorded and
+                # a disagreement is a NAMED coverage block, never a red
+                # (the host's cache timing is not the law under test).
+                state_a = rec["node_state_before"]
+                state_b = rec["node_state_after"]
+                rec["live_state_stable"] = bool(state_a is not None
+                                                and state_a == state_b)
+                ref = state_a if rec["live_state_stable"] else state_b
+                rec["projection_agrees"] = bool(
+                    ref is not None and
+                    bool(row.get("corked")) == (ref != "running"))
+                if not rec["projection_agrees"]:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"e_native_corked rep {k + 1}: the pulse reply "
+                        f"reports Corked={row.get('corked')!r} while the "
+                        f"live node state is {state_a!r}->{state_b!r} — "
+                        "the server's cached dev_info state is not the "
+                        "live state, so the projection's VALUE is "
+                        "recorded, not armed (the no-pulse.corked class "
+                        "claim below still is)")
+            rec["exit_code"] = _pulsecli_r96_kill(proc)
+            os.close(fd)
+            return rec
+        _pulsecli_r96_reps(entry, failures, "e_native_corked", 2,
+                           _native_leg)
+    finally:
+        _pulsecli_r96_teardown(entry, failures, loads)
+        shutil.rmtree(tmp, ignore_errors=True)
+    entry["failures"] = failures
+    return entry
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -41602,6 +43919,7 @@ def main():
     parser.add_argument("--probe-gstfrz-r91", action="store_true")
     parser.add_argument("--probe-filterchain-r92",
                         action="store_true")
+    parser.add_argument("--probe-pulsecli-r96", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
@@ -41611,7 +43929,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92]) > 1:
+    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -42233,6 +44551,43 @@ def main():
             filterchain_ir_r92_probe()
         measurements["filterchain_wpx_r92_probe"] = \
             filterchain_wpx_r92_probe()
+    if args.probe_pulsecli_r96:
+        # r96: the PULSEAUDIO-NATIVE CLIENT API as served by
+        # pipewire-pulse — the CLI family's one-binary shape + the
+        # pacmd-equivalents' absence, the PULSE_SERVER resolution
+        # lattice (five distinct error classes, the ~7.8 s bogus-host
+        # DNS cost, the trailing-slash refusal), `-s` over the env
+        # vectors, PULSE_CLIENTCONFIG's client-side default, the
+        # sink/source targeting lattice (playback miss -> silent
+        # fallback with a literal target.object vs capture miss ->
+        # rc 1 `No such entity`, server-side index resolution), the
+        # transcribed buffer-attribute law (fix_playback_buffer_attr +
+        # clamp_latency; every measured row checked), the
+        # PULSE_LATENCY_MSEC vector (beats the flag in both orders,
+        # silent on unparseable values), the corrected frame-size
+        # falsifiers, the MAXLENGTH clamp, the pa_atou parse lattice,
+        # the stream-property lattice (CLI wins over the env, last-wins
+        # duplicates, the malformed-property refusal), the
+        # state.restore-props=false suppression for playback AND
+        # capture, and the cork/trigger/prebuf/record/latency-query
+        # surface through the own-libpulse instrument. A NEW parallel
+        # ledger family, prior rows untouched; r76-r89 guards inherited
+        # (seat-owned r96a_<pid> names, the private r96arole<pid> key,
+        # name-verified sink_name= unloads, never set-default-*, bounded
+        # process groups, RLIMIT_CORE=0 on the crash-class legs). The
+        # family lock is a FIXED corpus/live/ path — the r84 F1 3-seat
+        # consensus.
+        _r96_family_lock = _pulsecli_r96_family_lock()   # held to exit
+        measurements["pulsecli_avail_r96_probe"] = \
+            _pulsecli_r96_avail_entry()
+        measurements["pulsecli_target_r96_probe"] = \
+            _pulsecli_r96_target_entry()
+        measurements["pulsecli_attr_r96_probe"] = \
+            _pulsecli_r96_attr_entry()
+        measurements["pulsecli_props_r96_probe"] = \
+            _pulsecli_r96_props_entry()
+        measurements["pulsecli_cork_r96_probe"] = \
+            _pulsecli_r96_cork_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -42883,7 +45238,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -42903,7 +45258,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
