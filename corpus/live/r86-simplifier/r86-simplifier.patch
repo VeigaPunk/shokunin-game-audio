@@ -1,0 +1,108 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -23849,8 +23849,6 @@
+ PWCTL_R86_DEAD_SUBJECT = "99997"     # no live object — the echo lies
+ PWCTL_R86_META_KEY = "r86a_k"
+ PWCTL_R86_AMP = PLAYBACK_R78_TONE_AMP            # 8192
+-PWCTL_R86_LINK_WAIT_S = 5.0
+-PWCTL_R86_TAP_WAIT_S = 6.0
+ PWCTL_R86_STREAM_WAIT_S = 8.0
+ PWCTL_R86_TONE_S = 16.0          # one player covers both write passes
+ PWCTL_R86_SOLO_ENV = (0.85, 1.18)    # x8192 solo/reset/restore window
+@@ -24064,8 +24062,8 @@
+     if links is None:
+         return None
+     return [l for l in links
+-            if (l["out"] or "").startswith(sink + ":")
+-            or (l["in"] or "").startswith(sink + ":")]
++            if l["out"].startswith(sink + ":")
++            or l["in"].startswith(sink + ":")]
+ 
+ 
+ def _pwctl_r86_meta_ids():
+@@ -24164,8 +24162,7 @@
+     witnesses: sinks gone from pactl, no r86a_<pid>-tagged node
+     survives, and (when the entry wrote metadata) no r86a_ key remains
+     in the default store."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -24178,7 +24175,7 @@
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -24193,7 +24190,7 @@
+     else:
+         rest = sorted(n for n in names
+                       if f"r86a_{PWCTL_R86_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -24226,7 +24223,6 @@
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -24280,7 +24276,7 @@
+         ser = str(na.get("object_serial"))
+         entry["ns_leaf"] = {"node_id": nid, "object_serial": ser,
+                             "media_class": na.get("media_class")}
+-        if nid is None or ser in (None, "None"):
++        if nid is None or ser == "None":
+             return _pwctl_r86_block(
+                 entry, failures,
+                 "probe sink id/serial never resolved", loads)
+@@ -24324,7 +24320,6 @@
+         # ---------------- the self-Client law ----------------
+         # full dumps are parsed, not previewed — two invocations, each
+         # must carry exactly its own fresh pw-dump Client row.
+-        self_serials = []
+         for rep in (1, 2):
+             try:
+                 proc = subprocess.run(["pw-dump"], capture_output=True,
+@@ -24340,14 +24335,10 @@
+                     "self_serials": sorted(
+                         str((o.get("info") or {}).get("props", {})
+                             .get("object.serial")) for o in selfs)}
+-                self_serials.append({s for s in
+-                                     legs[f"dump_full{rep}"]
+-                                     ["self_serials"]})
+             except (subprocess.TimeoutExpired, OSError, ValueError) \
+                     as exc:
+                 legs[f"dump_full{rep}"] = {"reader_error":
+                                            type(exc).__name__}
+-                self_serials.append(set())
+         # ------------- pw-cli destroy: the id-family write -------------
+         legs["mk_self_loop"] = _pwctl_r86_run(
+             ["pw-link", f"{PWCTL_R86_NS}:monitor_FL",
+@@ -24834,7 +24825,7 @@
+             if attached:
+                 # pass A — solo ref -> linear cv25 -> cv50 -> mute
+                 sleep_to(mark() + 0.8)
+-                solo_lo, solo_hi = mark(), None
++                solo_lo = mark()
+                 sleep_to(solo_lo + 0.6)
+                 solo_hi = mark()
+                 writes["w_cv25"] = setp(
+@@ -24919,8 +24910,6 @@
+     finally:
+         _pwctl_r86_teardown(entry, failures, loads)
+     # ---------------- verdicts ----------------
+-    if not legs["tap_link"]["edges"]:
+-        failures.append("tap_link: the monitor tap never validated")
+     if not (legs.get("player_attach") or {}).get("sink"):
+         entry.setdefault("coverage_blocked", []).append(
+             "player never attached — dsp arms skipped")

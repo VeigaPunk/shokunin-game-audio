@@ -883,3 +883,13 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | Scribe caught the uncited RED run that documents the strong-form failure; three seats converged on the cdup_cap absorption defect; numeric node.name abort found live + reproduced; fold queue precise. |
 
 | r85 | audio | pactl / monstreams leg lattice | ADMIT-with-findings | 2a49d540 |
+
+## Round 86 verdict — 2026-10-15
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | +149 legs / 5 entries: addr (serial/id split, census, destroy), enum-params matrix + set-param refusals, dsp (volumes/mute/restore), meta (echo-lies dead subject, 9-store census), tools (pw-top/pw-cli/pw-jack/pw-link). |
+| depth | **improved** | Verifier: frozen replay 149/149 x2 + 596/596 laws + 29/29 spots; critic arm-replay 13 mutations -> 5 channels + 4 controls; lock fold dynamically proven serializing cross-TMPDIR by 3 seats. |
+| calibration | **improved** | r84's biggest defect closed in-family and measured; residual co-tenancy now precisely bounded (tree-relative -> cross-tree only, fail-closed); all caveat rows verified as declared (record-only/rc_only), none silently armed. |
+
+| r86 | audio | pwctl tools lattice | ADMIT-with-findings | fa5994a0 |

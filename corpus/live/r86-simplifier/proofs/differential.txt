@@ -1,0 +1,22 @@
+PASS D1 teardown identical over 4 loads x 3 sinks x 2 names 
+PASS D1 teardown meta_subject path identical 
+PASS D1 teardown meta leftover path identical 
+PASS D2 block identical over 5 loads shapes (incl. omitted) 
+PASS D3 own_links identical on the reachable domain 2 links
+PASS D3 own_links reader-failure None identical 
+PASS D3 disclosed: out-of-domain out=None differs (base=filtered, folded=AttributeError) 
+PASS D4 the early-return slice is byte-identical base/folded 
+PASS D4 edges=[] takes the early return (verdict unreachable) 
+PASS D4 edges=[...] falls through (verdict reachable, no failure) 
+PASS D4 reachable domain: base verdict adds no failure 
+PASS D4 folded has no tap_link verdict at all 
+PASS D5 dump_full legs identical base/folded 
+PASS D5 base accumulated self_serials (dead value) [{'243277'}, {'243277'}]
+PASS D5 folded has no accumulator 
+PASS D5 recorded self_serials key intact in folded 
+PASS D6 solo window identical (100.0, 100.6)
+PASS D7 ser predicate identical over the str domain ['None', '0', '1', 'None', 'abc', '99999']
+PASS D8 module attribute delta is exactly the two dead constants ['PWCTL_R86_LINK_WAIT_S', 'PWCTL_R86_TAP_WAIT_S']
+PASS D8 folded errclass still executes 
+
+20/20 PASS

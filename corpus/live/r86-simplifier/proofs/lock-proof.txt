@@ -1,0 +1,16 @@
+PASS L1 r86 lock body has no tempfile/TMPDIR call 
+PASS L1 r86 lock path is ROOT / 'live' / 'measure_audio-pwctl-r86.lock' 
+PASS L1 contrast r82 lock IS TMPDIR-scoped 
+PASS L1 contrast r84 lock IS TMPDIR-scoped 
+PASS L1 contrast r85 lock IS TMPDIR-scoped 
+PASS L2 both workers locked a path /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock | /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock
+PASS L2 locked fd path identical despite different TMPDIRs A TMPDIR=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockA gettempdir=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockA | B TMPDIR=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockB gettempdir=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockB
+PASS L2 the locked path is corpus/live/measure_audio-pwctl-r86.lock /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock
+PASS L2 serialized: B acquired only after A exited A exit=50632.093 B locked=50632.110 (B waited 1.611s)
+PASS L2 B waited on the lock (blocked, did not race) wait=1.611s
+PASS L3 reverse order also serializes A exit=50632.591 B locked=50632.787
+PASS L4 lock witness bytes restored after the proof 
+PASS L5 lock path is not under TMPDIR 
+PASS L5 lock file exists at the fixed lane path 
+
+14/14 PASS

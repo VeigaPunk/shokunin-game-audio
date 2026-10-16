@@ -1407,3 +1407,11 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - LAWS: serial monotonicity + index recycle; tap-link validation + solo
   ref 8190.7 zero bleed; props-win; capture --target lattice + folded
   loss law; 2048-frame in-flight flush; negctl 13/13.
+- ROUND 86 (2026-10-15): pwctl tools lattice. ADMIT-with-findings at
+  fa5994a0 (149 legs / 5 entries). Verifier VERIFIED frozen-replay;
+  r84 lock fold CLOSED (fixed-path, 3-seat proven). Fold queue:
+  cross-tree co-tenancy residual (3-seat), silent-skip channels,
+  fail-open lock, -11 simplifier.
+- LAWS: ls<->serial vs info<->id split; channelVolumes linear 0.25->
+  2048.0; pactl 25% cubic->128.0; volume dead-key; pw-top batch vs
+  TUI-SIGABRT; pw-cli /dev/null-abort/pipe-hang; pw-link rc255 family.

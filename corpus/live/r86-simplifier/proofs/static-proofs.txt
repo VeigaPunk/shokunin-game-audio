@@ -1,0 +1,45 @@
+PASS S1 PWCTL_R86_LINK_WAIT_S def-only in base 
+PASS S1 PWCTL_R86_LINK_WAIT_S absent from folded 
+PASS S1 PWCTL_R86_TAP_WAIT_S def-only in base 
+PASS S1 PWCTL_R86_TAP_WAIT_S absent from folded 
+PASS S1 contrast PWCTL_R86_STREAM_WAIT_S is loaded 
+PASS S2 base self_serials occurrences == 5 [24327, 24340, 24343, 24345, 24350]
+PASS S2 base has 3 write sites 
+PASS S2 folded keeps only the recorded dict key [24335]
+PASS S2 no accumulator append in folded 
+PASS S3 teardown call sites == 5 [24370, 24621, 24920, 25093, 25311]
+PASS S3 every teardown call passes a 3rd positional arg 
+PASS S3 teardown signature has no default for loads pos=4 defaults=1 third=loads
+PASS S4 block call sites == 15 
+PASS S4 exactly 5 block calls omit loads (guard retained) without=5 with=10
+PASS S5 _pwcat_r83_ns_load has exactly 2 returns 
+PASS S5 both leaf assignments are dict literals 
+PASS S5 five r86 load sites 
+PASS S6 _pwctl_r86_links out/in are JoinedStr 
+PASS S7 dominance store<guard<return<verdict 24792<24793<24797<24922
+PASS S7 folded removes the unreachable verdict 
+PASS S8 base has the None init 
+PASS S8 folded drops the None init and keeps the real assignment 
+PASS S9 ser is str(...) 
+PASS S9 folded predicate == "None" 
+PASS S10 r86 module-level defs unchanged 25 vs 25
+PASS S10 pwctl_addr_r86_entry present in folded 
+PASS S10 pwctl_params_r86_entry present in folded 
+PASS S10 pwctl_dsp_r86_entry present in folded 
+PASS S10 pwctl_meta_r86_entry present in folded 
+PASS S10 pwctl_tools_r86_entry present in folded 
+PASS S11 wiring fragment present: parser.add_argument("--probe-pwctl-r86" 
+PASS S11 wiring fragment present: args.probe_pwctl_r86 
+PASS S11 wiring fragment present: measurements["pwctl_addr_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_params_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_dsp_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_meta_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_tools_r86_probe"] 
+PASS S11 wiring fragment present: _r86_family_lock = _pwctl_r86_family_lock() 
+PASS S11 wiring fragment present: mode = "probe-pwctl-r86" if args.probe_pwctl 
+PASS S11 wiring fragment present: suffix = "-pwctl-r86" if args.probe_pwctl_r8 
+PASS S12 all hunks inside the r86 block [23849, 24064, 24164, 24178, 24193, 24226, 24280, 24324, 24340, 24834, 24919]
+PASS S12 patch sha256 
+PASS S13 all changed lines inside the r86 block 25 changed lines; bad=[]
+
+43/43 PASS

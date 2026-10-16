@@ -1,0 +1,590 @@
+== 0. pin the base blob ==
+5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780  base-measure_audio.py
+r86-block.py: 1722 lines
+== 1. fold (exact-match, abort on 0/multi) ==
+edits applied: 13 -> ['T4a teardown load-loop guard', 'T4b teardown sinks_gone guard', 'T4c teardown own_nodes guard', 'T5 block leaf guard', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'E9']
+base   sha256 5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780 lines=26655
+folded sha256 e35b0c2636b28ce292a20a27960f1179a08ff6af309657fe404337a73dc50c1b lines=26644
+net line delta: -11
+== 2. compile ==
+== py_compile folded/measure_audio.py ==
+OK (rc=0)
+
+== ast.parse both ==
+base-measure_audio.py AST OK
+folded/measure_audio.py AST OK
+== 3. static proofs ==
+PASS S1 PWCTL_R86_LINK_WAIT_S def-only in base 
+PASS S1 PWCTL_R86_LINK_WAIT_S absent from folded 
+PASS S1 PWCTL_R86_TAP_WAIT_S def-only in base 
+PASS S1 PWCTL_R86_TAP_WAIT_S absent from folded 
+PASS S1 contrast PWCTL_R86_STREAM_WAIT_S is loaded 
+PASS S2 base self_serials occurrences == 5 [24327, 24340, 24343, 24345, 24350]
+PASS S2 base has 3 write sites 
+PASS S2 folded keeps only the recorded dict key [24335]
+PASS S2 no accumulator append in folded 
+PASS S3 teardown call sites == 5 [24370, 24621, 24920, 25093, 25311]
+PASS S3 every teardown call passes a 3rd positional arg 
+PASS S3 teardown signature has no default for loads pos=4 defaults=1 third=loads
+PASS S4 block call sites == 15 
+PASS S4 exactly 5 block calls omit loads (guard retained) without=5 with=10
+PASS S5 _pwcat_r83_ns_load has exactly 2 returns 
+PASS S5 both leaf assignments are dict literals 
+PASS S5 five r86 load sites 
+PASS S6 _pwctl_r86_links out/in are JoinedStr 
+PASS S7 dominance store<guard<return<verdict 24792<24793<24797<24922
+PASS S7 folded removes the unreachable verdict 
+PASS S8 base has the None init 
+PASS S8 folded drops the None init and keeps the real assignment 
+PASS S9 ser is str(...) 
+PASS S9 folded predicate == "None" 
+PASS S10 r86 module-level defs unchanged 25 vs 25
+PASS S10 pwctl_addr_r86_entry present in folded 
+PASS S10 pwctl_params_r86_entry present in folded 
+PASS S10 pwctl_dsp_r86_entry present in folded 
+PASS S10 pwctl_meta_r86_entry present in folded 
+PASS S10 pwctl_tools_r86_entry present in folded 
+PASS S11 wiring fragment present: parser.add_argument("--probe-pwctl-r86" 
+PASS S11 wiring fragment present: args.probe_pwctl_r86 
+PASS S11 wiring fragment present: measurements["pwctl_addr_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_params_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_dsp_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_meta_r86_probe"] 
+PASS S11 wiring fragment present: measurements["pwctl_tools_r86_probe"] 
+PASS S11 wiring fragment present: _r86_family_lock = _pwctl_r86_family_lock() 
+PASS S11 wiring fragment present: mode = "probe-pwctl-r86" if args.probe_pwctl 
+PASS S11 wiring fragment present: suffix = "-pwctl-r86" if args.probe_pwctl_r8 
+PASS S12 all hunks inside the r86 block [23849, 24064, 24164, 24178, 24193, 24226, 24280, 24324, 24340, 24834, 24919]
+PASS S12 patch sha256 
+PASS S13 all changed lines inside the r86 block 25 changed lines; bad=[]
+
+43/43 PASS
+== 4. differential proofs ==
+PASS D1 teardown identical over 4 loads x 3 sinks x 2 names 
+PASS D1 teardown meta_subject path identical 
+PASS D1 teardown meta leftover path identical 
+PASS D2 block identical over 5 loads shapes (incl. omitted) 
+PASS D3 own_links identical on the reachable domain 2 links
+PASS D3 own_links reader-failure None identical 
+PASS D3 disclosed: out-of-domain out=None differs (base=filtered, folded=AttributeError) 
+PASS D4 the early-return slice is byte-identical base/folded 
+PASS D4 edges=[] takes the early return (verdict unreachable) 
+PASS D4 edges=[...] falls through (verdict reachable, no failure) 
+PASS D4 reachable domain: base verdict adds no failure 
+PASS D4 folded has no tap_link verdict at all 
+PASS D5 dump_full legs identical base/folded 
+PASS D5 base accumulated self_serials (dead value) [{'243277'}, {'243277'}]
+PASS D5 folded has no accumulator 
+PASS D5 recorded self_serials key intact in folded 
+PASS D6 solo window identical (100.0, 100.6)
+PASS D7 ser predicate identical over the str domain ['None', '0', '1', 'None', 'abc', '99999']
+PASS D8 module attribute delta is exactly the two dead constants ['PWCTL_R86_LINK_WAIT_S', 'PWCTL_R86_TAP_WAIT_S']
+PASS D8 folded errclass still executes 
+
+20/20 PASS
+== 5. receipt census ==
+PASS R1 both runs parse 
+PASS R1 five r86 entries in both runs 
+PASS R1 all r86 failures empty 
+PASS R1 all r86 coverage_blocked empty 
+PASS R2 10/10 unload records dicts with verified_index==captured, recycled False n=10
+PASS R2 all sinks_gone true 
+PASS R2 own_nodes_after [] everywhere 
+PASS R2 meta_keys_gone true (meta entry) 
+PASS R3 run1 dump_full1/2 self_serials recorded [['242898'], ['242899']]
+PASS R3 run1 self_clients >= 1 both reps 
+PASS R3 run2 dump_full1/2 self_serials recorded [['243277'], ['243278']]
+PASS R3 run2 self_clients >= 1 both reps 
+PASS R4 receipts contain no 'PWCTL_R86_LINK_WAIT_S' 
+PASS R4 receipts contain no 'PWCTL_R86_TAP_WAIT_S' 
+PASS R4 receipts contain no 'LINK_WAIT' 
+PASS R4 receipts contain no 'TAP_WAIT' 
+PASS R5 run1 regions solo/cv25/cv50/mute/reset/dead/pa25/pa100 
+PASS R5 run1 solo inside the x8192 envelope solo=8192.0 t=[1.11, 1.71]
+PASS R5 run2 regions solo/cv25/cv50/mute/reset/dead/pa25/pa100 
+PASS R5 run2 solo inside the x8192 envelope solo=8192.0 t=[1.1, 1.7]
+PASS R6 run1 self_loop_census + lk_census + junkprops_census 
+PASS R6 run2 self_loop_census + lk_census + junkprops_census 
+PASS R7 run1 dump_color_eq armed False 
+PASS R7 run1 d_route armed False 
+PASS R7 run1 n_format armed rc_only 
+PASS R7 run2 dump_color_eq armed False 
+PASS R7 run2 d_route armed False 
+PASS R7 run2 n_format armed rc_only 
+PASS R8 run1 ns_leaf serial is a real number {'node_id': 215, 'object_serial': '242862', 'media_class': 'Audio/Sink'}
+PASS R8 run2 ns_leaf serial is a real number {'node_id': 215, 'object_serial': '243241', 'media_class': 'Audio/Sink'}
+PASS R9 run1 all five entries record tools 
+PASS R9 run2 all five entries record tools 
+
+32/32 PASS
+== 6. lock proof (two TMPDIRs, real shipped module) ==
+PASS L1 r86 lock body has no tempfile/TMPDIR call 
+PASS L1 r86 lock path is ROOT / 'live' / 'measure_audio-pwctl-r86.lock' 
+PASS L1 contrast r82 lock IS TMPDIR-scoped 
+PASS L1 contrast r84 lock IS TMPDIR-scoped 
+PASS L1 contrast r85 lock IS TMPDIR-scoped 
+PASS L2 both workers locked a path /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock | /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock
+PASS L2 locked fd path identical despite different TMPDIRs A TMPDIR=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockA gettempdir=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockA | B TMPDIR=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockB gettempdir=/home/vgpnk/Projects/shokunin/tmp/r86-simplifier-lockB
+PASS L2 the locked path is corpus/live/measure_audio-pwctl-r86.lock /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock
+PASS L2 serialized: B acquired only after A exited A exit=50632.093 B locked=50632.110 (B waited 1.611s)
+PASS L2 B waited on the lock (blocked, did not race) wait=1.611s
+PASS L3 reverse order also serializes A exit=50632.591 B locked=50632.787
+PASS L4 lock witness bytes restored after the proof 
+PASS L5 lock path is not under TMPDIR 
+PASS L5 lock file exists at the fixed lane path 
+
+14/14 PASS
+== 7. symbol census / dead scan ==
+PASS SD1 same r86 scope set ['_pwctl_r86_block', '_pwctl_r86_dump_ids', '_pwctl_r86_entry_head', '_pwctl_r86_errclass', '_pwctl_r86_family_lock', '_pwctl_r86_graph', '_pwctl_r86_links', '_pwctl_r86_load_ns', '_pwctl_r86_ls_ids', '_pwctl_r86_meta', '_pwctl_r86_meta_ids', '_pwctl_r86_no_core', '_pwctl_r86_node', '_pwctl_r86_node_ports', '_pwctl_r86_own_links', '_pwctl_r86_pwcli', '_pwctl_r86_run', '_pwctl_r86_sigleg', '_pwctl_r86_teardown', '_pwctl_r86_update_rows', 'pwctl_addr_r86_entry', 'pwctl_dsp_r86_entry', 'pwctl_meta_r86_entry', 'pwctl_params_r86_entry', 'pwctl_tools_r86_entry']
+PASS SD2 no new unread names introduced by the fold {'_pwctl_r86_errclass': set(), '_pwctl_r86_no_core': set(), '_pwctl_r86_run': set(), '_pwctl_r86_sigleg': set(), '_pwctl_r86_pwcli': set(), '_pwctl_r86_meta': set(), '_pwctl_r86_graph': set(), '_pwctl_r86_node': set(), '_pwctl_r86_links': set(), '_pwctl_r86_own_links': set(), '_pwctl_r86_meta_ids': set(), '_pwctl_r86_ls_ids': set(), '_pwctl_r86_dump_ids': set(), '_pwctl_r86_update_rows': set(), '_pwctl_r86_family_lock': set(), '_pwctl_r86_entry_head': set(), '_pwctl_r86_teardown': set(), '_pwctl_r86_block': set(), '_pwctl_r86_load_ns': set(), '_pwctl_r86_node_ports': set(), 'pwctl_addr_r86_entry': set(), 'pwctl_params_r86_entry': set(), 'pwctl_dsp_r86_entry': set(), 'pwctl_meta_r86_entry': set(), 'pwctl_tools_r86_entry': set()}
+PASS SD3 removed symbols are exactly the self_serials write-site closure {self_serials, s, set}, nowhere else {'pwctl_addr_r86_entry': {'s', 'self_serials', 'set'}}
+PASS SD4 no symbols added {'_pwctl_r86_errclass': set(), '_pwctl_r86_no_core': set(), '_pwctl_r86_run': set(), '_pwctl_r86_sigleg': set(), '_pwctl_r86_pwcli': set(), '_pwctl_r86_meta': set(), '_pwctl_r86_graph': set(), '_pwctl_r86_node': set(), '_pwctl_r86_links': set(), '_pwctl_r86_own_links': set(), '_pwctl_r86_meta_ids': set(), '_pwctl_r86_ls_ids': set(), '_pwctl_r86_dump_ids': set(), '_pwctl_r86_update_rows': set(), '_pwctl_r86_family_lock': set(), '_pwctl_r86_entry_head': set(), '_pwctl_r86_teardown': set(), '_pwctl_r86_block': set(), '_pwctl_r86_load_ns': set(), '_pwctl_r86_node_ports': set(), 'pwctl_addr_r86_entry': set(), 'pwctl_params_r86_entry': set(), 'pwctl_dsp_r86_entry': set(), 'pwctl_meta_r86_entry': set(), 'pwctl_tools_r86_entry': set()}
+
+4/4 PASS
+ASSIGNED-NEVER-REFERENCED  scope=section_contrast                 sym=component_bin
+ASSIGNED-NEVER-REFERENCED  scope=fifo_hold_leg                    sym=_
+ASSIGNED-NEVER-REFERENCED  scope=ffprobe_leg                      sym=kw
+ASSIGNED-NEVER-REFERENCED  scope=ffprobe_leg                      sym=dout
+ASSIGNED-NEVER-REFERENCED  scope=_SF_INFO                         sym=_fields_
+ASSIGNED-NEVER-REFERENCED  scope=_SF_FORMAT_INFO                  sym=_fields_
+ASSIGNED-NEVER-REFERENCED  scope=sndfile_transport_entry          sym=data
+ASSIGNED-NEVER-REFERENCED  scope=consumer_transport_entry         sym=data
+ASSIGNED-NEVER-REFERENCED  scope=consumer_transport_entry         sym=legs
+ASSIGNED-NEVER-REFERENCED  scope=consumer_ops_entry               sym=chunk
+ASSIGNED-NEVER-REFERENCED  scope=lavf_transport_entry             sym=data
+ASSIGNED-NEVER-REFERENCED  scope=lavf_startpos_entry              sym=hold_s
+ASSIGNED-NEVER-REFERENCED  scope=lavf_startpos_entry              sym=data
+ASSIGNED-NEVER-REFERENCED  scope=pwcat_ops2_entry                 sym=ra
+ASSIGNED-NEVER-REFERENCED  scope=pwcat_ops2_entry                 sym=_
+ASSIGNED-NEVER-REFERENCED  scope=ffplay_leg                       sym=env
+ASSIGNED-NEVER-REFERENCED  scope=consumer2_transport_entry        sym=data
+ASSIGNED-NEVER-REFERENCED  scope=consumer2_transport_entry        sym=legs
+ASSIGNED-NEVER-REFERENCED  scope=consumer2_transport_entry        sym=_infra_leg
+ASSIGNED-NEVER-REFERENCED  scope=consumers2_paplay_ops_entry      sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_capture_wav_inspect             sym=_br
+ASSIGNED-NEVER-REFERENCED  scope=_capture_wav_inspect             sym=_ba
+ASSIGNED-NEVER-REFERENCED  scope=capture_gate_r76_entry           sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_bounded_r76_entry        sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_sever_r76_entry          sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_name_axis_r76_entry      sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_device_axis_r76_entry    sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_capture_r77_sha256              sym=fh
+ASSIGNED-NEVER-REFERENCED  scope=_capture_r77_lattice_targets     sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_exp
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_tone
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_prop
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=known
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_r
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_p
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_n
+ASSIGNED-NEVER-REFERENCED  scope=capture_source_lattice_r77_entry sym=_t
+ASSIGNED-NEVER-REFERENCED  scope=capture_readers_r77_entry        sym=src
+ASSIGNED-NEVER-REFERENCED  scope=_capture_r77_reader_honesty      sym=key
+ASSIGNED-NEVER-REFERENCED  scope=capture_arecord_sever_r77_entry  sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_format_axis_r77_entry    sym=mon
+ASSIGNED-NEVER-REFERENCED  scope=capture_format_axis_r77_entry    sym=_
+ASSIGNED-NEVER-REFERENCED  scope=capture_format_axis_r77_entry    sym=_extra
+ASSIGNED-NEVER-REFERENCED  scope=playback_default_follow_r78_entry sym=allowed_nf
+ASSIGNED-NEVER-REFERENCED  scope=capture_unlinked_zeros_r78_entry sym=pre_edges
+ASSIGNED-NEVER-REFERENCED  scope=parec_leg                        sym=i
+ASSIGNED-NEVER-REFERENCED  scope=parec_leg                        sym=mt
+ASSIGNED-NEVER-REFERENCED  scope=parec_leg                        sym=mb
+ASSIGNED-NEVER-REFERENCED  scope=_loopback_r79_run                sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_loopback_r79_two_tone           sym=mix_lo
+ASSIGNED-NEVER-REFERENCED  scope=_loopback_r79_two_tone           sym=mix_hi
+ASSIGNED-NEVER-REFERENCED  scope=_loopback_r79_default_source_probe sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_loopback_r79_teardown           sym=sinks_now
+ASSIGNED-NEVER-REFERENCED  scope=loopback_matrix_r79_entry        sym=_
+ASSIGNED-NEVER-REFERENCED  scope=cli_cmd                          sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_module_r80_pactl                sym=_
+ASSIGNED-NEVER-REFERENCED  scope=_module_r80_own_leaves           sym=pref
+ASSIGNED-NEVER-REFERENCED  scope=_gst_r81_our_nodes               sym=ours
+ASSIGNED-NEVER-REFERENCED  scope=_gst_r81_wav_inspect             sym=_br
+ASSIGNED-NEVER-REFERENCED  scope=_gst_r81_wav_inspect             sym=_ba
+ASSIGNED-NEVER-REFERENCED  scope=_gst_r81_leg                     sym=_
+ASSIGNED-NEVER-REFERENCED  scope=gst_element_lattice_r81_entry    sym=_rep
+ASSIGNED-NEVER-REFERENCED  scope=_ffpw_r82_leg                    sym=_
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_device_surfaces_r82_entry   sym=_
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_capture_lattice_r82_entry   sym=base
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_playback_lattice_r82_entry  sym=base
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_buffer_knobs_r82_entry      sym=prop
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_buffer_knobs_r82_entry      sym=base
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_buffer_knobs_r82_entry      sym=cbase
+ASSIGNED-NEVER-REFERENCED  scope=ffpw_target_loss_r82_entry       sym=_unload_at
+ASSIGNED-NEVER-REFERENCED  scope=_pwcat_r83_lb_leg                sym=ftag
+ASSIGNED-NEVER-REFERENCED  scope=alsapw_dev_lattice_r84_entry     sym=states0
+ASSIGNED-NEVER-REFERENCED  scope=_alsapw_r84_prop_leg             sym=hit
+ASSIGNED-NEVER-REFERENCED  scope=alsapw_pactl_write_r84_entry     sym=_
+ASSIGNED-NEVER-REFERENCED  scope=alsapw_monstream_r84_entry       sym=lhz
+ASSIGNED-NEVER-REFERENCED  scope=alsapw_monstream_r84_entry       sym=rhz
+ASSIGNED-NEVER-REFERENCED  scope=alsapw_monstream_r84_entry       sym=bhz
+ASSIGNED-NEVER-REFERENCED  scope=_pactlmon_r85_cap_leg            sym=hit
+ASSIGNED-NEVER-REFERENCED  scope=_pactlmon_r85_sd_leg             sym=hit
+ASSIGNED-NEVER-REFERENCED  scope=pactlmon_addr_r85_entry          sym=sers
+ASSIGNED-NEVER-REFERENCED  scope=pactlmon_capture_r85_entry       sym=links_of
+ASSIGNED-NEVER-REFERENCED  scope=pactlmon_capture_r85_entry       sym=want_node
+ASSIGNED-NEVER-REFERENCED  scope=genexpr                          sym=_
+ASSIGNED-NEVER-REFERENCED  scope=pwctl_dsp_r86_entry              sym=t0
+ASSIGNED-NEVER-REFERENCED  scope=pwctl_dsp_r86_entry              sym=med
+ASSIGNED-NEVER-REFERENCED  scope=pwctl_dsp_r86_entry              sym=meds
+ASSIGNED-NEVER-REFERENCED  scope=genexpr                          sym=_
+ASSIGNED-NEVER-REFERENCED  scope=main                             sym=_r84_family_lock
+ASSIGNED-NEVER-REFERENCED  scope=main                             sym=_r86_family_lock
+ASSIGNED-NEVER-REFERENCED  scope=main                             sym=_r85_family_lock
+ASSIGNED-NEVER-REFERENCED  scope=main                             sym=_r82_family_lock
+== module-level r86 names: call/load census (whole file) ==
+const PWCTL_R86_PID                    L 23842-23842  loads=7   calls=0
+const PWCTL_R86_PREFIX                 L 23843-23843  loads=6   calls=0
+const PWCTL_R86_NS                     L 23844-23844  loads=47  calls=0
+const PWCTL_R86_TAP                    L 23845-23845  loads=2   calls=0
+const PWCTL_R86_ROLE                   L 23846-23846  loads=2   calls=0
+const PWCTL_R86_BOGUS                  L 23848-23848  loads=1   calls=0
+const PWCTL_R86_DEAD_SUBJECT           L 23849-23849  loads=2   calls=0
+const PWCTL_R86_META_KEY               L 23850-23850  loads=2   calls=0
+const PWCTL_R86_AMP                    L 23851-23851  loads=14  calls=0
+const PWCTL_R86_LINK_WAIT_S            L 23852-23852  loads=0   calls=0
+const PWCTL_R86_TAP_WAIT_S             L 23853-23853  loads=0   calls=0
+const PWCTL_R86_STREAM_WAIT_S          L 23854-23854  loads=1   calls=0
+const PWCTL_R86_TONE_S                 L 23855-23855  loads=2   calls=0
+const PWCTL_R86_SOLO_ENV               L 23856-23856  loads=9   calls=0
+const PWCTL_R86_CV25_ENV               L 23857-23857  loads=2   calls=0
+const PWCTL_R86_CV50_ENV               L 23858-23858  loads=2   calls=0
+const PWCTL_R86_PA25_ENV               L 23859-23859  loads=2   calls=0
+const PWCTL_R86_MUTE_MAX               L 23860-23860  loads=2   calls=0
+const PWCTL_R86_CUBIC_PCT              L 23861-23861  loads=3   calls=0
+const _PWCTL_R86_ERR_CLASSES           L 23868-23889  loads=1   calls=0
+def   _pwctl_r86_errclass              L 23892-23899  loads=2   calls=2
+def   _pwctl_r86_no_core               L 23902-23905  loads=2   calls=0
+def   _pwctl_r86_run                   L 23908-23956  loads=36  calls=36
+def   _pwctl_r86_sigleg                L 23959-24010  loads=3   calls=3
+def   _pwctl_r86_pwcli                 L 24013-24015  loads=16  calls=16
+def   _pwctl_r86_meta                  L 24018-24020  loads=23  calls=23
+def   _pwctl_r86_graph                 L 24023-24024  loads=5   calls=5
+def   _pwctl_r86_node                  L 24027-24028  loads=5   calls=5
+def   _pwctl_r86_links                 L 24031-24057  loads=1   calls=1
+def   _pwctl_r86_own_links             L 24060-24068  loads=6   calls=6
+def   _pwctl_r86_meta_ids              L 24071-24083  loads=1   calls=1
+def   _pwctl_r86_ls_ids                L 24086-24096  loads=1   calls=1
+def   _pwctl_r86_dump_ids              L 24099-24109  loads=5   calls=5
+def   _pwctl_r86_update_rows           L 24112-24115  loads=9   calls=9
+def   _pwctl_r86_family_lock           L 24118-24136  loads=1   calls=1
+def   _pwctl_r86_entry_head            L 24139-24158  loads=5   calls=5
+def   _pwctl_r86_teardown              L 24161-24221  loads=5   calls=5
+def   _pwctl_r86_block                 L 24224-24236  loads=15  calls=15
+def   _pwctl_r86_load_ns               L 24239-24245  loads=5   calls=5
+def   _pwctl_r86_node_ports            L 24248-24252  loads=2   calls=2
+def   pwctl_addr_r86_entry             L 24255-24510  loads=1   calls=1
+def   pwctl_params_r86_entry           L 24513-24745  loads=1   calls=1
+def   pwctl_dsp_r86_entry              L 24748-25009  loads=1   calls=1
+def   pwctl_meta_r86_entry             L 25012-25198  loads=1   calls=1
+def   pwctl_tools_r86_entry            L 25201-25449  loads=1   calls=1
+
+== params with zero loads in own function body (r86 block) ==
+
+== name stores with no later load in same function (r86 block) ==
+DEAD STORE _pwctl_r86_run L23917: 'a'
+DEAD STORE _pwctl_r86_sigleg L23964: 'a'
+DEAD STORE _pwctl_r86_pwcli L24014: 'a'
+DEAD STORE _pwctl_r86_meta L24019: 'a'
+DEAD STORE _pwctl_r86_ls_ids L24094: 'm'
+DEAD STORE _pwctl_r86_teardown L24181: 'nm'
+DEAD STORE _pwctl_r86_node_ports L24250: 'pid'
+DEAD STORE pwctl_addr_r86_entry L24493: 'k'
+DEAD STORE pwctl_addr_r86_entry L24343: 's'
+DEAD STORE pwctl_addr_r86_entry L24418: '_'
+DEAD STORE pwctl_addr_r86_entry L24418: 't'
+DEAD STORE pwctl_addr_r86_entry L24342: 'o'
+DEAD STORE pwctl_params_r86_entry L24529: 't'
+DEAD STORE pwctl_dsp_r86_entry L24898: '_'
+DEAD STORE pwctl_dsp_r86_entry L24898: 'a'
+DEAD STORE pwctl_dsp_r86_entry L24918: 'k'
+DEAD STORE pwctl_dsp_r86_entry L24918: 'r'
+DEAD STORE pwctl_dsp_r86_entry L24767: 't'
+DEAD STORE pwctl_dsp_r86_entry L24827: 'x'
+DEAD STORE pwctl_meta_r86_entry L25184: 'r'
+DEAD STORE pwctl_meta_r86_entry L25028: 't'
+DEAD STORE pwctl_meta_r86_entry L25052: 'm'
+DEAD STORE pwctl_tools_r86_entry L25363: 'm'
+DEAD STORE pwctl_tools_r86_entry L25367: 'k'
+DEAD STORE pwctl_tools_r86_entry L25367: 'v'
+DEAD STORE pwctl_tools_r86_entry L25217: 't'
+DEAD STORE jack_env L25363: 'm'
+DEAD STORE jack_env L25367: 'k'
+DEAD STORE jack_env L25367: 'v'
+DEAD STORE pactl L24827: 'x'
+
+== r86 block: names bound at module level, full-file loads ==
+PWCTL_R86_PID                occurrences=8 lines=[23842, 23843, 23844, 23845, 23846, 24132, 24151, 24195]
+PWCTL_R86_PREFIX             occurrences=7 lines=[23843, 24317, 24801, 25047, 25264, 25269, 25378]
+PWCTL_R86_NS                 occurrences=48 lines=[23844, 24060, 24132, 24242, 24244, 24272, 24273, 24278, 24353, 24354, 24357, 24358, 24532, 24533, 24538, 24556, 24557, 24560, 24770, 24771, 24776, 24786, 24791, 24802, 24843, 24848, 24860, 24865, 24867, 24870, 24872, 25031, 25032, 25037, 25220, 25221, 25226, 25272, 25273, 25276, 25277, 25279, 25287, 25288, 25301, 25302, 25305, 25424]
+PWCTL_R86_TAP                occurrences=4 lines=[23845, 23853, 24788, 24791]
+PWCTL_R86_ROLE               occurrences=3 lines=[23846, 24133, 24803]
+PWCTL_R86_BOGUS              occurrences=2 lines=[23848, 25280]
+PWCTL_R86_DEAD_SUBJECT       occurrences=3 lines=[23849, 25078, 25080]
+PWCTL_R86_META_KEY           occurrences=3 lines=[23850, 25061, 25132]
+PWCTL_R86_AMP                occurrences=15 lines=[23851, 24938, 24940, 24946, 24947, 24948, 24949, 24956, 24957, 24959, 24960, 24962, 24963, 24965, 24966]
+PWCTL_R86_LINK_WAIT_S        occurrences=1 lines=[23852]
+PWCTL_R86_TAP_WAIT_S         occurrences=1 lines=[23853]
+PWCTL_R86_STREAM_WAIT_S      occurrences=2 lines=[23854, 24805]
+PWCTL_R86_TONE_S             occurrences=3 lines=[23855, 24783, 24787]
+PWCTL_R86_SOLO_ENV           occurrences=10 lines=[23856, 24938, 24940, 24943, 24956, 24957, 24959, 24960, 24965, 24966]
+PWCTL_R86_CV25_ENV           occurrences=3 lines=[23857, 24946, 24947]
+PWCTL_R86_CV50_ENV           occurrences=3 lines=[23858, 24948, 24949]
+PWCTL_R86_PA25_ENV           occurrences=3 lines=[23859, 24962, 24963]
+PWCTL_R86_MUTE_MAX           occurrences=3 lines=[23860, 24951, 24953]
+PWCTL_R86_CUBIC_PCT          occurrences=4 lines=[23861, 24973, 24974, 24977]
+_PWCTL_R86_ERR_CLASSES       occurrences=2 lines=[23868, 23895]
+== pwctl_addr_r86_entry ==
+  UNREAD entry['failures'] stored@[24509] reads@[]
+  UNREAD entry['legs'] stored@[24508] reads@[]
+  UNREAD entry['meta_store_ids'] stored@[24320] reads@[]
+  UNREAD entry['ns_leaf'] stored@[24281] reads@[]
+  UNREAD entry['tools'] stored@[24265] reads@[]
+  legs['destroy_census'] stored@[24367] reads@[24503, 24506]
+  legs['destroy_link'] stored@[24363] reads@[24501]
+  UNREAD legs['dump_badid'] stored@[24302] reads@[]
+  UNREAD legs['dump_bogus'] stored@[24303] reads@[]
+  legs['dump_color_eq'] stored@[24310] reads@[24454]
+  legs['dump_color_join'] stored@[24306] reads@[24449]
+  UNREAD legs['dump_color_sep'] stored@[24304] reads@[]
+  legs['dump_id'] stored@[24300] reads@[24437]
+  legs['dump_serial'] stored@[24301] reads@[24437]
+  legs['enum_serial'] stored@[24292] reads@[24398]
+  legs['info_all'] stored@[24312] reads@[24461]
+  legs['info_bogus'] stored@[24294] reads@[24405]
+  legs['info_id'] stored@[24290] reads@[24385]
+  legs['info_link'] stored@[24362] reads@[24492, 24495]
+  legs['info_serial'] stored@[24291] reads@[24391]
+  UNREAD legs['list_remotes'] stored@[24315] reads@[]
+  UNREAD legs['list_vars'] stored@[24314] reads@[]
+  legs['ls_id'] stored@[24289] reads@[24379]
+  legs['ls_serial'] stored@[24288] reads@[24372]
+  legs['meta_info_empty'] stored@[24322] reads@[24480]
+  legs['mk_self_loop'] stored@[24352] reads@[24486]
+  legs['remote_down'] stored@[24316] reads@[24472]
+  legs['self_loop_census'] stored@[24359] reads@[24487]
+
+== pwctl_params_r86_entry ==
+  UNREAD entry['failures'] stored@[24744] reads@[]
+  UNREAD entry['legs'] stored@[24743] reads@[]
+  entry['subjects'] stored@[24546] reads@[24562]
+  UNREAD entry['tools'] stored@[24525] reads@[]
+  UNREAD legs['core_setparam'] stored@[24604] reads@[]
+  UNREAD legs['d_enumprofile'] stored@[24594] reads@[]
+  UNREAD legs['d_enumroute'] stored@[24595] reads@[]
+  UNREAD legs['d_profile'] stored@[24593] reads@[]
+  UNREAD legs['d_props'] stored@[24598] reads@[]
+  legs['d_route'] stored@[24596] reads@[24657]
+  legs['enum_badobj'] stored@[24584] reads@[24671]
+  UNREAD legs['mk_self_loop'] stored@[24555] reads@[]
+  UNREAD legs['n_999'] stored@[24582] reads@[]
+  UNREAD legs['n_all'] stored@[24583] reads@[]
+  UNREAD legs['n_bogus'] stored@[24581] reads@[]
+  legs['n_enumformat'] stored@[24573] reads@[24658]
+  legs['n_format'] stored@[24575] reads@[24643, 24648]
+  UNREAD legs['n_io'] stored@[24578] reads@[]
+  UNREAD legs['n_latency'] stored@[24576] reads@[]
+  UNREAD legs['n_meta'] stored@[24579] reads@[]
+  legs['n_num3'] stored@[24574] reads@[24658]
+  UNREAD legs['n_proclat'] stored@[24577] reads@[]
+  UNREAD legs['n_profile'] stored@[24580] reads@[]
+  UNREAD legs['n_propinfo'] stored@[24572] reads@[]
+  UNREAD legs['n_props'] stored@[24571] reads@[]
+  UNREAD legs['p_enumformat'] stored@[24586] reads@[]
+  UNREAD legs['p_format'] stored@[24591] reads@[]
+  UNREAD legs['p_io'] stored@[24588] reads@[]
+  UNREAD legs['p_latency'] stored@[24587] reads@[]
+  UNREAD legs['p_meta'] stored@[24589] reads@[]
+  UNREAD legs['p_props'] stored@[24590] reads@[]
+  legs['re_port_lat'] stored@[24616] reads@[24727]
+  UNREAD legs['re_vol'] stored@[24611] reads@[]
+  legs['re_zzz'] stored@[24609] reads@[24701]
+  legs['sp_badid'] stored@[24617] reads@[24731]
+  UNREAD legs['sp_bogusp'] stored@[24619] reads@[]
+  legs['sp_empty'] stored@[24607] reads@[24695]
+  legs['sp_enumf'] stored@[24612] reads@[24710]
+  legs['sp_garbage'] stored@[24606] reads@[24688]
+  legs['sp_nojson'] stored@[24618] reads@[24737]
+  legs['sp_port_lat'] stored@[24614] reads@[24717]
+  legs['sp_voltype'] stored@[24610] reads@[24705]
+  legs['sp_zzz'] stored@[24608] reads@[24700]
+
+== pwctl_dsp_r86_entry ==
+  UNREAD entry['failures'] stored@[25008] reads@[]
+  UNREAD entry['legs'] stored@[25007] reads@[]
+  UNREAD entry['tools'] stored@[24763] reads@[]
+  legs['enum_after_dead'] stored@[24861] reads@[24984]
+  legs['pactl_after_cv25'] stored@[24842] reads@[24972]
+  UNREAD legs['pactl_after_cv50'] stored@[24847] reads@[]
+  legs['pactl_after_dead'] stored@[24859] reads@[24979]
+  legs['pactl_read_100'] stored@[24871] reads@[24994, 24997]
+  legs['pactl_read_25'] stored@[24866] reads@[24990, 24992]
+  UNREAD legs['player_alive_at_end'] stored@[24875] reads@[]
+  legs['player_attach'] stored@[24806] reads@[24924]
+  UNREAD legs['player_exit'] stored@[24891] reads@[]
+  legs['regions'] stored@[24915] reads@[24928]
+  UNREAD legs['tap_exit'] stored@[24890] reads@[]
+  legs['tap_link'] stored@[24792] reads@[24922]
+  UNREAD legs['tap_peak_all'] stored@[24897] reads@[]
+  UNREAD legs['tap_stderr_tail'] stored@[24892] reads@[]
+  UNREAD legs['tap_windows'] stored@[24896] reads@[]
+  legs['writes'] stored@[24874] reads@[25002]
+  writes['w_cv25'] stored@[24840] reads@[24844]
+  writes['w_cv50'] stored@[24845] reads@[24849]
+  writes['w_dead'] stored@[24858] reads@[24863]
+  writes['w_mute'] stored@[24850] reads@[24851]
+  writes['w_pa100'] stored@[24869] reads@[24873]
+  writes['w_pa25'] stored@[24864] reads@[24868]
+  writes['w_reset'] stored@[24853] reads@[24856]
+
+== pwctl_meta_r86_entry ==
+  UNREAD entry['failures'] stored@[25197] reads@[]
+  UNREAD entry['legs'] stored@[25196] reads@[]
+  entry['meta_census'] stored@[25050] reads@[25114]
+  UNREAD entry['tools'] stored@[25024] reads@[]
+  legs['m_absent'] stored@[25071] reads@[25145]
+  legs['m_dead_r'] stored@[25079] reads@[25164]
+  legs['m_dead_w'] stored@[25077] reads@[25162]
+  legs['m_del'] stored@[25073] reads@[25150]
+  legs['m_delabsent'] stored@[25075] reads@[25156]
+  legs['m_filter'] stored@[25085] reads@[25174]
+  legs['m_filter0'] stored@[25087] reads@[25181]
+  UNREAD legs['m_over'] stored@[25065] reads@[]
+  legs['m_read'] stored@[25064] reads@[25130]
+  legs['m_read2'] stored@[25066] reads@[25135]
+  legs['m_read3'] stored@[25069] reads@[25140]
+  legs['m_read4'] stored@[25074] reads@[25154]
+  legs['m_read5'] stored@[25082] reads@[25171]
+  UNREAD legs['m_typed'] stored@[25067] reads@[]
+  legs['m_wipe'] stored@[25081] reads@[25168]
+  legs['m_write'] stored@[25062] reads@[25125]
+  legs['meta_bare'] stored@[25044] reads@[25102, 25104]
+  legs['meta_bogus'] stored@[25046] reads@[25108]
+  legs['meta_default'] stored@[25045] reads@[25103]
+  legs['meta_list'] stored@[25043] reads@[25095, 25051, 25056]
+  UNREAD legs['subj0_keys'] stored@[25194] reads@[]
+  legs['subj0_read'] stored@[25091] reads@[25188]
+
+== pwctl_tools_r86_entry ==
+  UNREAD entry['failures'] stored@[25448] reads@[]
+  UNREAD entry['legs'] stored@[25447] reads@[]
+  UNREAD entry['subjects'] stored@[25230] reads@[]
+  UNREAD entry['tools'] stored@[25213] reads@[]
+  legs['cli_devnull'] stored@[25244] reads@[25343]
+  legs['cli_pipe'] stored@[25248] reads@[25355]
+  legs['cli_quit'] stored@[25246] reads@[25349]
+  legs['jack_badopt'] stored@[25267] reads@[25385, 25388]
+  legs['jack_bogus'] stored@[25268] reads@[25391]
+  UNREAD legs['jack_help'] stored@[25265] reads@[]
+  UNREAD legs['jack_noargs'] stored@[25266] reads@[]
+  UNREAD legs['jack_p'] stored@[25257] reads@[]
+  UNREAD legs['jack_r'] stored@[25264] reads@[]
+  UNREAD legs['jack_s_only'] stored@[25259] reads@[]
+  UNREAD legs['jack_sp'] stored@[25258] reads@[]
+  UNREAD legs['jack_v'] stored@[25260] reads@[]
+  UNREAD legs['jack_v_preset'] stored@[25263] reads@[]
+  UNREAD legs['jack_vv'] stored@[25261] reads@[]
+  UNREAD legs['lk_I_alone'] stored@[25282] reads@[]
+  legs['lk_after_unlink'] stored@[25297] reads@[25437]
+  legs['lk_bogus'] stored@[25278] reads@[25410]
+  legs['lk_census'] stored@[25289] reads@[25399]
+  legs['lk_create'] stored@[25271] reads@[25398, 25401]
+  legs['lk_d_link'] stored@[25294] reads@[25435]
+  legs['lk_d_port'] stored@[25292] reads@[25430]
+  legs['lk_dup'] stored@[25275] reads@[25403]
+  legs['lk_junkprops'] stored@[25299] reads@[25441]
+  legs['lk_junkprops_census'] stored@[25306] reads@[25443]
+  UNREAD legs['lk_junkprops_unlink'] stored@[25308] reads@[]
+  UNREAD legs['lk_list'] stored@[25284] reads@[]
+  UNREAD legs['lk_list_I'] stored@[25285] reads@[]
+  UNREAD legs['lk_usage'] stored@[25281] reads@[]
+  UNREAD legs['lk_v_alone'] stored@[25283] reads@[]
+  legs['top_batch'] stored@[25232] reads@[25313]
+  legs['top_batch0'] stored@[25234] reads@[25320]
+  legs['top_batch_term'] stored@[25236] reads@[25325]
+  legs['top_tui_kill'] stored@[25241] reads@[25338]
+  legs['top_tui_term'] stored@[25239] reads@[25332]
+
+== dynamic leg keys ==
+  L24298: legs[f"ls_{cls}"]
+  L24336: legs[f"dump_full{rep}"]
+  L24344: legs[f"dump_full{rep}"]
+  L24348: legs[f"dump_full{rep}"]
+  L24412: legs[f"ls_{cls}"]
+  L24416: legs[f"ls_{cls}"]
+  L24423: legs[f"ls_{cls}"]
+  L24456: legs[f"dump_full{rep}"]
+
+== self_serials occurrences (whole file) ==
+  L24327: self_serials = []
+  L24340: "self_serials": sorted(
+  L24343: self_serials.append({s for s in
+  L24345: ["self_serials"]})
+  L24350: self_serials.append(set())
+
+== re_vol occurrences ==
+  L24611: legs["re_vol"] = enu(nid, "Props")
+
+== specific suspect lines ==
+  L23917:     rec = {"argv": " ".join(str(a) for a in argv)}
+  L23964:     rec = {"argv": " ".join(str(a) for a in argv), "sent": label,
+  L24014:     return _pwctl_r86_run(["pw-cli", *[str(a) for a in args]],
+  L24019:     return _pwctl_r86_run(["pw-metadata", *[str(a) for a in args]],
+  L24094:     return [int(m.group(1)) for m in re.finditer(
+  L24181:         gone = {nm: nm not in sinks_now for nm in (loads or {})}
+  L24250:     return {p.get("name"): pid for pid, p in
+  L24418:                 any(t != cls for _, t in rows):
+  L24493:         ok = all(k in (l.get("stdout") or "") for k in
+  L24529:             f"missing tools: {[t for t, p in tools.items() if not p]}")
+  L24767:             f"missing tools: {[t for t, p in tools.items() if not p]}")
+  L24827:                     ["pactl", *[str(x) for x in a]], 8.0)
+  L24898:                 (a for _, a in series), default=None)
+  L24918:                                    for k, r in regs.items()}
+  L25028:             f"missing tools: {[t for t, p in tools.items() if not p]}")
+  L25052:                                 and [int(m.group(2)) for m in
+  L25184:             not all("id:0" in r for r in rows0):
+  L25217:             f"missing tools: {[t for t, p in tools.items() if not p]}")
+  L25363:         got = dict(m for m in re.findall(
+  L25367:                 got.get(k) != v for k, v in want.items()):
+== pwctl_addr_r86_entry ==
+  stored keys: 28; literal-read: 18; dynamic-read candidates: 16
+  RESIDUAL stored-never-read: ['failures', 'legs', 'meta_store_ids', 'ns_leaf', 'tools']
+
+== pwctl_params_r86_entry ==
+  stored keys: 43; literal-read: 16; dynamic-read candidates: 27
+  RESIDUAL stored-never-read: ['failures', 'legs', 'mk_self_loop', 're_vol', 'tools']
+
+== pwctl_dsp_r86_entry ==
+  stored keys: 19; literal-read: 9; dynamic-read candidates: 0
+  RESIDUAL stored-never-read: ['failures', 'legs', 'pactl_after_cv50', 'player_alive_at_end', 'player_exit', 'tap_exit', 'tap_peak_all', 'tap_stderr_tail', 'tap_windows', 'tools']
+
+== pwctl_meta_r86_entry ==
+  stored keys: 26; literal-read: 20; dynamic-read candidates: 0
+  RESIDUAL stored-never-read: ['failures', 'legs', 'm_over', 'm_typed', 'subj0_keys', 'tools']
+
+== pwctl_tools_r86_entry ==
+  stored keys: 38; literal-read: 19; dynamic-read candidates: 15
+  RESIDUAL stored-never-read: ['failures', 'legs', 'lk_junkprops_unlink', 'subjects', 'tools']
+
+== 8. patch generation + round-trip ==
+== git apply --check (live working tree) ==
+7	18	corpus/fixtures/measure_audio.py
+rc=0
+
+== patch -p1 round-trip on a scratch copy ==
+patching file corpus/fixtures/measure_audio.py
+byte-identical to folded
+e35b0c2636b28ce292a20a27960f1179a08ff6af309657fe404337a73dc50c1b  scratch/corpus/fixtures/measure_audio.py
+e35b0c2636b28ce292a20a27960f1179a08ff6af309657fe404337a73dc50c1b  folded/measure_audio.py
+== 9. CLI wiring check ==
+== folded --help exposes the r86 flag ==
+help rc=0 ; occurrences of --probe-pwctl-r86: 2
+
+== probe-mutex sum: same basename required (argparse prog) ==
+base rc=2
+folded rc=2
+identical stderr/usage
+measure_audio.py: error: choose one probe mode
+== 10. hash census ==
+d76119c6832ebd60e970931758655c42f29f3413d267620f738cb9b29a43695b  sha256.txt
+run-all complete

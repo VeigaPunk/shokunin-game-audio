@@ -1,0 +1,50 @@
+LABRAT PROBE (probeParent's single read-only ufo-labrat, agent cb5ec686)
+========================================================================
+Substrate: grep/read tools only; no exec. Files created/modified: none.
+
+H1 — self_serials accumulator is write-only: NOT-FALSIFIED
+Step: `grep -n 'self_serials'` on the pinned file -> exactly 5 matches:
+- 24327| self_serials = []
+- 24340| "self_serials": sorted(   <- dict key string inside
+                                   legs[f"dump_full{rep}"], not a variable ref
+- 24343| self_serials.append({s for s in
+- 24345| ["self_serials"]})          <- continuation: reads the receipt dict
+- 24350| self_serials.append(set())
+Read of lines 24330-24354 confirms the receipt
+legs["dump_full{rep}"]["self_serials"] is built at 24340-24342 purely from
+`selfs` (parsed pw-dump output); the accumulator at 24343-24345 copies FROM
+the receipt, never the reverse. No load of the name `self_serials` as a
+value exists anywhere in the file. No counterexample found; deleting the
+three write sites (24327, 24343-24345, 24350) cannot change any recorded
+receipt.
+
+H2 — r86 lock is a fixed repo path: NOT-FALSIFIED
+Read of 24118-24136: `path = ROOT / "live" / "measure_audio-pwctl-r86.lock"`
+(line 24124); no tempfile/gettempdir/TMPDIR inside the body (the only
+"TMPDIR" hits at 24120-24122 are docstring text). `grep
+tempfile|gettempdir|TMPDIR` confirms the contrast: line 14764 r82, 19846
+r84, 22318 r85 all use Path(tempfile.gettempdir()) / ...
+Exact resolved path (with a correction to the hypothesis): ROOT =
+Path(__file__).resolve().parents[1] (line 26).
+- For the working copy corpus/fixtures/measure_audio.py: parents[1] =
+  corpus/ -> corpus/live/measure_audio-pwctl-r86.lock — matching the
+  hypothesis's claim and the docstring "lives under corpus/live/".
+- For the pinned file itself
+  corpus/live/r86-simplifier/proofs/base-measure_audio.py: parents[1] =
+  corpus/live/r86-simplifier/ ->
+  corpus/live/r86-simplifier/live/measure_audio-pwctl-r86.lock. The
+  hypothesis's stated absolute path is only correct for the fixtures
+  copy; this is a path-derivation nuance, not a falsification of the
+  fixed-path claim.
+[Seat note: the lock proof L1-L5 therefore imports the SHIPPED
+corpus/fixtures/measure_audio.py (load path) so the resolved path is the
+lane path, and the two-worker test confirms it empirically.]
+
+H3 — dead constants: NOT-FALSIFIED
+`grep -n 'PWCTL_R86_(LINK_WAIT_S|TAP_WAIT_S|STREAM_WAIT_S)'` -> 4 matches:
+- 23852| PWCTL_R86_LINK_WAIT_S = 5.0   — definition only, zero loads
+- 23853| PWCTL_R86_TAP_WAIT_S = 6.0    — definition only, zero loads
+- 23854| PWCTL_R86_STREAM_WAIT_S = 8.0 — definition
+- 24805| tag, timeout_s=PWCTL_R86_STREAM_WAIT_S) — the single load
+No counterexample for any hypothesis. Cleanup status: N/A (read-only;
+nothing to remove).
