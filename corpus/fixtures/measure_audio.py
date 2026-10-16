@@ -43785,6 +43785,2124 @@ def _pulsecli_r96_cork_entry():
     entry["failures"] = failures
     return entry
 
+# r97: the WIREPLUMBER POLICY LATTICE — the policy layer every other
+#     lane's laws ride on, measured ONLY against a PRIVATE PipeWire
+#     core + PRIVATE WirePlumber pair (own runtime dir => own socket;
+#     the operator's daemons are never signalled, restarted or
+#     reconfigured and no r97a_* object ever enters the shared graph).
+#     The r97 scout measured the surface; the r97 boundary re-armed it
+#     under load and falsified two claims — this family encodes ONLY
+#     the boundary-surviving cells, at the boundary's corrected values:
+#     (1) `WIREPLUMBER_CONFIG_DIR`/`DATA_DIR` REPLACE the search path
+#     (V1/V2/V5), and the empty-CONFIG_DIR failure is rc 78 with
+#     `Could not locate configuration file 'wireplumber.conf'` — the
+#     scout's three-message chain (`no modules loaded` -> `can't find
+#     protocol` -> `Failed to connect`) belongs to a CORE without
+#     `context.modules` and exits 69, so it is armed as that shape
+#     (L1/L2) and asserted ABSENT from the conf-dir shape; (2) a private
+#     WirePlumber needs only a private XDG_CONFIG_HOME + runtime dir
+#     (the user config dir is resolved from $XDG_CONFIG_HOME, else
+#     $HOME/.config — armed through a shim HOME so the operator's own
+#     fragment dir is never read); (3) a private core MUST keep
+#     `module.access` (disabled => socket present, no client answer);
+#     (4) default-node ranking is `priority.session`, ELSE
+#     `priority.driver`, else 0 — a driver-only 999 outranks a
+#     session=100 incumbent AND keeps against a session=200 newcomer —
+#     a tie keeps the incumbent, an explicit `wpctl set-default`
+#     outranks every later priority, and the configured default is
+#     DURABLE only after the state file flushes (the boundary's ~1 s
+#     race: restart inside the window loses the configured choice and
+#     leaves NO configured row); (5) `pw-cat --target` is an
+#     `object.serial` while `node.target` is a node id — the same
+#     number means different things in the two namespaces and each
+#     misses SILENTLY into the default sink; the failure envelope has
+#     three faces (silent fallback rc 0 / `-2 defined target not
+#     found` + node destruction under `node.dont-fallback` / a silent
+#     wait under `linger`); (6) `wpexec` is a curated sandbox (no `_G`,
+#     no io/load/dofile/require_api/rawget/unpack, `debug` present, Lua
+#     5.5) whose runtime errors are OPAQUE (rc 70 + the bare string
+#     `Lua runtime error`) while compile errors carry a location, and
+#     whose `Settings.get_*` is UNBOUND (false/0.0/"" before and after a
+#     verified `wpctl settings` write) — independent of a policy
+#     daemon; (7) the settings lattice is 25 keys published twice
+#     (`schema-sm-settings` schema / `sm-settings` values), and the
+#     `sm-settings` metadata object — never `wpctl status`'s exit
+#     status, which is rc 0 with an empty listing while WirePlumber is
+#     DOWN — is the WirePlumber-up witness. Deliberately NOT armed
+#     (boundary §8): `linking.follow-default-target` and
+#     `linking.allow-moving-streams` as behavioural gates (both inert
+#     3/3 in the plain-pw-cat shape — the leg records the observation
+#     and arms only the settings read-back).
+#
+#     Leg census: 69 top-level observation keys across the 5 entries
+#     (arming 14 / defaults 15 / linking 21 / wpexec 15 / settings 4).
+#     The rule, so the receipt can be recounted: the named context keys
+#     (probe, contention, oracle_at_start, foreign_r97a_nodes,
+#     inventory, loadavg, private_root, conf_paths, starts, pair,
+#     wp_restarts, stops, purge_before, own_procs_after, shared_census,
+#     coverage_blocked, failures, blocked, unloads, residual_destroy)
+#     are NOT counted; the custody sub-records that carry an observation
+#     each (a1_core, a2_stop_wp, d9_lag_s, l7_node_gone, w14_wp_stop,
+#     own_nodes_before_teardown, setup) ARE. The pre-measurement "63"
+#     headline in the first draft of this header was arithmetic drift —
+#     the receipt leg keys are the record (r89 fold convention).
+#
+# A NEW parallel ledger family; prior rows untouched; every r76-r89
+# guard inherited (seat-owned r97a_<pid> names, name-verified unload
+# paths where pactl is used at all, never pactl set-default-*, bounded
+# process groups, environ-aware teardown guards). The family lock is a
+# FIXED lane path under corpus/live/ (the r84 F1 3-seat consensus —
+# never TMPDIR). All claims are the r97 boundary's THIS-HOST survivals
+# (PipeWire 1.6.8, WirePlumber 0.5.17, Lua 5.5, python 3.14); volatile
+# text (ids, serials, nsec counters, wall times, loadavg, foreign
+# names) is recorded, never armed.
+
+WPPOL_R97_PID = os.getpid()
+WPPOL_R97_TAG = f"r97a_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_A = f"r97a_sa_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_B = f"r97a_sb_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_C = f"r97a_sc_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_D = f"r97a_sd_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_E = f"r97a_se_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_F = f"r97a_sf_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_G = f"r97a_sg_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_H = f"r97a_sh_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_I = f"r97a_si_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_J = f"r97a_sj_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_K = f"r97a_sk_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_P = f"r97a_sp_{WPPOL_R97_PID}"
+WPPOL_R97_SINK_Q = f"r97a_sq_{WPPOL_R97_PID}"
+WPPOL_R97_STREAM = f"r97a_str_{WPPOL_R97_PID}"
+WPPOL_R97_OWN_SUFFIX = f"_{WPPOL_R97_PID}"   # every own name ends so
+WPPOL_R97_BOGUS = "99999"           # never a live serial/id (guarded)
+WPPOL_R97_WP_READY_CAP = 30.0       # sm-settings gate, under host load
+WPPOL_R97_VARIANT_CAP = 8.0         # one bounded arming variant
+WPPOL_R97_ACCESS_CAP = 6.0          # the no-answer class bound
+WPPOL_R97_FLUSH_CAP = 8.0           # state-file row wait (lag ~1 s)
+
+# The exact Lua inventory lines of the r97 scout, cross-witnessed
+# byte-for-byte by the r97 boundary in BOTH arms (39 present / 26
+# absent, same order) — the sandbox's closed surface.
+WPPOL_R97_LUA_FOUND = (
+    "Core=table Settings=table Log=table LocalModule=function "
+    "LocalNode=function SpaDevice=function ObjectManager=function "
+    "Node=function Device=function Link=function table=table string=table "
+    "math=table os=table debug=table require=function print=function "
+    "type=function pairs=function ipairs=function next=function "
+    "select=function pcall=function xpcall=function error=function "
+    "assert=function setmetatable=function getmetatable=function "
+    "tonumber=function tostring=function _VERSION=string GLib=table "
+    "utf8=table Script=table Feature=table Features=table Interest=function "
+    "Constraint=function ImplMetadata=function")
+WPPOL_R97_LUA_MISSING = (
+    "StaticObject Object Client Metadata Session Endpoint SiLink SiAdapter "
+    "SiNode Wp utils io load loadstring dofile require_api rawget rawset "
+    "unpack _G _ENV json spa GObject bit32 ImplModule")
+WPPOL_R97_LUA_ENV = "ENV=table G=nil VERSION=Lua 5.5"
+WPPOL_R97_LUA_GETREG = "debug.getregistry=function"
+# The 25-key lattice, verbatim from the boundary's f_settings receipt
+# (install-scoped: the private instance and the operator's shared
+# instance list the same names).
+WPPOL_R97_SETTINGS_KEYS = [
+    "node.stream.restore-props", "node.stream.default-capture-volume",
+    "bluetooth.autoswitch-to-headset-profile",
+    "linking.role-based.duck-level", "device.restore-routes",
+    "linking.follow-default-target", "node.stream.restore-target",
+    "node.restore-default-targets", "device.routes.default-source-volume",
+    "linking.allow-moving-streams", "device.restore-profile",
+    "device.routes.default-sink-volume",
+    "monitor.alsa.autodetect-hdmi-channels", "linking.pause-playback",
+    "node.features.audio.control-port", "monitor.camera-discovery-timeout",
+    "node.stream.default-playback-volume", "node.features.audio.no-dsp",
+    "device.routes.mute-on-alsa-playback-removed",
+    "bluetooth.use-persistent-storage", "node.features.audio.monitor-ports",
+    "device.routes.mute-on-bluetooth-playback-removed",
+    "bluetooth.profile-preference", "node.features.audio.mono",
+    "node.stream.default-media-role"]
+WPPOL_R97_SETTINGS_SHA = (
+    "56526540bdc17f5287f59d057edebf22d5de61653f622dc990a28e382db48a46")
+WPPOL_R97_PROBE_KEYS = [
+    "linking.follow-default-target", "node.stream.restore-props",
+    "node.features.audio.no-dsp", "device.routes.default-sink-volume",
+    "bluetooth.profile-preference", "node.stream.default-media-role"]
+
+# The r97 arming log marks (the boundary's §2.1 correction set).
+WPPOL_R97_MARKS = (
+    "no modules loaded from context.modules",
+    "can't find protocol 'PipeWire:Protocol:Native'",
+    "Failed to connect to PipeWire",
+    "Could not locate configuration file 'wireplumber.conf'",
+    "Could not locate script 'sm-objects.lua'",
+    "failed to load component",
+    "opening config file:",
+    "opening fragment file:",
+    "using configuration file:",
+)
+
+
+def _wppol_r97_is_own(name):
+    """Seat-ownership predicate for node names: `r97a_`-prefixed AND
+    carrying THIS pid's suffix (the tag `r97a_<pid>` is not a substring
+    of `r97a_sa_<pid>` — a tag-substring filter silently matches
+    nothing)."""
+    return bool(name) and name.startswith("r97a_") and \
+        name.endswith(WPPOL_R97_OWN_SUFFIX)
+
+
+def _wppol_r97_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude). A second --probe-wppol-r97 waits HERE."""
+    path = ROOT / "live" / "measure_audio-wppol-r97.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={WPPOL_R97_PID} tag={WPPOL_R97_TAG}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _wppol_r97_errclass(text):
+    """r97-local error classes first, then the inherited r88 chain."""
+    for name, pat in (
+            ("wppol_config_missing",
+             r"Could not locate configuration file '[^']+'"),
+            ("wppol_script_missing", r"Could not locate script '[^']+'"),
+            ("wppol_lua_runtime", r"^Lua runtime error$"),
+            ("wppol_lua_compile", r"Failed to compile: \[string [^\]]+\]"),
+            ("wppol_connect", r"Failed to connect to PipeWire"),
+            ("wppol_json_arg", r"script argument must be a JSON object"),
+            ("wppol_target_missing", r"defined target not found")):
+        if re.search(pat, (text or "").strip(), re.M):
+            return name, re.search(pat, text, re.M).group(0).strip()
+    return _btwit_r88_errclass(text or "")
+
+
+def _wppol_r97_norm(text):
+    """Volatile-field scrub: r88's node/seq/id classes plus the
+    nanosecond counters the wireplumber logs carry."""
+    s = _btwit_r88_norm(text or "")
+    s = re.sub(r"\b\d{9,}\b", "<ns>", s)
+    return s
+
+
+# ------------------------------------------------------------ private instance
+def _wppol_r97_root():
+    """One private instance root under $TMPDIR (never the repo): own
+    runtime dir, own XDG dirs, own conf tree. The root path is the seat
+    identity carried by every private process (cmdline for the core,
+    environ for the daemons) and is what the teardown guard checks."""
+    return Path(tempfile.mkdtemp(prefix=f"wppol-r97-{WPPOL_R97_PID}-"))
+
+
+def _wppol_r97_write_conf(root):
+    """Build the private conf tree and return the path map.
+
+    Core conf is a COPY of the shipped `pipewire.conf` (so the fragment
+    dir resolves next to it) plus this seat's fragment; the WirePlumber
+    fragment disables every hardware monitor — a private daemon must
+    never touch the operator's ALSA/bluez/v4l2 devices.
+    """
+    conf = {}
+    pw = root / "conf" / "pw"
+    (pw / f"{WPPOL_R97_TAG}-pipewire.conf.d").mkdir(parents=True)
+    shipped = Path("/usr/share/pipewire/pipewire.conf")
+    (pw / f"{WPPOL_R97_TAG}-pipewire.conf").write_text(
+        shipped.read_text() if shipped.exists() else "")
+    (pw / f"{WPPOL_R97_TAG}-pipewire.conf.d" / "10-r97a.conf").write_text(
+        "## r97a private-core fragment: module.access MUST stay enabled\n"
+        "## (disabled => the socket listens but the core never answers a\n"
+        "## client handshake, r97 boundary B1). rt/profiler/portal off =\n"
+        "## no host-scheduling / desktop-integration side effects.\n"
+        "context.properties = {\n"
+        "  module.rt       = false\n"
+        "  module.profiler = false\n"
+        "  module.portal   = false\n"
+        "}\n")
+    conf["core_conf"] = pw / f"{WPPOL_R97_TAG}-pipewire.conf"
+    conf["core_frag"] = pw / f"{WPPOL_R97_TAG}-pipewire.conf.d" / "10-r97a.conf"
+
+    # access cells: two more core confs, each with its own runtime dir.
+    for cell, access in (("access_off", "  module.access  = false\n"),
+                         ("access_on", "")):
+        d = root / "conf" / f"pw-{cell}"
+        (d / f"{WPPOL_R97_TAG}-{cell}.conf.d").mkdir(parents=True)
+        (d / f"{WPPOL_R97_TAG}-{cell}.conf").write_text(
+            shipped.read_text() if shipped.exists() else "")
+        (d / f"{WPPOL_R97_TAG}-{cell}.conf.d" / "10-cell.conf").write_text(
+            "context.properties = {\n"
+            "  module.rt       = false\n"
+            "  module.profiler = false\n"
+            "  module.portal   = false\n" + access + "}\n")
+        conf[f"core_{cell}"] = d / f"{WPPOL_R97_TAG}-{cell}.conf"
+        conf[f"run_{cell}"] = root / f"run-{cell}"
+
+    # a core with NO context.modules at all — the home of the scout's
+    # three-message chain (boundary §2.1 L1/L2).
+    stub = root / "conf" / "pw-stub"
+    stub.mkdir(parents=True)
+    (stub / f"{WPPOL_R97_TAG}-nomodules.conf").write_text(
+        "## deliberately no context.modules\ncontext.properties = { }\n")
+    conf["core_stub"] = stub / f"{WPPOL_R97_TAG}-nomodules.conf"
+    conf["run_stub"] = root / "run-stub"
+
+    # private WirePlumber fragment (the working arming shape).
+    xdg = root / "conf" / "xdg-config"
+    (xdg / "wireplumber" / "wireplumber.conf.d").mkdir(parents=True)
+    (xdg / "wireplumber" / "wireplumber.conf.d" / "10-r97a.conf").write_text(
+        "wireplumber.profiles = {\n"
+        "  main = {\n"
+        "    hardware.audio = disabled\n"
+        "    hardware.bluetooth = disabled\n"
+        "    hardware.video-capture = disabled\n"
+        "  }\n"
+        "}\n")
+    conf["xdg_config"] = xdg
+    conf["wp_frag"] = (xdg / "wireplumber" / "wireplumber.conf.d"
+                       / "10-r97a.conf")
+    (root / "conf" / "xdg-state").mkdir(parents=True)
+    (root / "conf" / "xdg-data").mkdir(parents=True)
+    conf["xdg_state"] = root / "conf" / "xdg-state"
+    conf["xdg_data"] = root / "conf" / "xdg-data"
+
+    # V1: a config dir with no wireplumber.conf.
+    (root / "conf" / "wp-empty").mkdir(parents=True)
+    conf["wp_empty"] = root / "conf" / "wp-empty"
+    # V2: a config dir with a COPY of the shipped conf + its fragment
+    # dir (so the copy's own fragment is readable) + this seat's own
+    # marker fragment.
+    copy = root / "conf" / "wp-copy"
+    (copy / "wireplumber.conf.d").mkdir(parents=True)
+    wpshipped = Path("/usr/share/wireplumber/wireplumber.conf")
+    (copy / "wireplumber.conf").write_text(
+        wpshipped.read_text() if wpshipped.exists() else "")
+    alsa = Path("/usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf")
+    if alsa.exists():
+        (copy / "wireplumber.conf.d" / "alsa-vm.conf").write_text(
+            alsa.read_text())
+    (copy / "wireplumber.conf.d" / "10-r97a-copy.conf").write_text(
+        "wireplumber.profiles = {\n"
+        "  main = {\n"
+        "    hardware.audio = disabled\n"
+        "    hardware.bluetooth = disabled\n"
+        "    hardware.video-capture = disabled\n"
+        "  }\n"
+        "}\n")
+    conf["wp_copy"] = copy
+    # V5: a data dir holding one unrelated script — the script search
+    # path is replaced too, so `sm-objects.lua` disappears.
+    data = root / "conf" / "wpdata"
+    data.mkdir(parents=True)
+    (data / "r97a_probe.lua").write_text("-- r97a data-dir probe\n")
+    conf["wp_data"] = data
+    # the shim HOME for the no-XDG_CONFIG_HOME leg: the user config dir
+    # is resolved from $HOME/.config, and this fragment keeps the leg
+    # safe (hardware disabled) while proving the path is read.
+    home = root / "conf" / "home"
+    (home / ".config" / "wireplumber" / "wireplumber.conf.d").mkdir(
+        parents=True)
+    (home / ".config" / "wireplumber" / "wireplumber.conf.d"
+     / "10-r97a-user.conf").write_text(
+        "wireplumber.profiles = {\n"
+        "  main = {\n"
+        "    hardware.audio = disabled\n"
+        "    hardware.bluetooth = disabled\n"
+        "    hardware.video-capture = disabled\n"
+        "  }\n"
+        "}\n")
+    conf["home"] = home
+    conf["home_frag"] = (home / ".config" / "wireplumber"
+                         / "wireplumber.conf.d" / "10-r97a-user.conf")
+
+    for sub in ("run", "logs", "scratch", "run-stub", "run-access_off",
+                "run-access_on"):
+        (root / sub).mkdir(parents=True, exist_ok=True)
+    return conf
+
+
+def _wppol_r97_env(root, conf, config_dir=None, data_dir=None,
+                   xdg_config=True, home=None, runtime=None, debug=True):
+    """The private-instance environment. `WIREPLUMBER_CONFIG_DIR` /
+    `DATA_DIR` REPLACE the search path (boundary V1/V2/V5) — they are
+    set only where a leg arms them. `debug=False` strips the daemon log
+    levels: a client leg whose stderr is a byte-armed observable
+    (`wpexec`'s opaque `Lua runtime error`) must not inherit them."""
+    env = dict(os.environ)
+    run = str(runtime or (root / "run"))
+    env.update({
+        "PIPEWIRE_RUNTIME_DIR": run,
+        "XDG_RUNTIME_DIR": run,
+    })
+    for k in ("WIREPLUMBER_DEBUG", "PIPEWIRE_DEBUG"):
+        env.pop(k, None)
+    if debug:
+        env["WIREPLUMBER_DEBUG"] = "I"
+        env["PIPEWIRE_DEBUG"] = "2"
+    for k in ("WIREPLUMBER_CONFIG_DIR", "WIREPLUMBER_DATA_DIR",
+              "PIPEWIRE_REMOTE", "PIPEWIRE_CONFIG_DIR",
+              "PIPEWIRE_DATA_DIR"):
+        env.pop(k, None)
+    if xdg_config:
+        env["XDG_CONFIG_HOME"] = str(conf["xdg_config"])
+    else:
+        env.pop("XDG_CONFIG_HOME", None)
+    env["XDG_STATE_HOME"] = str(conf["xdg_state"])
+    env["XDG_DATA_HOME"] = str(conf["xdg_data"])
+    if config_dir is not None:
+        env["WIREPLUMBER_CONFIG_DIR"] = str(config_dir)
+    if data_dir is not None:
+        env["WIREPLUMBER_DATA_DIR"] = str(data_dir)
+    if home is not None:
+        env["HOME"] = str(home)
+    return env
+
+
+def _wppol_r97_run(argv, timeout_s, env=None, stdin_data=None,
+                   keep_chars=2400, keep_raw=False):
+    """One bounded leg. Own session; SIGKILL of the process group on
+    timeout (never a namespace-blind sweep)."""
+    rec = {"argv": [str(a) for a in argv]}
+    t0 = time.monotonic()
+    try:
+        proc = subprocess.Popen(
+            [str(a) for a in argv], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            env=env, start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    timed = False
+    try:
+        out, err = proc.communicate(input=stdin_data, timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        try:
+            out, err = proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            out, err = b"", b""
+        timed = True
+    rec.update({"rc": proc.returncode, "timed_out": timed,
+                "dur_s": round(time.monotonic() - t0, 3),
+                "stdout": (out or b"")[:keep_chars].decode("utf-8", "replace"),
+                "stderr": (err or b"")[:keep_chars].decode("utf-8", "replace"),
+                "bytes": len(out or b"") + len(err or b"")})
+    if keep_raw:
+        rec["stdout_raw"] = (out or b"")[:1 << 18].decode("utf-8", "replace")
+    return rec
+
+
+def _wppol_r97_spawn(argv, env=None, log=None, root=None):
+    """Spawn a private daemon in its own session, log to file."""
+    lf = open(str(log), "w") if log else subprocess.DEVNULL
+    proc = subprocess.Popen([str(a) for a in argv], stdin=subprocess.DEVNULL,
+                            stdout=lf, stderr=subprocess.STDOUT, env=env,
+                            start_new_session=True)
+    return proc
+
+
+def _wppol_r97_own(root, pid):
+    """True when /proc/<pid> names this private root in its cmdline OR
+    its environ — the boundary's §2.5 guard: a private `wireplumber -c
+    wireplumber.conf -p main` carries NO seat path in its cmdline, its
+    identity lives in the environment. A cmdline-only guard refuses to
+    kill this seat's own daemon."""
+    tag = str(root)
+    try:
+        cmd = Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ")
+    except OSError:
+        cmd = b""
+    try:
+        env = Path(f"/proc/{pid}/environ").read_bytes().replace(b"\0", b"\n")
+    except OSError:
+        env = b""
+    return tag.encode() in cmd or tag.encode() in env
+
+
+def _wppol_r97_kill(root, pid, sig=signal.SIGTERM, grace=4.0):
+    """Guarded kill of one private pid: refuse anything that is not
+    this seat's (never a foreign daemon)."""
+    if pid is None:
+        return {"pid": None, "killed": False, "reason": "no pid"}
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return {"pid": pid, "killed": False, "reason": "already gone"}
+    if not _wppol_r97_own(root, pid):
+        return {"pid": pid, "killed": False, "reason": "REFUSED foreign pid"}
+    try:
+        os.killpg(os.getpgid(pid), sig)
+    except OSError:
+        try:
+            os.kill(pid, sig)
+        except OSError:
+            pass
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < grace:
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return {"pid": pid, "killed": True, "sig": int(sig),
+                    "secs": round(time.monotonic() - t0, 3)}
+        time.sleep(0.1)
+    try:
+        os.killpg(os.getpgid(pid), signal.SIGKILL)
+    except OSError:
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except OSError:
+            pass
+    time.sleep(0.3)
+    return {"pid": pid, "killed": True, "sig": "KILL",
+            "secs": round(time.monotonic() - t0, 3)}
+
+
+def _wppol_r97_start_core(root, conf_path, env, run_dir, tag="core",
+                          cap=20.0):
+    """Start the private core and wait for its socket (never the shared
+    one: the runtime dir is this seat's)."""
+    log = root / "logs" / f"{tag}.log"
+    proc = _wppol_r97_spawn(["pipewire", "-c", str(conf_path)], env=env,
+                            log=log)
+    sock = Path(run_dir) / "pipewire-0"
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < cap:
+        if sock.exists():
+            return {"pid": proc.pid, "up": True, "socket": str(sock),
+                    "secs": round(time.monotonic() - t0, 3),
+                    "log": str(log)}
+        if proc.poll() is not None:
+            return {"pid": proc.pid, "up": False, "rc": proc.returncode,
+                    "log": str(log),
+                    "log_tail": _wppol_r97_log_tail(log)}
+        time.sleep(0.2)
+    return {"pid": proc.pid, "up": False, "timeout": True,
+            "socket_present": sock.exists(), "log": str(log),
+            "log_tail": _wppol_r97_log_tail(log)}
+
+
+def _wppol_r97_start_wp(root, env, tag="wp", profile="main"):
+    log = root / "logs" / f"{tag}.log"
+    proc = _wppol_r97_spawn(["wireplumber", "-c", "wireplumber.conf",
+                             "-p", profile], env=env, log=log)
+    return {"pid": proc.pid, "log": str(log)}
+
+
+def _wppol_r97_log_tail(path, cap=1200):
+    try:
+        return Path(path).read_text(errors="replace")[-cap:]
+    except OSError:
+        return None
+
+
+def _wppol_r97_log_scan(path):
+    """The arming-log lattice: which marks fired, which config file and
+    which fragments were opened."""
+    try:
+        text = Path(path).read_text(errors="replace")
+    except OSError:
+        return None
+    return {
+        "bytes": len(text),
+        "marks": {m: (m in text) for m in WPPOL_R97_MARKS},
+        "config_files": re.findall(r"opening config file: (\S+)", text),
+        "fragments_opened": re.findall(r"opening fragment file: (\S+)", text),
+        "using_config": re.findall(
+            r"using configuration file: (\S+)", text),
+    }
+
+
+def _wppol_r97_variant(root, name, env, cap=WPPOL_R97_VARIANT_CAP):
+    """One bounded arming variant: a private daemon spawned with its own
+    log, run to the cap, then killed by process group. Returns rc, the
+    timing and the log lattice (the observables live in the log)."""
+    log = root / "logs" / f"{name}.log"
+    proc = _wppol_r97_spawn(["wireplumber", "-c", "wireplumber.conf",
+                             "-p", "main"], env=env, log=log)
+    t0 = time.monotonic()
+    timed = False
+    while time.monotonic() - t0 < cap:
+        if proc.poll() is not None:
+            break
+        time.sleep(0.1)
+    else:
+        timed = True
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    rec = {"rc": proc.returncode, "timed_out": timed,
+           "dur_s": round(time.monotonic() - t0, 3),
+           "log": str(log), "scan": _wppol_r97_log_scan(log),
+           "killed": _wppol_r97_kill(root, proc.pid)}
+    return rec
+
+
+def _wppol_r97_dump(env, timeout=15.0):
+    r = _wppol_r97_run(["pw-dump"], timeout, env=env, keep_chars=1 << 26)
+    try:
+        return json.loads(r["stdout"])
+    except ValueError:
+        return None
+
+
+def _wppol_r97_nodes(objs):
+    out = []
+    for o in objs or []:
+        if o.get("type") == "PipeWire:Interface:Node":
+            pr = (o.get("info") or {}).get("props") or {}
+            out.append((o["id"], pr.get("node.name"),
+                        pr.get("priority.session"), pr.get("priority.driver"),
+                        pr.get("object.serial")))
+    return sorted(out)
+
+
+def _wppol_r97_node_by_name(objs, name):
+    for o in objs or []:
+        if o.get("type") == "PipeWire:Interface:Node":
+            pr = (o.get("info") or {}).get("props") or {}
+            if pr.get("node.name") == name:
+                return o
+    return None
+
+
+def _wppol_r97_serial(objs, name):
+    o = _wppol_r97_node_by_name(objs, name)
+    if o is None:
+        return None
+    pr = (o.get("info") or {}).get("props") or {}
+    return pr.get("object.serial")
+
+
+def _wppol_r97_node_id(objs, name):
+    o = _wppol_r97_node_by_name(objs, name)
+    return None if o is None else o["id"]
+
+
+def _wppol_r97_meta_rows(objs, meta_name):
+    for o in objs or []:
+        if o.get("type") == "PipeWire:Interface:Metadata":
+            if (o.get("props") or {}).get("metadata.name") == meta_name:
+                return {"id": o["id"],
+                        "rows": o.get("metadata") or []}
+    return None
+
+
+def _wppol_r97_default(objs):
+    m = _wppol_r97_meta_rows(objs, "default") or {"rows": []}
+    out = {}
+    for r in m["rows"]:
+        v = r.get("value")
+        out[r.get("key")] = (v.get("name") if isinstance(v, dict) else v)
+    return out
+
+
+def _wppol_r97_links(objs):
+    """[(out_name, in_name)] from the Link objects of the private graph."""
+    ids = {}
+    for o in objs or []:
+        if o.get("type") == "PipeWire:Interface:Node":
+            pr = (o.get("info") or {}).get("props") or {}
+            ids[o["id"]] = pr.get("node.name")
+    out = []
+    for o in objs or []:
+        if o.get("type") == "PipeWire:Interface:Link":
+            pr = (o.get("info") or {}).get("props") or {}
+            out.append((ids.get(pr.get("link.output.node")),
+                        ids.get(pr.get("link.input.node"))))
+    return sorted(set(out))
+
+
+def _wppol_r97_state_file(conf):
+    p = Path(conf["xdg_state"]) / "wireplumber" / "default-nodes"
+    try:
+        return p.read_text()
+    except OSError:
+        return None
+
+
+def _wppol_r97_wait_default(env, name, cap=WPPOL_R97_FLUSH_CAP):
+    t0 = time.monotonic()
+    val = None
+    while time.monotonic() - t0 < cap:
+        objs = _wppol_r97_dump(env)
+        if objs is not None:
+            val = _wppol_r97_default(objs).get("default.audio.sink")
+            if val == name:
+                return True, val, round(time.monotonic() - t0, 3)
+        time.sleep(0.2)
+    return False, val, round(time.monotonic() - t0, 3)
+
+
+def _wppol_r97_wait_node_gone(env, name, cap=4.0):
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < cap:
+        objs = _wppol_r97_dump(env)
+        if objs is not None and _wppol_r97_node_by_name(objs, name) is None:
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.2)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _wppol_r97_wait_wp_ready(env, cap=WPPOL_R97_WP_READY_CAP):
+    """The WirePlumber readiness gate: the `sm-settings` metadata object
+    that the `sm-objects` component publishes. `wpctl status`'s exit
+    status is NOT a gate (boundary §2.4: rc 0 with an empty listing
+    while WirePlumber is down)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < cap:
+        objs = _wppol_r97_dump(env)
+        if objs is not None:
+            if _wppol_r97_meta_rows(objs, "sm-settings") is not None:
+                return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.25)
+    return False, round(time.monotonic() - t0, 3)
+
+
+class _WppolR97Cli:
+    """One long-lived `pw-cli` in the PRIVATE graph — created nodes
+    outlive the command (closing pw-cli's stdin destroys them)."""
+
+    def __init__(self, root, env):
+        self.log = root / "logs" / "pwcli.log"
+        self._f = open(self.log, "w")
+        self.p = subprocess.Popen(
+            ["pw-cli"], stdin=subprocess.PIPE, stdout=self._f,
+            stderr=subprocess.STDOUT, env=env, start_new_session=True,
+            text=True)
+
+    def cmd(self, line, settle=0.5):
+        try:
+            self.p.stdin.write(line + "\n")
+            self.p.stdin.flush()
+        except (BrokenPipeError, ValueError):
+            return False
+        time.sleep(settle)
+        return self.p.poll() is None
+
+    def close(self):
+        try:
+            self.p.stdin.close()
+        except Exception:
+            pass
+        try:
+            self.p.wait(timeout=6)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(self.p)
+        try:
+            self._f.close()
+        except Exception:
+            pass
+
+
+def _wppol_r97_null(cli, name, session=None, driver=None, extra=""):
+    """One null sink in the private graph (the boundary's shape)."""
+    props = (f"{{ factory.name=support.null-audio-sink node.name={name} "
+             f"node.description={name} media.class=Audio/Sink")
+    if session is not None:
+        props += f" priority.session={session}"
+    if driver is not None:
+        props += f" priority.driver={driver}"
+    props += f" {extra} }}"
+    return cli.cmd(f"create-node adapter {props}")
+
+
+def _wppol_r97_purge(env, cli, root):
+    """Destroy every own-namespace node (a leftover sink is the r97b
+    c_defaults contamination class — the incumbent must never be a
+    stale one)."""
+    objs = _wppol_r97_dump(env)
+    gone = []
+    for nid, nm, _s, _d, _ser in _wppol_r97_nodes(objs):
+        if _wppol_r97_is_own(nm):
+            _wppol_r97_run(["pw-cli", "destroy", nid], 8.0, env=env,
+                           keep_chars=200)
+            gone.append({"id": nid, "name": nm})
+    if gone:
+        time.sleep(0.5)
+    return gone
+
+
+def _wppol_r97_stream_leg(env, root, tag, target=None, props=(),
+                          settle=0.8, cap=5.0):
+    """One bounded pw-cat stream leg: stdin held open (a raw stream
+    exits on EOF), stdout drained by DEVNULL, links + node presence read
+    from the private dump, then the process group killed. `alive_at_cap`
+    is the linger-class witness."""
+    argv = ["pw-cat", "-p", "--raw", "--rate", "48000", "--channels", "1",
+            "--format", "s16"]
+    if target is not None:
+        argv += ["--target", str(target)]
+    argv += ["-P", f"node.name={WPPOL_R97_STREAM}"]   # the leg's own name
+    for p in props:
+        argv += ["-P", p]
+    argv += ["-"]
+    proc = subprocess.Popen(argv, stdin=subprocess.PIPE,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE, env=env,
+                            start_new_session=True)
+    rec = {"tag": tag, "argv": " ".join(argv), "loadavg": str(
+        _alsapw_r84_loadavg())}
+    time.sleep(settle)
+    objs = _wppol_r97_dump(env)
+    node = _wppol_r97_node_by_name(objs, WPPOL_R97_STREAM)
+    rec["stream_node"] = None if node is None else {
+        k: v for k, v in ((node.get("info") or {}).get("props") or {}).items()
+        if k in ("node.name", "target.object", "node.target", "object.id",
+                 "object.serial", "node.dont-fallback", "node.linger",
+                 "node.autoconnect", "media.role")}
+    rec["links"] = [list(p) for p in _wppol_r97_links(objs)
+                    if WPPOL_R97_STREAM in (p[0], p[1])]
+    rec["default"] = _wppol_r97_default(objs).get("default.audio.sink")
+    rec["alive_at_settle"] = proc.poll() is None
+    err = b""
+    try:
+        os.set_blocking(proc.stderr.fileno(), False)
+        err = os.read(proc.stderr.fileno(), 65536) or b""
+    except (BlockingIOError, OSError):
+        pass
+    if proc.poll() is None:
+        t0 = time.monotonic()
+        while time.monotonic() - t0 < cap:
+            time.sleep(0.1)
+            try:
+                chunk = os.read(proc.stderr.fileno(), 65536)
+            except (BlockingIOError, OSError):
+                chunk = b""
+            if chunk:
+                err += chunk
+            if proc.poll() is not None:
+                break
+    rec["alive_at_cap"] = proc.poll() is None
+    if rec["alive_at_cap"]:
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    try:
+        err += os.read(proc.stderr.fileno(), 65536) or b""
+    except (BlockingIOError, OSError):
+        pass
+    rec["rc"] = proc.returncode
+    rec["stderr"] = err[:1200].decode("utf-8", "replace")
+    rec["errclass"] = _wppol_r97_errclass(rec["stderr"])
+    rec["node_after"] = None
+    objs2 = _wppol_r97_dump(env)
+    if objs2 is not None:
+        rec["node_after"] = (_wppol_r97_node_by_name(objs2, WPPOL_R97_STREAM)
+                             is not None)
+    try:
+        proc.stderr.close()
+    except Exception:
+        pass
+    return rec
+
+
+def _wppol_r97_shared_env():
+    """The operator's session (default XDG_RUNTIME_DIR): drop only the
+    PIPEWIRE_* / WIREPLUMBER_* overrides. READ-ONLY, always."""
+    return {k: v for k, v in os.environ.items()
+            if k not in ("PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE",
+                         "PIPEWIRE_CONFIG_DIR", "PIPEWIRE_DATA_DIR",
+                         "WIREPLUMBER_CONFIG_DIR", "WIREPLUMBER_DATA_DIR")}
+
+
+def _wppol_r97_shared_census():
+    """Read-only: does any r97a_ object exist in the operator's graph,
+    and are the shared daemons still the ones that were there? An
+    UNREADABLE graph is a named blocked class, never a pass (the r97b
+    window measured the shared instance intermittently slow under
+    load)."""
+    env = _wppol_r97_shared_env()
+    objs = _wppol_r97_dump(env, timeout=25.0)
+    hits = []
+    for o in objs or []:
+        pr = (o.get("info") or {}).get("props") or {}
+        for v in pr.values():
+            if isinstance(v, str) and "r97a_" in v:
+                hits.append((o.get("id"), o.get("type"), v))
+                break
+    procs = {}
+    try:
+        r = _wppol_r97_run(["ps", "-eo", "pid,lstart,args"], 20.0,
+                           env=env, keep_chars=1 << 16)
+        for ln in r.get("stdout", "").splitlines():
+            for nm in ("pipewire", "wireplumber", "pipewire-pulse"):
+                if f"/usr/bin/{nm}" in ln and "grep" not in ln:
+                    procs.setdefault(nm, []).append(ln.strip()[:120])
+    except Exception:
+        pass
+    return {"objects": (len(objs) if objs is not None else None),
+            "unreadable": objs is None, "own_hits": hits,
+            "shared_daemons": procs}
+
+
+def _wppol_r97_own_procs(root):
+    """Every live process whose cmdline OR environ names this private
+    root (the exit census; never a namespace-blind sweep)."""
+    out = []
+    for p in sorted(Path("/proc").glob("[0-9]*")):
+        try:
+            pid = int(p.name)
+        except ValueError:
+            continue
+        if _wppol_r97_own(root, pid):
+            try:
+                cmd = Path(f"/proc/{pid}/cmdline").read_bytes()
+            except OSError:
+                continue
+            out.append({"pid": pid,
+                        "cmd": cmd.replace(b"\0", b" ").decode(
+                            "utf-8", "replace")[:120]})
+    return out
+
+
+def _wppol_r97_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, and the foreign r97a census (another seat's residue is a
+    witness, never a verdict)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r97a_nodes": sorted(
+                n for n in names if "r97a_" in n
+                and f"_{WPPOL_R97_PID}" not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _wppol_r97_teardown(entry, failures, root, conf, env, cli=None):
+    """Custody: purge own nodes, stop the private pair with the
+    environ-aware guard, then census own processes and the operator's
+    graph (a private lane must leave zero r97a_ objects behind)."""
+    if cli is not None:
+        _wppol_r97_purge(env, cli, root)
+        cli.close()
+    for tag in ("wp", "core"):
+        pid = None
+        pf = root / "run" / f"{tag}.pid"
+        try:
+            pid = int(pf.read_text().strip())
+        except (OSError, ValueError):
+            pid = None
+        entry.setdefault("stops", {})[tag] = _wppol_r97_kill(root, pid,
+                                                             grace=8.0)
+        try:
+            pf.unlink()
+        except OSError:
+            pass
+    time.sleep(0.5)
+    own = _wppol_r97_own_procs(root)
+    entry["own_procs_after"] = own
+    if own:
+        failures.append(
+            f"teardown: private-instance processes survived: "
+            f"{[p['pid'] for p in own]}")
+    cen = _wppol_r97_shared_census()
+    entry["shared_census"] = cen
+    if cen["unreadable"]:
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: the operator's graph was unreadable in this window "
+            "— shared census unmeasured")
+    elif cen["own_hits"]:
+        failures.append(
+            f"teardown: r97a objects in the operator's graph: "
+            f"{cen['own_hits'][:4]}")
+    entry["failures"] = failures
+    return entry
+
+
+def _wppol_r97_block(entry, failures, msg, root=None, conf=None, env=None,
+                     cli=None):
+    """The named coverage block: stop everything this entry started and
+    record the block (never a fabricated pass)."""
+    if cli is not None:
+        try:
+            _wppol_r97_purge(env, cli, root)
+        except Exception:
+            pass
+        cli.close()
+    if root is not None:
+        for tag in ("wp", "core", "core_stub", "core_access_off",
+                    "core_access_on"):
+            pid = None
+            pf = root / "run" / f"{tag}.pid"
+            try:
+                pid = int(pf.read_text().strip())
+            except (OSError, ValueError):
+                pid = None
+            if pid is not None:
+                _wppol_r97_kill(root, pid)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    entry["failures"] = failures
+    return entry
+
+
+def _wppol_r97_pair_up(entry, failures, root, conf, tag="pair", debug=True):
+    """Arm the private pair and gate it on the `sm-settings` object.
+    Returns (env, ok)."""
+    env = _wppol_r97_env(root, conf, debug=debug)
+    core = _wppol_r97_start_core(root, conf["core_conf"], env, root / "run")
+    entry.setdefault("starts", {})[f"{tag}_core"] = core
+    if not core.get("up"):
+        failures.append(f"{tag}: private core did not answer: {core}")
+        return env, False
+    try:
+        (root / "run" / "core.pid").write_text(str(core["pid"]))
+    except OSError:
+        pass
+    wp = _wppol_r97_start_wp(root, env)
+    entry.setdefault("starts", {})[f"{tag}_wp"] = wp
+    try:
+        (root / "run" / "wp.pid").write_text(str(wp["pid"]))
+    except OSError:
+        pass
+    ready, secs = _wppol_r97_wait_wp_ready(env)
+    entry.setdefault("pair", {})[tag] = {"core_up": True, "wp_ready": ready,
+                                         "wp_ready_s": secs,
+                                         "core_pid": core["pid"],
+                                         "wp_pid": wp["pid"]}
+    if not ready:
+        failures.append(
+            f"{tag}: private WirePlumber never published sm-settings "
+            f"(cap {WPPOL_R97_WP_READY_CAP}s)")
+        return env, False
+    return env, True
+
+
+def _wppol_r97_wait_default_any(env, cap=12.0):
+    """Wait until the policy has (re)selected a default node — the
+    `sm-settings` object is a component-load witness, NOT a policy-ready
+    one (a fresh WirePlumber publishes it before its policy scripts have
+    picked a default)."""
+    t0 = time.monotonic()
+    rows = {}
+    while time.monotonic() - t0 < cap:
+        objs = _wppol_r97_dump(env)
+        if objs is not None:
+            rows = _wppol_r97_default(objs)
+            if rows.get("default.audio.sink"):
+                return rows, round(time.monotonic() - t0, 3)
+        time.sleep(0.25)
+    return rows, round(time.monotonic() - t0, 3)
+
+
+def _wppol_r97_restart_wp(entry, failures, root, conf, env, tag,
+                          fast=False, t_mark=None):
+    pid = None
+    pf = root / "run" / "wp.pid"
+    try:
+        pid = int(pf.read_text().strip())
+    except (OSError, ValueError):
+        pid = None
+    entry.setdefault("wp_restarts", {})[tag] = {
+        "stop": _wppol_r97_kill(root, pid, sig=(signal.SIGKILL if fast
+                                                else signal.SIGTERM),
+                                grace=(1.0 if fast else 8.0))}
+    if t_mark is not None:
+        entry["wp_restarts"][tag]["t_mark_to_restart_s"] = round(
+            time.monotonic() - t_mark, 3)
+    wp = _wppol_r97_start_wp(root, env, tag=f"wp-{tag}")
+    try:
+        pf.write_text(str(wp["pid"]))
+    except OSError:
+        pass
+    ready, secs = _wppol_r97_wait_wp_ready(env)
+    entry["wp_restarts"][tag].update({"wp_pid": wp["pid"],
+                                      "wp_ready": ready,
+                                      "wp_ready_s": secs})
+    if not ready:
+        failures.append(f"{tag}: WirePlumber restart never became ready")
+    return ready
+
+
+# ------------------------------------------------------------------- entries
+def wppol_arming_r97_entry():
+    """The arming law: how a private WirePlumber actually gets its
+    config, plus the two traps the boundary measured — `wpctl status` is
+    not a WirePlumber readiness gate, and a private core must keep
+    `module.access`."""
+    entry = _wppol_r97_entry_head("wppol_arming_r97_probe")
+    failures = []
+    root = _wppol_r97_root()
+    entry["private_root"] = str(root)
+    conf = _wppol_r97_write_conf(root)
+    entry["conf_paths"] = {k: str(v) for k, v in conf.items()}
+    base = _wppol_r97_env(root, conf)
+
+    core = _wppol_r97_start_core(root, conf["core_conf"], base, root / "run")
+    entry["a1_core"] = core
+    if not core.get("up"):
+        return _wppol_r97_block(entry, failures,
+                                "arming: private core did not come up",
+                                root, conf, base)
+    (root / "run" / "core.pid").write_text(str(core["pid"]))
+    wp = _wppol_r97_start_wp(root, base)
+    (root / "run" / "wp.pid").write_text(str(wp["pid"]))
+    ready, secs = _wppol_r97_wait_wp_ready(base)
+    entry["a1_pair_up"] = {"core_up": True, "wp_ready": ready,
+                           "wp_ready_s": secs, "core_pid": core["pid"],
+                           "wp_pid": wp["pid"],
+                           "objects": len(_wppol_r97_dump(base) or [])}
+    if not ready:
+        failures.append("a1_pair_up: private WirePlumber never published "
+                        "the sm-settings metadata object")
+
+    # a2 — `wpctl status` exits 0 with an empty listing while WP is down.
+    entry["a2_stop_wp"] = _wppol_r97_kill(root, wp["pid"])
+    gone_t0 = time.monotonic()
+    sm_gone = False
+    while time.monotonic() - gone_t0 < 8.0:
+        objs = _wppol_r97_dump(base)
+        if objs is not None and _wppol_r97_meta_rows(objs, "sm-settings") \
+                is None:
+            sm_gone = True
+            break
+        time.sleep(0.25)
+    st = _wppol_r97_run(["wpctl", "status"], 12.0, env=base, keep_chars=2000)
+    entry["a2_status_wp_down"] = {
+        "sm_settings_absent": sm_gone, "rc": st.get("rc"),
+        "stdout_head": (st.get("stdout") or "")[:400],
+        "own_rows": [ln for ln in (st.get("stdout") or "").splitlines()
+                     if "r97a_" in ln],
+        "stderr": st.get("stderr"), "dur_s": st.get("dur_s")}
+    if not sm_gone:
+        failures.append("a2_status_wp_down: sm-settings survived the WP kill "
+                        "— the readiness witness is wrong")
+    if st.get("rc") != 0:
+        failures.append("a2_status_wp_down: wpctl status rc "
+                        f"{st.get('rc')} — expected 0 (the core answers)")
+    if not (st.get("stdout") or "").strip():
+        failures.append("a2_status_wp_down: wpctl status printed nothing")
+
+    # a3 — WIREPLUMBER_CONFIG_DIR without wireplumber.conf: rc 78, the
+    # message NAMES the missing file, and the scout's chain is absent.
+    v1 = _wppol_r97_variant(root, "a3-conf-dir-missing",
+                            _wppol_r97_env(root, conf,
+                                           config_dir=conf["wp_empty"]))
+    scan = v1.get("scan")
+    entry["a3_conf_dir_missing"] = {"rc": v1.get("rc"),
+                                    "dur_s": v1.get("dur_s"),
+                                    "scan": scan,
+                                    "log_tail": _wppol_r97_log_tail(
+                                        v1.get("log")),
+                                    "errclass": _wppol_r97_errclass(
+                                        (scan or {}).get("marks") and
+                                        "Could not locate configuration file "
+                                        "'wireplumber.conf'" or "")}
+    if v1.get("rc") != 78:
+        failures.append(f"a3_conf_dir_missing: rc {v1.get('rc')} — expected "
+                        "78 (EX_CONFIG)")
+    if not (scan or {}).get("marks", {}).get(
+            "Could not locate configuration file 'wireplumber.conf'"):
+        failures.append("a3_conf_dir_missing: the naming message is absent")
+    for chain in ("no modules loaded from context.modules",
+                  "can't find protocol 'PipeWire:Protocol:Native'"):
+        if (scan or {}).get("marks", {}).get(chain):
+            failures.append(f"a3_conf_dir_missing: the scout's chain mark "
+                            f"appeared in the conf-dir shape: {chain!r}")
+    if (scan or {}).get("fragments_opened"):
+        failures.append("a3_conf_dir_missing: fragments were opened from an "
+                        "empty config dir")
+
+    # a4 — a config dir WITH a copy of the conf: the override REPLACES
+    # the search path (the copy's fragments load, the shipped dir's do
+    # not).
+    v2 = _wppol_r97_variant(root, "a4-conf-dir-replaces",
+                            _wppol_r97_env(root, conf,
+                                           config_dir=conf["wp_copy"]))
+    scan2 = v2.get("scan")
+    frags = (scan2 or {}).get("fragments_opened") or []
+    entry["a4_conf_dir_replaces"] = {"rc": v2.get("rc"),
+                                     "timed_out": v2.get("timed_out"),
+                                     "scan": scan2}
+    if not any(str(conf["wp_copy"]) in f for f in frags):
+        failures.append("a4_conf_dir_replaces: the copy dir's own fragment "
+                        "was not opened")
+    if any("/usr/share/wireplumber/wireplumber.conf.d" in f for f in frags):
+        failures.append("a4_conf_dir_replaces: the shipped fragment dir was "
+                        "still read — the override did not replace the path")
+    if not (scan2 or {}).get("using_config"):
+        failures.append("a4_conf_dir_replaces: the daemon never reached the "
+                        "config-load stage")
+
+    # a5 — the working shape: shipped fragment + own fragment, both.
+    v3 = _wppol_r97_variant(root, "a5-xdg-config-adds",
+                            _wppol_r97_env(root, conf))
+    scan3 = v3.get("scan")
+    frags3 = (scan3 or {}).get("fragments_opened") or []
+    entry["a5_xdg_config_adds"] = {"rc": v3.get("rc"), "scan": scan3}
+    if not any("/usr/share/wireplumber/wireplumber.conf.d/alsa-vm.conf" in f
+               for f in frags3):
+        failures.append("a5_xdg_config_adds: the shipped fragment was not "
+                        "opened")
+    if not any(str(conf["wp_frag"]) in f for f in frags3):
+        failures.append("a5_xdg_config_adds: the private XDG_CONFIG_HOME "
+                        "fragment was not opened")
+
+    # a6 — no XDG_CONFIG_HOME: the user config dir resolves from HOME
+    # (armed through a shim HOME, so the operator's own fragment dir is
+    # never read — the boundary's V4 leak law, re-armed safely).
+    v4 = _wppol_r97_variant(root, "a6-home-config-read",
+                            _wppol_r97_env(root, conf, xdg_config=False,
+                                           home=conf["home"]))
+    scan4 = v4.get("scan")
+    frags4 = (scan4 or {}).get("fragments_opened") or []
+    entry["a6_home_config_read"] = {"rc": v4.get("rc"), "scan": scan4,
+                                    "shim_frag": str(conf["home_frag"])}
+    if not any(str(conf["home_frag"]) in f for f in frags4):
+        failures.append("a6_home_config_read: the $HOME/.config fragment was "
+                        "not opened without XDG_CONFIG_HOME")
+    if any(str(Path.home() / ".config" / "wireplumber") in f
+           for f in frags4):
+        failures.append("a6_home_config_read: the operator's real config dir "
+                        "was read")
+
+    # a7 — WIREPLUMBER_DATA_DIR replaces the SCRIPT search path too.
+    v5 = _wppol_r97_variant(root, "a7-data-dir-replaces",
+                            _wppol_r97_env(root, conf,
+                                           data_dir=conf["wp_data"]))
+    scan5 = v5.get("scan")
+    entry["a7_data_dir_replaces"] = {"rc": v5.get("rc"), "scan": scan5}
+    if v5.get("rc") != 78:
+        failures.append(f"a7_data_dir_replaces: rc {v5.get('rc')} — expected "
+                        "78")
+    if not (scan5 or {}).get("marks", {}).get(
+            "Could not locate script 'sm-objects.lua'"):
+        failures.append("a7_data_dir_replaces: the missing-script message is "
+                        "absent")
+    if len((scan5 or {}).get("fragments_opened") or []) < 2:
+        failures.append("a7_data_dir_replaces: the fragments were not both "
+                        "opened before the failure")
+
+    # a8/a9 — the home of the scout's chain: a CORE with no
+    # context.modules warns and keeps running; WirePlumber on it exits 69.
+    stub_env = _wppol_r97_env(root, conf, runtime=conf["run_stub"])
+    stub = _wppol_r97_start_core(root, conf["core_stub"], stub_env,
+                                 conf["run_stub"], tag="core_stub", cap=8.0)
+    (root / "run" / "core_stub.pid").write_text(str(stub.get("pid") or 0))
+    time.sleep(1.0)
+    alive = False
+    try:
+        os.kill(stub["pid"], 0)
+        alive = True
+    except OSError:
+        alive = False
+    scan_stub = _wppol_r97_log_scan(root / "logs" / "core_stub.log")
+    entry["a8_core_no_modules"] = {"up": stub.get("up"),
+                                   "alive_after_1s": alive,
+                                   "socket_present":
+                                   Path(conf["run_stub"] / "pipewire-0")
+                                   .exists(),
+                                   "scan": scan_stub}
+    if not (scan_stub or {}).get("marks", {}).get(
+            "no modules loaded from context.modules"):
+        failures.append("a8_core_no_modules: the warning mark is absent")
+    if not alive:
+        failures.append("a8_core_no_modules: the modules-less core did not "
+                        "keep running")
+    l2 = _wppol_r97_variant(root, "a9-wp-on-modules-less-core",
+                            _wppol_r97_env(root, conf,
+                                           runtime=conf["run_stub"]))
+    scan_l2 = l2.get("scan")
+    entry["a9_wp_on_modules_less_core"] = {"rc": l2.get("rc"),
+                                           "scan": scan_l2,
+                                           "errclass": _wppol_r97_errclass(
+                                               (l2.get("stderr") or "")
+                                               + (l2.get("stdout") or ""))}
+    if l2.get("rc") != 69:
+        failures.append(f"a9_wp_on_modules_less_core: rc {l2.get('rc')} — "
+                        "expected 69 (EX_UNAVAILABLE)")
+    if not (scan_l2 or {}).get("marks", {}).get(
+            "Failed to connect to PipeWire"):
+        failures.append("a9_wp_on_modules_less_core: the connect-failure "
+                        "mark is absent")
+    if (scan_l2 or {}).get("marks", {}).get(
+            "can't find protocol 'PipeWire:Protocol:Native'"):
+        failures.append("a9_wp_on_modules_less_core: the middle chain mark "
+                        "appeared")
+    _wppol_r97_kill(root, stub.get("pid"))
+
+    # a10/a11 — module.access is required by a private core.
+    access_off = _wppol_r97_env(root, conf, runtime=conf["run_access_off"])
+    off = _wppol_r97_start_core(root, conf["core_access_off"], access_off,
+                                conf["run_access_off"], tag="core_access_off",
+                                cap=8.0)
+    (root / "run" / "core_access_off.pid").write_text(str(off.get("pid") or 0))
+    sock_off = Path(conf["run_access_off"] / "pipewire-0").exists()
+    d_off = _wppol_r97_run(["pw-dump"], WPPOL_R97_ACCESS_CAP, env=access_off,
+                           keep_chars=400)
+    c_off = _wppol_r97_run(["pw-cli", "ls", "Client"], WPPOL_R97_ACCESS_CAP,
+                           env=access_off, keep_chars=400)
+    entry["a10_access_off"] = {
+        "core_up": off.get("up"), "socket_present": sock_off,
+        "pw_dump": {"rc": d_off.get("rc"), "timed_out": d_off.get("timed_out"),
+                    "bytes": d_off.get("bytes")},
+        "pw_cli": {"rc": c_off.get("rc"), "timed_out": c_off.get("timed_out"),
+                   "bytes": c_off.get("bytes")}}
+    if not off.get("up") or not sock_off:
+        failures.append("a10_access_off: the access-off core never listened "
+                        "(socket absent) — cell unarmed")
+    else:
+        if not (d_off.get("timed_out") and not d_off.get("stdout")):
+            failures.append("a10_access_off: pw-dump answered — expected a "
+                            "bounded hang with no output")
+        if not (c_off.get("timed_out") and not c_off.get("stdout")):
+            failures.append("a10_access_off: pw-cli answered — expected a "
+                            "bounded hang with no output")
+    _wppol_r97_kill(root, off.get("pid"))
+
+    access_on = _wppol_r97_env(root, conf, runtime=conf["run_access_on"])
+    on = _wppol_r97_start_core(root, conf["core_access_on"], access_on,
+                               conf["run_access_on"], tag="core_access_on",
+                               cap=8.0)
+    (root / "run" / "core_access_on.pid").write_text(str(on.get("pid") or 0))
+    c_on = _wppol_r97_run(["pw-cli", "ls", "Client"], 8.0, env=access_on,
+                          keep_chars=800)
+    entry["a11_access_on"] = {"core_up": on.get("up"), "rc": c_on.get("rc"),
+                              "dur_s": c_on.get("dur_s"),
+                              "has_client": "PipeWire:Interface:Client"
+                              in (c_on.get("stdout") or "")}
+    if not on.get("up"):
+        failures.append("a11_access_on: the access-on core never listened — "
+                        "cell unarmed")
+    elif c_on.get("rc") != 0 or not entry["a11_access_on"]["has_client"]:
+        failures.append("a11_access_on: pw-cli ls Client did not answer with "
+                        "a Client object")
+    _wppol_r97_kill(root, on.get("pid"))
+
+    # a12/a13 — the operator's session is untouched (read-only census).
+    cen = _wppol_r97_shared_census()
+    entry["a12_shared_untouched"] = {"objects": cen["objects"],
+                                     "unreadable": cen["unreadable"],
+                                     "own_hits": cen["own_hits"],
+                                     "shared_daemons": cen["shared_daemons"]}
+    if cen["unreadable"]:
+        entry.setdefault("coverage_blocked", []).append(
+            "a12_shared_untouched: the operator's graph was unreadable in "
+            "this window — the shared census is unmeasured")
+    elif cen["own_hits"]:
+        failures.append("a12_shared_untouched: r97a objects in the operator's "
+                        f"graph: {cen['own_hits'][:4]}")
+    _wppol_r97_teardown(
+        entry, failures, root, conf, base)
+    entry["failures"] = failures
+    return entry
+
+
+def wppol_defaults_r97_entry():
+    """Default-node policy: ranking (`priority.session`, else
+    `priority.driver`), the tie law, the explicit default, the state
+    file and the boundary's ~1 s restart race."""
+    entry = _wppol_r97_entry_head("wppol_defaults_r97_probe")
+    failures = []
+    root = _wppol_r97_root()
+    entry["private_root"] = str(root)
+    conf = _wppol_r97_write_conf(root)
+    env, ok = _wppol_r97_pair_up(entry, failures, root, conf)
+    if not ok:
+        return _wppol_r97_block(entry, failures,
+                                "defaults: private pair not ready", root, conf,
+                                env)
+    cli = _WppolR97Cli(root, env)
+    entry["purge_before"] = _wppol_r97_purge(env, cli, root)
+
+    def fresh(*sinks):
+        _wppol_r97_purge(env, cli, root)
+        for nm, sess, drv in sinks:
+            _wppol_r97_null(cli, nm, sess, drv)
+        time.sleep(0.8)
+
+    def obs(tag, want):
+        ok_, val, secs = _wppol_r97_wait_default(env, want)
+        objs = _wppol_r97_dump(env)
+        rec = {"tag": tag, "want": want, "got": val, "ok": ok_,
+               "secs": secs, "default": _wppol_r97_default(objs),
+               "nodes": [n for n in _wppol_r97_nodes(objs)
+                         if _wppol_r97_is_own(n[1])]}
+        if not ok_:
+            failures.append(f"{tag}: default {val!r} — expected {want!r}")
+        return rec
+
+    # d1/d2/d3 — first sink wins; strictly higher takes over; lower does
+    # not.
+    fresh((WPPOL_R97_SINK_A, 100, 100))
+    entry["d1_first_sink_wins"] = obs("d1_first_sink_wins", WPPOL_R97_SINK_A)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_B, 200, 100)
+    entry["d2_higher_session_takes"] = obs("d2_higher_session_takes",
+                                           WPPOL_R97_SINK_B)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_C, 50, 100)
+    entry["d3_lower_session_does_not"] = obs("d3_lower_session_does_not",
+                                             WPPOL_R97_SINK_B)
+
+    # d4/d5 — a tie keeps the incumbent, both creation orders.
+    fresh((WPPOL_R97_SINK_E, 150, 100))
+    _wppol_r97_null(cli, WPPOL_R97_SINK_F, 150, 999)
+    entry["d4_tie_keeps_incumbent_low_driver_first"] = obs(
+        "d4_tie_keeps_incumbent_low_driver_first", WPPOL_R97_SINK_E)
+    fresh((WPPOL_R97_SINK_G, 150, 999))
+    _wppol_r97_null(cli, WPPOL_R97_SINK_H, 150, 100)
+    entry["d5_tie_keeps_incumbent_high_driver_first"] = obs(
+        "d5_tie_keeps_incumbent_high_driver_first", WPPOL_R97_SINK_G)
+
+    # d6 — a node with no priority keys does not displace.
+    fresh((WPPOL_R97_SINK_I, 100, 100))
+    _wppol_r97_null(cli, WPPOL_R97_SINK_J)
+    entry["d6_no_priority_does_not_displace"] = obs(
+        "d6_no_priority_does_not_displace", WPPOL_R97_SINK_I)
+
+    # d7/d8 — priority.driver is the fallback RANK (compared across
+    # nodes), not a tie-breaker.
+    fresh((WPPOL_R97_SINK_K, 100, 100))
+    _wppol_r97_null(cli, WPPOL_R97_SINK_P, None, 999)
+    entry["d7_driver_fallback_takes"] = obs("d7_driver_fallback_takes",
+                                            WPPOL_R97_SINK_P)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_Q, 200, 100)
+    entry["d8_driver_rank_beats_session"] = obs("d8_driver_rank_beats_session",
+                                                WPPOL_R97_SINK_P)
+
+    # d9 — an explicit set-default outranks every later priority, writes
+    # BOTH metadata rows and (lagging ~1 s) the state file.
+    _wppol_r97_purge(env, cli, root)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_C, 50, 100)
+    time.sleep(0.6)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_Q, 300, 100)
+    time.sleep(0.8)
+    objs = _wppol_r97_dump(env)
+    cid = _wppol_r97_node_id(objs, WPPOL_R97_SINK_C)
+    setr = _wppol_r97_run(["wpctl", "set-default", str(cid)], 12.0, env=env,
+                          keep_chars=400)
+    after_set = _wppol_r97_wait_default(env, WPPOL_R97_SINK_C)
+    rows_after_set = _wppol_r97_default(_wppol_r97_dump(env))
+    lag_t0 = time.monotonic()
+    state_row = None
+    while time.monotonic() - lag_t0 < WPPOL_R97_FLUSH_CAP:
+        body = _wppol_r97_state_file(conf)
+        if body and f"default.configured.audio.sink={WPPOL_R97_SINK_C}" in body:
+            state_row = body
+            break
+        time.sleep(0.05)
+    entry["d9_explicit_beats_priority"] = {
+        "set_default_rc": setr.get("rc"), "set_secs": after_set[2],
+        "after_set": after_set[1], "metadata_rows": rows_after_set,
+        "state_file_row_secs": round(time.monotonic() - lag_t0, 3),
+        "state_file": state_row,
+        "errclass": _wppol_r97_errclass((setr.get("stderr") or ""))}
+    if not after_set[0]:
+        failures.append("d9_explicit_beats_priority: the explicit default did "
+                        f"not take ({after_set[1]!r})")
+    for key in ("default.audio.sink", "default.configured.audio.sink"):
+        if rows_after_set.get(key) != WPPOL_R97_SINK_C:
+            failures.append(f"d9_explicit_beats_priority: {key} = "
+                            f"{rows_after_set.get(key)!r} — expected the "
+                            "explicit sink")
+    if state_row is None:
+        failures.append("d9_explicit_beats_priority: the state file never "
+                        f"gained the configured row (cap "
+                        f"{WPPOL_R97_FLUSH_CAP}s)")
+    entry["d9_lag_s"] = round(time.monotonic() - lag_t0, 3)
+
+    # d10 — clear-default hands the default back to the best available.
+    clr = _wppol_r97_run(["wpctl", "clear-default"], 12.0, env=env,
+                         keep_chars=400)
+    ok10, val10, secs10 = _wppol_r97_wait_default(env, WPPOL_R97_SINK_Q)
+    entry["d10_clear_default"] = {"rc": clr.get("rc"), "ok": ok10,
+                                  "got": val10, "secs": secs10,
+                                  "configured_after": _wppol_r97_default(
+                                      _wppol_r97_dump(env)).get(
+                                          "default.configured.audio.sink")}
+    if not ok10:
+        failures.append("d10_clear_default: the best available sink did not "
+                        f"take the default ({val10!r})")
+
+    # d11 — destroying the default falls back to the best remaining.
+    objs = _wppol_r97_dump(env)
+    qid = _wppol_r97_node_id(objs, WPPOL_R97_SINK_Q)
+    _wppol_r97_run(["pw-cli", "destroy", str(qid)], 8.0, env=env,
+                   keep_chars=200)
+    ok11, val11, secs11 = _wppol_r97_wait_default(env, WPPOL_R97_SINK_C)
+    entry["d11_removed_default_falls_back"] = {"ok": ok11, "got": val11,
+                                               "secs": secs11}
+    if not ok11:
+        failures.append("d11_removed_default_falls_back: the best remaining "
+                        f"sink did not take the default ({val11!r})")
+
+    # d12/d13 — the restart race: a restart inside the ~1 s flush window
+    # loses the configured choice (and leaves NO configured row); after
+    # the row appears the choice survives.
+    _wppol_r97_purge(env, cli, root)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_Q, 500, 100)
+    time.sleep(0.6)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_P, 50, 100)
+    time.sleep(0.6)
+    objs = _wppol_r97_dump(env)
+    pid_ = _wppol_r97_node_id(objs, WPPOL_R97_SINK_P)
+    _wppol_r97_run(["wpctl", "set-default", str(pid_)], 12.0, env=env,
+                   keep_chars=200)
+    t_set0 = time.monotonic()
+    set_ok, set_val, set_secs = _wppol_r97_wait_default(env,
+                                                        WPPOL_R97_SINK_P)
+    state_at_set = _wppol_r97_state_file(conf)
+    state_before_restart = _wppol_r97_state_file(conf)
+    flushed = bool(state_before_restart and
+                   f"default.configured.audio.sink={WPPOL_R97_SINK_P}"
+                   in state_before_restart)
+    r12 = _wppol_r97_restart_wp(entry, failures, root, conf, env, "immediate",
+                                fast=True, t_mark=t_set0)
+    rows12, settle12 = _wppol_r97_wait_default_any(env)
+    entry["d12_restart_race_lost"] = {
+        "set_ok": set_ok, "set_val": set_val, "set_secs": set_secs,
+        "state_file_at_set": state_at_set,
+        "state_file_before_restart": state_before_restart,
+        "flushed_before_restart": flushed,
+        "t_set_to_restart_s": r12 and entry["wp_restarts"]["immediate"].get(
+            "t_mark_to_restart_s"),
+        "wp_restart_ready": r12, "settle_s": settle12,
+        "default_after": rows12.get("default.audio.sink"),
+        "configured_after": rows12.get("default.configured.audio.sink"),
+        "state_file_after": _wppol_r97_state_file(conf)}
+    if flushed:
+        entry.setdefault("coverage_blocked", []).append(
+            "d12_restart_race_lost: the state file had already flushed before "
+            "the restart — the race window was missed, cell unarmed")
+    else:
+        if rows12.get("default.audio.sink") != WPPOL_R97_SINK_Q:
+            failures.append("d12_restart_race_lost: the configured choice "
+                            "survived an unflushed restart — the race did not "
+                            f"arm ({rows12.get('default.audio.sink')!r})")
+        if rows12.get("default.configured.audio.sink") is not None:
+            failures.append("d12_restart_race_lost: a configured row survived "
+                            "the unflushed restart")
+    _wppol_r97_run(["wpctl", "set-default", str(pid_)], 12.0, env=env,
+                   keep_chars=200)
+    wait_ok, wait_val, wait_secs = _wppol_r97_wait_default(env,
+                                                           WPPOL_R97_SINK_P)
+    row_t0 = time.monotonic()
+    row = None
+    while time.monotonic() - row_t0 < WPPOL_R97_FLUSH_CAP:
+        body = _wppol_r97_state_file(conf)
+        if body and f"default.configured.audio.sink={WPPOL_R97_SINK_P}" in body:
+            row = body
+            break
+        time.sleep(0.05)
+    row_secs = round(time.monotonic() - row_t0, 3)
+    r13 = _wppol_r97_restart_wp(entry, failures, root, conf, env, "durable")
+    rows13, settle13 = _wppol_r97_wait_default_any(env)
+    state13 = _wppol_r97_state_file(conf)
+    entry["d13_restart_durable"] = {
+        "state_file_row": row, "state_file_row_secs": row_secs,
+        "wp_restart_ready": r13, "settle_s": settle13,
+        "default_after": rows13.get("default.audio.sink"),
+        "configured_after": rows13.get("default.configured.audio.sink"),
+        "state_file_after": state13}
+    if row is None:
+        failures.append("d13_restart_durable: the state file never gained the "
+                        f"configured row (cap {WPPOL_R97_FLUSH_CAP}s)")
+    if rows13.get("default.audio.sink") != WPPOL_R97_SINK_P:
+        failures.append("d13_restart_durable: the configured choice was lost "
+                        f"after a flushed restart "
+                        f"({rows13.get('default.audio.sink')!r})")
+
+    entry["own_nodes_before_teardown"] = [
+        n for n in _wppol_r97_nodes(_wppol_r97_dump(env) or [])
+        if _wppol_r97_is_own(n[1])]
+    _wppol_r97_teardown(entry, failures, root, conf,
+                                                 env, cli)
+    entry["failures"] = failures
+    return entry
+
+
+def wppol_linking_r97_entry():
+    """Linking policy: target addressing (`object.serial` vs node id),
+    the silent-fallback envelope and its three faces, the flag-order
+    matrix and the role-target null."""
+    entry = _wppol_r97_entry_head("wppol_linking_r97_probe")
+    failures = []
+    root = _wppol_r97_root()
+    entry["private_root"] = str(root)
+    conf = _wppol_r97_write_conf(root)
+    env, ok = _wppol_r97_pair_up(entry, failures, root, conf)
+    if not ok:
+        return _wppol_r97_block(entry, failures,
+                                "linking: private pair not ready", root, conf,
+                                env)
+    cli = _WppolR97Cli(root, env)
+    _wppol_r97_purge(env, cli, root)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_A, 100, 100)
+    time.sleep(0.6)
+    _wppol_r97_null(cli, WPPOL_R97_SINK_B, 500, 100)
+    time.sleep(0.8)
+    objs = _wppol_r97_dump(env)
+    a_id = _wppol_r97_node_id(objs, WPPOL_R97_SINK_A)
+    a_ser = _wppol_r97_serial(objs, WPPOL_R97_SINK_A)
+    b_ser = _wppol_r97_serial(objs, WPPOL_R97_SINK_B)
+    default_ok, default_val, _ = _wppol_r97_wait_default(env,
+                                                         WPPOL_R97_SINK_B)
+    entry["setup"] = {"a_id": a_id, "a_serial": a_ser, "b_serial": b_ser,
+                      "default": default_val, "default_is_b": default_ok,
+                      "bogus_target": WPPOL_R97_BOGUS}
+    if not default_ok or a_id is None or a_ser is None:
+        return _wppol_r97_block(entry, failures,
+                                "linking: setup sinks/default did not arm",
+                                root, conf, env, cli)
+    live_numbers = {a_id, a_ser, b_ser}
+    for n in _wppol_r97_nodes(objs):
+        live_numbers.add(n[0])
+        live_numbers.add(n[4])
+    if int(WPPOL_R97_BOGUS) in live_numbers:
+        return _wppol_r97_block(entry, failures,
+                                "linking: the bogus target collides with a "
+                                "live id/serial", root, conf, env, cli)
+
+    def leg(tag, **kw):
+        rec = _wppol_r97_stream_leg(env, root, tag, **kw)
+        entry[tag] = rec
+        return rec
+
+    def want_sink(rec, sink, tag):
+        links = [tuple(p) for p in rec.get("links") or []]
+        if sink is None:
+            if links:
+                failures.append(f"{tag}: links present — expected none "
+                                f"({links})")
+        elif not any(p[1] == sink for p in links):
+            failures.append(f"{tag}: linked to {links} — expected {sink}")
+
+    # l1..l6 — the addressing lattice.
+    want_sink(leg("l1_auto_default"), WPPOL_R97_SINK_B, "l1_auto_default")
+    r = leg("l2_target_zero", target="0")
+    if r.get("links"):
+        failures.append(f"l2_target_zero: links present ({r['links']})")
+    want_sink(leg("l3_target_serial", target=a_ser), WPPOL_R97_SINK_A,
+              "l3_target_serial")
+    r = leg("l4_target_global_id", target=a_id)
+    want_sink(r, WPPOL_R97_SINK_B, "l4_target_global_id")
+    if r.get("rc") not in (0, None) or (r.get("stderr") or "").strip():
+        failures.append("l4_target_global_id: the silent fallback spoke "
+                        f"(rc {r.get('rc')}, stderr {r.get('stderr')!r})")
+    want_sink(leg("l5_target_name", target=WPPOL_R97_SINK_A),
+              WPPOL_R97_SINK_A, "l5_target_name")
+    r = leg("l6_bogus_falls_back", target=WPPOL_R97_BOGUS)
+    want_sink(r, WPPOL_R97_SINK_B, "l6_bogus_falls_back")
+    if r.get("rc") not in (0, None):
+        failures.append(f"l6_bogus_falls_back: rc {r.get('rc')} — the bogus "
+                        "target is not an error")
+    if (r.get("stderr") or "").strip():
+        failures.append("l6_bogus_falls_back: stderr was not empty "
+                        f"({r.get('stderr')!r})")
+
+    # l7/l8 — the failure envelope's other two faces.
+    r = leg("l7_dont_fallback_destroys", target=WPPOL_R97_BOGUS,
+            props=["node.dont-fallback=true"])
+    if r.get("links"):
+        failures.append(f"l7_dont_fallback_destroys: links present "
+                        f"({r['links']})")
+    if "defined target not found" not in (r.get("stderr") or ""):
+        failures.append("l7_dont_fallback_destroys: the client error is "
+                        f"absent ({r.get('stderr')!r})")
+    gone_ok, gone_secs = _wppol_r97_wait_node_gone(env, WPPOL_R97_STREAM)
+    entry["l7_node_gone"] = {"gone": gone_ok, "secs": gone_secs}
+    if not gone_ok:
+        failures.append("l7_dont_fallback_destroys: the stream node survived")
+    r = leg("l8_linger_waits", target=WPPOL_R97_BOGUS,
+            props=["node.dont-fallback=true", "node.linger=true"])
+    if r.get("links"):
+        failures.append(f"l8_linger_waits: links present ({r['links']})")
+    if (r.get("stderr") or "").strip():
+        failures.append(f"l8_linger_waits: stderr was not empty "
+                        f"({r.get('stderr')!r})")
+    if r.get("stream_node") is None:
+        failures.append("l8_linger_waits: the stream node is not in the graph "
+                        "at settle — the wait face did not arm")
+    if not r.get("alive_at_cap"):
+        failures.append("l8_linger_waits: the process did not wait to the cap")
+    _wppol_r97_wait_node_gone(env, WPPOL_R97_STREAM)
+
+    # l9..l12 — the two property namespaces.
+    want_sink(leg("l9_prop_target_object_serial",
+                  props=[f"target.object={a_ser}"]), WPPOL_R97_SINK_A,
+              "l9_prop_target_object_serial")
+    want_sink(leg("l10_prop_target_object_id",
+                  props=[f"target.object={a_id}"]), WPPOL_R97_SINK_B,
+              "l10_prop_target_object_id")
+    want_sink(leg("l11_prop_node_target_id", props=[f"node.target={a_id}"]),
+              WPPOL_R97_SINK_A, "l11_prop_node_target_id")
+    want_sink(leg("l12_prop_node_target_serial",
+                  props=[f"node.target={a_ser}"]), WPPOL_R97_SINK_B,
+              "l12_prop_node_target_serial")
+
+    # l13..l16 — the flag-order matrix (the namespace of the number is
+    # the variable, not the argv order).
+    order_legs = (
+        ("l13_flag_order_early",
+         ["pw-cat", "--target", str(a_ser), "-p", "--raw", "--rate", "48000",
+          "--channels", "1", "--format", "s16", "-P",
+          f"node.name={WPPOL_R97_STREAM}", "-"]),
+        ("l14_flag_order_equals",
+         ["pw-cat", "-p", "--raw", "--rate", "48000", "--channels", "1",
+          "--format", "s16", f"--target={a_ser}", "-P",
+          f"node.name={WPPOL_R97_STREAM}", "-"]),
+        ("l15_flag_order_after_input",
+         ["pw-cat", "-p", "--raw", "--rate", "48000", "--channels", "1",
+          "--format", "s16", "-P", f"node.name={WPPOL_R97_STREAM}", "-",
+          "--target", str(a_ser)]),
+        ("l16_flag_order_between_props",
+         ["pw-cat", "-p", "--raw", "--rate", "48000", "--channels", "1",
+          "--format", "s16", "-P", f"node.name={WPPOL_R97_STREAM}",
+          "--target", str(a_ser), "-"]))
+    for tag, argv in order_legs:
+        proc = subprocess.Popen(argv, stdin=subprocess.PIPE,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE, env=env,
+                                start_new_session=True)
+        time.sleep(0.8)
+        objs2 = _wppol_r97_dump(env)
+        links = [list(p) for p in _wppol_r97_links(objs2)
+                 if WPPOL_R97_STREAM in (p[0], p[1])]
+        alive = proc.poll() is None
+        if alive:
+            _alsapw_r84_killpg(proc, signal.SIGTERM)
+            try:
+                proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(proc)
+        try:
+            proc.stderr.close()
+        except Exception:
+            pass
+        entry[tag] = {"argv": " ".join(argv), "links": links,
+                      "alive_at_settle": alive}
+        if not any(p[1] == WPPOL_R97_SINK_A for p in links):
+            failures.append(f"{tag}: linked to {links} — expected "
+                            f"{WPPOL_R97_SINK_A}")
+        _wppol_r97_wait_node_gone(env, WPPOL_R97_STREAM)
+
+    # l17 — media.role picks no target for a plain stream.
+    want_sink(leg("l17_media_role_no_target",
+                  props=["media.role=Communication"]), WPPOL_R97_SINK_B,
+              "l17_media_role_no_target")
+
+    # l18 — the two candidate gates are inert in this shape: RECORDED,
+    # deliberately unarmed (boundary §8 — the movement comes from a path
+    # neither setting gates in 0.5.17). Only the settings read-back is
+    # armed.
+    key = "linking.follow-default-target"
+    pre = _wppol_r97_run(["wpctl", "settings", key], 12.0, env=env,
+                         keep_chars=400)
+    setr = _wppol_r97_run(["wpctl", "settings", key, "false"], 12.0, env=env,
+                          keep_chars=400)
+    readback = _wppol_r97_run(["wpctl", "settings", key], 12.0, env=env,
+                              keep_chars=400)
+    row_after = None
+    for r in ((_wppol_r97_meta_rows(_wppol_r97_dump(env), "sm-settings")
+               or {}).get("rows") or []):
+        if r.get("key") == key:
+            row_after = r.get("value")
+    # the movement observation: one live stream, then a default switch —
+    # RECORDED, never armed (boundary §8).
+    argv = ["pw-cat", "-p", "--raw", "--rate", "48000", "--channels", "1",
+            "--format", "s16", "-P", f"node.name={WPPOL_R97_STREAM}", "-"]
+    proc = subprocess.Popen(argv, stdin=subprocess.PIPE,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL, env=env,
+                            start_new_session=True)
+    time.sleep(0.8)
+    objs = _wppol_r97_dump(env)
+    links_before = [list(p) for p in _wppol_r97_links(objs)
+                    if WPPOL_R97_STREAM in (p[0], p[1])]
+    a_id2 = _wppol_r97_node_id(objs, WPPOL_R97_SINK_A)
+    sw = _wppol_r97_run(["wpctl", "set-default", str(a_id2)], 12.0, env=env,
+                        keep_chars=200)
+    time.sleep(1.2)
+    objs2 = _wppol_r97_dump(env)
+    links_after = [list(p) for p in _wppol_r97_links(objs2)
+                   if WPPOL_R97_STREAM in (p[0], p[1])]
+    default_after = _wppol_r97_default(objs2).get("default.audio.sink")
+    _alsapw_r84_killpg(proc, signal.SIGTERM)
+    try:
+        proc.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc)
+    try:
+        proc.stdin.close()
+        proc.stderr.close()
+    except Exception:
+        pass
+    entry["l18_follow_default_recorded"] = {
+        "read_before": pre.get("stdout"), "set_rc": setr.get("rc"),
+        "write_stdout": setr.get("stdout"),
+        "write_stderr": (setr.get("stderr") or "")[:300],
+        "readback": readback.get("stdout"), "sm_settings_row_after": row_after,
+        "set_default_rc": sw.get("rc"), "links_before": links_before,
+        "links_after": links_after, "default_after": default_after,
+        "note": "movement RECORDED, never armed (boundary §8)"}
+    if "Value: false" not in (readback.get("stdout") or ""):
+        failures.append("l18_follow_default_recorded: the settings read-back "
+                        "does not show false")
+    if row_after is not False:
+        failures.append("l18_follow_default_recorded: the sm-settings row does "
+                        f"not carry the written value ({row_after!r})")
+
+    entry["own_nodes_before_teardown"] = [
+        n for n in _wppol_r97_nodes(_wppol_r97_dump(env) or [])
+        if _wppol_r97_is_own(n[1])]
+    _wppol_r97_teardown(entry, failures, root, conf,
+                                                 env, cli)
+    entry["failures"] = failures
+    return entry
+
+
+def _wppol_r97_lua_files(root):
+    """The Lua legs (byte-faithful to the r97 scout's shapes)."""
+    scr = root / "scratch"
+    names = ("Core Settings Log LocalModule LocalNode SpaDevice StaticObject "
+             "ObjectManager Object Node Device Client Link Metadata Session "
+             "Endpoint SiLink SiAdapter SiNode Wp utils table string math os "
+             "io debug load loadstring dofile require require_api print type "
+             "pairs ipairs next select pcall xpcall error assert setmetatable "
+             "getmetatable rawget rawset tonumber tostring unpack _G _ENV "
+             "_VERSION json spa GObject GLib bit32 utf8 Script Feature "
+             "Features Interest Constraint ImplMetadata ImplModule").split()
+    (scr / "w_inv.lua").write_text(
+        "local names = {" + ",".join(f'"{n}"' for n in names) + "}\n"
+        "local found, missing = {}, {}\n"
+        "for _, n in ipairs(names) do\n"
+        "  local v = _ENV[n]\n"
+        "  if v == nil then missing[#missing+1] = n else "
+        "found[#found+1] = n .. \"=\" .. type(v) end\n"
+        "end\n"
+        "print(\"FOUND \" .. table.concat(found, \" \"))\n"
+        "print(\"MISSING \" .. table.concat(missing, \" \"))\n"
+        "print(\"ENV=\" .. type(_ENV) .. \" G=\" .. tostring(_G) .. "
+        "\" VERSION=\" .. _VERSION)\n"
+        "print(\"debug.getregistry=\" .. type(debug.getregistry))\n"
+        "Core.quit()\n")
+    (scr / "w_settings.lua").write_text(
+        "local keys = {\"linking.follow-default-target\","
+        "\"node.stream.restore-props\",\n              "
+        "\"node.features.audio.no-dsp\","
+        "\"device.routes.default-sink-volume\",\n              "
+        "\"bluetooth.profile-preference\","
+        "\"node.stream.default-media-role\"}\n"
+        "local o = {}\n"
+        "for _, k in ipairs(keys) do\n"
+        "  o[#o+1] = string.format(\"%s=%s/%s/%s\", k, "
+        "tostring(Settings.get_boolean(k)),\n"
+        "            tostring(Settings.get_float(k)), "
+        "tostring(Settings.get_string(k)))\n"
+        "end\n"
+        "print(table.concat(o, \" \"))\n"
+        "Core.quit()\n")
+    (scr / "w_syntax.lua").write_text("local x = 1 is 2\n")
+    (scr / "w_runtime.lua").write_text(
+        "error(\"r97a deliberate\")\nCore.quit()\n")
+    (scr / "w_nested.lua").write_text(
+        "local function f() error(\"r97a deep\", 2) end\nf()\nCore.quit()\n")
+    (scr / "w_nil_index.lua").write_text(
+        "local t = nil\nt.x = 1\nCore.quit()\n")
+    (scr / "w_pairs_G.lua").write_text(
+        "for k, v in pairs(_G) do end\nCore.quit()\n")
+    (scr / "w_no_quit.lua").write_text("print(\"r97a never quits\")\n")
+    (scr / "w_arg.lua").write_text(
+        "print(\"arg=\" .. tostring(arg) .. \" n=\" .. select(\"#\", ...))\n"
+        "Core.quit()\n")
+    return scr
+
+
+def wppol_wpexec_r97_entry():
+    """The `wpexec` sandbox: the closed global set, the two error
+    worlds, the argument forms, and the unbound `Settings` — with and
+    without a policy daemon."""
+    entry = _wppol_r97_entry_head("wppol_wpexec_r97_probe")
+    failures = []
+    root = _wppol_r97_root()
+    entry["private_root"] = str(root)
+    conf = _wppol_r97_write_conf(root)
+    scr = _wppol_r97_lua_files(root)
+    env, ok = _wppol_r97_pair_up(entry, failures, root, conf, debug=False)
+    if not ok:
+        return _wppol_r97_block(entry, failures,
+                                "wpexec: private pair not ready", root, conf,
+                                env)
+
+    inv = _wppol_r97_run(["wpexec", scr / "w_inv.lua"], 10.0, env=env,
+                         keep_chars=4000)
+    lines = (inv.get("stdout") or "").splitlines()
+    entry["w1_inventory"] = {"rc": inv.get("rc"), "stdout": inv.get("stdout"),
+                             "lines": lines, "stderr": inv.get("stderr")}
+    if inv.get("rc") != 0:
+        failures.append(f"w1_inventory: rc {inv.get('rc')} — expected 0")
+    if len(lines) != 4:
+        failures.append(f"w1_inventory: {len(lines)} output lines — expected 4")
+    else:
+        if lines[0] != "FOUND " + WPPOL_R97_LUA_FOUND:
+            failures.append("w1_inventory: the FOUND line is not the "
+                            "boundary-surviving set")
+        if lines[1] != "MISSING " + WPPOL_R97_LUA_MISSING:
+            failures.append("w1_inventory: the MISSING line is not the "
+                            "boundary-surviving set")
+        if lines[2] != WPPOL_R97_LUA_ENV:
+            failures.append(f"w1_inventory: ENV line {lines[2]!r} — expected "
+                            f"{WPPOL_R97_LUA_ENV!r}")
+        if lines[3] != WPPOL_R97_LUA_GETREG:
+            failures.append(f"w1_inventory: {lines[3]!r} — expected "
+                            f"{WPPOL_R97_LUA_GETREG!r}")
+
+    syn = _wppol_r97_run(["wpexec", scr / "w_syntax.lua"], 10.0, env=env,
+                         keep_chars=800)
+    entry["w2_compile_error_located"] = {"rc": syn.get("rc"),
+                                         "stderr": syn.get("stderr")}
+    if syn.get("rc") != 70:
+        failures.append(f"w2_compile_error_located: rc {syn.get('rc')} — "
+                        "expected 70")
+    if not (syn.get("stderr") or "").startswith(
+            'Failed to compile: [string "w_syntax.lua"]:1:'):
+        failures.append("w2_compile_error_located: the located message is "
+                        f"absent ({syn.get('stderr')!r})")
+
+    runtime_legs = (("w3_runtime_error_msg", "w_runtime.lua"),
+                    ("w4_nested_error", "w_nested.lua"),
+                    ("w5_nil_index", "w_nil_index.lua"),
+                    ("w6_pairs_G", "w_pairs_G.lua"))
+    for tag, fn in runtime_legs:
+        r = _wppol_r97_run(["wpexec", scr / fn], 10.0, env=env,
+                           keep_chars=800)
+        entry[tag] = {"rc": r.get("rc"), "stderr": r.get("stderr"),
+                      "stdout": r.get("stdout")}
+        if r.get("rc") != 70:
+            failures.append(f"{tag}: rc {r.get('rc')} — expected 70")
+        if (r.get("stderr") or "").strip() != "Lua runtime error":
+            failures.append(f"{tag}: stderr {r.get('stderr')!r} — expected the "
+                            "bare opaque message")
+
+    nq = _wppol_r97_run(["wpexec", scr / "w_no_quit.lua"], 6.0, env=env,
+                        keep_chars=800)
+    entry["w7_no_quit"] = {"rc": nq.get("rc"), "timed_out": nq.get("timed_out"),
+                           "stdout": nq.get("stdout")}
+    if not (nq.get("timed_out") and nq.get("rc") == -9):
+        failures.append("w7_no_quit: the run was not killed at the cap "
+                        f"(rc {nq.get('rc')}, timed_out {nq.get('timed_out')})")
+    if "r97a never quits" not in (nq.get("stdout") or ""):
+        failures.append("w7_no_quit: the flushed print is absent")
+
+    na = _wppol_r97_run(["wpexec"], 10.0, env=env, keep_chars=800)
+    entry["w8_no_argument"] = {"rc": na.get("rc"), "stderr": na.get("stderr")}
+    if na.get("rc") != 70 or "Could not locate script '(null)'" not in \
+            (na.get("stderr") or ""):
+        failures.append("w8_no_argument: the '(null)' refusal is absent "
+                        f"(rc {na.get('rc')}, {na.get('stderr')!r})")
+    missing = "/nonexistent/r97a-missing.lua"
+    mf = _wppol_r97_run(["wpexec", missing], 10.0, env=env, keep_chars=800)
+    entry["w9_missing_file"] = {"rc": mf.get("rc"), "stderr": mf.get("stderr")}
+    if mf.get("rc") != 70 or missing not in (mf.get("stderr") or ""):
+        failures.append("w9_missing_file: the path refusal is absent "
+                        f"({mf.get('stderr')!r})")
+
+    pa = _wppol_r97_run(["wpexec", scr / "w_inv.lua", "extra1"], 10.0, env=env,
+                        keep_chars=800)
+    entry["w10_positional_argument"] = {"rc": pa.get("rc"),
+                                        "stderr": pa.get("stderr")}
+    if pa.get("rc") != 64 or "script argument must be a JSON object" not in \
+            (pa.get("stderr") or ""):
+        failures.append("w10_positional_argument: the JSON refusal is absent "
+                        f"(rc {pa.get('rc')}, {pa.get('stderr')!r})")
+    ja = _wppol_r97_run(["wpexec", scr / "w_arg.lua", '{"x":1}'], 10.0,
+                        env=env, keep_chars=800)
+    entry["w11_json_argument"] = {"rc": ja.get("rc"), "stdout": ja.get("stdout"),
+                                  "stderr": ja.get("stderr")}
+    if ja.get("rc") != 0 or "arg=nil n=1" not in (ja.get("stdout") or ""):
+        failures.append("w11_json_argument: the JSON argument is not invisible "
+                        f"to the script (rc {ja.get('rc')}, "
+                        f"{ja.get('stdout')!r})")
+    hp = _wppol_r97_run(["wpexec", "--help"], 10.0, env=env, keep_chars=400)
+    entry["w12_help"] = {"rc": hp.get("rc")}
+    if hp.get("rc") != 0:
+        failures.append(f"w12_help: rc {hp.get('rc')} — expected 0")
+
+    # w13 — Settings is unbound: the six probe keys stay false/0.0/"" and
+    # do not track a verified write.
+    before = _wppol_r97_run(["wpexec", scr / "w_settings.lua"], 10.0, env=env,
+                            keep_chars=2000)
+    setw = _wppol_r97_run(["wpctl", "settings",
+                           "linking.follow-default-target", "false"], 12.0,
+                          env=env, keep_chars=400)
+    rb = _wppol_r97_run(["wpctl", "settings",
+                         "linking.follow-default-target"], 12.0, env=env,
+                        keep_chars=800)
+    after = _wppol_r97_run(["wpexec", scr / "w_settings.lua"], 10.0, env=env,
+                           keep_chars=2000)
+    inert = all(f"{k}=false/0.0/" in (before.get("stdout") or "")
+                for k in WPPOL_R97_PROBE_KEYS)
+    entry["w13_settings_unbound"] = {
+        "before": before.get("stdout"), "after": after.get("stdout"),
+        "all_inert": inert, "set_rc": setw.get("rc"),
+        "readback": rb.get("stdout"),
+        "identical": before.get("stdout") == after.get("stdout")}
+    if not inert:
+        failures.append("w13_settings_unbound: a probe key did not read "
+                        f"false/0.0/\"\" ({before.get('stdout')!r})")
+    if "Value: false" not in (rb.get("stdout") or ""):
+        failures.append("w13_settings_unbound: the write was not verified by "
+                        "read-back")
+    if before.get("stdout") != after.get("stdout"):
+        failures.append("w13_settings_unbound: the Settings reads tracked the "
+                        "live value")
+
+    # w14 — the sandbox and the unbound Settings are independent of a
+    # policy daemon (the boundary's e13 cell).
+    pid = None
+    try:
+        pid = int((root / "run" / "wp.pid").read_text().strip())
+    except (OSError, ValueError):
+        pid = None
+    entry["w14_wp_stop"] = _wppol_r97_kill(root, pid)
+    down_ready = False
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < 8.0:
+        objs = _wppol_r97_dump(env)
+        if objs is not None and _wppol_r97_meta_rows(objs, "sm-settings") \
+                is None:
+            down_ready = True
+            break
+        time.sleep(0.25)
+    inv_down = _wppol_r97_run(["wpexec", scr / "w_inv.lua"], 10.0, env=env,
+                              keep_chars=4000)
+    set_down = _wppol_r97_run(["wpexec", scr / "w_settings.lua"], 10.0, env=env,
+                              keep_chars=2000)
+    entry["w14_sandbox_without_daemon"] = {
+        "sm_settings_absent": down_ready,
+        "inventory_identical": inv_down.get("stdout") == inv.get("stdout"),
+        "settings_inert": all(f"{k}=false/0.0/" in (set_down.get("stdout") or "")
+                              for k in WPPOL_R97_PROBE_KEYS)}
+    if not down_ready:
+        failures.append("w14_sandbox_without_daemon: WirePlumber did not stop")
+    if not entry["w14_sandbox_without_daemon"]["inventory_identical"]:
+        failures.append("w14_sandbox_without_daemon: the inventory changed "
+                        "with the daemon down")
+    if not entry["w14_sandbox_without_daemon"]["settings_inert"]:
+        failures.append("w14_sandbox_without_daemon: Settings was bound with "
+                        "the daemon down")
+    _wppol_r97_restart_wp(entry, failures, root, conf, env, "after-down")
+
+    _wppol_r97_teardown(entry, failures, root, conf,
+                                                 env)
+    entry["failures"] = failures
+    return entry
+
+
+def wppol_settings_r97_entry():
+    """The settings lattice: 25 keys, two metadata faces, the
+    `sm-settings` readiness witness, and the write-scope witness."""
+    entry = _wppol_r97_entry_head("wppol_settings_r97_probe")
+    failures = []
+    root = _wppol_r97_root()
+    entry["private_root"] = str(root)
+    conf = _wppol_r97_write_conf(root)
+    env, ok = _wppol_r97_pair_up(entry, failures, root, conf)
+    if not ok:
+        return _wppol_r97_block(entry, failures,
+                                "settings: private pair not ready", root, conf,
+                                env)
+
+    lst = _wppol_r97_run(["wpctl", "settings"], 15.0, env=env,
+                         keep_chars=1 << 20)
+    out = lst.get("stdout") or ""
+    keys = re.findall(r"^\s*-\s*Id:\s*(\S+)\s*$", out, re.M)
+    entry["s1_lattice"] = {"rc": lst.get("rc"), "n_keys": len(keys),
+                           "keys": keys, "bytes": lst.get("bytes"),
+                           "sha256": hashlib.sha256(
+                               out.encode()).hexdigest(),
+                           "known_sha": WPPOL_R97_SETTINGS_SHA,
+                           "sha_matches_boundary": hashlib.sha256(
+                               out.encode()).hexdigest()
+                           == WPPOL_R97_SETTINGS_SHA}
+    if lst.get("rc") != 0:
+        failures.append(f"s1_lattice: rc {lst.get('rc')} — expected 0")
+    if len(keys) != 25:
+        failures.append(f"s1_lattice: {len(keys)} keys — expected 25")
+    if keys and keys != WPPOL_R97_SETTINGS_KEYS:
+        failures.append("s1_lattice: the key set is not the boundary's 25-name "
+                        "lattice")
+
+    objs = _wppol_r97_dump(env)
+    faces = {}
+    for name in ("settings", "schema-sm-settings", "sm-settings"):
+        m = _wppol_r97_meta_rows(objs, name)
+        faces[name] = None if m is None else {"id": m["id"],
+                                              "rows": len(m["rows"])}
+    entry["s2_metadata_faces"] = faces
+    for name in ("schema-sm-settings", "sm-settings"):
+        if faces.get(name) is None:
+            failures.append(f"s2_metadata_faces: the {name} metadata object is "
+                            "absent (the WirePlumber-up witness)")
+        elif faces[name]["rows"] != 25:
+            failures.append(f"s2_metadata_faces: {name} carries "
+                            f"{faces[name]['rows']} rows — expected 25")
+
+    shared_env = _wppol_r97_shared_env()
+    sh_before = _wppol_r97_run(["wpctl", "settings",
+                                "linking.follow-default-target"], 15.0,
+                               env=shared_env, keep_chars=800)
+    setw = _wppol_r97_run(["wpctl", "settings",
+                           "linking.follow-default-target", "false"], 12.0,
+                          env=env, keep_chars=400)
+    rb = _wppol_r97_run(["wpctl", "settings",
+                         "linking.follow-default-target"], 12.0, env=env,
+                        keep_chars=800)
+    sh_after = _wppol_r97_run(["wpctl", "settings",
+                               "linking.follow-default-target"], 15.0,
+                              env=shared_env, keep_chars=800)
+    entry["s3_write_scope"] = {
+        "set_rc": setw.get("rc"), "private_readback": rb.get("stdout"),
+        "shared_before": sh_before.get("stdout"),
+        "shared_after": sh_after.get("stdout"),
+        "shared_env_rc": sh_before.get("rc")}
+    if "Value: false" not in (rb.get("stdout") or ""):
+        failures.append("s3_write_scope: the private write did not read back")
+    if sh_before.get("rc") != 0 or sh_after.get("rc") != 0:
+        entry.setdefault("coverage_blocked", []).append(
+            "s3_write_scope: the operator's lattice was unreadable in this "
+            "window — the cross-witness is unmeasured (the private "
+            "read-back is the armed cell)")
+
+    sh_lst = _wppol_r97_run(["wpctl", "settings"], 20.0, env=shared_env,
+                            keep_chars=1 << 20)
+    sh_out = sh_lst.get("stdout") or ""
+    sh_keys = re.findall(r"^\s*-\s*Id:\s*(\S+)\s*$", sh_out, re.M)
+    entry["s4_shared_lattice"] = {"rc": sh_lst.get("rc"),
+                                  "n_keys": len(sh_keys),
+                                  "same_key_set": sh_keys == keys,
+                                  "sha256": hashlib.sha256(
+                                      sh_out.encode()).hexdigest()}
+    if sh_lst.get("rc") != 0:
+        entry.setdefault("coverage_blocked", []).append(
+            "s4_shared_lattice: the operator's lattice was unreadable in this "
+            "window — the install-scoped cross-witness is unmeasured")
+    elif sh_keys != keys:
+        failures.append("s4_shared_lattice: the operator's lattice does not "
+                        "carry the same 25-name key set (install-scoped, not "
+                        "instance-scoped)")
+
+    _wppol_r97_teardown(entry, failures, root, conf,
+                                                 env)
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -43920,6 +46038,7 @@ def main():
     parser.add_argument("--probe-filterchain-r92",
                         action="store_true")
     parser.add_argument("--probe-pulsecli-r96", action="store_true")
+    parser.add_argument("--probe-wppol-r97", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
@@ -43929,7 +46048,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
+    if sum([args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -44588,6 +46707,40 @@ def main():
             _pulsecli_r96_props_entry()
         measurements["pulsecli_cork_r96_probe"] = \
             _pulsecli_r96_cork_entry()
+    if args.probe_wppol_r97:
+        # r97: the WIREPLUMBER POLICY LATTICE — the policy layer every
+        # other lane's laws ride on, measured ONLY against a private
+        # PipeWire core + private WirePlumber pair (own runtime dir =>
+        # own socket; the operator's daemons are never signalled and no
+        # r97a_* object ever enters the shared graph). Boundary-surviving
+        # cells only: the arming law (`WIREPLUMBER_CONFIG_DIR`/`DATA_DIR`
+        # REPLACE the search path; the empty-conf shape is rc 78 with the
+        # NAMING message — the scout's three-message chain is a
+        # modules-less CORE shape and exits 69), the private-core
+        # `module.access` requirement, `wpctl status` as a NON-gate for
+        # WirePlumber readiness (the `sm-settings` object is the gate),
+        # the default-node ranking (`priority.session` else
+        # `priority.driver`, tie-keeps-incumbent, explicit default wins,
+        # the ~1 s state-file restart race), target addressing
+        # (`object.serial` vs node id, three failure faces), the
+        # `wpexec` sandbox (opaque runtime errors, located compile
+        # errors, unbound Settings) and the 25-key settings lattice. A
+        # NEW parallel ledger family, prior rows untouched; r76-r89
+        # guards inherited (seat-owned r97a_<pid> names, environ-aware
+        # daemon teardown guard, bounded process groups, never pactl
+        # set-default-*). The family lock is a FIXED corpus/live/ path —
+        # the r84 F1 3-seat consensus.
+        _r97_family_lock = _wppol_r97_family_lock()   # held to exit
+        measurements["wppol_arming_r97_probe"] = \
+            wppol_arming_r97_entry()
+        measurements["wppol_defaults_r97_probe"] = \
+            wppol_defaults_r97_entry()
+        measurements["wppol_linking_r97_probe"] = \
+            wppol_linking_r97_entry()
+        measurements["wppol_wpexec_r97_probe"] = \
+            wppol_wpexec_r97_entry()
+        measurements["wppol_settings_r97_probe"] = \
+            wppol_settings_r97_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -45238,7 +47391,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -45258,7 +47411,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
