@@ -1482,3 +1482,10 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   witness hashes unarmed, runtime env incomplete, kill guard over-
   matches and timing is zombie-blind. Do not run unattended until
   guard repair. Full dispositions: reports/round-N/rN-adjudicator.md.
+- ROUND 99 SAFETY (2026-10-16): bb177513 makes the physical-LAN RTP
+  positive control explicit-opt-in, not a default side effect. Its
+  existing six-second multicast emission was disclosed to the operator.
+  Before-red/after-green no-network guard regression, compile checks,
+  retained r90 lock regression and one default-safe family run pass;
+  skipped LAN control is explicitly unmeasured, not a green arm.
+  See reports/round-99/r99-network-safety.md. Final review stays pending.
