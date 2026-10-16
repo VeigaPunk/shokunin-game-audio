@@ -1,0 +1,58 @@
+# r84-scribe commit pin + chain re-derivation
+# generated 2026-10-15T21:45:52-03:00 on plazir27 (loadavg 51.34 52.43 54.59)
+
+== HEAD at audit ==
+fbe65713 r84 author: 147 legs / 6 entries — monitor-tap gain laws (x0.125/x3.375/x0.015625, sticky 30%=221), index refusals, boundary + 4 author corrections; 2 green runs
+
+== commit under audit ==
+fbe65713b5adf1e76b3f6839968fc813a36d3fbf
+Thu Oct 15 21:38:57 2026 -0300
+r84 author: 147 legs / 6 entries — monitor-tap gain laws (x0.125/x3.375/x0.015625, sticky 30%=221), index refusals, boundary + 4 author corrections; 2 green runs
+
+ corpus/fixtures/measure_audio.py                   |  2799 ++++-
+ corpus/live/r84-author/runs/run1/measurements.json | 11612 +++++++++++++++++++
+ corpus/live/r84-author/runs/run2/measurements.json | 11602 ++++++++++++++++++
+ reports/round-84/r84-author.md                     |   107 +
+ 4 files changed, 26117 insertions(+), 3 deletions(-)
+
+== numstat ==
+2796	3	corpus/fixtures/measure_audio.py
+11612	0	corpus/live/r84-author/runs/run1/measurements.json
+11602	0	corpus/live/r84-author/runs/run2/measurements.json
+107	0	reports/round-84/r84-author.md
+
+== fixture chain ==
+a151a226     26431adf29ab122bbf1f55ef03c9aa47bf9825c61654562d9a421117434f5eea  -
+d6167399     7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  -
+cab9f08e     7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  -
+c387749c     7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  -
+fbe65713^    7984409ceb9ca7c35b18b9b28f2add445701c044d71f8ee4ddc6f35d31217ef7  -
+fbe65713     8ed09d19990480fd337cba99e45cb0588e0615fd90e34793ecc4841c21368e4e  -
+
+== tracked pyc lineage ==
+d6167399     6e271a2d2341208973e1476baf635e02f5ef4f2ff60f43cd1015bebfdbc27473  -
+c387749c     6e271a2d2341208973e1476baf635e02f5ef4f2ff60f43cd1015bebfdbc27473  -
+fbe65713     6e271a2d2341208973e1476baf635e02f5ef4f2ff60f43cd1015bebfdbc27473  -
+worktree     21b39e3ceeac7a1cbbb1d8444be89b9b2ec6ad11a91eac9073141b55d1f8fbb8  corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+
+== receipt bytes: committed copy vs canonical run dir ==
+run1
+  copy      e8d463c26a97a6b590886fa5737b17a0b54cb0472380ff81a6bb19f33f860d4b
+  canonical e8d463c26a97a6b590886fa5737b17a0b54cb0472380ff81a6bb19f33f860d4b
+  equal=yes
+run2
+  copy      283f69e8d82a29646957c5d89c37a10fa337b9263e8f2f21aeaec8e6c0cb0786
+  canonical 283f69e8d82a29646957c5d89c37a10fa337b9263e8f2f21aeaec8e6c0cb0786
+  equal=yes
+
+== canonical alsapw-r84 run dirs (census; any uncited?) ==
+drwxr-xr-x 1 vgpnk vgpnk     34 Oct 15 21:32 20261016T003253840363Z-alsapw-r84
+drwxr-xr-x 1 vgpnk vgpnk     34 Oct 15 21:37 20261016T003756373122Z-alsapw-r84
+  (report cites both; no third dir exists)
+
+== worktree tracked-dirty state ==
+ M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+
+== pinned tree extraction (commit archive) ==
+git archive fbe65713 -> /home/vgpnk/Projects/shokunin/tmp/r84-scribe-work/tree
+22725 /home/vgpnk/Projects/shokunin/tmp/r84-scribe-work/tree/corpus/fixtures/measure_audio.py

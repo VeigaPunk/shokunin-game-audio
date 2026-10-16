@@ -1,0 +1,47 @@
+# r84-scribe — frozen-probeParent labrat advisory (L2, read-only, one dispatch)
+
+Seat: `ufo-labrat` (depth-2 empirical probe, advisory only, never edits).
+Dispatch: one, from the frozen probeParent (this seat). Artifacts: none created.
+Bounded hypothesis: "every quantitative/structural claim in the r84-author Entries
+table, the boundary bullets and the green-receipts/headline paragraph is present in
+the committed receipts with the stated value."
+Labrat verdict: **one falsified count, one falsified decomposition; all headline
+numerics verified.**
+
+Returned census (verbatim, condensed):
+
+1. Leg counts + failures — VERIFIED. run2 leg-key counts dev_lattice 38 (36 leg
+   objects + `hold_exit` scalar + `ebusy_postkill` object), pw_args 22, pulseprop 14,
+   pactl_write 24, monstream 16, negctl 33 → 147; run1 identical. `failures: []` at
+   entry level in all six, both runs.
+2. Run2 headline values — VERIFIED: vol_50_0/vol_50_1 base 8192.0 → post 1024.0,
+   ratio 0.125; vol_150 post 27648.0 ratio 3.375; vol_25_idx post 128.0 ratio 0.0156;
+   src_vol50_0/1 8192→1024 ratio 0.125; vol_0_100 + mute_cycle muted_amp 0.0 /
+   restored_amp 8192.0; susp_live_0/1 post 8192.0 unchanged; sticky respawn volume
+   19660 = "30%", `respawn_tap_med` 221.0, `repaired_percent` 100; mon_soidx
+   parec_exit_code 0 / out.bytes 44; mon_bad0 + mon_deadidx parec_exit_code 1 /
+   "Stream error: No such entity\n" / bytes 44.
+3. sinks_gone / own_nodes_after — VERIFIED where present (4 entries per run; all true /
+   []). dev_lattice and negctl carry neither field (they load no sink).
+4. Post-gain tap x0.125 — VERIFIED numerically (monA_sivol_0/1 base 8192→post 1024,
+   ratio 0.125, write `set-sink-input-volume` mid-run); "post-gain" is a semantic
+   reading, not independently provable from the receipts.
+5. Single capture-refusal class on bare/NODE-miss captures — VERIFIED: class present on
+   r_pw_bare_0, r_pw_bare_1, r_pw_default, r_pw_node_miss, r_pw_node_mon; no such leg
+   lacks it.
+6. "single capture-refusal class ×4" — **FALSIFIED: 5 legs carry the class** (3 bare
+   captures + 2 NODE= misses).
+7. negctl "22 named classes + 6 must-classify-nothing" — **FALSIFIED**: 28 `u_*` unit
+   legs = 23 with `expect != null` and 5 with `expect == null` (u_empty, u_noise,
+   u_segv_words, u_ratewarn, u_recording); distinct expected class names = 18
+   (alsa_unknown_pcm ×3, alsa_card_index, alsa_card_parse, alsa_pcmdef_missing,
+   alsa_unknown_param, alsa_open_enoent, alsa_open_enodev, alsa_open_ebusy,
+   alsa_pw_conn, alsa_pw_capture_refusal ×3, alsa_params ×2, pa_vol_spec,
+   pa_susp_spec, pa_get_info_noent, pa_failure_noent, pa_stream_noent, st_test_type,
+   st_chmap); every `got == expect`.
+
+Cross-check with this scribe seat's independent enumeration (same conclusion, computed
+from the fixture's `cases` table at measure_audio.py:21417-21507): 23 positive cases,
+18 distinct names, 5 negative cases. Both seats falsify the same two counts.
+
+Advisory only — no judgment; the canonical Rust runtime remains the sole judge.

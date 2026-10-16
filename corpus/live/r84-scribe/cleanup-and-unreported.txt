@@ -1,0 +1,117 @@
+# r84-scribe cleanup witnesses + unreported-evidence census
+
+== A. teardown witnesses (both runs) ==
+-- run1
+   dev: (no unloads/sinks_gone/own_nodes_after keys — entry loads no sink)
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pw: sinks_gone={"r84a_ns_1330090": true} own_nodes_after=[]
+       unloads={"r84a_ns_1330090": {"verified_index": 536870921, "captured": 536870921, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pulseprop: sinks_gone={"r84a_ns_1330090": true} own_nodes_after=[]
+       unloads={"r84a_ns_1330090": {"verified_index": 536870921, "captured": 536870921, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pactl: sinks_gone={"r84a_ns_1330090": true} own_nodes_after=[]
+       unloads={"r84a_ns_1330090": {"verified_index": 536870921, "captured": 536870921, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   monstream: sinks_gone={"r84a_ns_1330090": true, "r84a_ns2_1330090": true} own_nodes_after=[]
+       unloads={"r84a_ns_1330090": {"verified_index": 536870921, "captured": 536870921, "recycled": false, "exit_code": 0}, "r84a_ns2_1330090": {"verified_index": 536870926, "captured": 536870926, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   negctl: (no unloads/sinks_gone/own_nodes_after keys — entry loads no sink)
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+-- run2
+   dev: (no unloads/sinks_gone/own_nodes_after keys — entry loads no sink)
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pw: sinks_gone={"r84a_ns_1420942": true} own_nodes_after=[]
+       unloads={"r84a_ns_1420942": {"verified_index": 536870926, "captured": 536870926, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pulseprop: sinks_gone={"r84a_ns_1420942": true} own_nodes_after=[]
+       unloads={"r84a_ns_1420942": {"verified_index": 536870926, "captured": 536870926, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   pactl: sinks_gone={"r84a_ns_1420942": true} own_nodes_after=[]
+       unloads={"r84a_ns_1420942": {"verified_index": 536870926, "captured": 536870926, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   monstream: sinks_gone={"r84a_ns_1420942": true, "r84a_ns2_1420942": true} own_nodes_after=[]
+       unloads={"r84a_ns_1420942": {"verified_index": 536870926, "captured": 536870926, "recycled": false, "exit_code": 0}, "r84a_ns2_1420942": {"verified_index": 536870921, "captured": 536870921, "recycled": false, "exit_code": 0}}
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+   negctl: (no unloads/sinks_gone/own_nodes_after keys — entry loads no sink)
+       failures=[] coverage_blocked=ABSENT (0 occurrences)
+
+== B. private restore key / role reset witnesses ==
+   run1/pactl: role_reset={"waited_s": 0.133, "spawn_percent": 100, "spawn_mute": false, "spawn_index": 224873, "writes": [{"rc": 0, "stderr_tail": []}, {"rc": 0, "stderr_tail": []}], "post_percent": 100, "post_mute": false, "reset_ok": true}
+   run1/monstream: role_reset={"waited_s": 0.132, "spawn_percent": 100, "spawn_mute": false, "spawn_index": 225187, "writes": [{"rc": 0, "stderr_tail": []}, {"rc": 0, "stderr_tail": []}], "post_percent": 100, "post_mute": false, "reset_ok": true}
+   run1/sticky: spawn1=100% respawn=30% respawn_leaf_volume={"value": 19660, "value_percent": "30%", "db": "-31.37 dB"} repaired=100% mute=False respawn_tap_med=221.0 tail=[[2.1, 221], [2.2, 8191], [2.3, 8192], [2.4, 8192], [2.5, 8192], [2.6, 8192]]
+   run2/pactl: role_reset={"waited_s": 0.134, "spawn_percent": 100, "spawn_mute": false, "spawn_index": 225973, "writes": [{"rc": 0, "stderr_tail": []}, {"rc": 0, "stderr_tail": []}], "post_percent": 100, "post_mute": false, "reset_ok": true}
+   run2/monstream: role_reset={"waited_s": 0.133, "spawn_percent": 100, "spawn_mute": false, "spawn_index": 226262, "writes": [{"rc": 0, "stderr_tail": []}, {"rc": 0, "stderr_tail": []}], "post_percent": 100, "post_mute": false, "reset_ok": true}
+   run2/sticky: spawn1=100% respawn=30% respawn_leaf_volume={"value": 19660, "value_percent": "30%", "db": "-31.37 dB"} repaired=100% mute=False respawn_tap_med=221.0 tail=[[2.0, 221], [2.1, 8191], [2.2, 8192], [2.3, 8191], [2.4, 8192], [2.5, 8191]]
+
+== C. loadavg per entry (report claims '>100 throughout') ==
+   run1/dev: ['53.74', '57.54', '59.16']
+   run1/pw: ['53.93', '57.40', '59.09']
+   run1/pulseprop: ['52.96', '56.62', '58.73']
+   run1/pactl: ['51.49', '55.72', '58.33']
+   run1/monstream: ['51.63', '54.78', '57.79']
+   run1/negctl: ['53.46', '54.66', '57.47']
+   run1: min=51.49 max=59.16 n=18 any>100=False
+   run2/dev: ['52.95', '54.46', '57.33']
+   run2/pw: ['52.69', '54.30', '57.21']
+   run2/pulseprop: ['52.33', '53.95', '56.96']
+   run2/pactl: ['51.83', '53.54', '56.66']
+   run2/monstream: ['51.27', '53.04', '56.26']
+   run2/negctl: ['53.20', '53.02', '55.94']
+   run2: min=51.27 max=57.33 n=18 any>100=False
+
+== D. run1 vs run2 semantic residue (see run-diff.txt for the full digest) ==
+   differing leaves after env-normalization: 373 of 7951 (6740 identical);
+   kinds: object-identity 122, timing 114, leaf-snapshot 46, VALUE 44, series 28, volume-state 19.
+   semantic residue list:
+     - pcm_states_pre/card0/pcm3p: RUNNING (run1) vs closed (run2)
+     - mon_soidx/source_output/source: 225164 attached (run1) vs 4294967295 detached + volume 0% (run2)
+     - pulseprop node/state: running (run1) vs suspended (run2) on iconname/proc_bin/restore_id
+     - monA_move/sig/windows[8]/a: 5547 (run1) vs 8189 (run2) — both class 'A'
+     - dev_lattice out/peak: 661/662/32648 (run1) vs 660/660/32552 (run2)
+     - monstream out/bursts, out/first_starts[], out/nz_rows: burst phase/count jitter
+
+== E. unreported / prose-only evidence ==
+   E1. sticky note claims 'different-tag respawn 100% (measured)' but no leg in either
+       committed receipt witnesses a different-tag respawn; the only 'different-tag'
+       occurrence is inside the sticky note string itself.
+   E2. respawn_tap_med=221.0 is a median over a window [0.8,3.2] of an UN-serialized tap
+       series (only the last 6 windows are stored) -> stats-only, not re-derivable.
+       Same for monA_* base_amp/post_amp (medians over out_path parec wavs, TMPDIR removed).
+       Contrast: the pactl_write tap legs DO serialize `series` (re-derivable).
+   E3. receipts carry no fixture/git identity field (no sha of the code that produced them).
+   E4. tracked file corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc is dirty in the
+       worktree (r84-compiled bytecode; header source_mtime/size = committed fixture);
+       HEAD blob 6e271a2d.. unchanged since d6167399. Not disclosed in r84-author.md.
+   E5. lane TMPDIR holds pre-session artifacts cap1.err/cap2.err/cap3.err/cap3.wav/t (20:28)
+       in addition to the disclosed r84n.wav; none r84a-namespaced, none disclosed.
+   E6. report cites `~/tmp/r84n.wav`; the actual path is
+       /home/vgpnk/Projects/shokunin/tmp/r84n.wav (~/tmp is empty).
+   E7. count nits: capture-refusal class x4 (actual 5 legs); '22 named classes + 6
+       must-classify-nothing' (actual 23 expect-a-class / 18 distinct names / 5 expect-null);
+       'failures: {}' (actual `failures: []`); 'coverage_blocked: null' (key absent);
+       'sinks_gone ... every entry' (4 of 6 entries carry the key).
+   E8. dev_lattice '38 legs' includes one non-leg scalar `hold_exit` (int 1): 37 leg dicts + 1 int.
+
+== F. foreign state attribution (cross-reference) ==
+   reports/round-82/r82-verifier2.md lines 69/116/146 already document
+   `r84a_probe_548706` as a foreign sibling sink (named, untouched) at ~22:44Z Oct 15,
+   i.e. ~2 h BEFORE the r84 author runs (00:32/00:37Z Oct 16). The author's
+   'NOT this family's' attribution is independently corroborated by that earlier seat.
+
+== G. ambient state at audit time (contention disclosure) ==
+   2026-10-15T21:46:06-03:00 on plazir27; loadavg 51.26 52.36 54.54 52/2118 1742063
+   live sibling wave-B seat observed 21:39-21:41Z: TMPDIR/measure_audio-alsapw-r84.lock,
+   TMPDIR/r84critic-{src,tmp}, TMPDIR/r84a-props-i8ej74q8, pw-dump nodes r84a_ns_1682245,
+   r84a_ns_1685102 (RUNNING) and r84c_env (RUNNING) — the r84 critic replaying the
+   fixture live while this audit ran. At 21:45Z those nodes were gone; only the foreign
+   r84a_probe_548706 (node 77, SUSPENDED) remained, matching the author's disclosure.
+
+== H. live host checks (read-only, no objects created) ==
+   pipewire --version: pipewire
+   wireplumber --version: wireplumber
+   pactl --version: pactl 17.0-98-gb096
+   aplay --version: aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>
+   arecord --version: arecord: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>
+   python3 -V: Python 3.14.7
+   numpy: 2.5.3

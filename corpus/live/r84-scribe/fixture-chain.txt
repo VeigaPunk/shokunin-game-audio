@@ -1,0 +1,155 @@
+# r84-scribe fixture chain (commit-pin diff, insertion-only audit)
+# source: git diff fbe65713^ fbe65713 -- corpus/fixtures/measure_audio.py
+
+== hunk headers (6 hunks) ==
+@@ -18818,6 +18818,2764 @@ def pwcat_failopen_args_r83_entry():
+@@ -18942,6 +21700,7 @@ def main():
+@@ -18949,7 +21708,7 @@ def main():
+@@ -19273,6 +22032,40 @@ def main():
+@@ -19899,7 +22692,7 @@ def main():
+@@ -19919,7 +22712,7 @@ def main():
+
+== deleted lines (all 3; the diff contains exactly these) ==
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.pro
+-    mode = "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else 
+-    suffix = "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if 
+
+== numstat ==
+2796	3	corpus/fixtures/measure_audio.py
+
+== hunk 4 body (dispatch wiring) ==
++    if args.probe_alsapw_r84:
++        # r84: the ALSA<->PIPEWIRE client frontier — the aplay/arecord/
++        # speaker-test `-D` lattice + verbatim refusal taxonomy, the
++        # pipewire: device-string arg/env surface (NODE->target.object,
++        # the one-sided silent fallback, PERIOD_BYTES->node.latency,
++        # the SINGLE plugin-capture refusal class + NODE=<source>
++        # revival), the PULSE_PROP_* env surface (node landing vs the
++        # pulse-view rewrite), the pactl write surface on a probe-owned
++        # null sink (cubic monitor read-back, source-monitor same-law,
++        # suspend hint classes, fractional/raw write semantics), parec
++        # --monitor-stream pins (-d ignored, move-follows, source-
++        # output empty-accept, index refusals, kill-stall), the
++        # mid-run si-write visibility arms (post-gain x0.125, per the
++        # boundary correction), the stream-restore persistence leg on
++        # the PRIVATE r84arole<pid> key, and the negative-control
++        # entry. A NEW parallel ledger family, prior rows untouched;
++        # r76-r83 guards inherited (name-verified unloads, seat-owned
++        # r84a_* names, never set-default-*, bounded process groups,
++        # taps bounded by -n/--latency-msec). The lock serializes
++        # same-family runs (monitor taps + the /proc RUNNING witness
++        # would cross-credit).
++        _r84_family_lock = _alsapw_r84_family_lock()   # held to exit
++        measurements["alsapw_dev_lattice_r84_probe"] = \
++            alsapw_dev_lattice_r84_entry()
++        measurements["alsapw_pw_args_r84_probe"] = \
++            alsapw_pw_args_r84_entry()
++        measurements["alsapw_pulseprop_r84_probe"] = \
++            alsapw_pulseprop_r84_entry()
++        measurements["alsapw_pactl_write_r84_probe"] = \
++            alsapw_pactl_write_r84_entry()
++        measurements["alsapw_monstream_r84_probe"] = \
++            alsapw_monstream_r84_entry()
++        measurements["alsapw_negctl_r84_probe"] = \
++            alsapw_negctl_r84_entry()
+
+== namespace token census (pinned tree copy) ==
+_alsapw_r84                        330
+ALSAPW_R84_                        89
+r84a_                              25
+probe-alsapw-r84                   4
+alsapw_dev_lattice_r84_probe       1
+alsapw_pw_args_r84_probe           1
+alsapw_pulseprop_r84_probe         1
+alsapw_pactl_write_r84_probe       1
+alsapw_monstream_r84_probe         1
+alsapw_negctl_r84_probe            1
+_ALSAPW_R84_ERR_CLASSES            2
+
+== prefix / role / envelope constants ==
+18957:ALSAPW_R84_PREFIX = f"r84a_{ALSAPW_R84_PID}"
+18958-ALSAPW_R84_NS = f"r84a_ns_{ALSAPW_R84_PID}"      # probe-owned null sink
+18959-ALSAPW_R84_NS2 = f"r84a_ns2_{ALSAPW_R84_PID}"    # second sink (move arm)
+18960:ALSAPW_R84_ROLE = f"r84arole{ALSAPW_R84_PID}"    # private restore key —
+18961-                                               # NEVER the shared `music`
+18962-ALSAPW_R84_BOGUS = "no_such_r84a"
+18963-ALSAPW_R84_B_HZ = 2700.0        # stream-B discriminator — clear of the
+18964-                                # pid-offset A pair (L<=1630, R<=2133)
+--
+18977:ALSAPW_R84_VOL_ENV = {          # post/base median-peak envelopes — the
+18978-    "x0.125": (0.105, 0.150),   # boundary's exact-cubic measurements
+18979-    "x3.375": (3.00, 3.80),     # held under 100+ load
+18980-    "x0.015625": (0.010, 0.024)}
+18981-
+
+== classifier class-table size (_ALSAPW_R84_ERR_CLASSES) ==
+18
+
+== teardown helper (name-verified unload + two witnesses) ==
+def _alsapw_r84_teardown(entry, failures, loads):
+    """Every own sink unloaded by the name-verified index, then the two
+    witnesses: sinks gone from pactl + no r84a_<pid>-tagged node
+    survives."""
+    for tag, leaf in (loads or {}).items():
+        entry.setdefault("unloads", {})[tag] = _gst_r81_unload_own(
+            (leaf or {}).get("module_id"), sink_name=tag)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if ALSAPW_R84_PREFIX in n or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r84a-tagged nodes survived: {rest}")
+
+== hunk 4 body (dispatch wiring; 34 insertions at main():22032) ==
++    if args.probe_alsapw_r84:
++        # r84: the ALSA<->PIPEWIRE client frontier — the aplay/arecord/
++        # speaker-test `-D` lattice + verbatim refusal taxonomy, the
++        # pipewire: device-string arg/env surface (NODE->target.object,
++        # the one-sided silent fallback, PERIOD_BYTES->node.latency,
++        # the SINGLE plugin-capture refusal class + NODE=<source>
++        # revival), the PULSE_PROP_* env surface (node landing vs the
++        # pulse-view rewrite), the pactl write surface on a probe-owned
++        # null sink (cubic monitor read-back, source-monitor same-law,
++        # suspend hint classes, fractional/raw write semantics), parec
++        # --monitor-stream pins (-d ignored, move-follows, source-
++        # output empty-accept, index refusals, kill-stall), the
++        # mid-run si-write visibility arms (post-gain x0.125, per the
++        # boundary correction), the stream-restore persistence leg on
++        # the PRIVATE r84arole<pid> key, and the negative-control
++        # entry. A NEW parallel ledger family, prior rows untouched;
++        # r76-r83 guards inherited (name-verified unloads, seat-owned
++        # r84a_* names, never set-default-*, bounded process groups,
++        # taps bounded by -n/--latency-msec). The lock serializes
++        # same-family runs (monitor taps + the /proc RUNNING witness
++        # would cross-credit).
++        _r84_family_lock = _alsapw_r84_family_lock()   # held to exit
++        measurements["alsapw_dev_lattice_r84_probe"] = \
++            alsapw_dev_lattice_r84_entry()
++        measurements["alsapw_pw_args_r84_probe"] = \
++            alsapw_pw_args_r84_entry()
++        measurements["alsapw_pulseprop_r84_probe"] = \
++            alsapw_pulseprop_r84_entry()
++        measurements["alsapw_pactl_write_r84_probe"] = \
++            alsapw_pactl_write_r84_entry()
++        measurements["alsapw_monstream_r84_probe"] = \
++            alsapw_monstream_r84_entry()
++        measurements["alsapw_negctl_r84_probe"] = \
++            alsapw_negctl_r84_entry()
