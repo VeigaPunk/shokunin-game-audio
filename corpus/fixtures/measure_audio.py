@@ -49750,6 +49750,12 @@ def _ebur_r93_block(entry, failures, msg, ctx=None):
     return entry
 
 
+def _ebur_r93_abort(entry, failures, exc):
+    msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+    entry.setdefault("coverage_blocked", []).append(msg)
+    failures.append(msg)
+
+
 def _ebur_r93_fail(failures, leg, msg, row=None):
     """One armed failure: the leg id, the claim, and the readout that
     falsified it (a bare boolean is not evidence)."""
@@ -49954,10 +49960,12 @@ def ebur_topology_r93_entry():
                         "input port %r does not read the single-state "
                         "value %s (the channel map is NOT dead here)"
                         % (port, EBUR_R93_CAL_1K_050), row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
     finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
         _ebur_r93_teardown(entry, failures, ctx)
-    entry["legs"] = legs
-    entry["failures"] = failures
     return _ebur_r93_json_safe(entry)
 
 
@@ -50020,10 +50028,12 @@ def ebur_cal_r93_entry():
         entry["k_weighting"] = _ebur_r93_kweight_report(ctx, measured)
         for item in entry["k_weighting"].get("failures") or ():
             failures.append(item)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
     finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
         _ebur_r93_teardown(entry, failures, ctx)
-    entry["legs"] = legs
-    entry["failures"] = failures
     return _ebur_r93_json_safe(entry)
 
 
@@ -50070,90 +50080,94 @@ def ebur_channel_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 channel map + dB mean")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    two = {"nodes": ["{type=ebur128,name=e,label=ebur128}",
-                     "{type=builtin,name=dbg,label=debug}"],
-           "inputs": ["e:In FL", "e:In FR"],
-           "outputs": ["e:Out FL", "e:Out FR"], "ch": 2}
-    arms = [
-        dict(two, tag="ch_mix", stim_key="st_mix", reps=2,
-             note="C5 FL 0.5 + FR 0.05: Momentary is the dB mean of the "
-                  "two states, never the energy mean"),
-        dict(two, tag="ch_both", stim_key="st_both", reps=2,
-             note="C5 a stereo pair of the same tone does NOT sum (+3 dB)"),
-        dict(two, tag="ch_silent_mom", stim_key="st_tone_silence", reps=2,
-             note="C6 one silent channel poisons Momentary to -inf"),
-        dict(two, tag="ch_silent_glob", stim_key="st_tone_silence", reps=2,
-             readout="Global LUFS",
-             note="C6 Global stays finite when Momentary is -inf"),
-        dict(two, tag="ch_mono_fl", stim_key="tone_1k_050", ch=1,
-             inputs=["e:In FL"], outputs=["e:Out FL"],
-             note="C4 mono FL reads the single-state value"),
-        dict(two, tag="ch_mono_fr", stim_key="tone_1k_050", ch=1,
-             inputs=["e:In FR"], outputs=["e:Out FR"],
-             note="C4 mono FR reads the same value as FL"),
-    ]
-    for arm in arms:
-        rows = _ebur_r93_run(ctx, _ebur_r93_meter(**arm), legs, entry)
-        for row in rows:
-            if row.get("arm_failed"):
-                continue
-            st = row.get("stats") or {}
-            plateau = st.get("plateau")
-            tag = row["tag"]
-            if row["tag"].startswith("ch_mix"):
-                want = (EBUR_R93_CAL_1K_050 + (EBUR_R93_CAL_1K_050 - 20.0)) / 2.0
-                if not isinstance(plateau, (int, float)) or \
-                        abs(plateau - want) > 0.01:
-                    _ebur_r93_fail(failures, tag,
-                                   "the dB-mean law predicts "
-                                   f"{round(want, 6)} (got {plateau})", row)
-                elif plateau > -17.0:
-                    _ebur_r93_fail(failures, tag,
-                                   "the mix summed (the energy mean is "
-                                   f"-11.99, the dB mean {round(want, 6)})",
-                                   row)
-            elif row["tag"].startswith("ch_both"):
-                if not _ebur_r93_plateau_is(row.get("stats"),
-                                            EBUR_R93_CAL_1K_050,
-                                            EBUR_R93_REF_TOL_DB):
-                    _ebur_r93_fail(
-                        failures, tag,
-                        "a stereo pair of one tone reads "
-                        f"{plateau}, not the single-channel "
-                        f"{EBUR_R93_CAL_1K_050} — the states summed", row)
-            elif row["tag"].startswith("ch_silent_mom"):
-                if st.get("n_finite") != 0 or st.get("n_inf") != st.get("n"):
-                    _ebur_r93_fail(failures, tag,
-                                   "one silent channel did not poison "
-                                   "Momentary to -inf", row)
-            elif row["tag"].startswith("ch_silent_glob"):
-                if not isinstance(plateau, (int, float)):
-                    _ebur_r93_fail(failures, tag,
-                                   "Global is not finite with a silent "
-                                   f"channel (plateau={plateau})", row)
-                else:
-                    ref = (ctx["refs"].get("tone_1k_050") or {}).get("global")
-                    refv = (ref or {}).get("lufs")
-                    dev = _ebur_r93_delta(plateau, refv)
-                    row["global_deviation_lu"] = dev
-                    if isinstance(dev, float) and \
-                            abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+    try:
+        two = {"nodes": ["{type=ebur128,name=e,label=ebur128}",
+                         "{type=builtin,name=dbg,label=debug}"],
+               "inputs": ["e:In FL", "e:In FR"],
+               "outputs": ["e:Out FL", "e:Out FR"], "ch": 2}
+        arms = [
+            dict(two, tag="ch_mix", stim_key="st_mix", reps=2,
+                 note="C5 FL 0.5 + FR 0.05: Momentary is the dB mean of the "
+                      "two states, never the energy mean"),
+            dict(two, tag="ch_both", stim_key="st_both", reps=2,
+                 note="C5 a stereo pair of the same tone does NOT sum (+3 dB)"),
+            dict(two, tag="ch_silent_mom", stim_key="st_tone_silence", reps=2,
+                 note="C6 one silent channel poisons Momentary to -inf"),
+            dict(two, tag="ch_silent_glob", stim_key="st_tone_silence", reps=2,
+                 readout="Global LUFS",
+                 note="C6 Global stays finite when Momentary is -inf"),
+            dict(two, tag="ch_mono_fl", stim_key="tone_1k_050", ch=1,
+                 inputs=["e:In FL"], outputs=["e:Out FL"],
+                 note="C4 mono FL reads the single-state value"),
+            dict(two, tag="ch_mono_fr", stim_key="tone_1k_050", ch=1,
+                 inputs=["e:In FR"], outputs=["e:Out FR"],
+                 note="C4 mono FR reads the same value as FL"),
+        ]
+        for arm in arms:
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(**arm), legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                st = row.get("stats") or {}
+                plateau = st.get("plateau")
+                tag = row["tag"]
+                if row["tag"].startswith("ch_mix"):
+                    want = (EBUR_R93_CAL_1K_050 + (EBUR_R93_CAL_1K_050 - 20.0)) / 2.0
+                    if not isinstance(plateau, (int, float)) or \
+                            abs(plateau - want) > 0.01:
+                        _ebur_r93_fail(failures, tag,
+                                       "the dB-mean law predicts "
+                                       f"{round(want, 6)} (got {plateau})", row)
+                    elif plateau > -17.0:
+                        _ebur_r93_fail(failures, tag,
+                                       "the mix summed (the energy mean is "
+                                       f"-11.99, the dB mean {round(want, 6)})",
+                                       row)
+                elif row["tag"].startswith("ch_both"):
+                    if not _ebur_r93_plateau_is(row.get("stats"),
+                                                EBUR_R93_CAL_1K_050,
+                                                EBUR_R93_REF_TOL_DB):
                         _ebur_r93_fail(
                             failures, tag,
-                            "C16: Global deviates from the own gated "
-                            f"reference by {dev} LU "
-                            f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})", row)
-            else:
-                if not _ebur_r93_plateau_is(row.get("stats"),
-                                            EBUR_R93_CAL_1K_050,
-                                            EBUR_R93_CAL_TOL_DB):
-                    _ebur_r93_fail(failures, tag,
-                                   "mono leg does not read the "
-                                   f"single-state {EBUR_R93_CAL_1K_050}",
-                                   row)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+                            "a stereo pair of one tone reads "
+                            f"{plateau}, not the single-channel "
+                            f"{EBUR_R93_CAL_1K_050} — the states summed", row)
+                elif row["tag"].startswith("ch_silent_mom"):
+                    if st.get("n_finite") != 0 or st.get("n_inf") != st.get("n"):
+                        _ebur_r93_fail(failures, tag,
+                                       "one silent channel did not poison "
+                                       "Momentary to -inf", row)
+                elif row["tag"].startswith("ch_silent_glob"):
+                    if not isinstance(plateau, (int, float)):
+                        _ebur_r93_fail(failures, tag,
+                                       "Global is not finite with a silent "
+                                       f"channel (plateau={plateau})", row)
+                    else:
+                        ref = (ctx["refs"].get("tone_1k_050") or {}).get("global")
+                        refv = (ref or {}).get("lufs")
+                        dev = _ebur_r93_delta(plateau, refv)
+                        row["global_deviation_lu"] = dev
+                        if isinstance(dev, float) and \
+                                abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+                            _ebur_r93_fail(
+                                failures, tag,
+                                "C16: Global deviates from the own gated "
+                                f"reference by {dev} LU "
+                                f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})", row)
+                else:
+                    if not _ebur_r93_plateau_is(row.get("stats"),
+                                                EBUR_R93_CAL_1K_050,
+                                                EBUR_R93_CAL_TOL_DB):
+                        _ebur_r93_fail(failures, tag,
+                                       "mono leg does not read the "
+                                       f"single-state {EBUR_R93_CAL_1K_050}",
+                                       row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50168,70 +50182,74 @@ def ebur_modes_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 notify-only coupling")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    arms = [
-        _ebur_r93_meter(tag="m_window_only", readout="Window LUFS", reps=2,
-                        capture=("post",),
-                        note="C8 Window-only: constant NaN, audio flows"),
-        _ebur_r93_meter(tag="m_range_only", readout="Range LU", reps=2,
-                        note="Range-only reads a stale 0.0"),
-        _ebur_r93_meter(tag="m_peak_only", readout="Peak", reps=2,
-                        note="Peak-only reads a stale 0.0"),
-        _ebur_r93_meter(tag="m_momentary_only", readout="Momentary LUFS",
-                        reps=2, capture=("post",),
-                        note="Momentary-only: a real value, audio flows"),
-        _ebur_r93_meter(tag="m_global_only", readout="Global LUFS", reps=2,
-                        note="Global-only: a real value"),
-        _ebur_r93_meter(tag="m_shortterm_only", readout="Shortterm LUFS",
-                        note="Shortterm-only: a real value (boundary left "
-                             "this notify name unread)"),
-    ]
-    for arm in arms:
-        rows = _ebur_r93_run(ctx, arm, legs, entry)
-        for row in rows:
-            if row.get("arm_failed"):
-                continue
-            st = row.get("stats") or {}
-            tag, plateau = row["tag"], st.get("plateau")
-            if tag.startswith("m_window_only"):
-                if st.get("n_finite") != 0 or \
-                        st.get("n_nan", 0) < st.get("n", 0) - 2:
-                    _ebur_r93_fail(failures, tag,
-                                   "Window-only is not a constant-NaN meter",
-                                   row)
-                cap = row.get("post_capture") or {}
-                if not cap.get("frames") or (cap.get("nonzero") or 0) < 1000 \
-                        or (cap.get("rms") or 0.0) <= 0.01:
-                    _ebur_r93_fail(failures, tag,
-                                   "the Window-only graph is not a live "
-                                   f"pass-through (post={cap})", row)
-            elif tag.startswith(("m_range_only", "m_peak_only")):
-                if plateau != 0.0 or st.get("n_nan") != 0 or \
-                        st.get("n_finite", 0) < st.get("n", 0) - 2:
-                    _ebur_r93_fail(failures, tag,
-                                   "a Range/Peak-only readout is not the "
-                                   f"stale 0.0 class (plateau={plateau})",
-                                   row)
-            elif tag.startswith("m_momentary_only"):
-                if not isinstance(plateau, (int, float)) or \
-                        abs(plateau - EBUR_R93_CAL_1K_050) > \
-                        EBUR_R93_CAL_TOL_DB:
-                    _ebur_r93_fail(failures, tag,
-                                   "Momentary-only is not the calibration "
-                                   f"value (plateau={plateau})", row)
-                cap = row.get("post_capture") or {}
-                if (cap.get("nonzero") or 0) < 1000 or \
-                        (cap.get("rms") or 0.0) <= 0.01:
-                    _ebur_r93_fail(failures, tag,
-                                   f"audio did not flow (post={cap})", row)
-            else:
-                if not isinstance(plateau, (int, float)) or plateau >= 0.0:
-                    _ebur_r93_fail(failures, tag,
-                                   "a single notify link does not read a "
-                                   f"real loudness value (plateau={plateau})",
-                                   row)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+    try:
+        arms = [
+            _ebur_r93_meter(tag="m_window_only", readout="Window LUFS", reps=2,
+                            capture=("post",),
+                            note="C8 Window-only: constant NaN, audio flows"),
+            _ebur_r93_meter(tag="m_range_only", readout="Range LU", reps=2,
+                            note="Range-only reads a stale 0.0"),
+            _ebur_r93_meter(tag="m_peak_only", readout="Peak", reps=2,
+                            note="Peak-only reads a stale 0.0"),
+            _ebur_r93_meter(tag="m_momentary_only", readout="Momentary LUFS",
+                            reps=2, capture=("post",),
+                            note="Momentary-only: a real value, audio flows"),
+            _ebur_r93_meter(tag="m_global_only", readout="Global LUFS", reps=2,
+                            note="Global-only: a real value"),
+            _ebur_r93_meter(tag="m_shortterm_only", readout="Shortterm LUFS",
+                            note="Shortterm-only: a real value (boundary left "
+                                 "this notify name unread)"),
+        ]
+        for arm in arms:
+            rows = _ebur_r93_run(ctx, arm, legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                st = row.get("stats") or {}
+                tag, plateau = row["tag"], st.get("plateau")
+                if tag.startswith("m_window_only"):
+                    if st.get("n_finite") != 0 or \
+                            st.get("n_nan", 0) < st.get("n", 0) - 2:
+                        _ebur_r93_fail(failures, tag,
+                                       "Window-only is not a constant-NaN meter",
+                                       row)
+                    cap = row.get("post_capture") or {}
+                    if not cap.get("frames") or (cap.get("nonzero") or 0) < 1000 \
+                            or (cap.get("rms") or 0.0) <= 0.01:
+                        _ebur_r93_fail(failures, tag,
+                                       "the Window-only graph is not a live "
+                                       f"pass-through (post={cap})", row)
+                elif tag.startswith(("m_range_only", "m_peak_only")):
+                    if plateau != 0.0 or st.get("n_nan") != 0 or \
+                            st.get("n_finite", 0) < st.get("n", 0) - 2:
+                        _ebur_r93_fail(failures, tag,
+                                       "a Range/Peak-only readout is not the "
+                                       f"stale 0.0 class (plateau={plateau})",
+                                       row)
+                elif tag.startswith("m_momentary_only"):
+                    if not isinstance(plateau, (int, float)) or \
+                            abs(plateau - EBUR_R93_CAL_1K_050) > \
+                            EBUR_R93_CAL_TOL_DB:
+                        _ebur_r93_fail(failures, tag,
+                                       "Momentary-only is not the calibration "
+                                       f"value (plateau={plateau})", row)
+                    cap = row.get("post_capture") or {}
+                    if (cap.get("nonzero") or 0) < 1000 or \
+                            (cap.get("rms") or 0.0) <= 0.01:
+                        _ebur_r93_fail(failures, tag,
+                                       f"audio did not flow (post={cap})", row)
+                else:
+                    if not isinstance(plateau, (int, float)) or plateau >= 0.0:
+                        _ebur_r93_fail(failures, tag,
+                                       "a single notify link does not read a "
+                                       f"real loudness value (plateau={plateau})",
+                                       row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50245,50 +50263,54 @@ def ebur_peaks_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 peaks")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    arms = [
-        _ebur_r93_meter(tag="p_fl", readout="Peak", stim_key="tone_1k_050",
-                        ch=1, inputs=["e:In FL"], outputs=["e:Out FL"],
-                        dur=2.0, read_extra=1.0,
-                        note="C9 Peak on In FL reads the true 0.5"),
-        _ebur_r93_meter(tag="p_dual", readout="Peak", stim_key="tone_1k_050",
-                        dur=2.0, read_extra=1.0,
-                        note="C9 Peak on In DUAL MONO reads 0.0 (index bug)"),
-        _ebur_r93_meter(tag="p_st", readout="Peak", stim_key="st_02_08",
-                        ch=2, inputs=["e:In FL", "e:In FR"],
-                        outputs=["e:Out FL", "e:Out FR"], dur=2.0,
-                        read_extra=1.0,
-                        note="C9 Peak on a stereo pair reads FL's 0.2, "
-                             "never FR's 0.8"),
-        _ebur_r93_meter(tag="tp_fl", readout="True Peak",
-                        stim_key="tone_1k_050", ch=1, inputs=["e:In FL"],
-                        outputs=["e:Out FL"], dur=2.0, read_extra=1.0,
-                        note="C9 True Peak on In FL reads 0.5"),
-        _ebur_r93_meter(tag="tp_dual", readout="True Peak",
-                        stim_key="tone_1k_050", dur=2.0, read_extra=1.0,
-                        note="C9 True Peak on In DUAL MONO reads 0.0"),
-        _ebur_r93_meter(tag="tp_st", readout="True Peak",
-                        stim_key="st_02_08", ch=2,
-                        inputs=["e:In FL", "e:In FR"],
-                        outputs=["e:Out FL", "e:Out FR"], dur=2.0,
-                        read_extra=1.0,
-                        note="C9 True Peak on a stereo pair reads FL's 0.2"),
-    ]
-    wants = {"p_fl": 0.5, "p_dual": 0.0, "p_st": 0.2,
-             "tp_fl": 0.5, "tp_dual": 0.0, "tp_st": 0.2}
-    for arm in arms:
-        rows = _ebur_r93_run(ctx, arm, legs, entry)
-        for row in rows:
-            if row.get("arm_failed"):
-                continue
-            want = wants[row["tag"].split("_r")[0]]
-            plateau = (row.get("stats") or {}).get("plateau")
-            if plateau is None or abs(plateau - want) > 1e-6:
-                _ebur_r93_fail(failures, row["tag"],
-                               f"the {row['readout']} readout is {plateau}, "
-                               f"not {want} (C9 index-as-channel)", row)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+    try:
+        arms = [
+            _ebur_r93_meter(tag="p_fl", readout="Peak", stim_key="tone_1k_050",
+                            ch=1, inputs=["e:In FL"], outputs=["e:Out FL"],
+                            dur=2.0, read_extra=1.0,
+                            note="C9 Peak on In FL reads the true 0.5"),
+            _ebur_r93_meter(tag="p_dual", readout="Peak", stim_key="tone_1k_050",
+                            dur=2.0, read_extra=1.0,
+                            note="C9 Peak on In DUAL MONO reads 0.0 (index bug)"),
+            _ebur_r93_meter(tag="p_st", readout="Peak", stim_key="st_02_08",
+                            ch=2, inputs=["e:In FL", "e:In FR"],
+                            outputs=["e:Out FL", "e:Out FR"], dur=2.0,
+                            read_extra=1.0,
+                            note="C9 Peak on a stereo pair reads FL's 0.2, "
+                                 "never FR's 0.8"),
+            _ebur_r93_meter(tag="tp_fl", readout="True Peak",
+                            stim_key="tone_1k_050", ch=1, inputs=["e:In FL"],
+                            outputs=["e:Out FL"], dur=2.0, read_extra=1.0,
+                            note="C9 True Peak on In FL reads 0.5"),
+            _ebur_r93_meter(tag="tp_dual", readout="True Peak",
+                            stim_key="tone_1k_050", dur=2.0, read_extra=1.0,
+                            note="C9 True Peak on In DUAL MONO reads 0.0"),
+            _ebur_r93_meter(tag="tp_st", readout="True Peak",
+                            stim_key="st_02_08", ch=2,
+                            inputs=["e:In FL", "e:In FR"],
+                            outputs=["e:Out FL", "e:Out FR"], dur=2.0,
+                            read_extra=1.0,
+                            note="C9 True Peak on a stereo pair reads FL's 0.2"),
+        ]
+        wants = {"p_fl": 0.5, "p_dual": 0.0, "p_st": 0.2,
+                 "tp_fl": 0.5, "tp_dual": 0.0, "tp_st": 0.2}
+        for arm in arms:
+            rows = _ebur_r93_run(ctx, arm, legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                want = wants[row["tag"].split("_r")[0]]
+                plateau = (row.get("stats") or {}).get("plateau")
+                if plateau is None or abs(plateau - want) > 1e-6:
+                    _ebur_r93_fail(failures, row["tag"],
+                                   f"the {row['readout']} readout is {plateau}, "
+                                   f"not {want} (C9 index-as-channel)", row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50303,66 +50325,70 @@ def ebur_window_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 max-window matrix")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    decays = {}
-    arms = [
-        ("w_absent", None, 2, EBUR_R93_TONE_S, EBUR_R93_READ_S),
-        ("w_040", "max-window=0.4", 2, EBUR_R93_TONE_S, 1.6),
-        ("w_200", "max-window=2.0", 2, EBUR_R93_TONE_S, 3.6),
-    ]
-    for tag, cfg, reps, dur, extra in arms:
-        nodes = [_ebur_r93_ebu(cfg=cfg),
-                 _ebur_r93_builtin("linear", "lin"),
-                 _ebur_r93_builtin("debug", "dbg")]
-        links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
-                 _ebur_r93_link_spec("e:Window LUFS", "dbg:Control")]
-        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
-            tag=tag, readout="Window LUFS", nodes=nodes, links=links,
-            reps=reps, dur=dur, read_extra=extra,
-            note="C10 %s" % (cfg or "no max-window")), legs, entry)
-        for row in rows:
-            if row.get("arm_failed"):
-                continue
-            st = row.get("stats") or {}
-            if tag == "w_absent":
-                if st.get("n_finite") != 0 or \
-                        st.get("n_nan", 0) < st.get("n", 0) - 2:
+    try:
+        decays = {}
+        arms = [
+            ("w_absent", None, 2, EBUR_R93_TONE_S, EBUR_R93_READ_S),
+            ("w_040", "max-window=0.4", 2, EBUR_R93_TONE_S, 1.6),
+            ("w_200", "max-window=2.0", 2, EBUR_R93_TONE_S, 3.6),
+        ]
+        for tag, cfg, reps, dur, extra in arms:
+            nodes = [_ebur_r93_ebu(cfg=cfg),
+                     _ebur_r93_builtin("linear", "lin"),
+                     _ebur_r93_builtin("debug", "dbg")]
+            links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
+                     _ebur_r93_link_spec("e:Window LUFS", "dbg:Control")]
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag=tag, readout="Window LUFS", nodes=nodes, links=links,
+                reps=reps, dur=dur, read_extra=extra,
+                note="C10 %s" % (cfg or "no max-window")), legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                st = row.get("stats") or {}
+                if tag == "w_absent":
+                    if st.get("n_finite") != 0 or \
+                            st.get("n_nan", 0) < st.get("n", 0) - 2:
+                        _ebur_r93_fail(failures, row["tag"],
+                                       "an absent max-window is not a "
+                                       "constant-NaN meter", row)
+                    continue
+                if not _ebur_r93_plateau_is(st, EBUR_R93_CAL_1K_050,
+                                            EBUR_R93_REF_TOL_DB):
                     _ebur_r93_fail(failures, row["tag"],
-                                   "an absent max-window is not a "
-                                   "constant-NaN meter", row)
-                continue
-            if not _ebur_r93_plateau_is(st, EBUR_R93_CAL_1K_050,
-                                        EBUR_R93_REF_TOL_DB):
-                _ebur_r93_fail(failures, row["tag"],
-                               "the Window readout's plateau is not the "
-                               f"calibration value (plateau="
-                               f"{st.get('plateau')})", row)
-                continue
-            dec = _ebur_r93_decay(row.get("series") or [], st.get("plateau"),
-                                  st.get("plateau_t1") or 0.0)
-            row["decay_s"] = dec
-            decays.setdefault(tag, []).append(dec)
-    entry["decays"] = {k: [_ebur_r93_num(v) for v in vs]
-                       for k, vs in sorted(decays.items())}
-    d040 = [d for d in (decays.get("w_040") or []) if isinstance(d, float)]
-    d200 = [d for d in (decays.get("w_200") or []) if isinstance(d, float)]
-    if not d040 or not d200:
-        failures.append("max-window decay: a configured arm produced no "
-                        f"30 dB decay inside the read window "
-                        f"(0.4={d040} 2.0={d200})")
-    else:
-        if max(d040) > 0.8:
-            failures.append("max-window=0.4: the readout took "
-                            f"{max(d040)} s to fall 30 dB (> 0.8 s)")
-        if min(d200) < 1.5:
-            failures.append("max-window=2.0: the readout fell 30 dB after "
-                            f"only {min(d200)} s (< 1.5 s)")
-        if min(d200) - max(d040) < 1.0:
-            failures.append("max-window scaling: the 2.0 s window did not "
-                            f"decay at least 1 s later than the 0.4 s "
-                            f"window ({d200} vs {d040})")
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+                                   "the Window readout's plateau is not the "
+                                   f"calibration value (plateau="
+                                   f"{st.get('plateau')})", row)
+                    continue
+                dec = _ebur_r93_decay(row.get("series") or [], st.get("plateau"),
+                                      st.get("plateau_t1") or 0.0)
+                row["decay_s"] = dec
+                decays.setdefault(tag, []).append(dec)
+        entry["decays"] = {k: [_ebur_r93_num(v) for v in vs]
+                           for k, vs in sorted(decays.items())}
+        d040 = [d for d in (decays.get("w_040") or []) if isinstance(d, float)]
+        d200 = [d for d in (decays.get("w_200") or []) if isinstance(d, float)]
+        if not d040 or not d200:
+            failures.append("max-window decay: a configured arm produced no "
+                            f"30 dB decay inside the read window "
+                            f"(0.4={d040} 2.0={d200})")
+        else:
+            if max(d040) > 0.8:
+                failures.append("max-window=0.4: the readout took "
+                                f"{max(d040)} s to fall 30 dB (> 0.8 s)")
+            if min(d200) < 1.5:
+                failures.append("max-window=2.0: the readout fell 30 dB after "
+                                f"only {min(d200)} s (< 1.5 s)")
+            if min(d200) - max(d040) < 1.0:
+                failures.append("max-window scaling: the 2.0 s window did not "
+                                f"decay at least 1 s later than the 0.4 s "
+                                f"window ({d200} vs {d040})")
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50376,73 +50402,77 @@ def ebur_history_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 max-history cap")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    arms = [
-        ("h_sil_default", None, "burst_1500ms", 1.5, 5.5),
-        ("h_sil_cap2", "max-history=2.0", "burst_1500ms", 1.5, 5.5),
-        ("h_bursts_default", None, "bursts_two", 6.5, 2.0),
-        ("h_bursts_cap2", "max-history=2.0", "bursts_two", 6.5, 2.0),
-    ]
-    got = {}
-    for tag, cfg, key, dur, extra in arms:
-        nodes = [_ebur_r93_ebu(cfg=cfg),
-                 _ebur_r93_builtin("linear", "lin"),
-                 _ebur_r93_builtin("debug", "dbg")]
-        links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
-                 _ebur_r93_link_spec("e:Global LUFS", "dbg:Control")]
-        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
-            tag=tag, readout="Global LUFS", nodes=nodes, links=links,
-            stim_key=key, reps=2, dur=dur, read_extra=extra,
-            note="C11 %s on %s" % (cfg or "default max-history", key)),
-            legs, entry)
-        for row in rows:
-            if row.get("arm_failed"):
-                continue
-            plateau = (row.get("stats") or {}).get("plateau")
-            if isinstance(plateau, (int, float)):
-                got.setdefault(tag, []).append(plateau)
-    ref = (ctx["refs"].get("bursts_two") or {}).get("global") or {}
-    ref_lufs = ref.get("lufs")
-    entry["own_reference"] = {"bursts_two_global": ref_lufs,
-                              "burst_1500ms_global":
-                              (ctx["refs"].get("burst_1500ms")
-                               or {}).get("global", {}).get("lufs")}
-    entry["global_plateaus"] = {k: [_ebur_r93_num(v) for v in vs]
-                                for k, vs in sorted(got.items())}
-    if not all(got.get(t) for t in ("h_sil_default", "h_sil_cap2",
-                                    "h_bursts_default", "h_bursts_cap2")):
-        failures.append("max-history: a leg produced no finite Global "
-                        f"plateau ({sorted(got)})")
-    else:
-        for i, (a, b) in enumerate(zip(got["h_sil_default"],
-                                       got["h_sil_cap2"])):
-            if abs(a - b) > 0.05:
-                failures.append(
-                    "max-history: 5 s of silence EVICTED "
-                    f"(default {a} vs cap {b}) — silence must not evict")
-        for i, (d, c) in enumerate(zip(got["h_bursts_default"],
-                                       got["h_bursts_cap2"])):
-            if c > d - 3.0:
-                failures.append(
-                    "max-history=2.0 did not evict the first burst "
-                    f"(default {d} vs cap {c})")
-            if isinstance(ref_lufs, (int, float)):
-                dev = _ebur_r93_delta(d, ref_lufs)
-                if isinstance(dev, float) and \
-                        abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+    try:
+        arms = [
+            ("h_sil_default", None, "burst_1500ms", 1.5, 5.5),
+            ("h_sil_cap2", "max-history=2.0", "burst_1500ms", 1.5, 5.5),
+            ("h_bursts_default", None, "bursts_two", 6.5, 2.0),
+            ("h_bursts_cap2", "max-history=2.0", "bursts_two", 6.5, 2.0),
+        ]
+        got = {}
+        for tag, cfg, key, dur, extra in arms:
+            nodes = [_ebur_r93_ebu(cfg=cfg),
+                     _ebur_r93_builtin("linear", "lin"),
+                     _ebur_r93_builtin("debug", "dbg")]
+            links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
+                     _ebur_r93_link_spec("e:Global LUFS", "dbg:Control")]
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag=tag, readout="Global LUFS", nodes=nodes, links=links,
+                stim_key=key, reps=2, dur=dur, read_extra=extra,
+                note="C11 %s on %s" % (cfg or "default max-history", key)),
+                legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                plateau = (row.get("stats") or {}).get("plateau")
+                if isinstance(plateau, (int, float)):
+                    got.setdefault(tag, []).append(plateau)
+        ref = (ctx["refs"].get("bursts_two") or {}).get("global") or {}
+        ref_lufs = ref.get("lufs")
+        entry["own_reference"] = {"bursts_two_global": ref_lufs,
+                                  "burst_1500ms_global":
+                                  (ctx["refs"].get("burst_1500ms")
+                                   or {}).get("global", {}).get("lufs")}
+        entry["global_plateaus"] = {k: [_ebur_r93_num(v) for v in vs]
+                                    for k, vs in sorted(got.items())}
+        if not all(got.get(t) for t in ("h_sil_default", "h_sil_cap2",
+                                        "h_bursts_default", "h_bursts_cap2")):
+            failures.append("max-history: a leg produced no finite Global "
+                            f"plateau ({sorted(got)})")
+        else:
+            for i, (a, b) in enumerate(zip(got["h_sil_default"],
+                                           got["h_sil_cap2"])):
+                if abs(a - b) > 0.05:
                     failures.append(
-                        "C16: the two-burst default Global deviates from "
-                        f"the own gated reference by {dev} LU "
-                        f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})")
-                devc = _ebur_r93_delta(c, ref_lufs)
-                if isinstance(devc, float) and \
-                        abs(devc) <= EBUR_R93_GLOBAL_ENVELOPE_LU:
+                        "max-history: 5 s of silence EVICTED "
+                        f"(default {a} vs cap {b}) — silence must not evict")
+            for i, (d, c) in enumerate(zip(got["h_bursts_default"],
+                                           got["h_bursts_cap2"])):
+                if c > d - 3.0:
                     failures.append(
-                        "the max-history=2.0 arm is within the envelope of "
-                        "the own reference — the cap did not evict anything "
-                        f"({devc} LU)")
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+                        "max-history=2.0 did not evict the first burst "
+                        f"(default {d} vs cap {c})")
+                if isinstance(ref_lufs, (int, float)):
+                    dev = _ebur_r93_delta(d, ref_lufs)
+                    if isinstance(dev, float) and \
+                            abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+                        failures.append(
+                            "C16: the two-burst default Global deviates from "
+                            f"the own gated reference by {dev} LU "
+                            f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})")
+                    devc = _ebur_r93_delta(c, ref_lufs)
+                    if isinstance(devc, float) and \
+                            abs(devc) <= EBUR_R93_GLOBAL_ENVELOPE_LU:
+                        failures.append(
+                            "the max-history=2.0 arm is within the envelope of "
+                            "the own reference — the cap did not evict anything "
+                            f"({devc} LU)")
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50458,170 +50488,174 @@ def ebur_gain_r93_entry():
     entry = _ebur_r93_entry_head("r93a ebur128 lufs2gain law")
     failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
-    same_leg_nodes = [_ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
-                      _ebur_r93_builtin("linear", "lin"),
-                      _ebur_r93_builtin("linear", "lin2"),
-                      _ebur_r93_builtin("debug", "dbgG"),
-                      _ebur_r93_builtin("debug", "dbgK")]
-    same_leg_links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
-                      _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
-                      _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
-                      _ebur_r93_link_spec("e:Global LUFS", "dbgG:Control"),
-                      _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
-                      _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")]
-    arms = [
-        _ebur_r93_meter(tag="g_target0", nodes=[
-            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=0'),
-            _ebur_r93_builtin("linear", "lin"),
-            _ebur_r93_builtin("linear", "lin2"),
-            _ebur_r93_builtin("debug", "dbgG"),
-            _ebur_r93_builtin("debug", "dbgK")],
-            links=same_leg_links, inputs=["e:In DUAL MONO"],
-            outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
-            note="C12 target 0: gain = 10^((0-Global)/20) in the SAME leg"),
-        _ebur_r93_meter(tag="g_clamp", nodes=[
-            _ebur_r93_ebu(),
-            _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=-100'),
-            _ebur_r93_builtin("linear", "lin"),
-            _ebur_r93_builtin("linear", "lin2"),
-            _ebur_r93_builtin("debug", "dbgG"),
-            _ebur_r93_builtin("debug", "dbgK")],
-            links=same_leg_links, inputs=["e:In DUAL MONO"],
-            outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
-            note="C12 target -100 clamps to -70 (the same-leg law holds at "
-                 "the clamped target)"),
-        _ebur_r93_meter(tag="g_silence", nodes=[
-            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
-            _ebur_r93_builtin("linear", "lin"),
-            _ebur_r93_builtin("linear", "lin2"),
-            _ebur_r93_builtin("debug", "dbgG"),
-            _ebur_r93_builtin("debug", "dbgK")],
-            links=same_leg_links, inputs=["e:In DUAL MONO"],
-            outputs=["lin:Out"], stim_key="silence", dur=2.0,
-            read_extra=1.5, reps=2,
-            note="C12 a non-finite LUFS yields exactly 1.0"),
-        _ebur_r93_meter(tag="g_default", nodes=[
-            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
-            _ebur_r93_builtin("linear", "lin"),
-            _ebur_r93_builtin("linear", "lin2"),
-            _ebur_r93_builtin("debug", "dbgK")],
-            links=[_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
-                   _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
-                   _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
-                   _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
-                   _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")],
-            inputs=["e:In DUAL MONO"], outputs=["lin:Out"], reps=2,
-            capture=("pre", "post"), dur=3.5, read_extra=2.0,
-            note="C12 the default target's gain reaches the audio domain"),
-    ]
-    for arm in arms:
-        rows = _ebur_r93_run(ctx, arm, legs, entry)
+    try:
+        same_leg_nodes = [_ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+                          _ebur_r93_builtin("linear", "lin"),
+                          _ebur_r93_builtin("linear", "lin2"),
+                          _ebur_r93_builtin("debug", "dbgG"),
+                          _ebur_r93_builtin("debug", "dbgK")]
+        same_leg_links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
+                          _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
+                          _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
+                          _ebur_r93_link_spec("e:Global LUFS", "dbgG:Control"),
+                          _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
+                          _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")]
+        arms = [
+            _ebur_r93_meter(tag="g_target0", nodes=[
+                _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=0'),
+                _ebur_r93_builtin("linear", "lin"),
+                _ebur_r93_builtin("linear", "lin2"),
+                _ebur_r93_builtin("debug", "dbgG"),
+                _ebur_r93_builtin("debug", "dbgK")],
+                links=same_leg_links, inputs=["e:In DUAL MONO"],
+                outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
+                note="C12 target 0: gain = 10^((0-Global)/20) in the SAME leg"),
+            _ebur_r93_meter(tag="g_clamp", nodes=[
+                _ebur_r93_ebu(),
+                _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=-100'),
+                _ebur_r93_builtin("linear", "lin"),
+                _ebur_r93_builtin("linear", "lin2"),
+                _ebur_r93_builtin("debug", "dbgG"),
+                _ebur_r93_builtin("debug", "dbgK")],
+                links=same_leg_links, inputs=["e:In DUAL MONO"],
+                outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
+                note="C12 target -100 clamps to -70 (the same-leg law holds at "
+                     "the clamped target)"),
+            _ebur_r93_meter(tag="g_silence", nodes=[
+                _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+                _ebur_r93_builtin("linear", "lin"),
+                _ebur_r93_builtin("linear", "lin2"),
+                _ebur_r93_builtin("debug", "dbgG"),
+                _ebur_r93_builtin("debug", "dbgK")],
+                links=same_leg_links, inputs=["e:In DUAL MONO"],
+                outputs=["lin:Out"], stim_key="silence", dur=2.0,
+                read_extra=1.5, reps=2,
+                note="C12 a non-finite LUFS yields exactly 1.0"),
+            _ebur_r93_meter(tag="g_default", nodes=[
+                _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+                _ebur_r93_builtin("linear", "lin"),
+                _ebur_r93_builtin("linear", "lin2"),
+                _ebur_r93_builtin("debug", "dbgK")],
+                links=[_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
+                       _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
+                       _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
+                       _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
+                       _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")],
+                inputs=["e:In DUAL MONO"], outputs=["lin:Out"], reps=2,
+                capture=("pre", "post"), dur=3.5, read_extra=2.0,
+                note="C12 the default target's gain reaches the audio domain"),
+        ]
+        for arm in arms:
+            rows = _ebur_r93_run(ctx, arm, legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                tag = row["tag"]
+                lufs, gain = _ebur_r93_split_series(row.get("series") or [])
+                row["lufs_tail"] = _ebur_r93_tail(lufs)
+                row["gain_tail"] = _ebur_r93_tail(gain)
+                if tag.startswith("g_target0"):
+                    if not lufs or not gain:
+                        _ebur_r93_fail(failures, tag,
+                                       "the same-leg Global/Gain split is empty "
+                                       f"(lufs={len(lufs)} gain={len(gain)})",
+                                       row)
+                        continue
+                    residual = 20.0 * math.log10(gain[-1]) + lufs[-1]
+                    row["residual_db"] = round(residual, 6)
+                    if abs(residual) > 0.01:
+                        _ebur_r93_fail(failures, tag,
+                                       "gain != 10^((0-Global)/20): residual "
+                                       f"{round(residual, 6)} dB", row)
+                elif tag.startswith("g_clamp"):
+                    if not lufs or not gain:
+                        _ebur_r93_fail(failures, tag,
+                                       "the clamped arm produced no Global/Gain "
+                                       "pair", row)
+                        continue
+                    g70 = 10.0 ** ((-70.0 - lufs[-1]) / 20.0)
+                    g100 = 10.0 ** ((-100.0 - lufs[-1]) / 20.0)
+                    residual = 20.0 * math.log10(gain[-1] / g70)
+                    row.update({"clamped_prediction": round(g70, 9),
+                                "unclamped_prediction": round(g100, 9),
+                                "residual_vs_clamp_db": round(residual, 6)})
+                    if abs(residual) > 0.05:
+                        _ebur_r93_fail(failures, tag,
+                                       "the clamped target does not behave as "
+                                       f"-70 (residual {round(residual, 6)} dB)",
+                                       row)
+                    if gain[-1] < 10.0 * g100:
+                        _ebur_r93_fail(failures, tag,
+                                       "the target was not clamped at all "
+                                       f"(gain {gain[-1]} vs the unclamped "
+                                       f"prediction {g100})", row)
+                elif tag.startswith("g_silence"):
+                    if not gain or abs(gain[-1] - 1.0) > 1e-9:
+                        _ebur_r93_fail(failures, tag,
+                                       "a non-finite LUFS did not yield exactly "
+                                       f"1.0 (gain={gain[-1] if gain else None})",
+                                       row)
+                else:
+                    pre = (row.get("pre_capture") or {})
+                    post = (row.get("post_capture") or {})
+                    if not gain:
+                        _ebur_r93_fail(failures, tag,
+                                       "the default arm produced no Gain readout",
+                                       row)
+                    if not (pre.get("mid_rms") and post.get("mid_rms")):
+                        row["audio_domain"] = ("unmeasured: a tap carries no "
+                                               "mid-tone window")
+                        entry.setdefault("coverage_blocked", []).append(
+                            "%s: audio-domain ratio unmeasured (pre=%s post=%s)"
+                            % (row["tag"], pre.get("mid_rms"),
+                               post.get("mid_rms")))
+                    elif gain:
+                        ratio = post["mid_rms"] / pre["mid_rms"]
+                        row["audio_ratio"] = round(ratio, 6)
+                        if not (0.85 * gain[-1] <= ratio <= 1.15 * gain[-1]):
+                            _ebur_r93_fail(
+                                failures, tag,
+                                "the logged gain does not reach the audio "
+                                f"domain (ratio {round(ratio, 6)} vs gain "
+                                f"{gain[-1]})", row)
+        # ---- C13: the unquoted control key ------------------------------
+        raw_args = ("node.description=%s,"
+                    "filter.graph={nodes=[{type=ebur128,name=e,label=ebur128},"
+                    "{type=ebur128,name=l2g,label=lufs2gain,"
+                    "control={Target LUFS=-100}},"
+                    "{type=builtin,name=dbg,label=debug}],"
+                    "links=[{output=\"e:Global LUFS\",input=\"l2g:LUFS\"},"
+                    "{output=\"l2g:Gain\",input=\"dbg:Control\"}],"
+                    "inputs=[\"e:In DUAL MONO\"],"
+                    "outputs=[\"e:Out DUAL MONO\"]},"
+                    "audio.channels=1,audio.position=[MONO],"
+                    "capture.props={node.name=%s,node.autoconnect=false,"
+                    "media.class=Audio/Sink},"
+                    "playback.props={node.name=%s,node.autoconnect=false}"
+                    % (EBUR_R93_PREFIX + "_fc", EBUR_R93_FC_IN, EBUR_R93_FC_OUT))
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag="g_unquoted", args=raw_args, dur=1.6, read_extra=1.0,
+            expect_refusal=True,
+            note="C13 an unquoted control key with a space is a load failure"),
+            legs, entry)
         for row in rows:
-            if row.get("arm_failed"):
+            if not row.get("arm_failed"):
+                _ebur_r93_fail(failures, row["tag"],
+                               "the raw control key LOADED — the grammar is not "
+                               "load-bearing", row)
                 continue
-            tag = row["tag"]
-            lufs, gain = _ebur_r93_split_series(row.get("series") or [])
-            row["lufs_tail"] = _ebur_r93_tail(lufs)
-            row["gain_tail"] = _ebur_r93_tail(gain)
-            if tag.startswith("g_target0"):
-                if not lufs or not gain:
-                    _ebur_r93_fail(failures, tag,
-                                   "the same-leg Global/Gain split is empty "
-                                   f"(lufs={len(lufs)} gain={len(gain)})",
-                                   row)
-                    continue
-                residual = 20.0 * math.log10(gain[-1]) + lufs[-1]
-                row["residual_db"] = round(residual, 6)
-                if abs(residual) > 0.01:
-                    _ebur_r93_fail(failures, tag,
-                                   "gain != 10^((0-Global)/20): residual "
-                                   f"{round(residual, 6)} dB", row)
-            elif tag.startswith("g_clamp"):
-                if not lufs or not gain:
-                    _ebur_r93_fail(failures, tag,
-                                   "the clamped arm produced no Global/Gain "
-                                   "pair", row)
-                    continue
-                g70 = 10.0 ** ((-70.0 - lufs[-1]) / 20.0)
-                g100 = 10.0 ** ((-100.0 - lufs[-1]) / 20.0)
-                residual = 20.0 * math.log10(gain[-1] / g70)
-                row.update({"clamped_prediction": round(g70, 9),
-                            "unclamped_prediction": round(g100, 9),
-                            "residual_vs_clamp_db": round(residual, 6)})
-                if abs(residual) > 0.05:
-                    _ebur_r93_fail(failures, tag,
-                                   "the clamped target does not behave as "
-                                   f"-70 (residual {round(residual, 6)} dB)",
-                                   row)
-                if gain[-1] < 10.0 * g100:
-                    _ebur_r93_fail(failures, tag,
-                                   "the target was not clamped at all "
-                                   f"(gain {gain[-1]} vs the unclamped "
-                                   f"prediction {g100})", row)
-            elif tag.startswith("g_silence"):
-                if not gain or abs(gain[-1] - 1.0) > 1e-9:
-                    _ebur_r93_fail(failures, tag,
-                                   "a non-finite LUFS did not yield exactly "
-                                   f"1.0 (gain={gain[-1] if gain else None})",
-                                   row)
-            else:
-                pre = (row.get("pre_capture") or {})
-                post = (row.get("post_capture") or {})
-                if not gain:
-                    _ebur_r93_fail(failures, tag,
-                                   "the default arm produced no Gain readout",
-                                   row)
-                if not (pre.get("mid_rms") and post.get("mid_rms")):
-                    row["audio_domain"] = ("unmeasured: a tap carries no "
-                                           "mid-tone window")
-                    entry.setdefault("coverage_blocked", []).append(
-                        "%s: audio-domain ratio unmeasured (pre=%s post=%s)"
-                        % (row["tag"], pre.get("mid_rms"),
-                           post.get("mid_rms")))
-                elif gain:
-                    ratio = post["mid_rms"] / pre["mid_rms"]
-                    row["audio_ratio"] = round(ratio, 6)
-                    if not (0.85 * gain[-1] <= ratio <= 1.15 * gain[-1]):
-                        _ebur_r93_fail(
-                            failures, tag,
-                            "the logged gain does not reach the audio "
-                            f"domain (ratio {round(ratio, 6)} vs gain "
-                            f"{gain[-1]})", row)
-    # ---- C13: the unquoted control key ------------------------------
-    raw_args = ("node.description=%s,"
-                "filter.graph={nodes=[{type=ebur128,name=e,label=ebur128},"
-                "{type=ebur128,name=l2g,label=lufs2gain,"
-                "control={Target LUFS=-100}},"
-                "{type=builtin,name=dbg,label=debug}],"
-                "links=[{output=\"e:Global LUFS\",input=\"l2g:LUFS\"},"
-                "{output=\"l2g:Gain\",input=\"dbg:Control\"}],"
-                "inputs=[\"e:In DUAL MONO\"],"
-                "outputs=[\"e:Out DUAL MONO\"]},"
-                "audio.channels=1,audio.position=[MONO],"
-                "capture.props={node.name=%s,node.autoconnect=false,"
-                "media.class=Audio/Sink},"
-                "playback.props={node.name=%s,node.autoconnect=false}"
-                % (EBUR_R93_PREFIX + "_fc", EBUR_R93_FC_IN, EBUR_R93_FC_OUT))
-    rows = _ebur_r93_run(ctx, _ebur_r93_meter(
-        tag="g_unquoted", args=raw_args, dur=1.6, read_extra=1.0,
-        expect_refusal=True,
-        note="C13 an unquoted control key with a space is a load failure"),
-        legs, entry)
-    for row in rows:
-        if not row.get("arm_failed"):
-            _ebur_r93_fail(failures, row["tag"],
-                           "the raw control key LOADED — the grammar is not "
-                           "load-bearing", row)
-            continue
-        cls = row.get("error_class")
-        row["expected_class"] = "ebur_r93_ctl_grammar"
-        if cls != "ebur_r93_ctl_grammar":
-            _ebur_r93_fail(failures, row["tag"],
-                           "the unquoted key did not carry the properties "
-                           f"parse refusal (class={cls})", row)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    _ebur_r93_teardown(entry, failures, ctx)
+            cls = row.get("error_class")
+            row["expected_class"] = "ebur_r93_ctl_grammar"
+            if cls != "ebur_r93_ctl_grammar":
+                _ebur_r93_fail(failures, row["tag"],
+                               "the unquoted key did not carry the properties "
+                               f"parse refusal (class={cls})", row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
+    finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
+        _ebur_r93_teardown(entry, failures, ctx)
     return _ebur_r93_json_safe(entry)
 
 
@@ -50717,10 +50751,12 @@ def ebur_error_r93_entry():
                                    "the failure class is "
                                    f"{row.get('error_class')}, not {want}",
                                    row)
+    except Exception as exc:
+        _ebur_r93_abort(entry, failures, exc)
     finally:
+        entry["legs"] = legs
+        entry["failures"] = failures
         _ebur_r93_teardown(entry, failures, ctx)
-    entry["legs"] = legs
-    entry["failures"] = failures
     return _ebur_r93_json_safe(entry)
 
 

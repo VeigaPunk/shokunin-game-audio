@@ -1567,3 +1567,13 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   tests; no LAN opt-in is set in the real environment. Existing packet
   assertions/bands are unchanged. Source 9f242022..., details in
   reports/round-99/r99-missing-fold.md. No full-family/closure claim.
+- ROUND 93 ENTRY-CLEANUP FOLD (2026-10-16): every ebur_*_r93_entry now
+  keeps partial legs, records an abort failure plus named coverage block
+  and always runs teardown on unexpected backend exceptions. Five linear
+  bodies re-indented verbatim under try; three protected bodies gain the
+  except clause and move legs/failures into the existing finally. All
+  nine scientific-body ASTs verified identical to the real 6cd98c64
+  bytes; injected-case gate green (was 8 failing), focused suites still
+  pass. Source 4e0614f836...; details in
+  reports/round-93/r93-entry-cleanup-fold.md. No full-family or
+  clean-closure claim.
