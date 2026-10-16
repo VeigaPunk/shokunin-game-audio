@@ -863,3 +863,13 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | 13 critic findings + 2 reviewer findings + 10 simplifier deletions all resolved in one fold; scribe custody INTACT throughout; one /tmp-quota environmental flake correctly rejected by the new gate. |
 
 | r82 | audio | ffmpeg transport lattice | ADMIT-corr | d6167399 + cab9f08e |
+
+## Round 84 verdict — 2026-10-15
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | +147 legs / 6 entries on the pulse-protocol surface: dev_lattice 38, pw_args 22, pulseprop 14, pactl_write 24, monstream 16, negctl 33. Fresh independent run 0 leaf diffs vs committed run1. |
+| depth | **improved** | Gain laws re-derived from raw series (exact cubic: 0.125/3.375/0.015625); sticky 221=floor(8192*0.3^3); 4 author refinements measured (name-scoped restore, routed-leaf gating, parec-only donor, per-leg pre-reset); verifier replay 147/147 failures:{}. |
+| calibration | **improved** | Three seats converged on the TMPDIR-lock co-tenancy defect; critic proved two live false-green classes (unread record, missing floor); scribe falsified the report's own loadavg/leg-count claims — all queued to the fold. |
+
+| r84 | audio | pactl / monitor-tap lattice | ADMIT-with-findings | fbe65713 |

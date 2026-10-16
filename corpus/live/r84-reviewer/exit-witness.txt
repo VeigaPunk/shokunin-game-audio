@@ -1,0 +1,25 @@
+# r84 reviewer — exit witness (2026-10-16T01:01Z)
+
+## pgrep r84a_1743076 (my run's namespace)
+2692528 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && { echo "# r84 reviewer — exit witness (2026-10-16T01:01Z)"; echo; echo "## pgrep r84a_1743076 (my run's namespace)"; pgrep -af "r84a_1743076" || echo "  (none)"; echo; echo "## pactl sinks/modules/sink-inputs/source-outputs grep r84"; pactl list short sinks | grep -i r84 || echo "  no r84 sinks"; pactl list short modules | grep -i r84 || echo "  no r84 modules"; pactl list short sink-inputs; pactl list short source-outputs; echo; echo "## default sink/source (must be unchanged)"; pactl get-default-sink; pactl get-default-source; echo; echo "## my TMPDIR scratch dirs (should be gone)"; ls -d /home/vgpnk/Projects/shokunin/tmp/r84a-dev-* /home/vgpnk/Projects/shokunin/tmp/r84a-pactl-* /home/vgpnk/Projects/shokunin/tmp/r84a-mon-* /home/vgpnk/Projects/shokunin/tmp/r84a-props-* /home/vgpnk/Projects/shokunin/tmp/r84a-neg-* 2>&1 | head; echo; echo "## git status (tracked files untouched)"; git status --porcelain | grep -v "^??" || echo "  (no tracked modifications)"; echo; echo "## loadavg"; cat /proc/loadavg; } > corpus/live/r84-reviewer/exit-witness.txt 2>&1; cat corpus/live/r84-reviewer/exit-witness.txt
+
+## pactl sinks/modules/sink-inputs/source-outputs grep r84
+220907	r84a_probe_548706	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+536870923	module-null-sink	sink_name=r84a_probe_548706	
+
+## default sink/source (must be unchanged)
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29
+alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29
+
+## my TMPDIR scratch dirs (should be gone)
+ls: cannot access '/home/vgpnk/Projects/shokunin/tmp/r84a-dev-*': No such file or directory
+ls: cannot access '/home/vgpnk/Projects/shokunin/tmp/r84a-pactl-*': No such file or directory
+ls: cannot access '/home/vgpnk/Projects/shokunin/tmp/r84a-mon-*': No such file or directory
+ls: cannot access '/home/vgpnk/Projects/shokunin/tmp/r84a-props-*': No such file or directory
+ls: cannot access '/home/vgpnk/Projects/shokunin/tmp/r84a-neg-*': No such file or directory
+
+## git status (tracked files untouched)
+ M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+
+## loadavg
+82.61 72.29 61.65 70/2613 2692616

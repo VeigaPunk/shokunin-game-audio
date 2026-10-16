@@ -1,0 +1,12 @@
+start 00:46:14 loadavg 51.74 52.43 54.54
+concurrent r84 runs at start:
+1739241 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-verifier/tree && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && date -u +"start %H:%M:%S" > ../runs/r84v2.window.txt && timeout 1500 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84 > ../runs/r84v2.stdout.json 2> ../runs/r84v2.stderr.log; echo "rc=$?" >> ../runs/r84v2.window.txt; date -u +"end %H:%M:%S" >> ../runs/r84v2.window.txt; cat ../runs/r84v2.window.txt
+1739243 timeout 1500 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84
+1739244 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84
+1740756 bash -c rm -rf /home/vgpnk/Projects/shokunin/tmp/r84critic-src/corpus/live/runs/* && cd /home/vgpnk/Projects/shokunin/tmp/r84critic-src && TMPDIR=/home/vgpnk/Projects/shokunin/tmp nohup python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84 > /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-critic/replay-run2.stdout.json 2> /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-critic/replay-run2.stderr.txt & echo "started pid $!"; sleep 3; ps -o pid,etime,args -p $(pgrep -f "r84critic-src.*probe-alsapw" | head -1) 2>/dev/null | tail -2; cat /home/vgpnk/Projects/shokunin/tmp/measure_audio-alsapw-r84.lock
+1740760 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84
+1742797 bash -c sleep 45; ls /home/vgpnk/Projects/shokunin/tmp/r84critic-src/corpus/live/runs/ 2>/dev/null; pgrep -af "r84critic-src" | grep -v pgrep | head -3; cat /home/vgpnk/Projects/shokunin/tmp/measure_audio-alsapw-r84.lock; echo; pgrep -af "probe-alsapw-r84" | grep -v "bash -c" | head -5; uptime
+rc=0
+end 00:59:40 loadavg 86.11 69.12 59.74
+concurrent r84 runs at end:
+  (none)

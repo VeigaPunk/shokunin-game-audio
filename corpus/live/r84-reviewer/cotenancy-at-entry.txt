@@ -1,0 +1,28 @@
+# r84 reviewer — co-tenancy evidence captured at entry (2026-10-16T00:41–00:42Z)
+
+## ps -eo pid,etime,args | grep -E 'probe-alsapw-r84'
+1739241    4116       00:06 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-verifier/tree && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && date -u +"start %H:%M:%S" > ../runs/r84v2.window.txt && timeout 1500 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84 > ../runs/r84v2.stdout.json 2> ../runs/r84v2.stderr.log; echo "rc=$?" >> ../runs/r84v2.window.txt; date -u +"end %H:%M:%S" >> ../runs/r84v2.window.txt; cat ../runs/r84v2.window.txt
+1739243 1739241       00:06 timeout 1500 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84
+1739244 1739243       00:06 python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84
+
+## the two lock files (proof the exclusion is TMPDIR-scoped)
+-rw-r--r-- 1 vgpnk vgpnk 52 Oct 15 21:45 /home/vgpnk/Projects/shokunin/tmp/measure_audio-alsapw-r84.lock
+pid=1739244 ns=r84a_ns_1739244 role=r84arole1739244
+-rw-r--r-- 1 vgpnk vgpnk 52 Oct 15 21:40 /home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/measure_audio-alsapw-r84.lock
+pid=1685102 ns=r84a_ns_1685102 role=r84arole1685102
+
+## pactl short sinks/modules at entry
+172871	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29	PipeWire	s16le 2ch 48000Hz	RUNNING
+172872	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+172873	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+220907	r84a_probe_548706	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+536870923	module-null-sink	sink_name=r84a_probe_548706	
+
+## the sibling runs' own reported failures (cross-credit)
+verifier: {"receipt": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r84-verifier/tree/corpus/live/runs/20261016T004516096850Z-alsapw-r84/measurements.json", "failures": {"alsapw_dev_lattice_r84_probe": ["a_plughw00: rc=0 class=None nodes=['alsa_playback.aplay'] \u2014 neither adaptive arm", "st_hw00_c1: rc=1 class=None \u2014 the -c1 refusal arm fails"], "alsapw_pw_args_r84_probe": ["pw_server: rc=-9 class=None"]}}
+critic  : {"receipt": "/home/vgpnk/Projects/shokunin/tmp/r84critic-src/corpus/live/runs/20261016T004517478719Z-alsapw-r84/measurements.json", "failures": {"alsapw_dev_lattice_r84_probe": ["a_front: rc=0 class=None nodes=['r84a_1682245_hold'] \u2014 neither adaptive arm", "a_iec958_d0: rc=0 class=None nodes=['alsa_playback.aplay', 'r84a_ns_1682245'] \u2014 neither adaptive arm"]}}
+
+## verifier window
+start 00:40:28
+rc=1
+end 00:45:16

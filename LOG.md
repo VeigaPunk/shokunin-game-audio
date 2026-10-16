@@ -1392,3 +1392,10 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   x3, foreign-name unload negative control live).
 - LAWS: folded pre-authoring boundary corrections held; all wave-B
   findings resolved in the fold.
+- ROUND 84 (2026-10-15): pactl/monitor-tap lattice. ADMIT-with-findings
+  at fbe65713 (147 legs / 6 entries). Verifier VERIFIED on frozen bytes;
+  F1 (3-seat consensus): family lock TMPDIR-scoped -> co-tenancy
+  cross-credit; F2/F3 critic live-proven false-greens queued.
+- LAWS: tap gain x0.125/x3.375/x0.015625 exact; sticky respawn 30% ->
+  tap 221 = floor(8192*0.3^3); pactl index refusals Stream error: No
+  such entity; source-output empty-accept rc0+44B.
