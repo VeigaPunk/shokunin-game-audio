@@ -10,18 +10,41 @@ re-armed at the boundary's corrected values and named where the correction
 
 ## Files changed
 
-- `corpus/fixtures/measure_audio.py` — +2182/−2 (the only deletions are the
-  two shared-line splices the wiring requires: the `mode` select and the
-  receipt `suffix`; the argparse row and the dispatch block are pure
-  insertions — the r86–r89 convention).
+- `corpus/fixtures/measure_audio.py` — **worktree diff +2182/−2** (the only
+  deletions are the two shared-line splices the wiring requires: the `mode`
+  select and the receipt `suffix`; the argparse row and the dispatch block are
+  pure insertions — the r86–r89 convention). The **landed commit `f50cf66a`
+  is +2183/−3 across 6 hunks** (block, argparse row, mutex guard, dispatch,
+  `mode`, `suffix`): the third replaced wiring line is the
+  `if sum([…]) > 1:` mutex guard, which this worktree's branch base predates.
+  The integrate note discloses that deviation; this report now records it too
+  (foldfix FF6 — the first draft's "+2182/−2 … only two deletions" and
+  `r90-integrate.md`'s "in 4 hunks" were both counting slips).
+- **Second landed-vs-worktree delta (undisclosed in the first draft).** Of the
+  49 module-level functions the r90 block calls, **one differs**:
+  `_pwprof_r89_stream`. The landed version adds
+  `preexec_fn=_pwprof_r89_sigreset` to its `Popen` (the r89 foldfix
+  `5755be5b`, an ancestor of the landing, not of this worktree's base). That
+  helper is the spawn path of the family's **four** streaming legs
+  (`k_w_valid`, `k_w_missing`, `k_w_late`, `k_m_stream`), so the landed bytes
+  execute those legs under a different child-signal setup than the bytes the
+  two greens were measured on. The delta is inherited-fix direction, but it
+  means the greens do **not** transfer to the landed blob by byte-identity
+  alone — the foldfix re-runs the family on the landed bytes and records the
+  fixture sha in every receipt (FF1/FF4).
 - `corpus/live/r90-author/receipts/*.json` — one live receipt per entry per
-  battery (untracked). Every exit-signature claim in this report (rc, error
-  string, stderr class, sha, id) is readable there without walking the run
-  dir.
-- `corpus/live/measure_audio-wpstate-r90.lock` — fixed-path family lock
-  created at runtime (untracked, the r84 F1 3-seat convention).
-- `corpus/live/runs/20261016T085347601935Z-wpstate-r90/` — green receipt #1.
-- `corpus/live/runs/20261016T085628919120Z-wpstate-r90/` — green receipt #2.
+  battery (**untracked**; see the Evidence section: these paths exist only in
+  this lane's worktree, never in the landing tree).
+- `corpus/live/measure_audio-wpstate-r90.lock` — family lock created at
+  runtime (**untracked**). The foldfix moves it to a host-global
+  `$XDG_RUNTIME_DIR/ufo-measure_audio-wpstate-r90.lock` (FF2): the fixed
+  `corpus/live/` path is tree-local, so two seats in two `git archive` trees
+  locked two different files and ran the family concurrently through the same
+  daemon.
+- `corpus/live/runs/20261016T085347601935Z-wpstate-r90/` — green receipt #1
+  (untracked).
+- `corpus/live/runs/20261016T085628919120Z-wpstate-r90/` — green receipt #2
+  (untracked).
 - `corpus/live/runs/20261016T085112273969Z-wpstate-r90/` — a **superseded
   revision's** battery (2 real failures: the vanished-target fallback and a
   `k_w_late` counting bug in the leg, not in the law). Kept as honest
@@ -48,7 +71,14 @@ ever issued**; the live default sink stayed
   `r90a_mc_`, `r90a_tun_`), private role key `r90arole<pid>` on every
   pw-play follower.
 - Fixed-path lock `corpus/live/measure_audio-wpstate-r90.lock` (flock, never
-  `$TMPDIR`); `TMPDIR=~/Projects/shokunin/tmp` for all runs.
+  `$TMPDIR`); `TMPDIR=~/Projects/shokunin/tmp` for all runs. **Superseded by
+  the foldfix (FF2):** the fixed `corpus/live/` path is tree-local — every
+  seat runs its own `git archive` tree, so two seats locked two files and ran
+  the family concurrently through the same daemon (the critic's run 1 lost 5
+  pmod legs to the other seat's loopback rows). The lock now lives at
+  `$XDG_RUNTIME_DIR/ufo-measure_audio-wpstate-r90.lock`, acquired with a
+  bounded `LOCK_EX|LOCK_NB` retry, truncated on release, with the stale-holder
+  text recorded as evidence.
 - Name-verified teardown: re-read `pactl list modules` immediately before
   firing and unload only the index whose args carry our `sink_name=`; a
   surviving `r90a_*` node is destroyed by id via `pw-cli destroy`; final
@@ -192,9 +222,19 @@ Every counting leg rebuilds a **known** link set first (`k_reset`), so no
   id is the first token of the `|->` row.
 - `-w` (C15, refined): `k_w_valid` rc 0 on an existing pair; `k_w_missing`
   **blocks** (killed at the 3.0 s bound); `k_w_late` returns **rc 0 at
-  1.526 s / 1.527 s** — ~26 ms after the port appeared at 1.5 s, with the
-  link witnessed on the specific late→L3 edge. `-w` is a
+  1.520 s (run 1) / 1.527 s (run 2)** — ~20/~27 ms after the port appeared
+  at 1.5 s, with the link witnessed on the specific late→L3 edge. `-w` is a
   wait-for-creation primitive, not a hang.
+  **Attribution correction (foldfix FF6):** the first draft printed
+  "1.526 s / 1.527 s"; **1.526 belongs to the superseded run
+  `20261016T085112273969Z`**, whose `k_w_late` receipt carries
+  `late_edges: []` (the leg that red on the missing edge), not to green run
+  1. And the leg is a **readiness race, not a law**: the r90 critic measured
+  rc 255 `failed to link ports: Invalid argument` at 1.524 s on
+  byte-identical bytes where four other runs were rc 0. The foldfix runs it
+  up to twice with a fresh late sink per attempt and arms only the
+  branch-invariant claim (`linked` | `refused` | `stimulus_failed`, both
+  attempts recorded — FF3).
 - `-p` (C17): `k_p_foo` lands `foo=bar` **on the Link object** (armed);
   `k_p_passive` returns rc 0, the link forms, and **no `link.passive` prop
   is visible** (armed as the negative, with the vacuity guard that the link
@@ -223,10 +263,20 @@ Every counting leg rebuilds a **known** link set first (`k_reset`), so no
   `e718690a7ce2` (1247 B) — all four armed.
 - `f_setparam_sink` / `f_setparam_stream` (C21 + the boundary's new
   node-class split): the **same** pod on the live sink node → **rc 0**,
-  stderr `res:-5 … set param id:4 … failed`, stdout echo **622 B**, link set
+  stderr carrying `res:-5 (Input/output error): set param id:4
+  (Spa:Enum:ParamId:Format) … failed`, stdout echo **622 B**, link set
   unchanged, stream alive. On the live **stream** node → **rc 0, 622 B
   stdout echo, stderr 0 bytes**. The seal is node-class dependent and rc is
   not a validity witness in either direction.
+  **Stderr shape (foldfix FF6):** the full run-1 line is
+  `remote 0: error id:<id> seq:<seq> res:-5 (Input/output error): set param
+  id:4 (Spa:Enum:ParamId:Format) flags:<seq> failed` (**123 B**; ids/seqs
+  scrubbed). It is **not a pinned shape**: green run 2's same leg carries
+  **295 B** with two preceding `res:-2 (No such file or directory)` lines
+  (`no global 161`, `unknown resource 133 op:7`) before the terminal
+  `res:-5 … failed`. The armed class is the `res:-5 … set param id:4 …
+  failed` subsequence in both runs (`wpstate_io_error`), so the class-level
+  law holds while the full text does not.
 - `f_44k`: the stream node's `Format` is `684a7c8dad24` while the sink
   node's stays `91f7342230f7` — file rate vs graph rate.
 - `f_post`: after the stream ends the node `Format` is **sticky**
@@ -235,8 +285,21 @@ Every counting leg rebuilds a **known** link set first (`k_reset`), so no
 
 ## Evidence
 
-- Implementation sha256 (both green runs are byte-identical to this file):
+- Implementation sha256 (as first drafted, "both green runs are byte-identical
+  to this file" — corrected immediately below):
   `d9a07b14af4e605353b2b07e6fccff41ff0eb083c1d430fb58e7192b1fb276eb`
+- **Sha provenance (foldfix FF6).** `d9a07b14…` is the **author worktree
+  file** (`../audio-shokunin-wt-r90`, 34 440 lines) — the bytes this seat's
+  batteries ran. The **landed blob** is
+  `d3119c5d88228349b54996e23978cf726d59bfc615739838177a5a5e14551154`
+  (`git show f50cf66a:corpus/fixtures/measure_audio.py`, 39 093 lines); the
+  two differ by the integrate's mutex token and by the inherited
+  `_pwprof_r89_stream` delta (see Files changed). **No run bundle and no
+  receipt records any fixture hash** (grep for either sha over `runs/` and
+  the receipts dir: 0 hits), so "both green runs are byte-identical to this
+  file" was seat-attested, never artifact-witnessed. The foldfix
+  (`reports/round-90/r90-foldfix.md`) re-runs the family on the landed bytes
+  and stamps `fixture_sha256` + `seat` + `run_id` into every receipt.
 - Run 1: `corpus/live/runs/20261016T085347601935Z-wpstate-r90/measurements.json`
   — `failures: {}`; all four entries `coverage_blocked` empty; 60 legs.
 - Run 2: `corpus/live/runs/20261016T085628919120Z-wpstate-r90/measurements.json`
@@ -250,6 +313,14 @@ Every counting leg rebuilds a **known** link set first (`k_reset`), so no
   | `wpstate_pmod_r90_probe` | `f3d83e00c84875e3` | `f77b4eaafe1e36b1` |
   | `wplink_r90_entry` | `cb52c938048e4138` | `2173957959ba9c2c` |
   | `wpformat_r90_probe` | `64e370f12cbbba2a` | `35cb424c5dfe59a2` |
+
+- **All `corpus/live/**` paths in this report are UNTRACKED** (the integrate
+  note states, with intent, that no `corpus/live/**` path was committed).
+  They exist in this lane's worktree and were never in the landing tree, so
+  every path above is a dead pointer in `f50cf66a`. They are cited as
+  host-local scratch with the numbers re-derived from them, not as committed
+  evidence; the landing's own evidence is the committed fixture plus this
+  report, and the foldfix report carries the re-run on the landed bytes.
 
 - Post-run census (after run 2, re-verified): **0 `r90a_*` modules**, **0
   `r90a_*` nodes**, **0 `r90a_*` sinks**, **0 `module-loopback` rows**, no
@@ -365,6 +436,28 @@ non-default stored target) is the carry-forward.
   marker arg and unloaded by id (rc 0); `module-tunnel-sink` was loaded
   against a dead port and self-destructed. Both are LAN-facing classes and
   are named as accepted risk.
+
+## Foldfix (r90 fold contract `audio-r90-foldfix`)
+
+The adjudication of the `f50cf66a` landing (`r90-adjudicator.md`) carried six
+required items; all six are folded in `reports/round-90/r90-foldfix.md`, which
+also carries the before/after runs on an archive checkout of the lane HEAD:
+
+- **FF1** — `entry["legs"]` preserved on every block/abort path, and every
+  receipt written *after* the entry's teardown/census (`measured`,
+  `legs_measured`, a run-level census record) so `failures: []` with 0 legs
+  can no longer read as green.
+- **FF2** — the family lock moved to the host-global path above.
+- **FF3** — `m_phantom` and `k_w_late` retried once with both attempts
+  recorded and only branch-invariant claims armed; `Failure: Unknown error
+  code` named as `wpstate_unknown_refusal`.
+- **FF4** — every receipt carries `seat`, `pid`, `fixture_sha256`, `run_id`
+  and is filed under `corpus/live/<seat>/receipts/`.
+- **FF5** — a read-only store-residue leg plus an armed host-wide ceiling on
+  the persistent `r90a_` rows.
+- **FF6** — this report's corrections: hunk/numstat accounting, sha
+  provenance, the undisclosed `_pwprof_r89_stream` delta, the `k_w_late`
+  attribution and the `f_setparam_sink` stderr shape.
 
 **Verdicts here are seat-side; the canonical Rust runtime remains the only
 judge.**

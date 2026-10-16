@@ -35617,6 +35617,27 @@ WPSTATE_R90_PORT_FORMAT_SHA = "5a828addfad7"
 WPSTATE_R90_STREAM_48K_SHA = "e718690a7ce2"
 WPSTATE_R90_STREAM_44K_SHA = "684a7c8dad24"
 WPSTATE_R90_SETPARAM_ECHO_B = 622
+# --- foldfix (r90 fold contract FF2/FF4/FF5) -------------------------------
+WPSTATE_R90_LOCK_WAIT_S = 600.0        # bounded family-lock acquire cap
+WPSTATE_R90_LOCK_POLL_S = 0.25
+WPSTATE_R90_LOCK_NAME = "ufo-measure_audio-wpstate-r90.lock"
+# The store has NO CLI deletion path (the r90 labrat probe confirmed it), so
+# every run's keys persist structurally: the host-wide r90a_ row count is
+# armed against this declared ceiling and the per-pid count is recorded as a
+# claim (FF5). Baseline on plazir27 at fold time: 313 rows / 8478 total.
+WPSTATE_R90_RESIDUE_CEILING = 1000
+# The battery invocation id, set by the dispatch before any entry runs, so
+# every receipt can answer "which run wrote this?" (FF4).
+WPSTATE_R90_RUN = {"id": None}
+# Seat attribution (FF4): the declared seat when the harness exports one,
+# otherwise the tree the fixture executes from (`ROOT` is `<tree>/corpus`,
+# so `ROOT.parent.name` is the tree) — every seat in this repo runs its own
+# `git archive` tree, so the tree name is the discriminator that a bare
+# `r90-author` directory was missing (the r90 critic's own forced-block
+# receipt was filed under the author's name).
+WPSTATE_R90_SEAT = (os.environ.get("UFO_SEAT")
+                    or os.environ.get("UFO_SEAT_NAME")
+                    or ROOT.parent.name)
 
 # r90-local error classes — family-local, checked before the
 # r89->r88->r87->r86 chain (never prepended into any shared table).
@@ -35636,6 +35657,12 @@ _WPSTATE_R90_ERR_CLASSES = (
     ("wpstate_missing_ports",
      r"missing output and input port names to connect"),
     ("wpstate_fetch_failed", r"failed to fetch port[^\n]*"),
+    # The phantom tunnel's refusal (FF3): `pactl load-module
+    # module-tunnel-sink server=127.0.0.1:1` races the module's own connect
+    # failure against the load reply, and the losing branch returns rc 1 with
+    # this class on stderr. It was absent from every inherited table, so the
+    # refusal the receipt recorded had `error_class: null`.
+    ("wpstate_unknown_refusal", r"Failure: Unknown error code"),
 )
 
 
@@ -35760,7 +35787,15 @@ def _wpstate_r90_store_census():
                 "error": str(exc)[:120]}
     return {"reader": "ok", "rows": len(rows), "bytes": st.st_size,
             "own_keys": len([k for k in rows
-                             if WPSTATE_R90_PREFIX in k])}
+                             if WPSTATE_R90_PREFIX in k]),
+            # FF5: the store has no deletion path, so every seat's r90a_
+            # rows persist structurally. `family_rows` is the HOST-WIDE
+            # count (any pid, any tree — what a critic could only see by
+            # grepping the file) and `family_rows_by_pid` this seat's
+            # share. Read-only: the fixture never edits the store.
+            "family_rows": len([k for k in rows if "r90a_" in k]),
+            "family_rows_by_pid": len([k for k in rows
+                                       if f"_{WPSTATE_R90_PID}" in k])}
 
 
 def _wpstate_r90_store_poll(key, want=None, timeout_s=WPSTATE_R90_POLL_S,
@@ -36049,51 +36084,219 @@ def _wpstate_r90_enum(obj_id, param):
     return rec
 
 
-def _wpstate_r90_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR). A second --probe-wpstate-r90 waits HERE."""
-    path = ROOT / "live" / "measure_audio-wpstate-r90.lock"
+_WPSTATE_R90_FIXTURE = {}
+
+
+def _wpstate_r90_fixture_sha():
+    """The FULL sha256 of the file that is executing — the receipt's
+    byte-identity witness (FF4: a receipt that cannot say which bytes
+    produced it is not attributable, and the r90 landing shipped two greens
+    whose declared sha was the author's worktree, not the landed blob)."""
+    if "sha" not in _WPSTATE_R90_FIXTURE:
+        h = hashlib.sha256()
+        try:
+            with Path(__file__).resolve().open("rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            _WPSTATE_R90_FIXTURE["sha"] = h.hexdigest()
+        except OSError as exc:
+            _WPSTATE_R90_FIXTURE["sha"] = f"unreadable: {type(exc).__name__}"
+    return _WPSTATE_R90_FIXTURE["sha"]
+
+
+def _wpstate_r90_attribution():
+    """seat + pid + fixture sha + run id, folded into every entry and every
+    receipt (FF4). `seat` is the declared seat when the harness exports
+    `UFO_SEAT`, otherwise the tree this file runs from; the run id is set by
+    the dispatch before any entry runs."""
+    return {"seat": WPSTATE_R90_SEAT, "pid": WPSTATE_R90_PID,
+            "fixture_sha256": _wpstate_r90_fixture_sha(),
+            "run_id": WPSTATE_R90_RUN.get("id")}
+
+
+def _wpstate_r90_daemon_gate(timeout_s=12.0):
+    """The ENTRY-LEVEL daemon gate (the r95 C3 pattern, re-instantiated for
+    r90): one bounded `pactl info`. The r90 family already measured this
+    host condition — the author's third battery found the shared session
+    unresponsive, and the critic's own forced-block receipts were filed with
+    `failures: []` and no legs. A daemon that does not answer is a NAMED
+    entry-level coverage block, never a red and never a silent green."""
+    rec = _wpstate_r90_run(["pactl", "info"], timeout_s, keep_chars=400)
+    ok = (rec.get("exit_code") == 0
+          and "Server Name:" in (rec.get("stdout") or ""))
+    rec["ok"] = ok
+    rec["block"] = None if ok else (
+        "wpstate_r90_daemon_unresponsive: bounded `pactl info` did not "
+        f"answer (rc={rec.get('exit_code')} timed_out={rec.get('timed_out')} "
+        f"stderr={(rec.get('stderr') or '').strip()[:120]!r}) — the shared "
+        "daemon is not measuring; no r90 leg is armed")
+    return rec
+
+
+def _wpstate_r90_lock_path():
+    """The family lock lives at a HOST-GLOBAL, tree-independent path (FF2):
+    the r84 F1 3-seat consensus ("never $TMPDIR; cross-TMPDIR same-family
+    runs must still exclude") is only honoured when the path does not move
+    with the tree the file executes from. The r90 landing derived it from
+    `ROOT`, so the critic's run and the verifier's run each locked their own
+    tree and ran the family concurrently through the same daemon — the
+    by-name vehicle's zero-foreign pre-check then saw the other seat's rows
+    and 5 pmod legs went unmeasured in one of the two. `$XDG_RUNTIME_DIR`
+    (or the per-user `/run/user/<uid>`) is shared by every tree on the host;
+    `~/.local/state` is the fallback when the runtime dir is absent."""
+    base = os.environ.get("XDG_RUNTIME_DIR")
+    if base and Path(base).is_dir():
+        return Path(base) / WPSTATE_R90_LOCK_NAME
+    return Path.home() / ".local/state" / WPSTATE_R90_LOCK_NAME
+
+
+def _wpstate_r90_lock_text(path):
+    """The lock file's advisory text (pid=/ns=/role=/nonce=). It is
+    EVIDENCE, never the lock: a stale file left by a dead seat must not read
+    as a live holder — the flock probe is the witness."""
     try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+        return path.read_text(errors="replace").strip()[:200]
     except OSError:
         return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def _wpstate_r90_lock_release(fd):
+    """Release + TRUNCATE the lock file: a released lock leaves no text a
+    later reader could mistake for a live holder."""
+    if fd is None:
+        return
+    try:
+        os.ftruncate(fd, 0)
+    except OSError:
+        pass
+    try:
+        os.close(fd)
+    except OSError:
+        pass
+
+
+def _wpstate_r90_family_lock(wait_s=WPSTATE_R90_LOCK_WAIT_S):
+    """Same-family exclusion at a HOST-GLOBAL path, acquired with a BOUNDED
+    NON-BLOCKING retry (FF2): a live holder that outlives the cap is a NAMED
+    coverage block (`wpstate_r90_family_lock_busy`), never an unbounded
+    wait. Stale state is handled explicitly: the holder text is read only as
+    evidence, the file is truncated on release, and a text naming a dead pid
+    is recorded as `stale_text` rather than reported as a live holder.
+
+    Returns a record: `fd` (held by the caller to exit; None when the lock
+    was not acquired), `block` (the named coverage block, or None), `path`,
+    `waited_s`, `holder_text`, `stale_text`."""
+    path = _wpstate_r90_lock_path()
+    rec = {"path": str(path), "pid": WPSTATE_R90_PID, "wait_cap_s": wait_s,
+           "waited_s": 0.0, "holder_text": None, "stale_text": None,
+           "fd": None, "block": None}
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError as exc:
+        rec["block"] = (f"wpstate_r90_family_lock_unavailable: {path} "
+                        f"({type(exc).__name__}: {exc})"[:200])
+        return rec
+    t0 = time.monotonic()
+    while True:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            break
+        except OSError:
+            pass
+        if rec["holder_text"] is None:
+            rec["holder_text"] = _wpstate_r90_lock_text(path)
+        waited = time.monotonic() - t0
+        rec["waited_s"] = round(waited, 3)
+        if waited >= wait_s:
+            rec["block"] = (
+                f"wpstate_r90_family_lock_busy: {path} held for "
+                f"{round(waited, 1)}s > cap {wait_s}s — a same-family run "
+                f"is live (holder text {rec['holder_text']!r}); the family "
+                "is not run against a shared host-global daemon")
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            return rec
+        time.sleep(WPSTATE_R90_LOCK_POLL_S)
+    prior = _wpstate_r90_lock_text(path)
+    if prior:
+        m = re.search(r"pid=(\d+)", prior)
+        alive = None
+        if m:
+            try:
+                os.kill(int(m.group(1)), 0)
+                alive = True
+            except OSError:
+                alive = False
+        if alive is False:
+            rec["stale_text"] = prior
+            rec["stale_pid_dead"] = int(m.group(1))
     try:
         os.ftruncate(fd, 0)
         os.write(fd, f"pid={WPSTATE_R90_PID} ns={WPSTATE_R90_NS} "
                      f"role={WPSTATE_R90_ROLE} nonce="
-                     f"{WPSTATE_R90_NONCE}\n".encode())
+                     f"{WPSTATE_R90_NONCE} path={path}\n".encode())
     except OSError:
         pass
-    return fd
+    rec["fd"] = fd
+    return rec
+
+
+def _wpstate_r90_lock_blocked_entry(name, msg):
+    """Every r90 entry when the family lock could not be acquired: a NAMED
+    block with NO legs measured and `measured: false`, so a gate reading
+    only `failures` cannot mistake it for a green, and the run never waits
+    unbounded on a live same-family holder (FF2)."""
+    entry = {"probe": f"{name}: family lock not acquired",
+             "blocked": msg, "coverage_blocked": [msg],
+             "legs": {}, "legs_measured": 0, "measured": False,
+             "failures": []}
+    entry.update(_wpstate_r90_attribution())
+    return entry
 
 
 def _wpstate_r90_entry_head(probe):
-    """Shared entry preamble: contention census, oracle, inventory, loadavg
-    and the foreign-r90a census (another seat's residue is a witness, never
-    a verdict)."""
+    """Shared entry preamble: the bounded daemon gate, contention census,
+    oracle, inventory, loadavg, the foreign-r90a census (another seat's
+    residue is a witness, never a verdict) and the attribution block."""
     inv = _capture_inventory()
     names = _playback_r78_node_names() or []
-    return {"probe": probe,
-            "contention": _playback_r78_foreign_clients(),
-            "oracle_at_start": _loopback_r79_oracle(),
-            "foreign_r90a_nodes": sorted(
-                n for n in names if "r90a_" in n
-                and f"_{WPSTATE_R90_PID}" not in n),
-            "inventory": {"default_sink": inv["default_sink"],
-                          "default_source": inv["default_source"],
-                          "sources_count": len(inv["sources"]),
-                          "monitors_count": len(inv["monitors"]),
-                          "alsa_capture_devices":
-                          inv["alsa_capture_devices"]},
-            "loadavg": _alsapw_r84_loadavg()}
+    entry = {"probe": probe,
+             "daemon_gate": _wpstate_r90_daemon_gate(),
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": _loopback_r79_oracle(),
+             "foreign_r90a_nodes": sorted(
+                 n for n in names if "r90a_" in n
+                 and f"_{WPSTATE_R90_PID}" not in n),
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"],
+                           "sources_count": len(inv["sources"]),
+                           "monitors_count": len(inv["monitors"]),
+                           "alsa_capture_devices":
+                           inv["alsa_capture_devices"]},
+             "loadavg": _alsapw_r84_loadavg()}
+    entry.update(_wpstate_r90_attribution())
+    return entry
 
 
 def _wpstate_r90_receipt(entry, name):
-    """Live receipt under corpus/live/r90-author/receipts/ — every
+    """Live receipt under corpus/live/<seat>/receipts/ — every
     exit-signature claim (rc, error string, stderr class, sha) is readable
-    there without walking the run dir."""
-    out = ROOT / "live" / "r90-author" / "receipts"
+    there without walking the run dir.
+
+    FF4: the file is indexed by SEAT (the seat the harness declares, else
+    the tree the fixture runs from), and every receipt carries `seat`,
+    `pid`, `fixture_sha256` and `run_id`, so the artifact answers "which
+    seat" and "which bytes" — the r90 landing's receipts could answer
+    neither (they were all filed under `r90-author`, including the critic's
+    forced-block probe, and named no sha). Written AFTER the entry's
+    teardown/census has run (FF1): the caller writes it once the entry
+    function has returned, never mid-`try`."""
+    entry.update(_wpstate_r90_attribution())
+    seat = re.sub(r"[^A-Za-z0-9._-]", "_", str(WPSTATE_R90_SEAT or "seat"))
+    out = ROOT / "live" / seat / "receipts"
     try:
         out.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
@@ -36107,10 +36310,19 @@ def _wpstate_r90_receipt(entry, name):
 
 
 def _wpstate_r90_teardown(entry, failures, loads, players=(),
-                          extra_nodes=()):
+                          extra_nodes=(), census=()):
     """Reap every player, name-verified unload of every own module, then the
     by-id destroy of any surviving r90a-tagged node (plus any tracked
-    non-tagged node, e.g. a module-loopback's `output.loopback-*`)."""
+    non-tagged node, e.g. a module-loopback's `output.loopback-*`), then the
+    exit census and the read-only store-residue census (FF5).
+
+    `census` names the sinks this seat loaded and ALREADY unloaded mid-entry
+    (the vanished-target sink, the module-control sink), so `sinks_gone`
+    measures something in every entry instead of reporting an empty `{}`
+    that `all()` reads as vacuously true. This function is now called from
+    the block path and from the abort path as well (FF1): the block path is
+    exactly where residue is most likely, and it used to run no census at
+    all before the receipt was written."""
     for proc in players or ():
         _wpstate_r90_reap(proc)
     for tag, leaf in (loads or {}).items():
@@ -36139,14 +36351,20 @@ def _wpstate_r90_teardown(entry, failures, loads, players=(),
                                 keep_chars=200)}
             for nid, nm in residual]
         time.sleep(0.4)
+    censused = list(dict.fromkeys([*(census or ()), *(loads or {})]))
+    entry["sinks_censused"] = censused
     sinks_now = _capture_r77_sink_names_strict()
     if sinks_now is None:
         entry["sinks_gone"] = "reader_error"
         entry.setdefault("coverage_blocked", []).append(
             "teardown: pactl sink reader failed — sinks_gone unmeasured")
     else:
-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        gone = {nm: nm not in sinks_now for nm in censused}
         entry["sinks_gone"] = gone
+        if not censused:
+            entry["sinks_gone_note"] = (
+                "no sink was loaded by this entry — the census measured "
+                "nothing (named, not a vacuous true)")
         if not all(gone.values()):
             failures.append(
                 "teardown: probe sinks survived unload: "
@@ -36158,27 +36376,103 @@ def _wpstate_r90_teardown(entry, failures, loads, players=(),
             "teardown: node reader failed — own_nodes_after unmeasured")
     else:
         rest = sorted(n for n in names
-                      if _wpstate_r90_mine(n) or n in tracked)
+                      if _wpstate_r90_mine(n) or n in tracked
+                      or n in censused)
         entry["own_nodes_after"] = rest
         if rest:
             failures.append(
                 f"teardown: r90a-tagged nodes survived: {rest}")
+    # FF5: the store-residue census, read-only and armed on every entry so
+    # accumulation is visible in every run instead of only to a critic
+    # grepping the file. `own_keys` is a CLAIM (the family's rows persist
+    # structurally — there is no deletion path); the host-wide `r90a_` row
+    # count is the armed one.
+    residue = _wpstate_r90_store_census()
+    entry["store_at_exit"] = residue
+    if residue.get("reader") == "ok":
+        entry["store_residue"] = {
+            "family_rows": residue.get("family_rows"),
+            "family_rows_by_pid": residue.get("family_rows_by_pid"),
+            "own_keys": residue.get("own_keys"),
+            "rows": residue.get("rows"),
+            "ceiling": WPSTATE_R90_RESIDUE_CEILING}
+        if (residue.get("family_rows") or 0) > \
+                WPSTATE_R90_RESIDUE_CEILING:
+            failures.append(
+                "store residue: the host-wide r90a_ row count is "
+                f"{residue.get('family_rows')} > the declared ceiling "
+                f"{WPSTATE_R90_RESIDUE_CEILING} — the store accumulates "
+                "without a deletion path and needs an operator sweep")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: stream-properties store unreadable — the "
+            "store-residue census is unmeasured")
 
 
-def _wpstate_r90_block(entry, failures, msg, loads=None, players=()):
-    """The named coverage block: reap players, unload anything loaded,
-    record the block, never fabricate a green."""
-    for proc in players or ():
-        _wpstate_r90_reap(proc)
+def _wpstate_r90_store_residue_leg(entry):
+    """FF5's explicit leg: the read-only store-residue reading taken at the
+    end of the store entry's leg set, with the entry-time count for the
+    delta. The ceiling arm lives in the teardown (every entry); this leg
+    makes the delta a first-class measurement."""
+    at_entry = (entry.get("store_at_entry") or {}).get("family_rows")
+    now = _wpstate_r90_store_census()
+    leg = {"at_entry": at_entry,
+           "at_leg_end": now.get("family_rows"),
+           "family_rows_by_pid": now.get("family_rows_by_pid"),
+           "own_keys": now.get("own_keys"),
+           "rows": now.get("rows"),
+           "ceiling": WPSTATE_R90_RESIDUE_CEILING,
+           "reader": now.get("reader"),
+           "note": ("read-only: the fixture never edits the store; the "
+                    "rows persist structurally (no CLI deletion path)")}
+    if isinstance(at_entry, int) and isinstance(leg["at_leg_end"], int):
+        leg["delta_rows"] = leg["at_leg_end"] - at_entry
+    return leg
+
+
+def _wpstate_r90_block(entry, failures, msg, loads=None, players=(),
+                       legs=None, census=(), extra_nodes=()):
+    """The named coverage block: carry the partial legs (FF1 — the per-leg
+    evidence is what justifies the block, and it used to be dropped on
+    exactly this path), run the SAME exit residue census as the normal path,
+    mark the entry `measured: false` so a gate can never read `failures: []`
+    as "all legs green", and never fabricate a green. The receipt is written
+    by the caller AFTER this returns, so the census it carries is the real
+    post-teardown one."""
     entry["blocked"] = msg
     entry.setdefault("coverage_blocked", []).append(msg)
-    for tag, leaf in (loads or {}).items():
-        leaf = leaf or {}
-        entry.setdefault("unloads", {})[tag] = \
-            _pactlmon_r85_unload_own(
-                leaf.get("module_id"),
-                leaf.get("field", "sink_name"),
-                leaf.get("value", tag))
+    entry["legs"] = legs if legs is not None else entry.get("legs", {})
+    entry["legs_measured"] = len(entry["legs"] or {})
+    entry["measured"] = False
+    try:
+        _wpstate_r90_teardown(entry, failures, loads, players,
+                              extra_nodes=extra_nodes, census=census)
+    except Exception as exc:                  # the census may never
+        entry.setdefault("coverage_blocked", []).append(   # lose the receipt
+            f"teardown aborted: {type(exc).__name__}: {exc}"[:200])
+    entry["measured"] = False
+    entry["failures"] = failures
+    return entry
+
+
+def _wpstate_r90_finish(entry, failures, legs, loads, players=(),
+                        census=(), extra_nodes=()):
+    """The normal-path close: carry the legs, run the exit residue census,
+    then set the machine-readable discriminators — `measured` is true only
+    when the entry RAN its leg set to the end (an early block or an
+    exception leaves it false, so `failures: []` can never be read as a
+    green for an entry that measured nothing) and `legs_measured` counts the
+    legs actually executed."""
+    entry["legs"] = legs
+    entry["legs_measured"] = len(legs)
+    entry["measured"] = True
+    try:
+        _wpstate_r90_teardown(entry, failures, loads, players,
+                              extra_nodes=extra_nodes, census=census)
+    except Exception as exc:
+        entry.setdefault("coverage_blocked", []).append(
+            f"teardown aborted: {type(exc).__name__}: {exc}"[:200])
+        entry["measured"] = False
     entry["failures"] = failures
     return entry
 
@@ -36266,7 +36560,8 @@ def wpstate_store_r90_probe():
 
     Recorded, never armed: the live default sink's volume (operator/sibling
     state — the boundary's C2 cross-witness) and the store's row census
-    (every seat leaves permanent rows; no CLI deletes them)."""
+    (every seat leaves permanent rows; no CLI deletes them — FF5 turns the
+    host-wide accumulation into an armed ceiling on every entry)."""
     failures, legs = [], {}
     entry = _wpstate_r90_entry_head(
         "r90a WirePlumber settings + stream-properties store lattice")
@@ -36274,11 +36569,14 @@ def wpstate_store_r90_probe():
              ("wpctl", "pactl", "pw-cli", "pw-play", "pw-dump")}
     entry["tools"] = tools
     if not all(tools.values()):
-        return _wpstate_r90_receipt(
-            _wpstate_r90_block(entry, failures,
-                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
-            "wpstate_store_r90_probe")
-    loads, players = {}, []
+        return _wpstate_r90_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}",
+            legs=legs)
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _wpstate_r90_block(entry, failures, gate["block"], legs=legs)
+    loads, players, census = {}, [], []
     try:
         entry["store_at_entry"] = _wpstate_r90_store_census()
 
@@ -36401,18 +36699,16 @@ def wpstate_store_r90_probe():
         # ---------- the store lattice ---------------------------------
         loads[WPSTATE_R90_NS] = _wpstate_r90_load_ns(WPSTATE_R90_NS)
         if loads[WPSTATE_R90_NS].get("module_id") is None:
-            return _wpstate_r90_receipt(
-                _wpstate_r90_block(
-                    entry, failures,
-                    f"probe null sink {WPSTATE_R90_NS} never enumerated",
-                    loads), "wpstate_store_r90_probe")
+            return _wpstate_r90_block(
+                entry, failures,
+                f"probe null sink {WPSTATE_R90_NS} never enumerated",
+                loads, players=players, legs=legs, census=census)
         loads[WPSTATE_R90_NS2] = _wpstate_r90_load_ns(WPSTATE_R90_NS2)
         if loads[WPSTATE_R90_NS2].get("module_id") is None:
-            return _wpstate_r90_receipt(
-                _wpstate_r90_block(
-                    entry, failures,
-                    f"probe null sink {WPSTATE_R90_NS2} never enumerated",
-                    loads), "wpstate_store_r90_probe")
+            return _wpstate_r90_block(
+                entry, failures,
+                f"probe null sink {WPSTATE_R90_NS2} never enumerated",
+                loads, players=players, legs=legs, census=census)
 
         with tempfile.TemporaryDirectory(prefix="r90a-store-") as tmp:
             t48 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t48.wav"
@@ -36762,6 +37058,7 @@ def wpstate_store_r90_probe():
                                 loads[WPSTATE_R90_NS4].get("module_id"),
                                 "sink_name", WPSTATE_R90_NS4)
                         loads.pop(WPSTATE_R90_NS4, None)
+                        census.append(WPSTATE_R90_NS4)
                         tag_z2 = f"{WPSTATE_R90_PREFIX}_plz2"
                         proc_z2, argv_z2 = _wpstate_r90_play(
                             tag_z2, None, tsil,
@@ -36860,12 +37157,14 @@ def wpstate_store_r90_probe():
                         "w_optout_device: the control sink has no row — the "
                         "device opt-out leg is vacuous")
 
-        entry["store_at_exit"] = _wpstate_r90_store_census()
-    finally:
-        _wpstate_r90_teardown(entry, failures, loads, players)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    return _wpstate_r90_receipt(entry, "wpstate_store_r90_probe")
+        legs["w_store_residue"] = _wpstate_r90_store_residue_leg(entry)
+        return _wpstate_r90_finish(entry, failures, legs, loads,
+                                   players=players, census=census)
+    except Exception as exc:
+        return _wpstate_r90_block(
+            entry, failures,
+            f"entry aborted: {type(exc).__name__}: {exc}"[:200],
+            loads, players=players, legs=legs, census=census)
 
 
 def wpstate_pmod_r90_probe():
@@ -36873,33 +37172,37 @@ def wpstate_pmod_r90_probe():
 
     Armed: the null-sink control round trip; the phantom tunnel id (rc 0 + an
     id that never holds my module row at any of 8 args-aware probes, with no
-    node and no sink); `unload-module <never-assignable id>` -> rc 1 `No such
-    entity`; the unix-socket variant -> rc 1 `Connection refused`;
-    zeroconf discover rc 1 `No such entity` vs publish rc 0; the three
-    preloaded stubs -> rc 1 `Entity exists`; an unknown module -> rc 1 `No
-    such entity`; the by-name unload removing EVERY `module-loopback` on a
-    zero-foreign vehicle, with prefix/node-name/unknown names all rc 0 +
-    stderr `not loaded` and nothing removed."""
+    node and no sink — retried once and BOTH attempts recorded, because the
+    load races the module's own connect failure and the losing branch is a
+    named `wpstate_unknown_refusal`, FF3); `unload-module <never-assignable
+    id>` -> rc 1 `No such entity`; the unix-socket variant -> rc 1
+    `Connection refused`; zeroconf discover rc 1 `No such entity` vs publish
+    rc 0; the three preloaded stubs -> rc 1 `Entity exists`; an unknown
+    module -> rc 1 `No such entity`; the by-name unload removing EVERY
+    `module-loopback` on a zero-foreign vehicle, with prefix/node-name/
+    unknown names all rc 0 + stderr `not loaded` and nothing removed."""
     failures, legs = [], {}
     entry = _wpstate_r90_entry_head(
         "r90a pulse module namespace lattice")
     tools = {t: shutil.which(t) for t in ("pactl", "pw-dump")}
     entry["tools"] = tools
     if not all(tools.values()):
-        return _wpstate_r90_receipt(
-            _wpstate_r90_block(entry, failures,
-                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
-            "wpstate_pmod_r90_probe")
-    loads, extra_nodes = {}, set()
+        return _wpstate_r90_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}",
+            legs=legs)
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _wpstate_r90_block(entry, failures, gate["block"], legs=legs)
+    loads, extra_nodes, census = {}, set(), []
     try:
         for nm in (WPSTATE_R90_NS, WPSTATE_R90_NS2):
             loads[nm] = _wpstate_r90_load_ns(nm)
             if loads[nm].get("module_id") is None:
-                return _wpstate_r90_receipt(
-                    _wpstate_r90_block(
-                        entry, failures,
-                        f"probe null sink {nm} never enumerated", loads),
-                    "wpstate_pmod_r90_probe")
+                return _wpstate_r90_block(
+                    entry, failures,
+                    f"probe null sink {nm} never enumerated", loads,
+                    legs=legs, census=census)
 
         # ---------- control: load + name-verified unload --------------
         loads[WPSTATE_R90_NSMC] = _wpstate_r90_load_ns(WPSTATE_R90_NSMC)
@@ -36915,6 +37218,7 @@ def wpstate_pmod_r90_probe():
                 _pactlmon_r85_unload_own(mc["module_id"], "sink_name",
                                          WPSTATE_R90_NSMC)
             loads.pop(WPSTATE_R90_NSMC, None)
+            census.append(WPSTATE_R90_NSMC)
             legs["m_control"]["unload"] = \
                 entry["unloads"][WPSTATE_R90_NSMC]
             sinks_now = _capture_r77_sink_names_strict()
@@ -36928,37 +37232,78 @@ def wpstate_pmod_r90_probe():
                 failures.append("m_control: the control sink survived its "
                                 "unload")
 
-        # ---------- the phantom tunnel id ----------------------------
-        cmd = _wpstate_r90_run(
-            ["pactl", "load-module", "module-tunnel-sink",
-             "server=127.0.0.1:1", f"sink_name={WPSTATE_R90_TUN}"], 15.0)
-        phantom_id = cmd.get("stdout_token") or ""
-        legs["m_phantom"] = {
-            "load": cmd,
-            "id": int(phantom_id) if phantom_id.isdigit() else None,
-            "probes": []}
+        # ---------- the phantom tunnel id (FF3: retry-once) -----------
+        # The load RACES the module's own connect failure against the load
+        # reply (`server=127.0.0.1:1` is a closed port): on this host the
+        # same bytes gave `rc 0 + id` and `rc 1 Failure: Unknown error code`
+        # in the same minute, so "rc 0 + id" is not a law. The leg runs up
+        # to twice (the family's own w_settings pattern) and BOTH attempts
+        # are recorded; only the branch-invariant claims are armed — the
+        # branch is one of {rc0_with_id, refused}, the refusal class is
+        # NAMED, no node and no sink named `r90a_tun_<pid>` appears, and no
+        # probe holds MY module row for the tunnel's `sink_name=`. `rc 0 +
+        # id` is a recorded field.
         probes = (0.0, 0.03, 0.06, 0.12, 0.25, 0.5, 1.0, 2.0)
-        for dt in probes:
-            time.sleep(dt)
-            txt = _btwit_r88_module_lines() or ""
-            mine = [l for l in txt.splitlines()
-                    if f"sink_name={WPSTATE_R90_TUN}" in l]
-            held = None
-            if legs["m_phantom"]["id"] is not None:
-                held = [l for l in txt.splitlines()
-                        if l.split("\t")[0].strip() ==
-                        str(legs["m_phantom"]["id"])]
-            legs["m_phantom"]["probes"].append(
-                {"t": dt, "mine": bool(mine),
-                 "held_by_foreign": bool(held and not mine),
-                 "rows": mine})
-        if cmd.get("exit_code") != 0:
-            failures.append("m_phantom: the unreachable tunnel did not "
-                            f"return 0 (rc {cmd.get('exit_code')})")
-        if legs["m_phantom"]["id"] is None:
-            failures.append("m_phantom: the tunnel load returned no module "
-                            "id")
-        if any(p["mine"] for p in legs["m_phantom"]["probes"]):
+        attempts = []
+        for attempt in (1, 2):
+            cmd = _wpstate_r90_run(
+                ["pactl", "load-module", "module-tunnel-sink",
+                 "server=127.0.0.1:1", f"sink_name={WPSTATE_R90_TUN}"], 15.0)
+            phantom_id = cmd.get("stdout_token") or ""
+            aid = int(phantom_id) if phantom_id.isdigit() else None
+            probes_rec = []
+            for dt in probes:
+                time.sleep(dt)
+                txt = _btwit_r88_module_lines() or ""
+                mine = [l for l in txt.splitlines()
+                        if f"sink_name={WPSTATE_R90_TUN}" in l]
+                held = None
+                if aid is not None:
+                    held = [l for l in txt.splitlines()
+                            if l.split("\t")[0].strip() == str(aid)]
+                probes_rec.append({"t": dt, "mine": bool(mine),
+                                   "held_by_foreign":
+                                       bool(held and not mine),
+                                   "rows": mine})
+            if cmd.get("exit_code") == 0 and aid is not None:
+                branch = "rc0_with_id"
+            elif aid is None and cmd.get("exit_code") not in (0, None):
+                branch = "refused"
+            else:
+                branch = "unexplained"
+            attempts.append({"attempt": attempt, "branch": branch,
+                             "load": cmd, "id": aid,
+                             "probes": probes_rec})
+            if branch == "rc0_with_id":
+                break
+            time.sleep(0.5)
+        last = attempts[-1]
+        legs["m_phantom"] = {
+            "attempts": attempts, "attempts_run": len(attempts),
+            "branch": last["branch"], "id": last["id"],
+            "load": last["load"], "probes": last["probes"],
+            "rc0_with_id_seen": any(a["branch"] == "rc0_with_id"
+                                    for a in attempts),
+            "refused_seen": any(a["branch"] == "refused"
+                                for a in attempts)}
+        for a in attempts:
+            if a["branch"] == "unexplained":
+                c = a["load"]
+                failures.append(
+                    "m_phantom: attempt "
+                    f"{a['attempt']} is neither `rc 0 + id` nor a refusal "
+                    f"(rc {c.get('exit_code')}, out "
+                    f"{c.get('stdout_bytes')} B, class "
+                    f"{c.get('error_class')}) — the load handshake left "
+                    "the branch unnamed")
+            if a["branch"] == "refused" and \
+                    not a["load"].get("error_class"):
+                failures.append(
+                    "m_phantom: attempt "
+                    f"{a['attempt']} refused with an UNNAMED class "
+                    f"(rc {a['load'].get('exit_code')}, stderr "
+                    f"{(a['load'].get('stderr') or '')[:80]!r})")
+        if any(p["mine"] for a in attempts for p in a["probes"]):
             failures.append("m_phantom: the phantom id DID hold my module "
                             "row at some probe — the id is not a phantom "
                             "here")
@@ -36973,7 +37318,7 @@ def wpstate_pmod_r90_probe():
             failures.append("m_phantom: the phantom tunnel published a "
                             "sink")
         legs["m_phantom"]["id_recycled_by_foreign"] = any(
-            p["held_by_foreign"] for p in legs["m_phantom"]["probes"])
+            p["held_by_foreign"] for a in attempts for p in a["probes"])
 
         # ---------- the unassignable id (no recycle hazard) ----------
         pre_ids = _btwit_r88_module_ids() or []
@@ -37147,12 +37492,13 @@ def wpstate_pmod_r90_probe():
         elif pre["count"]:
             entry.setdefault("coverage_blocked", []).append(
                 "m_byname_final: foreign loopbacks present — left alone")
-    finally:
-        _wpstate_r90_teardown(entry, failures, loads, (),
-                              extra_nodes=extra_nodes)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    return _wpstate_r90_receipt(entry, "wpstate_pmod_r90_probe")
+        return _wpstate_r90_finish(entry, failures, legs, loads,
+                                   extra_nodes=extra_nodes, census=census)
+    except Exception as exc:
+        return _wpstate_r90_block(
+            entry, failures,
+            f"entry aborted: {type(exc).__name__}: {exc}"[:200],
+            loads, legs=legs, census=census, extra_nodes=extra_nodes)
 
 
 def wplink_r90_entry():
@@ -37172,20 +37518,22 @@ def wplink_r90_entry():
     tools = {t: shutil.which(t) for t in ("pw-link", "pactl", "pw-dump")}
     entry["tools"] = tools
     if not all(tools.values()):
-        return _wpstate_r90_receipt(
-            _wpstate_r90_block(entry, failures,
-                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
-            "wplink_r90_probe")
+        return _wpstate_r90_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}",
+            legs=legs)
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _wpstate_r90_block(entry, failures, gate["block"], legs=legs)
     loads, players = {}, []
     try:
         for nm in (WPSTATE_R90_L1, WPSTATE_R90_L2, WPSTATE_R90_L3):
             loads[nm] = _wpstate_r90_load_ns(nm)
             if loads[nm].get("module_id") is None:
-                return _wpstate_r90_receipt(
-                    _wpstate_r90_block(
-                        entry, failures,
-                        f"probe null sink {nm} never enumerated", loads),
-                    "wplink_r90_probe")
+                return _wpstate_r90_block(
+                    entry, failures,
+                    f"probe null sink {nm} never enumerated", loads,
+                    players=players, legs=legs)
         own = (WPSTATE_R90_L1, WPSTATE_R90_L2, WPSTATE_R90_L3)
         a = f"{WPSTATE_R90_L1}:monitor_FL"
         a2 = f"{WPSTATE_R90_L1}:monitor_FR"
@@ -37329,41 +37677,107 @@ def wplink_r90_entry():
                             "returned instead of blocking (rc "
                             f"{legs['k_w_missing'].get('exit_code')})")
 
-        late_state = {}
+        # ---------- -w after a late port (FF3: retry-once) -----------
+        # `-w` returning rc 0 shortly after the port appears is a readiness
+        # race, not a law: the critic measured rc 255 `failed to link ports:
+        # Invalid argument` at 1.524 s on byte-identical code where four
+        # other runs were rc 0. The leg therefore runs up to twice, with a
+        # FRESH late sink per attempt (a port that already exists would make
+        # the second `-w` return immediately and fake a different red),
+        # records BOTH attempts, and arms only the branch-invariant claim:
+        # each attempt is either `linked` (rc 0 and the late->L3 edge
+        # exists), `refused` (a NAMED refusal class and no late->L3 edge) or
+        # `stimulus_failed` (the late sink never loaded — a named coverage
+        # block, not a falsified law). The wall band is armed only on the
+        # linked branch.
+        late_attempts = []
+        for attempt in (1, 2):
+            late_name = (WPSTATE_R90_LATE if attempt == 1
+                         else f"{WPSTATE_R90_LATE}a")
+            late_state = {}
 
-        def _late_load():
-            late_state["load"] = _wpstate_r90_run(
-                ["pactl", "load-module", "module-null-sink",
-                 f"sink_name={WPSTATE_R90_LATE}"], 15.0)
-            late_state["t"] = round(time.monotonic(), 3)
+            def _late_load(_name=late_name, _state=late_state):
+                _state["load"] = _wpstate_r90_run(
+                    ["pactl", "load-module", "module-null-sink",
+                     f"sink_name={_name}"], 15.0)
+                _state["t"] = round(time.monotonic(), 3)
 
-        legs["k_w_late"] = _wpstate_r90_stream(
-            ["pw-link", "-w", f"{WPSTATE_R90_LATE}:monitor_FL", c2], 8.0,
-            hooks=[(1.5, _late_load)], keep_chars=300)
-        late_id = (late_state.get("load") or {}).get("stdout_token") or ""
-        if late_id.isdigit():
-            loads[WPSTATE_R90_LATE] = {"module_id": int(late_id),
-                                       "field": "sink_name",
-                                       "value": WPSTATE_R90_LATE}
-        legs["k_w_late"]["late_load"] = late_state.get("load")
-        g = _wpstate_r90_graph()
-        late_edges = [e for e in _wpstate_r90_edges_in(g, WPSTATE_R90_L3)
-                      if e.get("out_node") == WPSTATE_R90_LATE]
-        legs["k_w_late"]["late_edges"] = late_edges
-        legs["k_w_late"]["own_links"] = len(
-            _wpstate_r90_own_links(g, own))
-        wall = legs["k_w_late"].get("wall_s")
-        if legs["k_w_late"].get("exit_code") != 0:
-            failures.append("k_w_late: `-w` did not return 0 when the port "
-                            f"appeared (rc "
-                            f"{legs['k_w_late'].get('exit_code')}, wall "
-                            f"{wall})")
-        elif wall is None or not (1.5 <= wall <= 4.0):
-            failures.append(f"k_w_late: `-w` returned at {wall}s — not "
-                            "shortly after the 1.5 s port creation")
-        if not late_edges:
-            failures.append("k_w_late: `-w` returned 0 but the link into "
-                            f"{WPSTATE_R90_L3} is missing")
+            rec = _wpstate_r90_stream(
+                ["pw-link", "-w", f"{late_name}:monitor_FL", c2], 8.0,
+                hooks=[(1.5, _late_load)], keep_chars=300)
+            late_id = (late_state.get("load") or {}).get("stdout_token") or ""
+            if late_id.isdigit():
+                loads[late_name] = {"module_id": int(late_id),
+                                    "field": "sink_name",
+                                    "value": late_name}
+            time.sleep(0.3)
+            g = _wpstate_r90_graph()
+            late_edges = [e for e in _wpstate_r90_edges_in(g,
+                                                           WPSTATE_R90_L3)
+                          if e.get("out_node") == late_name]
+            rec.update({"attempt": attempt, "late_name": late_name,
+                        "late_load": late_state.get("load"),
+                        "late_edges": late_edges,
+                        "own_links": len(_wpstate_r90_own_links(g, own))})
+            if not late_id.isdigit():
+                rec["branch"] = "stimulus_failed"
+            elif rec.get("exit_code") == 0 and late_edges:
+                rec["branch"] = "linked"
+            elif rec.get("exit_code") != 0 and not late_edges and \
+                    rec.get("error_class"):
+                rec["branch"] = "refused"
+            else:
+                rec["branch"] = "unexplained"
+            late_attempts.append(rec)
+            if rec["branch"] == "linked":
+                break
+            time.sleep(0.5)
+        last = late_attempts[-1]
+        legs["k_w_late"] = {
+            "attempts": late_attempts, "attempts_run": len(late_attempts),
+            "branch": last["branch"], "wall_s": last.get("wall_s"),
+            "exit_code": last.get("exit_code"), "stderr": last.get("stderr"),
+            "error_class": last.get("error_class"),
+            "late_load": last.get("late_load"),
+            "late_edges": last.get("late_edges"),
+            "own_links": last.get("own_links"),
+            "linked_seen": any(a["branch"] == "linked"
+                               for a in late_attempts),
+            "refused_seen": any(a["branch"] == "refused"
+                                for a in late_attempts)}
+        for rec in late_attempts:
+            if rec["branch"] == "stimulus_failed":
+                entry.setdefault("coverage_blocked", []).append(
+                    f"k_w_late attempt {rec['attempt']}: the late sink "
+                    f"{rec['late_name']} never loaded (rc "
+                    f"{(rec.get('late_load') or {}).get('exit_code')}) — the "
+                    "`-w` branch is unmeasured, not falsified")
+            elif rec["branch"] == "unexplained":
+                failures.append(
+                    "k_w_late: attempt "
+                    f"{rec['attempt']} is neither `linked` nor `refused` "
+                    f"(rc {rec.get('exit_code')}, wall {rec.get('wall_s')}, "
+                    f"edges {len(rec.get('late_edges') or [])}, class "
+                    f"{rec.get('error_class')}, stderr "
+                    f"{(rec.get('stderr') or '')[:80]!r})")
+            elif rec["branch"] == "linked":
+                wall = rec.get("wall_s")
+                if wall is None or not (1.5 <= wall <= 4.0):
+                    failures.append(
+                        f"k_w_late: attempt {rec['attempt']} linked at "
+                        f"{wall}s — not shortly after the 1.5 s port "
+                        "creation")
+        if not any(a["branch"] in ("linked", "refused")
+                   for a in late_attempts):
+            failures.append(
+                "k_w_late: no attempt reached the linked or refused branch "
+                "— the `-w`-after-a-late-port claim is unmeasured")
+        if last["branch"] == "refused":
+            entry.setdefault("coverage_blocked", []).append(
+                "k_w_late: the final attempt refused ("
+                f"{last.get('error_class')}, wall {last.get('wall_s')}s) "
+                "with no link formed — the admissible refusal branch, "
+                "recorded rather than armed as a rc-0 law")
 
         # ---------- -p props on the Link object ---------------------
         legs["k_p_foo"] = _wpstate_r90_pwlink(
@@ -37479,11 +37893,13 @@ def wplink_r90_entry():
             failures.append("k_v: `pw-link -v -l` printed no port "
                             "properties")
         _wpstate_r90_reap(proc)
-    finally:
-        _wpstate_r90_teardown(entry, failures, loads, players)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    return _wpstate_r90_receipt(entry, "wplink_r90_entry")
+        return _wpstate_r90_finish(entry, failures, legs, loads,
+                                   players=players)
+    except Exception as exc:
+        return _wpstate_r90_block(
+            entry, failures,
+            f"entry aborted: {type(exc).__name__}: {exc}"[:200],
+            loads, players=players, legs=legs)
 
 
 def wpformat_r90_entry():
@@ -37502,19 +37918,21 @@ def wpformat_r90_entry():
     tools = {t: shutil.which(t) for t in ("pw-cli", "pw-play", "pw-dump")}
     entry["tools"] = tools
     if not all(tools.values()):
-        return _wpstate_r90_receipt(
-            _wpstate_r90_block(entry, failures,
-                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
-            "wpformat_r90_probe")
+        return _wpstate_r90_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}",
+            legs=legs)
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _wpstate_r90_block(entry, failures, gate["block"], legs=legs)
     loads, players = {}, []
     try:
         loads[WPSTATE_R90_NS] = _wpstate_r90_load_ns(WPSTATE_R90_NS)
         if loads[WPSTATE_R90_NS].get("module_id") is None:
-            return _wpstate_r90_receipt(
-                _wpstate_r90_block(
-                    entry, failures,
-                    f"probe null sink {WPSTATE_R90_NS} never enumerated",
-                    loads), "wpformat_r90_probe")
+            return _wpstate_r90_block(
+                entry, failures,
+                f"probe null sink {WPSTATE_R90_NS} never enumerated",
+                loads, players=players, legs=legs)
         with tempfile.TemporaryDirectory(prefix="r90a-fmt-") as tmp:
             t48 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t48.wav"
             t441 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t441.wav"
@@ -37526,11 +37944,10 @@ def wpformat_r90_entry():
             node = _wpstate_r90_node(g, WPSTATE_R90_NS)
             port = _wpstate_r90_port(g, WPSTATE_R90_NS, "playback_FL")
             if node is None or port is None:
-                return _wpstate_r90_receipt(
-                    _wpstate_r90_block(
-                        entry, failures,
-                        f"probe sink {WPSTATE_R90_NS} node/port never "
-                        "enumerated", loads), "wpformat_r90_probe")
+                return _wpstate_r90_block(
+                    entry, failures,
+                    f"probe sink {WPSTATE_R90_NS} node/port never "
+                    "enumerated", loads, players=players, legs=legs)
             legs["f_rest"] = {
                 "node": node["id"], "port": port["id"],
                 "enumformat": _wpstate_r90_enum(node["id"], "EnumFormat"),
@@ -37702,11 +38119,13 @@ def wpformat_r90_entry():
                 failures.append(
                     "f_post: EnumFormat moved after the negotiation "
                     f"({legs['f_post']['enumformat']['sha12']})")
-    finally:
-        _wpstate_r90_teardown(entry, failures, loads, players)
-    entry["legs"] = legs
-    entry["failures"] = failures
-    return _wpstate_r90_receipt(entry, "wpformat_r90_probe")
+        return _wpstate_r90_finish(entry, failures, legs, loads,
+                                   players=players)
+    except Exception as exc:
+        return _wpstate_r90_block(
+            entry, failures,
+            f"entry aborted: {type(exc).__name__}: {exc}"[:200],
+            loads, players=players, legs=legs)
 
 
 # r91: the Gst CAPTURE-FREEZE MECHANISM — the r81 scout read the frozen
@@ -48925,14 +49344,63 @@ def main():
         # r90arole<pid> key, name-verified sink_name= unloads, never
         # set-default-*, bounded process groups, by-name unload only on
         # a zero-foreign module-loopback vehicle). The family lock is a
-        # FIXED corpus/live/ path — the r84 F1 3-seat consensus.
-        _r90_family_lock = _wpstate_r90_family_lock()   # held to exit
-        measurements["wpstate_store_r90_probe"] = \
-            wpstate_store_r90_probe()
-        measurements["wpstate_pmod_r90_probe"] = \
-            wpstate_pmod_r90_probe()
-        measurements["wplink_r90_probe"] = wplink_r90_entry()
-        measurements["wpformat_r90_probe"] = wpformat_r90_entry()
+        # HOST-GLOBAL path ($XDG_RUNTIME_DIR/ufo-measure_audio-wpstate-
+        # r90.lock) acquired with a BOUNDED NON-BLOCKING retry (FF2): the
+        # r84 F1 3-seat consensus is only honoured when the path does not
+        # move with the tree — a live holder past the cap names a coverage
+        # block on every entry instead of waiting unbounded, and the file
+        # is truncated on release so a stale holder never reads as a live
+        # one. Every receipt is written here, AFTER the entry function has
+        # returned (FF1: post-teardown, post-census).
+        WPSTATE_R90_RUN["id"] = (
+            os.environ.get("UFO_RUN_ID")
+            or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ"))
+        lock = _wpstate_r90_family_lock()             # held to exit
+        measurements["wpstate_r90_family_lock"] = {
+            "probe": "r90a family lock (host-global, bounded acquire)",
+            "path": lock["path"], "pid": lock["pid"],
+            "wait_cap_s": lock["wait_cap_s"], "waited_s": lock["waited_s"],
+            "acquired": lock["fd"] is not None,
+            "holder_text": lock["holder_text"],
+            "stale_text": lock["stale_text"],
+            "stale_pid_dead": lock.get("stale_pid_dead"),
+            "block": lock["block"],
+            "coverage_blocked": [lock["block"]] if lock["block"] else [],
+            "failures": []}
+        measurements["wpstate_r90_family_lock"].update(
+            _wpstate_r90_attribution())
+        _r90_lock_block = lock["block"]
+        for _r90_key, _r90_fn in (
+                ("wpstate_store_r90_probe", wpstate_store_r90_probe),
+                ("wpstate_pmod_r90_probe", wpstate_pmod_r90_probe),
+                ("wplink_r90_probe", wplink_r90_entry),
+                ("wpformat_r90_probe", wpformat_r90_entry)):
+            measurements[_r90_key] = _wpstate_r90_receipt(
+                (_wpstate_r90_lock_blocked_entry(_r90_key, _r90_lock_block)
+                 if _r90_lock_block else _r90_fn()), _r90_key)
+        # Run-level census (FF1): a green `failures` must never be read as
+        # "all legs measured". Counts the entries that actually ran their
+        # leg set and names the blocked ones.
+        _r90_entries = ("wpstate_store_r90_probe", "wpstate_pmod_r90_probe",
+                        "wplink_r90_probe", "wpformat_r90_probe")
+        _r90_blocked = [k for k in _r90_entries
+                        if not (measurements[k] or {}).get("measured")]
+        measurements["wpstate_r90_run_census"] = {
+            "probe": ("r90a run census: entries_measured counts entries "
+                      "that ran their leg set to the end"),
+            "entries": len(_r90_entries),
+            "entries_measured": len(_r90_entries) - len(_r90_blocked),
+            "entries_blocked": _r90_blocked,
+            "legs_total": sum((measurements[k] or {}).get("legs_measured")
+                              or 0 for k in _r90_entries),
+            "measured_all": not _r90_blocked,
+            "lock_block": _r90_lock_block,
+            "coverage_blocked": [f"entry blocked: {k}"
+                                 for k in _r90_blocked],
+            "failures": []}
+        measurements["wpstate_r90_run_census"].update(
+            _wpstate_r90_attribution())
+        _wpstate_r90_lock_release(lock["fd"])
     if args.probe_pwprof_r89:
         # r89: the PW-PROFILER OUTPUT LATTICE — the -n gating law
         # (exact-N completions summed over ALL driver domains, the
