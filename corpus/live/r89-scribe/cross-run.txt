@@ -1,0 +1,48 @@
+r89-scribe cross-run stability (run1 vs run2, pid/number-normalized keys+values)
+normalized leaves: 993  differing: 133  volatile: 97  semantic: 36
+
+SEMANTIC  pwprof_gate_r89_probe/legs/n_abc/n_info: 66 -> 65
+SEMANTIC  pwprof_gate_r89_probe/loadavg/0: '56.86' -> '53.90'
+SEMANTIC  pwprof_gate_r89_probe/loadavg/1: '57.51' -> '56.63'
+SEMANTIC  pwprof_gate_r89_probe/loadavg/2: '64.07' -> '63.46'
+SEMANTIC  pwprof_oart_r89_probe/legs/o_dash/dash_file: 6472 -> 6468
+SEMANTIC  pwprof_oart_r89_probe/legs/o_default/profiler_log: 4314 -> 4312
+SEMANTIC  pwprof_oart_r89_probe/loadavg/0: '54.98' -> '52.78'
+SEMANTIC  pwprof_oart_r89_probe/loadavg/1: '57.04' -> '56.20'
+SEMANTIC  pwprof_oart_r89_probe/loadavg/2: '63.77' -> '63.17'
+SEMANTIC  pwprof_schema_r89_probe/legs/s_suspend/kill_mono: 54578724003820 -> 54622080018233
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/busy_us_median: 3.64 -> 3.07
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/busy_us_range/0: 1240 -> 680
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/busy_us_range/1: 22900 -> 22710
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/clock_ids/0: 153 -> 197
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/driver_ids/0: 153 -> 197
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/wait_us_median: 5.17 -> 4.02
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/wait_us_range/0: 2140 -> 1940
+SEMANTIC  pwprof_schema_r89_probe/legs/s_window/stats/wait_us_range/1: 26140 -> 2818726
+SEMANTIC  pwprof_schema_r89_probe/loadavg/0: '54.98' -> '52.56'
+SEMANTIC  pwprof_schema_r89_probe/loadavg/1: '57.00' -> '56.09'
+SEMANTIC  pwprof_schema_r89_probe/loadavg/2: '63.73' -> '63.10'
+SEMANTIC  pwprof_schema_r89_probe/refs/own_node_id: 153 -> 197
+SEMANTIC  pwprof_xw_r89_probe/legs/x_conc/bytes1: 6503 -> 6471
+SEMANTIC  pwprof_xw_r89_probe/legs/x_conc/bytes2: 6503 -> 6471
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/own_row/busy: '0.9us' -> '0.6us'
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/own_row/busy_us: 0.9 -> 0.6
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/own_row/id: 183 -> 96
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/own_row/wait: '2.3us' -> '1.6us'
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/own_row/wait_us: 2.3 -> 1.6
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/prof_busy_us_med: 2.22 -> 1.4
+SEMANTIC  pwprof_xw_r89_probe/legs/x_top/prof_wait_us_med: 4.09 -> 2.55
+SEMANTIC  pwprof_xw_r89_probe/loadavg/0: '54.66' -> '52.35'
+SEMANTIC  pwprof_xw_r89_probe/loadavg/1: '56.90' -> '55.99'
+SEMANTIC  pwprof_xw_r89_probe/loadavg/2: '63.66' -> '63.03'
+SEMANTIC  pwprof_xw_r89_probe/oracle_at_start/sink_meta: None -> 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'
+SEMANTIC  pwprof_xw_r89_probe/refs/own_node_id: 183 -> 96
+
+
+All 36 non-volatile-classified drifts are volatile-by-design or ambient:
+  loadavg (12), ids (clock_ids/driver_ids/own_node_id/x_top id), microsecond
+  medians/ranges (wall-dependent), kill_mono, artifact byte sizes (o_dash 6472->6468,
+  o_default 4314->4312), x_conc bytes 6503->6471, n_abc n_info 66->65 (the report's own
+  declared 65-66 band), and xw oracle_at_start/sink_meta None->SPDIF (ambient oracle
+  snapshot, never a pwprof verdict input). ZERO verdict-class differences:
+  failures=[] and coverage_blocked absent in all four entries in both runs.

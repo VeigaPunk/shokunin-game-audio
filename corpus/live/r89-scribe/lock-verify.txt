@@ -1,0 +1,83 @@
+r89-scribe lock verification — the assigned focus: fixed-path family lock
+
+STATIC (pinned fixture corpus/fixtures/measure_audio.py, sha 623c25cc…):
+  L26   ROOT = Path(__file__).resolve().parents[1]  (=> <repo>/corpus)
+  L29505-29523 _pwprof_r89_family_lock()
+    path = ROOT / 'live' / 'measure_audio-pwprof-r89.lock'   (fixed lane path)
+    fcntl.flock(fd, fcntl.LOCK_EX)                            (blocking; no LOCK_NB)
+    witness write pid=… ns=… role=… guarded by except OSError: pass
+    returns None on os.open failure (exclusion silently skipped — open-failure path)
+  L31354-31371 dispatch: _r89_family_lock = _pwprof_r89_family_lock()  # held to exit
+    then the four pwprof entries; fd is a main()-local held to exit
+  no tempfile.gettempdir() anywhere in the r89 family; no unlink() of the lock path
+
+DYNAMIC (verbatim-extracted lock fn exec'd with __file__ in two pinned tree copies;
+children raced with different TMPDIRs; 2 s holds):
+[
+ {
+  "name": "A-diffTMPDIR",
+  "pathA": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "pathB": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "acquiredA": 0.0001,
+  "acquiredB": 1.9507,
+  "waitA": 0.0001,
+  "waitB": 1.9507,
+  "overlap": -0.0025
+ },
+ {
+  "name": "B-sameTMPDIR",
+  "pathA": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "pathB": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "acquiredA": 0.0001,
+  "acquiredB": 1.9504,
+  "waitA": 0.0001,
+  "waitB": 1.9504,
+  "overlap": -0.0017
+ },
+ {
+  "name": "E-crossTree",
+  "pathA": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "pathB": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock",
+  "acquiredA": 0.0001,
+  "acquiredB": 1.9636,
+  "waitA": 0.0001,
+  "waitB": 1.9636,
+  "overlap": -0.0007
+ },
+ {
+  "name": "F-r84control",
+  "pathA": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/fixtures/measure_audio-alsapw-r84.lock",
+  "pathB": "/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/fixtures/measure_audio-alsapw-r84.lock",
+  "acquiredA": 0.0002,
+  "acquiredB": 0.0002,
+  "waitA": 0.0002,
+  "waitB": 0.0002,
+  "overlap": 1.9394
+ },
+ {
+  "name": "D-deadHolder",
+  "reacquire_wait_s": 8e-05
+ }
+]
+  {'name': 'A-diffTMPDIR', 'pathA': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'pathB': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'acquiredA': 0.0001, 'acquiredB': 1.9507, 'waitA': 0.0001, 'waitB': 1.9507, 'overlap': -0.0025}
+  {'name': 'B-sameTMPDIR', 'pathA': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'pathB': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'acquiredA': 0.0001, 'acquiredB': 1.9504, 'waitA': 0.0001, 'waitB': 1.9504, 'overlap': -0.0017}
+  {'name': 'E-crossTree', 'pathA': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'pathB': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/live/measure_audio-pwprof-r89.lock', 'acquiredA': 0.0001, 'acquiredB': 1.9636, 'waitA': 0.0001, 'waitB': 1.9636, 'overlap': -0.0007}
+  {'name': 'F-r84control', 'pathA': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/fixtures/measure_audio-alsapw-r84.lock', 'pathB': '/home/vgpnk/Projects/shokunin/tmp/r89-scribe-work/corpus/fixtures/measure_audio-alsapw-r84.lock', 'acquiredA': 0.0002, 'acquiredB': 0.0002, 'waitA': 0.0002, 'waitB': 0.0002, 'overlap': 1.9394}
+  {'name': 'D-deadHolder', 'reacquire_wait_s': 8e-05}
+
+
+  A-diffTMPDIR: identical fixed path from two different TMPDIRs; B waited 1.9507 s, overlap -0.0025 s -> SERIALIZED
+  B-sameTMPDIR: serialized (overlap -0.0017 s)
+  D-deadHolder: re-acquired in 0.00008 s (flock released on process death; file never unlinked)
+  F-r84control: the r84 TMPDIR-scoped lock RACED (overlap +1.9394 s, two paths inside each TMPDIR) — negative control as expected
+  E-crossTree-fixed: two checkouts of the same commit resolve two different paths -> overlap +1.9647 s, RACED
+     (the known per-checkout residual, same as r86/r87/r88)
+
+LANE FILE PROBE (corpus/live/measure_audio-pwprof-r89.lock):
+  O_RDONLY + LOCK_SH|LOCK_NB acquired in 5e-06 s (no exclusive holder at probe time)
+  content unchanged before/after probe; sha256 d4fb899e03a2ad235df28e1e595b8a280d331548e86f27098459393d232c94dd
+
+VERDICT: the r89 family lock IS at a fixed lane path (not TMPDIR-scoped);
+statically, dynamically (different TMPDIRs), and by the live lane witness (pid=1728427 = run 2).
+Residual (unchanged from r86-r88): the lock is fixed per checkout — cross-tree copies race;
+and an os.open failure silently skips exclusion.

@@ -1,0 +1,42 @@
+r89-scribe receipt chain — committed landing 0d732989 (r89 author)
+audit time: 2026-10-16 04:54:52 -0300  host: plazir27
+
+fixture (pin + worktree):
+  corpus/fixtures/measure_audio.py sha256 623c25cc55521472dc54a1ab2b4ccb4a9836fda3ca1a71dcca06092a4317cd22
+  size 1611226 B, mtime 04:46:11 local
+  report cites 623c25cc55521472dc54a1ab2b4ccb4a9836fda3ca1a71dcca06092a4317cd22 — MATCH
+  git pin: `git archive 0d732989` copy sha == worktree sha (verified, 32062 lines)
+
+commit 0d732989:
+  author=audio-shokunin date=Fri Oct 16 04:49:33 2026 -0300 subject=r89 author: 47 legs / 4 entries pwprof lattice — gate completions, SIGKILL-leaves-49152B (boundary falsification folded), schema invariants, xw witnesses; 2 green
+  1561	3	corpus/fixtures/measure_audio.py | 215	0	reports/round-89/r89-author.md
+  parent: f1ef707119fbd91aa9748af3b2b8b18e2ee68326
+  report sha in commit == worktree: 4f5fc49416479cbcd2ce5e701481e69e04b6dde903dbea5dd6194c8c5ff58d32
+
+pyc (tracked, dirty) header: src_mtime=1792136771 (04:46:11), src_size=1611226 — equals the committed fixture's size/mtime
+
+run1: 20261016T074733533774Z-pwprof-r89/measurements.json
+  sha256 1d7a24afd20d5ad8f02441288426bbfd940d5667c8bf36dc5980d4718b1310ee  size 540605  mtime 04:47:33 local
+  mode=probe-pwprof-r89  entries=21
+    pwprof_gate_r89_probe: legs=27 failures=[] coverage_blocked='ABSENT' own_pid=1723178 loadavg=['56.86', '57.51', '64.07']
+    pwprof_oart_r89_probe: legs=12 failures=[] coverage_blocked='ABSENT' own_pid=1723178 loadavg=['54.98', '57.04', '63.77']
+    pwprof_schema_r89_probe: legs=4 failures=[] coverage_blocked='ABSENT' own_pid=1723178 loadavg=['54.98', '57.00', '63.73']
+    pwprof_xw_r89_probe: legs=9 failures=[] coverage_blocked='ABSENT' own_pid=1723178 loadavg=['54.66', '56.90', '63.66']
+  receipts embed fixture sha / HEAD: 0 hits — none
+run2: 20261016T074816877001Z-pwprof-r89/measurements.json
+  sha256 3e756403ecca86d9d9c982812733c57aecdc8fd421428daadeef3aff097d4274  size 540060  mtime 04:48:16 local
+  mode=probe-pwprof-r89  entries=21
+    pwprof_gate_r89_probe: legs=27 failures=[] coverage_blocked='ABSENT' own_pid=1728427 loadavg=['53.90', '56.63', '63.46']
+    pwprof_oart_r89_probe: legs=12 failures=[] coverage_blocked='ABSENT' own_pid=1728427 loadavg=['52.78', '56.20', '63.17']
+    pwprof_schema_r89_probe: legs=4 failures=[] coverage_blocked='ABSENT' own_pid=1728427 loadavg=['52.56', '56.09', '63.10']
+    pwprof_xw_r89_probe: legs=9 failures=[] coverage_blocked='ABSENT' own_pid=1728427 loadavg=['52.35', '55.99', '63.03']
+  receipts embed fixture sha / HEAD: 0 hits — none
+
+lock witness corpus/live/measure_audio-pwprof-r89.lock:
+  content='pid=1728427 ns=r89a_ns_1728427 role=r89arole1728427' sha256=d4fb899e03a2ad235df28e1e595b8a280d331548e86f27098459393d232c94dd
+  mtime 04:47:42 local (run2's lock write; pid=run2 own_pid)
+  untracked (git ls-files count = 0)
+
+timeline (local):
+  fixture mtime 04:46:11 -> run1 dir 04:47:33.5 -> run2 lock write 04:47:42 -> run2 dir 04:48:16.9 -> commit 04:49:33
+  only two pwprof-r89 run dirs exist on disk (no third/red receipt found in the author window)

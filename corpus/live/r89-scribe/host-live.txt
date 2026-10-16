@@ -1,0 +1,12 @@
+r89-scribe host/live state at audit (read-only observations)
+  time 2026-10-16 04:55:00 -0300  host plazir27
+  loadavg: 81.29 67.05 64.62 79/2278 1803217   (load preferred, as the task directs)
+  tracked dirty set: M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+  untracked r89 items: ?? corpus/live/measure_audio-pwprof-r89.lock, ?? corpus/live/r89-critic/, ?? corpus/live/r89-reviewer/, ?? corpus/live/r89-scout/, ?? corpus/live/r89-scribe/, ?? corpus/live/r89-simplifier/, ?? corpus/live/r89-verifier/, ?? corpus/live/runs/20261016T074733533774Z-pwprof-r89/, ?? corpus/live/runs/20261016T074816877001Z-pwprof-r89/
+  sibling wave-B seats live during the audit: corpus/live/r89-critic (mutations/locktest 04:50-04:53),
+    corpus/live/r89-reviewer, corpus/live/r89-simplifier, corpus/live/r89-verifier (r89v-tree.tar in ~/Projects/shokunin/tmp),
+    plus two live r89a-gate-* temp dirs in TMPDIR (pids 1791602/1792203) — sibling replays of the pwprof probe.
+  lane lock witness at audit: content pid=1728427 (run2), sha d4fb899e…, mtime 04:47:42 — unchanged by the
+    sibling replays while observed; last-writer-wins by design, so the witness is volatile ambient data.
+  no pwprof dev-run residue found in TMPDIR (author temp dirs cleaned; only the live sibling gate dirs remain).
+  audit writes: this receipts dir + reports/round-89/r89-scribe.md only. No tracked file touched, nothing committed.

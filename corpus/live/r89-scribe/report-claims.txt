@@ -1,0 +1,50 @@
+r89-scribe claim -> receipt re-derivation (both cited runs)
+
+HEADLINE ARITHMETIC (ADJ-1):
+  report/commit claim: '47 legs / 4 entries'
+  receipt leg keys:    27 + 12 + 4 + 9 = 52   (both runs, identical distribution)
+  report's own per-section headers: 27 + 12 + 4 + 8 = 51  (xw undercounts by one: x_link)
+  report's per-section LISTED legs: 27 + 11 + 3 + 8 = 49  (o_link, s_link unlisted)
+  -> 47 reconciles with none of 52/51/49; the receipt total is 52.
+
+VALUE MISMATCHES (each a report number that matches NEITHER cited receipt):
+  g_term/g_int '47 infos'        receipt n_info = 46 (both legs, both runs)
+  o_int '32347 B'                receipt bytes = 32362 (r1) / 32340 (r2)
+  o_default 'profiler.log 4320'  receipt profiler_log = 4314 (r1) / 4312 (r2)
+  x_foot 'modules_delta == 0'    key does not exist in either receipt; not computed in the fixture
+
+RUN-2-ONLY PROVENANCE (report numbers match run 2 exactly, run 1 differs):
+  x_conc '6471 B = 6471 B'       r1 6503/6503, r2 6471/6471
+  x_top '1.6us/0.6us' vs 2.55/1.40  r1 2.3/0.9 vs 4.09/2.22; r2 matches the report
+  o_dash '6468 B'                r1 6472, r2 6468
+  g_two 'completes in 0.071 s'   r1 0.081, r2 0.071
+
+REPORT PROSE VS RECEIPT TYPES (nits):
+  'failures: {}'                 receipt value is [] (empty list) on all four entries
+  'coverage_blocked empty'       the key is ABSENT (never setdefault'ed) on all four entries
+  'Nothing committed.'           stale in the landed artifact — the commit IS fixture+report
+  'no owned pw-play/pw-profiler processes'  no process-census field in the receipt (teardown code only)
+  'r87t_ns, r84a_probe_548706 ... untouched'  not in the receipts (0 hits); prose claim
+
+VERIFIED-AS-CLAIMED (receipt values, both runs):
+  g_own rc0/8 infos/terminator; g_two rc0/4 infos/2+2 driver hist
+  g_term/g_int rc0 + flush; g_kill -9 / g_hup -1 / g_usr1 -10 unparseable
+  g_blocks 8192/20480/32768 at 0.3/0.6/0.9 s (all %4096==0)
+  g_o_ignored file_created False; g_extra rc0/4; g_remote_empty rc0/4
+  g_remote_bogus/g_env_bogus rc255 pwprof_connect_down; g_opt_bogus rc255 pwprof_opt
+  g_version rc0 + libpipewire; g_lastwins alive@1.4s rc0 66 infos
+  n_007/n_plus3/n_space3 -> 7/3/3 exact completions; 7 unbounded legs alive@1.4s 65-66 infos rc0
+  o_live rc0 10 rows + full aux set + 'Logging to' + generate_timings
+  o_kill rc-9 49152 B / 46 rows (the boundary falsification fold)
+  o_exist marker_gone; o_eager watch_seen t=0.010; o_dash literal '-'; o_devnull aux in cwd
+  o_dir/o_empty/o_proc rc255 pwprof_cant_open
+  s_window 40 blocks, ALL armed invariants green (order/count/quantum/pos/transport/diff/
+    prev-chain/status/latency/id/clock-name/nsec-window/xrun/fclock/nsb)
+  s_second counts 39 -> 40 (c2>c1); s_suspend pre=21 after=0 rc0
+  x_modreg pactl idx 536870922 in pactl+Node, NOT in 13 native Modules; x_blank blank line 28
+  x_foot 0->1 clients, nodes_delta 0; x_conc 8 shared dict-identical blocks rc0/0
+  x_top R row in band; x_profobj rc0 'unsupported type' x2; x_sigpipe -13; x_devfull rc0/0B
+
+ENTRY INTEGRITY (both runs, all four entries): failures==[], coverage_blocked ABSENT,
+  own_nodes_after==[], sinks_gone all-true, unloads exit_code 0, foreign_r89a_nodes==[],
+  no residual_destroy.
