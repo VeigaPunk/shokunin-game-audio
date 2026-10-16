@@ -1,0 +1,10 @@
+# r84 verifier — battery (CWD = corpus/live/r84-verifier/tree, the frozen git archive of fbe65713)
+# TMPDIR=/home/vgpnk/Projects/shokunin/tmp for every run (host /tmp at 76% quota)
+python3 corpus/fixtures/measure_audio.py                                  # normal, 00:40:23-00:40:25Z  rc=0
+python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84               # r84v1, 00:40:28-00:45:16Z  rc=1 (3 failures, concurrent foreign r84 run)
+python3 corpus/fixtures/measure_audio.py --probe-alsapw-r84               # r84v2, 00:45:41-00:50:21Z  rc=0 failures {}
+# spot battery (CWD = corpus/live/r84-verifier/spot, own r84v_* namespace)
+python3 spots.py s1 s2 s3 s4 s9 s6 s7 s8                                  # 00:51:0x-00:51:3xZ
+python3 spots.py s3 s5 s6 s7b s10 s11 s12 s13                             # 00:52:02-00:52:26Z
+python3 spots.py s11b s12b s14                                            # 00:53:3xZ
+python3 spots.py s12b                                                     # 00:54:2xZ (short-tone redo)
