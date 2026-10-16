@@ -1450,3 +1450,35 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - LAWS: wpctl settings write lands 1.057-1.483s (fresh nonce keys,
   dead-claim re-arm); pulse cmd 4ms; SIGSEGV cold-read retry law;
   vanished-target falls back to default sink (named, not no-link).
+- ROUND 90 FOLD (2026-10-16): FF1-FF6 landed at 753f13a6, with
+  reviewed close-only timeout repair: a refused lock waiter no longer
+  truncates the holder's advisory text. Durable lock regression red
+  before / green after; one new merged-byte family run measures all
+  61 legs (16/15/24/6), clean nonempty censuses, matching source sha.
+  See reports/round-90/r90-foldfix-integration.md. This supersedes the
+  60-leg implementation, not the historical receipts. Blocked rc 0
+  still requires measured/census inspection; it is not all-green.
+- ROUND 91 (2026-10-16): Gst capture-freeze, ADMIT-with-findings +
+  required fold on d78f1cc9. All five reviews filed. One committed
+  run measures 15 legs / 128 checks; 2/6 full-family executions red
+  (binding and third source-loss shape). Universal hard-refusal and
+  multi-sample flatness coverage rejected. Lock/block/receipt and
+  witness fixes remain required; simplifier candidates not landed.
+- ROUND 92 (2026-10-16): filter-chain DSP, ADMIT-with-findings +
+  required fold on ccbce758. Two committed-byte runs, 304/304 checks
+  each, 81 top-level leg keys (not 80). Negative-Q reading is clipped;
+  20 kHz discrepancy follows s16 capture quantization, not float32.
+  Missing-witness guards and unexplained unload skips remain open.
+  No proposed fold or mechanism re-pin is declared landed.
+- ROUND 96 (2026-10-16): Pulse CLI/cork, ADMIT-with-findings +
+  required fold on 7358f13b. Verifier 178 legs x2; 507 PASS / 2 named
+  BLOCKED checks per receipt. Post-subcommand -s interpretation is
+  false and rejected; dead capture/pid-0 witnesses and split-server
+  helpers require repair before unattended use. Foreign-pkill
+  disclosure is attestation-only, not independently reconstructed.
+- ROUND 97 (2026-10-16): private WirePlumber policy,
+  ADMIT-with-findings + required safety fold on b8ff4efc. Verifier
+  69 keys x2 / 260 checks each; 68 distinct observations. Cross-
+  witness hashes unarmed, runtime env incomplete, kill guard over-
+  matches and timing is zombie-blind. Do not run unattended until
+  guard repair. Full dispositions: reports/round-N/rN-adjudicator.md.
