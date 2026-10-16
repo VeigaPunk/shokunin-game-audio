@@ -1,0 +1,42 @@
+Traceback (most recent call last):
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 23071, in pactlmon_aplayenv_r85_entry
+    legs["env_serial"] = _alsapw_r84_aplay_leg(
+                         ~~~~~~~~~~~~~~~~~~~~~^
+        "pipewire", ctx, tone_key="tone", env={
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            **base_env,
+            ^^^^^^^^^^^
+            "PIPEWIRE_PROPS":
+            ^^^^^^^^^^^^^^^^^
+                "{ target.object=" + str(ser_a) + " }"})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 19499, in _alsapw_r84_aplay_leg
+    cands = _alsapw_r84_cands(g, *node_subs)
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 19140, in _alsapw_r84_cands
+    if n.get("name") and any(s in n["name"] for s in subs)]
+                         ^^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 19140, in <genexpr>
+    if n.get("name") and any(s in n["name"] for s in subs)]
+                             ^^^^^^^^^^^^^^
+TypeError: argument of type 'int' is not a container or iterable
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 24900, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 24239, in main
+    pactlmon_aplayenv_r85_entry()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 23143, in pactlmon_aplayenv_r85_entry
+    _pactlmon_r85_teardown(entry, failures, loads)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 22391, in _pactlmon_r85_teardown
+    names = _playback_r78_node_names()
+  File "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r85-verifier/tree/corpus/fixtures/measure_audio.py", line 6153, in _playback_r78_node_names
+    return sorted({(n.get("info") or {}).get("props", {})
+                   .get("node.name") for n in dump
+                   if str(n.get("type", "")).endswith("Node")
+                   } - {None})
+TypeError: '<' not supported between instances of 'int' and 'str'

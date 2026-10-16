@@ -873,3 +873,13 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | Three seats converged on the TMPDIR-lock co-tenancy defect; critic proved two live false-green classes (unread record, missing floor); scribe falsified the report's own loadavg/leg-count claims — all queued to the fold. |
 
 | r84 | audio | pactl / monitor-tap lattice | ADMIT-with-findings | fbe65713 |
+
+## Round 85 verdict — 2026-10-15
+
+| axis | verdict | evidence |
+|---|---|---|
+| coverage | **improved** | +87 legs / 5 entries: pactl serial/name/object.id/@DEFAULT_* lattice, pw-cli inversion, mix taps + same-run solo reference, aplay env targeting, boundary-corrected capture lattice, 13-class negctl table + SIGKILL discriminator. |
+| depth | **improved** | Host-bimodal realizations encoded as either-way arms and proven live (27/27 critic + 17-case verifier harness); both sides of cdup realized on one host; 0/0/0 tiered diffs vs both author runs. |
+| calibration | **improved** | Scribe caught the uncited RED run that documents the strong-form failure; three seats converged on the cdup_cap absorption defect; numeric node.name abort found live + reproduced; fold queue precise. |
+
+| r85 | audio | pactl / monstreams leg lattice | ADMIT-with-findings | 2a49d540 |

@@ -1399,3 +1399,11 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - LAWS: tap gain x0.125/x3.375/x0.015625 exact; sticky respawn 30% ->
   tap 221 = floor(8192*0.3^3); pactl index refusals Stream error: No
   such entity; source-output empty-accept rc0+44B.
+- ROUND 85 (2026-10-15): pactl/monstreams lattice. ADMIT-with-findings
+  at 2a49d540 (87 legs / 5 entries). Verifier VERIFIED frozen-replay;
+  3 host-bimodal realizations pinned either-way (latebind/cdup/sd_prop);
+  fold queue: cdup_cap foreign-bind absorption (3-seat), numeric
+  node.name abort (2-seat), arm-looseness cluster.
+- LAWS: serial monotonicity + index recycle; tap-link validation + solo
+  ref 8190.7 zero bleed; props-win; capture --target lattice + folded
+  loss law; 2048-frame in-flight flush; negctl 13/13.

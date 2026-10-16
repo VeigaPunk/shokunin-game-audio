@@ -1,0 +1,27 @@
+== date 2026-10-16T06:30:02Z
+== loadavg 61.40 54.43 52.89 85/2485 2669511
+== default sink/source
+alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29
+alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29
+== sinks
+172871	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29	PipeWire	s16le 2ch 48000Hz	SUSPENDED
+172872	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+172873	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+220907	r84a_probe_548706	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+243151	r86a_ns_2661839	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+== r8x sinks/sources/modules
+no r85* sinks
+no r85* sources
+no r85* modules
+== r85 nodes
+none
+== non-string node.name
+none
+== my procs
+2661832 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && TMPDIR=/home/vgpnk/Projects/shokunin/tmp timeout 400 python3 corpus/fixtures/measure_audio.py --probe-pwctl-r86 2>&1
+2661838 timeout 400 python3 corpus/fixtures/measure_audio.py --probe-pwctl-r86
+2661839 python3 corpus/fixtures/measure_audio.py --probe-pwctl-r86
+2669498 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && grep '"s4_move_collision"' corpus/live/r85-verifier/spot/spots5.out.txt; grep -E '"spots"' corpus/live/r85-verifier/spot/spots5.out.txt; R=corpus/live/r85-verifier && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && { echo "== date $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo "== loadavg $(cat /proc/loadavg)"; echo "== default sink/source"; pactl get-default-sink; pactl get-default-source; echo "== sinks"; pactl list short sinks; echo "== r8x sinks/sources/modules"; pactl list short sinks | grep -E 'r85[abv]' || echo "no r85* sinks"; pactl list short sources | grep -E 'r85[abv]' || echo "no r85* sources"; pactl list short modules | grep -E 'r85[abv]' || echo "no r85* modules"; echo "== r85 nodes"; pw-dump 2>/dev/null | python3 -c "import json,sys;d=json.load(sys.stdin);ns=[(o['info']['props'].get('node.name'),o['info']['props'].get('media.class')) for o in d if str(o.get('type','')).endswith('Node') and 'r85' in str((o.get('info') or {}).get('props',{}).get('node.name',''))];print(ns or 'none')"; echo "== non-string node.name"; pw-dump 2>/dev/null | python3 -c "import json,sys;d=json.load(sys.stdin);bad=[(o['id'],repr((o.get('info') or {}).get('props',{}).get('node.name'))) for o in d if str(o.get('type','')).endswith('Node') and (o.get('info') or {}).get('props',{}).get('node.name') is not None and not isinstance((o.get('info') or {}).get('props',{}).get('node.name'),str)];print(bad or 'none')"; echo "== my procs"; pgrep -af 'measure_audio|spots.py|r85v_' || echo none; echo "== lock"; cat "$TMPDIR/measure_audio-pactlmon-r85.lock" 2>/dev/null; echo; } > "$R/runs/post-state.txt" 2>&1; cat "$R/runs/post-state.txt"
+== lock
+pid=2658932 seat=r85-verifier spots
+
