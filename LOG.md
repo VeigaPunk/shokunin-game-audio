@@ -1415,3 +1415,12 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - LAWS: ls<->serial vs info<->id split; channelVolumes linear 0.25->
   2048.0; pactl 25% cubic->128.0; volume dead-key; pw-top batch vs
   TUI-SIGABRT; pw-cli /dev/null-abort/pipe-hang; pw-link rc255 family.
+- ROUND 89 (2026-10-16): pw-profiler output lattice. ADMIT-with-findings,
+  closed at 5755be5b (foldfix). Verifier GATE FAIL 1464/1484 -> foldfix
+  (sigreset on arm children, own-scoped x_foot, x_top real-row guard,
+  52-leg fix) -> re-verifier GATE PASS (867/888, 0 FAIL, revert mutants
+  red). Critic named all 3 classes pre-fix; scribe custody INTACT.
+- LAWS: -n exact-N across driver domains; 4096 B blocks; INT/TERM rc0
+  flushed vs KILL -9 truncated; 49152 B incremental write; schema
+  invariants 40 blocks; suspension 21->0; nohup SIGHUP inheritance is
+  launcher-scoped (sigreset required); x_foot census own-scope only.
