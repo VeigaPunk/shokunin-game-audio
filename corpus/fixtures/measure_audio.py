@@ -35550,6 +35550,2165 @@ def jack_defects_r95_entry():
         entry["failures"] = failures
     return entry
 
+# ---------------------------------------------------------------------------
+# ROUND 90 — the WIREPLUMBER SETTINGS / STREAM-PROPERTIES STORE + PULSE
+# MODULE NAMESPACE + PW-LINK GRAMMAR + FORMAT NEGOTIATION lattice —
+# --probe-wpstate-r90.
+#
+# Every armed law below is an r90-BOUNDARY-surviving claim
+# (reports/round-90/r90-boundary.md §0). The r90 scout's falsified claims are
+# re-armed at the boundary's corrected values and named where the correction
+# is the point:
+#   * the store write is ONE coalescing debounce ~1.0 s after the LAST
+#     change (creation / pw-cli Props / pulse volume / target) — NEVER the
+#     scout's "a pulse-protocol volume write lands in <=0.01 s". That
+#     reading was a STALE ROW read on a key reused across stages. The law is
+#     made structural here: every write leg uses a FRESH pid+nonce key and
+#     records the pre-value, so a stale read cannot masquerade as a write.
+#   * `pactl unload-module <name>` removes EVERY module of that name (exact
+#     match, never a prefix) and returns rc 0 even when nothing matched — rc
+#     is not a validity witness. The by-name vehicle is `module-loopback`
+#     and only fires after a zero-foreign pre-check.
+#   * a tunnel module's returned id can be a PHANTOM (gone before the first
+#     probe) and module indices are RECYCLED immediately, so an
+#     id-membership liveness check can read false-alive as well: liveness is
+#     witnessed by the module ROW (name + args), never by the bare id.
+#   * `pw-link` connects/disconnects ONE pair and silently ignores extra
+#     positionals; `-w` is a wait-for-creation primitive, not a hang.
+#   * EnumFormat is negotiation-invariant, Format is negotiation-state
+#     dependent, and the mid-stream set-param seal is NODE-CLASS dependent
+#     (explicit res:-5 on a sink node, silent discard on a stream node).
+#
+# Seat-owned r90a_<pid> names, the private r90arole<pid> key, name-verified
+# sink_name= unloads, a by-name unload only on a zero-foreign loopback
+# vehicle, never set-default-*, bounded process groups. The family lock is a
+# FIXED corpus/live/ path (the r84 F1 3-seat consensus).
+# ---------------------------------------------------------------------------
+
+WPSTATE_R90_PID = os.getpid()
+WPSTATE_R90_NONCE = f"{WPSTATE_R90_PID}n{int(time.time()) % 1000000}"
+WPSTATE_R90_PREFIX = f"r90a_{WPSTATE_R90_PID}"
+WPSTATE_R90_NS = f"r90a_ns_{WPSTATE_R90_PID}"        # primary seat sink
+WPSTATE_R90_NS2 = f"r90a_ns2_{WPSTATE_R90_PID}"      # second target
+WPSTATE_R90_NS3 = f"r90a_ns3_{WPSTATE_R90_PID}"      # explicit-target sink
+WPSTATE_R90_NS4 = f"r90a_ns4_{WPSTATE_R90_PID}"      # vanished-target sink
+WPSTATE_R90_NSOPT = f"r90a_nso_{WPSTATE_R90_PID}"    # restore opt-out node
+WPSTATE_R90_NSMC = f"r90a_mc_{WPSTATE_R90_PID}"      # module control sink
+WPSTATE_R90_TUN = f"r90a_tun_{WPSTATE_R90_PID}"      # phantom tunnel sink
+WPSTATE_R90_L1 = f"r90a_la_{WPSTATE_R90_PID}"        # pw-link sink A
+WPSTATE_R90_L2 = f"r90a_lb_{WPSTATE_R90_PID}"        # pw-link sink B
+WPSTATE_R90_L3 = f"r90a_lc_{WPSTATE_R90_PID}"        # pw-link sink C
+WPSTATE_R90_LATE = f"r90a_late_{WPSTATE_R90_PID}"    # late-creation sink
+WPSTATE_R90_ROLE = f"r90arole{WPSTATE_R90_PID}"      # private restore key
+WPSTATE_R90_STATE_DIR = Path(os.path.expanduser(
+    "~/.local/state/wireplumber"))
+WPSTATE_R90_STORE = WPSTATE_R90_STATE_DIR / "stream-properties"
+WPSTATE_R90_DEB_MIN_S = 0.5      # the coalescing-debounce band (boundary:
+WPSTATE_R90_DEB_MAX_S = 3.0      # 0.91-1.87 s measured, quiet and loaded)
+WPSTATE_R90_POLL_S = 4.0
+WPSTATE_R90_UNASSIGNABLE_ID = 4000000001   # never a real module index
+WPSTATE_R90_DEAD_UNIX = "/tmp/r90a_nope.sock"
+WPSTATE_R90_POD = ("{ mediaType:1, mediaSubtype:1, format:259, "
+                   "rate:44100, channels:2 }")
+# The boundary's byte-identical format shas (prefixes; full sha recorded).
+WPSTATE_R90_ENUMFORMAT_SHA = "1735b4739ef7"
+WPSTATE_R90_SINK_FORMAT_SHA = "91f7342230f7"
+WPSTATE_R90_PORT_FORMAT_SHA = "5a828addfad7"
+WPSTATE_R90_STREAM_48K_SHA = "e718690a7ce2"
+WPSTATE_R90_STREAM_44K_SHA = "684a7c8dad24"
+WPSTATE_R90_SETPARAM_ECHO_B = 622
+
+# r90-local error classes — family-local, checked before the
+# r89->r88->r87->r86 chain (never prepended into any shared table).
+_WPSTATE_R90_ERR_CLASSES = (
+    ("wpstate_no_entity", r"Failure: No such entity"),
+    ("wpstate_entity_exists", r"Failure: Entity exists"),
+    ("wpstate_invalid_arg", r"Failure: Invalid argument"),
+    ("wpstate_conn_refused", r"Failure: Connection refused"),
+    ("wpstate_not_loaded",
+     r"Failed to unload module: [^\n]*not loaded"),
+    ("wpstate_io_error", r"res:-5 \(Input/output error\)"),
+    ("wpstate_enum_failed", r"enum params id:\d+[^\n]*failed"),
+    ("wpstate_setparam_failed", r"set param id:\d+[^\n]*failed"),
+    ("wpstate_unlink_failed",
+     r"failed to unlink ports: [^\n]*"),
+    ("wpstate_link_failed", r"failed to link ports: [^\n]*"),
+    ("wpstate_missing_ports",
+     r"missing output and input port names to connect"),
+    ("wpstate_fetch_failed", r"failed to fetch port[^\n]*"),
+)
+
+
+def _wpstate_r90_errclass(text):
+    for name, pat in _WPSTATE_R90_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()[:160]
+    return _pwprof_r89_errclass(text or "")
+
+
+def _wpstate_r90_norm(text):
+    """Volatile-field scrub for the recorded text heads. The fields this
+    family PARSES (ids, indices, values) are kept in their own keys — only
+    the free-text heads are scrubbed."""
+    s = text or ""
+    s = re.sub(r"\b\d{9,}\b", "<mid>", s)
+    s = re.sub(r"\b\d{6,}\b", "<seq>", s)
+    return s
+
+
+def _wpstate_r90_run(argv, timeout_s=12.0, keep_chars=1200,
+                     keep_raw=False, env=None, wd=None):
+    """One bounded subprocess with rc + both streams recorded. The r90
+    refusal family is string-based: every exit-signature claim in the report
+    reads its rc and error string from here."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.run([str(a) for a in argv], capture_output=True,
+                              timeout=timeout_s, env=env, cwd=wd)
+    except subprocess.TimeoutExpired:
+        rec.update({"exit_code": None, "timed_out": True,
+                    "stdout": "", "stderr": "", "stdout_bytes": 0,
+                    "stderr_bytes": 0, "error_class": "wpstate_timeout",
+                    "error_hit": None})
+        return rec
+    except OSError as exc:
+        rec.update({"exit_code": None, "spawn_error": str(exc)[:160]})
+        return rec
+    out = proc.stdout.decode(errors="replace")
+    err = proc.stderr.decode(errors="replace")
+    cls, hit = _wpstate_r90_errclass(err + "\n" + out)
+    rec.update({"exit_code": proc.returncode,
+                "stdout_bytes": len(proc.stdout),
+                "stderr_bytes": len(proc.stderr),
+                # the RAW first token: `pactl load-module` returns a
+                # 9-digit index that the text scrubber would eat, and the
+                # whole phantom-id lattice parses from here.
+                "stdout_token": (out.strip().split()[0]
+                                 if out.strip() else ""),
+                "stdout": _wpstate_r90_norm(out)[:keep_chars],
+                "stderr": _wpstate_r90_norm(err)[:keep_chars],
+                "error_class": cls, "error_hit": hit})
+    if keep_raw:
+        rec["stdout_raw"] = out
+        rec["stderr_raw"] = err
+    return rec
+
+
+def _wpstate_r90_stream(argv, timeout_s, sig_at=None,
+                        sig=signal.SIGTERM, keep_chars=900,
+                        keep_raw=False, sample_ts=(), hooks=(),
+                        watch=None):
+    """A bounded spawn that must be killed rather than awaited — the
+    `pw-link -w` blocking class and the `-m` streaming class. Reuses the r89
+    continuously-drained loop (the backpressure law) and re-classifies the
+    text against the r90 error table."""
+    rec = _pwprof_r89_stream(argv, timeout_s, sig_at=sig_at, sig=sig,
+                             keep_chars=keep_chars, keep_raw=keep_raw,
+                             sample_ts=sample_ts, hooks=hooks, watch=watch)
+    cls, hit = _wpstate_r90_errclass(
+        (rec.get("stderr") or "") + "\n" + (rec.get("stdout") or ""))
+    rec["error_class"] = cls
+    rec["error_hit"] = hit
+    return rec
+
+
+def _wpstate_r90_mine(text):
+    """True when a module row / node name belongs to THIS seat: the r90a_
+    family tag AND this pid. A bare `r90a_<pid>` prefix match is WRONG here —
+    every seat object is named `r90a_<role>_<pid>` (r90a_ns_<pid>,
+    r90a_ns2_<pid>, r90a_la_<pid>), so the pid is the discriminator."""
+    t = str(text or "")
+    return "r90a_" in t and f"_{WPSTATE_R90_PID}" in t
+
+
+def _wpstate_r90_key(tag):
+    """A store key that has never been written by any seat: pid + wall-clock
+    nonce + leg tag. The debounce measurement is only meaningful on a key
+    whose PRE value is provably absent (the scout's <=0.01 s reading was a
+    reused key)."""
+    return f"r90a_{WPSTATE_R90_NONCE}_{tag}"
+
+
+def _wpstate_r90_store_rows():
+    """{key -> raw value text} of the WirePlumber stream-properties store.
+    The file is `[stream-properties]` then `key={json}` lines; the keys are
+    escaped (`\\s` for spaces), so every lookup here uses a seat name with no
+    spaces."""
+    out = {}
+    try:
+        with open(WPSTATE_R90_STORE, errors="replace") as fh:
+            for ln in fh:
+                ln = ln.rstrip("\n")
+                if not ln or ln.startswith("[") or "=" not in ln:
+                    continue
+                k, v = ln.split("=", 1)
+                out[k] = v
+    except OSError:
+        return None
+    return out
+
+
+def _wpstate_r90_store_census():
+    rows = _wpstate_r90_store_rows()
+    if rows is None:
+        return {"reader": "error"}
+    try:
+        st = WPSTATE_R90_STORE.stat()
+    except OSError as exc:
+        return {"reader": "stat_error", "rows": len(rows),
+                "error": str(exc)[:120]}
+    return {"reader": "ok", "rows": len(rows), "bytes": st.st_size,
+            "own_keys": len([k for k in rows
+                             if WPSTATE_R90_PREFIX in k])}
+
+
+def _wpstate_r90_store_poll(key, want=None, timeout_s=WPSTATE_R90_POLL_S,
+                            step_s=0.05):
+    """Poll the store for `key`, optionally requiring `want` inside the
+    value. Returns (t_hit_s, value_at_hit, samples). A `want` hit on a
+    PRE-EXISTING row is the stale-read class — the caller always records the
+    pre-value separately."""
+    t0 = time.monotonic()
+    samples = []
+    while True:
+        rows = _wpstate_r90_store_rows() or {}
+        val = rows.get(key)
+        dt = round(time.monotonic() - t0, 3)
+        match = bool(val is not None and
+                     (want is None or want in val))
+        samples.append({"t": dt, "present": val is not None,
+                        "match": match})
+        if match:
+            return dt, val, samples
+        if dt >= timeout_s:
+            return None, val, samples
+        time.sleep(step_s)
+
+
+def _wpstate_r90_setting_scalar(text):
+    """`Default: 1.0\t[Min: 0.0, Max: 1.0]` -> `1.0` (the Float rows carry a
+    range suffix that would defeat a Default-vs-Value comparison)."""
+    return re.sub(r"\s*\[[^\]]*\]\s*$", "", text or "").strip()
+
+
+def _wpstate_r90_settings():
+    """`wpctl settings` -> the typed lattice. The r90 boundary pinned 25
+    rows, byte-identical across two seats, every Value equal to its built-in
+    Default (no `settings` file exists on this host).
+
+    A first cold read can come back empty or crashed — the r90 author's
+    first battery measured one rc -11 SIGSEGV plus a `Setting ... not found`
+    follow-up in the same window, both gone on the immediate re-read. An
+    empty or crashed read is NOT absence, so the read is retried once after
+    a short settle and BOTH attempts are recorded."""
+    attempts = []
+    for attempt in (1, 2):
+        rec = _wpstate_r90_run(["wpctl", "settings"], 10.0, keep_raw=True)
+        n = len(re.findall(r"^- Id:", rec.get("stdout_raw") or "", re.M))
+        attempts.append({"attempt": attempt,
+                         "exit_code": rec.get("exit_code"),
+                         "entries": n,
+                         "stderr": rec.get("stderr")})
+        if rec.get("exit_code") == 0 and n:
+            break
+        time.sleep(0.8)
+    rec["attempts"] = attempts
+    entries, cur = [], None
+    for ln in (rec.get("stdout_raw") or "").splitlines():
+        m = re.match(r"^- Id:\s*(\S+)\s*$", ln)
+        if m:
+            cur = {"id": m.group(1)}
+            entries.append(cur)
+            continue
+        m = re.match(r"^\s+(Name|Desc|Type|Default|Value):\s*(.*)$", ln)
+        if m and cur is not None:
+            cur[m.group(1).lower()] = m.group(2).strip()
+    rec.pop("stdout_raw", None)
+    rec["entries"] = entries
+    rec["ids"] = [e["id"] for e in entries]
+    types = {}
+    for e in entries:
+        types[e.get("type")] = types.get(e.get("type"), 0) + 1
+    rec["types"] = types
+    rec["at_default"] = sorted(
+        e["id"] for e in entries
+        if _wpstate_r90_setting_scalar(e.get("value")) ==
+        _wpstate_r90_setting_scalar(e.get("default")))
+    rec["value_of"] = {e["id"]: e.get("value") for e in entries}
+    return rec
+
+
+def _wpstate_r90_metadata():
+    """The Metadata objects' shape: the live `sm-settings` twin (scalar
+    values) and its schema twin (descriptor dicts). Both must carry exactly
+    the CLI's 25 keys."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"reader": "error", "error": type(exc).__name__}
+    objs = []
+    for o in dump:
+        if not str(o.get("type", "")).endswith("Metadata"):
+            continue
+        md = [m for m in (o.get("metadata") or []) if isinstance(m, dict)]
+        vals = [m.get("value") for m in md]
+        objs.append({
+            "id": o["id"],
+            "keys": sorted(m.get("key") for m in md if m.get("key")),
+            "n_keys": len(md),
+            "schema_like": bool(vals) and all(
+                isinstance(v, dict) and "name" in v and "type" in v
+                for v in vals),
+            "scalar_like": bool(vals) and not any(
+                isinstance(v, dict) for v in vals),
+            "sample": json.dumps(md[:2])[:200]})
+    return {"reader": "ok", "objects": objs}
+
+
+def _wpstate_r90_graph():
+    """pw-dump -> {nodes, ports, links}. r90 keeps the Link object's OWN
+    props (the `-p '{"foo":"bar"}'` witness) and each node's negotiated
+    `params.Props` (the restore-field witness)."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, ports, links = {}, {}, []
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            params = info.get("params") or {}
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "media_class": props.get("media.class"),
+                "state": info.get("state"),
+                "props_params": (params.get("Props") or [None])[0],
+                "param_keys": sorted(params.keys())}
+        elif t.endswith("Port"):
+            nid = info.get("node-id") or props.get("node.id")
+            ports[o["id"]] = {"node_id": nid,
+                              "name": props.get("port.name"),
+                              "direction": info.get("direction")}
+        elif t.endswith("Link"):
+            links.append({"id": o["id"],
+                          "out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id"),
+                          "props": props})
+    return {"nodes": nodes, "ports": ports, "links": links}
+
+
+def _wpstate_r90_node(g, name):
+    for nid, n in (g.get("nodes") or {}).items():
+        if n.get("name") == name:
+            return {"id": nid, **n}
+    return None
+
+
+def _wpstate_r90_port(g, node_name, port_name):
+    n = _wpstate_r90_node(g, node_name)
+    if n is None:
+        return None
+    for pid, p in (g.get("ports") or {}).items():
+        if str(p.get("node_id")) == str(n["id"]) and \
+                p.get("name") == port_name:
+            return {"id": pid, **p}
+    return None
+
+
+def _wpstate_r90_edges(g):
+    out = []
+    nodes, ports = g.get("nodes", {}), g.get("ports", {})
+    for l in g.get("links", []):
+        on = (nodes.get(l["out_node"]) or {}).get("name")
+        inn = (nodes.get(l["in_node"]) or {}).get("name")
+        op = (ports.get(l["out_port"]) or {}).get("name")
+        ip = (ports.get(l["in_port"]) or {}).get("name")
+        out.append({"link_id": l["id"], "out": f"{on}:{op}",
+                    "in": f"{inn}:{ip}", "out_node": on, "in_node": inn,
+                    "props": l.get("props")})
+    return sorted(out, key=lambda e: (str(e["out"]), str(e["in"])))
+
+
+def _wpstate_r90_edges_in(g, name):
+    return [e for e in _wpstate_r90_edges(g) if e.get("in_node") == name]
+
+
+def _wpstate_r90_edges_out(g, name):
+    return [e for e in _wpstate_r90_edges(g) if e.get("out_node") == name]
+
+
+def _wpstate_r90_own_links(g, names):
+    s = set(names)
+    return [e for e in _wpstate_r90_edges(g)
+            if e.get("out_node") in s and e.get("in_node") in s]
+
+
+def _wpstate_r90_stream_props(g, tag):
+    return ((_wpstate_r90_node(g, tag) or {}).get("props_params") or {})
+
+
+def _wpstate_r90_write_tone(path, seconds, rate):
+    """The r78 frequency-strict tag tone at an arbitrary file rate — the
+    44.1 kHz leg is what separates the stream's FILE rate from the graph's
+    adapter rate."""
+    n = int(rate * seconds)
+    t = np.arange(n) / rate
+    left = (PLAYBACK_R78_TONE_AMP *
+            np.sin(2 * np.pi * PLAYBACK_R78_TONE_L_HZ * t)).astype("<i2")
+    right = (PLAYBACK_R78_TONE_AMP *
+             np.sin(2 * np.pi * PLAYBACK_R78_TONE_R_HZ * t)).astype("<i2")
+    pcm = np.empty(n * 2, dtype="<i2")
+    pcm[0::2], pcm[1::2] = left, right
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(pcm.tobytes())
+
+
+def _wpstate_r90_play(tag, target, tone, extra_props=(), role=None):
+    """Spawn one tagged pw-play follower. `target=None` omits `--target` —
+    the restore-replay form (the stored target is the only routing input)."""
+    argv = ["pw-play", "-P", f"node.name={tag}",
+            "-P", f"media.role={role or WPSTATE_R90_ROLE}"]
+    for p in extra_props:
+        argv += ["-P", p]
+    if target is not None:
+        argv += ["--target", target]
+    argv.append(str(tone))
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
+                                stdin=subprocess.DEVNULL,
+                                start_new_session=True)
+    except OSError:
+        return None, argv
+    return proc, argv
+
+
+def _wpstate_r90_reap(proc):
+    if proc is None:
+        return
+    _alsapw_r84_killpg(proc, signal.SIGTERM)
+    try:
+        proc.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc)
+
+
+def _wpstate_r90_sink_input(appname):
+    """`pactl list sink-inputs` long form -> the index whose
+    application.name is ours. The SHORT form carries no application.name
+    (the r90 scout's own t5 legs fell through on exactly that), so the long
+    form is mandatory here."""
+    rec = _wpstate_r90_run(["pactl", "list", "sink-inputs"], 10.0,
+                           keep_raw=True)
+    cur, hits = None, []
+    for ln in (rec.get("stdout_raw") or "").splitlines():
+        m = re.match(r"^Sink Input #(\d+)", ln)
+        if m:
+            cur = int(m.group(1))
+            continue
+        if cur is not None and "application.name = " in ln and \
+                appname in ln:
+            hits.append(cur)
+    rec.pop("stdout_raw", None)
+    rec["index"] = hits[0] if hits else None
+    rec["all_hits"] = hits
+    return rec
+
+
+def _wpstate_r90_load_ns(name, extra=()):
+    """Load + gate one null sink; the leaf carries the field/value pair the
+    name-verified unload re-checks immediately before firing."""
+    leaf = _pwcat_r83_ns_load(name, extra_args=tuple(extra))
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    return leaf
+
+
+def _wpstate_r90_enum(obj_id, param):
+    """`pw-cli enum-params <obj> <param>` with the stdout sha recorded —
+    the format lattice's whole evidence surface. rc is recorded but is NOT
+    the verdict: this family's refusals are on stderr with rc 0."""
+    rec = _wpstate_r90_run(["pw-cli", "enum-params", str(obj_id), param],
+                           12.0, keep_raw=True)
+    out = rec.pop("stdout_raw", "") or ""
+    rec["param"] = param
+    rec["object"] = obj_id
+    rec["out_bytes"] = len(out)
+    rec["sha12"] = hashlib.sha256(out.encode()).hexdigest()[:12]
+    rec.pop("stdout", None)
+    return rec
+
+
+def _wpstate_r90_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR). A second --probe-wpstate-r90 waits HERE."""
+    path = ROOT / "live" / "measure_audio-wpstate-r90.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={WPSTATE_R90_PID} ns={WPSTATE_R90_NS} "
+                     f"role={WPSTATE_R90_ROLE} nonce="
+                     f"{WPSTATE_R90_NONCE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _wpstate_r90_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory, loadavg
+    and the foreign-r90a census (another seat's residue is a witness, never
+    a verdict)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r90a_nodes": sorted(
+                n for n in names if "r90a_" in n
+                and f"_{WPSTATE_R90_PID}" not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _wpstate_r90_receipt(entry, name):
+    """Live receipt under corpus/live/r90-author/receipts/ — every
+    exit-signature claim (rc, error string, stderr class, sha) is readable
+    there without walking the run dir."""
+    out = ROOT / "live" / "r90-author" / "receipts"
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        path = out / f"{name}.{stamp}.json"
+        path.write_text(json.dumps(entry, indent=2, allow_nan=False)
+                        + "\n")
+        entry["live_receipt"] = str(path)
+    except (OSError, ValueError) as exc:
+        entry["live_receipt"] = f"write_error: {exc}"
+    return entry
+
+
+def _wpstate_r90_teardown(entry, failures, loads, players=(),
+                          extra_nodes=()):
+    """Reap every player, name-verified unload of every own module, then the
+    by-id destroy of any surviving r90a-tagged node (plus any tracked
+    non-tagged node, e.g. a module-loopback's `output.loopback-*`)."""
+    for proc in players or ():
+        _wpstate_r90_reap(proc)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    mods = _btwit_r88_module_lines() or ""
+    leaked = [l for l in mods.splitlines()
+              if _wpstate_r90_mine(l)]
+    entry["own_modules_after"] = leaked
+    if leaked:
+        failures.append(f"teardown: r90a modules survived: {leaked}")
+    g = _wpstate_r90_graph()
+    tracked = set(extra_nodes or ())
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and (_wpstate_r90_mine(n["name"])
+                              or n["name"] in tracked))
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_wpstate_r90_run(["pw-cli", "destroy", nid], 8.0,
+                                keep_chars=200)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, ok in gone.items() if not ok]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if _wpstate_r90_mine(n) or n in tracked)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r90a-tagged nodes survived: {rest}")
+
+
+def _wpstate_r90_block(entry, failures, msg, loads=None, players=()):
+    """The named coverage block: reap players, unload anything loaded,
+    record the block, never fabricate a green."""
+    for proc in players or ():
+        _wpstate_r90_reap(proc)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _wpstate_r90_pwlink(args, timeout_s=10.0):
+    return _wpstate_r90_run(["pw-link", *args], timeout_s)
+
+
+def _wpstate_r90_pwlink_links():
+    """`pw-link -I -l` -> {links:[{link_id, out, in}]}. The -I listing is
+    `<port_id> <port_name>` followed by ` <link_id>  |-> <port_id>
+    <port_name>` — the LINK id is the FIRST number on the arrow row."""
+    rec = _wpstate_r90_run(["pw-link", "-I", "-l"], 10.0, keep_raw=True)
+    links, out_port = [], None
+    for ln in (rec.get("stdout_raw") or "").splitlines():
+        m = re.match(r"^\s*(\d+)\s+(\S+)\s*$", ln)
+        if m:
+            out_port = m.group(2)
+            continue
+        m = re.match(r"^\s*(\d+)\s+\|->\s+(\d+)\s+(\S+)\s*$", ln)
+        if m and out_port:
+            links.append({"link_id": int(m.group(1)), "out": out_port,
+                          "in": m.group(3)})
+    rec.pop("stdout_raw", None)
+    rec["links"] = links
+    rec["n_links"] = len(links)
+    return rec
+
+
+def _wpstate_r90_loopbacks():
+    """The by-name unload vehicle's state: every `module-loopback` row plus
+    the zero-foreign pre-check (a by-name unload removes EVERY module of
+    that name, so it may only fire when every row is ours)."""
+    txt = _btwit_r88_module_lines() or ""
+    rows = [l for l in txt.splitlines() if "module-loopback" in l]
+    return {"count": len(rows), "rows": rows,
+            "all_mine": all(_wpstate_r90_mine(l) for l in rows)}
+
+
+def _wpstate_r90_loopback_nodes(g):
+    return sorted((nid, n.get("name"))
+                  for nid, n in (g.get("nodes") or {}).items()
+                  if n.get("name") and "loopback" in str(n["name"]))
+
+
+def _wpstate_r90_loopback_load(source_monitor, sink):
+    return _wpstate_r90_run(["pactl", "load-module", "module-loopback",
+                             f"source={source_monitor}", f"sink={sink}",
+                             "latency_msec=200"], 15.0)
+
+
+def _wpstate_r90_loopback_arm(sources, sinks):
+    """(Re)arm the by-name vehicle: exactly two of OUR `module-loopback`
+    rows, or a refusal. A by-name unload removes EVERY module of that name,
+    so the zero-foreign pre-check is what makes the vehicle safe — a foreign
+    row (or an arm that does not reach exactly two own rows) means NO FIRE."""
+    pre = _wpstate_r90_loopbacks()
+    if pre["count"] and not pre["all_mine"]:
+        return {"status": "foreign_present", "pre": pre}
+    loads = []
+    if pre["count"] == 0:
+        for src, snk in zip(sources, sinks):
+            loads.append(_wpstate_r90_loopback_load(src, snk))
+        time.sleep(0.6)
+    now = _wpstate_r90_loopbacks()
+    if now["count"] != 2 or not now["all_mine"]:
+        return {"status": "arm_failed", "pre": pre, "loads": loads,
+                "now": now}
+    return {"status": "armed", "pre": pre, "loads": loads, "now": now}
+
+
+def wpstate_store_r90_probe():
+    """The WirePlumber SETTINGS + STREAM-PROPERTIES STORE lattice.
+
+    Armed: the 25-row typed settings lattice with every Value at its
+    built-in Default; the live `sm-settings` Metadata twin and its schema
+    twin both key-for-key equal to the CLI; the state dir holding
+    stream-properties + default-nodes and NO `settings` file; the
+    `device.routes.default-sink-volume` value; and the ONE coalescing
+    ~1.0 s store debounce on a FRESH key for each of the four write paths
+    (creation / pw-cli Props / pulse volume / target), with the pulse path's
+    channelVolumes-vs-volume field split, the stored-field-only replay, the
+    stored-target replay, an explicit target beating the stored one, a
+    vanished target forming no link, and both opt-out forms.
+
+    Recorded, never armed: the live default sink's volume (operator/sibling
+    state — the boundary's C2 cross-witness) and the store's row census
+    (every seat leaves permanent rows; no CLI deletes them)."""
+    failures, legs = [], {}
+    entry = _wpstate_r90_entry_head(
+        "r90a WirePlumber settings + stream-properties store lattice")
+    tools = {t: shutil.which(t) for t in
+             ("wpctl", "pactl", "pw-cli", "pw-play", "pw-dump")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _wpstate_r90_receipt(
+            _wpstate_r90_block(entry, failures,
+                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
+            "wpstate_store_r90_probe")
+    loads, players = {}, []
+    try:
+        entry["store_at_entry"] = _wpstate_r90_store_census()
+
+        # ---------- the settings lattice -------------------------------
+        legs["w_settings"] = _wpstate_r90_settings()
+        st = legs["w_settings"]
+        if st.get("exit_code") != 0:
+            failures.append(
+                f"w_settings: `wpctl settings` rc {st.get('exit_code')}")
+        if len(st.get("entries") or []) != 25:
+            failures.append("w_settings: expected the 25-entry lattice, "
+                            f"saw {len(st.get('entries') or [])}")
+        incomplete = [e["id"] for e in st.get("entries") or []
+                      if not all(k in e for k in
+                                 ("name", "desc", "type", "default",
+                                  "value"))]
+        if incomplete:
+            failures.append("w_settings: entries missing a typed field: "
+                            f"{incomplete}")
+        if st.get("types") != {"Boolean": 17, "Float": 5,
+                               "Integer": 1, "String": 2}:
+            failures.append("w_settings: type histogram drifted: "
+                            f"{st.get('types')}")
+        not_default = sorted(set(st.get("ids") or []) -
+                             set(st.get("at_default") or []))
+        if not_default:
+            failures.append("w_settings: settings whose Value != Default "
+                            "(a saved `settings` file would explain this): "
+                            f"{not_default}")
+
+        legs["w_settings_flags"] = _wpstate_r90_run(
+            ["wpctl", "settings", "-h"], 10.0)
+        for flag in ("--save", "--delete", "--reset"):
+            if flag not in (legs["w_settings_flags"].get("stdout") or ""):
+                failures.append(
+                    f"w_settings_flags: {flag} missing from the help text")
+
+        # ---------- the metadata twins --------------------------------
+        legs["w_meta"] = _wpstate_r90_metadata()
+        cli_ids = set(st.get("ids") or [])
+        objs = legs["w_meta"].get("objects") or []
+        live = [o for o in objs
+                if o.get("n_keys") == 25 and o.get("scalar_like")]
+        schema = [o for o in objs
+                  if o.get("n_keys") == 25 and o.get("schema_like")]
+        legs["w_meta"]["live_objects"] = [o["id"] for o in live]
+        legs["w_meta"]["schema_objects"] = [o["id"] for o in schema]
+        if legs["w_meta"].get("reader") != "ok":
+            entry.setdefault("coverage_blocked", []).append(
+                "w_meta: pw-dump reader failed — metadata twins unmeasured")
+        elif len(live) != 1 or len(schema) != 1:
+            failures.append("w_meta: expected exactly one 25-key live twin "
+                            f"and one 25-key schema twin, saw {len(live)}"
+                            f"/{len(schema)}")
+        else:
+            if set(live[0]["keys"]) != cli_ids:
+                failures.append(
+                    "w_meta: live sm-settings key set != wpctl settings "
+                    "id set")
+            if set(schema[0]["keys"]) != cli_ids:
+                failures.append(
+                    "w_meta: schema key set != wpctl settings id set")
+
+        # ---------- the state dir --------------------------------------
+        try:
+            dir_names = sorted(p.name for p in
+                               WPSTATE_R90_STATE_DIR.iterdir())
+        except OSError as exc:
+            dir_names = None
+            legs["w_state_dir"] = {"dir": str(WPSTATE_R90_STATE_DIR),
+                                   "reader_error": str(exc)[:120]}
+        if dir_names is None:
+            entry.setdefault("coverage_blocked", []).append(
+                "w_state_dir: state dir unreadable — persistence inventory "
+                "unmeasured")
+        else:
+            legs["w_state_dir"] = {"dir": str(WPSTATE_R90_STATE_DIR),
+                                   "entries": dir_names}
+            for want in ("stream-properties", "default-nodes"):
+                if want not in dir_names:
+                    failures.append(
+                        f"w_state_dir: {want} missing from the state dir")
+            if "settings" in dir_names:
+                failures.append(
+                    "w_state_dir: a `settings` file exists — the lattice is "
+                    "persisted on this host")
+
+        # ---------- the C2 cross-witness (armed: setting; recorded: node)
+        for attempt in (1, 2):
+            legs["w_cross_volume"] = _wpstate_r90_run(
+                ["wpctl", "settings", "device.routes.default-sink-volume"],
+                10.0)
+            legs["w_cross_volume"]["attempt"] = attempt
+            if legs["w_cross_volume"].get("exit_code") == 0 and \
+                    "Value:" in (legs["w_cross_volume"].get("stdout")
+                                 or ""):
+                break
+            time.sleep(0.8)
+        legs["w_cross_volume"]["value"] = \
+            (legs["w_cross_volume"].get("stdout") or "").strip()
+        if legs["w_cross_volume"]["value"] != "Value: 0.064":
+            failures.append("w_cross_volume: device.routes.default-sink-"
+                            "volume reads "
+                            f"{legs['w_cross_volume']['value']!r}")
+        g = _wpstate_r90_graph()
+        dsnk = (entry.get("inventory") or {}).get("default_sink")
+        dn = _wpstate_r90_node(g, dsnk) if dsnk else None
+        pp = (dn or {}).get("props_params") or {}
+        legs["w_cross_volume"]["default_sink"] = dsnk
+        legs["w_cross_volume"]["live_channel_volumes"] = \
+            pp.get("channelVolumes")
+        legs["w_cross_volume"]["live_volume"] = pp.get("volume")
+        if pp.get("channelVolumes"):
+            try:
+                legs["w_cross_volume"]["delta"] = round(
+                    abs(float(pp["channelVolumes"][0]) - 0.064), 6)
+            except (TypeError, ValueError):
+                pass
+
+        # ---------- the store lattice ---------------------------------
+        loads[WPSTATE_R90_NS] = _wpstate_r90_load_ns(WPSTATE_R90_NS)
+        if loads[WPSTATE_R90_NS].get("module_id") is None:
+            return _wpstate_r90_receipt(
+                _wpstate_r90_block(
+                    entry, failures,
+                    f"probe null sink {WPSTATE_R90_NS} never enumerated",
+                    loads), "wpstate_store_r90_probe")
+        loads[WPSTATE_R90_NS2] = _wpstate_r90_load_ns(WPSTATE_R90_NS2)
+        if loads[WPSTATE_R90_NS2].get("module_id") is None:
+            return _wpstate_r90_receipt(
+                _wpstate_r90_block(
+                    entry, failures,
+                    f"probe null sink {WPSTATE_R90_NS2} never enumerated",
+                    loads), "wpstate_store_r90_probe")
+
+        with tempfile.TemporaryDirectory(prefix="r90a-store-") as tmp:
+            t48 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t48.wav"
+            _wpstate_r90_write_tone(t48, 60.0, 48000)
+            # the vanished-target replay has NO seat target and can land on
+            # the operator's default sink: feed it digital silence so the
+            # leg stays topology-complete with zero shared-sink content
+            # (the r79 fail-closed rule; the landing node is the verdict).
+            tsil = Path(tmp) / f"{WPSTATE_R90_PREFIX}_sil48.wav"
+            _loopback_r79_write_silence(tsil, 60.0)
+            k_c = _wpstate_r90_key("c")
+            k_v = _wpstate_r90_key("v")
+            k_t = _wpstate_r90_key("t")
+            k_x = _wpstate_r90_key("x")
+            k_y = _wpstate_r90_key("y")
+            k_z = _wpstate_r90_key("z")
+            keys = {"create": k_c, "props": k_c, "pulse": k_v,
+                    "target": k_t, "optout": k_x, "control": k_y,
+                    "vanish": k_z}
+            entry["keys"] = keys
+            rows0 = _wpstate_r90_store_rows() or {}
+            entry["key_pre"] = {k: (k in rows0) for k in set(keys.values())}
+            stale = [k for k, present in entry["key_pre"].items() if present]
+            if stale:
+                failures.append(
+                    "fresh-key guard: keys already in the store — the "
+                    f"debounce measurement would read a STALE row: {stale}")
+
+            # ---- creation (the debounce, fresh key) -------------------
+            tag_c = f"{WPSTATE_R90_PREFIX}_plc"
+            proc_c, argv_c = _wpstate_r90_play(
+                tag_c, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_c}",))
+            players.append(proc_c)
+            sk = f"Output/Audio:application.name:{k_c}"
+            legs["w_create"] = {"argv": " ".join(argv_c),
+                                "spawn_ok": proc_c is not None,
+                                "pre": None}
+            if proc_c is None:
+                failures.append("w_create: the seat pw-play never spawned")
+            else:
+                t_hit, val, samples = _wpstate_r90_store_poll(sk)
+                legs["w_create"].update({"t_row_s": t_hit, "value": val,
+                                         "samples": samples})
+                if t_hit is None:
+                    failures.append("w_create: no store row for a fresh "
+                                    "stream key within 4.0 s")
+                else:
+                    if not (WPSTATE_R90_DEB_MIN_S <= t_hit <=
+                            WPSTATE_R90_DEB_MAX_S):
+                        failures.append(
+                            f"w_create: the row landed at {t_hit}s, outside "
+                            f"the coalescing band [{WPSTATE_R90_DEB_MIN_S}, "
+                            f"{WPSTATE_R90_DEB_MAX_S}]")
+                    try:
+                        row = json.loads(val)
+                        legs["w_create"]["row"] = row
+                        if row.get("channelVolumes") != [1.0, 1.0]:
+                            failures.append(
+                                "w_create: a fresh stream's stored "
+                                "channelVolumes are "
+                                f"{row.get('channelVolumes')}, not "
+                                "[1.0, 1.0]")
+                    except (ValueError, TypeError):
+                        failures.append("w_create: store row is not JSON: "
+                                        f"{str(val)[:80]}")
+
+            # ---- the pw-cli Props path (same key, volume field) -------
+            time.sleep(0.4)
+            g = _wpstate_r90_graph()
+            n_c = _wpstate_r90_node(g, tag_c)
+            legs["w_props"] = {"stream_node": (n_c or {}).get("id")}
+            if n_c is None:
+                failures.append("w_props: the seat stream node never "
+                                "appeared")
+            else:
+                pre = (_wpstate_r90_store_rows() or {}).get(sk)
+                legs["w_props"]["pre_value"] = pre
+                cmd = _wpstate_r90_run(
+                    ["pw-cli", "set-param", str(n_c["id"]), "Props",
+                     "{ volume: 0.5 }"], 10.0)
+                legs["w_props"]["cmd"] = cmd
+                t_hit2, val2, samples2 = _wpstate_r90_store_poll(
+                    sk, want='"volume":0.5')
+                legs["w_props"].update({"t_hit_s": t_hit2, "value": val2,
+                                        "samples": samples2})
+                if cmd.get("exit_code") != 0:
+                    failures.append("w_props: pw-cli set-param rc "
+                                    f"{cmd.get('exit_code')}")
+                if t_hit2 is None:
+                    failures.append("w_props: `volume: 0.5` never reached "
+                                    "the store within 4.0 s")
+                else:
+                    if not (WPSTATE_R90_DEB_MIN_S <= t_hit2 <=
+                            WPSTATE_R90_DEB_MAX_S):
+                        failures.append(
+                            f"w_props: the pw-cli Props write landed at "
+                            f"{t_hit2}s, outside the coalescing band")
+                    try:
+                        row2 = json.loads(val2)
+                        legs["w_props"]["row"] = row2
+                        if row2.get("channelVolumes") != [1.0, 1.0]:
+                            failures.append(
+                                "w_props: the pw-cli path moved "
+                                "channelVolumes "
+                                f"({row2.get('channelVolumes')}) — the "
+                                "field split is dead")
+                    except (ValueError, TypeError):
+                        failures.append("w_props: store row is not JSON: "
+                                        f"{str(val2)[:80]}")
+
+            # ---- the pulse volume path (fresh key) -------------------
+            tag_v = f"{WPSTATE_R90_PREFIX}_plv"
+            proc_v, argv_v = _wpstate_r90_play(
+                tag_v, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_v}",))
+            players.append(proc_v)
+            skv = f"Output/Audio:application.name:{k_v}"
+            legs["w_pulse"] = {"argv": " ".join(argv_v), "pre": None,
+                               "spawn_ok": proc_v is not None}
+            if proc_v is None:
+                failures.append("w_pulse: the seat pw-play never spawned")
+            else:
+                t_row, val_row, _ = _wpstate_r90_store_poll(skv)
+                legs["w_pulse"]["t_row_s"] = t_row
+                if t_row is None:
+                    failures.append("w_pulse: the pulse leg's stream never "
+                                    "stored a row")
+                else:
+                    idx = _wpstate_r90_sink_input(k_v)
+                    legs["w_pulse"]["sink_input"] = idx
+                    if idx.get("index") is None:
+                        failures.append(
+                            "w_pulse: the seat stream's sink-input index is "
+                            "not resolvable from `pactl list sink-inputs`")
+                    else:
+                        t0 = time.monotonic()
+                        cmd = _wpstate_r90_run(
+                            ["pactl", "set-sink-input-volume",
+                             str(idx["index"]), "50%"], 10.0)
+                        cmd_ms = int((time.monotonic() - t0) * 1000)
+                        t_ch, val_ch, samples_ch = \
+                            _wpstate_r90_store_poll(
+                                skv, want='"channelVolumes":[0.125')
+                        legs["w_pulse"].update(
+                            {"cmd": cmd, "cmd_ms": cmd_ms,
+                             "t_change_s": t_ch, "value_after": val_ch,
+                             "samples": samples_ch})
+                        if cmd.get("exit_code") != 0:
+                            failures.append(
+                                "w_pulse: pactl set-sink-input-volume rc "
+                                f"{cmd.get('exit_code')}")
+                        if cmd_ms >= 500:
+                            failures.append(
+                                f"w_pulse: the pulse command itself took "
+                                f"{cmd_ms} ms")
+                        if t_ch is None:
+                            failures.append(
+                                "w_pulse: channelVolumes 0.125 never "
+                                "reached the store within 4.0 s")
+                        elif t_ch < WPSTATE_R90_DEB_MIN_S:
+                            failures.append(
+                                f"w_pulse: channelVolumes changed at "
+                                f"{t_ch}s — INSIDE the coalescing debounce. "
+                                "That is the stale-row read the r90 scout "
+                                "reported as a <=0.01 s write; on a fresh "
+                                "key the pulse path must land in the band.")
+                        elif t_ch > WPSTATE_R90_DEB_MAX_S:
+                            failures.append(
+                                f"w_pulse: channelVolumes landed at {t_ch}s,"
+                                " outside the coalescing band")
+                        try:
+                            row4 = json.loads(val_ch)
+                            legs["w_pulse"]["row"] = row4
+                            if float(row4.get("volume", 0.0)) != 1.0:
+                                failures.append(
+                                    "w_pulse: the pulse path wrote `volume`"
+                                    f" ({row4.get('volume')}) — the field "
+                                    "split is dead")
+                        except (ValueError, TypeError):
+                            failures.append(
+                                "w_pulse: store row is not JSON: "
+                                f"{str(val_ch)[:80]}")
+
+            # ---- the target path (fresh key) -------------------------
+            tag_t = f"{WPSTATE_R90_PREFIX}_plt"
+            proc_t, argv_t = _wpstate_r90_play(
+                tag_t, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_t}",))
+            players.append(proc_t)
+            skt = f"Output/Audio:application.name:{k_t}"
+            legs["w_target"] = {"argv": " ".join(argv_t), "pre": None,
+                                "spawn_ok": proc_t is not None}
+            if proc_t is None:
+                failures.append("w_target: the seat pw-play never spawned")
+            else:
+                t_row, _, _ = _wpstate_r90_store_poll(skt)
+                legs["w_target"]["t_row_s"] = t_row
+                if t_row is None:
+                    failures.append("w_target: the target leg's stream "
+                                    "never stored a row")
+                else:
+                    idx = _wpstate_r90_sink_input(k_t)
+                    legs["w_target"]["sink_input"] = idx
+                    if idx.get("index") is None:
+                        failures.append("w_target: sink-input index not "
+                                        "resolvable")
+                    else:
+                        cmd = _wpstate_r90_run(
+                            ["pactl", "move-sink-input",
+                             str(idx["index"]), WPSTATE_R90_NS2], 10.0)
+                        t_tg, val_tg, samples_tg = \
+                            _wpstate_r90_store_poll(
+                                skt,
+                                want=f'"target":"{WPSTATE_R90_NS2}"')
+                        legs["w_target"].update(
+                            {"cmd": cmd, "t_target_s": t_tg,
+                             "value_after": val_tg, "samples": samples_tg})
+                        if cmd.get("exit_code") != 0:
+                            failures.append(
+                                "w_target: pactl move-sink-input rc "
+                                f"{cmd.get('exit_code')}")
+                        if t_tg is None:
+                            failures.append(
+                                f"w_target: `target: {WPSTATE_R90_NS2}` "
+                                "never reached the store within 4.0 s")
+                        elif not (WPSTATE_R90_DEB_MIN_S <= t_tg <=
+                                  WPSTATE_R90_DEB_MAX_S):
+                            failures.append(
+                                f"w_target: the target write landed at "
+                                f"{t_tg}s, outside the coalescing band")
+
+            # ---- replay: only the stored FIELD is restored -----------
+            _wpstate_r90_reap(proc_t)
+            tag_r = f"{WPSTATE_R90_PREFIX}_plr"
+            proc_r, argv_r = _wpstate_r90_play(
+                tag_r, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_v}",))
+            players.append(proc_r)
+            time.sleep(1.6)
+            g = _wpstate_r90_graph()
+            props = _wpstate_r90_stream_props(g, tag_r)
+            legs["w_replay_fields"] = {"argv": " ".join(argv_r),
+                                       "live": props}
+            cv, vol = props.get("channelVolumes"), props.get("volume")
+            if not (isinstance(cv, list) and cv and
+                    abs(float(cv[0]) - 0.125) < 1e-6):
+                failures.append(
+                    "w_replay_fields: the replay did not restore "
+                    f"channelVolumes 0.125 (live {cv})")
+            if vol is not None and float(vol) != 1.0:
+                failures.append(
+                    "w_replay_fields: the replay touched `volume` "
+                    f"({vol}) — only the stored field is restored")
+
+            # ---- replay: the stored TARGET is restored ---------------
+            tag_r2 = f"{WPSTATE_R90_PREFIX}_plr2"
+            proc_r2, argv_r2 = _wpstate_r90_play(
+                tag_r2, None, t48,
+                extra_props=(f"application.name={k_t}",))
+            players.append(proc_r2)
+            time.sleep(1.8)
+            g = _wpstate_r90_graph()
+            to2 = [e for e in _wpstate_r90_edges_in(g, WPSTATE_R90_NS2)
+                   if e.get("out_node") == tag_r2]
+            legs["w_replay_target"] = {
+                "argv": " ".join(argv_r2),
+                "stored_target": WPSTATE_R90_NS2,
+                "edges_in_stored": to2}
+            if not to2:
+                failures.append(
+                    "w_replay_target: the replay formed no link into the "
+                    f"stored target {WPSTATE_R90_NS2}")
+
+            # ---- an explicit target beats the stored one -------------
+            loads[WPSTATE_R90_NS3] = _wpstate_r90_load_ns(WPSTATE_R90_NS3)
+            if loads[WPSTATE_R90_NS3].get("module_id") is None:
+                entry.setdefault("coverage_blocked", []).append(
+                    "w_explicit_target: third sink never enumerated — "
+                    "leg unmeasured")
+            else:
+                tag_r3 = f"{WPSTATE_R90_PREFIX}_plr3"
+                proc_r3, argv_r3 = _wpstate_r90_play(
+                    tag_r3, WPSTATE_R90_NS3, t48,
+                    extra_props=(f"application.name={k_t}",))
+                players.append(proc_r3)
+                time.sleep(1.8)
+                g = _wpstate_r90_graph()
+                to3 = [e for e in
+                       _wpstate_r90_edges_in(g, WPSTATE_R90_NS3)
+                       if e.get("out_node") == tag_r3]
+                to2b = [e for e in
+                        _wpstate_r90_edges_in(g, WPSTATE_R90_NS2)
+                        if e.get("out_node") == tag_r3]
+                legs["w_explicit_target"] = {
+                    "argv": " ".join(argv_r3),
+                    "explicit_target": WPSTATE_R90_NS3,
+                    "stored_target": WPSTATE_R90_NS2,
+                    "edges_in_explicit": to3, "edges_in_stored": to2b}
+                if not to3:
+                    failures.append(
+                        "w_explicit_target: an explicit --target did not "
+                        "beat the stored target")
+                if to2b:
+                    failures.append(
+                        "w_explicit_target: the explicit-target replay ALSO "
+                        "linked into the stored target")
+
+            # ---- a vanished stored target forms no link --------------
+            loads[WPSTATE_R90_NS4] = _wpstate_r90_load_ns(WPSTATE_R90_NS4)
+            if loads[WPSTATE_R90_NS4].get("module_id") is None:
+                entry.setdefault("coverage_blocked", []).append(
+                    "w_vanished_target: fourth sink never enumerated — "
+                    "leg unmeasured")
+            else:
+                tag_z = f"{WPSTATE_R90_PREFIX}_plz"
+                proc_z, argv_z = _wpstate_r90_play(
+                    tag_z, WPSTATE_R90_NS4, t48,
+                    extra_props=(f"application.name={k_z}",))
+                players.append(proc_z)
+                skz = f"Output/Audio:application.name:{k_z}"
+                t_row, _, _ = _wpstate_r90_store_poll(skz)
+                idx = _wpstate_r90_sink_input(k_z)
+                legs["w_vanished_target"] = {
+                    "argv": " ".join(argv_z), "t_row_s": t_row,
+                    "sink_input": idx,
+                    "stored_target": WPSTATE_R90_NS4}
+                if idx.get("index") is None:
+                    failures.append("w_vanished_target: sink-input index "
+                                    "not resolvable")
+                else:
+                    cmd = _wpstate_r90_run(
+                        ["pactl", "move-sink-input", str(idx["index"]),
+                         WPSTATE_R90_NS4], 10.0)
+                    t_tg, _, _ = _wpstate_r90_store_poll(
+                        skz, want=f'"target":"{WPSTATE_R90_NS4}"')
+                    legs["w_vanished_target"].update(
+                        {"cmd": cmd, "t_target_s": t_tg})
+                    if t_tg is None:
+                        failures.append(
+                            "w_vanished_target: the target never reached "
+                            "the store — the leg is vacuous")
+                    else:
+                        _wpstate_r90_reap(proc_z)
+                        entry.setdefault("unloads", {})[
+                            WPSTATE_R90_NS4] = _pactlmon_r85_unload_own(
+                                loads[WPSTATE_R90_NS4].get("module_id"),
+                                "sink_name", WPSTATE_R90_NS4)
+                        loads.pop(WPSTATE_R90_NS4, None)
+                        tag_z2 = f"{WPSTATE_R90_PREFIX}_plz2"
+                        proc_z2, argv_z2 = _wpstate_r90_play(
+                            tag_z2, None, tsil,
+                            extra_props=(f"application.name={k_z}",))
+                        players.append(proc_z2)
+                        time.sleep(2.2)
+                        g = _wpstate_r90_graph()
+                        dsnk = (entry.get("inventory") or {}).get(
+                            "default_sink")
+                        fallback = [
+                            e for e in _wpstate_r90_edges_in(g, dsnk)
+                            if e.get("out_node") == tag_z2] if dsnk else []
+                        anywhere = [
+                            e for e in _wpstate_r90_edges(g)
+                            if e.get("out_node") == tag_z2]
+                        legs["w_vanished_target"].update(
+                            {"replay_argv": " ".join(argv_z2),
+                             "content_witness":
+                                 "declined_shared_default",
+                             "default_sink": dsnk,
+                             "edges_into_default": fallback,
+                             "edges_from_replay": anywhere})
+                        outcome = ("fallback_to_default" if fallback
+                                   else ("linked_elsewhere"
+                                         if anywhere else "no_link"))
+                        legs["w_vanished_target"]["outcome"] = outcome
+                        legs["w_vanished_target"][
+                            "replay_node_present"] = bool(
+                                _wpstate_r90_node(g, tag_z2))
+                        if not legs["w_vanished_target"][
+                                "replay_node_present"]:
+                            failures.append(
+                                "w_vanished_target: the replay stream node "
+                                "never appeared — the no-link class would "
+                                "be an artifact of a dead process")
+                        # The r90 boundary measured `no_link` 3/3 quiet +
+                        # 3/3 loaded; the author window measured a
+                        # `fallback_to_default` link into the operator's
+                        # SPDIF sink. The outcome is host/session-manager
+                        # state dependent, so it is RECORDED as a named
+                        # class here and carried in the report rather than
+                        # armed to either value.
+
+            # ---- opt-out: stream and device node ---------------------
+            tag_x = f"{WPSTATE_R90_PREFIX}_plx"
+            tag_y = f"{WPSTATE_R90_PREFIX}_ply"
+            proc_x, argv_x = _wpstate_r90_play(
+                tag_x, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_x}",
+                             "state.restore-props=false"))
+            players.append(proc_x)
+            proc_y, argv_y = _wpstate_r90_play(
+                tag_y, WPSTATE_R90_NS, t48,
+                extra_props=(f"application.name={k_y}",))
+            players.append(proc_y)
+            time.sleep(3.0)
+            rows = _wpstate_r90_store_rows() or {}
+            legs["w_optout_stream"] = {
+                "argv": " ".join(argv_x),
+                "key": k_x, "control_key": k_y,
+                "row_present": f"Output/Audio:application.name:{k_x}"
+                               in rows,
+                "control_row_present":
+                    f"Output/Audio:application.name:{k_y}" in rows}
+            if legs["w_optout_stream"]["row_present"]:
+                failures.append("w_optout_stream: state.restore-props=false "
+                                "still wrote a store row")
+            if not legs["w_optout_stream"]["control_row_present"]:
+                failures.append("w_optout_stream: the control stream wrote "
+                                "no row in the same window — the opt-out "
+                                "leg is vacuous")
+
+            loads[WPSTATE_R90_NSOPT] = _wpstate_r90_load_ns(
+                WPSTATE_R90_NSOPT,
+                extra=("sink_properties=state.restore-props=false",))
+            if loads[WPSTATE_R90_NSOPT].get("module_id") is None:
+                entry.setdefault("coverage_blocked", []).append(
+                    "w_optout_device: opt-out sink never enumerated — "
+                    "leg unmeasured")
+            else:
+                time.sleep(2.5)
+                rows = _wpstate_r90_store_rows() or {}
+                legs["w_optout_device"] = {
+                    "sink": WPSTATE_R90_NSOPT,
+                    "control_sink": WPSTATE_R90_NS,
+                    "row_present":
+                        f"Audio/Sink:node.name:{WPSTATE_R90_NSOPT}" in rows,
+                    "control_row_present":
+                        f"Audio/Sink:node.name:{WPSTATE_R90_NS}" in rows}
+                if legs["w_optout_device"]["row_present"]:
+                    failures.append(
+                        "w_optout_device: a device node loaded with "
+                        "state.restore-props=false still wrote a store row")
+                if not legs["w_optout_device"]["control_row_present"]:
+                    failures.append(
+                        "w_optout_device: the control sink has no row — the "
+                        "device opt-out leg is vacuous")
+
+        entry["store_at_exit"] = _wpstate_r90_store_census()
+    finally:
+        _wpstate_r90_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _wpstate_r90_receipt(entry, "wpstate_store_r90_probe")
+
+
+def wpstate_pmod_r90_probe():
+    """The pulse MODULE NAMESPACE lattice.
+
+    Armed: the null-sink control round trip; the phantom tunnel id (rc 0 + an
+    id that never holds my module row at any of 8 args-aware probes, with no
+    node and no sink); `unload-module <never-assignable id>` -> rc 1 `No such
+    entity`; the unix-socket variant -> rc 1 `Connection refused`;
+    zeroconf discover rc 1 `No such entity` vs publish rc 0; the three
+    preloaded stubs -> rc 1 `Entity exists`; an unknown module -> rc 1 `No
+    such entity`; the by-name unload removing EVERY `module-loopback` on a
+    zero-foreign vehicle, with prefix/node-name/unknown names all rc 0 +
+    stderr `not loaded` and nothing removed."""
+    failures, legs = [], {}
+    entry = _wpstate_r90_entry_head(
+        "r90a pulse module namespace lattice")
+    tools = {t: shutil.which(t) for t in ("pactl", "pw-dump")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _wpstate_r90_receipt(
+            _wpstate_r90_block(entry, failures,
+                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
+            "wpstate_pmod_r90_probe")
+    loads, extra_nodes = {}, set()
+    try:
+        for nm in (WPSTATE_R90_NS, WPSTATE_R90_NS2):
+            loads[nm] = _wpstate_r90_load_ns(nm)
+            if loads[nm].get("module_id") is None:
+                return _wpstate_r90_receipt(
+                    _wpstate_r90_block(
+                        entry, failures,
+                        f"probe null sink {nm} never enumerated", loads),
+                    "wpstate_pmod_r90_probe")
+
+        # ---------- control: load + name-verified unload --------------
+        loads[WPSTATE_R90_NSMC] = _wpstate_r90_load_ns(WPSTATE_R90_NSMC)
+        mc = loads[WPSTATE_R90_NSMC]
+        legs["m_control"] = {
+            "load_rc": mc.get("rc"), "module_id": mc.get("module_id"),
+            "sink_seen": mc.get("sink_seen")}
+        if mc.get("module_id") is None:
+            failures.append("m_control: a plain module-null-sink did not "
+                            "load")
+        else:
+            entry.setdefault("unloads", {})[WPSTATE_R90_NSMC] = \
+                _pactlmon_r85_unload_own(mc["module_id"], "sink_name",
+                                         WPSTATE_R90_NSMC)
+            loads.pop(WPSTATE_R90_NSMC, None)
+            legs["m_control"]["unload"] = \
+                entry["unloads"][WPSTATE_R90_NSMC]
+            sinks_now = _capture_r77_sink_names_strict()
+            legs["m_control"]["sink_gone"] = (
+                None if sinks_now is None
+                else WPSTATE_R90_NSMC not in sinks_now)
+            if legs["m_control"]["unload"].get("exit_code") != 0:
+                failures.append("m_control: the name-verified unload did "
+                                "not return 0")
+            if legs["m_control"]["sink_gone"] is False:
+                failures.append("m_control: the control sink survived its "
+                                "unload")
+
+        # ---------- the phantom tunnel id ----------------------------
+        cmd = _wpstate_r90_run(
+            ["pactl", "load-module", "module-tunnel-sink",
+             "server=127.0.0.1:1", f"sink_name={WPSTATE_R90_TUN}"], 15.0)
+        phantom_id = cmd.get("stdout_token") or ""
+        legs["m_phantom"] = {
+            "load": cmd,
+            "id": int(phantom_id) if phantom_id.isdigit() else None,
+            "probes": []}
+        probes = (0.0, 0.03, 0.06, 0.12, 0.25, 0.5, 1.0, 2.0)
+        for dt in probes:
+            time.sleep(dt)
+            txt = _btwit_r88_module_lines() or ""
+            mine = [l for l in txt.splitlines()
+                    if f"sink_name={WPSTATE_R90_TUN}" in l]
+            held = None
+            if legs["m_phantom"]["id"] is not None:
+                held = [l for l in txt.splitlines()
+                        if l.split("\t")[0].strip() ==
+                        str(legs["m_phantom"]["id"])]
+            legs["m_phantom"]["probes"].append(
+                {"t": dt, "mine": bool(mine),
+                 "held_by_foreign": bool(held and not mine),
+                 "rows": mine})
+        if cmd.get("exit_code") != 0:
+            failures.append("m_phantom: the unreachable tunnel did not "
+                            f"return 0 (rc {cmd.get('exit_code')})")
+        if legs["m_phantom"]["id"] is None:
+            failures.append("m_phantom: the tunnel load returned no module "
+                            "id")
+        if any(p["mine"] for p in legs["m_phantom"]["probes"]):
+            failures.append("m_phantom: the phantom id DID hold my module "
+                            "row at some probe — the id is not a phantom "
+                            "here")
+        names = _playback_r78_node_names() or []
+        sinks_now = _capture_r77_sink_names_strict()
+        legs["m_phantom"]["node_present"] = WPSTATE_R90_TUN in names
+        legs["m_phantom"]["sink_present"] = (
+            None if sinks_now is None else WPSTATE_R90_TUN in sinks_now)
+        if legs["m_phantom"]["node_present"]:
+            failures.append("m_phantom: the phantom tunnel published a node")
+        if legs["m_phantom"]["sink_present"]:
+            failures.append("m_phantom: the phantom tunnel published a "
+                            "sink")
+        legs["m_phantom"]["id_recycled_by_foreign"] = any(
+            p["held_by_foreign"] for p in legs["m_phantom"]["probes"])
+
+        # ---------- the unassignable id (no recycle hazard) ----------
+        pre_ids = _btwit_r88_module_ids() or []
+        legs["m_unassignable"] = {
+            "id": WPSTATE_R90_UNASSIGNABLE_ID,
+            "pre_present": WPSTATE_R90_UNASSIGNABLE_ID in pre_ids}
+        if legs["m_unassignable"]["pre_present"]:
+            entry.setdefault("coverage_blocked", []).append(
+                "m_unassignable: the never-assignable id is in the module "
+                "table — refused, no unload fired")
+        else:
+            c = _wpstate_r90_run(
+                ["pactl", "unload-module",
+                 str(WPSTATE_R90_UNASSIGNABLE_ID)], 10.0)
+            legs["m_unassignable"]["cmd"] = c
+            if c.get("exit_code") != 1 or \
+                    c.get("error_class") != "wpstate_no_entity":
+                failures.append(
+                    "m_unassignable: `unload-module 4000000001` did not "
+                    "return rc 1 `No such entity` (rc "
+                    f"{c.get('exit_code')}, class "
+                    f"{c.get('error_class')})")
+
+        # ---------- a unix socket fails synchronously ----------------
+        c = _wpstate_r90_run(
+            ["pactl", "load-module", "module-tunnel-sink",
+             f"server=unix:{WPSTATE_R90_DEAD_UNIX}",
+             f"sink_name={WPSTATE_R90_TUN}unix"], 15.0)
+        legs["m_unix"] = c
+        if c.get("exit_code") != 1 or \
+                c.get("error_class") != "wpstate_conn_refused":
+            failures.append(
+                "m_unix: the dead unix socket did not refuse with rc 1 "
+                f"`Connection refused` (rc {c.get('exit_code')}, class "
+                f"{c.get('error_class')})")
+
+        # ---------- zeroconf: discover vs publish --------------------
+        legs["m_zeroconf_discover"] = _wpstate_r90_run(
+            ["pactl", "load-module", "module-zeroconf-discover"], 15.0)
+        if legs["m_zeroconf_discover"].get("exit_code") != 1 or \
+                legs["m_zeroconf_discover"].get("error_class") != \
+                "wpstate_no_entity":
+            failures.append(
+                "m_zeroconf_discover: expected rc 1 `No such entity` (rc "
+                f"{legs['m_zeroconf_discover'].get('exit_code')}, class "
+                f"{legs['m_zeroconf_discover'].get('error_class')})")
+        c = _wpstate_r90_run(
+            ["pactl", "load-module", "module-zeroconf-publish",
+             f"{WPSTATE_R90_PREFIX}_marker=1"], 15.0)
+        legs["m_zeroconf_publish"] = {"load": c}
+        pub_id = c.get("stdout_token") or ""
+        if c.get("exit_code") != 0 or not pub_id.isdigit():
+            failures.append(
+                "m_zeroconf_publish: expected rc 0 + an id (rc "
+                f"{c.get('exit_code')}, out {pub_id!r})")
+        else:
+            rows = [l for l in (_btwit_r88_module_lines() or "").splitlines()
+                    if l.split("\t")[0].strip() == pub_id]
+            legs["m_zeroconf_publish"]["rows"] = rows
+            if not rows:
+                failures.append("m_zeroconf_publish: the returned id does "
+                                "not hold a module row")
+            un = _pactlmon_r85_unload_own(
+                int(pub_id), f"{WPSTATE_R90_PREFIX}_marker", "1")
+            legs["m_zeroconf_publish"]["unload"] = un
+            if un.get("exit_code") != 0:
+                failures.append("m_zeroconf_publish: the publish module "
+                                "did not unload cleanly")
+
+        # ---------- stubs and unknown names --------------------------
+        for legname, mod, want_cls in (
+                ("m_stub_stream_restore", "module-stream-restore",
+                 "wpstate_entity_exists"),
+                ("m_stub_device_restore", "module-device-restore",
+                 "wpstate_entity_exists"),
+                ("m_stub_always_sink", "module-always-sink",
+                 "wpstate_entity_exists"),
+                ("m_stub_unknown", "module-not-a-module",
+                 "wpstate_no_entity")):
+            c = _wpstate_r90_run(["pactl", "load-module", mod], 15.0)
+            legs[legname] = c
+            if c.get("exit_code") != 1 or c.get("error_class") != want_cls:
+                failures.append(
+                    f"m_load {mod}: expected rc 1 {want_cls} (rc "
+                    f"{c.get('exit_code')}, class {c.get('error_class')})")
+
+        # ---------- the by-name unload (safe vehicle) ----------------
+        g0 = _wpstate_r90_graph()
+        pre_nodes = set(_wpstate_r90_loopback_nodes(g0))
+        arm = _wpstate_r90_loopback_arm(
+            [f"{WPSTATE_R90_NS}.monitor", f"{WPSTATE_R90_NS2}.monitor"],
+            [WPSTATE_R90_NS2, WPSTATE_R90_NS])
+        g1 = _wpstate_r90_graph()
+        for nid, nm in _wpstate_r90_loopback_nodes(g1):
+            if (nid, nm) not in pre_nodes:
+                extra_nodes.add(nm)
+        legs["m_byname_control"] = {"arm": arm}
+        if arm["status"] != "armed":
+            entry.setdefault("coverage_blocked", []).append(
+                "m_byname_control: the two-vehicle pre-check failed ("
+                f"{arm['status']}) — the by-name unload was NOT fired")
+        else:
+            c = _wpstate_r90_run(
+                ["pactl", "unload-module", "module-loopback"], 15.0)
+            time.sleep(0.5)
+            after = _wpstate_r90_loopbacks()
+            sinks_now = _capture_r77_sink_names_strict() or []
+            legs["m_byname_control"].update(
+                {"cmd": c, "after": after,
+                 "own_sinks_alive": [WPSTATE_R90_NS in sinks_now,
+                                     WPSTATE_R90_NS2 in sinks_now]})
+            if c.get("exit_code") != 0:
+                failures.append("m_byname_control: by-name unload rc "
+                                f"{c.get('exit_code')}")
+            if after["count"] != 0:
+                failures.append(
+                    "m_byname_control: one by-name unload left "
+                    f"{after['count']} module-loopback rows — the "
+                    "all-matching law is dead")
+            if not all(legs["m_byname_control"]["own_sinks_alive"]):
+                failures.append("m_byname_control: my null sinks did not "
+                                "survive the by-name unload")
+
+        # ---------- prefix / node-name / unknown name ----------------
+        for tag, name_arg in (("m_byname_prefix", "module-loopb"),
+                              ("m_byname_nodename", WPSTATE_R90_NS),
+                              ("m_byname_unknown", "module-not-a-module")):
+            arm2 = _wpstate_r90_loopback_arm(
+                [f"{WPSTATE_R90_NS}.monitor", f"{WPSTATE_R90_NS2}.monitor"],
+                [WPSTATE_R90_NS2, WPSTATE_R90_NS])
+            g2 = _wpstate_r90_graph()
+            for nid, nm in _wpstate_r90_loopback_nodes(g2):
+                if (nid, nm) not in pre_nodes:
+                    extra_nodes.add(nm)
+            legs[tag] = {"arm": arm2}
+            if arm2["status"] != "armed":
+                entry.setdefault("coverage_blocked", []).append(
+                    f"{tag}: the two-vehicle pre-check failed "
+                    f"({arm2['status']}) — the unload was NOT fired")
+                continue
+            c = _wpstate_r90_run(["pactl", "unload-module", name_arg],
+                                 15.0)
+            time.sleep(0.3)
+            legs[tag].update({"cmd": c, "after": _wpstate_r90_loopbacks()})
+            if c.get("exit_code") != 0:
+                failures.append(f"{tag}: rc {c.get('exit_code')} — the "
+                                "name-form refusal family is rc 0 with the "
+                                "error on stderr only")
+            if c.get("error_class") != "wpstate_not_loaded" or \
+                    "not loaded" not in (c.get("stderr") or ""):
+                failures.append(
+                    f"{tag}: expected stderr `not loaded` (class "
+                    f"{c.get('error_class')}, stderr {c.get('stderr')!r})")
+            if legs[tag]["after"]["count"] != 2:
+                failures.append(
+                    f"{tag}: a name-form refusal removed modules (count "
+                    f"{legs[tag]['after']['count']})")
+
+        # ---------- final cleanup of the by-name vehicle -------------
+        pre = _wpstate_r90_loopbacks()
+        legs["m_byname_final"] = {"pre": pre}
+        if pre["count"] and pre["all_mine"]:
+            c = _wpstate_r90_run(["pactl", "unload-module",
+                                  "module-loopback"], 15.0)
+            time.sleep(0.4)
+            legs["m_byname_final"].update(
+                {"cmd": c, "after": _wpstate_r90_loopbacks()})
+            if legs["m_byname_final"]["after"]["count"]:
+                failures.append("m_byname_final: the by-name vehicle left "
+                                "rows behind")
+        elif pre["count"]:
+            entry.setdefault("coverage_blocked", []).append(
+                "m_byname_final: foreign loopbacks present — left alone")
+    finally:
+        _wpstate_r90_teardown(entry, failures, loads, (),
+                              extra_nodes=extra_nodes)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _wpstate_r90_receipt(entry, "wpstate_pmod_r90_probe")
+
+
+def wplink_r90_entry():
+    """The `pw-link` grammar and its unstated modes.
+
+    Armed: one pair per connect/disconnect with extra positionals silently
+    ignored; two link ids refused whole (rc 255, nothing unlinked); a single
+    link id accepted; reversed direction and globs refused; a duplicate pair
+    `File exists`; `-w` returning rc 0 on a valid pair and blocking on a
+    missing port; `-w` returning ~50 ms after a late port appears; `-p`
+    landing an arbitrary prop on the Link object while `link.passive` stays
+    invisible; `-t` printing nothing; `-m` alone rc 255; `-m -l` streaming
+    and blocking; `-v` printing port properties; the slot-bound listing
+    pattern leak; and `-l <pattern>` ignoring its pattern."""
+    failures, legs = [], {}
+    entry = _wpstate_r90_entry_head("r90a pw-link grammar lattice")
+    tools = {t: shutil.which(t) for t in ("pw-link", "pactl", "pw-dump")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _wpstate_r90_receipt(
+            _wpstate_r90_block(entry, failures,
+                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
+            "wplink_r90_probe")
+    loads, players = {}, []
+    try:
+        for nm in (WPSTATE_R90_L1, WPSTATE_R90_L2, WPSTATE_R90_L3):
+            loads[nm] = _wpstate_r90_load_ns(nm)
+            if loads[nm].get("module_id") is None:
+                return _wpstate_r90_receipt(
+                    _wpstate_r90_block(
+                        entry, failures,
+                        f"probe null sink {nm} never enumerated", loads),
+                    "wplink_r90_probe")
+        own = (WPSTATE_R90_L1, WPSTATE_R90_L2, WPSTATE_R90_L3)
+        a = f"{WPSTATE_R90_L1}:monitor_FL"
+        a2 = f"{WPSTATE_R90_L1}:monitor_FR"
+        b = f"{WPSTATE_R90_L2}:playback_FL"
+        b2 = f"{WPSTATE_R90_L2}:playback_FR"
+        c = f"{WPSTATE_R90_L3}:playback_FL"
+        c2 = f"{WPSTATE_R90_L3}:playback_FR"
+
+        def count():
+            g = _wpstate_r90_graph()
+            return len(_wpstate_r90_own_links(g, own)), g
+
+        # ---------- the single-pair grammar -------------------------
+        # The link set is rebuilt explicitly before each counting leg: an
+        # ordering-dependent residue would make a "first pair only" claim
+        # vacuous (the r90 boundary's own §8.4 lesson).
+        legs["k_connect"] = _wpstate_r90_pwlink([a, b])
+        n, _g = count()
+        legs["k_connect"]["own_links"] = n
+        if legs["k_connect"].get("exit_code") != 0 or n != 1:
+            failures.append("k_connect: a valid pair did not produce exactly "
+                            "one link (rc "
+                            f"{legs['k_connect'].get('exit_code')}, "
+                            f"links {n})")
+
+        legs["k_bulk"] = _wpstate_r90_pwlink([a, b2, a2, b])
+        n, _g = count()
+        legs["k_bulk"]["own_links"] = n
+        if legs["k_bulk"].get("exit_code") != 0 or n != 2:
+            failures.append("k_bulk: `pw-link A B A2 B2` did not link the "
+                            "FIRST pair only (rc "
+                            f"{legs['k_bulk'].get('exit_code')}, links {n})")
+
+        legs["k_dup"] = _wpstate_r90_pwlink([a, b2])
+        n, _g = count()
+        legs["k_dup"]["own_links"] = n
+        if legs["k_dup"].get("exit_code") != 255 or \
+                "File exists" not in (legs["k_dup"].get("stderr") or ""):
+            failures.append("k_dup: re-linking an existing pair did not "
+                            "refuse with rc 255 `File exists` (rc "
+                            f"{legs['k_dup'].get('exit_code')}, stderr "
+                            f"{legs['k_dup'].get('stderr')!r})")
+        if n != 2:
+            failures.append("k_dup: the refused duplicate changed the link "
+                            f"count ({n})")
+
+        ids = _wpstate_r90_pwlink_links()
+        legs["k_ids"] = {"rc": ids.get("exit_code"),
+                         "links": ids["links"], "n_links": ids["n_links"],
+                         "head": (ids.get("stdout") or "")[:300]}
+        mine_ids = sorted(l["link_id"] for l in ids["links"]
+                          if l["out"] in (a, a2) and l["in"] in (b, b2))
+        legs["k_ids"]["mine"] = mine_ids
+        if len(mine_ids) != 2:
+            entry.setdefault("coverage_blocked", []).append(
+                "k_ids: the two seat links were not both resolvable from "
+                "`pw-link -I -l` — the id legs were NOT fired")
+        else:
+            legs["k_two_ids"] = _wpstate_r90_pwlink(
+                ["-d", str(mine_ids[0]), str(mine_ids[1])])
+            n, _g = count()
+            legs["k_two_ids"]["own_links"] = n
+            if legs["k_two_ids"].get("exit_code") != 255:
+                failures.append("k_two_ids: two link ids did not refuse "
+                                f"(rc {legs['k_two_ids'].get('exit_code')})")
+            if n != 2:
+                failures.append("k_two_ids: a refused two-id disconnect "
+                                f"still unlinked something (links {n})")
+            legs["k_single_id"] = _wpstate_r90_pwlink(
+                ["-d", str(mine_ids[0])])
+            n, _g = count()
+            legs["k_single_id"]["own_links"] = n
+            if legs["k_single_id"].get("exit_code") != 0 or n != 1:
+                failures.append("k_single_id: a single link id did not "
+                                "disconnect exactly one link (rc "
+                                f"{legs['k_single_id'].get('exit_code')}, "
+                                f"links {n})")
+
+        # rebuild a known two-link set: a->b and a->b2
+        legs["k_reset"] = {
+            "drop": [_wpstate_r90_pwlink(["-d", a, b]),
+                     _wpstate_r90_pwlink(["-d", a, b2])],
+            "make": [_wpstate_r90_pwlink([a, b]),
+                     _wpstate_r90_pwlink([a, b2])]}
+        n, _g = count()
+        legs["k_reset"]["own_links"] = n
+        if n != 2:
+            failures.append(f"k_reset: the known two-link set is {n}, not 2")
+
+        legs["k_bulk_d"] = _wpstate_r90_pwlink(["-d", a, b, a2, b2])
+        n, _g = count()
+        legs["k_bulk_d"]["own_links"] = n
+        if legs["k_bulk_d"].get("exit_code") != 0 or n != 1:
+            failures.append("k_bulk_d: `pw-link -d A B A2 B2` did not "
+                            "disconnect the FIRST pair only (rc "
+                            f"{legs['k_bulk_d'].get('exit_code')}, links "
+                            f"{n})")
+
+        legs["k_reversed"] = _wpstate_r90_pwlink([b, a])
+        n, _g = count()
+        legs["k_reversed"]["own_links"] = n
+        if legs["k_reversed"].get("exit_code") != 255:
+            failures.append("k_reversed: an input-first pair did not refuse "
+                            f"(rc {legs['k_reversed'].get('exit_code')})")
+        if n != 1:
+            failures.append("k_reversed: the refused reversed pair changed "
+                            f"the link count ({n})")
+        legs["k_glob"] = _wpstate_r90_pwlink(
+            [f"{WPSTATE_R90_L1}:monitor_*", f"{WPSTATE_R90_L2}:playback_*"])
+        n, _g = count()
+        legs["k_glob"]["own_links"] = n
+        if legs["k_glob"].get("exit_code") != 255:
+            failures.append("k_glob: a glob pair did not refuse (rc "
+                            f"{legs['k_glob'].get('exit_code')})")
+        if n != 1:
+            failures.append("k_glob: the refused glob changed the link "
+                            f"count ({n})")
+
+        # ---------- -w: wait-for-creation, not a hang ---------------
+        legs["k_w_valid"] = _wpstate_r90_stream(
+            ["pw-link", "-w", a, c], 4.0, keep_chars=300)
+        n, _g = count()
+        legs["k_w_valid"]["own_links"] = n
+        if legs["k_w_valid"].get("exit_code") != 0 or \
+                legs["k_w_valid"].get("killed_at_bound"):
+            failures.append("k_w_valid: `-w` on an existing pair did not "
+                            f"return rc 0 (rc "
+                            f"{legs['k_w_valid'].get('exit_code')}, killed "
+                            f"{legs['k_w_valid'].get('killed_at_bound')})")
+        elif (legs["k_w_valid"].get("wall_s") or 9) > 1.0:
+            failures.append("k_w_valid: `-w` on an existing pair took "
+                            f"{legs['k_w_valid'].get('wall_s')}s")
+        if n != 2:
+            failures.append("k_w_valid: the immediate `-w` link is missing "
+                            f"(links {n})")
+        legs["k_w_missing"] = _wpstate_r90_stream(
+            ["pw-link", "-w", f"{WPSTATE_R90_L1}z:monitor_FL", c], 3.0,
+            keep_chars=200)
+        if not legs["k_w_missing"].get("killed_at_bound"):
+            failures.append("k_w_missing: `-w` on a never-appearing port "
+                            "returned instead of blocking (rc "
+                            f"{legs['k_w_missing'].get('exit_code')})")
+
+        late_state = {}
+
+        def _late_load():
+            late_state["load"] = _wpstate_r90_run(
+                ["pactl", "load-module", "module-null-sink",
+                 f"sink_name={WPSTATE_R90_LATE}"], 15.0)
+            late_state["t"] = round(time.monotonic(), 3)
+
+        legs["k_w_late"] = _wpstate_r90_stream(
+            ["pw-link", "-w", f"{WPSTATE_R90_LATE}:monitor_FL", c2], 8.0,
+            hooks=[(1.5, _late_load)], keep_chars=300)
+        late_id = (late_state.get("load") or {}).get("stdout_token") or ""
+        if late_id.isdigit():
+            loads[WPSTATE_R90_LATE] = {"module_id": int(late_id),
+                                       "field": "sink_name",
+                                       "value": WPSTATE_R90_LATE}
+        legs["k_w_late"]["late_load"] = late_state.get("load")
+        g = _wpstate_r90_graph()
+        late_edges = [e for e in _wpstate_r90_edges_in(g, WPSTATE_R90_L3)
+                      if e.get("out_node") == WPSTATE_R90_LATE]
+        legs["k_w_late"]["late_edges"] = late_edges
+        legs["k_w_late"]["own_links"] = len(
+            _wpstate_r90_own_links(g, own))
+        wall = legs["k_w_late"].get("wall_s")
+        if legs["k_w_late"].get("exit_code") != 0:
+            failures.append("k_w_late: `-w` did not return 0 when the port "
+                            f"appeared (rc "
+                            f"{legs['k_w_late'].get('exit_code')}, wall "
+                            f"{wall})")
+        elif wall is None or not (1.5 <= wall <= 4.0):
+            failures.append(f"k_w_late: `-w` returned at {wall}s — not "
+                            "shortly after the 1.5 s port creation")
+        if not late_edges:
+            failures.append("k_w_late: `-w` returned 0 but the link into "
+                            f"{WPSTATE_R90_L3} is missing")
+
+        # ---------- -p props on the Link object ---------------------
+        legs["k_p_foo"] = _wpstate_r90_pwlink(
+            ["-p", '{"foo":"bar"}', a, b])
+        time.sleep(0.3)
+        g = _wpstate_r90_graph()
+        foo = [e for e in _wpstate_r90_own_links(g, own)
+               if (e.get("props") or {}).get("foo") == "bar"]
+        legs["k_p_foo"]["own_links"] = len(
+            _wpstate_r90_own_links(g, own))
+        legs["k_p_foo"]["foo_links"] = len(foo)
+        if legs["k_p_foo"].get("exit_code") != 0:
+            failures.append("k_p_foo: `-p '{\"foo\":\"bar\"}'` did not "
+                            "return 0 (rc "
+                            f"{legs['k_p_foo'].get('exit_code')})")
+        if not foo:
+            failures.append("k_p_foo: the Link object carries no `foo` prop")
+
+        legs["k_p_passive"] = _wpstate_r90_pwlink(
+            ["-p", '{"link.passive":true}', a2, b2])
+        time.sleep(0.3)
+        g = _wpstate_r90_graph()
+        passive = [e for e in _wpstate_r90_edges(g)
+                   if e.get("out") == a2 and e.get("in") == b2]
+        legs["k_p_passive"]["own_links"] = passive
+        if legs["k_p_passive"].get("exit_code") != 0:
+            failures.append("k_p_passive: `-p '{\"link.passive\":true}'` "
+                            "did not return 0 (rc "
+                            f"{legs['k_p_passive'].get('exit_code')})")
+        if not passive:
+            failures.append("k_p_passive: the passive link did not form — "
+                            "the invisibility claim is vacuous")
+        elif any("link.passive" in (e.get("props") or {})
+                 for e in passive):
+            failures.append("k_p_passive: `link.passive` IS visible on the "
+                            "Link object — the boundary's negative is dead")
+
+        # ---------- listing patterns are slot-bound -----------------
+        legs["k_list_slot"] = _wpstate_r90_run(
+            ["pw-link", "-i", f"{WPSTATE_R90_L2}:playback_*"], 10.0)
+        legs["k_list_filtered"] = _wpstate_r90_run(
+            ["pw-link", "-i", "", f"{WPSTATE_R90_L2}:playback_*"], 10.0)
+        leak_rows = (legs["k_list_slot"].get("stdout") or "").splitlines()
+        filt_rows = (legs["k_list_filtered"].get("stdout") or "").splitlines()
+        legs["k_list_slot"]["n_rows"] = len(leak_rows)
+        legs["k_list_filtered"]["n_rows"] = len(filt_rows)
+        if not any(f"{WPSTATE_R90_L3}:playback_FL" in r for r in leak_rows):
+            failures.append("k_list_slot: the one-argument `-i <pat>` form "
+                            "did not leak the other side's inputs — the "
+                            "slot-bound law is dead")
+        if any(f"{WPSTATE_R90_L3}:playback_FL" in r for r in filt_rows):
+            failures.append("k_list_filtered: the two-argument `-i '' <pat>` "
+                            "form did not filter")
+        legs["k_l_pattern"] = _wpstate_r90_run(
+            ["pw-link", "-l", "r90a_zzz_nomatch"], 10.0)
+        if legs["k_l_pattern"].get("exit_code") != 0 or \
+                not (legs["k_l_pattern"].get("stdout") or "").strip():
+            failures.append("k_l_pattern: `-l <no-match pattern>` printed "
+                            "nothing — the ignore-the-pattern law is dead")
+        legs["k_o_pattern"] = _wpstate_r90_run(
+            ["pw-link", "-o", f"{WPSTATE_R90_L1}:monitor_*"], 10.0)
+        o_rows = (legs["k_o_pattern"].get("stdout") or "").splitlines()
+        legs["k_o_pattern"]["n_rows"] = len(o_rows)
+        if not o_rows or any(not r.startswith(WPSTATE_R90_L1)
+                             for r in o_rows if r.strip()):
+            failures.append("k_o_pattern: `-o <pat>` did not filter outputs")
+
+        # ---------- -t / -m / -v ------------------------------------
+        legs["k_t"] = _wpstate_r90_run(["pw-link", "-t"], 10.0)
+        legs["k_t"]["out_len"] = len(
+            (legs["k_t"].get("stdout") or "").strip())
+        if legs["k_t"]["out_len"]:
+            failures.append("k_t: `pw-link -t` printed rows — the closed "
+                            "negative is dead")
+        tag = f"{WPSTATE_R90_PREFIX}_plw"
+        t48 = Path(tempfile.gettempdir()) / f"{WPSTATE_R90_PREFIX}_w.wav"
+        _wpstate_r90_write_tone(t48, 30.0, 48000)
+        proc, argv = _wpstate_r90_play(tag, WPSTATE_R90_L2, t48)
+        players.append(proc)
+        time.sleep(1.0)
+        legs["k_t_live"] = _wpstate_r90_run(["pw-link", "-t"], 10.0)
+        legs["k_t_live"]["out_len"] = len(
+            (legs["k_t_live"].get("stdout") or "").strip())
+        legs["k_t_live"]["stream_alive"] = bool(
+            proc is not None and proc.poll() is None)
+        if legs["k_t_live"]["out_len"]:
+            failures.append("k_t_live: `pw-link -t` printed rows with a live "
+                            "stream attached")
+        if not legs["k_t_live"]["stream_alive"]:
+            entry.setdefault("coverage_blocked", []).append(
+                "k_t_live: the seat stream was not alive at the -t probe")
+
+        legs["k_m"] = _wpstate_r90_run(["pw-link", "-m"], 10.0)
+        if legs["k_m"].get("exit_code") != 255 or \
+                legs["k_m"].get("error_class") != "wpstate_missing_ports":
+            failures.append("k_m: bare `pw-link -m` did not refuse with rc "
+                            f"255 `missing output and input port names to "
+                            f"connect` (rc {legs['k_m'].get('exit_code')}, "
+                            f"class {legs['k_m'].get('error_class')})")
+        legs["k_m_stream"] = _wpstate_r90_stream(
+            ["pw-link", "-m", "-l"], 2.0, keep_chars=300)
+        if not legs["k_m_stream"].get("killed_at_bound") or \
+                not legs["k_m_stream"].get("stdout_bytes"):
+            failures.append("k_m_stream: `pw-link -m -l` did not stream and "
+                            f"block (killed "
+                            f"{legs['k_m_stream'].get('killed_at_bound')}, "
+                            f"bytes {legs['k_m_stream'].get('stdout_bytes')})")
+
+        legs["k_v"] = _wpstate_r90_run(["pw-link", "-v", "-l"], 10.0)
+        legs["k_v"]["n_rows"] = len(
+            (legs["k_v"].get("stdout") or "").splitlines())
+        if legs["k_v"]["n_rows"] < 2:
+            failures.append("k_v: `pw-link -v -l` printed no port "
+                            "properties")
+        _wpstate_r90_reap(proc)
+    finally:
+        _wpstate_r90_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _wpstate_r90_receipt(entry, "wplink_r90_entry")
+
+
+def wpformat_r90_entry():
+    """The EnumFormat / Format negotiation lattice.
+
+    Armed: the sink node's EnumFormat sha is byte-identical at rest,
+    mid-48 k, post and mid-44.1 k; the port Format is unreadable at rest and
+    readable only while linked; the node Format is unreadable before its
+    first negotiation and STICKY afterwards; the stream node's Format tracks
+    the FILE rate while the sink node's stays at the graph rate; and the
+    mid-stream sink-side `set-param Format` is rejected with an explicit
+    res:-5 on stderr at rc 0 with a 622-byte stdout echo, while the
+    stream-node variant is silently discarded."""
+    failures, legs = [], {}
+    entry = _wpstate_r90_entry_head("r90a EnumFormat/Format lattice")
+    tools = {t: shutil.which(t) for t in ("pw-cli", "pw-play", "pw-dump")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _wpstate_r90_receipt(
+            _wpstate_r90_block(entry, failures,
+                               f"missing tools: {[t for t, p in tools.items() if not p]}"),
+            "wpformat_r90_probe")
+    loads, players = {}, []
+    try:
+        loads[WPSTATE_R90_NS] = _wpstate_r90_load_ns(WPSTATE_R90_NS)
+        if loads[WPSTATE_R90_NS].get("module_id") is None:
+            return _wpstate_r90_receipt(
+                _wpstate_r90_block(
+                    entry, failures,
+                    f"probe null sink {WPSTATE_R90_NS} never enumerated",
+                    loads), "wpformat_r90_probe")
+        with tempfile.TemporaryDirectory(prefix="r90a-fmt-") as tmp:
+            t48 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t48.wav"
+            t441 = Path(tmp) / f"{WPSTATE_R90_PREFIX}_t441.wav"
+            _wpstate_r90_write_tone(t48, 60.0, 48000)
+            _wpstate_r90_write_tone(t441, 60.0, 44100)
+
+            # ---------- at rest, before any negotiation --------------
+            g = _wpstate_r90_graph()
+            node = _wpstate_r90_node(g, WPSTATE_R90_NS)
+            port = _wpstate_r90_port(g, WPSTATE_R90_NS, "playback_FL")
+            if node is None or port is None:
+                return _wpstate_r90_receipt(
+                    _wpstate_r90_block(
+                        entry, failures,
+                        f"probe sink {WPSTATE_R90_NS} node/port never "
+                        "enumerated", loads), "wpformat_r90_probe")
+            legs["f_rest"] = {
+                "node": node["id"], "port": port["id"],
+                "enumformat": _wpstate_r90_enum(node["id"], "EnumFormat"),
+                "node_format": _wpstate_r90_enum(node["id"], "Format"),
+                "port_format": _wpstate_r90_enum(port["id"], "Format")}
+            if legs["f_rest"]["enumformat"]["sha12"] != \
+                    WPSTATE_R90_ENUMFORMAT_SHA:
+                failures.append(
+                    "f_rest: the sink node's EnumFormat sha is "
+                    f"{legs['f_rest']['enumformat']['sha12']}, not the "
+                    f"boundary's {WPSTATE_R90_ENUMFORMAT_SHA}")
+            if legs["f_rest"]["node_format"]["out_bytes"]:
+                failures.append(
+                    "f_rest: a never-negotiated node's Format is readable "
+                    f"({legs['f_rest']['node_format']['out_bytes']} B)")
+            if legs["f_rest"]["port_format"]["out_bytes"]:
+                failures.append(
+                    "f_rest: the port Format is readable at rest "
+                    f"({legs['f_rest']['port_format']['out_bytes']} B)")
+            elif legs["f_rest"]["port_format"]["error_class"] != \
+                    "wpstate_io_error":
+                failures.append(
+                    "f_rest: the at-rest port Format refusal did not carry "
+                    "res:-5 (class "
+                    f"{legs['f_rest']['port_format']['error_class']})")
+
+            # ---------- mid-stream, 48 kHz ---------------------------
+            tag48 = f"{WPSTATE_R90_PREFIX}_pl48"
+            proc48, argv48 = _wpstate_r90_play(tag48, WPSTATE_R90_NS, t48)
+            players.append(proc48)
+            time.sleep(1.5)
+            g = _wpstate_r90_graph()
+            node = _wpstate_r90_node(g, WPSTATE_R90_NS)
+            port = _wpstate_r90_port(g, WPSTATE_R90_NS, "playback_FL")
+            strm = _wpstate_r90_node(g, tag48)
+            legs["f_mid48"] = {
+                "argv": " ".join(argv48),
+                "stream_node": (strm or {}).get("id"),
+                "enumformat": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "EnumFormat"),
+                "node_format": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "Format"),
+                "port_format": _wpstate_r90_enum(
+                    (port or {}).get("id", -1), "Format"),
+                "stream_format": _wpstate_r90_enum(
+                    (strm or {}).get("id", -1), "Format")}
+            for key, want in (("enumformat", WPSTATE_R90_ENUMFORMAT_SHA),
+                              ("node_format", WPSTATE_R90_SINK_FORMAT_SHA),
+                              ("port_format", WPSTATE_R90_PORT_FORMAT_SHA),
+                              ("stream_format",
+                               WPSTATE_R90_STREAM_48K_SHA)):
+                got = legs["f_mid48"][key]["sha12"]
+                if got != want:
+                    failures.append(
+                        f"f_mid48: {key} sha is {got}, not the boundary's "
+                        f"{want}")
+
+            # ---------- the mid-stream set-param seal ---------------
+            before = len(_wpstate_r90_own_links(
+                g, (WPSTATE_R90_NS, tag48)))
+            legs["f_setparam_sink"] = {
+                "before_links": before,
+                "cmd": _wpstate_r90_run(
+                    ["pw-cli", "set-param",
+                     str((node or {}).get("id", -1)), "Format",
+                     WPSTATE_R90_POD], 12.0)}
+            c = legs["f_setparam_sink"]["cmd"]
+            if c.get("exit_code") != 0:
+                failures.append("f_setparam_sink: rc is not 0 "
+                                f"({c.get('exit_code')}) — the whole point "
+                                "is that rc is not a validity witness")
+            if c.get("error_class") != "wpstate_io_error":
+                failures.append("f_setparam_sink: no res:-5 on stderr "
+                                f"(class {c.get('error_class')})")
+            if c.get("stdout_bytes") != WPSTATE_R90_SETPARAM_ECHO_B:
+                failures.append(
+                    "f_setparam_sink: the stdout echo is "
+                    f"{c.get('stdout_bytes')} B, not the boundary's "
+                    f"{WPSTATE_R90_SETPARAM_ECHO_B} B")
+            time.sleep(0.4)
+            g = _wpstate_r90_graph()
+            legs["f_setparam_sink"]["after_links"] = len(
+                _wpstate_r90_own_links(g, (WPSTATE_R90_NS, tag48)))
+            legs["f_setparam_sink"]["stream_alive"] = bool(
+                proc48 is not None and proc48.poll() is None)
+            if legs["f_setparam_sink"]["after_links"] != before:
+                failures.append("f_setparam_sink: the rejected set-param "
+                                "changed the link set")
+            if not legs["f_setparam_sink"]["stream_alive"]:
+                failures.append("f_setparam_sink: the stream died on the "
+                                "rejected set-param")
+
+            # ---------- the stream-node variant (silent) ------------
+            legs["f_setparam_stream"] = {"cmd": _wpstate_r90_run(
+                ["pw-cli", "set-param",
+                 str((strm or {}).get("id", -1)), "Format",
+                 WPSTATE_R90_POD], 12.0)}
+            c2 = legs["f_setparam_stream"]["cmd"]
+            if c2.get("exit_code") != 0:
+                failures.append("f_setparam_stream: rc is not 0 "
+                                f"({c2.get('exit_code')})")
+            if "res:" in (c2.get("stderr") or ""):
+                failures.append(
+                    "f_setparam_stream: the stream-node variant reported "
+                    f"{c2.get('stderr')!r} — the seal is supposed to be "
+                    "silent on this node class")
+            legs["f_setparam_stream"]["stderr_bytes"] = \
+                c2.get("stderr_bytes")
+            _wpstate_r90_reap(proc48)
+
+            # ---------- mid-stream, 44.1 kHz ------------------------
+            tag44 = f"{WPSTATE_R90_PREFIX}_pl44"
+            proc44, argv44 = _wpstate_r90_play(tag44, WPSTATE_R90_NS, t441)
+            players.append(proc44)
+            time.sleep(1.5)
+            g = _wpstate_r90_graph()
+            node = _wpstate_r90_node(g, WPSTATE_R90_NS)
+            strm44 = _wpstate_r90_node(g, tag44)
+            legs["f_44k"] = {
+                "argv": " ".join(argv44),
+                "stream_node": (strm44 or {}).get("id"),
+                "stream_format": _wpstate_r90_enum(
+                    (strm44 or {}).get("id", -1), "Format"),
+                "node_format": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "Format"),
+                "enumformat": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "EnumFormat")}
+            for key, want in (("stream_format",
+                               WPSTATE_R90_STREAM_44K_SHA),
+                              ("node_format",
+                               WPSTATE_R90_SINK_FORMAT_SHA),
+                              ("enumformat", WPSTATE_R90_ENUMFORMAT_SHA)):
+                got = legs["f_44k"][key]["sha12"]
+                if got != want:
+                    failures.append(
+                        f"f_44k: {key} sha is {got}, not the boundary's "
+                        f"{want}")
+            _wpstate_r90_reap(proc44)
+
+            # ---------- after the stream ends -----------------------
+            time.sleep(0.8)
+            g = _wpstate_r90_graph()
+            node = _wpstate_r90_node(g, WPSTATE_R90_NS)
+            port = _wpstate_r90_port(g, WPSTATE_R90_NS, "playback_FL")
+            legs["f_post"] = {
+                "node_format": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "Format"),
+                "port_format": _wpstate_r90_enum(
+                    (port or {}).get("id", -1), "Format"),
+                "enumformat": _wpstate_r90_enum(
+                    (node or {}).get("id", -1), "EnumFormat")}
+            if legs["f_post"]["node_format"]["sha12"] != \
+                    WPSTATE_R90_SINK_FORMAT_SHA:
+                failures.append(
+                    "f_post: the node Format is not sticky "
+                    f"({legs['f_post']['node_format']['sha12']})")
+            if legs["f_post"]["port_format"]["out_bytes"]:
+                failures.append(
+                    "f_post: the port Format is still readable after the "
+                    "stream ended")
+            elif legs["f_post"]["port_format"]["error_class"] != \
+                    "wpstate_io_error":
+                failures.append(
+                    "f_post: the post-stream port Format refusal did not "
+                    "carry res:-5 (class "
+                    f"{legs['f_post']['port_format']['error_class']})")
+            if legs["f_post"]["enumformat"]["sha12"] != \
+                    WPSTATE_R90_ENUMFORMAT_SHA:
+                failures.append(
+                    "f_post: EnumFormat moved after the negotiation "
+                    f"({legs['f_post']['enumformat']['sha12']})")
+    finally:
+        _wpstate_r90_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _wpstate_r90_receipt(entry, "wpformat_r90_probe")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -35680,6 +37839,7 @@ def main():
     parser.add_argument("--probe-pwbind-r87", action="store_true")
     parser.add_argument("--probe-btwit-r88", action="store_true")
     parser.add_argument("--probe-pwprof-r89", action="store_true")
+    parser.add_argument("--probe-wpstate-r90", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
@@ -35689,7 +37849,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95]) > 1:
+    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -36202,6 +38362,26 @@ def main():
         _jack_r95_lock_release(lock["fd"])
 
 
+    if args.probe_wpstate_r90:
+        # r90: the WIREPLUMBER SETTINGS/STORE + PULSE-MODULE-NAMESPACE
+        # + PW-LINK-GRAMMAR + FORMAT-NEGOTIATION lattice — the
+        # boundary-surviving claims only. The store's write law is ONE
+        # coalescing debounce ~1.0 s after the last change (the scout's
+        # <=0.01 s pulse write was a stale-row read; every write leg
+        # here uses a FRESH pid+nonce key with a recorded pre-value).
+        # A NEW parallel ledger family, prior rows untouched; r76-r89
+        # guards inherited (seat-owned r90a_<pid> names, the private
+        # r90arole<pid> key, name-verified sink_name= unloads, never
+        # set-default-*, bounded process groups, by-name unload only on
+        # a zero-foreign module-loopback vehicle). The family lock is a
+        # FIXED corpus/live/ path — the r84 F1 3-seat consensus.
+        _r90_family_lock = _wpstate_r90_family_lock()   # held to exit
+        measurements["wpstate_store_r90_probe"] = \
+            wpstate_store_r90_probe()
+        measurements["wpstate_pmod_r90_probe"] = \
+            wpstate_pmod_r90_probe()
+        measurements["wplink_r90_probe"] = wplink_r90_entry()
+        measurements["wpformat_r90_probe"] = wpformat_r90_entry()
     if args.probe_pwprof_r89:
         # r89: the PW-PROFILER OUTPUT LATTICE — the -n gating law
         # (exact-N completions summed over ALL driver domains, the
@@ -36880,7 +39060,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -36900,7 +39080,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
