@@ -1441,3 +1441,12 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   restore; host-global bounded family lock (XDG_RUNTIME_DIR, LOCK_NB);
   daemon-down = named coverage_blocked never failures:[]; connect_rc
   {0,22}; port-flags {1,2,6,18}; bufsize {2048,4,512}; latency triples.
+- ROUND 90 (2026-10-16): wpstate/pw-link/wp-format lattice. ADMIT-with-
+  findings at f50cf66a (+2183/-3, 4 entries/60 legs). Verifier PASS
+  committed bytes; critic fold-required (helper drift, races, block-
+  path receipt, tree-local lock) -> foldfix contract FF1-FF6.
+  Simplifier -19 queued. SIGSEGV cold-read honest; w_vanished_target
+  named class.
+- LAWS: wpctl settings write lands 1.057-1.483s (fresh nonce keys,
+  dead-claim re-arm); pulse cmd 4ms; SIGSEGV cold-read retry law;
+  vanished-target falls back to default sink (named, not no-link).
