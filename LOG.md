@@ -1532,3 +1532,17 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   pass. These are inert metadata cases, not new native audio evidence
   or universal namespace/PID-reuse ownership certification. See
   reports/final-namespace-fold.md. Remaining adjudication is still open.
+- FINAL REVIEW CUSTODY (2026-10-16): preserve all twenty completed
+  advisory reports and four byte-identical verifier receipts at the
+  frozen bb177513 pin. reports/final-review-evidence.json binds every
+  report/receipt hash and independently read export-source hash.
+  Selected shapes remain 9/90, 6/67, 6/37 and 9/37 entries/leg keys;
+  named blocks are retained and keys are NOT full measured-law counts.
+  Later repairs are not certified by these old native observations.
+- ROUND 99 DISCLOSURE ERRATUM (2026-10-16): preserved author receipts
+  show two additional LAN-control runs beyond the disclosed integration
+  pass: TX deltas 7205/6376 plus 6034, at least three recorded controls.
+  These interface counters include ambient traffic; deleted dev runs
+  are not enumerated. No new control was run. Default-off remains armed.
+  Report integration also confirms r98's bare C stream names remain
+  upstream work; the selector-only fold is not a producer-name repair.

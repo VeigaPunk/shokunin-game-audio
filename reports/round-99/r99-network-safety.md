@@ -44,3 +44,20 @@ under `/home/vgpnk/Projects/shokunin/r99-network-safety-proof/`.
 Local ignored evidence is not silently claimed uploaded by Git.
 The prior integration note and author receipts retain their historical
 byte scope. Independent final review is separately pending.
+
+## Final-Review Count Correction
+
+The completed critic cross-check finds at least THREE preserved pre-guard
+control runs, not just the integration pass: author receipts
+20261016T103556786349Z and 20261016T104041659031Z record interface TX deltas
+7205 and 6376; integration 20261016T121018453359Z records 6034. The old
+author narrative's 8626/6975 values do not match those preserved receipts.
+These are whole-interface counter deltas, not an exclusive count of this
+fixture's packets. Deleted development iterations are not enumerated.
+
+The lead corrects the earlier planning/operator count and discloses the
+two additional recorded controls. No control was repeated for this audit.
+The frozen default-safe verifier receipt and all five advisory reports
+are now preserved under reports/round-99/, hash-bound by
+reports/final-review-evidence.json. This does not re-label pre-guard
+receipts or turn a counter-resolution limit into complete confinement.

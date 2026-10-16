@@ -49,3 +49,14 @@ This closes prefix/substring misattribution, not arbitrary same-namespace
 spoofing, PID-reuse provenance or universal cleanup containment. Existing
 direct child/module handles remain the stronger ownership evidence.
 The earlier frozen audio observations retain their original source pins.
+
+## Upstream R98 Limit Found During Report Integration
+
+The C fixture still produces bare r98a_<tag> stream names in the frozen
+and current implementation; the main harness does not yet bind its name
+arguments to PWSTREAM_R98_PREFIX. The delimiter fix alone does NOT make
+those bare streams PID-scoped or repair their end-of-entry census.
+Its tests prove the selector boundary and exact loaded sink values,
+not a live producer-name change. The host-global lock supplies current
+same-family exclusion; the upstream producer/witness naming gap remains
+required work. The critic's F4 is not closed by the selector-only fold.
