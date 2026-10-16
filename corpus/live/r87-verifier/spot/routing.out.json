@@ -1,0 +1,338 @@
+{
+ "loadavg": "84.42 90.59 81.85 81/2311 1188594",
+ "ns": "r87v_ns_1188594",
+ "ns2": "r87v_ns2_1188594",
+ "legs": [
+  {
+   "leg": "p_own",
+   "argv": [
+    "--target",
+    "r87v_ns_1188594"
+   ],
+   "props": [],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns_1188594"
+   ],
+   "expected": [
+    "r87v_ns_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_flag_beats_nt",
+   "argv": [
+    "--target",
+    "r87v_ns_1188594"
+   ],
+   "props": [
+    "node.target=r87v_ns2_1188594"
+   ],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns_1188594"
+   ],
+   "expected": [
+    "r87v_ns_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_nt_alone",
+   "argv": [],
+   "props": [
+    "node.target=r87v_ns2_1188594"
+   ],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns2_1188594"
+   ],
+   "expected": [
+    "r87v_ns2_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_prop_beats_flag",
+   "argv": [
+    "--target",
+    "r87v_ns_1188594"
+   ],
+   "props": [
+    "target.object=r87v_ns2_1188594"
+   ],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns2_1188594"
+   ],
+   "expected": [
+    "r87v_ns2_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_env_beats_prop",
+   "argv": [
+    "--target",
+    "r87v_ns_1188594"
+   ],
+   "props": [
+    "target.object=r87v_ns_1188594"
+   ],
+   "env": {
+    "PIPEWIRE_PROPS": "{ target.object=r87v_ns2_1188594 }"
+   },
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns2_1188594"
+   ],
+   "expected": [
+    "r87v_ns2_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_zero",
+   "argv": [
+    "--target",
+    "0"
+   ],
+   "props": [],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": []
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": []
+    }
+   ],
+   "consumers": [],
+   "expected": [],
+   "ok": true
+  },
+  {
+   "leg": "p_prop_serial",
+   "argv": [],
+   "props": [
+    "target.object=251768"
+   ],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "r87v_ns2_1188594"
+     ]
+    }
+   ],
+   "consumers": [
+    "r87v_ns2_1188594"
+   ],
+   "expected": [
+    "r87v_ns2_1188594"
+   ],
+   "ok": true
+  },
+  {
+   "leg": "p_objid_flag",
+   "argv": [
+    "--target",
+    "153"
+   ],
+   "props": [],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ]
+    }
+   ],
+   "consumers": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+   ],
+   "expected": "default_not_ns2",
+   "ok": true
+  },
+  {
+   "leg": "p_garbage_nt",
+   "argv": [
+    "--target",
+    "r87v_no_such"
+   ],
+   "props": [
+    "node.target=r87v_ns2_1188594"
+   ],
+   "env": null,
+   "snaps": [
+    {
+     "t": 0.9,
+     "node": true,
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ]
+    },
+    {
+     "t": 1.7,
+     "node": true,
+     "consumers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+     ]
+    }
+   ],
+   "consumers": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29"
+   ],
+   "expected": "default_not_ns2",
+   "ok": true
+  }
+ ],
+ "tone_bytes": 192044,
+ "load": {
+  "ns": {
+   "loaded_index": "536870922",
+   "verified_index": "536870922",
+   "rc": 0,
+   "err": ""
+  },
+  "ns2": {
+   "loaded_index": "536870917",
+   "verified_index": "536870917",
+   "rc": 0,
+   "err": ""
+  }
+ },
+ "nodes": {
+  "ns": {
+   "id": 60,
+   "serial": 251760,
+   "objid": 60,
+   "class": "Audio/Sink"
+  },
+  "ns2": {
+   "id": 153,
+   "serial": 251768,
+   "objid": 153,
+   "class": "Audio/Sink"
+  }
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+ "summary": {
+  "legs": 9,
+  "ok": 9,
+  "fail": []
+ },
+ "unload": {
+  "ns": {
+   "index": "536870922",
+   "rc": 0,
+   "err": ""
+  },
+  "ns2": {
+   "index": "536870917",
+   "rc": 0,
+   "err": ""
+  }
+ }
+}

@@ -1,0 +1,67 @@
+== corpus/live/runs/20261016T070036115509Z-pwbind-r87/measurements.json
+   43/43 PASS
+== corpus/live/runs/20261016T070305393338Z-pwbind-r87/measurements.json
+   43/43 PASS
+== corpus/live/r87-verifier/runs/r87v1.receipt.json
+   42/43 PASS
+   FAIL cli.create_usage: usage refusal visible in the last-500 window (ARM_WINDOW)
+== corpus/live/r87-verifier/runs/r87v2.receipt.json
+   40/43 PASS
+   FAIL cli.create_badfac: res:-2 refusal visible in the last-500 window (ARM_WINDOW)
+   FAIL cli.create_usage: usage refusal visible in the last-500 window (ARM_WINDOW)
+   FAIL midi.pin: pw-link rc0, link visible, 45 B SMF with both on/offs
+== corpus/live/r87-verifier/runs/r87v3.receipt.json
+   41/43 PASS
+   FAIL cli.create_badfac: res:-2 refusal visible in the last-500 window (ARM_WINDOW)
+   FAIL cli.create_usage: usage refusal visible in the last-500 window (ARM_WINDOW)
+== corpus/live/r87-reviewer/tree/corpus/live/runs/20261016T071106495427Z-pwbind-r87/measurements.json
+   41/43 PASS
+   FAIL cli.create_badfac: res:-2 refusal visible in the last-500 window (ARM_WINDOW)
+   FAIL cli.create_usage: usage refusal visible in the last-500 window (ARM_WINDOW)
+== corpus/live/r87-reviewer/tree/corpus/live/runs/20261016T071442602285Z-pwbind-r87/measurements.json
+   43/43 PASS
+
+== per-law matrix ==
+   .......  modes.binaries: 4 aliases of pw-cat share realpath+sha; mididump/cli distinct
+   .......  modes.refusals: bare/-m/no-flag rc!=0 class=pwcat_mode_required
+   .......  modes.no-duplex: --capture/--duplex unrecognized, rc!=0
+   .......  modes.readers: -c SMF -> midiclip; -d wav -> dsdfile
+   .......  modes.last-wins: -p -r -> Input/Audio with input_* ports
+   .......  modes.last-wins: -r -p -> Output/Audio with output_* ports
+   .......  modes.midi: midi legs publish Stream/*/Midi with 1 port
+   .......  modes.no-duplex-shape: no snapshot carries both input_* and non-monitor output_*
+   .......  target.happy: 9 name/serial/env/prop legs land NS
+   .......  target.flag-beats-node.target (boundary correction)
+   .......  target.second-sink legs land NS2
+   .......  target.default-landed: 14 unresolvable/wrong-class legs land the default sink
+   .......  target.hard-no-link: --target 0 / 0-prop / autoconnect=false
+   .......  target.collision: same-named stream does not shadow the sink
+   .......  target.no default drift mid-entry
+   .......  cli.cold-registry: cold_nowarm fires unknown global; warm info works
+   .......  cli.unknowns: 5 verbs on 99999999 all unknown global
+   .......  cli.writes: Props writes rc0; solo>=8000, v25==0.25x, mute==0, unmute>=8000
+   .......  cli.volume_legs: spawn --volume 1.0/0.5/0.0/1.5 exact ratios, unclamped
+   .......  cli.props_unk: unknown key rc0, zero errors
+   .......  cli.fmt seal: running stream+sink Format unchanged by both writes
+   .......  cli.fmt_unlinked: enum Format res:-2 while Props still reads
+   .......  cli.sendcmd: Suspend/Pause->suspended, Resume refused, Start no-op
+   .......  cli.latency: set-param Latency -> res:-95 on the sink
+   .......  cli.foreign: enum 1.0; identical write accepted; unknown key dropped
+   .......  cli.destroy_stream: node gone, pw-play exits rc1 unconnected
+   .......  cli.create_session: session-bound; create_linger: survives quit, dies on destroy
+   ...FFF.  cli.create_badfac: res:-2 refusal visible in the last-500 window (ARM_WINDOW)
+   ..FFFF.  cli.create_usage: usage refusal visible in the last-500 window (ARM_WINDOW)
+   .......  cli.destroy_sink_module: whole module unloaded by node destroy
+   .......  midi.target-dead: 6 target forms -> rc!=0 + no target node available + res:-2
+   .......  midi.publish-unlinked: --target 0 / autoconnect=false publish Stream/Output/Midi, 0 links
+   ...F...  midi.pin: pw-link rc0, link visible, 45 B SMF with both on/offs
+   .......  midi.skeleton: refused midirecord writes 26 B MThd+MTrk+EOT, no payload
+   .......  midi.mdump_off: offline parse rc0 with Note lines
+   .......  midi.mdump_live: pass (published+notes) or coverage_blocked — never silent
+   .......  midi.pactl: raop/zc/bogus all No such entity
+   .......  midi.pwcli-modules: 4 load-module attempts all Could not load module
+   .......  midi.remote: -R/env/cli all Host is down, rc!=0
+   .......  midi.remote_stall: recorded stall (record-only)
+   .......  midi.remote_census: zero remote/raop/zeroconf nodes and zero .so
+   .......  custody: sinks_gone all true, own_nodes_after empty (per entry)
+   .......  custody: name-verified unloads (verified_index == captured, no recycle)

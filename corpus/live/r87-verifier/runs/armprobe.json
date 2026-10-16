@@ -1,0 +1,203 @@
+{
+ "slice": "live = legs[\"mdump_live\"][\"attempts\"]\nnoted = [a for a in live if a.get(\"node\")]\nif live and not noted:\n    entry.setdefault(\"coverage_blocked\", []).append(\n        \"pw-mididump never published a node in 3 attempts \u2014 the \"\n        \"boundary's startup flake (live dump unmeasured)\")\nelif noted and not any(\"Note On\" in (a.get(\"stdout\") or \"\")\n                       for a in noted):\n    failures.append(\n        \"mdump_live: a live node published and pinned but no \"\n        \"Note On/Off lines arrived\")\n",
+ "cases": [
+  {
+   "case": "real A1 (published+notes)",
+   "attempts": [
+    {
+     "attempt": 0,
+     "node": true,
+     "in_ports": [
+      "input"
+     ],
+     "pwlink_rc": 0,
+     "stdout": " 817: track: 0 sec:0.422354 Note On    (channel  1): note   C4, velocity  96\n 565: track: 0 sec:2.422437 Note Off   (channel  1): note   C4, velocity   0\n 437: track: 0 sec:3.422437 Note On    (channel  1): note   E4, velocity  96\n 309: track: 0 sec:4.422438 Note Off   (channel  1): note   E4, velocity   0\n",
+     "rc": 0
+    }
+   ],
+   "failures": [],
+   "coverage_blocked": null
+  },
+  {
+   "case": "synthetic: 3 attempts, no node",
+   "attempts": [
+    {
+     "attempt": 0,
+     "node": false
+    },
+    {
+     "attempt": 1,
+     "node": false
+    },
+    {
+     "attempt": 2,
+     "node": false
+    }
+   ],
+   "failures": [],
+   "coverage_blocked": [
+    "pw-mididump never published a node in 3 attempts \u2014 the boundary's startup flake (live dump unmeasured)"
+   ]
+  },
+  {
+   "case": "synthetic: node published, no Note lines",
+   "attempts": [
+    {
+     "attempt": 0,
+     "node": true,
+     "stdout": "no notes here"
+    }
+   ],
+   "failures": [
+    "mdump_live: a live node published and pinned but no Note On/Off lines arrived"
+   ],
+   "coverage_blocked": null
+  },
+  {
+   "case": "synthetic: attempts list empty (bridge absent path)",
+   "attempts": [],
+   "failures": [],
+   "coverage_blocked": null
+  }
+ ],
+ "scan": {
+  "wake_after_suspend": {
+   "n_occurrences": 1,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26773,
+     "legs[\"wake_after_suspend\"] = {"
+    ]
+   ]
+  },
+  "remote_stall": {
+   "n_occurrences": 1,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     27377,
+     "legs[\"remote_stall\"] = _pwbind_r87_run("
+    ]
+   ]
+  },
+  "collision_objects": {
+   "n_occurrences": 1,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26415,
+     "legs[\"collision_objects\"] = ["
+    ]
+   ]
+  },
+  "tap_windows": {
+   "n_occurrences": 2,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     24896,
+     "legs[\"tap_windows\"] = len(series)"
+    ],
+    [
+     26672,
+     "legs[\"tap_windows\"] = len(series)"
+    ]
+   ]
+  },
+  "foreign_candidates": {
+   "n_occurrences": 1,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26830,
+     "legs[\"foreign_candidates\"] = foreign"
+    ]
+   ]
+  },
+  "foreign_r87a_nodes": {
+   "n_occurrences": 1,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     25874,
+     "\"foreign_r87a_nodes\": sorted("
+    ]
+   ]
+  },
+  "m_sysex": {
+   "n_occurrences": 4,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26183,
+     "(\"m_sysex\", [\"pw-cat\", \"-s\", \"-p\", \"--target\", \"0\","
+    ],
+    [
+     26235,
+     "\"m_sysex\"):"
+    ],
+    [
+     26270,
+     "if name == \"m_sysex\" and leg.get(\"exit_code\") == 0:"
+    ],
+    [
+     26272,
+     "\"m_sysex: sysex mode exited early \u2014 the stream did \""
+    ]
+   ]
+  },
+  "props_unk": {
+   "n_occurrences": 4,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26613,
+     "legs[\"props_unk\"] = writes[\"w_unk\"]"
+    ],
+    [
+     27009,
+     "if legs.get(\"props_unk\") is not None:"
+    ],
+    [
+     27010,
+     "pu = legs[\"props_unk\"]"
+    ],
+    [
+     27013,
+     "\"props_unk: the unknown-key write was not the silent \""
+    ]
+   ]
+  },
+  "fmt_unlinked": {
+   "n_occurrences": 6,
+   "in_failure_or_armed_lines": [],
+   "all": [
+    [
+     26802,
+     "legs[\"fmt_unlinked_watch\"] = {"
+    ],
+    [
+     26806,
+     "legs[\"fmt_unlinked\"] = {"
+    ],
+    [
+     27027,
+     "fu = legs.get(\"fmt_unlinked\") or {}"
+    ],
+    [
+     27035,
+     "\"fmt_unlinked: enum Format did not fail res:-2 \""
+    ],
+    [
+     27039,
+     "\"fmt_unlinked: enum Props did not read on the \""
+    ],
+    [
+     27043,
+     "\"unlinked stream node never published \u2014 fmt_unlinked \""
+    ]
+   ]
+  }
+ }
+}

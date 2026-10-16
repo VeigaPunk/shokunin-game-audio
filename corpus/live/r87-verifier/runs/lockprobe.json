@@ -1,0 +1,36 @@
+{
+ "fixture": "corpus/live/r87-verifier/tree/corpus/fixtures/measure_audio.py",
+ "r87_helper_mentions_tmpdir": true,
+ "r87_path_expr": "path = ROOT / \"live\" / \"measure_audio-pwbind-r87.lock\"",
+ "tests": [
+  {
+   "t": "r87 lock under foreign TMPDIR",
+   "lock_path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-verifier/tree/corpus/live/measure_audio-pwbind-r87.lock",
+   "exists_at_frozen": true,
+   "exists_under_foreign_tmpdir": false,
+   "witness": "pid=424242 ns=r87v_ns_424242 role=r87vrole424242\n",
+   "returned_fd": true
+  },
+  {
+   "t": "exclusion while held",
+   "second_attempt": "BlockingIOError",
+   "blocked": true,
+   "after_release": "acquired"
+  },
+  {
+   "t": "cross-materialization non-serialization",
+   "lockA": "/home/vgpnk/Projects/shokunin/tmp/r87v-treeA-uopjj08j/corpus/live/measure_audio-pwbind-r87.lock",
+   "lockB": "/home/vgpnk/Projects/shokunin/tmp/r87v-treeB-w92outpl/corpus/live/measure_audio-pwbind-r87.lock",
+   "A_held": true,
+   "B_held": true,
+   "both_held_simultaneously": true,
+   "witnessA": "pid=1 ns=r87v_ns_1 role=r87vrole1",
+   "witnessB": "pid=2 ns=r87v_ns_2 role=r87vrole2"
+  },
+  {
+   "t": "r85 control (TMPDIR-scoped)",
+   "under_foreign_tmpdir": true,
+   "under_frozen_live": false
+  }
+ ]
+}
