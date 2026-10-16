@@ -1,0 +1,7 @@
+== lock serialization pair (frozen tree path, 08:03:37Z)
+A = fixture --probe-pwprof-r89 via runone.py (pid 2058126); B = lockprobe.py hold (pid 2059983, 2 s hold)
+A start 08:02:55Z; B start 08:02:58Z; B done 08:03:33.976Z; A done 08:03:33.977Z
+B wall = 35.866s (= ~33.9s flock wait + 2s hold) -> B acquired ONLY after A released
+lock content at t=+3s (A holding): pid=2058126 ns=r89a_ns_2058126 role=r89arole2058126
+lock content after (B acquired): pid=2059983
+lock file path: corpus/live/r89-verifier/tree/corpus/live/measure_audio-pwprof-r89.lock (tree-relative, not TMPDIR)

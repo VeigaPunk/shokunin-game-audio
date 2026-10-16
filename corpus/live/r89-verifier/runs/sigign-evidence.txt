@@ -1,0 +1,21 @@
+== Inherited signal-disposition evidence (the g_hup arm's launcher sensitivity)
+== Host plazir27, 2026-10-16 07:53–08:00Z. SigIgn bitmask: bit (signo-1).
+
+nohup battery launcher (bash script pid 1756642):
+  SigIgn: 0000000001000007  -> SIGHUP(1) SIGINT(2) SIGQUIT(3) SIGXFSZ(25) ignored
+  (nohup sets HUP=SIG_IGN; bash async sets INT/QUIT=SIG_IGN)
+  -> every pw-profiler child inherits HUP=SIG_IGN (exec preserves SIG_IGN):
+     g_hup measures rc -9 at the harness bound, never the host's rc -1.
+
+runone.py-corrected fixture (e.g. pid 1783278 / 1791602 / 1830095):
+  SigIgn: 0000000001001000  -> SIGPIPE(13) SIGXFSZ(25) ignored (Python + subprocess
+  restore_signals covers PIPE only); SIGHUP/INT/QUIT are clear -> g_hup = rc -1.
+
+sibling reviewer seat fixture (python pid 1760907, launched by
+corpus/live/r89-reviewer/scripts/run_replay.sh via nohup):
+  SigIgn: 0000000001001007  -> HUP/INT/QUIT/PIPE ignored -> its r89r1-r89r3
+  receipts all carry g_hup rc -9 (launcher class, not a landing change).
+
+Controlled A/B (spot.py S1, verifier-owned code, 3 reps each):
+  HUP=SIG_DFL preexec -> rc -1 x3 (wall 0.81s; dies at the 0.8s signal)
+  HUP=SIG_IGN preexec -> rc -9 x3 (wall 4.01s; survives to the 4.0s bound)
