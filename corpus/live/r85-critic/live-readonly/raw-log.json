@@ -1,0 +1,86 @@
+[
+  {
+    "argv": "pactl get-default-sink",
+    "exit": 0,
+    "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-default-source",
+    "exit": 0,
+    "stdout": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-sink-volume 172871",
+    "exit": 0,
+    "stdout": "Volume: front-left: 26214 /  40% / -23.88 dB,   front-right: 26214 /  40% / -23.88 dB\n        balance 0.00\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-sink-volume 232",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Failed to get sink information: No such entity\n"
+  },
+  {
+    "argv": "pactl get-sink-volume alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+    "exit": 0,
+    "stdout": "Volume: front-left: 26214 /  40% / -23.88 dB,   front-right: 26214 /  40% / -23.88 dB\n        balance 0.00\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-sink-volume 232",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Failed to get sink information: No such entity\n"
+  },
+  {
+    "argv": "pw-cli info 232",
+    "exit": 0,
+    "stdout": "\tid: 232\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"suspended\"\n*\tproperties:\n*\t\tobject.path = \"alsa:acp:Audio:10:playback\"\n*\t\tapi.alsa.path = \"hw:Audio,3\"\n*\t\tapi.alsa.open.ucm = \"true\"\n*\t\tapi.alsa.pcm.card = \"0\"\n*\t\tapi.alsa.pcm.stream = \"playback\"\n*\t\tport.group = \"playback\"\n*\t\tdevice.icon-name = \"audio-card-analog\"\n*\t\tdevice.bus = \"usb\"\n*\t\taudio.channels = \"2\"\n*\t\taudio.position = \"[ FL, FR ]\"\n*\t\tdevice.routes = \"1\"\n*\t\tdevice.icon_name = \"audio-speakers\"\n*\t\talsa.mixer_device = \"_ucm05F5.hw:Audio\"\n*\t\talsa.resolution_bits = \"16\"\n*\t\talsa.card = \"0\"\n*\t\talsa.card_name = \"USB Audio\"\n*\t\talsa.long_card_name = \"Generic USB Audio at usb-0000:11:00.0-12, high speed\"\n*\t\talsa.driver_name = \"snd_usb_audio\"\n*\t\talsa.mixer_name = \"USB Mixer\"\n*\t\talsa.components = \"USB0db0:cd0e\"\n*\t\talsa.id = \"Audio\"\n*\t\tdevice.api = \"alsa\"\n*\t\tdevice.class = \"sound\"\n*\t\talsa.class = \"generic\"\n*\t\talsa.subclass = \"generic-mix\"\n*\t\talsa.name = \"USB Audio #3\"\n*\t\talsa.subdevice = \"0\"\n*\t\talsa.subdevice_name = \"subdevice #0\"\n*\t\talsa.device = \"3\"\n*\t\talsa.sync.id = \"00000000:00000000:00000000:00000000\"\n*\t\tdevice.profile.name = \"HiFi: SPDIF: sink\"\n*\t\tdevice.profile.description = \"S/PDIF Output\"\n*\t\tcard.profile.device = \"10\"\n*\t\tdevice.id = \"100\"\n*\t\tfactory.name = \"api.alsa.pcm.sink\"\n*\t\tnode.pause-on-idle = \"false\"\n*\t\tpriority.driver = \"796\"\n*\t\tpriority.session = \"796\"\n*\t\tmedia.class = \"Audio/Sink\"\n*\t\tnode.name = \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\"\n*\t\tnode.nick = \"USB Audio #3\"\n*\t\tnode.description = \"USB Audio S/PDIF Output\"\n*\t\tapi.alsa.card.name = \"USB Audio\"\n*\t\tapi.alsa.card.longname = \"Generic USB Audio at usb-0000:11:00.0-12, high speed\"\n*\t\tfactory.id = \"19\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tclient.id = \"33\"\n*\t\tnode.driver = \"true\"\n*\t\tnode.loop.name = \"data-loop.0\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tobject.id = \"232\"\n*\t\tobject.serial = \"172871\"\n*\tparams: (9)\n*\t  3 (Spa:Enum:ParamId:EnumFormat) r-\n*\t  1 (Spa:E",
+    "stderr": ""
+  },
+  {
+    "argv": "pw-cli info 172871",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "Error: \"info: unknown global '172871'\"\n"
+  },
+  {
+    "argv": "pactl list sinks short",
+    "exit": 0,
+    "stdout": "172871\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED\n172872\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n172873\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n220907\tr84a_probe_548706\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl list sinks",
+    "exit": 0,
+    "stdout": "Sink #172871\n\tState: SUSPENDED\n\tName: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\n\tDescription: USB Audio S/PDIF Output\n\tDriver: PipeWire\n\tSample Specification: s16le 2ch 48000Hz\n\tChannel Map: front-left,front-right\n\tOwner Module: 4294967295\n\tMute: no\n\tVolume: front-left: 26214 /  40% / -23.88 dB,   front-right: 26214 /  40% / -23.88 dB\n\t        balance 0.00\n\tBase Volume: 65536 / 100% / 0.00 dB\n\tMonitor Source: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29.monitor\n\tLatency: 0 usec, configured 0 usec\n\tFlags: HARDWARE HW_MUTE_CTRL DECIBEL_VOLUME LATENCY \n\tProperties:\n\t\tobject.path = \"alsa:acp:Audio:10:playback\"\n\t\tapi.alsa.path = \"hw:Audio,3\"\n\t\tapi.alsa.open.ucm = \"true\"\n\t\tapi.alsa.pcm.card = \"0\"\n\t\tapi.alsa.pcm.stream = \"playback\"\n\t\tport.group = \"playback\"\n\t\tdevice.icon_name = \"audio-speakers\"\n\t\tdevice.bus = \"usb\"\n\t\taudio.channels = \"2\"\n\t\taudio.position = \"[ FL, FR ]\"\n\t\tdevice.routes = \"1\"\n\t\talsa.mixer_device = \"_ucm05F5.hw:Audio\"\n\t\talsa.resolution_bits = \"16\"\n\t\talsa.card = \"0\"\n\t\talsa.card_name = \"USB Audio\"\n\t\talsa.long_card_name = \"Generic USB Audio at usb-0000:11:00.0-12, high speed\"\n\t\talsa.driver_name = \"snd_usb_audio\"\n\t\talsa.mixer_name = \"USB Mixer\"\n\t\talsa.components = \"USB0db0:cd0e\"\n\t\talsa.id = \"Audio\"\n\t\tdevice.api = \"alsa\"\n\t\tdevice.class = \"sound\"\n\t\talsa.class = \"generic\"\n\t\talsa.subclass = \"generic-mix\"\n\t\talsa.name = \"USB Audio #3\"\n\t\talsa.subdevice = \"0\"\n\t\talsa.subdevice_name = \"subdevice #0\"\n\t\talsa.device = \"3\"\n\t\talsa.sync.id = \"00000000:00000000:00000000:00000000\"\n\t\tdevice.profile.name = \"HiFi: SPDIF: sink\"\n\t\tdevice.profile.description = \"S/PDIF Output\"\n\t\tcard.profile.device = \"10\"\n\t\tdevice.id = \"100\"\n\t\tfactory.name = \"api.alsa.pcm.sink\"\n\t\tnode.pause-on-idle = \"false\"\n\t\tpriority.driver = \"796\"\n\t\tpriority.session = \"796\"\n\t\tmedia.class = \"Audio/Sink\"\n\t\tnode.name = \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\"\n\t\tnode.nick = \"USB Audio #3\"\n\t\tdevice.description = \"USB Audio\"\n\t\tapi.alsa.card.name = \"USB Audio\"\n\t\tapi.alsa.card.l",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-source-volume alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29",
+    "exit": 0,
+    "stdout": "Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB\n        balance 0.00\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-source-volume 172874",
+    "exit": 0,
+    "stdout": "Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB\n        balance 0.00\n",
+    "stderr": ""
+  },
+  {
+    "argv": "pactl get-source-volume alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "Failed to get source information: No such entity\n"
+  },
+  {
+    "argv": "pactl get-source-volume 172871",
+    "exit": 0,
+    "stdout": "Volume: front-left: 65536 / 100% / 0.00 dB,   front-right: 65536 / 100% / 0.00 dB\n        balance 0.00\n",
+    "stderr": ""
+  }
+]

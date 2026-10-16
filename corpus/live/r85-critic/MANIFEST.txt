@@ -1,0 +1,38 @@
+# r85-critic receipts manifest (MANIFEST.txt itself excluded from the sha list)
+# generated 2026-10-16T03:21:41-03:00
+
+## inputs (committed tree)
+714564a32141f134f849401dd029e1e10c4aa19bb848a43fd50f70a251499ee2  corpus/fixtures/measure_audio.py (commit 2a49d540; == working tree)
+69a96ad6fccf6dc5f4523b9a05fef1184b90b9aa131d451586d39942e03376c4  corpus/live/r85-author/runs/run1/measurements.json
+98267a0f9baa7436c57cbb097fd226a31f698e13f8169c8c0d0e5ae27aa635c5  corpus/live/r85-author/runs/run2/measurements.json
+
+## receipts (this seat)
+5dc4de88ccd2415400ff55ff0b1263a7b6e4c9ed229f0471a88f01dba931b7e0  corpus/live/r85-critic/arm-replay-gaps.json
+61302d7dc956725474290e03a2d659587d46f0687f435f97555f5f629b6c99c8  corpus/live/r85-critic/arm-replay-gaps.py
+7ce6a380d790657217bde00e4fb0041159a491b1a9c8980102bdca0b466f73ce  corpus/live/r85-critic/arm-replay.json
+086d13d0ec543ce2ce12737c98cf4143074934c8966ecf43804dbc4520c07b64  corpus/live/r85-critic/arm-replay.py
+1d0c3fb29c65617ac54967c7209d2c84cfb819ccfda8a2ef4d6c09b0422e08f0  corpus/live/r85-critic/legs-summary.txt
+93cdc3a90143885cf2e99ce67f0b63873b15083682822ff5be6c91bf6faa3f12  corpus/live/r85-critic/live-readonly/classifier-crosscheck.txt
+125c24d2bf093ba6bd021f5e6a27fb1e35a0da1c3c8fc0938615613f4c68c189  corpus/live/r85-critic/live-readonly/probe.json
+988acc64b82b930f95542e45e034d1c104f1d8c1a41991147fd372da9b8d47a8  corpus/live/r85-critic/live-readonly/probe.py
+cf7d0e5c823122809689b5f7c7ec87b4926fc7d33e658c329e7e648b655b5bdd  corpus/live/r85-critic/live-readonly/raw-log.json
+f6939e589e461c0ab410a300b6e3dcd4089c732923f21b5a90e2fe27dae05a34  corpus/live/r85-critic/live-readonly/verdict.json
+ec133675f0183ebb6e179c13ce322aa3a3a43cede4fda3947610f047825069f1  corpus/live/r85-critic/receipt-aplayenv.txt
+28cb83b94c065d15dc538d2bb35b53e66597aa09961dc523c3cd15aff86da4a4  corpus/live/r85-critic/receipt-capture.txt
+444a3fcaefccf227edfc2ceba93de04073c4c73d8c6a2c8fa940f6ca10cc718d  corpus/live/r85-critic/receipt-keyvalues.txt
+f05ba8d411cc74a40a1ffb0cd4e5ae0bd3c0d0455cd029aed2bd6da12cbb6b38  corpus/live/r85-critic/receipt-mix.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  corpus/live/r85-critic/unit-replay.err
+d547b972c96e44673fa25a1766bb11e66019548e3b55d1c23d63695d7ed15fae  corpus/live/r85-critic/unit-replay.out
+6d4f18722a47140730aa18b5a9dee9fd6e638bc4558f980b12449df7df14aeb5  corpus/live/r85-critic/unit-replay.py
+
+## report
+5c077da120681b464f809ed7154aa06bc327f0b0e354b1208af859e062082ba3  reports/round-85/r85-critic.md
+
+## commands (all with TMPDIR=/home/vgpnk/Projects/shokunin/tmp PYTHONDONTWRITEBYTECODE=1)
+python3 corpus/live/r85-critic/unit-replay.py         # classifier table + post_stats boundary + rail witness + leg counts
+python3 corpus/live/r85-critic/arm-replay.py          # either-way proof, 27 cases (verbatim committed arm text)
+python3 corpus/live/r85-critic/arm-replay-gaps.py     # absorption gaps, 16 cases (verbatim committed arm text)
+python3 corpus/live/r85-critic/live-readonly/probe.py # bounded READ-ONLY live addressing battery
+
+## probe note
+labrat (depth-2, read-only) returned inconclusive: its substrate exposed no exec tool; no receipts written by it.

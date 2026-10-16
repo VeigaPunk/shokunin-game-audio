@@ -1,0 +1,265 @@
+{
+  "commit": "2a49d540",
+  "arm_ranges": {
+    "helpers": "def links_of(nm): ... return {e.get(\"out_port_name\") for e in links_of(nm)}",
+    "t_sinkname": "ts = legs[\"t_sinkname\"] ... \"monitor_*\")",
+    "cdup_cap": "cl = legs.get(\"cdup_cap\") or {} ... \"digits-resolution lattice fails\")",
+    "sd_prop": "l = legs[\"sd_prop\"] ... \"measured nothing\")",
+    "latebind": "l = legs[\"latebind\"] ... \"bind, no refusal measured\")"
+  },
+  "cases": [
+    {
+      "case": "run1:t_sinkname committed (bound_source)",
+      "arm": "t_sinkname",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run2:t_sinkname committed (bound_source)",
+      "arm": "t_sinkname",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "t_sinkname mutated: monitor link (law break)",
+      "arm": "t_sinkname",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "t_sinkname: realization=bound_source ports={'monitor_FL'} \u2014 a noprop sink name must never link monitor_*"
+      ],
+      "match": true
+    },
+    {
+      "case": "t_sinkname mutated: 'other' shape",
+      "arm": "t_sinkname",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "t_sinkname: realization=other ports=set() \u2014 a noprop sink name must never link monitor_*"
+      ],
+      "match": true
+    },
+    {
+      "case": "t_sinkname mutated: refusal (boundary realization)",
+      "arm": "t_sinkname",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "t_sinkname mutated: stalled (boundary realization)",
+      "arm": "t_sinkname",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "t_sinkname mutated: arbitrary source bind, no monitor (other side)",
+      "arm": "t_sinkname",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run1:cdup_cap committed (serial_monitor_bypass)",
+      "arm": "cdup_cap",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run2:cdup_cap committed (serial_monitor_bypass)",
+      "arm": "cdup_cap",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "cdup_cap mutated: foreign monitor (law break)",
+      "arm": "cdup_cap",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "cdup_cap: monitor-links=1 realization=foreign_monitor \u2014 the digits-resolution lattice fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "cdup_cap mutated: name_shadow_bound / bound_source (other side)",
+      "arm": "cdup_cap",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "cdup_cap mutated: refused (other side)",
+      "arm": "cdup_cap",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "cdup_cap mutated: stalled (other side)",
+      "arm": "cdup_cap",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run1:sd_prop committed (bind_killed_then_default)",
+      "arm": "sd_prop",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run2:sd_prop committed (bind_killed_then_default)",
+      "arm": "sd_prop",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "sd_prop mutated: clean_default_fallback (other side)",
+      "arm": "sd_prop",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "sd_prop mutated: no links + module alive (measured nothing)",
+      "arm": "sd_prop",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "sd_prop: neither bound nor dead \u2014 the leg measured nothing"
+      ],
+      "match": true
+    },
+    {
+      "case": "sd_prop mutated: transient trap bind visible (non-monitor)",
+      "arm": "sd_prop",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "sd_prop: links=[{'out': 'r85a_sd_2546640:capture_FL', 'in': 'rec:input_FL', 'out_node': 'r85a_sd_2546640', 'in_node': 'rec', 'out_port_name': 'capture_FL', 'in_port_name': 'input_FL', 'state': 'active'}, {'out': 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29:monitor_FL', 'in': 'rec:input_FL', 'out_node': 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'in_node': 'rec', 'out_port_name': 'monitor_FL', 'in_port_name': 'input_FL', 'state': 'active'}] \u2014 non-monitor links under the prop form"
+      ],
+      "match": true
+    },
+    {
+      "case": "sd_prop mutated: monitor link on a FOREIGN sink",
+      "arm": "sd_prop",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "sd_prop: links=[{'out': 'other_sink:monitor_FL', 'in': 'rec:input_FL', 'out_node': 'other_sink', 'in_node': 'rec', 'out_port_name': 'monitor_FL', 'in_port_name': 'input_FL', 'state': 'active'}] \u2014 did not fall to the default monitor"
+      ],
+      "match": true
+    },
+    {
+      "case": "sd_prop mutated: no links, module gone (died at bind)",
+      "arm": "sd_prop",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run1:latebind committed (late_bound)",
+      "arm": "latebind",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "run2:latebind committed (late_bound)",
+      "arm": "latebind",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "latebind mutated: stalled (boundary realization)",
+      "arm": "latebind",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "latebind mutated: refused (boundary realization)",
+      "arm": "latebind",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "latebind mutated: foreign monitor bind (law break)",
+      "arm": "latebind",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "latebind: links=[{'out': 'r85a_ns2_2546640:monitor_FL', 'in': 'rec:input_FL', 'out_node': 'r85a_ns2_2546640', 'in_node': 'rec', 'out_port_name': 'monitor_FL', 'in_port_name': 'input_FL', 'state': 'active'}, {'out': 'r85a_late_2546640:capture_FL', 'in': 'rec:input_FL', 'out_node': 'r85a_late_2546640', 'in_node': 'rec', 'out_port_name': 'capture_FL', 'in_port_name': 'input_FL', 'state': 'active'}] \u2014 a foreign/monitor bind breaks the target lattice"
+      ],
+      "match": true
+    },
+    {
+      "case": "latebind mutated: foreign source capture bind (law break)",
+      "arm": "latebind",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "latebind: links=[{'out': 'other_src:capture_FL', 'in': 'rec:input_FL', 'out_node': 'other_src', 'in_node': 'rec', 'out_port_name': 'capture_FL', 'in_port_name': 'input_FL', 'state': 'active'}] \u2014 a foreign/monitor bind breaks the target lattice"
+      ],
+      "match": true
+    },
+    {
+      "case": "latebind mutated: 'other' (dead, rc0, no links)",
+      "arm": "latebind",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "latebind: realization=other \u2014 no stall, no bind, no refusal measured"
+      ],
+      "match": true
+    }
+  ],
+  "names": {
+    "run1": {
+      "ns": "r85a_ns_2546640",
+      "ns2": "r85a_ns2_2546640",
+      "late": "r85a_late_2546640",
+      "sd": "r85a_sd_2546640",
+      "def": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+      "pid": 2546640
+    },
+    "run2": {
+      "ns": "r85a_ns_2553733",
+      "ns2": "r85a_ns2_2553733",
+      "late": "r85a_late_2553733",
+      "sd": "r85a_sd_2553733",
+      "def": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+      "pid": 2553733
+    }
+  },
+  "all_match": true
+}

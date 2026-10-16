@@ -1,0 +1,162 @@
+{
+  "commit": "2a49d540",
+  "arms": {
+    "helpers": "def links_of(nm): ... return {e.get(\"out_port_name\") for e in links_of(nm)}",
+    "src_bind": "for nm, want_node in ((\"t_srcname\", PACTLMON_R85_VSRC + ... \"fails\")",
+    "sd_connect": "for nm in (\"sd_record\", \"sd_parec\"): ... \"death \u2014 the no-link arm fails\")",
+    "mixdup": "da = _pactlmon_r85_amps(dup_f, {\"a\": lhz, \"b\": rhz}) ... \"(<=2.05x) fails\")",
+    "mixdelay": "da = _pactlmon_r85_amps(dly_f, {\"a\": lhz}) ... \"bound fails\")",
+    "mixinv": "ia_ = _pactlmon_r85_amps(inv_f, {\"a\": lhz}) ... \"realization\")",
+    "g_zero": "l = legs[\"g_zero\"] ... \"arm fails\")",
+    "cdup_move": "cm = legs.get(\"cdup_move\") ... \"collision law fails\")"
+  },
+  "cases": [
+    {
+      "case": "GAP: source-target legs bound to a FOREIGN source still pass",
+      "arm": "src_bind",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: non-capture_ port shape fails",
+      "arm": "src_bind",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "t_srcname: links={'playback_FL'} \u2014 the source-bind arm fails",
+        "t_srcserial: links={'playback_FL'} \u2014 the source-bind arm fails",
+        "t_srcid: links={'playback_FL'} \u2014 the source-bind arm fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: connect-kill arm passes with module_dead_at_s=0.0 (never loaded)",
+      "arm": "sd_connect",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "GAP: connect-kill legs absent -> silent skip, no failure",
+      "arm": "sd_connect",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: module died at 2.5 s fails",
+      "arm": "sd_connect",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "sd_record: module_dead_at=2.5 \u2014 the connect-kill arm fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: mixdup passes with ratio 1.0 (single-stream signature)",
+      "arm": "mixdup",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: mixdup ratio 3.0 fails",
+      "arm": "mixdup",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "mixdup: ratio=3.0 \u2014 the linear-sum bound (<=2.05x) fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: mixdelay passes with ratio 1.0 (single-stream signature)",
+      "arm": "mixdelay",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: mixdelay ratio 3.0 fails",
+      "arm": "mixdelay",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "mixdelay: late ratio=3.0 \u2014 the linear-sum bound fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: mixinv passes with ratio 1.0 (single-stream signature)",
+      "arm": "mixinv",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: mixinv ratio 3.0 fails",
+      "arm": "mixinv",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "mixinv: residual=3.0 \u2014 not a coherent-pair realization"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: g_zero == g_defsink with both pct None passes",
+      "arm": "g_zero",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: g_zero rc=1 fails",
+      "arm": "g_zero",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "g_zero: rc=1 pct=None \u2014 the 0=live-default arm fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "GAP: cdup_move rc=0 + unchanged sink passes (silent no-op shape)",
+      "arm": "cdup_move",
+      "expected_failure": false,
+      "got_failure": false,
+      "failures": [],
+      "match": true
+    },
+    {
+      "case": "control: cdup_move landing on the name-shadow sink fails",
+      "arm": "cdup_move",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "cdup_move: sink=999999 != serial-holder ns 172871 \u2014 the collision law fails"
+      ],
+      "match": true
+    },
+    {
+      "case": "control: cdup_move refusal (rc!=0) fails",
+      "arm": "cdup_move",
+      "expected_failure": true,
+      "got_failure": true,
+      "failures": [
+        "cdup_move: sink=172871 != serial-holder ns 172871 \u2014 the collision law fails"
+      ],
+      "match": true
+    }
+  ],
+  "all_match": true
+}

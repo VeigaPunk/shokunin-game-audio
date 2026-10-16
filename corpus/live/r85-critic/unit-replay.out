@@ -1,0 +1,245 @@
+{
+  "fixture_sha_expected": "714564a32141f134f849401dd029e1e10c4aa19bb848a43fd50f70a251499ee2",
+  "classifier_table": [
+    {
+      "case": "u_getinfo",
+      "want": "pa_get_info_noent",
+      "got": "pa_get_info_noent",
+      "match": true
+    },
+    {
+      "case": "u_getinfo_src",
+      "want": "pa_get_info_noent",
+      "got": "pa_get_info_noent",
+      "match": true
+    },
+    {
+      "case": "u_failure_noent",
+      "want": "pa_failure_noent",
+      "got": "pa_failure_noent",
+      "match": true
+    },
+    {
+      "case": "u_stream_noent",
+      "want": "pa_stream_noent",
+      "got": "pa_stream_noent",
+      "match": true
+    },
+    {
+      "case": "u_invalid_arg",
+      "want": "pa_invalid_arg",
+      "got": "pa_invalid_arg",
+      "match": true
+    },
+    {
+      "case": "u_pwcli_global",
+      "want": "pwcli_unknown_global",
+      "got": "pwcli_unknown_global",
+      "match": true
+    },
+    {
+      "case": "u_no_target",
+      "want": "no_target_node",
+      "got": "no_target_node",
+      "match": true
+    },
+    {
+      "case": "u_move_parse",
+      "want": "pa_no_such_entity",
+      "got": "pa_no_such_entity",
+      "match": true
+    },
+    {
+      "case": "u_empty",
+      "want": null,
+      "got": null,
+      "match": true
+    },
+    {
+      "case": "u_noise",
+      "want": null,
+      "got": null,
+      "match": true
+    },
+    {
+      "case": "u_segv_words",
+      "want": null,
+      "got": null,
+      "match": true
+    },
+    {
+      "case": "u_recording",
+      "want": null,
+      "got": null,
+      "match": true
+    },
+    {
+      "case": "u_unknown_pcm",
+      "want": "alsa_unknown_pcm",
+      "got": "alsa_unknown_pcm",
+      "match": true
+    }
+  ],
+  "classifier_all_match": true,
+  "post_stats": [
+    {
+      "case": "flush_2048_content",
+      "post": {
+        "exists": true,
+        "bytes": 12044,
+        "loss_bytes": 3852,
+        "post_frames": 2048,
+        "post_peak": 8192,
+        "post_nonzero": 2048,
+        "realization": "grew_content"
+      },
+      "bound": 16384,
+      "arm_would_fail": false
+    },
+    {
+      "case": "froze",
+      "post": {
+        "exists": true,
+        "bytes": 12044,
+        "loss_bytes": 12044,
+        "post_frames": 0,
+        "post_peak": 0,
+        "post_nonzero": 0,
+        "realization": "froze"
+      },
+      "bound": 16384,
+      "arm_would_fail": false
+    },
+    {
+      "case": "grew_zeros",
+      "post": {
+        "exists": true,
+        "bytes": 12044,
+        "loss_bytes": 4044,
+        "post_frames": 2000,
+        "post_peak": 0,
+        "post_nonzero": 0,
+        "realization": "grew_zeros"
+      },
+      "bound": 16384,
+      "arm_would_fail": false
+    },
+    {
+      "case": "flush_at_bound_16384",
+      "post": {
+        "exists": true,
+        "bytes": 80044,
+        "loss_bytes": 14508,
+        "post_frames": 16384,
+        "post_peak": 8192,
+        "post_nonzero": 16384,
+        "realization": "grew_content"
+      },
+      "bound": 16384,
+      "arm_would_fail": false
+    },
+    {
+      "case": "flush_over_bound_16385",
+      "post": {
+        "exists": true,
+        "bytes": 80044,
+        "loss_bytes": 14504,
+        "post_frames": 16385,
+        "post_peak": 8192,
+        "post_nonzero": 16385,
+        "realization": "grew_content"
+      },
+      "bound": 16384,
+      "arm_would_fail": true
+    }
+  ],
+  "clip": {
+    "peak_med": 32768.0,
+    "rail_frac_med": 0.7867,
+    "arm_peak_ok": true,
+    "arm_rail_env_ok": false,
+    "rail_env": [
+      0.08,
+      0.6
+    ],
+    "solo_env": [
+      0.85,
+      1.18
+    ],
+    "flush_bound": 16384,
+    "dup_env": [
+      1.8,
+      2.2
+    ],
+    "classes": {
+      "pa_invalid_arg": "Operation failed: Invalid argument",
+      "pwcli_unknown_global": "unknown global '[^\\n]*'"
+    },
+    "negctl_legs": [
+      "u_empty",
+      "u_failure_noent",
+      "u_getinfo",
+      "u_getinfo_src",
+      "u_invalid_arg",
+      "u_move_parse",
+      "u_no_target",
+      "u_noise",
+      "u_pwcli_global",
+      "u_recording",
+      "u_segv_words",
+      "u_stream_noent",
+      "u_unknown_pcm"
+    ]
+  },
+  "leg_counts": {
+    "run1": {
+      "counts": {
+        "pactlmon_addr_r85_probe": 40,
+        "pactlmon_mix_r85_probe": 7,
+        "pactlmon_aplayenv_r85_probe": 6,
+        "pactlmon_capture_r85_probe": 17,
+        "pactlmon_negctl_r85_probe": 17
+      },
+      "total": 87,
+      "failures": {
+        "pactlmon_addr_r85_probe": [],
+        "pactlmon_mix_r85_probe": [],
+        "pactlmon_aplayenv_r85_probe": [],
+        "pactlmon_capture_r85_probe": [],
+        "pactlmon_negctl_r85_probe": []
+      },
+      "blocked": {
+        "pactlmon_addr_r85_probe": null,
+        "pactlmon_mix_r85_probe": null,
+        "pactlmon_aplayenv_r85_probe": null,
+        "pactlmon_capture_r85_probe": null,
+        "pactlmon_negctl_r85_probe": null
+      }
+    },
+    "run2": {
+      "counts": {
+        "pactlmon_addr_r85_probe": 40,
+        "pactlmon_mix_r85_probe": 7,
+        "pactlmon_aplayenv_r85_probe": 6,
+        "pactlmon_capture_r85_probe": 17,
+        "pactlmon_negctl_r85_probe": 17
+      },
+      "total": 87,
+      "failures": {
+        "pactlmon_addr_r85_probe": [],
+        "pactlmon_mix_r85_probe": [],
+        "pactlmon_aplayenv_r85_probe": [],
+        "pactlmon_capture_r85_probe": [],
+        "pactlmon_negctl_r85_probe": []
+      },
+      "blocked": {
+        "pactlmon_addr_r85_probe": null,
+        "pactlmon_mix_r85_probe": null,
+        "pactlmon_aplayenv_r85_probe": null,
+        "pactlmon_capture_r85_probe": null,
+        "pactlmon_negctl_r85_probe": null
+      }
+    }
+  },
+  "leg_total": 87
+}
