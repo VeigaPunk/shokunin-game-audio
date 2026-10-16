@@ -29472,6 +29472,11 @@ def pwtop_r88_entry():
 #     1-Client footprint, the Profiler object's introspection refusal,
 #     and the pactl-modules blank-line hazard — --probe-pwprof-r89.
 #
+#     Leg census: 52 legs across 4 entries (gate 27 / oart 12 /
+#     schema 4 / xw 9 — xw counts x_link; the "47 legs" headline in
+#     the author commit/report was arithmetic drift — the receipt
+#     leg keys are the record, r89 fold fix).
+#
 # A NEW parallel ledger family; prior rows untouched; every r76-r88
 # guard inherited (seat-owned r89a_<pid> names, the private
 # r89arole<pid> key, name-verified sink_name= unloads, never
@@ -29523,6 +29528,24 @@ def _pwprof_r89_norm(text):
     return s
 
 
+def _pwprof_r89_sigreset():
+    """preexec_fn for every r89 arm child — the g_hup fold fix.
+    bash async/nohup launchers mark SIGHUP/SIGINT/SIGQUIT SIG_IGN and
+    exec() PRESERVES SIG_IGN while subprocess restore_signals covers
+    only PIPE/XFSZ: an inherited-ignored signal is then discarded at
+    generation (unblocked) and the signal arms measure the LAUNCHER
+    (rc -9 at the harness bound), never the host's default-terminate
+    law (rc -1 for HUP). Resetting every signal the harness may send
+    to SIG_DFL in the child makes each arm see the host default
+    regardless of how the fixture itself was launched."""
+    for _s in (signal.SIGHUP, signal.SIGINT, signal.SIGQUIT,
+               signal.SIGTERM, signal.SIGUSR1):
+        try:
+            signal.signal(_s, signal.SIG_DFL)
+        except (OSError, ValueError):
+            pass
+
+
 def _pwprof_r89_stream(argv, timeout_s, wd=None, env=None,
                        sig_at=None, sig=signal.SIGTERM,
                        sample_ts=(), keep_chars=900, keep_raw=False,
@@ -29544,7 +29567,8 @@ def _pwprof_r89_stream(argv, timeout_s, wd=None, env=None,
         proc = subprocess.Popen(
             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL, env=env, cwd=wd,
-            start_new_session=True)
+            start_new_session=True,
+            preexec_fn=_pwprof_r89_sigreset)
     except OSError as exc:
         rec["spawn_error"] = str(exc)[:160]
         return rec
@@ -29842,7 +29866,8 @@ def _pwprof_r89_play(tag, target, tone, role=None):
              "-P", f"media.role={role or PWPROF_R89_ROLE}",
              "--target", target, str(tone)],
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-            stdin=subprocess.DEVNULL, start_new_session=True)
+            stdin=subprocess.DEVNULL, start_new_session=True,
+            preexec_fn=_pwprof_r89_sigreset)
     except OSError:
         return None
 
@@ -30728,7 +30753,17 @@ def pwprof_xw_r89_entry():
             entry["refs"] = {"own_node_id": own_id}
             # ---------- x_foot: the 1-Client footprint -------------
             # the pre-run census is taken AFTER the seat follower is
-            # linked, so the run's own objects are never miscounted
+            # linked, so the run's own objects are never miscounted.
+            # FOLD FIX (r89 verifier F2 / reviewer F8e / critic F3):
+            # the armed count is OWN-scoped — a GLOBAL pw-profiler
+            # client count and a GLOBAL node delta are a co-tenancy
+            # lottery (a sibling run spawns ~25 pw-profiler clients;
+            # ~17.6% of live 0.35 s windows see foreign churn). The
+            # claim is OUR child's footprint, so it is armed on the
+            # objects the registry attributes to our own pid:
+            # Client objects carry application.process.id; objects a
+            # client creates (nodes etc.) carry props client.id. The
+            # global census is still recorded below, never armed.
             def _clients():
                 try:
                     objs = json.loads(subprocess.run(
@@ -30737,26 +30772,46 @@ def pwprof_xw_r89_entry():
                 except (subprocess.TimeoutExpired, OSError,
                         ValueError):
                     return None
+                return objs
+
+            def _names(objs):
                 return sorted(str(
                     ((o.get("info") or {}).get("props") or {})
                     .get("application.name"))
-                    for o in objs
+                    for o in objs or []
                     if str(o.get("type", "")).endswith("Client"))
-            c0 = _clients()
+            c0 = _names(_clients())
             g_cpre = _pactlmon_r85_graph()
             foot = subprocess.Popen(
                 ["pw-profiler", "-J", "-n", "30"],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL, start_new_session=True)
+                stdin=subprocess.DEVNULL, start_new_session=True,
+                preexec_fn=_pwprof_r89_sigreset)
             time.sleep(0.35)
-            c1 = _clients()
+            c1_objs = _clients()
+            c1 = _names(c1_objs)
             g_during = _pactlmon_r85_graph()
+            own_client_ids = sorted(
+                o.get("id") for o in c1_objs or []
+                if str(o.get("type", "")).endswith("Client")
+                and str((((o.get("info") or {}).get("props") or {})
+                         .get("application.process.id")))
+                == str(foot.pid)) if c1_objs is not None else None
+            own_ids = {str(c) for c in own_client_ids or []}
+            own_objects = sorted(
+                o.get("id") for o in c1_objs or []
+                if str((((o.get("info") or {}).get("props") or {})
+                        .get("client.id"))) in own_ids) \
+                if c1_objs is not None else None
             try:
                 foot.wait(timeout=15)
             except subprocess.TimeoutExpired:
                 _alsapw_r84_killpg(foot, signal.SIGKILL)
                 foot.wait()
             legs["x_foot"] = {
+                "own_pid": foot.pid,
+                "own_clients": own_client_ids,
+                "own_objects": own_objects,
                 "pwprof_before": (c0 or []).count("pw-profiler"),
                 "pwprof_during": (c1 or []).count("pw-profiler"),
                 "clients_added": sorted(
@@ -30769,11 +30824,13 @@ def pwprof_xw_r89_entry():
             p1 = subprocess.Popen(
                 ["pw-profiler", "-J", "-n", "8"],
                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL, start_new_session=True)
+                stdin=subprocess.DEVNULL, start_new_session=True,
+                preexec_fn=_pwprof_r89_sigreset)
             p2 = subprocess.Popen(
                 ["pw-profiler", "-J", "-n", "8"],
                 stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL, start_new_session=True)
+                stdin=subprocess.DEVNULL, start_new_session=True,
+                preexec_fn=_pwprof_r89_sigreset)
             try:
                 o1, _ = p1.communicate(timeout=15)
             except subprocess.TimeoutExpired:
@@ -30811,7 +30868,8 @@ def pwprof_xw_r89_entry():
             prof = subprocess.Popen(
                 ["pw-profiler", "-J", "-n", "0"], stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
-                start_new_session=True)
+                start_new_session=True,
+                preexec_fn=_pwprof_r89_sigreset)
             time.sleep(0.4)
             top = _pwprof_r89_stream(
                 ["pw-top", "-b", "-n", "3"], 15.0, keep_raw=True)
@@ -30827,13 +30885,41 @@ def pwprof_xw_r89_entry():
                 pout, _ = prof.communicate()
             frames = _pwprof_r89_top_rows(
                 top.get("stdout_raw") or "")
+            # FOLD FIX (r89 reviewer F2 / verifier F1): pw-top emits
+            # transient refresh rows for the seat id with quant 0 /
+            # rate 0 / 0.0us cells in non-C states (~40/40 archived
+            # captures on this host carry them) — accepting one
+            # forces ratio 0.0 and false-FAILs the band. Only a row
+            # from a REAL driver cycle is a witness: require
+            # quant > 0 and nonzero µs cells, scanning newest-to-
+            # oldest across frames; none found -> coverage_blocked.
             own_row = None
+            transient_rows = 0
+            real_rows = []
             for fr in reversed(frames):
                 cand = next((r for r in fr if r["id"] == own_id), None)
-                if cand and cand["status"] != "C" and \
-                        cand["wait_us"] is not None:
+                if cand is None:
+                    continue
+                if cand["status"] == "C" or \
+                        (cand.get("quant") or 0) <= 0 or \
+                        not cand.get("wait_us") or \
+                        not cand.get("busy_us"):
+                    transient_rows += 1
+                    continue
+                if own_row is None:
                     own_row = cand
-                    break
+                real_rows.append(cand)
+            # the armed cells are the pw-top MEDIAN over the real-
+            # cycle rows of this capture — a single instantaneous
+            # frame cell vs the profiler's whole-window median is a
+            # band-edge lottery (~15% under co-tenancy), so the
+            # "same µs band" claim is judged median-vs-median; the
+            # band itself (0.25-4.0) is unchanged.
+            def _tmed(key):
+                vs = sorted(r[key] for r in real_rows)
+                return vs[len(vs) // 2] if vs else None
+            top_wait_med = _tmed("wait_us")
+            top_busy_med = _tmed("busy_us")
             parr, _pe3 = _pwprof_r89_jparse(
                 pout.decode(errors="replace"))
             pstats = _pwprof_r89_schema_stats(
@@ -30843,6 +30929,10 @@ def pwprof_xw_r89_entry():
                 "top_rc": top.get("exit_code"),
                 "frames": len(frames),
                 "own_row": own_row,
+                "real_own_rows": real_rows,
+                "top_wait_med": top_wait_med,
+                "top_busy_med": top_busy_med,
+                "transient_own_rows": transient_rows,
                 "prof_wait_us_med": pstats.get("wait_us_median"),
                 "prof_busy_us_med": pstats.get("busy_us_median"),
                 "prof_own_blocks": pstats.get("own_blocks")}
@@ -30868,7 +30958,8 @@ def pwprof_xw_r89_entry():
             sp = subprocess.Popen(
                 ["pw-profiler", "-J", "-n", "0"], stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
-                start_new_session=True)
+                start_new_session=True,
+                preexec_fn=_pwprof_r89_sigreset)
             sp.stdout.close()
             try:
                 sp.wait(timeout=10)
@@ -30881,7 +30972,8 @@ def pwprof_xw_r89_entry():
                     df = subprocess.run(
                         ["pw-profiler", "-J", "-n", "4"], stdout=full,
                         stderr=subprocess.PIPE,
-                        stdin=subprocess.DEVNULL, timeout=15)
+                        stdin=subprocess.DEVNULL, timeout=15,
+                        preexec_fn=_pwprof_r89_sigreset)
                 legs["x_devfull"] = {"rc": df.returncode,
                                      "stderr_bytes": len(df.stderr)}
             except subprocess.TimeoutExpired:
@@ -30907,10 +30999,25 @@ def pwprof_xw_r89_entry():
         failures.append(
             f"x_blank: {l} — the guarded blank-line parse fails")
     l = legs["x_foot"]
-    if l.get("pwprof_during") != (l.get("pwprof_before") or 0) + 1 or \
-            l.get("nodes_delta") != 0:
+    if l.get("own_clients") is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "x_foot: the during-census pw-dump was unreadable — "
+            "the footprint arm is unmeasured this run")
+    elif l.get("rc") not in (0, None):
+        entry.setdefault("coverage_blocked", []).append(
+            f"x_foot: the foot run itself failed rc={l.get('rc')} — "
+            "the footprint arm is unmeasured this run")
+    elif len(l["own_clients"]) == 0:
+        entry.setdefault("coverage_blocked", []).append(
+            f"x_foot: no Client carrying own pid {l.get('own_pid')} "
+            "inside the window (connect slower than the bracket, "
+            "foreign pw-profiler clients present: "
+            f"{l.get('pwprof_during')}) — unmeasured")
+    elif len(l["own_clients"]) != 1 or l.get("own_objects"):
         failures.append(
-            f"x_foot: {l} — the one-Client footprint fails")
+            f"x_foot: own clients={l.get('own_clients')} "
+            f"own objects={l.get('own_objects')} — the one-Client "
+            "footprint fails")
     l = legs["x_conc"]
     if l.get("rc1") != 0 or l.get("rc2") != 0 or \
             l.get("parse1") or l.get("parse2"):
@@ -30928,14 +31035,15 @@ def pwprof_xw_r89_entry():
             f"x_conc: overlapping blocks differ — the one-stream "
             "broadcast law fails")
     l = legs["x_top"]
-    row = l.get("own_row") or {}
+    tw, tb = l.get("top_wait_med"), l.get("top_busy_med")
     pw, pb = l.get("prof_wait_us_med"), l.get("prof_busy_us_med")
     if l.get("own_row") is None:
         entry.setdefault("coverage_blocked", []).append(
-            "x_top: no real-state own row in the last pw-top frame "
-            "— the cross-witness is unmeasured")
-    elif pw is None or pb is None or row.get("wait_us") is None or \
-            row.get("busy_us") is None:
+            f"x_top: no real-cycle own row in the pw-top frames "
+            f"(transient quant-0/0.0us rows skipped: "
+            f"{l.get('transient_own_rows')}) — the cross-witness is "
+            "unmeasured")
+    elif tw is None or tb is None or pw is None or pb is None:
         entry.setdefault("coverage_blocked", []).append(
             f"x_top: partial witnesses {l} — the agreement arm is "
             "unmeasured")
@@ -30943,10 +31051,11 @@ def pwprof_xw_r89_entry():
         def _close(a, b):
             return a is not None and b is not None and \
                 0.25 <= (a / b if b else float("inf")) <= 4.0
-        if not (_close(row["wait_us"], pw) and
-                _close(row["busy_us"], pb)):
+        if not (_close(tw, pw) and
+                _close(tb, pb)):
             failures.append(
-                f"x_top: top {row['wait_us']}/{row['busy_us']}us vs "
+                f"x_top: top-med {tw}/{tb}us over "
+                f"{len(l.get('real_own_rows') or ())} real rows vs "
                 f"profiler {pw}/{pb}us — the WAIT/BUSY cross-witness "
                 "fails")
     l = legs["x_profobj"]
