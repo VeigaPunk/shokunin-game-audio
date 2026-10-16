@@ -53,3 +53,36 @@ defect and unattempted audio-domain gain arms, one-sided decay band,
 exception/receipt containment, and historical bytecode/provenance findings
 remain distinct items for adjudication. A completed temporary cleanup is
 not a claim of universal process containment or external-kill safety.
+
+## Optional-Refusal Correction
+
+Integration of the frozen rows exposed a regression in the first fold:
+notify_bogus deliberately permits either load refusal or silent activation;
+it is not an expect_refusal-only arm. ab314113 incorrectly turned its
+observed pwcli_module_load_fail into a failure. This was the lead's new
+regression, not an author or reviewer defect.
+
+The descriptor now explicitly allows that one refusal class. The helper
+keeps its coverage block but does not fail it. A wrong/missing cause still
+fails; successful activation still must satisfy the caller's no-readout
+control. No other arm gets the allowance.
+
+Two additional tests fail on ab314113, then the integrated 15-test suite
+passes after the correction. Source/test compile. Corrected source sha:
+2863a3a3b7145c99e516601187a703b23a3969df6d5d06f8fdaf0f8b6bbdefdc.
+Test sha: b499011a9c3630fdd304b52d238bc40bdb997d33133b177ff6bbbb68b51f751e.
+
+Frozen-input replay through the actual nine production entry validators
+also isolates the regression: 90 stored leg keys produce exactly the
+notify_bogus failure before, and no failures after. All 90 keys are
+consumed once; original named blocks remain (one notify refusal, two
+g_default post-tap messages). Recorded references are used, not recomputed.
+The JSON normalizer's non-finite series-value literals are restored to
+their original float type. This is a validator/serialization observation,
+NOT new native audio evidence or an independent numerical pipeline.
+subprocess.Popen/run refuse actor execution throughout the replay.
+
+Exact script, before/after JSON, stderr and rc files:
+/home/vgpnk/Projects/shokunin/audio-final-guard-proof/replay_r93.py and
+replay-{before,after}.{json,stderr,rc}. The old 13-test proof remains
+unchanged and must not be relabeled as the 15-test comparison.

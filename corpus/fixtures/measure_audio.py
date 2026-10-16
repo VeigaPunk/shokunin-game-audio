@@ -49760,7 +49760,10 @@ def _ebur_r93_run(ctx, arm, legs, entry):
             msg = "%s: %s (cls=%s)" % (row["tag"], reason,
                                       row.get("error_class"))
             entry.setdefault("coverage_blocked", []).append(msg)
-            entry.setdefault("failures", []).append(msg)
+            allowed_class = arm.get("allow_refusal_class")
+            if not (row.get("arm_failed") and allowed_class
+                    and row.get("error_class") == allowed_class):
+                entry.setdefault("failures", []).append(msg)
     return rows
 
 
@@ -49769,12 +49772,12 @@ def _ebur_r93_meter(nodes=None, links=None, inputs=None, outputs=None,
                     dur=EBUR_R93_TONE_S, read_extra=EBUR_R93_READ_S,
                     ch=1, reps=1, tag="leg", capture=(), note=None,
                     args=None, kind="meter", expect_refusal=False,
-                    ports=False):
+                    ports=False, allow_refusal_class=None):
     return {"tag": tag, "kind": kind, "readout": readout,
             "stim_key": stim_key, "dur": dur, "read_extra": read_extra,
             "ch": ch, "reps": reps, "capture": capture, "note": note,
             "args": args, "expect_refusal": expect_refusal,
-            "ports": ports,
+            "ports": ports, "allow_refusal_class": allow_refusal_class,
             "nodes": nodes if nodes is not None else [
                 "{type=ebur128,name=e,label=ebur128}",
                 "{type=builtin,name=dbg,label=debug}"],
@@ -49889,7 +49892,7 @@ def ebur_topology_r93_entry():
                         "(the name is not a live notify port)" % name, row)
         rows = _ebur_r93_run(ctx, _ebur_r93_meter(
             tag="notify_bogus", readout="Momentary LUFSX", dur=1.4,
-            read_extra=0.8,
+            read_extra=0.8, allow_refusal_class="pwcli_module_load_fail",
             note="control: a bogus notify name yields no readout at all"),
             legs, entry)
         for row in rows:

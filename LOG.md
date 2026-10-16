@@ -1489,3 +1489,36 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   retained r90 lock regression and one default-safe family run pass;
   skipped LAN control is explicitly unmeasured, not a green arm.
   See reports/round-99/r99-network-safety.md. Final review stays pending.
+- FINAL-FAMILY FOLDS (2026-10-16): 8332b001 restricts r97 signals to
+  registered direct Popen children and reaps exits; the remaining shared
+  witness/runtime/error-class findings are NOT thereby resolved.
+  81b268f7 adds bounded cross-checkout locks and summary block disclosure.
+  e302dbce repairs native RTP loopback ports without changing the
+  standalone injection helper's +1 default. Native changed-entry
+  evidence is committed at 294e6c24: recorded peak 0.5, physical-LAN
+  control disabled, clean private socket/Popen/node/store witnesses.
+- ROUND 100 WITNESS FOLD (2026-10-16): fbd942cb fails closed on missing
+  live clock properties, missing unload proof and unreadable WP logs;
+  failed setup unwinds retained own children. 110638d4 preserves the
+  scoped changed clock-entry receipt: all five requested live defaults
+  match, all six private children exit 0, no failures/blocks/log errors/
+  ALSA lines. This is three clock legs, not a new nine-entry family run
+  or proof of actual driver cycle periods.
+- R93/R98 FAILURE-PATH FOLD (2026-10-16): d7a702d3 makes unexpected
+  arms and whole-entry prerequisite loss non-green, connects all nine
+  r93 failure accumulators, cleans only registered new tap directories,
+  checks actual r98 sink values, and runs shared teardown/partial-private
+  setup cleanup on errors. Identical final test bytes: old source has
+  31 failures including subtests; repaired source passes all 13 tests.
+  Subsequent frozen-row integration catches the lead's optional-notify
+  regression; the exact-class allowance restores the intended block.
+  The expanded 15-test suite passes and an offline production-validator
+  replay consumes all 90 stored rows with no failures and original blocks.
+  No new audio, service restart, physical LAN control or native UFO
+  verdict is claimed. See the separate round fold notes and raw proofs.
+- ATTRIBUTION CORRECTION (2026-10-16): several prior author-integration
+  and early safety commits carry ci@local rather than the required lane
+  identity. Their original trail is preserved, not amended. New folds
+  use per-command audio-shokunin/audio@shokunin.local identity without
+  changing Git/global config. Round adjudication, remaining required
+  folds, evidence publication and the blocked audio push remain open.

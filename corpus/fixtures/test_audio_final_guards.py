@@ -68,6 +68,42 @@ class FinalGuardTest(unittest.TestCase):
                             {"tag": "test", "expect_refusal": True}, {}, entry)
         self.assertFalse(entry["failures"])
 
+    def test_optional_refusal_blocks_only_the_declared_cause(self):
+        for cls in ("pwcli_module_load_fail", "feed_link_unbound", None):
+            with self.subTest(error_class=cls):
+                ns = self.namespace()
+                ns["_ebur_r93_leg"] = lambda _ctx, spec: {
+                    "tag": spec["tag"], "arm_failed": "setup refused",
+                    "error_class": cls}
+                entry, legs = {"failures": []}, {}
+                ns["_ebur_r93_run"]({"stim": {}}, {
+                    "tag": "notify_bogus",
+                    "allow_refusal_class": "pwcli_module_load_fail"}, legs, entry)
+                self.assertEqual(bool(entry["failures"]),
+                                 cls != "pwcli_module_load_fail")
+                self.assertTrue(entry["coverage_blocked"])
+                self.assertIn("notify_bogus_r0", legs)
+
+    def test_notify_descriptor_declares_and_forwards_its_optional_class(self):
+        calls = [n for n in ast.walk(self.tree)
+                 if isinstance(n, ast.Call)
+                 and isinstance(n.func, ast.Name)
+                 and n.func.id == "_ebur_r93_meter"
+                 and any(k.arg == "tag" and isinstance(k.value, ast.Constant)
+                         and k.value.value == "notify_bogus"
+                         for k in n.keywords)]
+        self.assertEqual(len(calls), 1)
+        keywords = {k.arg: k.value for k in calls[0].keywords}
+        value = keywords.get("allow_refusal_class")
+        self.assertIsInstance(value, ast.Constant)
+        self.assertEqual(value.value, "pwcli_module_load_fail")
+        node = next(n for n in self.tree.body if isinstance(n, ast.FunctionDef)
+                    and n.name == "_ebur_r93_meter")
+        result = next(n.value for n in node.body if isinstance(n, ast.Return))
+        fields = {k.value: v for k, v in zip(result.keys, result.values)}
+        self.assertIsInstance(fields.get("allow_refusal_class"), ast.Name)
+        self.assertEqual(fields["allow_refusal_class"].id, "allow_refusal_class")
+
     def test_every_ebur_entry_shares_the_failure_accumulator(self):
         entries = [n for n in self.tree.body if isinstance(n, ast.FunctionDef)
                    and n.name.startswith("ebur_") and n.name.endswith("_r93_entry")]
