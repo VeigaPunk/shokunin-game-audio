@@ -1,0 +1,138 @@
+== RE-DERIVATION on committed receipts ==
+  20261016T070036115509Z-pwbind-r87 pid=3441793 legs=33 failures=0 PASS
+  20261016T070305393338Z-pwbind-r87 pid=3585207 legs=33 failures=0 PASS
+
+== MUTATION BATTERY (expect RED) ==
+  FAIL nf=1  M1 p_nt_vs_flag lands NS2 (flag loses to node.target — the scout's reversed law)
+        - p_nt_vs_flag: consumers=['r87a_ns2_3441793'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  M2 p_three lands NS (prop loses to flag)
+        - p_three: consumers=['r87a_ns_3441793'] expected ['r87a_ns2_3441793'] — the binding lattice fails
+  FAIL nf=1  M3 p_pb1 lands NS (garbage prop falls through to valid flag)
+        - p_pb1: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M4 p_nt_garbage lands NS2 (garbage flag falls through to node.target)
+        - p_nt_garbage: consumers=['r87a_ns2_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M5 p_objid lands NS (object.id resolves)
+        - p_objid: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M6 p_prop_objid lands NS (object.id resolves on the prop path)
+        - p_prop_objid: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M7 p_serial_stale lands NS (stale serial resolves)
+        - p_serial_stale: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M8 p_env_vs_prop lands NS2 (env loses to -P)
+        - p_env_vs_prop: consumers=['r87a_ns2_3441793'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  M9 p_env_garbage lands NS (garbage env falls through)
+        - p_env_garbage: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M10 p_coll lands NS2 (name collision resolves to the stream)
+        - p_coll: consumers=['r87a_ns2_3441793'] expected ['r87a_ns_3441793'] — the sink-wins-name-resolution law fails
+  FAIL nf=1  M11 p_own gains a second consumer (cross-link)
+        - p_own: consumers=['r87a_ns2_3441793', 'r87a_ns_3441793'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  M12 default sink drifts mid-entry
+        - the default sink drifted mid-entry alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29 -> some_other_sink.99 — routing verdicts unstable
+  FAIL nf=1  M13 p_zero gains a consumer
+        - p_zero: consumers=['r87a_ns_3441793'] present=True — the hard no-link switch fails
+  FAIL nf=1  M14 p_zero node never present
+        - p_zero: consumers=[] present=None — the hard no-link switch fails
+  FAIL nf=1  M15 p_mon lands NS (the .monitor suffix resolves as a name)
+        - p_mon: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M16 p_src_name lands NS (wrong-class source resolves)
+        - p_src_name: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M17 p_mediarole lands NS (role prop routes)
+        - p_mediarole: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M18 p_empty lands NS (empty --target resolves)
+        - p_empty: consumers=['r87a_ns_3441793'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M19 p_nt_rev lands NS (flag loses to node.target, reverse leg)
+        - p_nt_rev: consumers=['r87a_ns_3441793'] expected ['r87a_ns2_3441793'] — the binding lattice fails
+  FAIL nf=1  M20 p_noauto gains a consumer (autoconnect=false ignored)
+        - p_noauto: consumers=['r87a_ns_3441793'] present=True — the hard no-link switch fails
+  FAIL nf=1  M21 p_cat lands DEF (pw-cat does not share the lattice)
+        - p_cat: consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  M22 p_prop_twice lands NS (first -P wins, not last)
+        - p_prop_twice: consumers=['r87a_ns_3441793'] expected ['r87a_ns2_3441793'] — the binding lattice fails
+  FAIL nf=1  M23 p_env_nobrace lands DEF (brace form only)
+        - p_env_nobrace: consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  M1 p_nt_vs_flag lands NS2 (flag loses to node.target — the scout's reversed law)
+        - p_nt_vs_flag: consumers=['r87a_ns2_3585207'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  FAIL nf=1  M2 p_three lands NS (prop loses to flag)
+        - p_three: consumers=['r87a_ns_3585207'] expected ['r87a_ns2_3585207'] — the binding lattice fails
+  FAIL nf=1  M3 p_pb1 lands NS (garbage prop falls through to valid flag)
+        - p_pb1: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M4 p_nt_garbage lands NS2 (garbage flag falls through to node.target)
+        - p_nt_garbage: consumers=['r87a_ns2_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M5 p_objid lands NS (object.id resolves)
+        - p_objid: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M6 p_prop_objid lands NS (object.id resolves on the prop path)
+        - p_prop_objid: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M7 p_serial_stale lands NS (stale serial resolves)
+        - p_serial_stale: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M8 p_env_vs_prop lands NS2 (env loses to -P)
+        - p_env_vs_prop: consumers=['r87a_ns2_3585207'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  FAIL nf=1  M9 p_env_garbage lands NS (garbage env falls through)
+        - p_env_garbage: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M10 p_coll lands NS2 (name collision resolves to the stream)
+        - p_coll: consumers=['r87a_ns2_3585207'] expected ['r87a_ns_3585207'] — the sink-wins-name-resolution law fails
+  FAIL nf=1  M11 p_own gains a second consumer (cross-link)
+        - p_own: consumers=['r87a_ns2_3585207', 'r87a_ns_3585207'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  FAIL nf=1  M12 default sink drifts mid-entry
+        - the default sink drifted mid-entry alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29 -> some_other_sink.99 — routing verdicts unstable
+  FAIL nf=1  M13 p_zero gains a consumer
+        - p_zero: consumers=['r87a_ns_3585207'] present=True — the hard no-link switch fails
+  FAIL nf=1  M14 p_zero node never present
+        - p_zero: consumers=[] present=None — the hard no-link switch fails
+  FAIL nf=1  M15 p_mon lands NS (the .monitor suffix resolves as a name)
+        - p_mon: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M16 p_src_name lands NS (wrong-class source resolves)
+        - p_src_name: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M17 p_mediarole lands NS (role prop routes)
+        - p_mediarole: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M18 p_empty lands NS (empty --target resolves)
+        - p_empty: consumers=['r87a_ns_3585207'] expected ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] — the binding lattice fails
+  FAIL nf=1  M19 p_nt_rev lands NS (flag loses to node.target, reverse leg)
+        - p_nt_rev: consumers=['r87a_ns_3585207'] expected ['r87a_ns2_3585207'] — the binding lattice fails
+  FAIL nf=1  M20 p_noauto gains a consumer (autoconnect=false ignored)
+        - p_noauto: consumers=['r87a_ns_3585207'] present=True — the hard no-link switch fails
+  FAIL nf=1  M21 p_cat lands DEF (pw-cat does not share the lattice)
+        - p_cat: consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  FAIL nf=1  M22 p_prop_twice lands NS (first -P wins, not last)
+        - p_prop_twice: consumers=['r87a_ns_3585207'] expected ['r87a_ns2_3585207'] — the binding lattice fails
+  FAIL nf=1  M23 p_env_nobrace lands DEF (brace form only)
+        - p_env_nobrace: consumers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  (0 not-as-designed)
+
+== ABSORPTION HUNT (a PASS = a finding) ==
+  FAIL nf=1  absorbing=False A1 p_own leg has NO snaps at all (spawn failure)
+        note: does an unspawned leg read as 'no consumers' and get absorbed by a want=[] arm? want=[NS] here
+        - p_own: consumers=[] expected ['r87a_ns_3441793'] — the binding lattice fails
+  FAIL nf=1  absorbing=False A2 p_coll edges carry no in_port_name
+        note: is the non-playback-port arm vacuous when ports are absent?
+        - p_coll: linked to non-playback ports [None, None, None, None]
+  PASS nf=0  absorbing=True  A3 p_zero present at first snap, gone at last, no consumers
+        note: does the presence arm accept a node that vanished?
+  FAIL nf=1  absorbing=False A4 p_own consumers transiently wrong at first snap only
+        note: union-across-snaps should catch a transient mis-route
+        - p_own: consumers=['r87a_ns2_3441793', 'r87a_ns_3441793'] expected ['r87a_ns_3441793'] — the binding lattice fails
+  PASS nf=0  absorbing=True  A5 p_own edges_out entries with falsy in_node
+        note: falsy in_node silently dropped — does a dead edge count?
+  PASS nf=0  absorbing=True  A6 p_zero HAS a real link but its peer name did not resolve (in_node=None)
+        note: the no-link arm cannot distinguish 'no link' from 'a link whose peer node id missed the graph snapshot'
+  PASS nf=0  absorbing=True  A7 p_noauto HAS a real link, peer unresolved
+        note: same channel on the autoconnect=false switch
+  PASS nf=0  absorbing=True  A8 p_zero_prop HAS a real link, peer unresolved
+        note: same channel on the 0-beats-target.object switch
+  FAIL nf=1  absorbing=False A1 p_own leg has NO snaps at all (spawn failure)
+        note: does an unspawned leg read as 'no consumers' and get absorbed by a want=[] arm? want=[NS] here
+        - p_own: consumers=[] expected ['r87a_ns_3585207'] — the binding lattice fails
+  FAIL nf=1  absorbing=False A2 p_coll edges carry no in_port_name
+        note: is the non-playback-port arm vacuous when ports are absent?
+        - p_coll: linked to non-playback ports [None, None, None, None]
+  PASS nf=0  absorbing=True  A3 p_zero present at first snap, gone at last, no consumers
+        note: does the presence arm accept a node that vanished?
+  FAIL nf=1  absorbing=False A4 p_own consumers transiently wrong at first snap only
+        note: union-across-snaps should catch a transient mis-route
+        - p_own: consumers=['r87a_ns2_3585207', 'r87a_ns_3585207'] expected ['r87a_ns_3585207'] — the binding lattice fails
+  PASS nf=0  absorbing=True  A5 p_own edges_out entries with falsy in_node
+        note: falsy in_node silently dropped — does a dead edge count?
+  PASS nf=0  absorbing=True  A6 p_zero HAS a real link but its peer name did not resolve (in_node=None)
+        note: the no-link arm cannot distinguish 'no link' from 'a link whose peer node id missed the graph snapshot'
+  PASS nf=0  absorbing=True  A7 p_noauto HAS a real link, peer unresolved
+        note: same channel on the autoconnect=false switch
+  PASS nf=0  absorbing=True  A8 p_zero_prop HAS a real link, peer unresolved
+        note: same channel on the 0-beats-target.object switch

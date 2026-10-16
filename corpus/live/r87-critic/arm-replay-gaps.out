@@ -1,0 +1,49 @@
+PASS nf=0  silent=True  cb=[]                                                           MID-control committed receipt re-derivation
+        note: baseline — must be green
+PASS nf=0  silent=True  cb=[]                                                           MID-G1 all six dead-target legs ABSENT
+        note: the verdict loop does `if l is None: continue` — is the dead-target census silently unmeasured?
+PASS nf=0  silent=True  cb=[]                                                           MID-G2 only m_t_serial+m_t_objid ABSENT (the `if bridge:` branch)
+        note: the serial/object.id dead-target claim is the one the task names — is it measured when Midi-Bridge is absent?
+PASS nf=0  silent=True  cb=[]                                                           MID-G3 mdump_live attempts == []
+        note: empty attempts list — the boundary's startup-flake arm requires `live and not noted`
+FAIL nf=1  silent=False cb=[]                                                           MID-C1 m_t_bridge rc=0 (CONTROL: arm is live)
+        note: must FAIL
+        - m_t_bridge: rc=0 — the target-dead law fails (stream node <n> error: no target node available
+remote error: id=<n> seq=<n> res:-2 (No such file or directory): no target node available
+)
+FAIL nf=1  silent=False cb=[]                                                           MID-C2 mdump_live published but no Note On (CONTROL)
+        note: must FAIL
+        - mdump_live: a live node published and pinned but no Note On/Off lines arrived
+PASS nf=0  silent=False cb=['midi pin leg unmeasured — bridge capture port or seq 14:0 absent'] MID-C3 pin.file absent (CONTROL: coverage_blocked is recorded)
+        note: must record coverage_blocked, not pass silently
+PASS nf=0  silent=True  cb=[]                                                           CLI-control committed receipt re-derivation
+        note: baseline — must be green
+PASS nf=0  silent=True  cb=[]                                                           CLI-G1 foreign.volume_read is None
+        note: the identical-value-write arm is guarded by `if volume_read is not None` — vacuous, no coverage_blocked?
+FAIL nf=1  silent=False cb=[]                                                           CLI-C1 foreign identical-value write moved the volume (CONTROL)
+        note: must FAIL
+        - foreign: identical-value write moved the volume 1.0 -> 0.5
+PASS nf=0  silent=True  cb=[]                                                           CLI-G2 props_unk absent
+        note: arm guarded by `if legs.get('props_unk') is not None` — vacuous?
+PASS nf=0  silent=True  cb=[]                                                           CLI-G3 vol25 ratio = 0.16 (a 6.25x-lower multiplier)
+        note: the V25 envelope (0.15,0.35) is 2.3x wide around the claimed exact 0.25 — what else passes?
+PASS nf=0  silent=True  cb=[]                                                           CLI-G4 vol25 ratio = 0.34
+        note: upper edge of the same envelope
+FAIL nf=1  silent=False cb=[]                                                           CLI-C2 vol25 ratio = 1.0 (CONTROL: no-op write)
+        note: must FAIL
+        - vol25: ratio=1.0 outside (0.15, 0.35) — the live-DSP law fails
+PASS nf=0  silent=True  cb=[]                                                           CLI-G5 mute median_peak = 64 (0.8% of solo, not 0)
+        note: MUTE_MAX=128 admits non-zero residue
+FAIL nf=1  silent=False cb=[]                                                           CLI-C3 fmt_stream negotiated Format moved 48000->96000 (CONTROL)
+        note: must FAIL
+        - fmt_stream: negotiated Format moved {'rate': 48000, 'format_id': 259} -> {'rate': 96000, 'format_id': 259} — the seal fails
+FAIL nf=2  silent=False cb=[]                                                           CLI-C4 fmt_stream pre-rate unparseable (CONTROL)
+        note: must FAIL (pre.rate is None)
+        - fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': 48000, 'format_id': 259} — the seal fails
+        - fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': 48000, 'format_id': 259} — the seal fails
+FAIL nf=1  silent=False cb=[]                                                           CLI-C5 sendcmd/Resume accepted (CONTROL)
+        note: must FAIL
+        - sendcmd/Resume: the unknown-command refusal failed
+FAIL nf=1  silent=False cb=[]                                                           CLI-C6 linger survived destroy (CONTROL)
+        note: must FAIL
+        - create_linger: after_quit=True after_destroy=True — the linger carve-out fails

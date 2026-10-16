@@ -1,0 +1,151 @@
+{
+ "commit": "d1e687b9",
+ "hold_s": 2.0,
+ "cases": [
+  {
+   "label": "A-r87-cross-tmpdir",
+   "lockfn": "r87",
+   "expect": "SERIALIZED",
+   "a": {
+    "pid": 661491,
+    "t0": 1792134316.0699272,
+    "t1": 1792134316.070066,
+    "t2": 1792134318.0701303,
+    "held_s": 2.0000643730163574,
+    "waited_s": 0.00013875961303710938,
+    "fd": true
+   },
+   "b": {
+    "pid": 661496,
+    "t0": 1792134316.0719364,
+    "t1": 1792134318.0750923,
+    "t2": 1792134320.07516,
+    "held_s": 2.000067710876465,
+    "waited_s": 2.0031559467315674,
+    "fd": true
+   },
+   "overlap_s": -0.005,
+   "serialized": true,
+   "waited_a": 0.0,
+   "waited_b": 2.003,
+   "verdict": "PASS"
+  },
+  {
+   "label": "B-r86-cross-tmpdir",
+   "lockfn": "r86",
+   "expect": "SERIALIZED",
+   "a": {
+    "pid": 700077,
+    "t0": 1792134320.1270733,
+    "t1": 1792134322.1076138,
+    "t2": 1792134324.1076803,
+    "held_s": 2.0000665187835693,
+    "waited_s": 1.9805405139923096,
+    "fd": true
+   },
+   "b": {
+    "pid": 700082,
+    "t0": 1792134320.1052206,
+    "t1": 1792134320.105344,
+    "t2": 1792134322.1054099,
+    "held_s": 2.000065803527832,
+    "waited_s": 0.00012350082397460938,
+    "fd": true
+   },
+   "overlap_s": -0.0022,
+   "serialized": true,
+   "waited_a": 1.981,
+   "waited_b": 0.0,
+   "verdict": "PASS"
+  },
+  {
+   "label": "C-r85-cross-tmpdir-CONTROL",
+   "lockfn": "r85",
+   "expect": "RACED",
+   "a": {
+    "pid": 740441,
+    "t0": 1792134324.1573818,
+    "t1": 1792134324.1575882,
+    "t2": 1792134326.1578314,
+    "held_s": 2.0002431869506836,
+    "waited_s": 0.00020647048950195312,
+    "fd": true
+   },
+   "b": {
+    "pid": 740454,
+    "t0": 1792134324.1551034,
+    "t1": 1792134324.1597588,
+    "t2": 1792134326.1598253,
+    "held_s": 2.0000665187835693,
+    "waited_s": 0.004655361175537109,
+    "fd": true
+   },
+   "overlap_s": 1.9981,
+   "serialized": false,
+   "waited_a": 0.0,
+   "waited_b": 0.005,
+   "verdict": "PASS"
+  },
+  {
+   "label": "D-r87-same-tmpdir",
+   "lockfn": "r87",
+   "expect": "SERIALIZED",
+   "a": {
+    "pid": 762773,
+    "t0": 1792134326.2143178,
+    "t1": 1792134328.2032459,
+    "t2": 1792134330.2033103,
+    "held_s": 2.0000643730163574,
+    "waited_s": 1.9889280796051025,
+    "fd": true
+   },
+   "b": {
+    "pid": 762785,
+    "t0": 1792134326.202138,
+    "t1": 1792134326.202236,
+    "t2": 1792134328.203151,
+    "held_s": 2.000915050506592,
+    "waited_s": 9.799003601074219e-05,
+    "fd": true
+   },
+   "overlap_s": -0.0001,
+   "serialized": true,
+   "waited_a": 1.989,
+   "waited_b": 0.0,
+   "verdict": "PASS"
+  },
+  {
+   "label": "E-r87-cross-tree",
+   "lockfn": "r87",
+   "expect": "RACED",
+   "a": {
+    "pid": 799468,
+    "t0": 1792134330.2318692,
+    "t1": 1792134330.2319539,
+    "t2": 1792134332.2320168,
+    "held_s": 2.000062942504883,
+    "waited_s": 8.463859558105469e-05,
+    "fd": true
+   },
+   "b": {
+    "pid": 799477,
+    "t0": 1792134330.2413101,
+    "t1": 1792134330.2414162,
+    "t2": 1792134332.24189,
+    "held_s": 2.000473737716675,
+    "waited_s": 0.00010609626770019531,
+    "fd": true
+   },
+   "overlap_s": 1.9906,
+   "serialized": false,
+   "waited_a": 0.0,
+   "waited_b": 0.0,
+   "verdict": "PASS"
+  }
+ ],
+ "scratch": "/home/vgpnk/Projects/shokunin/tmp/r87crit-lock-jcknoktk",
+ "lockfiles_after": {
+  "measure_audio-pwbind-r87.lock": "pid=799468 ns=r87a_ns_799468 role=r87arole799468\n",
+  "measure_audio-pwctl-r86.lock": "pid=700077 ns=r86a_ns_700077 role=r86arole700077\n"
+ }
+}

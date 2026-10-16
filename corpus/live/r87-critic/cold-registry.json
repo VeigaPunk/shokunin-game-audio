@@ -1,0 +1,74 @@
+{
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29",
+ "default_sink_serial": "172871",
+ "live_id_chosen": "232",
+ "live_id_is_not_serial": true,
+ "live_id_kind": "PipeWire:Interface:Node",
+ "loadavg": "96.18 75.47 66.14 111/2749 2698782",
+ "probes": {
+  "argv_bogus": {
+   "argv": "pw-cli info 99999999",
+   "rc": 0,
+   "stderr": "Error: \"info: unknown global '99999999'\"\n",
+   "stdin": null,
+   "stdout": ""
+  },
+  "argv_live": {
+   "argv": "pw-cli info 232",
+   "rc": 0,
+   "stderr": "",
+   "stdin": null,
+   "stdout": "\tid: 232\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tobject.path = \"alsa:acp:Audio:10:playback\"\n*\t\tapi.alsa.path = \"hw:Audio,3\"\n*\t\tapi.alsa.open.ucm = \"true\"\n*\t\tapi.alsa.pcm.card = \"0\"\n*\t\tapi.alsa.pcm.stream = \"playback\"\n*\t\tport.group = \"playback\"\n*\t\tdevice.icon-name = \"audio-card-analog\"\n*\t\tdevice.bus = \"usb\"\n*\t\taudio.channels = \"2\"\n*\t\taudio.position = \"[ FL, FR ]\"\n*\t\tdevice.routes = \"1\"\n*\t\tdevice.icon_name = \"audio-speakers\"\n*\t\talsa.mixer_device = \"_ucm05F5.hw:Audio\"\n*\t\talsa.resolution_bits = \"16\"\n*\t\talsa.card = \"0\"\n*\t\talsa.card_name = \"USB Audio\"\n*\t\talsa.long_card_name = \"Generic USB Audio at usb-0000:11:00.0-12, high speed\"\n*\t\talsa.driver_name = \"snd_usb_audio\"\n*\t\talsa.mixer_name = \"USB Mixer\"\n*\t\talsa.components = \"USB0db0:cd0e\"\n*\t\talsa.id = \"Audio\"\n*\t\tdevice.api = \"alsa\"\n*\t\tdevice.class = \"sound\"\n*\t\ta"
+  },
+  "argv_serial": {
+   "argv": "pw-cli info 172871",
+   "rc": 0,
+   "stderr": "Error: \"info: unknown global '172871'\"\n",
+   "stdin": null,
+   "stdout": ""
+  },
+  "stdin_bogus": {
+   "argv": "pw-cli",
+   "rc": 0,
+   "stderr": "Error: \"info: unknown global '99999999'\"\n",
+   "stdin": "info 99999999\nquit\n",
+   "stdout": "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 99999999\n>> quit\n>> "
+  },
+  "stdin_live": {
+   "argv": "pw-cli",
+   "rc": 0,
+   "stderr": "Error: \"info: unknown global '232'\"\n",
+   "stdin": "info 232\nquit\n",
+   "stdout": "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 232\n>> quit\n>> "
+  },
+  "stdin_live_2nd": {
+   "argv": "pw-cli",
+   "rc": 0,
+   "stderr": "Error: \"info: unknown global '232'\"\n",
+   "stdin": "info 232\nquit\n",
+   "stdout": "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 232\n>> quit\n>> "
+  }
+ },
+ "pw_cli_version": {
+  "argv": "pw-cli --version",
+  "rc": 0,
+  "stderr": "",
+  "stdin": null,
+  "stdout": "pw-cli\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8\n"
+ },
+ "sinks_short": "172871\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29\tPipeWire\ts16le 2ch 48000Hz\tIDLE\n172872\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n172873\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED\n220907\tr84a_probe_548706\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n245442\tr87t_ns\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n248665\tr87a_ns_2476582\tPipeWire\tfloat32le 2ch 48000Hz\tRUNNING\n248676\tr87a_ns2_2476582\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED\n",
+ "verdict": {
+  "H1": true,
+  "argv_live_has_object": true,
+  "argv_live_rc": 0,
+  "argv_live_unknown_global": false,
+  "bogus_argv_unknown": true,
+  "bogus_stdin_unknown": true,
+  "falsified": false,
+  "stdin_live_has_object": false,
+  "stdin_live_rc": 0,
+  "stdin_live_unknown_global": true,
+  "verdict": "CONFIRMED"
+ },
+ "which": "/usr/bin/pw-cli"
+}

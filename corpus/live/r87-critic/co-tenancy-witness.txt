@@ -1,0 +1,30 @@
+=== r87-critic co-tenancy witness — 2026-10-16T07:07:31Z ===
+
+--- 1. the lane lock the AUTHOR's family owns (fixed path, this tree) ---
+path: corpus/live/measure_audio-pwbind-r87.lock
+-rw-r--r-- 1 vgpnk vgpnk 49 Oct 16 04:05 corpus/live/measure_audio-pwbind-r87.lock
+content: pid=799468 ns=r87a_ns_799468 role=r87arole799468
+
+--- 2. flock probe: is the LANE lock currently held? ---
+LANE LOCK FREE - acquired immediately (nobody is serialized against this lane right now)
+
+--- 3. the COPIED tree the concurrent verifier runs from ---
+-rw-r--r-- 1 vgpnk vgpnk 49 Oct 16 04:05 corpus/live/r87-verifier/tree/corpus/live/measure_audio-pwbind-r87.lock
+its content: pid=763463 ns=r87a_ns_763463 role=r87arole763463
+its ROOT resolves to: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-verifier/tree/corpus
+
+--- 4. the concurrent process ---
+    PID    PPID     ELAPSED STAT CMD
+ 763463  762934       02:04 S    python3 corpus/fixtures/measure_audio.py --probe-pwbind-r87
+
+--- 5. the foreign namespace it published into the SHARED daemon ---
+ node id=223 name=r87a_763463_mr class=Stream/Input/Midi
+
+--- 6. the committed design's response ---
+measure_audio.py:25880 foreign_r87a_nodes = sorted(n for n in names if 'r87a_' in n and f'_{PWBIND_R87_PID}' not in n)
+  -> a foreign r87a_* namespace is RECORDED as a witness, never a verdict; teardown targets only this pid.
+  -> consequence: the fixed-path lock does NOT exclude a same-family run from a DIFFERENT tree.
+
+--- 7. cross-check against the locktest either-way proof (case E) ---
+A-r87-cross-tmpdir             expect=SERIALIZED overlap= -0.0050s serialized=True  waited=(0.000,2.003) PASS
+E-r87-cross-tree               expect=RACED      overlap=  1.9906s serialized=False waited=(0.000,0.000) PASS

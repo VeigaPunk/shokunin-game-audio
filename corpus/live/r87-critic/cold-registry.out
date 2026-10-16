@@ -1,0 +1,35 @@
+loadavg: 96.18 75.47 66.14 111/2749 2698782
+pw-cli: /usr/bin/pw-cli  version rc=0
+default sink: 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'  live id chosen: 232
+
+[argv_live] argv=pw-cli info 232 stdin=None rc=0
+    stdout: 'id: 232\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: "idle"\n*\tproperties:\n*\t\tobject.path = "alsa:acp:Audio:10:playback"\n*\t\tapi.alsa.path = "hw:Audio,3"\n*\t\tapi.als'
+    stderr: ''
+[stdin_live] argv=pw-cli stdin='info 232\nquit\n' rc=0
+    stdout: "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 232\n>> quit\n>>"
+    stderr: 'Error: "info: unknown global \'232\'"'
+[stdin_live_2nd] argv=pw-cli stdin='info 232\nquit\n' rc=0
+    stdout: "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 232\n>> quit\n>>"
+    stderr: 'Error: "info: unknown global \'232\'"'
+[argv_bogus] argv=pw-cli info 99999999 stdin=None rc=0
+    stdout: ''
+    stderr: 'Error: "info: unknown global \'99999999\'"'
+[stdin_bogus] argv=pw-cli stdin='info 99999999\nquit\n' rc=0
+    stdout: "Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 99999999\n>> quit\n>>"
+    stderr: 'Error: "info: unknown global \'99999999\'"'
+[argv_serial] argv=pw-cli info 172871 stdin=None rc=0
+    stdout: ''
+    stderr: 'Error: "info: unknown global \'172871\'"'
+
+VERDICT: CONFIRMED
+   argv_live_unknown_global = False
+   argv_live_rc = 0
+   stdin_live_unknown_global = True
+   stdin_live_rc = 0
+   argv_live_has_object = True
+   stdin_live_has_object = False
+   H1 = True
+   falsified = False
+   verdict = CONFIRMED
+   bogus_argv_unknown = True
+   bogus_stdin_unknown = True

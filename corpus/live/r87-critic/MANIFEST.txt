@@ -1,0 +1,58 @@
+# r87-critic receipts — MANIFEST
+# commit under test: d1e687b9 (fixture blob a712ccc6dbde3bf4de3626b1731557a67e8e04bc)
+# fixture sha256:    be31da679be229074690dc5157edcc122612560594baa8ba62a9b5ce26dd9516
+# host: loadavg 84.6-96.2 during this session; TMPDIR=/home/vgpnk/Projects/shokunin/tmp
+# tracked writes: NONE (worktree fixture byte-identical to the commit; HEAD unchanged)
+
+## files
+armfrag-cli-verdict-block.py       7a2e9e96b29fc4e71850405712ae7f8f7c0fa721341f05c5d790dead48826494
+armfrag-midi-verdict-block.py      74cb5a4357eca98f94e3bfc9edd0ed9c9f87b2f38f4870241060984316ffd18d
+armfrag-pwbind_r87_consumers.py    a72277154b7e630c3eed35190256e44c2262ae16bc475fb4c4adcc6fbad81eb3
+armfrag-pwbind_r87_expect.py       ec74dc20b98214237af47c5fed398ccadca161f25aca619f1cd751eb2dd4002b
+armfrag-pwbind_r87_last_snap.py    4517f6e10a59c5dd9af79f3471f776c75a28853f6ff490c840421152888a06ae
+armfrag-verdict_block.py           60782428766ff5185f1087830e6ebad66b6dab27bc8f8ffbd2db1755b63ad002
+arm-replay-gaps.json               fa5a6b8ea2b3193fc92904569ea4bd1046520dafc08d406f16f4eb3021862bc8
+arm-replay-gaps.out                cf2a5d92de15f4b102d3d8c3fedc1dfa6977216457a123bbe43917f7955717bd
+arm-replay-gaps.py                 1e6059439b6c0235f236d9c82509f64cc148e08e8c61f3b0d63c8debb267266c
+arm-replay.json                    d2bddf8bb06b960bfb54039eefc50e5879a7951dfc838b02c5507a31e431c522
+arm-replay.out                     fab3efde95e787925830cf1109b0f00048d95fcaa0c8209f5a7d61091b30af8d
+arm-replay.py                      34d972087199ee59386f2da99565402ce0f2fb407b6256d30854c83b1c73d5ac
+census.json                        3ed63513981089d5b0fce086e093fba3db55b985505da738bae22f9b97673cb7
+census.out                         2891b19e03235ba51a3b4d6112656f76f37e8e796fa3e25e36859b5fff520d06
+census.py                          d3c9e99fc030d5b5ae2a44b1d65d960d99ae2228748f1bed103a9dcdccadddfa
+cold-registry.json                 7d98169fa10921ea48b433d008c4fe0ddf6aa8c154fbbcc26a215c97a92d5db5
+cold-registry.out                  8740ae518123d38b57c82533313ea5cc7dab7b936f491e0e39a7ae4332c576b2
+cold-registry.py                   70be2c8901fe96c8e7e2dde3a4fcd37411aa9551a3debef218a06908124e1ac1
+_committed_measure_audio.py        be31da679be229074690dc5157edcc122612560594baa8ba62a9b5ce26dd9516
+co-tenancy-witness.txt             3848436068276227a532fdfb2baedb8b22510a546e488ab8ab0cba22ff3f7c5e
+live-readonly.json                 1c800186fd4690b1011750d8f4de1f718f3d432071630f2cfdf11689aa7d8187
+live-readonly.out                  0beb24f2766e13885f6b746c75e1000c18b117e29d1c09d5c750a5ad43098abf
+live-readonly.py                   b289de3b5e411510557e8c2d59ccaaf2aa625d7765d873617ec0823e08d43d70
+lockfn-r85.py                      e517b10f257f98d009eee485f1f6abfe26d38df005c30e744e005163cd55f6a2
+lockfn-r86.py                      b7d1a39c524bf0e60d4aac0c38a7ff807b53439b6397dba6fdf1f89306739f07
+lockfn-r87.py                      cc73f893e526924be61f4047064b07f2c2c9176b2b7ee30b4838a30b112779b8
+locktest_child.py                  ccb346ad7f9325fadedb06b12a5df074a2ed797392a27aafe8319d71f2a8c832
+locktest.json                      641b0bfe96c034cc5de51424a87faf8d94e574f771cf0538c601760eda670980
+locktest.out                       875c3ae015dfb7a7d01cab0317cf75025b4f848a9cce9e4da4a32a060918a79a
+locktest.py                        5707c489d8f8458388dfea3f5c4adc8c1929e42041be59aaf87db8db8a712b0f
+
+## commands (all with TMPDIR=/home/vgpnk/Projects/shokunin/tmp PYTHONDONTWRITEBYTECODE=1)
+census.py                 -> census.json census.out            (receipt census, 2 green + 3 dev runs)
+locktest.py               -> locktest.json locktest.out        (either-way lock proof; r85 as negative control)
+arm-replay.py             -> arm-replay.json arm-replay.out    (target verdict block: re-derive + 23 mutations + 8 absorption cases)
+arm-replay-gaps.py        -> arm-replay-gaps.json .out         (midi + cli verdict blocks: 10 absorption + 9 controls)
+cold-registry.py          -> cold-registry.json cold-registry.out (dispatcher fallback for the labrat probe; H1 CONFIRMED)
+live-readonly.py          -> live-readonly.json live-readonly.out (read-only host corroboration)
+co-tenancy-witness.txt    (captured live at 2026-10-16T07:07:31Z)
+
+## sliced committed fragments (provenance: git show d1e687b9:corpus/fixtures/measure_audio.py)
+armfrag-cli-verdict-block.py       7a2e9e96b29fc4e71850405712ae7f8f7c0fa721341f05c5d790dead48826494
+armfrag-midi-verdict-block.py      74cb5a4357eca98f94e3bfc9edd0ed9c9f87b2f38f4870241060984316ffd18d
+armfrag-pwbind_r87_consumers.py    a72277154b7e630c3eed35190256e44c2262ae16bc475fb4c4adcc6fbad81eb3
+armfrag-pwbind_r87_expect.py       ec74dc20b98214237af47c5fed398ccadca161f25aca619f1cd751eb2dd4002b
+armfrag-pwbind_r87_last_snap.py    4517f6e10a59c5dd9af79f3471f776c75a28853f6ff490c840421152888a06ae
+armfrag-verdict_block.py           60782428766ff5185f1087830e6ebad66b6dab27bc8f8ffbd2db1755b63ad002
+lockfn-r85.py                      e517b10f257f98d009eee485f1f6abfe26d38df005c30e744e005163cd55f6a2
+lockfn-r86.py                      b7d1a39c524bf0e60d4aac0c38a7ff807b53439b6397dba6fdf1f89306739f07
+lockfn-r87.py                      cc73f893e526924be61f4047064b07f2c2c9176b2b7ee30b4838a30b112779b8
+_committed_measure_audio.py        be31da679be229074690dc5157edcc122612560594baa8ba62a9b5ce26dd9516

@@ -1,0 +1,41 @@
+loadavg: 87.50 69.42 63.60 68/2150 1978364
+
+== binary identity (modes entry arm 1) ==
+  pw-cat         present=True  same_as_pwcat=True  realpath=/usr/bin/pw-cat
+  pw-play        present=True  same_as_pwcat=True  realpath=/usr/bin/pw-cat
+  pw-record      present=True  same_as_pwcat=True  realpath=/usr/bin/pw-cat
+  pw-midiplay    present=True  same_as_pwcat=True  realpath=/usr/bin/pw-cat
+  pw-midirecord  present=True  same_as_pwcat=True  realpath=/usr/bin/pw-cat
+  pw-mididump    present=True  same_as_pwcat=False realpath=/usr/bin/pw-mididump
+  pw-cli         present=True  same_as_pwcat=False realpath=/usr/bin/pw-cli
+
+== midi pin precondition ==
+  Midi-Bridge node: [{'id': 46, 'name': 'Midi-Bridge', 'media_class': 'Midi/Bridge'}]
+  seq devices: /dev/snd/seq
+Client 142 : "PipeWire-System" [User Legacy]
+  Port   0 : "input" (rwe-) [In/Out]
+    Connected From: 0:1, 0:0
+  Input pool :
+--
+Client 143 : "PipeWire-RT-Event" [User Legacy]
+  Port   0 
+  aplaymidi -l: Port    Client name                      Port name
+ 14:0    Midi Through                     Midi Through Port-0
+
+== remote surface census ==
+  module dir probe: 34
+--- done
+  remote-named nodes: []
+
+== residue ==
+  r87a_* nodes in pw-dump: [{'id': 233, 'name': 'r87a_ns_763463', 'media_class': 'Audio/Sink'}]
+  r87a_* sinks in pactl:    ['248291\tr87a_ns_763463\tPipeWire\tfloat32le 2ch 48000Hz\tSUSPENDED']
+  r87a_* modules in pactl:  ['536870916\tmodule-null-sink\tsink_name=r87a_ns_763463\t']
+  total nodes enumerated:   12
+
+== default (read, never written) ==
+  default sink:   'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'
+  default source: 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.29'
+  get-sink-volume by name rc=0
+  pw-cli info by name  rc=0
+    stderr: ''
