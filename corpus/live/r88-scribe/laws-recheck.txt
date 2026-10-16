@@ -1,0 +1,156 @@
+### run A: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/runs/20261016T072313132218Z-btwit-r88/measurements.json
+    sha256 a1c7746d8a7c18ab647f868816d128cf46c90d5bc6fccb32c0085130c08e83d4
+### run B: /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/runs/20261016T072341162452Z-btwit-r88/measurements.json
+    sha256 cce9164f5a537f349e449be4576623fce44cfd4d3e2f6364383f515e0d9b640d
+
+[PASS] A: 3 entries / 79 legs (28+41+10) :: {'btabs_bluez_r88_probe': 28, 'witdiff_dump_r88_probe': 41, 'pwtop_r88_probe': 10}
+[PASS] A: failures == [] in all 3 entries :: {'btabs_bluez_r88_probe': [], 'witdiff_dump_r88_probe': [], 'pwtop_r88_probe': []}
+[PASS] A: coverage_blocked key ABSENT in all 3 entries :: {'btabs_bluez_r88_probe': 'absent', 'witdiff_dump_r88_probe': 'absent', 'pwtop_r88_probe': 'absent'}
+[PASS] A: bz_tree one adapter hci0 + one device (DualSense) :: (['/org/bluez/hci0'], ['/org/bluez/hci0/dev_BC_C7_46_34_C5_66'])
+[PASS] A: hci0 Powered=true :: 'b true\n'
+[PASS] A: Media1 advertises A2DP source+sink UUIDs :: as 2 "0000110a-0000-1000-8000-00805f9b34fb" "0000110b-0000-1000-8000-00805f9b34fb"
+[PASS] A: DualSense HID-only: audio_uuids==[] uuid16=[1124,1200] :: ([], ['1124', '1200'])
+[PASS] A: DualSense paired/not connected, class 1288, input-gaming :: ('b true', 'b false', 'u 1288', 's "input-gaming"')
+[PASS] A: zero bluez cards :: ['alsa_card.pci-0000_79_00.1', 'alsa_card.usb-Generic_USB_Audio-00']
+[PASS] A: zero bluez sinks :: ['alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29', 'r84a_probe_548706', 'r87t_ns', 'r88a_ns_1262851']
+[PASS] A: pactl bluez|a2dp|sco == 1 line = session.services advert :: 1
+[PASS] A: only bluez object = bluez_midi.server (api.bluez5.midi.node, Midi/Bridge) :: [{'id': 49, 'name': 'bluez_midi.server', 'media_class': 'Midi/Bridge', 'factory': 'api.bluez5.midi.node'}]
+[PASS] A: no Audio/* media-transport object :: []
+[PASS] A: bz_loadmod_discover rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] A: bz_loadmod_discover_arg rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] A: bz_loadmod_device rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] A: bz_loadmod_device_path rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] A: send-message refuses pa_sendmsg_noent :: (1, 'pa_sendmsg_noent')
+[PASS] A: fabricated bluez_card.* refuses pa_module_noent :: (1, 'pa_module_noent')
+[PASS] A: CONFOUND — bogus profile on a REAL card gives identical text :: ('Failure: No such entity', 'Failure: No such entity')
+[PASS] A: positive control — real card+real profile rc=0, profile applied :: (0, 'off')
+[PASS] A: bz_create_a2dpsink process rc=0 but remote res:-2 (refused, created nothing) :: (0, 'pwcli_remote_enoent')
+[PASS] A: bz_create_sink process rc=0 but remote res:-2 (refused, created nothing) :: (0, 'pwcli_remote_enoent')
+[PASS] A: bz_create_a2dpsource process rc=0 but remote res:-22 (refused, created nothing) :: (0, 'pwcli_remote_einval')
+[PASS] A: bz_create_midi process rc=0 but remote res:-22 (refused, created nothing) :: (0, 'pwcli_remote_einval')
+[PASS] A: zero r88a residue after fabrications :: []
+[PASS] A: SPA inventory 14 files incl libspa-bluez5.so :: 14
+[PASS] A: bluez5.codecs present as substring, 0 standalone lines :: {'substring_hits': ["property bluez5.codecs '%s' is not an array", 'spa.bluez5.codecs'], 'standalone_lines': 0, 'bluez5_names': 126}
+[PASS] A: no module-bluez5*.so on disk :: []
+[PASS] A: module census unchanged across the entry :: []
+[PASS] A: set rule 4/4 got==predicted :: {'wd_setrule_foreign_id': ('29', ['29'], ['29']), 'wd_setrule_foreign_serial': ('29', ['29'], ['29']), 'wd_setrule_own_id': ('153', ['153'], ['153']), 'wd_setrule_own_serial': ('251940', ['153'], ['153'])}
+[PASS] A: set rule — own pair discriminates (id != serial) :: ('153', '251940')
+[PASS] A: set rule — FOREIGN pair DEGENERATE (id == serial == 29) :: ('29', '29')
+[PASS] A: set rule — no mid-leg churn re-census needed :: {'wd_setrule_foreign_id': False, 'wd_setrule_foreign_serial': False, 'wd_setrule_own_id': False, 'wd_setrule_own_serial': False}
+[PASS] A: ports are NOT returned by their node.id (no nesting) :: {'key': '153', 'port_objects': 0, 'members': [153]}
+[PASS] A: membership mode-invariant (-R / -i 0) :: (['153'], ['153'])
+[PASS] A: -s SPA form carries unquoted id = N / object.serial = N :: [ |   { |     id = 153 |     type = "PipeWire:Interface:Node" |     version = 3 |     perm
+[PASS] A: info by id resolves (no unknown global) :: (0, None)
+[PASS] A: info by serial is a silent rc-0 'unknown global' :: (0, 'pwcli_unknown_global', "unknown global '251940'")
+[PASS] A: info by dead id is a silent rc-0 'unknown global' :: (0, 'pwcli_unknown_global', "unknown global '98765432'")
+[PASS] A: ls Node exposes object.serial == own serial :: 251940
+[PASS] A: ls Metadata 9 ids ⊋ dump 4 ids (extra 35/37/38/41/42) :: (['31', '34', '35', '36', '37', '38', '39', '41', '42'], ['31', '34', '36', '39'], [35, 37, 38, 41, 42])
+[PASS] A: info on an ls-only Metadata id is silent rc-0 :: (0, 0)
+[PASS] A: two prop-block layouts (ls flat, info star) :: {'ls_layout': 'flat', 'info_layout': 'star', 'ls_key_count': 11, 'info_key_count': 18}
+[PASS] A: dump/info publish identical prop KEY SETS (Node + Device) :: ([], [])
+[PASS] A: param NAMES agree while dump marks unreadable values [] :: (['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag'], ['Format', 'Latency', 'ProcessLatency', 'Tag'])
+[PASS] A: dump keeps JSON types, info stringifies (pairs recorded) :: 10
+[PASS] A: 5 silent rc-0 absence classes (dump dead/abc/huge, cli enum/info) :: {'wd_silent_dump_id': (0, 0), 'wd_silent_dump_abc': (0, 0), 'wd_silent_dump_huge': (0, 0), 'wd_silent_cli_enum': (0, 0), 'wd_silent_cli_meta': (0, 0)}
+[PASS] A: dead serial is a silent rc-0 absence :: (0, 0)
+[PASS] A: pw-dump '' == full census (bracketed equality) :: (True, True)
+[PASS] A: pw-dump <id1> <id2> returns the FIRST match only :: ['153']
+[PASS] A: --color=always emits ANSI that breaks JSON :: (True, False)
+[PASS] A: pw-dump -1 is the one loud refusal (rc 255 invalid option) :: (255, 'pwdump_invalid_opt')
+[PASS] A: info all describes 85, silently omits all visible Metadata :: (85, 91, [])
+[PASS] A: numeric ≡ name on a readable param (byte-identical) :: 2497
+[PASS] A: write-only Format/4 never return a pod :: ('pwcli_remote_eio', 'silent')
+[PASS] A: BogusXYZ -> unknown param type :: unknown param type: BogusXYZ
+[PASS] A: enum-params on a Client -> not implemented on object :: enum-params not implemented on object 32
+[PASS] A: pactl index == native object.serial (6/6, 0 violations) :: (6, [], [])
+[PASS] A: pactl/dump/cli agree on the suspended own sink :: ('SUSPENDED', 'suspended', 'suspended')
+[PASS] A: -n 1 = one all-CREATING frame (12/12 rows) :: ([12], [['C']])
+[PASS] A: -n 3 first frame all-C, last frame real states (9S+3I) :: ([12, 12, 12], [['C'], ['I', 'S'], ['I', 'S']], [['I', 3], ['S', 9]], 1)
+[PASS] A: -n 0 = exactly one frame :: [12]
+[PASS] A: pt_nneg runs indefinitely, killed at the 4 s bound :: (True, -9, 4.003)
+[PASS] A: pt_nabc runs indefinitely, killed at the 4 s bound :: (True, -9, 4.002)
+[PASS] A: -r bogus -> pwtop_connect_down rc 255 (loud refusal) :: (255, 'pwtop_connect_down')
+[PASS] A: idle four-witness agreement (SUSPENDED/suspended/suspended/S) :: ('SUSPENDED', 'suspended', 'suspended', 'S', 3)
+[PASS] A: RUNNING-side four-witness agreement under a pw-play stream :: (True, 'RUNNING', 'running', 'running', 'R', 3)
+[PASS] A/btabs_bluez_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1262851': True}, [])
+[PASS] A/witdiff_dump_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1262851': True}, [])
+[PASS] A/pwtop_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1262851': True}, [])
+[PASS] A: name-verified unloads (field sink_name, not recycled) :: {'r88a_ns2_1262851': ('sink_name', 536870922, False), 'r88a_ns_1262851': ('sink_name', 536870917, False)}
+[PASS] B: 3 entries / 79 legs (28+41+10) :: {'btabs_bluez_r88_probe': 28, 'witdiff_dump_r88_probe': 41, 'pwtop_r88_probe': 10}
+[PASS] B: failures == [] in all 3 entries :: {'btabs_bluez_r88_probe': [], 'witdiff_dump_r88_probe': [], 'pwtop_r88_probe': []}
+[PASS] B: coverage_blocked key ABSENT in all 3 entries :: {'btabs_bluez_r88_probe': 'absent', 'witdiff_dump_r88_probe': 'absent', 'pwtop_r88_probe': 'absent'}
+[PASS] B: bz_tree one adapter hci0 + one device (DualSense) :: (['/org/bluez/hci0'], ['/org/bluez/hci0/dev_BC_C7_46_34_C5_66'])
+[PASS] B: hci0 Powered=true :: 'b true\n'
+[PASS] B: Media1 advertises A2DP source+sink UUIDs :: as 2 "0000110a-0000-1000-8000-00805f9b34fb" "0000110b-0000-1000-8000-00805f9b34fb"
+[PASS] B: DualSense HID-only: audio_uuids==[] uuid16=[1124,1200] :: ([], ['1124', '1200'])
+[PASS] B: DualSense paired/not connected, class 1288, input-gaming :: ('b true', 'b false', 'u 1288', 's "input-gaming"')
+[PASS] B: zero bluez cards :: ['alsa_card.pci-0000_79_00.1', 'alsa_card.usb-Generic_USB_Audio-00']
+[PASS] B: zero bluez sinks :: ['alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29', 'r84a_probe_548706', 'r87t_ns', 'r88a_ns_1298372']
+[PASS] B: pactl bluez|a2dp|sco == 1 line = session.services advert :: 1
+[PASS] B: only bluez object = bluez_midi.server (api.bluez5.midi.node, Midi/Bridge) :: [{'id': 49, 'name': 'bluez_midi.server', 'media_class': 'Midi/Bridge', 'factory': 'api.bluez5.midi.node'}]
+[PASS] B: no Audio/* media-transport object :: []
+[PASS] B: bz_loadmod_discover rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] B: bz_loadmod_discover_arg rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] B: bz_loadmod_device rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] B: bz_loadmod_device_path rc=1 pa_module_noent 'Failure: No such entity' :: (1, 'pa_module_noent', 'Failure: No such entity')
+[PASS] B: send-message refuses pa_sendmsg_noent :: (1, 'pa_sendmsg_noent')
+[PASS] B: fabricated bluez_card.* refuses pa_module_noent :: (1, 'pa_module_noent')
+[PASS] B: CONFOUND — bogus profile on a REAL card gives identical text :: ('Failure: No such entity', 'Failure: No such entity')
+[PASS] B: positive control — real card+real profile rc=0, profile applied :: (0, 'off')
+[PASS] B: bz_create_a2dpsink process rc=0 but remote res:-2 (refused, created nothing) :: (0, 'pwcli_remote_enoent')
+[PASS] B: bz_create_sink process rc=0 but remote res:-2 (refused, created nothing) :: (0, 'pwcli_remote_enoent')
+[PASS] B: bz_create_a2dpsource process rc=0 but remote res:-22 (refused, created nothing) :: (0, 'pwcli_remote_einval')
+[PASS] B: bz_create_midi process rc=0 but remote res:-22 (refused, created nothing) :: (0, 'pwcli_remote_einval')
+[PASS] B: zero r88a residue after fabrications :: []
+[PASS] B: SPA inventory 14 files incl libspa-bluez5.so :: 14
+[PASS] B: bluez5.codecs present as substring, 0 standalone lines :: {'substring_hits': ["property bluez5.codecs '%s' is not an array", 'spa.bluez5.codecs'], 'standalone_lines': 0, 'bluez5_names': 126}
+[PASS] B: no module-bluez5*.so on disk :: []
+[PASS] B: module census unchanged across the entry :: []
+[PASS] B: set rule 4/4 got==predicted :: {'wd_setrule_foreign_id': ('29', ['29'], ['29']), 'wd_setrule_foreign_serial': ('29', ['29'], ['29']), 'wd_setrule_own_id': ('153', ['153'], ['153']), 'wd_setrule_own_serial': ('252142', ['153'], ['153'])}
+[PASS] B: set rule — own pair discriminates (id != serial) :: ('153', '252142')
+[PASS] B: set rule — FOREIGN pair DEGENERATE (id == serial == 29) :: ('29', '29')
+[PASS] B: set rule — no mid-leg churn re-census needed :: {'wd_setrule_foreign_id': False, 'wd_setrule_foreign_serial': False, 'wd_setrule_own_id': False, 'wd_setrule_own_serial': False}
+[PASS] B: ports are NOT returned by their node.id (no nesting) :: {'key': '153', 'port_objects': 0, 'members': [153]}
+[PASS] B: membership mode-invariant (-R / -i 0) :: (['153'], ['153'])
+[PASS] B: -s SPA form carries unquoted id = N / object.serial = N :: [ |   { |     id = 153 |     type = "PipeWire:Interface:Node" |     version = 3 |     perm
+[PASS] B: info by id resolves (no unknown global) :: (0, None)
+[PASS] B: info by serial is a silent rc-0 'unknown global' :: (0, 'pwcli_unknown_global', "unknown global '252142'")
+[PASS] B: info by dead id is a silent rc-0 'unknown global' :: (0, 'pwcli_unknown_global', "unknown global '98765432'")
+[PASS] B: ls Node exposes object.serial == own serial :: 252142
+[PASS] B: ls Metadata 9 ids ⊋ dump 4 ids (extra 35/37/38/41/42) :: (['31', '34', '35', '36', '37', '38', '39', '41', '42'], ['31', '34', '36', '39'], [35, 37, 38, 41, 42])
+[PASS] B: info on an ls-only Metadata id is silent rc-0 :: (0, 0)
+[PASS] B: two prop-block layouts (ls flat, info star) :: {'ls_layout': 'flat', 'info_layout': 'star', 'ls_key_count': 11, 'info_key_count': 18}
+[PASS] B: dump/info publish identical prop KEY SETS (Node + Device) :: ([], [])
+[PASS] B: param NAMES agree while dump marks unreadable values [] :: (['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag'], ['Format', 'Latency', 'ProcessLatency', 'Tag'])
+[PASS] B: dump keeps JSON types, info stringifies (pairs recorded) :: 10
+[PASS] B: 5 silent rc-0 absence classes (dump dead/abc/huge, cli enum/info) :: {'wd_silent_dump_id': (0, 0), 'wd_silent_dump_abc': (0, 0), 'wd_silent_dump_huge': (0, 0), 'wd_silent_cli_enum': (0, 0), 'wd_silent_cli_meta': (0, 0)}
+[PASS] B: dead serial is a silent rc-0 absence :: (0, 0)
+[PASS] B: pw-dump '' == full census (bracketed equality) :: (True, True)
+[PASS] B: pw-dump <id1> <id2> returns the FIRST match only :: ['153']
+[PASS] B: --color=always emits ANSI that breaks JSON :: (True, False)
+[PASS] B: pw-dump -1 is the one loud refusal (rc 255 invalid option) :: (255, 'pwdump_invalid_opt')
+[PASS] B: info all describes 85, silently omits all visible Metadata :: (85, 92, [])
+[PASS] B: numeric ≡ name on a readable param (byte-identical) :: 2497
+[PASS] B: write-only Format/4 never return a pod :: ('silent', 'silent')
+[PASS] B: BogusXYZ -> unknown param type :: unknown param type: BogusXYZ
+[PASS] B: enum-params on a Client -> not implemented on object :: enum-params not implemented on object 32
+[PASS] B: pactl index == native object.serial (6/6, 0 violations) :: (6, [], [])
+[PASS] B: pactl/dump/cli agree on the suspended own sink :: ('SUSPENDED', 'suspended', 'suspended')
+[PASS] B: -n 1 = one all-CREATING frame (12/12 rows) :: ([12], [['C']])
+[PASS] B: -n 3 first frame all-C, last frame real states (9S+3I) :: ([12, 12, 12], [['C'], ['I', 'S'], ['I', 'S']], [['I', 3], ['S', 9]], 1)
+[PASS] B: -n 0 = exactly one frame :: [12]
+[PASS] B: pt_nneg runs indefinitely, killed at the 4 s bound :: (True, -9, 4.002)
+[PASS] B: pt_nabc runs indefinitely, killed at the 4 s bound :: (True, -9, 4.001)
+[PASS] B: -r bogus -> pwtop_connect_down rc 255 (loud refusal) :: (255, 'pwtop_connect_down')
+[PASS] B: idle four-witness agreement (SUSPENDED/suspended/suspended/S) :: ('SUSPENDED', 'suspended', 'suspended', 'S', 3)
+[PASS] B: RUNNING-side four-witness agreement under a pw-play stream :: (True, 'RUNNING', 'running', 'running', 'R', 3)
+[PASS] B/btabs_bluez_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1298372': True}, [])
+[PASS] B/witdiff_dump_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1298372': True}, [])
+[PASS] B/pwtop_r88_probe: teardown clean (sinks_gone all true, no r88a nodes left) :: ({'r88a_ns_1298372': True}, [])
+[PASS] B: name-verified unloads (field sink_name, not recycled) :: {'r88a_ns2_1298372': ('sink_name', 536870922, False), 'r88a_ns_1298372': ('sink_name', 536870917, False)}
+
+### dev receipt (UNCITED) /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/runs/20261016T071710822152Z-btwit-r88/measurements.json
+    failures per entry: {'btabs_bluez_r88_probe': 6, 'witdiff_dump_r88_probe': 5, 'pwtop_r88_probe': 3} (total 14)
+    coverage_blocked: {'btabs_bluez_r88_probe': 'absent', 'witdiff_dump_r88_probe': ['wd_enum_client: no client returned the not-implemented class (last class=None)'], 'pwtop_r88_probe': 'absent'}
+    leg counts: {'btabs_bluez_r88_probe': 28, 'witdiff_dump_r88_probe': 39, 'pwtop_r88_probe': 8}
+
+SUMMARY: 144/144 checks PASS (0 FAIL)

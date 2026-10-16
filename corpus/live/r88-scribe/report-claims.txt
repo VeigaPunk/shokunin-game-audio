@@ -1,0 +1,81 @@
+author-report numeric claims vs receipt values
+
+CLAIM: 3 entries / 79 legs (28/41/10)
+  EVIDENCE: A and B: len(legs)=28/41/10 -> 79
+  -> MATCH
+
+CLAIM: fixture sha ad9d59b1…
+  EVIDENCE: pin == worktree == verifier tree copy
+  -> MATCH
+
+CLAIM: +1772/-3, 3 spliced deletions
+  EVIDENCE: git diff: 1772 insertions, 3 deletions, 6 hunks
+  -> MATCH
+
+CLAIM: bz_spa_inventory: 14 files = libspa-bluez5.so + 8 libspa-codec-bluez5-*
+  EVIDENCE: receipt: 14 files = 1 libspa-bluez5.so + 13 libspa-codec-bluez5-*
+  -> MISMATCH (8 vs 13)
+
+CLAIM: bz_spa_codecs_str: 126 bluez5. strings, 0 standalone lines
+  EVIDENCE: receipt: bluez5_names=126, standalone_lines=0
+  -> MATCH
+
+CLAIM: wd_info_all: 85 of 92 objects
+  EVIDENCE: A: described=85 / dump_count=91 ; B: 85 / 92
+  -> PARTIAL (run-B value; A=91)
+
+CLAIM: wd_ls_metadata: 9 ids vs dump 4, extra=[35,37,38,41,42]
+  EVIDENCE: receipt: ls=9, dump=4, extra=[35,37,38,41,42]
+  -> MATCH
+
+CLAIM: wd_serial_law: 6/6 sinks, 0 violations, own index follows
+  EVIDENCE: receipt: matched=6, unmatched=[], violations=[], own_index_follows=true
+  -> MATCH
+
+CLAIM: pt_n1: 1 frame, 12/12 rows all C
+  EVIDENCE: receipt: frames=[12], status_sets=[['C']]
+  -> MATCH
+
+CLAIM: pt_n3: 3 frames [C]->[I,S]->[I,S], last 9S+3I, own row non-C
+  EVIDENCE: receipt: frames=[12,12,12], status_sets, hist {S:9,I:3}; own row NOT in the receipt (stdout_raw popped) — code-inferred from failures==[]
+  -> PARTIAL (row not witnessed)
+
+CLAIM: wd_enum_fmt/num4 'silent/silent in run 2; remote res:-5/silent in the dev run'
+  EVIDENCE: A(run 1): remote res:-5 / silent ; B(run 2): silent / silent ; dev: res:-5 / silent
+  -> MIS-ATTRIBUTED (res:-5 is run 1, not only dev)
+
+CLAIM: 4/4 create-node fabrications refused res:-2/-22
+  EVIDENCE: receipt: .a2dp-sink -2, .sink -2, .a2dp.source -22, .midi.node -22, rc=0
+  -> MATCH
+
+CLAIM: {id u serial} armed on own id/serial + foreign id/serial
+  EVIDENCE: receipt: refs.foreign == refs.foreign_serial == '29' -> the two foreign arms are the identical key (non-discriminating); own pair 153 vs 251940 discriminates
+  -> WEAK (foreign arms degenerate)
+
+CLAIM: failures: {}
+  EVIDENCE: receipt: failures == [] (a JSON list)
+  -> NIT (type)
+
+CLAIM: coverage_blocked empty in all three entries
+  EVIDENCE: receipt: the key is ABSENT in all three entries (both cited runs)
+  -> NIT (absent, not [])
+
+CLAIM: Implementation sha256 (both runs identical bytes)
+  EVIDENCE: receipts embed NO fixture sha (grep ad9d59b1 = 0 hits in all 3 files); re-derivable only from mtime/pyc-header: fixture mtime 04:21:52 (src_size 1539408) < run A 04:23:13 < run B 04:23:41 < commit 04:25:01
+  -> HOST-ONLY
+
+CLAIM: Post-run census after run 2: zero r88a graph nodes/sinks/modules/processes
+  EVIDENCE: receipt teardown witnesses: sinks_gone all true, own_nodes_after [], foreign_r88a_nodes [], unloads verified; live census now shows only the pre-existing r84a/r87t residue
+  -> MATCH (receipt + live)
+
+CLAIM: Two pre-existing foreign null sinks (r87t_ns, r84a_probe_548706) untouched
+  EVIDENCE: live pw-dump: node 65 r87t_ns, node 77 r84a_probe_548706 only
+  -> MATCH
+
+CLAIM: 'Files changed … Nothing committed.'
+  EVIDENCE: the commit IS the fixture + this report (2 files); the heading is stale in the landed artifact
+  -> STALE HEADING
+
+CLAIM: dev receipt (20261016T071710822152Z) not listed / not counted
+  EVIDENCE: on disk: RED (6+5+3 = 14 failures, 1 coverage_blocked, 75 legs); report lists only the two green dirs
+  -> UNDISCLOSED RED DEV RUN

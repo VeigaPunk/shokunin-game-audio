@@ -1,0 +1,48 @@
+host/ambient state at audit time (UTC 2026-10-16T07:25-07:35Z)
+
+2026-10-16T07:29:21Z
+ 04:29:21 up 14:51,  1 user,  load average: 76.98, 79.24, 79.58
+32
+
+live r88a census (pw-dump):
+objects 98
+[(84, 'r88a_ns_1481496')]
+
+sinks / cards:
+172871	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29	PipeWire	s16le 2ch 48000Hz	SUSPENDED
+172872	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+172873	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.29	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+220907	r84a_probe_548706	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+245442	r87t_ns	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+253614	r88v_ns_1477821	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+253674	r88a_ns_1481496	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+
+172867	alsa_card.pci-0000_79_00.1	alsa
+172868	alsa_card.usb-Generic_USB_Audio-00	alsa
+
+processes (fixture/r88 seats):
+1477819 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r88-verifier/spot && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && ( time python3 spots_r88v.py . ) > spots.out 2> spots.err.log; echo "rc=$?"; cat spots.out; tail -5 spots.err.log
+1477820 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r88-verifier/spot && export TMPDIR=/home/vgpnk/Projects/shokunin/tmp && ( time python3 spots_r88v.py . ) > spots.out 2> spots.err.log; echo "rc=$?"; cat spots.out; tail -5 spots.err.log
+1481451 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && rm -f corpus/live/r88-reviewer/receipts/serialization.log && TMPDIR=/home/vgpnk/Projects/shokunin/tmp PYTHONDONTWRITEBYTECODE=1 bash corpus/live/r88-reviewer/r88r_serialization_pair.sh > corpus/live/r88-reviewer/receipts/serialization-pair.out 2>&1; echo "rc=$?"; cat corpus/live/r88-reviewer/receipts/serialization.log
+1481491 bash corpus/live/r88-reviewer/r88r_serialization_pair.sh
+1481492 bash corpus/live/r88-reviewer/r88r_serialization_pair.sh
+1481495 timeout 900 python3 corpus/fixtures/measure_audio.py --probe-btwit-r88
+1481496 python3 corpus/fixtures/measure_audio.py --probe-btwit-r88
+
+tracked-file status (only the dirty pyc):
+ M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+
+tracked pyc:
+corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc 2026-10-16 04:22:52.953349622 -0300 1670979
+d758dabd26a5cf8626d869874a560e3162dd5b5dfc8adfe1aa00c8f07d0cbb36  corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+6e271a2d2341208973e1476baf635e02f5ef4f2ff60f43cd1015bebfdbc27473  -
+
+pyc header (embedded source mtime/size) vs the fixture stat:
+src_mtime 2026-10-16 04:21:52 src_size 1539408
+fixture mtime 2026-10-16 04:21:52.329956631 -0300 size 1539408
+
+lane lock + witness:
+corpus/live/measure_audio-btwit-r88.lock 2026-10-16 04:23:25.381426179 -0300 52
+pid=1298372 ns=r88a_ns_1298372 role=r88arole1298372
+930d6404da2da9765cfa7160c439eb46cfe0289e4407b0e4881b22354f6ed9b4  corpus/live/measure_audio-btwit-r88.lock
+
