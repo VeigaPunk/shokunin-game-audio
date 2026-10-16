@@ -1,0 +1,33 @@
+PASS  S1 dead constant PWBIND_R87_LINK_WAIT_S  base=1 folded=0
+PASS  S1 dead constant PWBIND_R87_TAP_WAIT_S  base=1 folded=0
+PASS  S1 contrast STREAM_WAIT_S live  base=2 folded=2 (def+use)
+PASS  S2 r87 (loads or {}) 4 -> 1 (block guard retained)  base=4 folded=1
+PASS  S2 teardown loads.items() direct  
+PASS  S3 r87 leaf = leaf or {} gone  
+PASS  S4 teardown signature (3 params, no default on loads)  args=['entry', 'failures', 'loads'] defaults=0
+PASS  S4 teardown call sites all pass loads positionally  calls=[26201, 26428, 26952, 27400]
+PASS  S5 _pwcat_r83_ns_load returns `leaf` on both paths (dict literal domain)  returns=2
+PASS  S5 _pwbind_r87_load_ns adds field/value to the leaf  
+PASS  S6 pwbind_modes_r87_entry loads domain is dict  26113:{}
+PASS  S6 pwbind_target_r87_entry loads domain is dict  26297:{}
+PASS  S6 pwbind_cli_r87_entry loads domain is dict  26516:{}
+PASS  S6 pwbind_midi_r87_entry loads domain is dict  27190:{}
+PASS  S7 cli nid early block-return dominates the fmt_sink guard  store@26525 return@26531 use@26640 (no nid rebind between)
+PASS  S8 target DEF fallback dominated by the DEF0 block-return  if-not-DEF0@26314 set@26318 DEF@26430
+PASS  S9 cli solo_hi None init gone (region-scoped)  
+PASS  S9 solo_hi real assignment retained  
+PASS  S10 T8 subsumption (id form contains the generic form)  
+PASS  S10 T8 id-term gone from the region  
+PASS  S11 T9 coll_ports guard gone; all([]) is True  
+PASS  S12 patch confinement (all hunks in the r87 region)  10 hunks, base-side starts [25569, 25899, 25923, 25938, 25950, 26427, 26485, 26598, 26637, 26953]
+PASS  S13 --probe-pwbind-r87 flag once  
+PASS  S13 mutex sum term once  
+PASS  S13 dispatch 4 entries  
+PASS  S13 mode/suffix heads  
+PASS  S14 r87 landing insertion-only except 3 wiring lines  -3 +2083
+PASS  S15 block loads guard is LIVE (4/9 call sites omit)  total=9 without=[26110, 26294, 26513, 27187] with=[26309, 26315, 26520, 26532, 26302]
+PASS  S16 region free of every removed form  still present: []
+PASS  S16 loop-head census (block kept / teardown direct)  
+PASS  S16 leaf = leaf or {} gone from region  
+
+31/31 PASS

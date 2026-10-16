@@ -1,0 +1,15 @@
+PASS  L1 lock function CODE has no tempfile/gettempdir/$TMPDIR  code part: path = ROOT / "live" / "measure_audio-pwbind-r87.lock"…
+PASS  L1 lock path is ROOT/live/measure_audio-pwbind-r87.lock  fixed lane path
+PASS  L1 contrast: r82/r84/r85 TMPDIR-scoped, r86/r87 fixed  fixed=['_pwbind_r87_family_lock', '_pwctl_r86_family_lock'] tmpdir=['_alsapw_r84_family_lock', '_ffpw_r82_family_lock', '_pactlmon_r85_family_lock']
+PASS  L2 different TMPDIRs really differ  A=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/lockA B=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/lockB
+PASS  L2 both workers locked the SAME fixed path (via /proc/self/fd)  path=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwbind-r87.lock
+PASS  L2 lock path is outside both TMPDIRs  corpus/live/ is not $TMPDIR
+PASS  L3 second acquirer blocked until the first released  waited=2.602s (holder held 2.6s from its own start)
+PASS  L3 witness rewritten by the holder(s)  pid=285507 ns=r87a_ns_285507 role=r87arole285507
+PASS  L5 released lock is re-acquirable immediately  both workers exited; fd closed at exit
+PASS  L6 cross-tree lock path is a DIFFERENT file (tree-relative ROOT)  orig=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwbind-r87.lock xtree=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/xtree/corpus/live/measure_audio-pwbind-r87.lock
+PASS  L6 cross-tree contender RACES the original-tree holder (inherited r86 F1 residual)  waited=0.373s while the original-tree holder held 2.6s — the lock is per-checkout, not global
+PASS  L7 in-tree vs cross-tree is the either-way control  in-tree 2.602s SERIALIZED / cross-tree 0.373s RACED
+PASS  L4 prior lane witness restored  52 bytes
+
+13/13 PASS

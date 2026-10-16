@@ -1,0 +1,15 @@
+F1 arm domain — the verdict `leg.get('exit_code') == 0`:
+   exit_code=0      -> arm fires: True
+   exit_code=1      -> arm fires: False
+   exit_code=-15    -> arm fires: False
+   exit_code=None   -> arm fires: False
+   receipts: every watch leg (m_sysex/m_ump/m_p_r/m_r_p/m_midi_r/p_zero) recorded exit_code=1, killed=None, exited_before_observe=False on BOTH runs -> the arm cannot fire for a harness kill and cannot fire for a crash either; the recorded exited_before_observe marker is never armed.
+
+F5 spawn-error shape of _pwbind_r87_watch:
+   rec keys: ['argv', 'spawn_error', 'tag']
+   direct ['snaps'] subscript raises KeyError: KeyError('snaps')
+   the target verdict loops `for s in legs[name]['snaps']` for p_zero/p_zero_prop/p_noauto -> a spawn error would raise instead of appending a failure (fail-closed by crash, not by verdict).
+
+F-recorded-only fields (recorded in the receipts, read by no verdict):
+   115509Z-pwbind-r87: binaries.pw_cat_sha='1cd5f30904400ab2' m_p_r.recorded_file={'exists': True, 'bytes': 327724} m_p_r.last={'media_class': 'Stream/Input/Audio', 'ports': ['input_FL', 'input_FR', 'monitor_FL', 'monitor_FR']} collision_objects=[{'id': 118, 'media_class': 'Audio/Sink'}, {'id': 219, 'media_class': 'Stream/Output/Audio'}] tap_windows=59 player_alive_at_end=True player_exit=1 tap_exit=1 pin.bridge='Midi Through: Port-0 (capture)' pin.seq_port='14:0'
+   393338Z-pwbind-r87: binaries.pw_cat_sha='1cd5f30904400ab2' m_p_r.recorded_file={'exists': True, 'bytes': 323628} m_p_r.last={'media_class': 'Stream/Input/Audio', 'ports': ['input_FL', 'input_FR', 'monitor_FL', 'monitor_FR']} collision_objects=[{'id': 233, 'media_class': 'Audio/Sink'}, {'id': 219, 'media_class': 'Stream/Output/Audio'}] tap_windows=61 player_alive_at_end=True player_exit=1 tap_exit=1 pin.bridge='Midi Through: Port-0 (capture)' pin.seq_port='14:0'

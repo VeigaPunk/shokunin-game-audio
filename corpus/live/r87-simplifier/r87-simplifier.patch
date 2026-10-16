@@ -1,0 +1,113 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -25569,8 +25569,6 @@
+ PWBIND_R87_STALE_SERIAL = "98765432"  # never-allocated serial on this host
+ PWBIND_R87_AMP = PLAYBACK_R78_TONE_AMP            # 8192
+ PWBIND_R87_TONE_S = 16.0           # one player covers the lattice legs
+-PWBIND_R87_LINK_WAIT_S = 5.0
+-PWBIND_R87_TAP_WAIT_S = 6.0
+ PWBIND_R87_STREAM_WAIT_S = 8.0
+ PWBIND_R87_OBSERVE_S = (0.9, 1.7)   # watch-leg sample times (boundary's)
+ PWBIND_R87_SOLO_ENV = (0.85, 1.18)  # x8192 solo/restore window
+@@ -25899,8 +25897,7 @@
+     create-node object is pactl-invisible) is destroyed by id via
+     pw-cli before the final sweep — the sweep is a witness, never a
+     bludgeon."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -25923,7 +25920,7 @@
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -25938,7 +25935,7 @@
+     else:
+         rest = sorted(n for n in names
+                       if f"r87a_{PWBIND_R87_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -25950,7 +25947,6 @@
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -26427,7 +26423,7 @@
+     finally:
+         _pwbind_r87_teardown(entry, failures, loads)
+     # ---------------- verdicts ----------------
+-    DEF = entry.get("default_sink_at_start") or "<unreadable-default>"
++    DEF = entry["default_sink_at_start"]
+     entry["default_sink_at_end"] = _pwbind_r87_default_sink()
+     if entry["default_sink_at_end"] != DEF:
+         failures.append(
+@@ -26485,8 +26481,7 @@
+     coll_ports = [e.get("in_port_name")
+                   for s in (legs.get("p_coll") or {}).get("snaps", [])
+                   for e in s.get("edges_out") or []]
+-    if coll_ports and not all(str(p).startswith("playback_")
+-                              for p in coll_ports):
++    if not all(str(p).startswith("playback_") for p in coll_ports):
+         failures.append(
+             f"p_coll: linked to non-playback ports {coll_ports}")
+     entry["legs"] = legs
+@@ -26598,7 +26593,7 @@
+                     None, 4294967295)
+             if attached:
+                 sleep_to(mark() + 0.8)
+-                solo_lo, solo_hi = mark(), None
++                solo_lo = mark()
+                 sleep_to(solo_lo + 0.6)
+                 solo_hi = mark()
+                 writes["w_v25"] = setp("Props", "{ volume: 0.25 }")
+@@ -26637,17 +26632,16 @@
+             # ---------- Format seal on the SINK (stream still linked —
+             # the sink stays running; a suspended sink answers res:-5) --
+             fs = {}
+-            if nid is not None:
+-                fs["pre"] = _pwbind_r87_pwcli(
+-                    "enum-params", nid, "Format", timeout_s=10.0,
+-                                           keep_chars=4000)
+-                fs["write_valid"] = _pwbind_r87_pwcli(
+-                    "set-param", nid, "Format",
+-                    "{ mediaType: 1, mediaSubtype: 1, format: 259, "
+-                    "rate: 44100, channels: 2 }", timeout_s=10.0)
+-                fs["post_valid"] = _pwbind_r87_pwcli(
+-                    "enum-params", nid, "Format", timeout_s=10.0,
+-                                           keep_chars=4000)
++            fs["pre"] = _pwbind_r87_pwcli(
++                "enum-params", nid, "Format", timeout_s=10.0,
++                                       keep_chars=4000)
++            fs["write_valid"] = _pwbind_r87_pwcli(
++                "set-param", nid, "Format",
++                "{ mediaType: 1, mediaSubtype: 1, format: 259, "
++                "rate: 44100, channels: 2 }", timeout_s=10.0)
++            fs["post_valid"] = _pwbind_r87_pwcli(
++                "enum-params", nid, "Format", timeout_s=10.0,
++                                       keep_chars=4000)
+             legs["fmt_sink"] = fs
+             legs["player_alive_at_end"] = player.poll() is None
+             if player.poll() is None:
+@@ -26953,8 +26947,7 @@
+     # ---------------- verdicts ----------------
+     l = legs["cold_nowarm"]
+     blob = (l.get("stdout") or "") + (l.get("stderr") or "")
+-    if f"unknown global '{nid}'" not in blob and \
+-            "unknown global" not in blob:
++    if "unknown global" not in blob:
+         failures.append(
+             "cold_nowarm: the cold-registry artifact did not fire "
+             f"({blob[-160:]})")

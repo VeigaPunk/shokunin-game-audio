@@ -1,0 +1,14 @@
+PASS  D1 teardown differential (5 loads x 5 reader cases)  25 comparisons identical (entry+failures+unload+pwcli calls)
+PASS  D2 block differential (None/{}/leaf shapes)  4 comparisons identical
+PASS  D3 fmt_sink slice differential (reachable nid domain)  4 nid values: identical fs + legs
+PASS  D3 fmt_sink out-of-domain disclosed (nid=None)  base leaves fs empty, folded calls the three verbs — unreachable: `if nid is None: return` blocks the entry first
+PASS  D4 DEF differential over the reachable domain  identical for every entry that reaches the verdicts (key set)
+PASS  D4 DEF out-of-domain disclosed  falsy value: base='<unreadable-default>' folded=None; absent key: folded=KeyError — both unreachable (DEF0 falsy block-returns before any verdict)
+PASS  D5 cold_nowarm predicate differential  7 texts identical (id-form/generic/neither)
+PASS  D6 coll_ports predicate differential  7 port lists identical (incl. empty list)
+PASS  D7 solo slice differential  identical (solo_lo, solo_hi)=(101.0, 102.0)
+PASS  D8 module attribute delta is exactly the two constants  missing=['PWBIND_R87_LINK_WAIT_S', 'PWBIND_R87_TAP_WAIT_S'] added=[] changed=[]
+PASS  D9 symtable diff (r87 functions)  34 functions identical; diffs=[]
+PASS  D9 no new unread name introduced  new-unread=[]
+
+12/12 PASS

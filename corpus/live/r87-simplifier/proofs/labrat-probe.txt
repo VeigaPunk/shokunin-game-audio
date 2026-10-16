@@ -1,0 +1,74 @@
+r87 simplifier — probeParent dispatch: exactly ONE read-only ufo-labrat
+(agent 3b2aebe1). Verbatim report follows.
+
+--- BEGIN LABRAT REPORT ---
+
+Probe complete — read-only inspection only; no files created, modified, or deleted; no commands run. Cleanup status: nothing to clean (zero scratch artifacts).
+
+## H1 — dead constants: **NOT-FALSIFIED**
+
+Grep for the three names returns exactly 4 hits in the file:
+
+```
+25572  PWBIND_R87_LINK_WAIT_S = 5.0
+25573  PWBIND_R87_TAP_WAIT_S = 6.0
+25574  PWBIND_R87_STREAM_WAIT_S = 8.0
+26570      tag, timeout_s=PWBIND_R87_STREAM_WAIT_S)
+```
+
+Occurrence counts (definition line included):
+- `PWBIND_R87_LINK_WAIT_S`: **1** (definition only, zero loads)
+- `PWBIND_R87_TAP_WAIT_S`: **1** (definition only, zero loads)
+- `PWBIND_R87_STREAM_WAIT_S`: **2** (definition + one load at line 26570, `timeout_s=PWBIND_R87_STREAM_WAIT_S`)
+
+No contradicting evidence.
+
+## H2 — fixed-path lock: **NOT-FALSIFIED**
+
+- `ROOT` at line 26: `ROOT = Path(__file__).resolve().parents[1]`
+- `_pwbind_r87_family_lock` (lines 25844–25861): code line 25849 is `path = ROOT / "live" / "measure_audio-pwbind-r87.lock"`. The only `tempfile`/TMPDIR mention is inside the docstring (lines 25845–25848: "a $TMPDIR-scoped lock lets cross-TMPDIR same-family runs race…"), not in code. No `tempfile`, `gettempdir`, or `TMPDIR` token appears in the executable body.
+- Contrast confirmed:
+  - r82 line 14764: `path = Path(tempfile.gettempdir()) / "measure_audio-ffmpeg-r82.lock"`
+  - r84 line 19846: `path = Path(tempfile.gettempdir()) / "measure_audio-alsapw-r84.lock"`
+  - r85 lines 22318–22319: `path = Path(tempfile.gettempdir()) / \` / `"measure_audio-pactlmon-r85.lock"`
+  - r86 line 24124: `path = ROOT / "live" / "measure_audio-pwctl-r86.lock"` — fixed-path, matching the claim.
+
+No contradicting evidence.
+
+## H3 — dead store: **NOT-FALSIFIED**
+
+```
+26601  solo_lo, solo_hi = mark(), None
+26602  sleep_to(solo_lo + 0.6)
+26603  solo_hi = mark()
+```
+
+The two stores (26601, 26603) are adjacent in the same `if attached:` block (line 26599). The only intervening line (26602) reads `solo_lo`, not `solo_hi`. No read of `solo_hi` between the stores. No contradicting evidence.
+
+## H4 — dominance: **NOT-FALSIFIED**
+
+```
+26525  nid = na.get("node_id")
+26531  if nid is None:
+26532      return _pwbind_r87_block(
+26533          entry, failures, "probe node id never resolved", loads)
+```
+
+Between 26531 and 26640, every occurrence of `nid` is a read:
+- 26541: `stdin_data=f"info {nid}\nquit\n".encode()`
+- 26640: `if nid is not None:`
+- 26642: `"enum-params", nid, "Format", …`
+- 26645: `"set-param", nid, "Format", …`
+- 26649: `"enum-params", nid, "Format", …`
+
+No `nid = …` / `nid :=` rebinding exists in the interval (full block read 26531–26651 contains only `sid =`, `na =`-style bindings for other names). Since the `nid is None` branch returns unconditionally, reaching 26640 implies `nid` non-None, so `if nid is not None:` is always true. No contradicting evidence.
+
+**Summary: all four hypotheses NOT-FALSIFIED.** Measured (grep counts, verbatim line reads); no inference beyond the cited lines.
+
+--- END LABRAT REPORT ---
+
+Seat note: the labrat was dispatched as the single bounded depth-2
+read-only probe (probeParent duty); it reported zero writes and no
+contradicting evidence on any hypothesis. Its H2 line numbers for the
+r82/r84/r85 contrast are re-derived independently in this seat's
+`lock-proof.py` L1.

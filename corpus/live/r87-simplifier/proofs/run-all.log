@@ -1,0 +1,150 @@
+== 1. pin the d1e687b9 blob
+   pin ok: be31da679be229074690dc5157edcc122612560594baa8ba62a9b5ce26dd9516
+== 2. fold (12 exact-match edits, region-scoped)
+region lines 25452-28054 of 28735; edits applied: 11
+   PWBIND_R87_LINK_WAIT_S = 5.0
+   PWBIND_R87_TAP_WAIT_S = 6.0
+       for tag, leaf in (loads or {}).items():
+           gone = {nm: nm not in sinks_now for nm in (loads or {})}
+                         or n in (loads or {}))
+       entry.setdefault("coverage_blocked", []).append(msg)
+                   solo_lo, solo_hi = mark(), None
+               fs = {}
+       DEF = entry.get("default_sink_at_start") or "<unreadable-default>"
+       if f"unknown global '{nid}'" not in blob and \
+       if coll_ports and not all(str(p).startswith("playback_")
+== 3. compile + parse the folded copy
+py_compile OK
+ast.parse OK
+lines 28728
+== 4. patch: generate, git apply --check, patch -p1 round-trip
+git apply --check CLEAN
+17	24	corpus/fixtures/measure_audio.py
+fafb3d0b1b6a1d374c185ce454b62ddb83d1c4f9ab27ab86ac975d9e300448e4  /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-simplifier/r87-simplifier.patch
+patch -p1 round-trip BYTE-IDENTICAL
+aa15268dee8e48e705839cc5021e12137cde93826c2b1029d30d08457e2dedb9  corpus/fixtures/measure_audio.py
+== 5. static proofs
+PASS  S1 dead constant PWBIND_R87_LINK_WAIT_S  base=1 folded=0
+PASS  S1 dead constant PWBIND_R87_TAP_WAIT_S  base=1 folded=0
+PASS  S1 contrast STREAM_WAIT_S live  base=2 folded=2 (def+use)
+PASS  S2 r87 (loads or {}) 4 -> 1 (block guard retained)  base=4 folded=1
+PASS  S2 teardown loads.items() direct  
+PASS  S3 r87 leaf = leaf or {} gone  
+PASS  S4 teardown signature (3 params, no default on loads)  args=['entry', 'failures', 'loads'] defaults=0
+PASS  S4 teardown call sites all pass loads positionally  calls=[26201, 26428, 26952, 27400]
+PASS  S5 _pwcat_r83_ns_load returns `leaf` on both paths (dict literal domain)  returns=2
+PASS  S5 _pwbind_r87_load_ns adds field/value to the leaf  
+PASS  S6 pwbind_modes_r87_entry loads domain is dict  26113:{}
+PASS  S6 pwbind_target_r87_entry loads domain is dict  26297:{}
+PASS  S6 pwbind_cli_r87_entry loads domain is dict  26516:{}
+PASS  S6 pwbind_midi_r87_entry loads domain is dict  27190:{}
+PASS  S7 cli nid early block-return dominates the fmt_sink guard  store@26525 return@26531 use@26640 (no nid rebind between)
+PASS  S8 target DEF fallback dominated by the DEF0 block-return  if-not-DEF0@26314 set@26318 DEF@26430
+PASS  S9 cli solo_hi None init gone (region-scoped)  
+PASS  S9 solo_hi real assignment retained  
+PASS  S10 T8 subsumption (id form contains the generic form)  
+PASS  S10 T8 id-term gone from the region  
+PASS  S11 T9 coll_ports guard gone; all([]) is True  
+PASS  S12 patch confinement (all hunks in the r87 region)  10 hunks, base-side starts [25569, 25899, 25923, 25938, 25950, 26427, 26485, 26598, 26637, 26953]
+PASS  S13 --probe-pwbind-r87 flag once  
+PASS  S13 mutex sum term once  
+PASS  S13 dispatch 4 entries  
+PASS  S13 mode/suffix heads  
+PASS  S14 r87 landing insertion-only except 3 wiring lines  -3 +2083
+PASS  S15 block loads guard is LIVE (4/9 call sites omit)  total=9 without=[26110, 26294, 26513, 27187] with=[26309, 26315, 26520, 26532, 26302]
+PASS  S16 region free of every removed form  still present: []
+PASS  S16 loop-head census (block kept / teardown direct)  
+PASS  S16 leaf = leaf or {} gone from region  
+
+31/31 PASS
+== 6. executed differentials
+PASS  D1 teardown differential (5 loads x 5 reader cases)  25 comparisons identical (entry+failures+unload+pwcli calls)
+PASS  D2 block differential (None/{}/leaf shapes)  4 comparisons identical
+PASS  D3 fmt_sink slice differential (reachable nid domain)  4 nid values: identical fs + legs
+PASS  D3 fmt_sink out-of-domain disclosed (nid=None)  base leaves fs empty, folded calls the three verbs — unreachable: `if nid is None: return` blocks the entry first
+PASS  D4 DEF differential over the reachable domain  identical for every entry that reaches the verdicts (key set)
+PASS  D4 DEF out-of-domain disclosed  falsy value: base='<unreadable-default>' folded=None; absent key: folded=KeyError — both unreachable (DEF0 falsy block-returns before any verdict)
+PASS  D5 cold_nowarm predicate differential  7 texts identical (id-form/generic/neither)
+PASS  D6 coll_ports predicate differential  7 port lists identical (incl. empty list)
+PASS  D7 solo slice differential  identical (solo_lo, solo_hi)=(101.0, 102.0)
+PASS  D8 module attribute delta is exactly the two constants  missing=['PWBIND_R87_LINK_WAIT_S', 'PWBIND_R87_TAP_WAIT_S'] added=[] changed=[]
+PASS  D9 symtable diff (r87 functions)  34 functions identical; diffs=[]
+PASS  D9 no new unread name introduced  new-unread=[]
+
+12/12 PASS
+== 7. receipt census (both pinned green runs)
+PASS  R1 receipt shas match the author table  A:01f04d354f2186db B:2970c944375f2e3b
+PASS  R2 no LINK_WAIT/TAP_WAIT surface in either receipt  the two dead constants have zero receipt surface
+PASS  R3 unloads are either name-verified-fired or not_listed-skipped  {'fired': 4, 'not_listed': 2}
+PASS  R3b cli unload is the designed not_listed skip (module destroyed by id)  
+PASS  R4 sinks_gone all true / own_nodes_after [] / no foreign residue  all 4 entries x2
+PASS  R5 no coverage_blocked/blocked on any entry (both runs green)  
+PASS  R6 failures [] on all 4 entries x2  
+PASS  R7 dsp regions exact ratios + all 5 writes rc=0/errors=[]  solo=[8192.0, 8192.0]
+PASS  R8 fold-touched surfaces recorded as expected  regions windows + stable DEF + 1-consumer p_coll + cold blob
+PASS  R9 mdump_live published+pinned and pin SMF carries the events  both runs
+PASS  R10 --volume ratios v050/v150/v000 in envelope  both runs
+PASS  R11 mode + 4 r87 entries present in both receipts  
+PASS  R12 entry probe strings are the r87a namespace  all 8 entries
+
+13/13 PASS
+== 8. fixed-path lock proof (cross-TMPDIR)
+PASS  L1 lock function CODE has no tempfile/gettempdir/$TMPDIR  code part: path = ROOT / "live" / "measure_audio-pwbind-r87.lock"…
+PASS  L1 lock path is ROOT/live/measure_audio-pwbind-r87.lock  fixed lane path
+PASS  L1 contrast: r82/r84/r85 TMPDIR-scoped, r86/r87 fixed  fixed=['_pwbind_r87_family_lock', '_pwctl_r86_family_lock'] tmpdir=['_alsapw_r84_family_lock', '_ffpw_r82_family_lock', '_pactlmon_r85_family_lock']
+PASS  L2 different TMPDIRs really differ  A=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/lockA B=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/lockB
+PASS  L2 both workers locked the SAME fixed path (via /proc/self/fd)  path=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwbind-r87.lock
+PASS  L2 lock path is outside both TMPDIRs  corpus/live/ is not $TMPDIR
+PASS  L3 second acquirer blocked until the first released  waited=2.602s (holder held 2.6s from its own start)
+PASS  L3 witness rewritten by the holder(s)  pid=285507 ns=r87a_ns_285507 role=r87arole285507
+PASS  L5 released lock is re-acquirable immediately  both workers exited; fd closed at exit
+PASS  L6 cross-tree lock path is a DIFFERENT file (tree-relative ROOT)  orig=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwbind-r87.lock xtree=/home/vgpnk/Projects/shokunin/tmp/r87simp-lock/xtree/corpus/live/measure_audio-pwbind-r87.lock
+PASS  L6 cross-tree contender RACES the original-tree holder (inherited r86 F1 residual)  waited=0.373s while the original-tree holder held 2.6s — the lock is per-checkout, not global
+PASS  L7 in-tree vs cross-tree is the either-way control  in-tree 2.602s SERIALIZED / cross-tree 0.373s RACED
+PASS  L4 prior lane witness restored  52 bytes
+
+13/13 PASS
+== 9. CLI wiring (help flag + probe mutex)
+== folded --help | grep pwbind
+100:                        [--probe-pwbind-r87] [--probe-gst-r81]
+231:  --probe-pwbind-r87
+== folded mutex (two probe flags)
+rc=2
+== base mutex (two probe flags)
+rc=2
+== 10. censuses (legs / symbols / findings)
+== 20261016T070036115509Z-pwbind-r87
+  pwbind_modes_r87_probe     legs=18
+  pwbind_target_r87_probe    legs=33
+  pwbind_cli_r87_probe       legs=30
+  pwbind_midi_r87_probe      legs=24
+  TOTAL leg keys: 105
+== 20261016T070305393338Z-pwbind-r87
+  pwbind_modes_r87_probe     legs=18
+  pwbind_target_r87_probe    legs=33
+  pwbind_cli_r87_probe       legs=30
+  pwbind_midi_r87_probe      legs=24
+  TOTAL leg keys: 105
+region lines: 2603 fns: 34 consts: 23
+r87 region line span: 25452 28054
+F1 arm domain — the verdict `leg.get('exit_code') == 0`:
+   exit_code=0      -> arm fires: True
+   exit_code=1      -> arm fires: False
+   exit_code=-15    -> arm fires: False
+   exit_code=None   -> arm fires: False
+   receipts: every watch leg (m_sysex/m_ump/m_p_r/m_r_p/m_midi_r/p_zero) recorded exit_code=1, killed=None, exited_before_observe=False on BOTH runs -> the arm cannot fire for a harness kill and cannot fire for a crash either; the recorded exited_before_observe marker is never armed.
+
+F5 spawn-error shape of _pwbind_r87_watch:
+   rec keys: ['argv', 'spawn_error', 'tag']
+   direct ['snaps'] subscript raises KeyError: KeyError('snaps')
+   the target verdict loops `for s in legs[name]['snaps']` for p_zero/p_zero_prop/p_noauto -> a spawn error would raise instead of appending a failure (fail-closed by crash, not by verdict).
+
+F-recorded-only fields (recorded in the receipts, read by no verdict):
+   115509Z-pwbind-r87: binaries.pw_cat_sha='1cd5f30904400ab2' m_p_r.recorded_file={'exists': True, 'bytes': 327724} m_p_r.last={'media_class': 'Stream/Input/Audio', 'ports': ['input_FL', 'input_FR', 'monitor_FL', 'monitor_FR']} collision_objects=[{'id': 118, 'media_class': 'Audio/Sink'}, {'id': 219, 'media_class': 'Stream/Output/Audio'}] tap_windows=59 player_alive_at_end=True player_exit=1 tap_exit=1 pin.bridge='Midi Through: Port-0 (capture)' pin.seq_port='14:0'
+   393338Z-pwbind-r87: binaries.pw_cat_sha='1cd5f30904400ab2' m_p_r.recorded_file={'exists': True, 'bytes': 323628} m_p_r.last={'media_class': 'Stream/Input/Audio', 'ports': ['input_FL', 'input_FR', 'monitor_FL', 'monitor_FR']} collision_objects=[{'id': 233, 'media_class': 'Audio/Sink'}, {'id': 219, 'media_class': 'Stream/Output/Audio'}] tap_windows=61 player_alive_at_end=True player_exit=1 tap_exit=1 pin.bridge='Midi Through: Port-0 (capture)' pin.seq_port='14:0'
+== 11. manifest (must be the LAST write: hashes every seat file)
+manifest: 33 seat files + manifest.json
+base=be31da679be229074690dc5157edcc122612560594baa8ba62a9b5ce26dd9516
+folded=aa15268dee8e48e705839cc5021e12137cde93826c2b1029d30d08457e2dedb9
+patch=fafb3d0b1b6a1d374c185ce454b62ddb83d1c4f9ab27ab86ac975d9e300448e4
+ALL GREEN
