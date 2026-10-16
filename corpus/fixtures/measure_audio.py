@@ -37709,6 +37709,1470 @@ def wpformat_r90_entry():
     return _wpstate_r90_receipt(entry, "wpformat_r90_probe")
 
 
+# r91: the Gst CAPTURE-FREEZE MECHANISM — the r81 scout read the frozen
+#     capture as a client property ("the client is sticky"), the r91 scout
+#     mechanism-read the policy half (gstpipewiresrc.c sets
+#     PW_STREAM_FLAG_DONT_RECONNECT unconditionally -> node.dont-reconnect
+#     -> WirePlumber's prepare-link never re-creates the link), and the r91
+#     boundary falsified the "sticky client" half with a live control:
+#     `gst-launch-1.0`'s own bus handler re-clocks on CLOCK_LOST by forcing
+#     PLAYING->PAUSED->PLAYING (gst-launch.c:642-646), the capture element
+#     FAILS the PAUSED->PLAYING half while no link exists
+#     (`error during negotiation`, gstpipewiresrc.c:1094), the bin aborts
+#     the transition (`child 'pipewiresrc0' failed to go to state
+#     4(PLAYING)`) and the source stays flushing. An application that does
+#     NOT take that pause resumes on the identical target loss as soon as a
+#     link exists again. This family encodes ONLY the boundary's
+#     surviving cells: the prop lattice (dont-reconnect on capture, absent
+#     on pw-record/pipewiresink, the literal "FALSE" override), the frozen
+#     artifact's real invariants (pinned wavenc streaming header + flat
+#     post-loss shape + no re-created link — the frozen SIZE is
+#     distribution-valued and is recorded, never armed), the launcher's
+#     own CLOCK_LOST line as the mechanism witness, keepalive's
+#     non-rescue, the app-level positive control, the pw-record
+#     source-loss shapes (grows — the scout's freeze claim is falsified),
+#     and the connect law (a no-prop capture x sink target is a hard
+#     target-resolution failure, not a silent no-link) — --probe-gstfrz-r91.
+#
+# A NEW parallel ledger family; prior rows untouched; every r76-r90 guard
+# inherited (seat-owned r91a_<pid> names, the private r91arole<pid> key,
+# name-verified sink_name=/source_name= unloads, never set-default-*,
+# bounded process groups, stdout/stderr drained to capped FILES — the r89
+# backpressure law). The family lock is a FIXED lane path under
+# corpus/live/ (the r84 F1 3-seat consensus — never TMPDIR). All claims
+# are the r91 boundary's THIS-HOST survivals (PipeWire 1.6.8, GStreamer
+# 1.28.6, WirePlumber 0.5.17, python 3.14.7); the scout's falsified rows
+# are dropped or re-armed at the boundary's values (frozen size is not a
+# constant, keepalive does not rescue, the element is not sticky, the
+# no-prop connect fails hard). Volatile text (ids, serials, nsecs, wall
+# times, sibling names) is recorded, never armed.
+
+GSTFRZ_R91_PID = os.getpid()
+GSTFRZ_R91_PREFIX = f"r91a_{GSTFRZ_R91_PID}"
+GSTFRZ_R91_NS = f"r91a_ns_{GSTFRZ_R91_PID}"      # target null sink
+GSTFRZ_R91_NS2 = f"r91a_ns2_{GSTFRZ_R91_PID}"    # relink source
+GSTFRZ_R91_SRC = f"r91a_src_{GSTFRZ_R91_PID}"    # remap-source (target)
+GSTFRZ_R91_TAG = f"gst_r91a_{GSTFRZ_R91_PID}"    # client/node prefix
+GSTFRZ_R91_ROLE = f"r91arole{GSTFRZ_R91_PID}"    # private tone role key
+GSTFRZ_R91_RAW = "audio/x-raw,format=S16LE,rate=48000,channels=2"
+GSTFRZ_R91_WALL_S = 4.6                 # canonical loss wall cap
+GSTFRZ_R91_LOSS_S = 1.2                 # target unload (scout verbatim)
+GSTFRZ_R91_RELINK_S = 1.8               # manual link (after CLOCK_LOST)
+GSTFRZ_R91_BYTE_CAP = 4 * 1024 * 1024
+GSTFRZ_R91_RIFF_SIZE = 0x7FFF0024       # wavenc streaming placeholder
+GSTFRZ_R91_DATA_SIZE = 0x7FFF0000       # wavenc streaming placeholder
+GSTFRZ_R91_ALIGN = 4096                 # frozen payload granularity
+GSTFRZ_R91_CLOCK_LINE = "Clock lost, selecting a new one"
+GSTFRZ_R91_PLAYING_LINE = "Setting pipeline to PLAYING"
+GSTFRZ_R91_KEEPALIVE_S = 20
+GSTFRZ_R91_RESUME_APP = "gstfreeze_r91_resume.py"
+
+# Receipt-stable node props: volatile ids/serials/latency dropped, the
+# r91 claims' own keys kept verbatim (node.dont-reconnect,
+# stream.capture.sink, node.target, target.object).
+GSTFRZ_R91_PROP_KEEP = re.compile(
+    r"^(node\.|stream\.|target\.|media\.|application\.name$|client\.|"
+    r"object\.)")
+GSTFRZ_R91_PROP_DROP = {
+    "object.id", "object.serial", "node.driver-id", "node.latency",
+    "node.loop.name", "node.loop.class", "clock.quantum-limit",
+    "stream.is-live", "client.id"}
+
+# r91-local error classes — family-local, checked before the r81 chain
+# (never prepended into any shared table).
+_GSTFRZ_R91_ERR_CLASSES = (
+    ("gstfrz_no_target_node", r"no target node available"),
+    ("gstfrz_target_not_found", r"stream error: target not found"),
+    ("gstfrz_negotiation", r"error during negotiation"),
+)
+
+
+def _gstfrz_r91_errclass(text):
+    for name, pat in _GSTFRZ_R91_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _gst_r81_errclass(text or "")
+
+
+def _gstfrz_r91_norm(text):
+    """Volatile-field scrub: the r88 node/id/seq classes plus the
+    nanosecond counters."""
+    s = _btwit_r88_norm(text or "")
+    s = re.sub(r"\b\d{9,}\b", "<ns>", s)
+    return s
+
+
+def _gstfrz_r91_read(path, cap=65536):
+    """(text, total_bytes) for a capped log file — the leg's own
+    stdout/stderr drains, never a pipe (the r89 backpressure law)."""
+    try:
+        size = Path(path).stat().st_size
+    except OSError:
+        return "", 0
+    try:
+        with Path(path).open("rb") as fh:
+            blob = fh.read(cap)
+    except OSError:
+        return "", size
+    return blob.decode(errors="replace"), size
+
+
+def _gstfrz_r91_run(argv, timeout_s=10.0, env=None, wd=None,
+                    keep_chars=1400, keep_raw=False):
+    """One bounded short command (connect-law clients, pw-link, pw-cli):
+    its own session, a hard timeout with process-group escalation, and a
+    captured rc/stderr/error-class triple."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                stdin=subprocess.DEVNULL,
+                                start_new_session=True, env=env, cwd=wd)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    timed_out = False
+    try:
+        out, err = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        try:
+            out, err = proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            out, err = b"", b""
+    outt = out.decode(errors="replace")
+    errt = err.decode(errors="replace")
+    cls, hit = _gstfrz_r91_errclass(errt + "\n" + outt)
+    rec.update({"exit_code": proc.returncode, "timed_out": timed_out,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "stdout": _gstfrz_r91_norm(outt)[:keep_chars],
+                "stderr": _gstfrz_r91_norm(errt)[:keep_chars],
+                "stdout_bytes": len(out), "stderr_bytes": len(err),
+                "error_class": cls, "error_hit": hit})
+    if keep_raw:
+        rec["stdout_raw"] = outt
+        rec["stderr_raw"] = errt
+    return rec
+
+
+def _gstfrz_r91_dump():
+    """One pw-dump -> {nodes, ports, links, clients}. The node leaf keeps
+    the full prop dict (the r91 claims live in node.dont-reconnect /
+    stream.capture.sink) with volatile id/serial fields dropped; the
+    client join is node.client.id -> Client.application.process.id — a
+    native NODE does not carry the pid itself."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True,
+                              timeout=6)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, ports, links, clients = {}, {}, [], {}
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "state": info.get("state"),
+                "client_id": props.get("client.id"),
+                "props": {k: v for k, v in props.items()
+                          if GSTFRZ_R91_PROP_KEEP.match(k)
+                          and k not in GSTFRZ_R91_PROP_DROP}}
+        elif t.endswith("Port"):
+            ports[o["id"]] = {
+                "node_id": (info.get("node-id")
+                            or props.get("node.id")),
+                "name": props.get("port.name"),
+                "direction": (info.get("direction")
+                              or props.get("port.direction"))}
+        elif t.endswith("Link"):
+            links.append({"out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id"),
+                          "state": info.get("state")})
+        elif t.endswith("Client"):
+            clients[o["id"]] = {
+                "pid": props.get("application.process.id"),
+                "name": props.get("client.name")}
+    return {"nodes": nodes, "ports": ports, "links": links,
+            "clients": clients}
+
+
+def _gstfrz_r91_sample(proc, out_path, el):
+    """One timeline sample: liveness, artifact size, our node(s) —
+    client-joined by pid, prop-filtered — with their link endpoints
+    (fed_by = producer node names, so a re-created link is a name, not a
+    port guess)."""
+    g = _gstfrz_r91_dump()
+    s = {"t": el, "live": proc.poll() is None,
+         "size": (Path(out_path).stat().st_size
+                  if out_path and Path(out_path).exists() else None),
+         "nodes": []}
+    if "error" in g:
+        s["graph_error"] = g["error"]
+        return s
+    ours = {cid for cid, c in g["clients"].items()
+            if str(c.get("pid")) == str(proc.pid)}
+    for nid, n in g["nodes"].items():
+        if n.get("client_id") not in ours:
+            continue
+        ins = sorted({(g["ports"].get(l["in_port"]) or {}).get("name")
+                      for l in g["links"] if l["in_node"] == nid})
+        outs = sorted({(g["ports"].get(l["out_port"]) or {}).get("name")
+                       for l in g["links"] if l["out_node"] == nid})
+        fed = sorted({(g["nodes"].get(l["out_node"]) or {}).get("name")
+                      for l in g["links"] if l["in_node"] == nid
+                      and l["out_node"] is not None} - {None})
+        s["nodes"].append({"id": nid, "name": n.get("name"),
+                           "state": n.get("state"),
+                           "props": n.get("props"),
+                           "inputs": ins, "outputs": outs,
+                           "fed_by": fed})
+    return s
+
+
+def _gstfrz_r91_last_node(leg, after=None):
+    """The last sample's first own node (optionally only samples at
+    t >= after) — the verdict surface for prop/state assertions."""
+    for s in reversed(leg.get("samples") or []):
+        if after is not None and s["t"] < after:
+            continue
+        if s.get("nodes"):
+            return s["nodes"][0]
+    return None
+
+
+def _gstfrz_r91_post(leg, t0, margin=0.2):
+    return [s for s in (leg.get("samples") or [])
+            if t0 is not None and s["t"] >= t0 + margin]
+
+
+def _gstfrz_r91_unload_at(leg, kinds=("unload_sink", "unload_source")):
+    """(t, result) of the leg's own target unload event."""
+    for f in leg.get("fired") or []:
+        if f.get("kind") in kinds:
+            return f.get("at"), (f.get("result") or {})
+    return None, {}
+
+
+def _gstfrz_r91_hook_at(leg, kind):
+    for f in leg.get("fired") or []:
+        if f.get("kind") == kind:
+            return f.get("at"), (f.get("result") or {})
+    return None, {}
+
+
+def _gstfrz_r91_relink(src_node, dst_node):
+    """Pair the src's monitor_* output ports with the dst node's input_*
+    ports by SUFFIX and fire one pw-link per pair — the boundary's
+    hand-made link, by discovered names (never a guessed port)."""
+    g = _gstfrz_r91_dump()
+    if "error" in g:
+        return {"error": g["error"]}
+    src = _pactlmon_r85_node(g, src_node)
+    dst = _pactlmon_r85_node(g, dst_node)
+    if not src or not dst:
+        return {"missing": {"src": not src, "dst": not dst}}
+    outs = sorted((p.get("name"), pid) for pid, p in g["ports"].items()
+                  if str(p.get("node_id")) == str(src["node_id"])
+                  and str(p.get("direction") or "").startswith("out")
+                  and (p.get("name") or "").startswith("monitor_"))
+    ins = sorted((p.get("name"), pid) for pid, p in g["ports"].items()
+                 if str(p.get("node_id")) == str(dst["node_id"])
+                 and str(p.get("direction") or "").startswith("in")
+                 and (p.get("name") or "").startswith("input_"))
+    pairs = []
+    for oname, _opid in outs:
+        suffix = oname.split("_", 1)[1] if "_" in oname else oname
+        for iname, _ipid in ins:
+            if iname == "input_" + suffix:
+                pairs.append((oname, iname))
+    done = []
+    for oname, iname in pairs:
+        done.append({
+            "out": f"{src_node}:{oname}", "in": f"{dst_node}:{iname}",
+            "res": _gstfrz_r91_run(
+                ["pw-link", f"{src_node}:{oname}",
+                 f"{dst_node}:{iname}"], 8.0, keep_chars=300)})
+    return {"src": src_node, "dst": dst_node, "n_outs": len(outs),
+            "n_ins": len(ins), "links": done}
+
+
+def _gstfrz_r91_hook(kind, payload):
+    """Timed leg events. Every mutating host action goes through the
+    name-verified unload or a discovered-name pw-link; nothing else."""
+    if kind == "unload_sink":
+        module_id, sink_name = payload
+        return _pactlmon_r85_unload_own(module_id, "sink_name",
+                                        sink_name)
+    if kind == "unload_source":
+        module_id, source_name = payload
+        return _pactlmon_r85_unload_own(module_id, "source_name",
+                                        source_name)
+    if kind == "relink":
+        return _gstfrz_r91_relink(payload[0], payload[1])
+    return {"unknown_hook": kind}
+
+
+def _gstfrz_r91_leg(name, argv, ctx, out_path=None, env_extra=None,
+                    wall_cap=GSTFRZ_R91_WALL_S,
+                    byte_cap=GSTFRZ_R91_BYTE_CAP, timeline=0.15,
+                    hooks=(), gates=(), stdout_cap=262144,
+                    stderr_cap=262144, keep_chars=1600, counts=()):
+    """One bounded gst/pw leg. Triple-bounded INSIDE the loop that owns
+    the process group (the r77 flood lesson): the element bound rides in
+    argv, the wall cap SIGKILLs the pgid, the artifact/stream caps are
+    checked on the same tick. stdout and stderr are drained to FILES
+    with their own caps (a full undrained pipe stalls the process — the
+    r89 backpressure law), so the `GST_DEBUG` legs cannot wedge."""
+    tmp = Path(ctx["tmp"])
+    so = tmp / f"{name}.stdout.log"
+    se = tmp / f"{name}.stderr.log"
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        env.update(env_extra)
+    if out_path:
+        Path(out_path).unlink(missing_ok=True)
+    for p in (so, se):
+        p.unlink(missing_ok=True)
+    rec = {"name": name, "env_extra": env_extra or None, "samples": [],
+           "fired": []}
+    try:
+        fso = open(so, "wb")
+        fse = open(se, "wb")
+        proc = subprocess.Popen(argv, stdout=fso, stderr=fse,
+                                stdin=subprocess.DEVNULL,
+                                start_new_session=True, env=env)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    t0 = time.monotonic()
+    pending = sorted(hooks, key=lambda h: h[0])
+    pgates = sorted(gates, key=lambda g: g[0])
+    next_tl = timeline
+    killed = None
+    while True:
+        el = time.monotonic() - t0
+        if proc.poll() is not None:
+            break
+        while pgates and el >= pgates[0][0]:
+            # A gated event fires only once the leg has MEASURED flow
+            # (the artifact has real bytes) or the deadline passes —
+            # under host load a fixed loss time can land before the
+            # stream ever negotiated (the run-2 cold-start defect), and
+            # the leg would then measure a startup race, not the law.
+            t_min, deadline, min_bytes, kind, payload, after = pgates[0]
+            size = (Path(out_path).stat().st_size
+                    if out_path and Path(out_path).exists() else 0)
+            if after and not any(f.get("kind") == after
+                                 for f in rec["fired"]):
+                break
+            if el < deadline and min_bytes is not None and \
+                    (size or 0) < min_bytes:
+                break
+            pgates.pop(0)
+            try:
+                res = _gstfrz_r91_hook(kind, payload)
+            except Exception as exc:            # a hook must not kill the loop
+                res = {"exc": repr(exc)[:200]}
+            rec["fired"].append({"at": round(el, 3), "kind": kind,
+                                 "gated": True, "gate_bytes": size,
+                                 "gate_fallback": el >= deadline,
+                                 "result": res})
+        while pending and el >= pending[0][0]:
+            _, kind, payload = pending.pop(0)
+            try:
+                res = _gstfrz_r91_hook(kind, payload)
+            except Exception as exc:            # a hook must not kill the loop
+                res = {"exc": repr(exc)[:200]}
+            rec["fired"].append({"at": round(el, 3), "kind": kind,
+                                 "result": res})
+        if timeline and el >= next_tl:
+            rec["samples"].append(
+                _gstfrz_r91_sample(proc, out_path, round(el, 3)))
+            next_tl += timeline
+        if out_path and Path(out_path).exists() and \
+                Path(out_path).stat().st_size > byte_cap:
+            killed = f"bytecap:{Path(out_path).stat().st_size}"
+            _alsapw_r84_killpg(proc, signal.SIGKILL)
+            break
+        if so.stat().st_size > stdout_cap:
+            killed = f"stdoutcap:{so.stat().st_size}"
+            _alsapw_r84_killpg(proc, signal.SIGKILL)
+            break
+        if se.stat().st_size > stderr_cap:
+            killed = f"stderrcap:{se.stat().st_size}"
+            _alsapw_r84_killpg(proc, signal.SIGKILL)
+            break
+        if el > wall_cap:
+            killed = "wallcap"
+            _alsapw_r84_killpg(proc, signal.SIGKILL)
+            break
+        time.sleep(0.01)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        proc.wait()
+    for fh in (fso, fse):
+        try:
+            fh.close()
+        except OSError:
+            pass
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    outt, outb = _gstfrz_r91_read(so)
+    errt, errb = _gstfrz_r91_read(se)
+    cls, hit = _gstfrz_r91_errclass(errt + "\n" + outt)
+    shown = " ".join(str(a) for a in argv)
+    for token, mark in ((str(out_path), "<out>"), (str(tmp), "<tmp>")):
+        if token and token != "None":
+            shown = shown.replace(token, mark)
+    rec.update({"argv": shown, "exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed": killed,
+                "stdout": _gstfrz_r91_norm(outt)[:keep_chars],
+                "stderr": _gstfrz_r91_norm(errt)[:keep_chars],
+                "stdout_bytes": outb, "stderr_bytes": errb,
+                "error_class": cls, "error_hit": hit,
+                "out": (_gst_r81_wav_inspect(out_path)
+                        if out_path else None)})
+    if counts:
+        full, _sz = _gstfrz_r91_read(se, stderr_cap)
+        rec["line_counts"] = {p: full.count(p) for p in counts}
+    return rec
+
+
+def _gstfrz_r91_frozen_checks(failures, tag, leg, unl_at,
+                              want_silent=True, want_state_drop=True,
+                              want_header=True, margin=0.2):
+    """The boundary's surviving frozen-capture cells: alive at the wall
+    cap, silent, FLAT after the unload, the pinned wavenc streaming
+    header, no re-created link, and the stream state leaving running.
+    The frozen SIZE is distribution-valued (the boundary saw
+    65580..413740 across 12 legs) and is recorded, never armed."""
+    out = leg.get("out") or {}
+    post = _gstfrz_r91_post(leg, unl_at, margin)
+    sizes = [s.get("size") for s in post if s.get("size") is not None]
+    nodes = [nd for s in post for nd in (s.get("nodes") or [])]
+    states = [nd.get("state") for nd in nodes]
+    fed = sorted({f for nd in nodes for f in (nd.get("fed_by") or [])})
+    if leg.get("killed") != "wallcap":
+        failures.append(
+            f"{tag}: the frozen capture must still be alive at the wall "
+            f"cap — rc={leg.get('exit_code')} killed={leg.get('killed')}")
+    if want_silent and (leg.get("stderr") or "").strip():
+        failures.append(f"{tag}: stderr must be silent — "
+                        f"{(leg.get('stderr') or '')[:160]!r}")
+    if not sizes or max(sizes) <= 44:
+        failures.append(f"{tag}: artifact must carry real bytes after "
+                        f"the loss — out={out}")
+    elif len(sizes) >= 3 and max(sizes) != min(sizes):
+        failures.append(
+            f"{tag}: file kept CHANGING after the unload (sizes "
+            f"{sizes[:2]}..{sizes[-2:]}) — the flat post-loss shape is "
+            "falsified")
+    if fed:
+        failures.append(f"{tag}: a link into the frozen capture exists "
+                        f"({fed}) — the dont-reconnect law fails")
+    if want_state_drop and states and states[-1] == "running":
+        failures.append(f"{tag}: stream state stayed running "
+                        f"({states[-2:]}) — the state-drop cell fails")
+    if want_header and (out.get("riff_size") != GSTFRZ_R91_RIFF_SIZE or
+                        out.get("data_declared") != GSTFRZ_R91_DATA_SIZE):
+        failures.append(
+            f"{tag}: frozen artifact must carry the pinned wavenc "
+            f"streaming placeholders — riff_size="
+            f"{out.get('riff_size')} data_declared="
+            f"{out.get('data_declared')}")
+    # The payload granularity is RECORDED, never armed: the boundary saw
+    # 4096-aligned frozen sizes across 12 legs, this seat measured
+    # 202796 = 44 + 49.5 x 4096 in its own window — the alignment is a
+    # flush-phase artifact, not a law.
+    return {"sizes_tail": sizes[-3:], "states_tail": states[-3:],
+            "fed_by": fed, "bytes": out.get("bytes"),
+            "align_ok": (out.get("bytes") is not None and
+                         (out.get("bytes") - 44) % GSTFRZ_R91_ALIGN == 0)}
+
+
+def _gstfrz_r91_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR). A second --probe-gstfrz-r91 waits HERE."""
+    path = ROOT / "live" / "measure_audio-gstfrz-r91.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={GSTFRZ_R91_PID} ns={GSTFRZ_R91_NS} "
+                     f"role={GSTFRZ_R91_ROLE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _gstfrz_r91_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, and the foreign-r91a census (another seat's residue is a
+    witness, never a verdict)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r91a_nodes": sorted(
+                n for n in names if "r91a_" in n
+                and f"_{GSTFRZ_R91_PID}" not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _gstfrz_r91_ns_ensure(loads, name=GSTFRZ_R91_NS):
+    """Reuse the seat's live null sink ONLY when its module is still in
+    the table, else wait (bounded) for a dying same-name module to clear
+    and load fresh; every leaf carries the name-verified unload fields.
+    A name that is listed while its module is gone makes the leg bind a
+    lingering node and every later unload skip (the run-1 defect)."""
+    idx = _pactlmon_r85_module_index("sink_name", name)
+    if idx is not None and name in (_capture_r77_sink_names() or []):
+        leaf = {"present": True, "sink_seen": True, "monitor_seen": True,
+                "module_id": idx}
+    else:
+        deadline = time.monotonic() + 3.0
+        while time.monotonic() < deadline and \
+                _pactlmon_r85_module_index("sink_name", name) is not None:
+            time.sleep(0.2)
+        leaf = _pwcat_r83_ns_load(name)
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    loads[name] = leaf
+    return leaf
+
+
+def _gstfrz_r91_src_ensure(loads, master_monitor,
+                           name=GSTFRZ_R91_SRC):
+    """Reuse the seat's live remap-source ONLY when its module is still
+    in the table, else wait (bounded) for a dying same-name module to
+    clear and load fresh; the unload fields are the module's own
+    source_name=."""
+    idx = _pactlmon_r85_module_index("source_name", name)
+    if idx is not None and name in (_playback_r78_source_names() or []):
+        leaf = {"present": True, "source_seen": True,
+                "capture_ports": True, "master": master_monitor,
+                "module_id": idx}
+    else:
+        deadline = time.monotonic() + 3.0
+        while time.monotonic() < deadline and \
+                _pactlmon_r85_module_index("source_name",
+                                           name) is not None:
+            time.sleep(0.2)
+        leaf = _pactlmon_r85_remap_load(master_monitor, name)
+    leaf["field"] = "source_name"
+    leaf["value"] = name
+    loads[name] = leaf
+    return leaf
+
+
+def _gstfrz_r91_gi_ok():
+    """The resume fixture needs PyGObject + GStreamer bindings; absent
+    bindings are a named coverage block, never a silent failure."""
+    try:
+        r = subprocess.run(
+            [sys.executable, "-c",
+             "import gi; gi.require_version('Gst','1.0'); "
+             "from gi.repository import Gst; "
+             "print(Gst.version_string())"],
+            capture_output=True, timeout=20)
+        return (r.returncode == 0,
+                (r.stdout or b"").decode(errors="replace").strip()[:80])
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return False, type(exc).__name__
+
+
+def _gstfrz_r91_play(tag, target, tone):
+    """One tagged pw-play follower -> a seat sink; the private
+    r91arole<pid> media.role marks it ours (never `music`)."""
+    try:
+        return subprocess.Popen(
+            ["pw-play", "-P", f"node.name={tag}",
+             "-P", f"media.role={GSTFRZ_R91_ROLE}",
+             "--target", target, str(tone)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL, start_new_session=True)
+    except OSError:
+        return None
+
+
+def _gstfrz_r91_teardown(entry, failures, loads, players=()):
+    """Kill every tracked tone follower, unload every own module by its
+    NAME-VERIFIED index, destroy any surviving r91a_<pid> node by id,
+    then the two witnesses: sinks gone and no own node left."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    g = _pactlmon_r85_graph()
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and f"r91a_{GSTFRZ_R91_PID}" in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_gstfrz_r91_run(["pw-cli", "destroy", nid], 8.0,
+                               keep_chars=300)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})
+                if (loads or {}).get(nm, {}).get("field",
+                                                 "sink_name") ==
+                "sink_name"}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after "
+            "unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if f"r91a_{GSTFRZ_R91_PID}" in n
+                      or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r91a-tagged nodes survived: {rest}")
+
+
+def _gstfrz_r91_block(entry, failures, msg, loads=None, players=()):
+    """The named coverage block: kill players, unload anything loaded,
+    record the block — a blocked leg is named coverage, never a silent
+    pass."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _gstfrz_r91_json(path, cap=1 << 20):
+    """Read a bounded JSON witness (the fixture app's status file)."""
+    try:
+        if Path(path).stat().st_size > cap:
+            return {"reader_error": "oversize"}
+        with Path(path).open() as fh:
+            return json.load(fh)
+    except (OSError, ValueError) as exc:
+        return {"reader_error": type(exc).__name__}
+
+
+def _gstfrz_r91_cap_argv(tag, target, out_path, capsink=True,
+                         extra_props=(), extra_src_props=()):
+    """The canonical capture argv: pipewiresrc target-object=<target>,
+    stream-properties=props[,stream.capture.sink=true][,extra] ...
+    wavenc ! filesink — the scout's F3 shape, boundary-verbatim."""
+    src = ["gst-launch-1.0", "-q", "pipewiresrc",
+           f"client-name={tag}", f"target-object={target}"]
+    joined = "props"
+    if capsink:
+        joined += ",stream.capture.sink=true"
+    for k, v in extra_src_props:
+        joined += f",{k}={v}"
+    src.append("stream-properties=" + joined)
+    for k, v in extra_props:
+        src.append(f"{k}={v}")
+    src += ["num-buffers=1000000", "!", GSTFRZ_R91_RAW, "!",
+            "wavenc", "!", "filesink", f"location={out_path}"]
+    return src
+
+
+def gstfrz_prop_r91_entry():
+    """(1) The prop lattice + the mechanism's client-side half. A live
+    `pipewiresrc` node carries `node.dont-reconnect=true` (the element
+    sets PW_STREAM_FLAG_DONT_RECONNECT unconditionally), the CLI
+    override lands as the literal string "FALSE" (gst passes structure
+    values through as written), and `pw-record` / `pipewiresink` carry
+    NO such prop. The sink stream is running before the target unload;
+    what it does afterwards is leg-conditional (survives `running` or
+    exits rc=1) and is recorded as two named classes, not armed as a
+    state asymmetry."""
+    failures, legs, loads, players = [], {}, {}, []
+    entry = _gstfrz_r91_entry_head(
+        "r91a prop lattice — node.dont-reconnect on capture, the "
+        "literal FALSE override, its absence on pw-record/pipewiresink, "
+        "and the sink's surviving stream state")
+    tools = {t: shutil.which(t) for t in
+             ("gst-launch-1.0", "pw-record", "pw-dump", "pw-play",
+              "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _gstfrz_r91_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    try:
+        load = _gstfrz_r91_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gstfrz_r91_block(
+                entry, failures,
+                f"probe null sink {GSTFRZ_R91_NS} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(prefix="gstfrz-r91-prop-") as tmp:
+            ctx = {"tmp": tmp}
+            # -- the capture node's own prop --------------------------
+            out = str(Path(tmp) / "p_cap.wav")
+            legs["p_cap"] = _gstfrz_r91_leg(
+                "p_cap",
+                _gstfrz_r91_cap_argv(f"{GSTFRZ_R91_TAG}_pcap",
+                                     GSTFRZ_R91_NS, out),
+                ctx, out_path=out, wall_cap=1.8, timeline=0.4)
+            # -- the CLI override lands verbatim ----------------------
+            out = str(Path(tmp) / "p_cap_false.wav")
+            legs["p_cap_false"] = _gstfrz_r91_leg(
+                "p_cap_false",
+                _gstfrz_r91_cap_argv(
+                    f"{GSTFRZ_R91_TAG}_pfal", GSTFRZ_R91_NS, out,
+                    extra_src_props=(("node.dont-reconnect", "false"),)),
+                ctx, out_path=out, wall_cap=1.8, timeline=0.4)
+            # -- pw-record carries no such prop -----------------------
+            out = str(Path(tmp) / "p_rec.wav")
+            legs["p_rec"] = _gstfrz_r91_leg(
+                "p_rec",
+                ["pw-record", "-P", f"node.name={GSTFRZ_R91_TAG}_prec",
+                 "-P", "stream.capture.sink=true",
+                 "--target", GSTFRZ_R91_NS, "-n", "1000000", out],
+                ctx, out_path=out, wall_cap=1.8, timeline=0.4)
+            # -- the sink path: no prop, and its state survives ------
+            legs["p_sink"] = _gstfrz_r91_leg(
+                "p_sink",
+                ["gst-launch-1.0", "-q", "audiotestsrc",
+                 "wave=silence", "!", GSTFRZ_R91_RAW, "!",
+                 "pipewiresink",
+                 f"target-object={GSTFRZ_R91_NS}"],
+                ctx, wall_cap=3.0, timeline=0.2,
+                gates=[(1.4, 2.0, None, "unload_sink",
+                        (load.get("module_id"), GSTFRZ_R91_NS),
+                        None)])
+    finally:
+        _gstfrz_r91_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    # ---- p_cap: the flag -> prop cell ------------------------------
+    nd = _gstfrz_r91_last_node(legs.get("p_cap") or {})
+    if not nd:
+        failures.append("p_cap: no own node observed in pw-dump")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.dont-reconnect") is not True:
+            failures.append(
+                "p_cap: node.dont-reconnect must be the JSON boolean "
+                f"true — {props.get('node.dont-reconnect')!r}")
+        if props.get("stream.capture.sink") != "TRUE":
+            failures.append(
+                "p_cap: stream.capture.sink must land verbatim — "
+                f"{props.get('stream.capture.sink')!r}")
+        if props.get("target.object") != GSTFRZ_R91_NS:
+            failures.append("p_cap: target.object must name the seat "
+                            f"sink — {props.get('target.object')!r}")
+    # ---- p_cap_false: the override cell ----------------------------
+    nd = _gstfrz_r91_last_node(legs.get("p_cap_false") or {})
+    if not nd:
+        failures.append("p_cap_false: no own node observed in pw-dump")
+    else:
+        val = (nd.get("props") or {}).get("node.dont-reconnect")
+        if val != "FALSE":
+            failures.append(
+                "p_cap_false: the override must land as the literal "
+                f"string 'FALSE' — {val!r}")
+    # ---- p_rec: absent on the CLI client ---------------------------
+    nd = _gstfrz_r91_last_node(legs.get("p_rec") or {})
+    if not nd:
+        failures.append("p_rec: no own node observed in pw-dump")
+    elif "node.dont-reconnect" in (nd.get("props") or {}):
+        failures.append("p_rec: pw-record must NOT carry "
+                        "node.dont-reconnect — "
+                        f"{nd['props'].get('node.dont-reconnect')!r}")
+    # ---- p_sink: absent on the sink + the post-loss outcome --------
+    leg = legs.get("p_sink") or {}
+    unl_at, _res = _gstfrz_r91_unload_at(leg)
+    nd = _gstfrz_r91_last_node(leg, after=unl_at)
+    if not nd:
+        failures.append("p_sink: no own node observed in pw-dump")
+    else:
+        if "node.dont-reconnect" in (nd.get("props") or {}):
+            failures.append("p_sink: pipewiresink must NOT carry "
+                            "node.dont-reconnect")
+    pre_states = [nd.get("state") for s in (leg.get("samples") or [])
+                  if unl_at is not None and s["t"] < unl_at
+                  for nd in (s.get("nodes") or [])]
+    if not pre_states or any(st != "running" for st in pre_states):
+        failures.append("p_sink: the sink stream must be running before "
+                        f"the target unload — {pre_states}")
+    post = _gstfrz_r91_post(leg, unl_at)
+    states = [nd.get("state") for s in post
+              for nd in (s.get("nodes") or [])]
+    # The sink stream's post-loss life is LEG-CONDITIONAL on this host:
+    # with the same argv the element either survives with its stream
+    # `running` (the boundary's S1 shape) or exits rc=1 at the loss
+    # (this seat's run-1 shape). Both classes are named and armed; only
+    # the prop asymmetry is a law.
+    if leg.get("killed") == "wallcap" and states and \
+            all(st == "running" for st in states):
+        p_sink_cls = "survived_running"
+    elif leg.get("killed") is None and \
+            leg.get("exit_code") not in (0, -9, None) and \
+            all(st != "running" for st in states):
+        p_sink_cls = "exited"
+    else:
+        p_sink_cls = (f"other:rc={leg.get('exit_code')},"
+                      f"killed={leg.get('killed')},states={states[-3:]}")
+    if p_sink_cls not in ("survived_running", "exited"):
+        failures.append("p_sink: the post-loss outcome must land in one "
+                        f"of the two named classes — {p_sink_cls}")
+    entry["cells"] = {
+        "p_cap_dont_reconnect": (_gstfrz_r91_last_node(
+            legs.get("p_cap") or {}) or {}).get("props", {}).get(
+                "node.dont-reconnect"),
+        "p_cap_false_value": (_gstfrz_r91_last_node(
+            legs.get("p_cap_false") or {}) or {}).get("props", {}).get(
+                "node.dont-reconnect"),
+        "p_rec_prop_present": "node.dont-reconnect" in (
+            (_gstfrz_r91_last_node(legs.get("p_rec") or {}) or {})
+            .get("props") or {}),
+        "p_sink_prop_present": "node.dont-reconnect" in (
+            (_gstfrz_r91_last_node(legs.get("p_sink") or {}) or {})
+            .get("props") or {}),
+        "p_sink_pre_states": sorted(set(pre_states)),
+        "p_sink_post_class": p_sink_cls,
+        "p_sink_post_states": sorted(set(states)),
+        "p_sink_exit_code": leg.get("exit_code")}
+    entry["failures"] = failures
+    return entry
+
+
+def gstfrz_clock_r91_entry():
+    """(2) The freeze, mechanism-witnessed. The canonical capture argv
+    freezes flat at the pinned wavenc streaming header with no
+    re-created link and a state drop; the SAME argv without `-q` prints
+    the launcher's own `Clock lost, selecting a new one` (the
+    CLOCK_LOST handler that forces the state round-trip); keepalive
+    does NOT rescue; and with the target alive the same argv grows."""
+    failures, legs, loads, players = [], {}, {}, []
+    entry = _gstfrz_r91_entry_head(
+        "r91a clock lattice — frozen header + flat shape + no re-link, "
+        "the launcher's own Clock-lost line, keepalive's non-rescue, "
+        "and the target-alive growth control")
+    tools = {t: shutil.which(t) for t in
+             ("gst-launch-1.0", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _gstfrz_r91_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    try:
+        load = _gstfrz_r91_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gstfrz_r91_block(
+                entry, failures,
+                f"probe null sink {GSTFRZ_R91_NS} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(prefix="gstfrz-r91-clk-") as tmp:
+            ctx = {"tmp": tmp}
+            # Every loss leg destroys its target, so each one re-loads a
+            # FRESH seat sink (a stale module id unloads nothing and the
+            # leg silently becomes a target-alive control — the dev-run
+            # defect this loop is written against).
+            for tag, argv, env_extra, stderr_cap, hooks in (
+                    ("c_quiet",
+                     _gstfrz_r91_cap_argv(f"{GSTFRZ_R91_TAG}_cq",
+                                          GSTFRZ_R91_NS,
+                                          str(Path(tmp) / "c_quiet.wav")),
+                     None, 262144, True),
+                    ("c_verbose",
+                     [a for a in _gstfrz_r91_cap_argv(
+                         f"{GSTFRZ_R91_TAG}_cv", GSTFRZ_R91_NS,
+                         str(Path(tmp) / "c_verbose.wav"))
+                      if a != "-q"],
+                     None, 262144, True),
+                    ("c_keepalive",
+                     _gstfrz_r91_cap_argv(
+                         f"{GSTFRZ_R91_TAG}_ck", GSTFRZ_R91_NS,
+                         str(Path(tmp) / "c_keepalive.wav"),
+                         extra_props=(("keepalive-time",
+                                       str(GSTFRZ_R91_KEEPALIVE_S)),)),
+                     {"GST_DEBUG": "pipewiresrc:5",
+                      "GST_DEBUG_NO_COLOR": "1"},
+                     2 * 1024 * 1024, True),
+                    ("c_alive",
+                     _gstfrz_r91_cap_argv(f"{GSTFRZ_R91_TAG}_ca",
+                                          GSTFRZ_R91_NS,
+                                          str(Path(tmp) / "c_alive.wav")),
+                     None, 262144, False)):
+                load = _gstfrz_r91_ns_ensure(loads)
+                if not load.get("sink_seen"):
+                    return _gstfrz_r91_block(
+                        entry, failures,
+                        f"null sink load failed before {tag}", loads)
+                out = str(Path(tmp) / f"{tag}.wav")
+                legs[tag] = _gstfrz_r91_leg(
+                    tag, argv, ctx, out_path=out, timeline=0.15,
+                    wall_cap=(2.6 if tag == "c_alive"
+                              else GSTFRZ_R91_WALL_S),
+                    env_extra=env_extra, stderr_cap=stderr_cap,
+                    counts=("timeout, send keepalive buffer",
+                            "popped buffer"),
+                    gates=([(GSTFRZ_R91_LOSS_S, 3.0, 65536,
+                             "unload_sink",
+                             (load.get("module_id"), GSTFRZ_R91_NS),
+                             None)] if hooks else []))
+    finally:
+        _gstfrz_r91_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    # ---- the three frozen legs share one cell set ------------------
+    entry["frozen"] = {}
+    for tag in ("c_quiet", "c_verbose", "c_keepalive"):
+        leg = legs.get(tag) or {}
+        unl_at, res = _gstfrz_r91_unload_at(leg)
+        if not unl_at:
+            failures.append(f"{tag}: the target unload never fired")
+        if res.get("exit_code") != 0:
+            failures.append(f"{tag}: name-verified unload rc="
+                            f"{res.get('exit_code')} {res}")
+        entry["frozen"][tag] = _gstfrz_r91_frozen_checks(
+            failures, tag, leg, unl_at,
+            want_silent=(tag == "c_quiet"))
+    # ---- the launcher's own CLOCK_LOST line ------------------------
+    l = legs.get("c_verbose") or {}
+    if GSTFRZ_R91_CLOCK_LINE not in (l.get("stdout") or ""):
+        failures.append(
+            "c_verbose: the launcher's own CLOCK_LOST handler line must "
+            f"appear — stdout={(l.get('stdout') or '')[:240]!r}")
+    if GSTFRZ_R91_PLAYING_LINE not in (l.get("stdout") or ""):
+        failures.append(
+            "c_verbose: the launcher's own PLAYING line must appear — "
+            f"stdout={(l.get('stdout') or '')[:240]!r}")
+    # ---- the -q legs stay silent -----------------------------------
+    for tag in ("c_quiet", "c_keepalive"):
+        l = legs.get(tag) or {}
+        if (l.get("stdout") or "").strip():
+            failures.append(f"{tag}: -q stdout must be empty — "
+                            f"{(l.get('stdout') or '')[:160]!r}")
+    # ---- keepalive cannot rescue: zero resend/popped lines ---------
+    l = legs.get("c_keepalive") or {}
+    lc = l.get("line_counts") or {}
+    resend = lc.get("timeout, send keepalive buffer")
+    popped = lc.get("popped buffer")
+    entry["keepalive_lines"] = {"resend": resend, "popped": popped,
+                                "stderr_bytes": l.get("stderr_bytes")}
+    if resend or popped:
+        failures.append(
+            "c_keepalive: keepalive must not reach the resend path once "
+            f"the source is flushing — resend={resend} popped={popped}")
+    # ---- the target-alive control ----------------------------------
+    l = legs.get("c_alive") or {}
+    sizes = [s.get("size") for s in (l.get("samples") or [])
+             if s.get("size") is not None]
+    if len(sizes) < 3 or sizes[-1] - sizes[0] < 65536:
+        failures.append("c_alive: with the target alive the same argv "
+                        f"must GROW — sizes {sizes[:2]}..{sizes[-2:]}")
+    nd = _gstfrz_r91_last_node(l)
+    if not nd or nd.get("state") != "running":
+        failures.append("c_alive: the control's stream state must be "
+                        f"running — {(nd or {}).get('state')}")
+    entry["alive_sizes"] = sizes[-3:]
+    entry["failures"] = failures
+    return entry
+
+
+def gstfrz_resume_r91_entry():
+    """(3) The positive control that falsifies "the client is sticky":
+    the fixture app runs the SAME pipeline on the SAME target and
+    OBSERVES CLOCK_LOST without ever taking the pipeline out of
+    PLAYING; a manual pw-link to a live seat tone monitor afterwards
+    resumes the artifact. Nothing else changes — no set_state, no
+    keepalive, no prop."""
+    failures, legs, loads, players = [], {}, {}, []
+    entry = _gstfrz_r91_entry_head(
+        "r91a resume control — an app that does not take the CLOCK_LOST "
+        "pause resumes on a manual link (the gst-launch freeze is a "
+        "harness property)")
+    tools = {t: shutil.which(t) for t in
+             ("pw-play", "pw-dump", "pw-link", "pactl")}
+    entry["tools"] = tools
+    app = Path(__file__).with_name(GSTFRZ_R91_RESUME_APP)
+    entry["app"] = str(app)
+    if not app.exists():
+        return _gstfrz_r91_block(
+            entry, failures, f"resume fixture {app} is missing")
+    gi_ok, gi_ver = _gstfrz_r91_gi_ok()
+    entry["gi"] = {"ok": gi_ok, "version": gi_ver}
+    if not gi_ok:
+        return _gstfrz_r91_block(
+            entry, failures,
+            "PyGObject/GStreamer bindings unavailable for the resume "
+            "fixture")
+    if not all(tools.values()):
+        return _gstfrz_r91_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    try:
+        load = _gstfrz_r91_ns_ensure(loads)
+        load2 = _gstfrz_r91_ns_ensure(loads, GSTFRZ_R91_NS2)
+        if not load.get("sink_seen") or not load2.get("sink_seen"):
+            return _gstfrz_r91_block(
+                entry, failures,
+                "probe null sinks never enumerated", loads)
+        with tempfile.TemporaryDirectory(prefix="gstfrz-r91-res-") as tmp:
+            tone = Path(tmp) / f"{GSTFRZ_R91_PREFIX}_tone.wav"
+            _playback_r78_write_tone(tone, 75.0)
+            players.append(_gstfrz_r91_play(
+                f"{GSTFRZ_R91_PREFIX}_tone", GSTFRZ_R91_NS2, tone))
+            time.sleep(0.8)
+            ctx = {"tmp": tmp}
+            out = str(Path(tmp) / "r_app.wav")
+            status = str(Path(tmp) / "r_app.status.json")
+            node_name = f"{GSTFRZ_R91_TAG}_resume"
+            legs["r_app"] = _gstfrz_r91_leg(
+                "r_app",
+                [sys.executable, str(app),
+                 "--target", GSTFRZ_R91_NS, "--out", out,
+                 "--status", status, "--client-name", node_name,
+                 "--wall", "5.5"],
+                ctx, out_path=out, timeline=0.2, wall_cap=6.4,
+                gates=[(GSTFRZ_R91_LOSS_S, 3.0, 65536, "unload_sink",
+                        (load.get("module_id"), GSTFRZ_R91_NS), None),
+                       (GSTFRZ_R91_RELINK_S, 5.0, None, "relink",
+                        (GSTFRZ_R91_NS2, node_name), "unload_sink")])
+            legs["r_app"]["app_status"] = _gstfrz_r91_json(status)
+    finally:
+        _gstfrz_r91_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    leg = legs.get("r_app") or {}
+    st = leg.get("app_status") or {}
+    if not st:
+        failures.append("r_app: the fixture app wrote no status file")
+    else:
+        if not st.get("clock_lost"):
+            failures.append("r_app: the app must SEE CLOCK_LOST — "
+                            "status.clock_lost is false")
+        if st.get("forced") is not None:
+            failures.append("r_app: the app must never set_state(PLAYING) "
+                            f"— forced={st.get('forced')}")
+        if st.get("errors"):
+            failures.append(f"r_app: bus errors {st.get('errors')}")
+        if st.get("exit") != "wall" or st.get("rc") != 0:
+            failures.append("r_app: the app must bound itself at its own "
+                            f"wall — exit={st.get('exit')} "
+                            f"rc={st.get('rc')}")
+    if leg.get("killed") is not None:
+        failures.append("r_app: the battery must not have to kill it — "
+                        f"killed={leg.get('killed')}")
+    unl_at, _res = _gstfrz_r91_unload_at(leg)
+    rel_at, rel = _gstfrz_r91_hook_at(leg, "relink")
+    cl_t = (st or {}).get("clock_lost_t")
+    if cl_t is not None and rel_at is not None and cl_t > rel_at:
+        failures.append("r_app: the manual link must fire AFTER the "
+                        f"clock-lost — cl={cl_t} relink={rel_at}")
+    links = (rel or {}).get("links") or []
+    entry["relink"] = {"at": rel_at, "n": len(links),
+                       "rcs": [((l.get("res") or {}).get("exit_code"))
+                               for l in links]}
+    if not links:
+        failures.append("r_app: the manual relink found no port pair — "
+                        f"relink={rel}")
+    elif any(((l.get("res") or {}).get("exit_code") != 0)
+             for l in links):
+        failures.append("r_app: a manual pw-link failed — "
+                        f"{[l.get('res') for l in links]}")
+    samples = [s for s in (leg.get("samples") or [])
+               if s.get("size") is not None]
+    # the pre-link window stops BEFORE the relink sample: the first
+    # buffer after the link is the resume itself, not a flatness break.
+    pre = [s["size"] for s in samples
+           if unl_at is not None and rel_at is not None
+           and unl_at + 0.35 <= s["t"] <= rel_at - 0.05]
+    post = [s["size"] for s in samples
+            if rel_at is not None and s["t"] >= rel_at + 0.2]
+    at_rel = next((s["size"] for s in samples
+                   if rel_at is not None and s["t"] >= rel_at), None)
+    entry["resume_bytes"] = {"pre": pre[:3] + pre[-3:] if pre else [],
+                             "at_relink": at_rel,
+                             "post": post[-3:] if post else []}
+    if len(pre) >= 2 and max(pre) - min(pre) > 8192:
+        failures.append("r_app: the artifact must be FLAT while no link "
+                        f"exists — pre-link sizes {pre[:3]}..{pre[-3:]}")
+    if at_rel is None or not post or post[-1] - at_rel < 65536:
+        failures.append("r_app: the artifact must GROW after the manual "
+                        f"link — at_relink={at_rel} post={post[-3:]}")
+    fed = sorted({f for s in (leg.get("samples") or [])
+                  if rel_at is not None and s["t"] >= rel_at + 0.2
+                  for nd in (s.get("nodes") or [])
+                  for f in (nd.get("fed_by") or [])})
+    entry["fed_by_after_link"] = fed
+    if not fed:
+        failures.append("r_app: no link into the app node after the "
+                        "manual pw-link — the resume witness is missing")
+    entry["failures"] = failures
+    return entry
+
+
+def gstfrz_srcloss_r91_entry():
+    """(4) The pw-record source-loss envelope: with the remap-source
+    target destroyed and NO relink the capture stays ALIVE at the wall
+    cap and lands in one of two named classes with identical argv —
+    `grows_running` (keeps producing unlinked buffers, the boundary's
+    B12/r85 shape) or `freeze_idle` (drops to idle and freezes, the
+    scout's F1s / boundary B11 pre-link shape). Neither is armed as
+    universal. With a manual link the stream is running and growing
+    again — the freeze is a "no link" state, not a client that refuses
+    data."""
+    failures, legs, loads, players = [], {}, {}, []
+    entry = _gstfrz_r91_entry_head(
+        "r91a source-loss envelope — pw-record stays alive and lands in "
+        "one of two named post-loss classes (grows_running | "
+        "freeze_idle), and a manual link always resumes it")
+    tools = {t: shutil.which(t) for t in
+             ("pw-play", "pw-record", "pw-dump", "pw-link", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _gstfrz_r91_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    try:
+        load = _gstfrz_r91_ns_ensure(loads)
+        load2 = _gstfrz_r91_ns_ensure(loads, GSTFRZ_R91_NS2)
+        if not load.get("sink_seen") or not load2.get("sink_seen"):
+            return _gstfrz_r91_block(
+                entry, failures,
+                "probe null sinks never enumerated", loads)
+        with tempfile.TemporaryDirectory(prefix="gstfrz-r91-sl-") as tmp:
+            tone = Path(tmp) / f"{GSTFRZ_R91_PREFIX}_tone.wav"
+            _playback_r78_write_tone(tone, 75.0)
+            players.append(_gstfrz_r91_play(
+                f"{GSTFRZ_R91_PREFIX}_tone", GSTFRZ_R91_NS, tone))
+            players.append(_gstfrz_r91_play(
+                f"{GSTFRZ_R91_PREFIX}_tone2", GSTFRZ_R91_NS2, tone))
+            time.sleep(0.8)
+            src = _gstfrz_r91_src_ensure(
+                loads, f"{GSTFRZ_R91_NS}.monitor")
+            if not src.get("source_seen"):
+                return _gstfrz_r91_block(
+                    entry, failures,
+                    f"probe remap-source {GSTFRZ_R91_SRC} never "
+                    "enumerated", loads, players)
+            ctx = {"tmp": tmp}
+            out = str(Path(tmp) / "s_norelink.wav")
+            legs["s_norelink"] = _gstfrz_r91_leg(
+                "s_norelink",
+                ["pw-record", "-P",
+                 f"node.name={GSTFRZ_R91_TAG}_norelink",
+                 "--target", GSTFRZ_R91_SRC, "-n", "1000000", out],
+                ctx, out_path=out, timeline=0.15, wall_cap=5.0,
+                gates=[(GSTFRZ_R91_LOSS_S, 3.0, 65536, "unload_source",
+                        (src.get("module_id"), GSTFRZ_R91_SRC), None)])
+            # the relink arm needs the source alive again: reload it and
+            # verify the TARGET NODE (a listed name with no node would
+            # bind a lingering object and the leg would measure the
+            # wrong thing — the run-1 defect class).
+            src2 = _gstfrz_r91_src_ensure(
+                loads, f"{GSTFRZ_R91_NS}.monitor")
+            g = _gstfrz_r91_dump()
+            src2["node_present"] = bool(_pactlmon_r85_node(
+                g, GSTFRZ_R91_SRC))
+            if not src2.get("source_seen") or \
+                    not src2.get("node_present"):
+                entry.setdefault("coverage_blocked", []).append(
+                    "s_relink: remap-source never re-enumerated as a "
+                    "live node after the first arm")
+            else:
+                out = str(Path(tmp) / "s_relink.wav")
+                legs["s_relink"] = _gstfrz_r91_leg(
+                    "s_relink",
+                    ["pw-record", "-P",
+                     f"node.name={GSTFRZ_R91_TAG}_srclink",
+                     "--target", GSTFRZ_R91_SRC, "-n", "1000000", out],
+                    ctx, out_path=out, timeline=0.15, wall_cap=5.0,
+                    gates=[(GSTFRZ_R91_LOSS_S, 3.0, 65536,
+                            "unload_source",
+                            (src2.get("module_id"), GSTFRZ_R91_SRC),
+                            None),
+                           (2.2, 5.0, None, "relink",
+                            (GSTFRZ_R91_NS2,
+                             f"{GSTFRZ_R91_TAG}_srclink"),
+                            "unload_source")])
+    finally:
+        _gstfrz_r91_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    entry["shapes"] = {}
+    for tag in ("s_norelink", "s_relink"):
+        leg = legs.get(tag)
+        if leg is None:
+            continue
+        unl_at, res = _gstfrz_r91_unload_at(leg)
+        if not unl_at:
+            failures.append(f"{tag}: the source unload never fired")
+        if res.get("exit_code") != 0:
+            failures.append(f"{tag}: name-verified unload rc="
+                            f"{res.get('exit_code')} {res}")
+        post = _gstfrz_r91_post(leg, unl_at)
+        sizes = [s.get("size") for s in post if s.get("size") is not None]
+        nodes = [nd for s in post for nd in (s.get("nodes") or [])]
+        states = [nd.get("state") for nd in nodes]
+        fed = sorted({f for nd in nodes for f in (nd.get("fed_by") or [])})
+        if leg.get("killed") != "wallcap":
+            failures.append(f"{tag}: the capture must stay alive at the "
+                            f"wall cap — killed={leg.get('killed')}")
+        grew = (sizes[-1] - sizes[0]) if len(sizes) >= 2 else None
+        tail = (sizes[-1] - sizes[-4]) if len(sizes) >= 4 else grew
+        last = states[-1] if states else None
+        # The no-relink shape is LEG-CONDITIONAL on this host with
+        # identical argv: the stream either stays `running` and keeps
+        # producing unlinked buffers (the boundary's B12 / r85 shape) or
+        # drops to `idle` and freezes (the scout's F1s / boundary B11
+        # pre-link shape). Both classes are named and armed; neither is
+        # claimed universal. The class reads the TAIL growth, so a leg
+        # that grew while the unload was in flight and then settled into
+        # either class still lands cleanly.
+        if last == "running" and (tail or 0) >= 32768:
+            cls = "grows_running"
+        elif last in ("idle", "paused", "suspended") and \
+                (tail or 0) <= 8192:
+            cls = "freeze_idle"
+        else:
+            cls = f"other:state={last},tail={tail}"
+        entry["shapes"][tag] = {"class": cls,
+                                "sizes": sizes[:2] + sizes[-2:],
+                                "states": sorted(set(states)),
+                                "grew": grew, "tail_grew": tail,
+                                "fed_by_tail": fed}
+        if cls not in ("grows_running", "freeze_idle"):
+            failures.append(
+                f"{tag}: the post-loss shape must land in one of the two "
+                f"named classes — {cls} (sizes {sizes[:2]}.."
+                f"{sizes[-2:]}, states {states[-3:]})")
+    leg = legs.get("s_relink") or {}
+    rel_at, rel = _gstfrz_r91_hook_at(leg, "relink")
+    links = (rel or {}).get("links") or []
+    entry["relink"] = {"at": rel_at,
+                       "rcs": [((l.get("res") or {}).get("exit_code"))
+                               for l in links]}
+    if not links or any(((l.get("res") or {}).get("exit_code") != 0)
+                        for l in links):
+        failures.append("s_relink: the manual pw-link must succeed — "
+                        f"{rel}")
+    samples = [s for s in (leg.get("samples") or [])
+               if s.get("size") is not None]
+    at_rel = next((s["size"] for s in samples
+                   if rel_at is not None and s["t"] >= rel_at), None)
+    after = [s["size"] for s in samples
+             if rel_at is not None and s["t"] >= rel_at + 0.2]
+    if at_rel is None or not after or after[-1] - at_rel < 65536:
+        failures.append("s_relink: the stream must keep flowing across "
+                        f"the link — at_relink={at_rel} after={after[-3:]}")
+    after_states = [nd.get("state")
+                    for s in (leg.get("samples") or [])
+                    if rel_at is not None and s["t"] >= rel_at + 0.2
+                    for nd in (s.get("nodes") or [])]
+    entry["relink"]["post_states"] = sorted(set(after_states))
+    if after_states and after_states[-1] != "running":
+        failures.append("s_relink: the stream must be running after the "
+                        f"manual link — {after_states[-3:]}")
+    entry["failures"] = failures
+    return entry
+
+
+def gstfrz_connect_r91_entry():
+    """(5) The connect law, harder than "never links": a no-prop
+    capture x a SINK-name target is a hard target-resolution failure —
+    `pw-record` exits rc 1 at 44 B with `no target node available`,
+    `pipewiresrc` exits rc 255 with `stream error: target not found` —
+    while the no-prop capture x a SOURCE target links and records (the
+    direction control). The target is verified in pw-dump immediately
+    before every leg."""
+    failures, legs, loads, players = [], {}, {}, []
+    entry = _gstfrz_r91_entry_head(
+        "r91a connect law — no-prop capture x sink target fails at "
+        "connect (rc 1 / rc 255), no-prop capture x source target links")
+    tools = {t: shutil.which(t) for t in
+             ("gst-launch-1.0", "pw-record", "pw-dump", "pw-play",
+              "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _gstfrz_r91_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    try:
+        load = _gstfrz_r91_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gstfrz_r91_block(
+                entry, failures,
+                f"probe null sink {GSTFRZ_R91_NS} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(prefix="gstfrz-r91-cn-") as tmp:
+            ctx = {"tmp": tmp}
+            # The refusal arms run FIRST, against a BARE seat sink: a
+            # monitor consumer (or any follower) changes the target's
+            # published ports and the same no-prop capture then connects
+            # — the boundary's C1/C2 configuration is the bare one.
+            g = _gstfrz_r91_dump()
+            entry["targets_present_bare"] = {
+                "sink": bool(_pactlmon_r85_node(g, GSTFRZ_R91_NS))}
+            out = str(Path(tmp) / "x_rec_sink.wav")
+            legs["x_rec_sink"] = _gstfrz_r91_run(
+                ["pw-record", "-P", f"node.name={GSTFRZ_R91_TAG}_x1",
+                 "--target", GSTFRZ_R91_NS, "-n", "1000000", out],
+                12.0, keep_chars=500)
+            legs["x_rec_sink"]["out"] = _gst_r81_wav_inspect(out)
+            out = str(Path(tmp) / "x_gst_sink.wav")
+            legs["x_gst_sink"] = _gstfrz_r91_run(
+                _gstfrz_r91_cap_argv(f"{GSTFRZ_R91_TAG}_x2",
+                                     GSTFRZ_R91_NS, out,
+                                     capsink=False),
+                12.0, keep_chars=700)
+            legs["x_gst_sink"]["out"] = _gst_r81_wav_inspect(out)
+            # -- now the source side: tone + remap-source ------------
+            tone = Path(tmp) / f"{GSTFRZ_R91_PREFIX}_tone.wav"
+            _playback_r78_write_tone(tone, 75.0)
+            players.append(_gstfrz_r91_play(
+                f"{GSTFRZ_R91_PREFIX}_tone", GSTFRZ_R91_NS, tone))
+            time.sleep(0.8)
+            src = _gstfrz_r91_src_ensure(
+                loads, f"{GSTFRZ_R91_NS}.monitor")
+            if not src.get("source_seen"):
+                return _gstfrz_r91_block(
+                    entry, failures,
+                    f"probe remap-source {GSTFRZ_R91_SRC} never "
+                    "enumerated", loads, players)
+            g = _gstfrz_r91_dump()
+            entry["targets_present"] = {
+                "sink": bool(_pactlmon_r85_node(g, GSTFRZ_R91_NS)),
+                "source": bool(_pactlmon_r85_node(g, GSTFRZ_R91_SRC))}
+            # -- the envelope cell: the same no-prop capture against a
+            #    sink whose monitor is consumed (two named classes).
+            out = str(Path(tmp) / "x_rec_sink_remapfed.wav")
+            legs["x_rec_sink_remapfed"] = _gstfrz_r91_leg(
+                "x_rec_sink_remapfed",
+                ["pw-record", "-P", f"node.name={GSTFRZ_R91_TAG}_x4",
+                 "--target", GSTFRZ_R91_NS, "-n", "1000000", out],
+                ctx, out_path=out, timeline=0.4, wall_cap=3.0)
+            # -- the direction control: a SOURCE target links ---------
+            out = str(Path(tmp) / "x_rec_src.wav")
+            legs["x_rec_src"] = _gstfrz_r91_leg(
+                "x_rec_src",
+                ["pw-record", "-P", f"node.name={GSTFRZ_R91_TAG}_x3",
+                 "--target", GSTFRZ_R91_SRC, "-n", "1000000", out],
+                ctx, out_path=out, timeline=0.3, wall_cap=4.0)
+    finally:
+        _gstfrz_r91_teardown(entry, failures, loads, players)
+    entry["legs"] = legs
+    # ---- x_rec_sink: rc 1 + 44 B + the named refusal ---------------
+    l = legs.get("x_rec_sink") or {}
+    if l.get("exit_code") != 1:
+        failures.append("x_rec_sink: rc must be 1 — "
+                        f"{l.get('exit_code')}")
+    if (l.get("out") or {}).get("bytes") != 44:
+        failures.append("x_rec_sink: the artifact must stop at the 44 B "
+                        f"header — {(l.get('out') or {}).get('bytes')}")
+    if l.get("error_class") != "gstfrz_no_target_node":
+        failures.append("x_rec_sink: the refusal must be the named "
+                        f"'no target node available' class — "
+                        f"{l.get('error_class')} "
+                        f"{(l.get('stderr') or '')[:160]!r}")
+    # ---- x_gst_sink: rc 255 + the named refusal --------------------
+    l = legs.get("x_gst_sink") or {}
+    if l.get("exit_code") != 255:
+        failures.append("x_gst_sink: rc must be 255 — "
+                        f"{l.get('exit_code')}")
+    if l.get("error_class") != "gstfrz_target_not_found":
+        failures.append("x_gst_sink: the refusal must be the named "
+                        f"'target not found' class — "
+                        f"{l.get('error_class')} "
+                        f"{(l.get('stderr') or '')[:200]!r}")
+    # ---- x_rec_sink_remapfed: the envelope cell --------------------
+    l = legs.get("x_rec_sink_remapfed") or {}
+    rc = l.get("exit_code")
+    if rc == 1:
+        remap_cls = "refused"
+    elif l.get("killed") == "wallcap":
+        remap_cls = "linked_live"
+    else:
+        remap_cls = f"other:{rc}"
+    entry["remapfed"] = {
+        "class": remap_cls, "rc": rc,
+        "bytes": (l.get("out") or {}).get("bytes"),
+        "fed_by": sorted({f for s in (l.get("samples") or [])
+                          for nd in (s.get("nodes") or [])
+                          for f in (nd.get("fed_by") or [])})}
+    if remap_cls not in ("refused", "linked_live"):
+        failures.append("x_rec_sink_remapfed: the bounded outcome must "
+                        f"be one of the two named classes — rc={rc} "
+                        f"killed={l.get('killed')}")
+    # ---- x_rec_src: the direction control links and records --------
+    l = legs.get("x_rec_src") or {}
+    fed = sorted({f for s in (l.get("samples") or [])
+                  for nd in (s.get("nodes") or [])
+                  for f in (nd.get("fed_by") or [])})
+    sizes = [s.get("size") for s in (l.get("samples") or [])
+             if s.get("size") is not None]
+    if l.get("killed") != "wallcap":
+        failures.append("x_rec_src: the control must stay alive to the "
+                        f"wall cap — killed={l.get('killed')}")
+    if not fed:
+        failures.append("x_rec_src: the source-target control must LINK "
+                        "— no producer seen")
+    if len(sizes) < 2 or sizes[-1] < 65536:
+        failures.append("x_rec_src: the control must record real bytes — "
+                        f"sizes {sizes[:2]}..{sizes[-2:]}")
+    entry["failures"] = failures
+    return entry
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -37840,6 +39304,7 @@ def main():
     parser.add_argument("--probe-btwit-r88", action="store_true")
     parser.add_argument("--probe-pwprof-r89", action="store_true")
     parser.add_argument("--probe-wpstate-r90", action="store_true")
+    parser.add_argument("--probe-gstfrz-r91", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
@@ -37849,7 +39314,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95]) > 1:
+    if sum([args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -38410,6 +39875,39 @@ def main():
             pwprof_schema_r89_entry()
         measurements["pwprof_xw_r89_probe"] = \
             pwprof_xw_r89_entry()
+    if args.probe_gstfrz_r91:
+        # r91: the Gst CAPTURE-FREEZE MECHANISM — the prop lattice
+        # (node.dont-reconnect on the capture node, the literal
+        # "FALSE" override, its absence on pw-record/pipewiresink),
+        # the frozen artifact's real invariants (pinned wavenc
+        # streaming header + flat post-loss shape + no re-created
+        # link; the frozen SIZE is distribution-valued), the
+        # launcher's own CLOCK_LOST line as the mechanism witness,
+        # keepalive's non-rescue, the app-level resume control (the
+        # element is NOT sticky — gst-launch's forced state round-trip
+        # is), the pw-record source-loss envelope (alive, with the two
+        # named post-loss classes — the scout's universal-freeze and
+        # the boundary's universal-grow are both over-generalizations),
+        # and the connect law
+        # (no-prop capture x sink target is a hard target-resolution
+        # failure). A NEW parallel ledger family, prior rows
+        # untouched; r76-r90 guards inherited (seat-owned r91a_<pid>
+        # names, the private r91arole<pid> key, name-verified
+        # sink_name=/source_name= unloads, never set-default-*,
+        # bounded process groups, stdout/stderr drained to capped
+        # files). The family lock is a FIXED corpus/live/ path — the
+        # r84 F1 3-seat consensus.
+        _r91_family_lock = _gstfrz_r91_family_lock()   # held to exit
+        measurements["gstfrz_prop_r91_probe"] = \
+            gstfrz_prop_r91_entry()
+        measurements["gstfrz_clock_r91_probe"] = \
+            gstfrz_clock_r91_entry()
+        measurements["gstfrz_resume_r91_probe"] = \
+            gstfrz_resume_r91_entry()
+        measurements["gstfrz_srcloss_r91_probe"] = \
+            gstfrz_srcloss_r91_entry()
+        measurements["gstfrz_connect_r91_probe"] = \
+            gstfrz_connect_r91_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -39060,7 +40558,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -39080,7 +40578,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
