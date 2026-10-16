@@ -14,6 +14,7 @@ import resource
 import select
 import shutil
 import signal
+import stat
 import struct
 import subprocess
 import sys
@@ -38623,21 +38624,8 @@ def _gstfrz_r91_frozen_checks(failures, tag, leg, unl_at,
 
 
 def _gstfrz_r91_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR). A second --probe-gstfrz-r91 waits HERE."""
-    path = ROOT / "live" / "measure_audio-gstfrz-r91.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={GSTFRZ_R91_PID} ns={GSTFRZ_R91_NS} "
-                     f"role={GSTFRZ_R91_ROLE}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("gstfrz-r91")
 
 
 def _gstfrz_r91_entry_head(probe):
@@ -40222,22 +40210,8 @@ def _fc92_ctx():
 
 
 def _fc92_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-filterchain-r92 waits HERE."""
-    path = ROOT / "live" / "measure_audio-filterchain-r92.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={FILTERCHAIN_R92_PID} "
-                     f"prefix={FILTERCHAIN_R92_PREFIX}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("filterchain-r92")
 
 
 def _fc92_daemon_health(timeout_s=15.0):
@@ -42525,22 +42499,8 @@ def _pulsecli_r96_restore_rows(tag):
 
 
 def _pulsecli_r96_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-pulsecli-r96 waits HERE."""
-    path = ROOT / "live" / "measure_audio-pulsecli-r96.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={PULSECLI_R96_PID} ns={PULSECLI_R96_NS} "
-                     f"role={PULSECLI_R96_ROLE}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("pulsecli-r96")
 
 
 
@@ -44371,21 +44331,8 @@ def _wppol_r97_is_own(name):
 
 
 def _wppol_r97_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-wppol-r97 waits HERE."""
-    path = ROOT / "live" / "measure_audio-wppol-r97.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={WPPOL_R97_PID} tag={WPPOL_R97_TAG}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("wppol-r97")
 
 
 def _wppol_r97_errclass(text):
@@ -46739,23 +46686,41 @@ def _pwstream_r98_object_id(name):
     return (n or {}).get("node_id")
 
 
-def _pwstream_r98_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-pwstream-r98 waits HERE."""
-    path = ROOT / "live" / "measure_audio-pwstream-r98.lock"
+def _audio_host_family_lock(family, wait_s=30.0):
+    """Bounded per-user/per-family exclusion, independent of checkout/env."""
+    if re.fullmatch(r"[a-z0-9-]+", family) is None:
+        raise ValueError("invalid audio family lock name")
+    path = Path("/tmp") / f"shokunin-audio-{os.getuid()}-{family}.lock"
+    fd = None
     try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+        meta = os.fstat(fd)
+        if (meta.st_uid != os.getuid() or not stat.S_ISREG(meta.st_mode)
+                or meta.st_nlink != 1 or meta.st_mode & 0o077):
+            raise OSError("non-private or non-regular family lock")
+        deadline = time.monotonic() + max(0.0, wait_s)
+        while True:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                remain = deadline - time.monotonic()
+                if remain <= 0:
+                    raise RuntimeError(
+                        f"audio family lock {family}: wait timed out")
+                time.sleep(min(0.05, remain))
         os.ftruncate(fd, 0)
-        os.write(fd, f"pid={PWSTREAM_R98_PID} ns={PWSTREAM_R98_NS} "
-                     f"role={PWSTREAM_R98_ROLE}\n".encode())
-    except OSError:
-        pass
-    return fd
+        os.write(fd, f"pid={os.getpid()} family={family}\n".encode())
+        return fd
+    except (OSError, RuntimeError) as exc:
+        if fd is not None:
+            os.close(fd)
+        raise RuntimeError(f"audio family lock {family} unavailable: {exc}") from exc
+
+
+def _pwstream_r98_family_lock():
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("pwstream-r98")
 
 
 def _pwstream_r98_entry_head(probe):
@@ -49572,22 +49537,8 @@ def _ebur_r93_ctx():
 
 
 def _ebur_r93_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-ebur-r93 waits HERE."""
-    path = ROOT / "live" / "measure_audio-ebur-r93.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, ("pid=%d role=%s\n" % (EBUR_R93_PID,
-                                            EBUR_R93_ROLE)).encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("ebur-r93")
 
 
 def _ebur_r93_daemon_gate(timeout_s=EBUR_R93_GATE_S):
@@ -50904,22 +50855,8 @@ def _rtp_r99_fixture(args, timeout_s, env=None):
 
 
 def _rtp_r99_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude).  It matters here because every entry owns a private core and
-    a port window derived from the seat pid."""
-    path = ROOT / "live" / "measure_audio-rtp-r99.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={RTP_R99_PID} tag={RTP_R99_TAG}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("rtp-r99")
 
 
 # ------------------------------------------------------------------ instance
@@ -52973,20 +52910,8 @@ def _sofa_r100_norm(text):
 
 
 def _sofa_r100_family_lock():
-    """Same-family exclusion at a FIXED lane path -- never $TMPDIR (the r84
-    F1 3-seat consensus). A second --probe-sofa-r100 waits HERE."""
-    path = ROOT / "live" / "measure_audio-sofa-r100.lock"
-    try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
-    except OSError:
-        return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
-    try:
-        os.ftruncate(fd, 0)
-        os.write(fd, f"pid={SOFA_R100_PID} ns={SOFA_R100_NS}\n".encode())
-    except OSError:
-        pass
-    return fd
+    """Require the shared host-global bounded family lock."""
+    return _audio_host_family_lock("sofa-r100")
 
 
 # ------------------------------------------------- private core + session mgr
@@ -55969,7 +55894,10 @@ def main():
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
     failed = {k: v["failures"] for k,v in measurements.items() if v["failures"]}
-    print(json.dumps({"receipt": str(out / "measurements.json"), "failures": failed}))
+    blocked = {k: v["coverage_blocked"] for k, v in measurements.items()
+               if v.get("coverage_blocked")}
+    print(json.dumps({"receipt": str(out / "measurements.json"),
+                      "failures": failed, "coverage_blocked": blocked}))
     return bool(failed)
 
 
