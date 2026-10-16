@@ -1,0 +1,264 @@
+CHECKS: 263/263 PASS
+PASS  run1 ls_serial rc0+resolves serial
+PASS  run1 ls <id> -> 0B rc0 (id not an ls handle)
+PASS  run1 info <id> resolves
+PASS  run1 info <serial> -> rc0 unknown global
+PASS  run1 enum_serial unknown global
+PASS  run1 info_bogus unknown global
+PASS  run1 ls_Node typed rows
+PASS  run1 ls_Port typed rows
+PASS  run1 ls_Metadata typed rows
+PASS  run1 ls_Client typed rows
+PASS  run1 ls_Bogus -> 0B rc0 (indistinguishable-empty)
+PASS  run1 ls_node -> 0B rc0 (indistinguishable-empty)
+PASS  run1 ls_Session -> 0B rc0 (indistinguishable-empty)
+PASS  run1 dump <id> == dump <serial> byte-identical
+PASS  run1 dump_badid -> 0B rc0
+PASS  run1 dump_bogus -> 0B rc0
+PASS  run1 -C never 0B rc0 vs -Cnever full dump
+PASS  run1 dump_color_eq record-only (armed False, rc255)
+PASS  run1 info_all rc0
+PASS  run1 list_vars rc0
+PASS  run1 list_remotes rc0
+PASS  run1 -r bogus rc!=0 failed to connect
+PASS  run1 info <metadata-id> 0B rc0
+PASS  run1 dump_full1 self-Client law (1 fresh client)
+PASS  run1 dump_full2 self-Client law (1 fresh client)
+PASS  run1 self-loop info+destroy
+PASS  run1 n_props pod
+PASS  run1 n_propinfo pod
+PASS  run1 n_enumformat pod
+PASS  run1 numeric 3 == EnumFormat byte-identical
+PASS  run1 n_format armed rc-only
+PASS  run1 d_route record-only (armed False)
+PASS  run1 n_io remote res:-2 ENOENT
+PASS  run1 n_meta remote res:-2 ENOENT
+PASS  run1 n_profile remote res:-2 ENOENT
+PASS  run1 p_props remote res:-2 ENOENT
+PASS  run1 d_props remote res:-2 ENOENT
+PASS  run1 n_bogus unknown param type
+PASS  run1 n_999 unknown param type
+PASS  run1 n_all unknown param type
+PASS  run1 enum-params bad id unknown global
+PASS  run1 p_enumformat pod
+PASS  run1 p_latency pod
+PASS  run1 p_io pod
+PASS  run1 p_meta pod
+PASS  run1 d_profile pod
+PASS  run1 d_enumprofile pod
+PASS  run1 d_enumroute pod
+PASS  run1 Port Format armed pod-absent (EIO realization)
+PASS  run1 c_props local not implemented
+PASS  run1 f_props local not implemented
+PASS  run1 m_props local not implemented
+PASS  run1 l_props local not implemented
+PASS  run1 core_setparam local not implemented
+PASS  run1 sp_port_lat local not implemented
+PASS  run1 sp_garbage -> None echo
+PASS  run1 sp_empty -> empty pod echo
+PASS  run1 unknown key stripped on re-enum
+PASS  run1 wrong-type -> None slot
+PASS  run1 wrong-type not landed (re_vol still Float 1.0)
+PASS  run1 EnumFormat -> remote res:-95
+PASS  run1 port Latency write rc0 echo + not-impl
+PASS  run1 minQuantum unchanged 0.0
+PASS  run1 sp_badid unknown global
+PASS  run1 sp_nojson usage
+PASS  run1 sp_bogusp unknown param type
+PASS  run1 tap link-validated (2 monitor->input edges)
+PASS  run1 player attached
+PASS  run1 dsp regions medians (reset jitter 8192.0)
+PASS  run1 pactl cube-root read-back 63%
+PASS  run1 dead scalar key: pactl 100% + store Float 0.25
+PASS  run1 pactl 25% -> 128.0 / 100% -> 8192.0
+PASS  run1 dsp writes all rc0 + player alive
+PASS  run1 9 stores (-l == ls Metadata == store_ids)
+PASS  run1 dump strict subset [31, 34, 36, 39]
+PASS  run1 bare == -n default byte-equal
+PASS  run1 bogus store 0B rc0
+PASS  run1 set-echo -> update read-back v1
+PASS  run1 full-replace v2
+PASS  run1 Spa:String verbatim
+PASS  run1 absent-key read = Found-only
+PASS  run1 delete echo + absent-delete same no-op echo
+PASS  run1 dead subject echo-lies
+PASS  run1 bare -d wipes subject
+PASS  run1 -m <subj> rows all carry subj + kill-bounded
+PASS  run1 -m 0 subject-0 rows only + kill-bounded
+PASS  run1 subject-0 baseline read-only (4 keys; drift across runs)
+PASS  run1 meta_keys_gone true
+PASS  run1 top_batch rc0
+PASS  run1 top_batch0 rc0
+PASS  run1 batch+TERM rc0 clean
+PASS  run1 TUI+TERM SIGABRT loop.c:189
+PASS  run1 TUI+KILL SIGKILL
+PASS  run1 pw-cli </dev/null SIGABRT
+PASS  run1 pw-cli pipe stdin never exits (kill-bounded)
+PASS  run1 pw-cli quit rc0
+PASS  run1 pw-jack env lattice
+PASS  run1 jack_help rc0
+PASS  run1 jack_noargs rc0
+PASS  run1 jack_badopt rc0
+PASS  run1 jack_bogus rc127
+PASS  run1 pw-link rc lattice
+PASS  run1 addr unloads verified_index==captured recycled False
+PASS  run1 addr sinks_gone all true
+PASS  run1 addr own_nodes_after []
+PASS  run1 addr foreign_r86a_nodes []
+PASS  run1 addr failures [] + coverage_blocked empty
+PASS  run1 params unloads verified_index==captured recycled False
+PASS  run1 params sinks_gone all true
+PASS  run1 params own_nodes_after []
+PASS  run1 params foreign_r86a_nodes []
+PASS  run1 params failures [] + coverage_blocked empty
+PASS  run1 dsp unloads verified_index==captured recycled False
+PASS  run1 dsp sinks_gone all true
+PASS  run1 dsp own_nodes_after []
+PASS  run1 dsp foreign_r86a_nodes []
+PASS  run1 dsp failures [] + coverage_blocked empty
+PASS  run1 meta unloads verified_index==captured recycled False
+PASS  run1 meta sinks_gone all true
+PASS  run1 meta own_nodes_after []
+PASS  run1 meta foreign_r86a_nodes []
+PASS  run1 meta failures [] + coverage_blocked empty
+PASS  run1 tools unloads verified_index==captured recycled False
+PASS  run1 tools sinks_gone all true
+PASS  run1 tools own_nodes_after []
+PASS  run1 tools foreign_r86a_nodes []
+PASS  run1 tools failures [] + coverage_blocked empty
+PASS  run2 ls_serial rc0+resolves serial
+PASS  run2 ls <id> -> 0B rc0 (id not an ls handle)
+PASS  run2 info <id> resolves
+PASS  run2 info <serial> -> rc0 unknown global
+PASS  run2 enum_serial unknown global
+PASS  run2 info_bogus unknown global
+PASS  run2 ls_Node typed rows
+PASS  run2 ls_Port typed rows
+PASS  run2 ls_Metadata typed rows
+PASS  run2 ls_Client typed rows
+PASS  run2 ls_Bogus -> 0B rc0 (indistinguishable-empty)
+PASS  run2 ls_node -> 0B rc0 (indistinguishable-empty)
+PASS  run2 ls_Session -> 0B rc0 (indistinguishable-empty)
+PASS  run2 dump <id> == dump <serial> byte-identical
+PASS  run2 dump_badid -> 0B rc0
+PASS  run2 dump_bogus -> 0B rc0
+PASS  run2 -C never 0B rc0 vs -Cnever full dump
+PASS  run2 dump_color_eq record-only (armed False, rc255)
+PASS  run2 info_all rc0
+PASS  run2 list_vars rc0
+PASS  run2 list_remotes rc0
+PASS  run2 -r bogus rc!=0 failed to connect
+PASS  run2 info <metadata-id> 0B rc0
+PASS  run2 dump_full1 self-Client law (1 fresh client)
+PASS  run2 dump_full2 self-Client law (1 fresh client)
+PASS  run2 self-loop info+destroy
+PASS  run2 n_props pod
+PASS  run2 n_propinfo pod
+PASS  run2 n_enumformat pod
+PASS  run2 numeric 3 == EnumFormat byte-identical
+PASS  run2 n_format armed rc-only
+PASS  run2 d_route record-only (armed False)
+PASS  run2 n_io remote res:-2 ENOENT
+PASS  run2 n_meta remote res:-2 ENOENT
+PASS  run2 n_profile remote res:-2 ENOENT
+PASS  run2 p_props remote res:-2 ENOENT
+PASS  run2 d_props remote res:-2 ENOENT
+PASS  run2 n_bogus unknown param type
+PASS  run2 n_999 unknown param type
+PASS  run2 n_all unknown param type
+PASS  run2 enum-params bad id unknown global
+PASS  run2 p_enumformat pod
+PASS  run2 p_latency pod
+PASS  run2 p_io pod
+PASS  run2 p_meta pod
+PASS  run2 d_profile pod
+PASS  run2 d_enumprofile pod
+PASS  run2 d_enumroute pod
+PASS  run2 Port Format armed pod-absent (EIO realization)
+PASS  run2 c_props local not implemented
+PASS  run2 f_props local not implemented
+PASS  run2 m_props local not implemented
+PASS  run2 l_props local not implemented
+PASS  run2 core_setparam local not implemented
+PASS  run2 sp_port_lat local not implemented
+PASS  run2 sp_garbage -> None echo
+PASS  run2 sp_empty -> empty pod echo
+PASS  run2 unknown key stripped on re-enum
+PASS  run2 wrong-type -> None slot
+PASS  run2 wrong-type not landed (re_vol still Float 1.0)
+PASS  run2 EnumFormat -> remote res:-95
+PASS  run2 port Latency write rc0 echo + not-impl
+PASS  run2 minQuantum unchanged 0.0
+PASS  run2 sp_badid unknown global
+PASS  run2 sp_nojson usage
+PASS  run2 sp_bogusp unknown param type
+PASS  run2 tap link-validated (2 monitor->input edges)
+PASS  run2 player attached
+PASS  run2 dsp regions medians (reset jitter 8191.5)
+PASS  run2 pactl cube-root read-back 63%
+PASS  run2 dead scalar key: pactl 100% + store Float 0.25
+PASS  run2 pactl 25% -> 128.0 / 100% -> 8192.0
+PASS  run2 dsp writes all rc0 + player alive
+PASS  run2 9 stores (-l == ls Metadata == store_ids)
+PASS  run2 dump strict subset [31, 34, 36, 39]
+PASS  run2 bare == -n default byte-equal
+PASS  run2 bogus store 0B rc0
+PASS  run2 set-echo -> update read-back v1
+PASS  run2 full-replace v2
+PASS  run2 Spa:String verbatim
+PASS  run2 absent-key read = Found-only
+PASS  run2 delete echo + absent-delete same no-op echo
+PASS  run2 dead subject echo-lies
+PASS  run2 bare -d wipes subject
+PASS  run2 -m <subj> rows all carry subj + kill-bounded
+PASS  run2 -m 0 subject-0 rows only + kill-bounded
+PASS  run2 subject-0 baseline read-only (3 keys; drift across runs)
+PASS  run2 meta_keys_gone true
+PASS  run2 top_batch rc0
+PASS  run2 top_batch0 rc0
+PASS  run2 batch+TERM rc0 clean
+PASS  run2 TUI+TERM SIGABRT loop.c:189
+PASS  run2 TUI+KILL SIGKILL
+PASS  run2 pw-cli </dev/null SIGABRT
+PASS  run2 pw-cli pipe stdin never exits (kill-bounded)
+PASS  run2 pw-cli quit rc0
+PASS  run2 pw-jack env lattice
+PASS  run2 jack_help rc0
+PASS  run2 jack_noargs rc0
+PASS  run2 jack_badopt rc0
+PASS  run2 jack_bogus rc127
+PASS  run2 pw-link rc lattice
+PASS  run2 addr unloads verified_index==captured recycled False
+PASS  run2 addr sinks_gone all true
+PASS  run2 addr own_nodes_after []
+PASS  run2 addr foreign_r86a_nodes []
+PASS  run2 addr failures [] + coverage_blocked empty
+PASS  run2 params unloads verified_index==captured recycled False
+PASS  run2 params sinks_gone all true
+PASS  run2 params own_nodes_after []
+PASS  run2 params foreign_r86a_nodes []
+PASS  run2 params failures [] + coverage_blocked empty
+PASS  run2 dsp unloads verified_index==captured recycled False
+PASS  run2 dsp sinks_gone all true
+PASS  run2 dsp own_nodes_after []
+PASS  run2 dsp foreign_r86a_nodes []
+PASS  run2 dsp failures [] + coverage_blocked empty
+PASS  run2 meta unloads verified_index==captured recycled False
+PASS  run2 meta sinks_gone all true
+PASS  run2 meta own_nodes_after []
+PASS  run2 meta foreign_r86a_nodes []
+PASS  run2 meta failures [] + coverage_blocked empty
+PASS  run2 tools unloads verified_index==captured recycled False
+PASS  run2 tools sinks_gone all true
+PASS  run2 tools own_nodes_after []
+PASS  run2 tools foreign_r86a_nodes []
+PASS  run2 tools failures [] + coverage_blocked empty
+PASS  dev run: exactly 1 failure, the n_format pod-presence arm
+PASS  dev run: n_format pre-fix (has_pod True, no armed key) + failure text
+PASS  dev run: other 4 r86 entries green
+PASS  run1 family leg census {'pwctl_addr_r86_probe': 34, 'pwctl_params_r86_probe': 43, 'pwctl_dsp_r86_probe': 16, 'pwctl_meta_r86_probe': 22, 'pwctl_tools_r86_probe': 34} total=149
+PASS  run2 family leg census {'pwctl_addr_r86_probe': 34, 'pwctl_params_r86_probe': 43, 'pwctl_dsp_r86_probe': 16, 'pwctl_meta_r86_probe': 22, 'pwctl_tools_r86_probe': 34} total=149
+PASS  run1 vs run2: exit_code/signal/killed_at_bound identical
+PASS  run1 vs run2: volatile text/identity/host-state fields = 27 (all stdout-volume/identity/heuristic; no verdict field)
+PASS  run1 self-Client serial pair ['242898']->['242899']
+PASS  run2 self-Client serial pair ['243277']->['243278']

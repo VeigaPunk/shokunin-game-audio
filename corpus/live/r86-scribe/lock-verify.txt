@@ -1,0 +1,44 @@
+# r86 family-lock verification — scribe, read-only on the lane
+# audit entry state (first scribe read, file mtime 2026-10-16 03:30):
+#   content = pid=2675030 ns=r86a_ns_2675030 role=r86arole2675030
+# state now (2026-10-16 03:36:35): content = 'pid=2808000 ns=r86a_ns_2808000 role=r86arole2808000'  mtime=2026-10-16 03:34:30  sha256=b6ea4b6ea104a3f43bdb38fe5b9aad66ef01cbeab5ccfceeb8f175f2e6f4d0a8
+# (the file is last-writer-wins and never unlinked; a sibling wave-B seat rewrote it during this audit — see ambient note)
+
+# 1. committed lines (pinned fa5994a0)
+L26    ROOT = Path(__file__).resolve().parents[1]
+L24124     path = ROOT / "live" / "measure_audio-pwctl-r86.lock"
+L24129     fcntl.flock(fd, fcntl.LOCK_EX)
+L25964         _r86_family_lock = _pwctl_r86_family_lock()   # held to exit
+L14764    path = Path(tempfile.gettempdir()) / "measure_audio-ffmpeg-r82.lock"   (prior-family lock)
+L19846    path = Path(tempfile.gettempdir()) / "measure_audio-alsapw-r84.lock"   (prior-family lock)
+L22318    path = Path(tempfile.gettempdir()) / \   (prior-family lock)
+
+# 2. dynamic, two concurrent acquirers with different TMPDIRs (committed ROOT + lock body exec'd verbatim, pin copy)
+--- child1 (rc=0)
+TMPDIR='/home/vgpnk/Projects/shokunin/tmp/r86-scribe-work/tmpx1' resolved=/home/vgpnk/Projects/shokunin/tmp/r86-scribe-work/tree/corpus/live/measure_audio-pwctl-r86.lock
+ACQUIRED_AT=0.000 fd=3 witness='pid=2899336 ns=r86a_ns_2899336 role=r86arole2899336'
+RELEASED_AT=2.000
+--- child2 (rc=0)
+TMPDIR='/home/vgpnk/Projects/shokunin/tmp/r86-scribe-work/tmpx2' resolved=/home/vgpnk/Projects/shokunin/tmp/r86-scribe-work/tree/corpus/live/measure_audio-pwctl-r86.lock
+ACQUIRED_AT=2.003 fd=3 witness='pid=2899337 ns=r86a_ns_2899337 role=r86arole2899337'
+RELEASED_AT=4.003
+--- driver wall = 4.027s (serialized if >= ~4.0s)
+--- lock exists: True  under tmp1? False  under tmp2? False
+--- final witness: 'pid=2899337 ns=r86a_ns_2899337 role=r86arole2899337'
+--- lock path: /home/vgpnk/Projects/shokunin/tmp/r86-scribe-work/tree/corpus/live/measure_audio-pwctl-r86.lock  size=52
+
+# 3. dead-holder check on the lane lock file (O_RDONLY flock; content untouched)
+witness pid=2808000 alive=False  acquired_in=0.0000s  content_unchanged=True
+
+# 4. ambient sibling corroboration (r86-critic seat locktest, read-only peek)
+corpus/live/r86-critic/locktest.out (mtime 03:34):
+A_r86_cross_tmpdir: holder=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock contender=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock waited=2.2064s wall=2.276s
+B_r86_same_tmpdir: holder=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock contender=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwctl-r86.lock waited=2.2105s wall=2.248s
+C_r85_cross_tmpdir: holder=/home/vgpnk/Projects/shokunin/tmp/r86crit-lock-a/measure_audio-pactlmon-r85.lock contender=/home/vgpnk/Projects/shokunin/tmp/r86crit-lock-b/measure_audio-pactlmon-r85.lock waited=0.0001s wall=0.067s
+  (A/B: fixed-path lock serializes cross- and same-TMPDIR; C: r85 $TMPDIR-scoped lock does not — negative control)
+
+# 5. live residue of the lane lock file is the only r86 file outside corpus/live/{runs,<seat>}:
+?? corpus/live/measure_audio-pwctl-r86.lock
+?? corpus/live/runs/20261016T062922907396Z-pwctl-r86/
+?? corpus/live/runs/20261016T063006268243Z-pwctl-r86/
+?? corpus/live/runs/20261016T063043717745Z-pwctl-r86/

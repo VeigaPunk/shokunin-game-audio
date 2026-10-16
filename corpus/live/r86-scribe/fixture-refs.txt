@@ -1,0 +1,45 @@
+# fixture chain (commit pin)
+pin    fa5994a0 corpus/fixtures/measure_audio.py 5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780 26655 lines
+worktree                     corpus/fixtures/measure_audio.py 5ceba94019eaaa8f1db9ac18ea15023f7e4891e844defe86711f37873059b780 26655 lines
+worktree == pin: True
+numstat fa5994a0^..fa5994a0: 1758	3	corpus/fixtures/measure_audio.py
+deleted lines (exactly):
+  DEL: -    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.pro...
+  DEL: -    mode = "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg...
+  DEL: -    suffix = "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r8...
+hunks:
+  @@ -9,6 +9,7 @@ import json
+  @@ -23726,6 +23727,1728 @@ def pactlmon_negctl_r85_entry():
+  @@ -23852,6 +25575,7 @@ def main():
+  @@ -23859,7 +25583,7 @@ def main():
+  @@ -24217,6 +25941,37 @@ def main():
+  @@ -24867,7 +26622,7 @@ def main():
+  @@ -24887,7 +26642,7 @@ def main():
+commit: fa5994a029507e666315cd40257988510579284f 2026-10-16 03:31:47 -0300 r86 author: 5 entries pwctl lattice (addr/params/dsp/meta/tools) — +1761 lines; r84 fold applied: fixed-path family lock; 2 green runs
+parent: f309e85673c4ca28e6e374de7d26c81094240613 2026-10-16 03:31:33 -0300 r85 verifier VERIFIED + adjudicated ADMIT-with-findings — 87 legs on 2a49d540; cdup_cap absorption + node.name abort queued
+changed files in commit: corpus/fixtures/measure_audio.py | 1761 +++++++++++++++++++++++++++++++++++++- |  reports/round-86/r86-author.md   |  149 ++++ |  2 files changed, 1907 insertions(+), 3 deletions(-)
+
+# exact new-file refs (1-based, pinned bytes)
+import resource (new): [12]
+ROOT = Path(__file__): [26]
+PWCTL_R86_PID: [23842]
+def _pwctl_r86_family_lock: [24118]
+r86 lock path line: [24124]
+def pwctl_addr_r86_entry: [24255]
+def pwctl_tools_r86_entry: [25201]
+def main(): [25452]
+add_argument --probe-pwctl-r86: [25578]
+mutex sum line (has probe_pwctl_r86): [25586]
+dispatch if args.probe_pwctl_r86: [25944]
+lock call in dispatch: [25964]
+mode = "probe-pwctl-r86": [26625]
+suffix = "-pwctl-r86": [26645]
+prior-family TMPDIR locks: [14764, 19846, 22318]
+RLIMIT_CORE setrlimit: [23840, 23905, 23912, 23962, 25960]
+set-default (r86 block only mentions): [5930, 7001, 7088, 7107, 12591, 14192, 16440, 18829, 21587, 23738, 23819, 25894, 25927, 25959, 25982, 26012, 26040]
+r86 family block first line: [23730]
+family leg census line: [23849]
+
+# report line refs vs measured
+report: family block ~L23730-L25500, wiring ~L25568/25576/25934-25964, mode/suffix ~L26615/26635
+measured: family block L23730-L25451; add_argument L[25578]; mutex L[25586]; dispatch L25944-25974; mode L26625; suffix L26645
