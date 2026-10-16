@@ -1,0 +1,17 @@
+# r84 simplifier patch checks (read-only; the patch is NOT applied)
+
+$ git -C /home/vgpnk/Projects/shokunin/audio-shokunin apply --check corpus/live/r84-simplifier/r84-simplifier.patch
+clean (applies to the live tree; corpus/fixtures/measure_audio.py sha256 == the fbe65713 blob, which is what the patch is anchored to)
+
+$ git -C /home/vgpnk/Projects/shokunin/audio-shokunin apply --numstat corpus/live/r84-simplifier/r84-simplifier.patch
+12	19	corpus/fixtures/measure_audio.py
+
+$ patch -p1 --dry-run < r84-simplifier.patch   (scratch copy of the pinned blob)
+checking file corpus/fixtures/measure_audio.py
+
+$ patch -p1 < r84-simplifier.patch && sha256sum   (round-trip identity)
+65c21ab77b07a678e2ebb21271ec025b0031b48aff5f513c1295bfa5cf63bff9  corpus/fixtures/measure_audio.py
+65c21ab77b07a678e2ebb21271ec025b0031b48aff5f513c1295bfa5cf63bff9  ../folded/measure_audio.py
+
+hunks: 13
+lines: added=12 deleted=19

@@ -1,0 +1,133 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -18965,7 +18965,6 @@
+ ALSAPW_R84_SHORT_S = 1.4        # aplay-lattice tone seconds
+ ALSAPW_R84_PROP_S = 3.4         # paplay prop-leg tone seconds
+ ALSAPW_R84_FEED_S = 9.0         # stream feed seconds (outlives legs)
+-ALSAPW_R84_LINK_WAIT_S = 5.0
+ ALSAPW_R84_STREAM_WAIT_S = 8.0
+ ALSAPW_R84_ACT_S = 2.4          # mid-run write action point
+ ALSAPW_R84_PROP_DROP = {
+@@ -19331,7 +19330,6 @@
+     pre-move value — move-sink-input returns before WirePlumber
+     re-links, so an immediate read still shows the OLD sink index."""
+     t0 = time.monotonic()
+-    leaf = _alsapw_r84_stream_leaf(tag)
+     while time.monotonic() - t0 < timeout_s:
+         leaf = _alsapw_r84_stream_leaf(tag)
+         if leaf is None or leaf.get("sink") != old_sink:
+@@ -19530,7 +19528,7 @@
+     return rec
+ 
+ 
+-def _alsapw_r84_st_leg(dev, ctx, tail, timeout_s=25.0):
++def _alsapw_r84_st_leg(dev, tail, timeout_s=25.0):
+     """speaker-test -D <dev> <tail> with a mid-run node witness — the
+     plugin publishes `alsa_playback.speaker-test`."""
+     argv = ["speaker-test", "-D", dev, *tail]
+@@ -19876,16 +19874,16 @@
+     """Every own sink unloaded by the name-verified index, then the two
+     witnesses: sinks gone from pactl + no r84a_<pid>-tagged node
+     survives."""
+-    for tag, leaf in (loads or {}).items():
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = _gst_r81_unload_own(
+-            (leaf or {}).get("module_id"), sink_name=tag)
++            leaf.get("module_id"), sink_name=tag)
+     sinks_now = _capture_r77_sink_names_strict()
+     if sinks_now is None:
+         entry["sinks_gone"] = "reader_error"
+         entry.setdefault("coverage_blocked", []).append(
+             "teardown: pactl sink reader failed — sinks_gone unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -19898,7 +19896,7 @@
+             "teardown: node reader failed — own_nodes_after unmeasured")
+     else:
+         rest = sorted(n for n in names
+-                      if ALSAPW_R84_PREFIX in n or n in (loads or {}))
++                      if ALSAPW_R84_PREFIX in n or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -19911,7 +19909,7 @@
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+         entry.setdefault("unloads", {})[tag] = _gst_r81_unload_own(
+-            (leaf or {}).get("module_id"), sink_name=tag)
++            leaf.get("module_id"), sink_name=tag)
+     entry["failures"] = failures
+     return entry
+ 
+@@ -20016,8 +20014,6 @@
+                      "--rate", "48000", "--channels", "2",
+                      "--format", "s16",
+                      str(Path(tmp) / "hold.wav")])
+-                held_pcm = None
+-                states_held = {}
+                 t0 = time.monotonic()
+                 while time.monotonic() - t0 < 5.0:
+                     states_held = _alsapw_r84_pcm_states()
+@@ -20039,9 +20035,7 @@
+                     "pcm_states_at_hold": states_held,
+                     "held_pcm": held_pcm,
+                     "hold_note": ("own pin flipped a pcm"
+-                                  if held_pcm in [k for k in running
+-                                                  if "RUNNING" not in
+-                                                  states0.get(k, "")]
++                                  if held_pcm in flipped
+                                   else "held pcm set (may include a "
+                                        "foreign-held device)")}
+                 if held_pcm is not None:
+@@ -20322,10 +20316,10 @@
+                     "pipewire", ctx, env=envp,
+                     node_subs=(f"{ALSAPW_R84_PREFIX}_envp",))
+                 legs["st_pw_node"] = _alsapw_r84_st_leg(
+-                    f"pipewire:NODE={ns}", ctx,
++                    f"pipewire:NODE={ns}",
+                     ["-c", "2", "-l", "1", "-t", "sine", "-f", "700"])
+                 legs["st_pw_c6"] = _alsapw_r84_st_leg(
+-                    f"pipewire:NODE={ns}", ctx,
++                    f"pipewire:NODE={ns}",
+                     ["-c", "6", "-l", "1", "-t", "sine", "-f", "700"],
+                     timeout_s=42.0)
+                 for rep in range(2):
+@@ -20526,7 +20520,6 @@
+     rec["pid"] = proc.pid
+     t0 = time.monotonic()
+     node = None
+-    g = {}
+     while time.monotonic() - t0 < 2.2:
+         g = _alsapw_r84_graph()
+         if "nodes" in g:
+@@ -20556,7 +20549,7 @@
+             _alsapw_r84_killpg(proc)
+             proc.wait()
+     err = proc.stderr.read().decode(errors="replace")
+-    cls, hit = _alsapw_r84_errclass(err)
++    cls, _ = _alsapw_r84_errclass(err)
+     rec.update({"exit_code": proc.returncode,
+                 "signal": (signal.Signals(-proc.returncode).name
+                            if (proc.returncode or 0) < 0 else None),
+@@ -21343,7 +21336,7 @@
+     si1, w1 = _alsapw_r84_wait_attached(tag)
+     leg["spawn1_wait_s"] = w1
+     leg["spawn1_percent"] = _alsapw_r84_si_percent(si1)
+-    if si1 is None or (si1 or {}).get("sink") in (None, 4294967295):
++    if si1 is None or si1.get("sink") in (None, 4294967295):
+         _alsapw_r84_killpg(p1)
+         p1.wait()
+         leg["skipped"] = "stream s1 never routed"
+@@ -21543,7 +21536,7 @@
+         _alsapw_r84_killpg(kill_proc)
+         kill_proc.wait()
+         err = kill_proc.stderr.read().decode(errors="replace")
+-        cls, hit = _alsapw_r84_errclass(err)
++        cls, _ = _alsapw_r84_errclass(err)
+         legs["ctl_sigkill"] = {
+             "argv": "aplay -D pipewire <tone> (SIGKILL at 0.8s)",
+             "exit_code": kill_proc.returncode,

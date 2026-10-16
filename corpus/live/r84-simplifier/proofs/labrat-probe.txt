@@ -1,0 +1,66 @@
+# r84 simplifier — probeParent labrat dispatch (verbatim)
+
+Seat: `ufo-executor` (frozen `probeParent`) — exactly ONE read-only `ufo-labrat`
+dispatched for this round (agent id `db0a1145`, background, completed).
+The child was read-only (read + grep only), edited nothing, spawned nothing,
+and its verdict is advisory — every item it reported was re-derived in
+`static-proofs.py` / `differential.py` before being folded.
+Its line numbers are against the same pinned blob as this seat's (working tree
+== `fbe65713` for `corpus/fixtures/measure_audio.py`, sha256
+`8ed09d19990480fd337cba99e45cb0588e0615fd90e34793ecc4841c21368e4e`).
+
+Prompt summary: falsify eight candidate dead-code claims (T1–T8) in the r84
+block (lines 18821–21578), and report any ADDITIONAL provably-dead item.
+
+---- BEGIN VERBATIM CHILD REPORT ----
+
+# Labrat probe — r84 dead-code claims (measure_audio.py, HEAD fbe65713)
+
+Method: read-only inspection of the eight cited sites plus all reachability paths (call sites, defs, pinned-line context). No execution, no writes. Repo untouched.
+
+## T1 — `ALSAPW_R84_LINK_WAIT_S` (L18968): NOT-FALSIFIED
+grep over the whole file: the symbol appears exactly once (L18968, its definition). `ALSAPW_R84_STREAM_WAIT_S` (the adjacent constant) is used at L19270/19280/19301/19314; `LINK_WAIT_S` is referenced nowhere. Sibling `PWCAT_R83_LINK_WAIT_S` has 4 uses (L16511, 16884, 16996, 17244), confirming the contrast. Safe to delete.
+
+## T2 — `(leaf or {})` at L19881 / L19914: NOT-FALSIFIED
+All `loads` dicts in the r84 block are populated exclusively by `loads[…] = _pwcat_r83_ns_load(…)` (L20275, 20585, 20750, 21055, 21056). `_pwcat_r83_ns_load` (L16632-16663) returns the `leaf` dict literal on every path — both the try body (L16644) and the except body (L16649) build a dict, and all exits `return leaf`. No path returns None and nothing else mutates `loads`. So `leaf` is always a dict; `(leaf or {})` ≡ `leaf`. Agreed the `(loads or {})` guards must stay — `_alsapw_r84_block(loads=None)` default is exercised by 7 call sites (L19931, 20264, 20269, 20580, 20745, 21050, 21414).
+
+## T3 — `ctx` param of `_alsapw_r84_st_leg` (L19533): NOT-FALSIFIED
+Body L19533-19569 contains zero occurrences of `ctx` — no `ctx.get("redact")` pass (contrast `_alsapw_r84_arecord_leg` L19580-19582). Both call sites (L20324-20326, L20327-20330) pass `ctx` whose only r84-relevant key is `redact=(str(tmp),)`; argv here is `["speaker-test","-D","pipewire:NODE=<ns>",…]` — contains no `tmp` token, so even if redaction were applied it would be a no-op. Deleting the parameter requires touching the two call sites; behavior identical.
+
+## T4 — `hit` at L20559 and L21546: NOT-FALSIFIED
+- L20559 (`_alsapw_r84_prop_leg`): `hit` never loaded after the unpack; the rec.update at L20560-20566 records only `"error_class": cls` (unlike sibling legs that record `error_hit`).
+- L21546 (negctl): the `hit` recorded in legs is bound at L21509 inside the unit-table loop and consumed at L21512 — a different binding. The L21546 `hit` is never read; `ctl_sigkill` records only `error_class` (L21547-21553).
+
+## T5 — pre-loop `leaf` at L19334: NOT-FALSIFIED, with a caveat
+Single call site (L21136-21138) passes only `(tag, old_sink)`; `timeout_s` defaults to 2.0, so the while condition is always true on first check and L19336 rebinds `leaf` before any read; `return leaf` at L19340 reads only the loop-bound value. **Caveat**: the RHS is a side-effecting call (`_alsapw_r84_stream_leaf` → `_alsapw_r84_pactl_json` → `pactl -f json` subprocess). Deleting the line is receipt-identical but removes one live pactl invocation (timing perturbation only; no receipt leaf reads it). Not a *pure* dead store — dead binding, live RHS.
+
+## T6 — `g = {}` at L20529: NOT-FALSIFIED
+Loop always executes (bound 2.2 > 0); L20531 reassigns `g` before its only Load at L20532; `g` is not read after the loop (L20542+ reads `node`, not `g`). Pure dead store, pure RHS. Clean delete.
+
+## T7 — `(si1 or {})` at L21346: NOT-FALSIFIED
+`si1 is None or (si1 or {}).get("sink") in (None, 4294967295)`: the second operand is evaluated only when `si1 is not None`, so `si1 or {}` is always `si1`. Subsumed guard. (`si1` is the return of `_alsapw_r84_wait_attached`, which can be None — the first disjunct is load-bearing.)
+
+## T8 — `hold_note` comprehension at L20041-20044: NOT-FALSIFIED
+The comprehension `[k for k in running if "RUNNING" not in states0.get(k, "")]` is token-identical to the `flipped` binding at L20026-20027. `running` is assigned at L20024 immediately before `flipped` at L20026 in the same iteration; `states0` is fixed at L20006 before the loop. The loop exits only via `break` after both bindings (or by timeout after the last iteration's bindings), so at L20042 `running`/`states0` are exactly what produced `flipped`. Replacing the comprehension with `flipped` cannot change the recorded `hold_note`.
+
+## Additional provably-dead items found (18821-21578)
+1. **L19879, L19888, L19901 — `(loads or {})` inside `_alsapw_r84_teardown`.** `loads` is a required positional; all four call sites (L20494, 20728, 21031, 21324) pass a `loads` dict built in the entry body (never None). The guard is dead in *this* function (it is live only in `_alsapw_r84_block` where `loads=None` is a real default). Deleting `or {}` here is behavior-identical.
+2. **L20020 `states_held = {}`** in `alsapw_dev_lattice_r84_entry`. The while loop (bound 5.0 > 0) always runs and its first statement (L20023) reassigns `states_held`; the only read is L20039 after the loop. Dead store (pure RHS — unlike T5 this one is fully dead).
+3. **`timeout_s` parameter of `_alsapw_r84_wait_moved` (L19329)** — never supplied by its only call site (L21136); the default is the only value ever bound. Dead parameter capacity, not dead code per se; removing it is an interface change, flagged only.
+
+## Items where the claim looks wrong or risky
+- **T5 is the only risky one**: the value is unread, but the line executes a real `pactl` subprocess. Deletion is receipt-safe under the stated criterion (no receipt leaf observes it) but is not a pure dead-store delete — it skips one reader call before the poll loop begins. If "behavior-identical" is meant strictly at the process level, keep the call and drop only the binding is not expressible; the honest statement is "dead binding over a live side-effecting call."
+- All other claims (T1, T2, T3, T4, T6, T7, T8) hold exactly as stated; no counterexample path exists in the reachable code.
+
+Cleanup status: nothing created, modified, or deleted; no processes spawned; probe was read-only (read + grep only).
+
+---- END VERBATIM CHILD REPORT ----
+
+Seat disposition of the child's findings:
+- probe items 1 (`(loads or {})` in teardown) and 2 (`states_held = {}`) were
+  folded as T9 and half of T10 after this seat re-derived them (`S2c`, `S13`,
+  `S14`, `D4`).
+- probe item 3 (`wait_moved.timeout_s` never supplied) was verified and is
+  reported in §4 (below the bar, retained as a bound).
+- the T5 caveat was adopted verbatim in the T5 write-up (dead binding over a
+  live I/O call) and in `D3` (one fewer reader call, identical returned leaf).
