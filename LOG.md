@@ -1546,3 +1546,13 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   are not enumerated. No new control was run. Default-off remains armed.
   Report integration also confirms r98's bare C stream names remain
   upstream work; the selector-only fold is not a producer-name repair.
+- ROUND 98 SCOPE FOLD (2026-10-16): bind common/direct-xw C name arguments
+  and snapshot/profiler lookups to the coordinator PID; forward the
+  probe environment to live pw-dump. Five failing subcases become three
+  passing software tests. One hardware-disabled private emit observes
+  r98a_1493099_scope_probe linked to its owned null sink; the node then
+  disappears, both private daemons exit rc 0 and the socket is gone.
+  A preceding proof setup failed ENAMETOOLONG before emission; shortening
+  only its private runtime resolves it. Source 72b23e04..., unchanged C
+  9f840a6b..., raw observation preserved with its hash in the fold report.
+  No DSP/band change, physical LAN, full-family or clean-closure claim.

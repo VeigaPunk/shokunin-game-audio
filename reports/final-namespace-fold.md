@@ -60,3 +60,9 @@ Its tests prove the selector boundary and exact loaded sink values,
 not a live producer-name change. The host-global lock supplies current
 same-family exclusion; the upstream producer/witness naming gap remains
 required work. The critic's F4 is not closed by the selector-only fold.
+
+The subsequent r98-scope-fold closes that distinct producer/witness gap:
+actual argv and live graph now carry the coordinator PID, with a separate
+single private observation on source 72b23e04... . The old selector proof
+and frozen observations keep their original scope; they are not relabeled.
+See reports/round-98/r98-scope-fold.md and r98-scope-observation.json.

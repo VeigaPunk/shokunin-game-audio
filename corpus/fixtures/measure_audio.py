@@ -46528,6 +46528,26 @@ def _pwstream_r98_wants_autoconnect(args, env):
                for a in args)
 
 
+def _pwstream_r98_probe_name(tag):
+    return f"{PWSTREAM_R98_PREFIX}_{tag}"
+
+
+def _pwstream_r98_probe_args(args):
+    """Bind C's name= tag to this coordinator; retries stay idempotent."""
+    out = [str(a) for a in args]
+    prefix = f"{PWSTREAM_R98_PID}_"
+    found = False
+    for i, value in enumerate(out[1:], 1):
+        if value.startswith("name="):
+            found = True
+            tag = value[5:]
+            if not tag.startswith(prefix):
+                out[i] = "name=" + prefix + tag
+    if out and not found:
+        out.append("name=" + prefix + out[0])
+    return out
+
+
 def _pwstream_r98_run(probe, args, env=None, timeout=40.0, live=None,
                       node_name=None, core_limit=False, wd=None,
                       retry_transient=True):
@@ -46540,6 +46560,7 @@ def _pwstream_r98_run(probe, args, env=None, timeout=40.0, live=None,
     `paused` with NO link and NO error — is retried once here, and a
     still-transient leg is marked `transient` so the entry can name it
     a coverage block instead of a red or a silent green."""
+    args = _pwstream_r98_probe_args(args)
     rec = {"argv": " ".join([str(probe)] + [str(a) for a in args]),
            "utc": datetime.now(timezone.utc).strftime(
                "%Y-%m-%dT%H:%M:%SZ")}
@@ -46558,7 +46579,8 @@ def _pwstream_r98_run(probe, args, env=None, timeout=40.0, live=None,
     snap = None
     if live is not None and node_name:
         time.sleep(live)
-        snap = _pwstream_r98_node_links(_pwstream_r98_graph(), node_name)
+        snap = _pwstream_r98_node_links(
+            _pwstream_r98_graph(env=env), node_name)
     try:
         out, err = proc.communicate(timeout=timeout)
         rec["rc"] = proc.returncode
@@ -46604,7 +46626,7 @@ def _pwstream_r98_run(probe, args, env=None, timeout=40.0, live=None,
     return rec
 
 
-def _pwstream_r98_graph(attempts=2, timeout=60.0):
+def _pwstream_r98_graph(attempts=2, timeout=60.0, env=None):
     """Family-local pw-dump reader -> the r85 graph shape {nodes, ports,
     links}. The shared reader's 15 s pw-dump timeout is too short for a
     loaded shared graph (a foreign 12 h pactl wedge + 50-loadavg
@@ -46616,7 +46638,7 @@ def _pwstream_r98_graph(attempts=2, timeout=60.0):
     for attempt in range(attempts):
         try:
             proc = subprocess.run(["pw-dump"], capture_output=True,
-                                  timeout=timeout)
+                                  timeout=timeout, env=env)
             dump = json.loads(proc.stdout or b"[]")
         except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
             last = {"error": f"{type(exc).__name__}",
@@ -47347,7 +47369,8 @@ def pwstream_core_r98_probe():
                         "target=" + PWSTREAM_R98_NO_SUCH, "ms=1200",
                         "name=envnode"],
                 env=_pwstream_r98_env({"PIPEWIRE_NODE": str(serial)}),
-                live=0.7, node_name="r98a_envnode", timeout=20.0)
+                live=0.7, node_name=_pwstream_r98_probe_name("envnode"),
+                timeout=20.0)
             snap = legs["c_env_node_serial"].get("link_snapshot") or {}
             if PWSTREAM_R98_NS not in (snap.get("peers") or []):
                 failures.append(
@@ -47362,7 +47385,8 @@ def pwstream_core_r98_probe():
                         "name=envnodeg"],
                 env=_pwstream_r98_env(
                     {"PIPEWIRE_NODE": PWSTREAM_R98_NO_SUCH}),
-                live=0.6, node_name="r98a_envnodeg", timeout=20.0)
+                live=0.6, node_name=_pwstream_r98_probe_name("envnodeg"),
+                timeout=20.0)
             snap = legs["c_env_node_garbage"].get("link_snapshot") or {}
             if not default_sink or str(default_sink).startswith("@"):
                 entry.setdefault("coverage_blocked", []).append(
@@ -48022,7 +48046,8 @@ def pwstream_route_r98_probe():
                         probe, ["run", "flags=autoconnect",
                                 "target=" + target, "ms=1200",
                                 "name=" + tag],
-                        live=0.6, node_name="r98a_" + tag, timeout=20.0)
+                        live=0.6, node_name=_pwstream_r98_probe_name(tag),
+                        timeout=20.0)
                     f = legs[key].get("fields") or {}
                     snap = legs[key].get("link_snapshot") or {}
                     if f.get("state") != "streaming":
@@ -48048,7 +48073,8 @@ def pwstream_route_r98_probe():
                 probe, ["run", "flags=autoconnect",
                         "target=" + PWSTREAM_R98_NS, "ms=1200",
                         "name=t_prefix"],
-                live=0.6, node_name="r98a_t_prefix", timeout=20.0)
+                live=0.6, node_name=_pwstream_r98_probe_name("t_prefix"),
+                timeout=20.0)
             snap = legs["t_prefix"].get("link_snapshot") or {}
             if PWSTREAM_R98_NS2 in (snap.get("peers") or []):
                 failures.append("t_prefix: exact-name resolution matched "
@@ -48069,7 +48095,8 @@ def pwstream_route_r98_probe():
                         probe, ["run", "flags=autoconnect",
                                 "target=" + target, "ms=1000",
                                 "name=" + tag],
-                        live=0.6, node_name="r98a_" + tag, timeout=20.0)
+                        live=0.6, node_name=_pwstream_r98_probe_name(tag),
+                        timeout=20.0)
                     f = legs[key].get("fields") or {}
                     snap = legs[key].get("link_snapshot") or {}
                     if f.get("state") != "streaming":
@@ -48098,7 +48125,8 @@ def pwstream_route_r98_probe():
                     probe, ["run", "flags=autoconnect",
                             "target=" + str(serial), "ms=900",
                             "name=t_stable"],
-                    live=0.5, node_name="r98a_t_stable", timeout=20.0)
+                    live=0.5, node_name=_pwstream_r98_probe_name("t_stable"),
+                    timeout=20.0)
                 f = legs[f"t_stable_r{rep}"].get("fields") or {}
                 snap = legs[f"t_stable_r{rep}"].get("link_snapshot") or {}
                 stable.append({"state": f.get("state"),
@@ -48348,10 +48376,11 @@ def pwstream_xw_r98_probe():
                 tag = f"x_stall{stall_ms}"
                 try:
                     proc = subprocess.Popen(
-                        [probe, "stall", "flags=autoconnect",
-                         "target=" + str(serial), "ms=2000",
-                         "stall_at=3", f"stall_ms={stall_ms}",
-                         "name=" + tag],
+                        [probe] + _pwstream_r98_probe_args(
+                            ["stall", "flags=autoconnect",
+                             "target=" + str(serial), "ms=2000",
+                             "stall_at=3", f"stall_ms={stall_ms}",
+                             "name=" + tag]),
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                         stdin=subprocess.DEVNULL, start_new_session=True,
                         preexec_fn=_pwstream_r98_sigreset)
@@ -48366,8 +48395,9 @@ def pwstream_xw_r98_probe():
                 # window CLIPPED the 600 ms stall (23 follower xruns
                 # instead of 55). The larger budget covers the whole
                 # ~2.6 s probe window in both observed rates.
-                prof = _pwstream_r98_prof("r98a_" + tag, PWSTREAM_R98_NS,
-                                          n_arg=900, timeout_s=20.0)
+                prof = _pwstream_r98_prof(
+                    _pwstream_r98_probe_name(tag), PWSTREAM_R98_NS,
+                    n_arg=900, timeout_s=20.0)
                 try:
                     out, err = proc.communicate(timeout=20)
                     rc = proc.returncode
