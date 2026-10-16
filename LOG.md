@@ -1431,3 +1431,13 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - LAWS: auto-dither precision-tracking; -D vs -R split; vol ceil vs
   rint (1 LSB); resampler +/-1 frame; alias lattice corrected (-q -6.3);
   remix select-not-sum; fade stop-truncate + 100 dB log; window r/50-1.
+- ROUND 95 (2026-10-16): JACK<->PipeWire interop. ADMIT-with-findings at
+  6ba0201c (foldfix on ffeb5155; 24 legs, +1805/-3 then +773/-263).
+  Wave-B fired live: legs drop, skipped exit census, tree-local unbounded
+  lock, green-on-nothing stdout; all fixed, foldverify CONFIRMED on
+  committed bytes. CF: stdout blocked-count, lock-text truncation,
+  b_pw2jack band flake, d_metadata pair arm, measured:true semantics.
+- LAWS: JACK client metadata subject-keyed census; force-quantum harness
+  restore; host-global bounded family lock (XDG_RUNTIME_DIR, LOCK_NB);
+  daemon-down = named coverage_blocked never failures:[]; connect_rc
+  {0,22}; port-flags {1,2,6,18}; bufsize {2048,4,512}; latency triples.
