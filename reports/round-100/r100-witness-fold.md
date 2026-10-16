@@ -54,3 +54,18 @@ containment, uncatchable/external termination, no-config/IR-latency gaps,
 record-only shared-store writes, narrow clock-band margin and historical
 author-receipt custody remain separately disclosed findings. No clean
 unattended-family certification or native UFO verdict is asserted.
+
+## Subsequent Changed-Entry Observation
+
+One immutable export of 294e6c24 (source sha matches the after sha above)
+runs only sofa_clock_r100_entry under the real host-global family lock.
+The raw result is r100-clock-repair-receipt.json in this directory.
+Execution: env -u RTP_R99_ALLOW_LAN_CONTROL python3 -B runner.py
+under audio-r100-witness-proof/targeted-clock/; rc 0.
+
+All three variants have the requested live settings: quantum 512 plus
+max-quantum 2048, quantum 2048, rate 96000 plus allowed-rates [ 96000 ].
+The entry has no failures or coverage blocks. All six retained core/WP
+handles exit rc 0. The readable WP logs have zero ALSA lines, with no
+log-reader errors. This is a scoped author observation, not a repeat of
+the nine-entry family or independent verification of all repaired bytes.

@@ -1,0 +1,2069 @@
+{
+  "source_commit": "294e6c24",
+  "source_sha256": "a8760b120fbbb47d091f6d0a674e3630d4fd20b9ee6e366df0f6c57371a019f9",
+  "started_utc": "2026-10-16T13:16:36.882351+00:00",
+  "scope": "Changed r100 clock entry only, not the nine-entry battery",
+  "measurements": {
+    "sofa_clock_r100_probe": {
+      "probe": "r100a sofa clock invariance (private core, server quantum/rate)",
+      "law_provenance": {
+        "boundary_published": [
+          "FINE ILD az90 4.6084 / az270 -4.6084 / az0 0.0 / az180 0.0",
+          "FINE rms az0 0.11650992, az90 L 0.16278101, az90 R 0.0957599, az180 0.09857826",
+          "front/back 440 Hz -1.4517 dB",
+          "n_samples 512 @44100, 558 @48000, 1115 @96000",
+          "the whole boundary verdict table (ports, no-config -22, rate-string absence, teardown, the falsified Radius ladder and the symlink file)"
+        ],
+        "this_seat_measured": [
+          "COARSE_ILD 4-decimal centers (the boundary's receipts store 3): 3.4653 / 4.6118 / 4.1954 / -4.1954 / -3.4653",
+          "MISMATCH_ILD 4-decimal centers: 4.6163 / 4.6157 / 4.6176",
+          "ELEV90 fine-recipe rms 0.10322302 (boundary's coarse 0.10320148 is inside the band)",
+          "XFER az0_db -9.6423 (boundary published -9.6421; neither recomputes from the boundary's printed rms pair, which gives ~-9.646)"
+        ],
+        "extrapolated": [
+          "N_SAMPLES[88200] = 1024 = ceil(512 * 88200 / 44100) -- the boundary lost that leg; this seat measured 1024"
+        ],
+        "bands": "the boundary's documented spread; widened where a different window recipe is involved"
+      },
+      "contention": {
+        "pw_play": 0,
+        "pw_record": 0,
+        "pw_cat": 0,
+        "pw_loopback": 0,
+        "paplay": 0,
+        "parec": 0,
+        "pacat": 0,
+        "aplay": 0,
+        "arecord": 0,
+        "ffmpeg": 0,
+        "fixture_runs": 0,
+        "own_pid": 1455759,
+        "host_is_quiet": true
+      },
+      "loadavg": [
+        "0.28",
+        "0.22",
+        "0.24"
+      ],
+      "shared_graph_pwdump": {
+        "argv": "pw-dump",
+        "env_private": false,
+        "rc": 0,
+        "bytes": 236173,
+        "objects": 76
+      },
+      "sandbox_root": "/tmp/r100a-sbx-a6ue_r0l",
+      "sandbox": null,
+      "tools": {
+        "pipewire": "/usr/bin/pipewire",
+        "wireplumber": "/usr/bin/wireplumber",
+        "pw-cli": "/usr/bin/pw-cli",
+        "pw-dump": "/usr/bin/pw-dump",
+        "pw-link": "/usr/bin/pw-link",
+        "pw-play": "/usr/bin/pw-play",
+        "pw-record": "/usr/bin/pw-record",
+        "pactl": "/usr/bin/pactl"
+      },
+      "failures": [],
+      "variants": [
+        {
+          "variant": "q512",
+          "props": {
+            "default.clock.quantum": 512,
+            "default.clock.max-quantum": 2048
+          },
+          "start": {
+            "variant": "q512",
+            "props": {
+              "default.clock.quantum": 512,
+              "default.clock.max-quantum": 2048
+            },
+            "root": "/tmp/r100a-sbx-a6ue_r0l",
+            "procs": {
+              "core": {
+                "pid": 1455772,
+                "argv": [
+                  "pipewire",
+                  "-c",
+                  "pipewire.conf"
+                ]
+              },
+              "wp": {
+                "pid": 1455775,
+                "argv": [
+                  "wireplumber",
+                  "-p",
+                  "r100a-nohw"
+                ]
+              }
+            },
+            "socket_waited_s": 0.25,
+            "pwdump_probe": {
+              "argv": "pw-dump",
+              "env_private": true,
+              "rc": 0,
+              "bytes": 34843,
+              "objects": 33
+            }
+          },
+          "leg": "clk_q512_az90",
+          "server_clock": {
+            "default.clock.quantum": "4",
+            "default.clock.rate": "48000"
+          },
+          "driver": [
+            {
+              "name": "Dummy-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "Freewheel-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "r100a_1455759_in",
+              "state": "running",
+              "clock.rate": null,
+              "clock.quantum": null
+            }
+          ],
+          "settings": {
+            "clock.rate": "48000",
+            "clock.allowed-rates": "[ 48000 ]",
+            "clock.quantum": "512",
+            "clock.min-quantum": "32",
+            "clock.max-quantum": "2048",
+            "clock.force-quantum": "0",
+            "clock.force-rate": "0"
+          },
+          "dropin": "context.properties = {\n  default.clock.quantum = 512\n  default.clock.max-quantum = 2048\n  module.profiler = false\n  module.portal = false\n}",
+          "stop": [
+            {
+              "name": "core",
+              "pid": 1455772,
+              "rc": 0
+            },
+            {
+              "name": "wp",
+              "pid": 1455775,
+              "rc": 0
+            }
+          ]
+        },
+        {
+          "variant": "q2048",
+          "props": {
+            "default.clock.quantum": 2048
+          },
+          "start": {
+            "variant": "q2048",
+            "props": {
+              "default.clock.quantum": 2048
+            },
+            "root": "/tmp/r100a-sbx-a6ue_r0l",
+            "procs": {
+              "core": {
+                "pid": 1455949,
+                "argv": [
+                  "pipewire",
+                  "-c",
+                  "pipewire.conf"
+                ]
+              },
+              "wp": {
+                "pid": 1455952,
+                "argv": [
+                  "wireplumber",
+                  "-p",
+                  "r100a-nohw"
+                ]
+              }
+            },
+            "socket_waited_s": 0.25,
+            "pwdump_probe": {
+              "argv": "pw-dump",
+              "env_private": true,
+              "rc": 0,
+              "bytes": 34845,
+              "objects": 33
+            }
+          },
+          "leg": "clk_q2048_az90",
+          "server_clock": {
+            "default.clock.quantum": "4",
+            "default.clock.rate": "48000"
+          },
+          "driver": [
+            {
+              "name": "Dummy-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "Freewheel-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "r100a_1455759_in",
+              "state": "running",
+              "clock.rate": null,
+              "clock.quantum": null
+            }
+          ],
+          "settings": {
+            "clock.rate": "48000",
+            "clock.allowed-rates": "[ 48000 ]",
+            "clock.quantum": "2048",
+            "clock.min-quantum": "32",
+            "clock.max-quantum": "2048",
+            "clock.force-quantum": "0",
+            "clock.force-rate": "0"
+          },
+          "dropin": "context.properties = {\n  default.clock.quantum = 2048\n  module.profiler = false\n  module.portal = false\n}",
+          "stop": [
+            {
+              "name": "core",
+              "pid": 1455949,
+              "rc": 0
+            },
+            {
+              "name": "wp",
+              "pid": 1455952,
+              "rc": 0
+            }
+          ]
+        },
+        {
+          "variant": "r96000",
+          "props": {
+            "default.clock.rate": 96000,
+            "default.clock.allowed-rates": "[ 96000 ]"
+          },
+          "start": {
+            "variant": "r96000",
+            "props": {
+              "default.clock.rate": 96000,
+              "default.clock.allowed-rates": "[ 96000 ]"
+            },
+            "root": "/tmp/r100a-sbx-a6ue_r0l",
+            "procs": {
+              "core": {
+                "pid": 1456118,
+                "argv": [
+                  "pipewire",
+                  "-c",
+                  "pipewire.conf"
+                ]
+              },
+              "wp": {
+                "pid": 1456121,
+                "argv": [
+                  "wireplumber",
+                  "-p",
+                  "r100a-nohw"
+                ]
+              }
+            },
+            "socket_waited_s": 0.25,
+            "pwdump_probe": {
+              "argv": "pw-dump",
+              "env_private": true,
+              "rc": 0,
+              "bytes": 34897,
+              "objects": 33
+            }
+          },
+          "leg": "clk_r96000_az90",
+          "server_clock": {
+            "default.clock.rate": "96000",
+            "default.clock.allowed-rates": "[ 96000 ]",
+            "default.clock.quantum": "4"
+          },
+          "driver": [
+            {
+              "name": "Dummy-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "Freewheel-Driver",
+              "state": "suspended",
+              "clock.rate": null,
+              "clock.quantum": null
+            },
+            {
+              "name": "r100a_1455759_in",
+              "state": "running",
+              "clock.rate": null,
+              "clock.quantum": null
+            }
+          ],
+          "settings": {
+            "clock.rate": "96000",
+            "clock.allowed-rates": "[ 96000 ]",
+            "clock.quantum": "1024",
+            "clock.min-quantum": "32",
+            "clock.max-quantum": "2048",
+            "clock.force-quantum": "0",
+            "clock.force-rate": "0"
+          },
+          "dropin": "context.properties = {\n  default.clock.rate = 96000\n  default.clock.allowed-rates = [ 96000 ]\n  module.profiler = false\n  module.portal = false\n}",
+          "stop": [
+            {
+              "name": "core",
+              "pid": 1456118,
+              "rc": 0
+            },
+            {
+              "name": "wp",
+              "pid": 1456121,
+              "rc": 0
+            }
+          ]
+        }
+      ],
+      "legs": {
+        "clk_q512_az90": {
+          "leg": "clk_q512_az90",
+          "tag": "clk_q512_az90_1455759",
+          "ns": "r100a_1455759",
+          "utc": "2026-10-16T13:16:39Z",
+          "rate": 44100,
+          "azimuth": 90.0,
+          "elevation": null,
+          "radius": null,
+          "quote": false,
+          "swap_channels": false,
+          "ref_tap": false,
+          "play": "bg",
+          "tone": {
+            "freq": 440.0,
+            "secs": 1.6,
+            "amp": 0.5
+          },
+          "post": null,
+          "loadavg_start": {
+            "l1": 0.26,
+            "l5": 0.22,
+            "l15": 0.24,
+            "running": "1/1649"
+          },
+          "pre_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "foreign_at_start": {
+            "foreign_nodes": []
+          },
+          "node_tok": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}",
+          "argv_args": "node.description=r100a_1455759_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}]},audio.channels=1,audio.position=[MONO],audio.rate=44100,capture.props={node.name=r100a_1455759_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100a_1455759_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+          "sink": {
+            "driver": "pw-cli",
+            "rc": 0,
+            "module_id": null,
+            "node_id": 39,
+            "out": "",
+            "err": ""
+          },
+          "load_out": "= \"56\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 added global: \tid 48, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"57\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 node 44 changed\nremote 0 node 44 changed",
+          "module_var": 1,
+          "nodes_now": [
+            "r100a_1455759_in",
+            "r100a_1455759_sofa_in",
+            "r100a_1455759_sofa_out"
+          ],
+          "ports_fc_in": [
+            "r100a_1455759_sofa_in:monitor_MONO",
+            "r100a_1455759_sofa_in:playback_MONO"
+          ],
+          "ports_fc_out": [
+            "r100a_1455759_sofa_out:output_FL",
+            "r100a_1455759_sofa_out:output_FR"
+          ],
+          "ports_rec": [
+            "r100a_1455759_rec:input_FL",
+            "r100a_1455759_rec:input_FR",
+            "r100a_1455759_rec:monitor_FL",
+            "r100a_1455759_rec:monitor_FR"
+          ],
+          "links": [
+            {
+              "argv": [
+                "r100a_1455759_in:monitor_MONO",
+                "r100a_1455759_sofa_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FL",
+                "r100a_1455759_rec:input_FL"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FR",
+                "r100a_1455759_rec:input_FR"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_play:output_MONO",
+                "r100a_1455759_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            }
+          ],
+          "tone_file": "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav",
+          "tone_file_rms": 0.3535289,
+          "ports_play": [
+            "r100a_1455759_play:output_MONO"
+          ],
+          "play_link_origin": "manual",
+          "clock_mid": {
+            "core": {
+              "default.clock.quantum": "4",
+              "default.clock.rate": "48000"
+            },
+            "drivers": [
+              {
+                "name": "Dummy-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "Freewheel-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "r100a_1455759_in",
+                "state": "running",
+                "clock.rate": null,
+                "clock.quantum": null
+              }
+            ],
+            "settings": {
+              "clock.rate": "48000",
+              "clock.allowed-rates": "[ 48000 ]",
+              "clock.quantum": "512",
+              "clock.min-quantum": "32",
+              "clock.max-quantum": "2048",
+              "clock.force-quantum": "0",
+              "clock.force-rate": "0"
+            },
+            "settings_rc": 0,
+            "core_rc": 0
+          },
+          "post_events": [],
+          "play_stop": {
+            "argv": [
+              "pw-play",
+              "--target",
+              "r100a_1455759_in",
+              "-P",
+              "node.name=r100a_1455759_play",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav"
+            ],
+            "rc": 0,
+            "out": "",
+            "err": ""
+          },
+          "rec": {
+            "argv": [
+              "pw-record",
+              "--channels",
+              "2",
+              "-P",
+              "node.name=r100a_1455759_rec",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_q512_az90_1455759.wav"
+            ],
+            "rc": 1,
+            "out": "",
+            "err": "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_q512_az90_1455759.wav\n"
+          },
+          "analysis": {
+            "bytes": 704556,
+            "frames": 176128,
+            "ch": 2,
+            "file_rate": 48000,
+            "sha256": "2475153d12fa72edcb49d17893537de5d16ba5b5f45da9f1d7e23d87d16a77ad",
+            "scout_coarse": {
+              "win": 17640,
+              "stride": 1764,
+              "channels": [
+                {
+                  "rms": 0.162781,
+                  "win_offset": 56448,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.658691,
+                  "tone": 0.23031487
+                },
+                {
+                  "rms": 0.09573165,
+                  "win_offset": 89964,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.251801,
+                  "tone": 0.1353284
+                }
+              ],
+              "ild_db": 4.611,
+              "tone_ratio_db": 4.6187
+            },
+            "scout_fine": {
+              "win": 17640,
+              "stride": 1,
+              "channels": [
+                {
+                  "rms": 0.16312226,
+                  "win_offset": 90531,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.658691,
+                  "tone": 0.22860557
+                },
+                {
+                  "rms": 0.09576692,
+                  "win_offset": 90565,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.251801,
+                  "tone": 0.13445553
+                }
+              ],
+              "ild_db": 4.626,
+              "tone_ratio_db": 4.6102
+            },
+            "file_coarse": {
+              "win": 19200,
+              "stride": 1920,
+              "channels": [
+                {
+                  "rms": 0.16270483,
+                  "win_offset": 65280,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.658691,
+                  "tone": 0.23009937
+                },
+                {
+                  "rms": 0.09567709,
+                  "win_offset": 88320,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.251801,
+                  "tone": 0.13530784
+                }
+              ],
+              "ild_db": 4.6118,
+              "tone_ratio_db": 4.6118
+            },
+            "peak": 0.658691,
+            "nonzero": [
+              75296,
+              75294
+            ]
+          },
+          "links_after": [
+            "r100a_1455759_in:monitor_MONO",
+            "|-> r100a_1455759_sofa_in:playback_MONO",
+            "r100a_1455759_sofa_in:playback_MONO",
+            "|<- r100a_1455759_in:monitor_MONO"
+          ],
+          "props_enum_in": {
+            "node": "r100a_1455759_sofa_in",
+            "id": 43,
+            "rc": 0,
+            "bytes": 2727,
+            "has_azimuth": true,
+            "has_elevation": true,
+            "has_radius": true,
+            "values": {
+              "s0:Azimuth": 90.0,
+              "s0:Elevation": 0.0,
+              "s0:Radius": 1.0
+            },
+            "lines": [
+              "String \"s0:Azimuth\"",
+              "String \"s0:Elevation\"",
+              "String \"s0:Radius\""
+            ]
+          },
+          "props_enum_out": {
+            "node": "r100a_1455759_sofa_out",
+            "id": 44,
+            "rc": 0,
+            "bytes": 2498,
+            "has_azimuth": false,
+            "has_elevation": false,
+            "has_radius": false,
+            "values": {},
+            "lines": []
+          },
+          "module_unload_verified": {
+            "captured": 1,
+            "client_local": true,
+            "global_registry_seen": [],
+            "own_nodes_before": [
+              "r100a_1455759_in",
+              "r100a_1455759_sofa_in",
+              "r100a_1455759_sofa_out"
+            ],
+            "matched": true,
+            "own_nodes_after": [
+              "r100a_1455759_in"
+            ]
+          },
+          "unload": "bject.serial = \"51\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1455830\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 39 changed\n",
+          "fc_log": [
+            "[I][10:16:40.330778] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-0) creating -> suspended",
+            "[I][10:16:40.330906] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-0) creating -> suspended",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "[I][10:16:42.858328] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) suspended -> running",
+            "[I][10:16:42.858445] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:44100",
+            "[I][10:16:42.894370][   plugin_sofa.c:  222 spatializer_instantiate()] using n_samples:512 256:4096 blocksize gain:1.000000 sofa:/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa",
+            "[I][10:16:42.894403][   plugin_sofa.c:  268 spatializer_reload()] making spatializer with 90.000000 0.000000 1.000000",
+            "[I][10:16:42.895075] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) suspended -> running",
+            "remote 0: error id:57 seq:131 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:135 res:-2 (No such file or directory): unknown resource 57 op:7",
+            "remote 0: error id:60 seq:136 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:140 res:-2 (No such file or directory): unknown resource 60 op:7",
+            "[I][10:16:47.002419] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) running -> suspended",
+            "[I][10:16:47.002457] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_in-43) destroy",
+            "[I][10:16:47.002538] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+            "[I][10:16:47.002562] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) running -> suspended",
+            "[I][10:16:47.002575] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_out-44) destroy",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\""
+          ],
+          "fc_log_all_tail": [
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"43\"",
+            "audio.channel = \"MONO\"",
+            "port.id = \"0\"",
+            "port.name = \"monitor_MONO\"",
+            "port.direction = \"out\"",
+            "port.monitor = \"true\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 43, type PipeWire:Interface:Node/3",
+            "object.serial = \"52\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "media.class = \"Audio/Sink\"",
+            "remote 0 node 44 changed",
+            "remote 0 removed global: \tid 47, type PipeWire:Interface:Port/3",
+            "object.serial = \"56\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FL\"",
+            "port.id = \"0\"",
+            "port.name = \"output_FL\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 48, type PipeWire:Interface:Port/3",
+            "object.serial = \"57\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FR\"",
+            "port.id = \"1\"",
+            "port.name = \"output_FR\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 44, type PipeWire:Interface:Node/3",
+            "object.serial = \"53\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "media.class = \"Stream/Output/Audio\"",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"51\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1455830\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0\"",
+            "application.name = \"pw-cli\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 node 39 changed",
+            "",
+            "remote 0 added global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1455932\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 client 42 changed",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1455932\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\""
+          ],
+          "n_samples": 512,
+          "rate_string_seen": false,
+          "sink_unload": {
+            "value": "r100a_1455759_in",
+            "captured": 39,
+            "verified_index": 39,
+            "recycled": false,
+            "rc": 0
+          },
+          "post_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "loadavg_end": {
+            "l1": 0.22,
+            "l5": 0.21,
+            "l15": 0.24,
+            "running": "1/1649"
+          },
+          "wall_s": 8.77,
+          "calls": {
+            "n": 40,
+            "timed_out": [],
+            "slowest": [
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              }
+            ]
+          },
+          "attempts": 1,
+          "mode": {
+            "private_core": true,
+            "driver": "pw-cli",
+            "pw_env_keys": [
+              "PIPEWIRE_CONFIG_DIR",
+              "PIPEWIRE_REMOTE",
+              "PIPEWIRE_RUNTIME_DIR",
+              "XDG_CACHE_HOME",
+              "XDG_CONFIG_HOME",
+              "XDG_DATA_HOME",
+              "XDG_RUNTIME_DIR",
+              "XDG_STATE_HOME"
+            ]
+          },
+          "host": {
+            "pipewire": "pw-cli\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8",
+            "sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "default_sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "sofa_is_symlink": true,
+            "default_sofa_realpath": "/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa"
+          },
+          "_fixture": {
+            "rc": 0,
+            "wall_s": 9.94
+          }
+        },
+        "clk_q2048_az90": {
+          "leg": "clk_q2048_az90",
+          "tag": "clk_q2048_az90_1455759",
+          "ns": "r100a_1455759",
+          "utc": "2026-10-16T13:16:51Z",
+          "rate": 44100,
+          "azimuth": 90.0,
+          "elevation": null,
+          "radius": null,
+          "quote": false,
+          "swap_channels": false,
+          "ref_tap": false,
+          "play": "bg",
+          "tone": {
+            "freq": 440.0,
+            "secs": 1.6,
+            "amp": 0.5
+          },
+          "post": null,
+          "loadavg_start": {
+            "l1": 0.22,
+            "l5": 0.21,
+            "l15": 0.24,
+            "running": "1/1649"
+          },
+          "pre_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "foreign_at_start": {
+            "foreign_nodes": []
+          },
+          "node_tok": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}",
+          "argv_args": "node.description=r100a_1455759_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}]},audio.channels=1,audio.position=[MONO],audio.rate=44100,capture.props={node.name=r100a_1455759_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100a_1455759_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+          "sink": {
+            "driver": "pw-cli",
+            "rc": 0,
+            "module_id": null,
+            "node_id": 39,
+            "out": "",
+            "err": ""
+          },
+          "load_out": "= \"56\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 added global: \tid 48, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"57\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 node 44 changed\nremote 0 node 44 changed",
+          "module_var": 1,
+          "nodes_now": [
+            "r100a_1455759_in",
+            "r100a_1455759_sofa_in",
+            "r100a_1455759_sofa_out"
+          ],
+          "ports_fc_in": [
+            "r100a_1455759_sofa_in:monitor_MONO",
+            "r100a_1455759_sofa_in:playback_MONO"
+          ],
+          "ports_fc_out": [
+            "r100a_1455759_sofa_out:output_FL",
+            "r100a_1455759_sofa_out:output_FR"
+          ],
+          "ports_rec": [
+            "r100a_1455759_rec:input_FL",
+            "r100a_1455759_rec:input_FR",
+            "r100a_1455759_rec:monitor_FL",
+            "r100a_1455759_rec:monitor_FR"
+          ],
+          "links": [
+            {
+              "argv": [
+                "r100a_1455759_in:monitor_MONO",
+                "r100a_1455759_sofa_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FL",
+                "r100a_1455759_rec:input_FL"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FR",
+                "r100a_1455759_rec:input_FR"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_play:output_MONO",
+                "r100a_1455759_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            }
+          ],
+          "tone_file": "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav",
+          "tone_file_rms": 0.3535289,
+          "ports_play": [
+            "r100a_1455759_play:output_MONO"
+          ],
+          "play_link_origin": "manual",
+          "clock_mid": {
+            "core": {
+              "default.clock.quantum": "4",
+              "default.clock.rate": "48000"
+            },
+            "drivers": [
+              {
+                "name": "Dummy-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "Freewheel-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "r100a_1455759_in",
+                "state": "running",
+                "clock.rate": null,
+                "clock.quantum": null
+              }
+            ],
+            "settings": {
+              "clock.rate": "48000",
+              "clock.allowed-rates": "[ 48000 ]",
+              "clock.quantum": "2048",
+              "clock.min-quantum": "32",
+              "clock.max-quantum": "2048",
+              "clock.force-quantum": "0",
+              "clock.force-rate": "0"
+            },
+            "settings_rc": 0,
+            "core_rc": 0
+          },
+          "post_events": [],
+          "play_stop": {
+            "argv": [
+              "pw-play",
+              "--target",
+              "r100a_1455759_in",
+              "-P",
+              "node.name=r100a_1455759_play",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav"
+            ],
+            "rc": 0,
+            "out": "",
+            "err": ""
+          },
+          "rec": {
+            "argv": [
+              "pw-record",
+              "--channels",
+              "2",
+              "-P",
+              "node.name=r100a_1455759_rec",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_q2048_az90_1455759.wav"
+            ],
+            "rc": 1,
+            "out": "",
+            "err": "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_q2048_az90_1455759.wav\n"
+          },
+          "analysis": {
+            "bytes": 704556,
+            "frames": 176128,
+            "ch": 2,
+            "file_rate": 48000,
+            "sha256": "6875087210db2516a3ab728eec4cf7a055531b69758364384fe0b4e24f8d85d3",
+            "scout_coarse": {
+              "win": 17640,
+              "stride": 1764,
+              "channels": [
+                {
+                  "rms": 0.16278094,
+                  "win_offset": 44100,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.261719,
+                  "tone": 0.23031473
+                },
+                {
+                  "rms": 0.09572188,
+                  "win_offset": 42336,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.155792,
+                  "tone": 0.13543457
+                }
+              ],
+              "ild_db": 4.6118,
+              "tone_ratio_db": 4.6118
+            },
+            "scout_fine": {
+              "win": 17640,
+              "stride": 1,
+              "channels": [
+                {
+                  "rms": 0.16278101,
+                  "win_offset": 87027,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.261719,
+                  "tone": 0.23031489
+                },
+                {
+                  "rms": 0.0957599,
+                  "win_offset": 32952,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.155792,
+                  "tone": 0.13547495
+                }
+              ],
+              "ild_db": 4.6084,
+              "tone_ratio_db": 4.6093
+            },
+            "file_coarse": {
+              "win": 19200,
+              "stride": 1920,
+              "channels": [
+                {
+                  "rms": 0.16270482,
+                  "win_offset": 86400,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.261719,
+                  "tone": 0.23009936
+                },
+                {
+                  "rms": 0.0956771,
+                  "win_offset": 44160,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.155792,
+                  "tone": 0.13530785
+                }
+              ],
+              "ild_db": 4.6118,
+              "tone_ratio_db": 4.6118
+            },
+            "peak": 0.261719,
+            "nonzero": [
+              77340,
+              77341
+            ]
+          },
+          "links_after": [
+            "r100a_1455759_in:monitor_MONO",
+            "|-> r100a_1455759_sofa_in:playback_MONO",
+            "r100a_1455759_sofa_in:playback_MONO",
+            "|<- r100a_1455759_in:monitor_MONO"
+          ],
+          "props_enum_in": {
+            "node": "r100a_1455759_sofa_in",
+            "id": 43,
+            "rc": 0,
+            "bytes": 2727,
+            "has_azimuth": true,
+            "has_elevation": true,
+            "has_radius": true,
+            "values": {
+              "s0:Azimuth": 90.0,
+              "s0:Elevation": 0.0,
+              "s0:Radius": 1.0
+            },
+            "lines": [
+              "String \"s0:Azimuth\"",
+              "String \"s0:Elevation\"",
+              "String \"s0:Radius\""
+            ]
+          },
+          "props_enum_out": {
+            "node": "r100a_1455759_sofa_out",
+            "id": 44,
+            "rc": 0,
+            "bytes": 2498,
+            "has_azimuth": false,
+            "has_elevation": false,
+            "has_radius": false,
+            "values": {},
+            "lines": []
+          },
+          "module_unload_verified": {
+            "captured": 1,
+            "client_local": true,
+            "global_registry_seen": [],
+            "own_nodes_before": [
+              "r100a_1455759_in",
+              "r100a_1455759_sofa_in",
+              "r100a_1455759_sofa_out"
+            ],
+            "matched": true,
+            "own_nodes_after": [
+              "r100a_1455759_in"
+            ]
+          },
+          "unload": "bject.serial = \"51\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1455994\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 39 changed\n",
+          "fc_log": [
+            "[I][10:16:53.040619] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-0) creating -> suspended",
+            "[I][10:16:53.040749] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-0) creating -> suspended",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "[I][10:16:55.568041] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) suspended -> running",
+            "[I][10:16:55.568173] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:44100",
+            "[I][10:16:55.604804][   plugin_sofa.c:  222 spatializer_instantiate()] using n_samples:512 256:4096 blocksize gain:1.000000 sofa:/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa",
+            "[I][10:16:55.604835][   plugin_sofa.c:  268 spatializer_reload()] making spatializer with 90.000000 0.000000 1.000000",
+            "[I][10:16:55.605510] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) suspended -> running",
+            "remote 0: error id:57 seq:131 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:135 res:-2 (No such file or directory): unknown resource 57 op:7",
+            "remote 0: error id:60 seq:136 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:140 res:-2 (No such file or directory): unknown resource 60 op:7",
+            "[I][10:16:59.696651] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) running -> suspended",
+            "[I][10:16:59.696679] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_in-43) destroy",
+            "[I][10:16:59.696756] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+            "[I][10:16:59.696777] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) running -> suspended",
+            "[I][10:16:59.696787] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_out-44) destroy",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\""
+          ],
+          "fc_log_all_tail": [
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"43\"",
+            "audio.channel = \"MONO\"",
+            "port.id = \"0\"",
+            "port.name = \"monitor_MONO\"",
+            "port.direction = \"out\"",
+            "port.monitor = \"true\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 43, type PipeWire:Interface:Node/3",
+            "object.serial = \"52\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "media.class = \"Audio/Sink\"",
+            "remote 0 node 44 changed",
+            "remote 0 removed global: \tid 47, type PipeWire:Interface:Port/3",
+            "object.serial = \"56\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FL\"",
+            "port.id = \"0\"",
+            "port.name = \"output_FL\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 48, type PipeWire:Interface:Port/3",
+            "object.serial = \"57\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FR\"",
+            "port.id = \"1\"",
+            "port.name = \"output_FR\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 44, type PipeWire:Interface:Node/3",
+            "object.serial = \"53\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "media.class = \"Stream/Output/Audio\"",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"51\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1455994\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0\"",
+            "application.name = \"pw-cli\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 node 39 changed",
+            "",
+            "remote 0 added global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1456093\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 client 42 changed",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1456093\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\""
+          ],
+          "n_samples": 512,
+          "rate_string_seen": false,
+          "sink_unload": {
+            "value": "r100a_1455759_in",
+            "captured": 39,
+            "verified_index": 39,
+            "recycled": false,
+            "rc": 0
+          },
+          "post_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "loadavg_end": {
+            "l1": 0.19,
+            "l5": 0.2,
+            "l15": 0.24,
+            "running": "1/1648"
+          },
+          "wall_s": 8.75,
+          "calls": {
+            "n": 40,
+            "timed_out": [],
+            "slowest": [
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-link -o",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              }
+            ]
+          },
+          "attempts": 1,
+          "mode": {
+            "private_core": true,
+            "driver": "pw-cli",
+            "pw_env_keys": [
+              "PIPEWIRE_CONFIG_DIR",
+              "PIPEWIRE_REMOTE",
+              "PIPEWIRE_RUNTIME_DIR",
+              "XDG_CACHE_HOME",
+              "XDG_CONFIG_HOME",
+              "XDG_DATA_HOME",
+              "XDG_RUNTIME_DIR",
+              "XDG_STATE_HOME"
+            ]
+          },
+          "host": {
+            "pipewire": "pw-cli\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8",
+            "sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "default_sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "sofa_is_symlink": true,
+            "default_sofa_realpath": "/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa"
+          },
+          "_fixture": {
+            "rc": 0,
+            "wall_s": 9.93
+          }
+        },
+        "clk_r96000_az90": {
+          "leg": "clk_r96000_az90",
+          "tag": "clk_r96000_az90_1455759",
+          "ns": "r100a_1455759",
+          "utc": "2026-10-16T13:17:04Z",
+          "rate": 44100,
+          "azimuth": 90.0,
+          "elevation": null,
+          "radius": null,
+          "quote": false,
+          "swap_channels": false,
+          "ref_tap": false,
+          "play": "bg",
+          "tone": {
+            "freq": 440.0,
+            "secs": 1.6,
+            "amp": 0.5
+          },
+          "post": null,
+          "loadavg_start": {
+            "l1": 0.25,
+            "l5": 0.22,
+            "l15": 0.24,
+            "running": "2/1648"
+          },
+          "pre_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "foreign_at_start": {
+            "foreign_nodes": []
+          },
+          "node_tok": "{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}",
+          "argv_args": "node.description=r100a_1455759_sofa,filter.graph={nodes=[{type=sofa,name=s0,label=spatializer,config={filename=/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa},control={Azimuth=90.0}}]},audio.channels=1,audio.position=[MONO],audio.rate=44100,capture.props={node.name=r100a_1455759_sofa_in,node.autoconnect=false,media.class=Audio/Sink},playback.props={node.name=r100a_1455759_sofa_out,node.autoconnect=false,audio.channels=2,audio.position=[FL,FR]}",
+          "sink": {
+            "driver": "pw-cli",
+            "rc": 0,
+            "module_id": null,
+            "node_id": 39,
+            "out": "",
+            "err": ""
+          },
+          "load_out": "= \"56\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_0\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FL\"\n \t\tport.id = \"0\"\n \t\tport.name = \"output_FL\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FL\"\n \t\tport.group = \"stream.0\"\nremote 0 added global: \tid 48, type PipeWire:Interface:Port/3\n \t\tobject.serial = \"57\"\n \t\tobject.path = \"r100a_1455759_sofa_out:output_1\"\n \t\tformat.dsp = \"32 bit float mono audio\"\n \t\tnode.id = \"44\"\n \t\taudio.channel = \"FR\"\n \t\tport.id = \"1\"\n \t\tport.name = \"output_FR\"\n \t\tport.direction = \"out\"\n \t\tport.alias = \"r100a_1455759_sofa:output_FR\"\n \t\tport.group = \"stream.0\"\nremote 0 node 44 changed\nremote 0 node 44 changed",
+          "module_var": 1,
+          "nodes_now": [
+            "r100a_1455759_in",
+            "r100a_1455759_sofa_in",
+            "r100a_1455759_sofa_out"
+          ],
+          "ports_fc_in": [
+            "r100a_1455759_sofa_in:monitor_MONO",
+            "r100a_1455759_sofa_in:playback_MONO"
+          ],
+          "ports_fc_out": [
+            "r100a_1455759_sofa_out:output_FL",
+            "r100a_1455759_sofa_out:output_FR"
+          ],
+          "ports_rec": [
+            "r100a_1455759_rec:input_FL",
+            "r100a_1455759_rec:input_FR",
+            "r100a_1455759_rec:monitor_FL",
+            "r100a_1455759_rec:monitor_FR"
+          ],
+          "links": [
+            {
+              "argv": [
+                "r100a_1455759_in:monitor_MONO",
+                "r100a_1455759_sofa_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FL",
+                "r100a_1455759_rec:input_FL"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_sofa_out:output_FR",
+                "r100a_1455759_rec:input_FR"
+              ],
+              "rc": 0,
+              "tries": 1
+            },
+            {
+              "argv": [
+                "r100a_1455759_play:output_MONO",
+                "r100a_1455759_in:playback_MONO"
+              ],
+              "rc": 0,
+              "tries": 1
+            }
+          ],
+          "tone_file": "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav",
+          "tone_file_rms": 0.3535289,
+          "ports_play": [
+            "r100a_1455759_play:output_MONO"
+          ],
+          "play_link_origin": "manual",
+          "clock_mid": {
+            "core": {
+              "default.clock.rate": "96000",
+              "default.clock.allowed-rates": "[ 96000 ]",
+              "default.clock.quantum": "4"
+            },
+            "drivers": [
+              {
+                "name": "Dummy-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "Freewheel-Driver",
+                "state": "suspended",
+                "clock.rate": null,
+                "clock.quantum": null
+              },
+              {
+                "name": "r100a_1455759_in",
+                "state": "running",
+                "clock.rate": null,
+                "clock.quantum": null
+              }
+            ],
+            "settings": {
+              "clock.rate": "96000",
+              "clock.allowed-rates": "[ 96000 ]",
+              "clock.quantum": "1024",
+              "clock.min-quantum": "32",
+              "clock.max-quantum": "2048",
+              "clock.force-quantum": "0",
+              "clock.force-rate": "0"
+            },
+            "settings_rc": 0,
+            "core_rc": 0
+          },
+          "post_events": [],
+          "play_stop": {
+            "argv": [
+              "pw-play",
+              "--target",
+              "r100a_1455759_in",
+              "-P",
+              "node.name=r100a_1455759_play",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/tone_440.0_44100.wav"
+            ],
+            "rc": 0,
+            "out": "",
+            "err": ""
+          },
+          "rec": {
+            "argv": [
+              "pw-record",
+              "--channels",
+              "2",
+              "-P",
+              "node.name=r100a_1455759_rec",
+              "-P",
+              "node.autoconnect=false",
+              "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_r96000_az90_1455759.wav"
+            ],
+            "rc": 1,
+            "out": "",
+            "err": "/tmp/r100a-sbx-a6ue_r0l/scratch/cap_clk_r96000_az90_1455759.wav\n"
+          },
+          "analysis": {
+            "bytes": 706496,
+            "frames": 176613,
+            "ch": 2,
+            "file_rate": 48000,
+            "sha256": "ea7f445588d972b9526f00902b005b25aa2abac269f875200f9eca4e8d3e6179",
+            "scout_coarse": {
+              "win": 17640,
+              "stride": 1764,
+              "channels": [
+                {
+                  "rms": 0.16278114,
+                  "win_offset": 65268,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.639038,
+                  "tone": 0.23031488
+                },
+                {
+                  "rms": 0.09574406,
+                  "win_offset": 88200,
+                  "win": 17640,
+                  "stride": 1764,
+                  "peak": 0.252167,
+                  "tone": 0.13160236
+                }
+              ],
+              "ild_db": 4.6098,
+              "tone_ratio_db": 4.8612
+            },
+            "scout_fine": {
+              "win": 17640,
+              "stride": 1,
+              "channels": [
+                {
+                  "rms": 0.16302729,
+                  "win_offset": 88495,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.639038,
+                  "tone": 0.21903342
+                },
+                {
+                  "rms": 0.09580329,
+                  "win_offset": 88488,
+                  "win": 17640,
+                  "stride": 1,
+                  "peak": 0.252167,
+                  "tone": 0.12893822
+                }
+              ],
+              "ild_db": 4.6176,
+              "tone_ratio_db": 4.6026
+            },
+            "file_coarse": {
+              "win": 19200,
+              "stride": 1920,
+              "channels": [
+                {
+                  "rms": 0.16270511,
+                  "win_offset": 51840,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.639038,
+                  "tone": 0.23009977
+                },
+                {
+                  "rms": 0.09571458,
+                  "win_offset": 86400,
+                  "win": 19200,
+                  "stride": 1920,
+                  "peak": 0.252167,
+                  "tone": 0.13427434
+                }
+              ],
+              "ild_db": 4.6085,
+              "tone_ratio_db": 4.6785
+            },
+            "peak": 0.639038,
+            "nonzero": [
+              76318,
+              76193
+            ]
+          },
+          "links_after": [
+            "r100a_1455759_in:monitor_MONO",
+            "|-> r100a_1455759_sofa_in:playback_MONO",
+            "r100a_1455759_sofa_in:playback_MONO",
+            "|<- r100a_1455759_in:monitor_MONO"
+          ],
+          "props_enum_in": {
+            "node": "r100a_1455759_sofa_in",
+            "id": 43,
+            "rc": 0,
+            "bytes": 2727,
+            "has_azimuth": true,
+            "has_elevation": true,
+            "has_radius": true,
+            "values": {
+              "s0:Azimuth": 90.0,
+              "s0:Elevation": 0.0,
+              "s0:Radius": 1.0
+            },
+            "lines": [
+              "String \"s0:Azimuth\"",
+              "String \"s0:Elevation\"",
+              "String \"s0:Radius\""
+            ]
+          },
+          "props_enum_out": {
+            "node": "r100a_1455759_sofa_out",
+            "id": 44,
+            "rc": 0,
+            "bytes": 2498,
+            "has_azimuth": false,
+            "has_elevation": false,
+            "has_radius": false,
+            "values": {},
+            "lines": []
+          },
+          "module_unload_verified": {
+            "captured": 1,
+            "client_local": true,
+            "global_registry_seen": [],
+            "own_nodes_before": [
+              "r100a_1455759_in",
+              "r100a_1455759_sofa_in",
+              "r100a_1455759_sofa_out"
+            ],
+            "matched": true,
+            "own_nodes_after": [
+              "r100a_1455759_in"
+            ]
+          },
+          "unload": "bject.serial = \"51\"\n \t\tmodule.id = \"2\"\n \t\tpipewire.protocol = \"protocol-native\"\n \t\tpipewire.sec.pid = \"1456148\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"pw-cli\"\n \t\tpipewire.access = \"unrestricted\"\nremote 0 node 39 changed\n",
+          "fc_log": [
+            "[I][10:17:05.733470] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-0) creating -> suspended",
+            "[I][10:17:05.733604] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-0) creating -> suspended",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "[I][10:17:08.263545] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) suspended -> running",
+            "[I][10:17:08.263806] spa.filter-graph | [  filter-graph.c: 1641 impl_activate()] instantiate spatializer s0[0] rate:44100",
+            "[I][10:17:08.299770][   plugin_sofa.c:  222 spatializer_instantiate()] using n_samples:512 256:4096 blocksize gain:1.000000 sofa:/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa",
+            "[I][10:17:08.299804][   plugin_sofa.c:  268 spatializer_reload()] making spatializer with 90.000000 0.000000 1.000000",
+            "[I][10:17:08.300465] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) suspended -> running",
+            "remote 0: error id:57 seq:131 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:135 res:-2 (No such file or directory): unknown resource 57 op:7",
+            "remote 0: error id:60 seq:136 res:-116 (Stale file handle): no global 55 any more",
+            "remote 0: error id:0 seq:140 res:-2 (No such file or directory): unknown resource 60 op:7",
+            "[I][10:17:12.395212] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_in-43) running -> suspended",
+            "[I][10:17:12.395240] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_in-43) destroy",
+            "[I][10:17:12.395322] spa.filter-graph | [  filter-graph.c: 1482 node_cleanup()] cleanup spatializer s0[0]",
+            "[I][10:17:12.395342] pw.node      | [     impl-node.c:  509 node_update_state()] (r100a_1455759_sofa_out-44) running -> suspended",
+            "[I][10:17:12.395353] pw.node      | [     impl-node.c: 2410 pw_impl_node_destroy()] (r100a_1455759_sofa_out-44) destroy",
+            "object.path = \"r100a_1455759_sofa_in:playback_0\"",
+            "port.alias = \"r100a_1455759_sofa:playback_MONO\"",
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\""
+          ],
+          "fc_log_all_tail": [
+            "object.path = \"r100a_1455759_sofa_in:monitor_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"43\"",
+            "audio.channel = \"MONO\"",
+            "port.id = \"0\"",
+            "port.name = \"monitor_MONO\"",
+            "port.direction = \"out\"",
+            "port.monitor = \"true\"",
+            "port.alias = \"r100a_1455759_sofa:monitor_MONO\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 43, type PipeWire:Interface:Node/3",
+            "object.serial = \"52\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_in\"",
+            "media.class = \"Audio/Sink\"",
+            "remote 0 node 44 changed",
+            "remote 0 removed global: \tid 47, type PipeWire:Interface:Port/3",
+            "object.serial = \"56\"",
+            "object.path = \"r100a_1455759_sofa_out:output_0\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FL\"",
+            "port.id = \"0\"",
+            "port.name = \"output_FL\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FL\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 48, type PipeWire:Interface:Port/3",
+            "object.serial = \"57\"",
+            "object.path = \"r100a_1455759_sofa_out:output_1\"",
+            "format.dsp = \"32 bit float mono audio\"",
+            "node.id = \"44\"",
+            "audio.channel = \"FR\"",
+            "port.id = \"1\"",
+            "port.name = \"output_FR\"",
+            "port.direction = \"out\"",
+            "port.alias = \"r100a_1455759_sofa:output_FR\"",
+            "port.group = \"stream.0\"",
+            "remote 0 removed global: \tid 44, type PipeWire:Interface:Node/3",
+            "object.serial = \"53\"",
+            "factory.id = \"9\"",
+            "client.id = \"42\"",
+            "node.description = \"r100a_1455759_sofa\"",
+            "node.name = \"r100a_1455759_sofa_out\"",
+            "media.class = \"Stream/Output/Audio\"",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"51\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1456148\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0\"",
+            "application.name = \"pw-cli\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 node 39 changed",
+            "",
+            "remote 0 added global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1456219\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\"",
+            "remote 0 client 42 changed",
+            "remote 0 removed global: \tid 42, type PipeWire:Interface:Client/3",
+            "object.serial = \"95\"",
+            "module.id = \"2\"",
+            "pipewire.protocol = \"protocol-native\"",
+            "pipewire.sec.pid = \"1456219\"",
+            "pipewire.sec.uid = \"1000\"",
+            "pipewire.sec.gid = \"1000\"",
+            "pipewire.sec.socket = \"pipewire-0-manager\"",
+            "application.name = \"pw-dump\"",
+            "pipewire.access = \"unrestricted\""
+          ],
+          "n_samples": 512,
+          "rate_string_seen": false,
+          "sink_unload": {
+            "value": "r100a_1455759_in",
+            "captured": 39,
+            "verified_index": 39,
+            "recycled": false,
+            "rc": 0
+          },
+          "post_sweep": {
+            "before": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "unloaded": [],
+            "killed": [],
+            "destroyed": [],
+            "after": {
+              "nodes": [],
+              "node_states": {},
+              "modules": [],
+              "pactl_modules": [],
+              "procs": []
+            },
+            "clean": true
+          },
+          "loadavg_end": {
+            "l1": 0.21,
+            "l5": 0.21,
+            "l15": 0.24,
+            "running": "1/1635"
+          },
+          "wall_s": 8.76,
+          "calls": {
+            "n": 40,
+            "timed_out": [],
+            "slowest": [
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.005,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              },
+              {
+                "argv": "pw-dump",
+                "dur": 0.004,
+                "rc": 0,
+                "timed_out": false
+              }
+            ]
+          },
+          "attempts": 1,
+          "mode": {
+            "private_core": true,
+            "driver": "pw-cli",
+            "pw_env_keys": [
+              "PIPEWIRE_CONFIG_DIR",
+              "PIPEWIRE_REMOTE",
+              "PIPEWIRE_RUNTIME_DIR",
+              "XDG_CACHE_HOME",
+              "XDG_CONFIG_HOME",
+              "XDG_DATA_HOME",
+              "XDG_RUNTIME_DIR",
+              "XDG_STATE_HOME"
+            ]
+          },
+          "host": {
+            "pipewire": "pw-cli\nCompiled with libpipewire 1.6.8\nLinked with libpipewire 1.6.8",
+            "sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "default_sofa_sha256": "2768ac841213a7ae11d1ea7fd0f25a69b39216102dc5dd913ea6ba0f0dc57e28",
+            "sofa_is_symlink": true,
+            "default_sofa_realpath": "/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa"
+          },
+          "_fixture": {
+            "rc": 0,
+            "wall_s": 9.94
+          }
+        }
+      },
+      "wp_alsa_lines": 0,
+      "wp_alsa_log_errors": [],
+      "own_procs_after": [],
+      "own_nodes_after": [],
+      "stream_properties_own_rows": []
+    }
+  },
+  "finished_utc": "2026-10-16T13:17:15.019751+00:00"
+}
