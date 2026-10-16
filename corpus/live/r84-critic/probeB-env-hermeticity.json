@@ -1,0 +1,101 @@
+{
+  "probe": "probeB-env-hermeticity",
+  "pid": 1706870,
+  "loadavg": [
+    "53.53",
+    "53.39",
+    "55.41"
+  ],
+  "ambient_audio_env": {},
+  "load": {
+    "rc": 0,
+    "out": "536870924"
+  },
+  "legs": {
+    "ctl": {
+      "name": "ctl",
+      "argv": "aplay -D pipewire:NODE=r84c_env,PERIOD_BYTES=4096 /home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav",
+      "env_extra": [],
+      "nodes_mid": [
+        {
+          "name": "r84c_env",
+          "state": "running",
+          "node_latency": null,
+          "target_object": null,
+          "consumers": []
+        },
+        {
+          "name": "alsa_playback.aplay",
+          "state": "running",
+          "node_latency": "1024/48000",
+          "target_object": "r84c_env",
+          "consumers": [
+            "r84c_env"
+          ]
+        }
+      ],
+      "exit_code": 0,
+      "stderr_tail": "Playing WAVE '/home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo\n"
+    },
+    "env_latency": {
+      "name": "env_latency",
+      "argv": "aplay -D pipewire:NODE=r84c_env,PERIOD_BYTES=4096 /home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav",
+      "env_extra": [
+        "PIPEWIRE_LATENCY"
+      ],
+      "nodes_mid": [
+        {
+          "name": "r84c_env",
+          "state": "running",
+          "node_latency": null,
+          "target_object": null,
+          "consumers": []
+        },
+        {
+          "name": "alsa_playback.aplay",
+          "state": "running",
+          "node_latency": "2048/48000",
+          "target_object": "r84c_env",
+          "consumers": [
+            "r84c_env"
+          ]
+        }
+      ],
+      "exit_code": 0,
+      "stderr_tail": "Playing WAVE '/home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo\n"
+    },
+    "env_props_name": {
+      "name": "env_props_name",
+      "argv": "aplay -D pipewire:NODE=r84c_env /home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav",
+      "env_extra": [
+        "PIPEWIRE_PROPS"
+      ],
+      "nodes_mid": [
+        {
+          "name": "r84c_env",
+          "state": "running",
+          "node_latency": null,
+          "target_object": null,
+          "consumers": []
+        },
+        {
+          "name": "r84c_envname",
+          "state": "running",
+          "node_latency": "6000/48000",
+          "target_object": "r84c_env",
+          "consumers": [
+            "r84c_env"
+          ]
+        }
+      ],
+      "exit_code": 0,
+      "stderr_tail": "Playing WAVE '/home/vgpnk/Projects/shokunin/tmp/r84critic-tmp/r84c_env_tone.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo\n"
+    }
+  },
+  "unload": {
+    "index": 536870924,
+    "rc": 0
+  },
+  "residue_modules": [],
+  "residue_sinks": []
+}

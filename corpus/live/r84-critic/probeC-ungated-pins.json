@@ -1,0 +1,86 @@
+{
+  "probe": "probeC-ungated-pins",
+  "pid": 1712621,
+  "loadavg": [
+    "55.33",
+    "53.81",
+    "55.52"
+  ],
+  "synthetic_base": 64,
+  "intercepts": [
+    {
+      "intercepted": [
+        "set-sink-volume",
+        "r84a_ns_1712621",
+        "-10%"
+      ],
+      "really_wrote": [
+        "set-sink-volume",
+        "r84a_ns_1712621",
+        "10%"
+      ],
+      "rc": 0
+    }
+  ],
+  "failures": [
+    "vol_50_0: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "vol_50_1: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "src_vol50_0: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "src_vol50_1: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "vol_0_100: base=64.0 muted=64.0 back=64.0 \u2014 the 0%/100% arm fails",
+    "mute_cycle: base=64.0 muted=64.0 back=64.0 \u2014 the mute-cycle arm fails",
+    "susp_live_0: the linked-suspend hint arm fails \u2014 rows=''/'' node=None base=64.0 post=64.0",
+    "susp_live_1: the linked-suspend hint arm fails \u2014 rows=''/'' node=None base=64.0 post=64.0"
+  ],
+  "evidence": {
+    "vol_neg": {
+      "volume_value": 6553,
+      "volume_percent": "10%",
+      "get_sink_volume": "Volume: front-left: 6553 /  10% / -60.00 dB,   front-right: 6553 /  10% / -60.00 dB\n        balance 0.00\n"
+    },
+    "vol_150": {
+      "base_amp": 64.0,
+      "post_amp": 216.0,
+      "ratio": 3.375
+    },
+    "vol_25_idx": {
+      "base_amp": 64.0,
+      "post_amp": 1.0,
+      "ratio": 0.0156
+    },
+    "vol_50_0": {
+      "base_amp": 64.0,
+      "post_amp": 8.0,
+      "ratio": 0.125
+    },
+    "src_vol50_0": {
+      "base_amp": 64.0,
+      "post_amp": 8.0,
+      "ratio": 0.125
+    }
+  },
+  "vol_neg_in_failures": [],
+  "vol_150_in_failures": [],
+  "vol_25_idx_in_failures": [],
+  "vol_50_in_failures": [
+    "vol_50_0: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "vol_50_1: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "src_vol50_0: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails",
+    "src_vol50_1: base=64.0 post=8.0 \u2014 the x0.125 cubic pin fails"
+  ],
+  "coverage_blocked": null,
+  "sinks_gone": {
+    "r84a_ns_1712621": true
+  },
+  "own_nodes_after": [],
+  "unloads": {
+    "r84a_ns_1712621": {
+      "verified_index": 536870924,
+      "captured": 536870924,
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    }
+  },
+  "teardown_failures": []
+}

@@ -1,0 +1,56 @@
+# r84-critic probe D — family-lock scope (evidence log, no audio)
+
+## Code under test (committed fbe65713, corpus/fixtures/measure_audio.py)
+
+L19840-19844 (docstring): "Same-family exclusion — two concurrent r84 runs
+would cross-credit the monitor taps (identical tag-discriminator shape)
+and corrupt the /proc RUNNING witness, so a second --probe-alsapw-r84
+waits HERE (the r82 convention)."
+
+L19845: `path = Path(tempfile.gettempdir()) / "measure_audio-alsapw-r84.lock"`
+
+`tempfile.gettempdir()` honours `$TMPDIR`. The r84 task text (and the wave
+constraints) tell seats to use `TMPDIR=~/Projects/shokunin/tmp` **or the
+lane's corpus/tmp** — i.e. wave-B seats routinely get *different* lock
+paths, and the flock then never serializes them.
+
+## Observed (2026-10-15, all times local, loadavg ~52-55 / 32 cores)
+
+| time | event |
+| --- | --- |
+| 21:40:27 | sibling seat (`r84-verifier`) starts `--probe-alsapw-r84` with `TMPDIR=/home/vgpnk/Projects/shokunin/tmp`; lock file `<shared>/measure_audio-alsapw-r84.lock` reads `pid=1682245 ns=r84a_ns_1682245 role=r84arole1682245` |
+| 21:40:37 | this critic starts the same probe with `TMPDIR=/home/vgpnk/Projects/shokunin/tmp/r84critic-tmp`; **does not wait** — lock file `<mine>/measure_audio-alsapw-r84.lock` reads `pid=1685102 ns=r84a_ns_1685102 role=r84arole1685102` |
+| 21:43 | `pactl list modules short` shows BOTH runs live at once: `r84a_ns_1685102`, `r84a_ns2_1685102`, `r84a_ns_1682245`, `r84a_ns2_1682245` (+ the pre-existing foreign `r84a_probe_548706`) |
+| 21:45:16 | sibling run ends `rc=1`; its stdout lists 3 failures |
+| 21:45:17 | this critic's run ends `rc=1`; its stdout lists 2 failures |
+| 21:47+ | this critic's second replay with the SHARED TMPDIR blocks on the flock held by a third sibling run (`pid=1739244`) — the lock does serialize when the TMPDIRs match |
+
+## Consequence (the reds are attribution artifacts, not family defects)
+
+- this run, `a_front` (direct ALSA): `new_node_names = ['r84a_1682245_hold']`
+  — the *sibling's* pw-record pin appeared inside this leg's global
+  before/after node-name delta.
+- this run, `a_iec958_d0` (direct ALSA): `new_node_names =
+  ['alsa_playback.aplay', 'r84a_ns_1682245']` — the sibling's plugin node
+  and null sink.
+- sibling run, `a_plughw00`: `new_node_names = ['alsa_playback.aplay']`
+  — this critic's aplay node (symmetric contamination).
+- sibling run, `pw_server`: `exit_code -9`, `killed_at_bound: true`,
+  `wall_s 8.009` — the 8 s bound SIGKILLed the leg (this critic's
+  identical leg returned rc=1 `alsa_pw_conn` in 3 ms); the gate has no
+  `killed_at_bound` branch, so a bound kill is scored as a refusal
+  failure.
+- sibling run, `st_hw00_c1`: `rc=1`, `error_class None`,
+  `stderr_head []`, `wall_s 0.001` — empty-stderr rc=1 is outside the
+  gate's `(alsa_params, alsa_open_ebusy)` class set.
+
+The `new_node_names` census (`_alsapw_r84_aplay_leg`, L19528-19529) is a
+GLOBAL node-name delta with no pid/tag ownership filter, so any
+concurrent client of any seat lands in it.
+
+## Receipts
+
+- `replay-run1.measurements.json` (this critic, pid 1685102; md5
+  `7e5648ad7bbaf97bbac01997975ae18d`), `replay-run1.stdout.json`.
+- `corpus/live/r84-verifier/runs/r84v1.stdout.json` (sibling, read-only
+  citation), `r84v1.window.txt` (`start 00:40:28 / rc=1 / end 00:45:16`).
