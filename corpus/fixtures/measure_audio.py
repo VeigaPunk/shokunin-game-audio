@@ -52797,6 +52797,1449 @@ def rtp_axis_r99_entry():
 
 
 
+
+# ---------------------------------------------------------------------------
+# ROUND 100 -- the sofa/spatializer HRTF node: the only filter-graph plugin
+# type never measured (builtin r92, ebur128 r93, ladspa/lv2 absent-class r92,
+# sofa load-only), and the province's FIRST spatial/stereo output path (every
+# canonical fixture is mono). A NEW parallel ledger family, --probe-sofa-r100;
+# prior rows untouched and every r76-r95 guard inherited (seat-owned r100a_*
+# names, name-verified unloads, never `pactl set-default-*`, bounded
+# process-group children, a FIXED corpus/live/ family lock -- the r84 F1
+# 3-seat consensus).
+#
+# Every armed law is a BOUNDARY-SURVIVING claim from reports/round-100/
+# r100-boundary.md. The scout's rows the boundary falsified or re-attributed
+# are dropped or re-armed at the boundary's corrected values:
+#   * the `<=2e-5 relative across reps` stability bound is NOT armed: it is a
+#     property of the coarse `best_window` stride (win // 10), not of the
+#     signal. This family records THREE recipes and arms the stride-1 one
+#     (`scout_fine`), per the boundary's §3.1 consequence.
+#   * the proposed `Radius` ladder ("spectrum changes") is re-armed as its
+#     falsification: Radius 0.5/1.0/3.0 are indistinguishable here.
+#   * `default.sofa` is re-armed as a SYMLINK identity (equal sha256 + equal
+#     output), not as a second corpus.
+#   * the quoted token form is armed as its own falsifier class: it loads,
+#     plays, and silently drops the `control` object.
+#   * the rate-mismatch cell is armed at n >= 3 (the scout's n=1 value does
+#     not reproduce) and the `Only the same sampling rate supported` string is
+#     recorded as NOT reached on this path.
+#   * `n_samples` is armed as the scaling law ceil(512 * fc_rate / 44100) that
+#     the boundary's 512/558/1115 ladder implies, not as one number.
+#
+# ENVIRONMENT DEVIATION (disclosed, not hidden): the shared daemon could not
+# serve a fresh `pw-dump` during this round (0 bytes in 30 s, twice, while
+# `pw-cli ls` answered) and two FOREIGN clients -- a `pw-dump` and an
+# `r95rjack` -- were wedged alive in the shared graph. The family therefore
+# arms against a SEAT-OWNED private core + private WirePlumber profile with no
+# hardware monitors (the r100 boundary's §4.7 sandbox shape, which reproduced
+# the shared graph to ~1e-5), and one entry (`sofa_shared_r100_probe`) reports
+# the shared graph's reachability: it measures on the shared graph when the
+# daemon answers, and records a NAMED coverage block when it does not -- never
+# a silent green. Foreign objects are censused, never touched.
+
+SOFA_R100_PID = os.getpid()
+SOFA_R100_NS = f"r100a_{SOFA_R100_PID}"
+SOFA_R100_SRC = ROOT / "fixtures" / "r100sofa.py"
+SOFA_R100_JSON = "R100AJSON "
+SOFA_R100_SOFA = "/usr/share/libmysofa/MIT_KEMAR_normal_pinna.sofa"
+SOFA_R100_DEFAULT_SOFA = "/usr/share/libmysofa/default.sofa"
+SOFA_R100_FC_RATE = 44100
+SOFA_R100_TONE_HZ = 440.0
+SOFA_R100_TONE_ALT_HZ = 997.0
+SOFA_R100_WALL = 180.0
+SOFA_R100_TMP = os.environ.get("TMPDIR") or tempfile.gettempdir()
+
+# The boundary's WINDOW-LANDING verdict, encoded as three recorded recipes.
+# The armed one is `scout_fine` (stride 1): the scout's own published recipe
+# (`scout_coarse`) scatters at 1.3e-5..3.1e-5 across fresh processes, so it is
+# recorded as a cross-witness and never armed.
+SOFA_R100_RECIPES = ("scout_coarse", "scout_fine", "file_coarse")
+SOFA_R100_ARMED_RECIPE = "scout_fine"
+SOFA_R100_COARSE_RECIPE = "scout_coarse"
+
+# --- armed law table. ILD is a within-capture ratio, so it is the robust pin.
+#     PROVENANCE, exactly (a labrat attack on this table forced the split):
+#       * boundary-published centers, to the precision the boundary printed
+#         them: the FINE ILD 4.6084 / -4.6084 / 0.0, the FINE rms
+#         0.11650992 / 0.16278101 / 0.0957599 / 0.09857826 (the boundary's
+#         `scratch/{window-landing,fine-ild}.json` carry them to 8 decimals),
+#         the 440 Hz front/back -1.4517 dB, and n_samples 512/558/1115;
+#       * THIS seat's first-run centers, because the boundary's receipts store
+#         `ild_db` to only 3 decimals (`axes-azcurve.json`: 3.465 / 4.195 /
+#         4.612): SOFA_R100_COARSE_ILD and SOFA_R100_MISMATCH_ILD carry a 4th
+#         decimal this seat measured, and each sits inside the boundary's
+#         3-decimal value at the armed band;
+#       * THIS seat's fine-recipe centers where the boundary published a
+#         coarse-recipe number: SOFA_R100_ELEV90_RMS (this seat's fine
+#         0.10322302; the boundary's coarse 0.10320148 lies inside the band) and
+#         SOFA_R100_XFER.az0_db (this seat's -9.6423, recomputed from its own
+#         reference-tap pair; the boundary's published -9.6421 also lies
+#         inside the band, and neither recomputes from the boundary's printed
+#         rms pair, which gives ~-9.646 -- an unresolved 2e-4 ambiguity);
+#       * an EXTRAPOLATION, admitted as such: SOFA_R100_N_SAMPLES[88200] = 1024
+#         (the boundary lost that leg); it is `ceil(512 * 88200 / 44100)` and
+#         this seat measured 1024 in both green runs.
+#     Bands are the boundary's documented spread, widened where a different
+#     window recipe is involved.
+SOFA_R100_FINE_ILD = {"az0": 0.0, "az90": 4.6084, "az180": 0.0, "az270": -4.6084}
+SOFA_R100_FINE_ILD_TOL = 0.010
+SOFA_R100_FINE_RMS = {"az0": 0.11650992, "az90_l": 0.16278101,
+                      "az90_r": 0.0957599, "az180": 0.09857826}
+SOFA_R100_FINE_RMS_TOL = 0.006      # relative
+SOFA_R100_ZERO_ILD_TOL = 0.010
+SOFA_R100_MIRROR_TOL = 0.005
+# The 8-point curve was published from the coarse recipe (1 rep per point), so
+# it is armed on the coarse recipe with a band wider than the boundary's
+# +-0.0035 dB coarse spread.
+SOFA_R100_COARSE_ILD = {45: 3.4653, 90: 4.6118, 135: 4.1954, 180: 0.0,
+                        225: -4.1954, 270: -4.6118, 315: -3.4653, 0: 0.0}
+SOFA_R100_COARSE_ILD_TOL = 0.020
+# n_samples scaling law implied by the boundary's 512/558/1115 ladder.
+SOFA_R100_N_SAMPLES = {44100: 512, 48000: 558, 88200: 1024, 96000: 1115}
+SOFA_R100_MISMATCH_ILD_TOL = 0.020
+SOFA_R100_MISMATCH_ILD = {48000: 4.6163, 88200: 4.6157, 96000: 4.6176}
+SOFA_R100_FRONTBACK_440_DB = -1.4517      # az180 vs az0 @440 Hz (boundary)
+SOFA_R100_FRONTBACK_997_DB = 2.3407        # az180 vs az0 @997 Hz (boundary)
+SOFA_R100_FRONTBACK_TOL = 0.050
+SOFA_R100_XFER = {"az0_db": -9.6423, "az90_l_db": -6.7386,
+                  "az90_r_db": -11.3466}
+SOFA_R100_XFER_TOL = 0.050
+SOFA_R100_REF_RMS_BAND = (0.345, 0.365)
+SOFA_R100_REF_TONE_BAND = (0.490, 0.510)
+SOFA_R100_ELEV90_RMS = 0.10322302
+SOFA_R100_RATE_STRING = "Only the same sampling rate supported"
+SOFA_R100_NOCONFIG_ERR = "no config was given"
+SOFA_R100_NOCONFIG_GRAPH_ERR = "can't start graph"
+SOFA_R100_NOCONFIG_CODE = "(-22)"
+SOFA_R100_IDENT_TOL = 1e-5                 # relative, for the inert legs
+SOFA_R100_GAIN_TOL = 1e-4                  # relative, for the gain law
+SOFA_R100_CLOCK_VARIANTS = (
+    ("q512", {"default.clock.quantum": 512,
+              "default.clock.max-quantum": 2048}),
+    ("q2048", {"default.clock.quantum": 2048}),
+    ("r96000", {"default.clock.rate": 96000,
+                "default.clock.allowed-rates": "[ 96000 ]"}),
+)
+SOFA_R100_WP_PROFILE = """# r100a sandbox: a profile with NO hardware monitors (no ALSA / bluez /
+# v4l2), so the private session manager never enumerates or opens the
+# operator's devices.
+wireplumber.profiles = {
+  base = {
+    check.no-media-session = required
+    support.settings = required
+    support.log-settings = required
+    support.session-services = required
+  }
+  r100a-nohw = {
+    inherits = [ base ]
+    metadata.sm-settings = required
+    metadata.sm-objects = required
+    policy.standard = required
+  }
+}
+"""
+
+_SOFA_R100_ERR_CLASSES = (
+    ("sofa_r100_no_fixture", r"r100sofa\.py"),
+    ("sofa_r100_no_sofa", r"libmysofa"),
+    ("sofa_r100_leg_error", r"leg_error"),
+)
+
+
+def _sofa_r100_errclass(text):
+    for name, pat in _SOFA_R100_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _jack_r95_errclass(text or "")
+
+
+def _sofa_r100_norm(text):
+    """Volatile-field scrub: the r89-r95 classes plus this seat's pid."""
+    s = _jack_r95_norm(text or "")
+    return re.sub(rf"r100a_[0-9]+", "r100a_<pid>", s)
+
+
+def _sofa_r100_family_lock():
+    """Same-family exclusion at a FIXED lane path -- never $TMPDIR (the r84
+    F1 3-seat consensus). A second --probe-sofa-r100 waits HERE."""
+    path = ROOT / "live" / "measure_audio-sofa-r100.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={SOFA_R100_PID} ns={SOFA_R100_NS}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+# ------------------------------------------------- private core + session mgr
+def _sofa_r100_preexec():
+    """No core files: a pw-cli abort must never drop a core. The session is
+    made by `start_new_session=True` -- calling setsid() here as well raises
+    EPERM, because the child is already a session leader."""
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
+
+def _sofa_r100_env(root, variant, props, wp):
+    """The sandbox environment: PIPEWIRE_RUNTIME_DIR / XDG_* redirected into
+    the seat's own tree, so the private core is a separate socket and the
+    operator's WirePlumber store is never written."""
+    cdir = root / "conf" / variant
+    (cdir / "pipewire.conf.d").mkdir(parents=True, exist_ok=True)
+    try:
+        shutil.copy("/usr/share/pipewire/pipewire.conf", cdir / "pipewire.conf")
+        shutil.copy("/usr/share/pipewire/client.conf", cdir / "client.conf")
+    except OSError:
+        pass
+    lines = ["context.properties = {"]
+    for k, v in props.items():
+        lines.append(f"  {k} = {v}")
+    lines += ["  module.profiler = false", "  module.portal = false", "}"]
+    (cdir / "pipewire.conf.d" / "10-r100a.conf").write_text(
+        "\n".join(lines) + "\n")
+    if wp:
+        wdir = root / "xdg-config" / "wireplumber" / "wireplumber.conf.d"
+        wdir.mkdir(parents=True, exist_ok=True)
+        (wdir / "99-r100a-nohw.conf").write_text(SOFA_R100_WP_PROFILE)
+    for sub in ("rt", "xdg-config", "xdg-state", "xdg-data", "xdg-cache"):
+        (root / sub).mkdir(parents=True, exist_ok=True)
+    try:
+        os.chmod(root / "rt", 0o700)
+    except OSError:
+        pass
+    env = {
+        "PIPEWIRE_RUNTIME_DIR": str(root / "rt"),
+        "XDG_RUNTIME_DIR": str(root / "rt"),
+        "XDG_CONFIG_HOME": str(root / "xdg-config"),
+        "XDG_STATE_HOME": str(root / "xdg-state"),
+        "XDG_DATA_HOME": str(root / "xdg-data"),
+        "XDG_CACHE_HOME": str(root / "xdg-cache"),
+        "PIPEWIRE_CONFIG_DIR": str(cdir),
+        "PIPEWIRE_REMOTE": "pipewire-0",
+    }
+    return env
+
+
+def _sofa_r100_sandbox_start(root, variant, props):
+    """Start the private core + the private session manager. A missing binary,
+    a core that dies, or a socket that never appears is a NAMED coverage block
+    (never a silent green)."""
+    env = _sofa_r100_env(root, variant, props, wp=True)
+    rec = {"variant": variant, "props": props, "root": str(root),
+           "procs": {}}
+    logs = root / "logs"
+    logs.mkdir(parents=True, exist_ok=True)
+    procs = []
+    for name, argv in (("core", ["pipewire", "-c", "pipewire.conf"]),
+                       ("wp", ["wireplumber", "-p", "r100a-nohw"])):
+        if shutil.which(argv[0]) is None:
+            rec["error"] = f"{name} binary missing: {argv[0]}"
+            _sofa_r100_sandbox_stop(procs)
+            return None, rec, None
+        fh = open(logs / f"{variant}-{name}.log", "wb")
+        try:
+            proc = subprocess.Popen(
+                argv, stdout=fh, stderr=fh, stdin=subprocess.DEVNULL,
+                env={**os.environ, **env}, start_new_session=True,
+                preexec_fn=_sofa_r100_preexec)
+        except OSError as exc:
+            fh.close()
+            rec["error"] = f"{name} spawn failed: {exc}"[:160]
+            _sofa_r100_sandbox_stop(procs)
+            return None, rec, None
+        procs.append((name, proc, fh))
+        rec["procs"][name] = {"pid": proc.pid, "argv": argv}
+        if name == "core":
+            sock = root / "rt" / "pipewire-0"
+            waited = 0.0
+            while waited < 25.0:
+                if sock.exists():
+                    break
+                if proc.poll() is not None:
+                    rec["error"] = f"core died rc={proc.returncode}"
+                    _sofa_r100_sandbox_stop(procs)
+                    return None, rec, None
+                time.sleep(0.25)
+                waited += 0.25
+            else:
+                rec["error"] = "core socket never appeared"
+                _sofa_r100_sandbox_stop(procs)
+                return None, rec, None
+            rec["socket_waited_s"] = round(waited, 2)
+        else:
+            time.sleep(2.0)
+    rec["procs"] = {k: v for k, v in rec["procs"].items()}
+    # the session manager must actually answer on the private socket
+    probe = _sofa_r100_pwdump(env)
+    rec["pwdump_probe"] = probe
+    if not probe.get("objects"):
+        rec["error"] = "private core/session manager answered no objects"
+        _sofa_r100_sandbox_stop(procs)
+        return None, rec, None
+    return env, rec, procs
+
+
+def _sofa_r100_sandbox_stop(procs):
+    out = []
+    for name, proc, fh in procs or ():
+        if proc.poll() is None:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except (ProcessLookupError, PermissionError, OSError):
+                pass
+            try:
+                proc.wait(timeout=8)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                    proc.wait(timeout=5)
+                except (subprocess.TimeoutExpired, OSError):
+                    pass
+        try:
+            fh.close()
+        except OSError:
+            pass
+        out.append({"name": name, "pid": proc.pid, "rc": proc.returncode})
+    return out
+
+
+_SOFA_R100_PWDUMP_CACHE = []
+
+
+def _sofa_r100_shared_probe():
+    """The shared graph's reachability, probed ONCE per family run: the daemon
+    did not answer a fresh `pw-dump` during this round, and a per-entry probe
+    would spend the full wall nine times over."""
+    if not _SOFA_R100_PWDUMP_CACHE:
+        _SOFA_R100_PWDUMP_CACHE.append(_sofa_r100_pwdump(wall=12.0))
+    return _SOFA_R100_PWDUMP_CACHE[0]
+
+
+def _sofa_r100_pwdump(env=None, wall=25.0):
+    """One bounded `pw-dump`. `objects` is the object count (0 = the daemon
+    answered nothing -- the shared graph's state during this round)."""
+    rec = {"argv": "pw-dump", "env_private": bool(env)}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True,
+                              timeout=wall, env={**os.environ, **(env or {})})
+        rec["rc"] = proc.returncode
+        rec["bytes"] = len(proc.stdout)
+        try:
+            rec["objects"] = len(json.loads(proc.stdout))
+        except (ValueError, TypeError):
+            rec["objects"] = 0
+            rec["parse_error"] = "pw-dump output is not JSON"
+    except subprocess.TimeoutExpired:
+        rec["rc"] = None
+        rec["timed_out"] = True
+        rec["bytes"] = 0
+        rec["objects"] = 0
+    except OSError as exc:
+        rec["rc"] = None
+        rec["error"] = str(exc)[:160]
+        rec["objects"] = 0
+    return rec
+
+
+# ------------------------------------------------------------------ leg runner
+def _sofa_r100_run(argv, timeout=SOFA_R100_WALL):
+    """One fixture leg in its own bounded process (the leg is self-cleaning:
+    it sweeps its own namespace before and after, and verifies every unload)."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    t0 = time.time()
+    try:
+        proc = subprocess.run(argv, capture_output=True, timeout=timeout)
+        rec["rc"] = proc.returncode
+        rec["stdout_tail"] = _sofa_r100_norm(
+            proc.stdout.decode("utf-8", "replace"))[-1500:]
+        rec["stderr_tail"] = _sofa_r100_norm(
+            proc.stderr.decode("utf-8", "replace"))[-600:]
+        text = proc.stdout.decode("utf-8", "replace")
+    except subprocess.TimeoutExpired as exc:
+        rec["rc"] = None
+        rec["timed_out"] = True
+        rec["stdout_tail"] = _sofa_r100_norm(
+            (exc.stdout or b"").decode("utf-8", "replace"))[-800:]
+        rec["stderr_tail"] = _sofa_r100_norm(
+            (exc.stderr or b"").decode("utf-8", "replace"))[-400:]
+        text = ""
+    except OSError as exc:
+        rec["rc"] = None
+        rec["error"] = str(exc)[:160]
+        text = ""
+    rec["wall_s"] = round(time.time() - t0, 2)
+    idx = text.find(SOFA_R100_JSON)
+    rec["row"] = None
+    if idx >= 0:
+        try:
+            rec["row"] = json.loads(text[idx + len(SOFA_R100_JSON):])
+        except ValueError as exc:
+            rec["parse_error"] = str(exc)[:160]
+    if rec["row"] is None:
+        cls, hit = _sofa_r100_errclass(rec.get("stdout_tail", "")
+                                      + rec.get("stderr_tail", ""))
+        rec["error_class"] = cls
+        rec["error_hit"] = hit
+    return rec
+
+
+def _sofa_r100_leg_args(name, tmp, pw_env, **kw):
+    tag = f"{name}_{SOFA_R100_PID}"
+    argv = [sys.executable, str(SOFA_R100_SRC), "--leg", name,
+            "--ns", SOFA_R100_NS, "--scratch", str(tmp), "--tag", tag]
+    if pw_env is not None:
+        argv += ["--pw-env", json.dumps(pw_env)]
+    flags = (("rate", "--rate"), ("az", "--az"), ("el", "--el"),
+             ("radius", "--radius"), ("filename", "--filename"),
+             ("tone_hz", "--tone-hz"), ("tone_secs", "--tone-secs"),
+             ("rec_secs", "--rec-secs"), ("argv_order", "--argv-order"),
+             ("ctl_order", "--ctl-order"), ("debug", "--debug"))
+    for key, flag in flags:
+        if kw.get(key) is not None:
+            argv += [flag, str(kw[key])]
+    for key, flag in (("extra_cfg", "--extra-cfg"), ("post", "--post")):
+        if kw.get(key) is not None:
+            argv += [flag, json.dumps(kw[key])]
+    for key, flag in (("quote", "--quote"), ("swap", "--swap"),
+                      ("ref_tap", "--ref-tap"), ("series", "--series"),
+                      ("no_config", "--no-config")):
+        if kw.get(key):
+            argv.append(flag)
+    if kw.get("play") is not None:
+        argv += ["--play", str(kw["play"])]
+    return argv
+
+
+def _sofa_r100_leg(entry, name, tmp, pw_env, **kw):
+    rec = _sofa_r100_run(_sofa_r100_leg_args(name, tmp, pw_env, **kw))
+    row = rec.get("row") or {}
+    row["_fixture"] = {k: rec[k] for k in
+                       ("rc", "wall_s", "timed_out", "error_class",
+                        "error_hit", "parse_error", "error")
+                       if k in rec}
+    entry.setdefault("legs", {})[name] = row
+    return row
+
+
+# ------------------------------------------------------------------ law arming
+def _sofa_r100_fail(entry, msg):
+    entry.setdefault("failures", []).append(msg)
+
+
+def _sofa_r100_block(entry, msg):
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+
+
+def _sofa_r100_eq(entry, leg, what, got, want):
+    if got != want:
+        _sofa_r100_fail(entry, f"{leg}: {what} = {got!r}, want {want!r}")
+
+
+def _sofa_r100_true(entry, leg, what, got):
+    if got is not True:
+        _sofa_r100_fail(entry, f"{leg}: {what} = {got!r}, want true")
+
+
+def _sofa_r100_band(entry, leg, what, got, lo, hi):
+    if got is None or not (lo <= got <= hi):
+        _sofa_r100_fail(entry, f"{leg}: {what} = {got!r}, want [{lo}, {hi}]")
+
+
+def _sofa_r100_close(entry, leg, what, got, want, tol, rel=True):
+    if got is None:
+        _sofa_r100_fail(entry, f"{leg}: {what} is unmeasured")
+        return
+    denom = abs(want) if (rel and want) else 1.0
+    if abs(got - want) > tol * denom:
+        _sofa_r100_fail(entry, f"{leg}: {what} = {got!r}, want {want!r} "
+                               f"(+-{tol}{' rel' if rel else ''})")
+
+
+def _sofa_r100_recipe(row, tag=SOFA_R100_ARMED_RECIPE):
+    return (row.get("analysis") or {}).get(tag) or {}
+
+
+def _sofa_r100_chan(row, ci, tag=SOFA_R100_ARMED_RECIPE):
+    chans = _sofa_r100_recipe(row, tag).get("channels") or []
+    return chans[ci] if len(chans) > ci else {}
+
+
+def _sofa_r100_ild(row, tag=SOFA_R100_ARMED_RECIPE):
+    return _sofa_r100_recipe(row, tag).get("ild_db")
+
+
+def _sofa_r100_ratio_db(a, b):
+    if not a or not b:
+        return None
+    return round(20 * float(np.log10(a / b)), 4)
+
+
+def _sofa_r100_leg_ok(entry, leg, row):
+    """Every leg must have produced a row with no leg_error; a fixture that
+    died, timed out or emitted no JSON is a failure, never a silent pass."""
+    if not row or not row.get("leg"):
+        _sofa_r100_fail(entry, f"{leg}: the fixture produced no JSON row "
+                               f"({row.get('_fixture')})")
+        return False
+    if row.get("leg_error"):
+        _sofa_r100_fail(entry, f"{leg}: leg_error = {row['leg_error']!r}")
+        return False
+    if row.get("_fixture", {}).get("timed_out"):
+        _sofa_r100_fail(entry, f"{leg}: the fixture timed out")
+        return False
+    return True
+
+
+def _sofa_r100_shape_laws(entry, leg, row):
+    """Ports, links and the 1-in/2-out graph shape (the boundary's CONF row)."""
+    ports_in = sorted(row.get("ports_fc_in") or [])
+    ports_out = sorted(row.get("ports_fc_out") or [])
+    _sofa_r100_eq(entry, leg, "capture-side ports", ports_in,
+                  [f"{SOFA_R100_NS}_sofa_in:monitor_MONO",
+                   f"{SOFA_R100_NS}_sofa_in:playback_MONO"])
+    _sofa_r100_eq(entry, leg, "playback-side ports", ports_out,
+                  [f"{SOFA_R100_NS}_sofa_out:output_FL",
+                   f"{SOFA_R100_NS}_sofa_out:output_FR"])
+    nodes = sorted(row.get("nodes_now") or [])
+    for want in (f"{SOFA_R100_NS}_in", f"{SOFA_R100_NS}_sofa_in",
+                 f"{SOFA_R100_NS}_sofa_out"):
+        if want not in nodes:
+            _sofa_r100_fail(entry, f"{leg}: node {want} never published "
+                                   f"(nodes={nodes})")
+    for lk in row.get("links") or []:
+        if lk.get("rc") != 0:
+            _sofa_r100_fail(entry, f"{leg}: link {lk.get('argv')} rc="
+                                   f"{lk.get('rc')} ({lk.get('err')})")
+        elif lk.get("tries") != 1:
+            _sofa_r100_fail(entry, f"{leg}: link {lk.get('argv')} needed "
+                                   f"{lk.get('tries')} tries, want 1")
+
+
+def _sofa_r100_teardown_laws(entry, leg, row):
+    """Every leg must end clean and must not leave a restore row behind."""
+    sweep = row.get("post_sweep") or {}
+    if sweep.get("clean") is not True:
+        _sofa_r100_fail(entry, f"{leg}: post_sweep not clean: "
+                               f"{sweep.get('after')}")
+    unload = row.get("sink_unload") or {}
+    if unload.get("rc") != 0:
+        _sofa_r100_fail(entry, f"{leg}: driver unload rc={unload.get('rc')} "
+                               f"({unload})")
+    if unload.get("recycled"):
+        _sofa_r100_fail(entry, f"{leg}: driver index was recycled "
+                               f"(captured {unload.get('captured')} vs "
+                               f"verified {unload.get('verified_index')})")
+    mod = row.get("module_unload_verified") or {}
+    fc_nodes = [n for n in (mod.get("own_nodes_after") or [])
+                if n.endswith("_sofa_in") or n.endswith("_sofa_out")]
+    if fc_nodes:
+        _sofa_r100_fail(entry, f"{leg}: filter-chain nodes survived the "
+                               f"unload: {fc_nodes}")
+    if mod and not mod.get("matched"):
+        _sofa_r100_fail(entry, f"{leg}: the module unload was never verified "
+                               f"against its own nodes: {mod}")
+
+
+def _sofa_r100_own_procs():
+    """This seat's own PipeWire client processes, read from /proc: a pid whose
+    cmdline carries our namespace token and whose comm is a PipeWire tool. The
+    parent's private core / session manager never carry the token, so they are
+    never listed -- and nothing foreign is ever signalled."""
+    out = []
+    try:
+        dirs = [d for d in Path("/proc").iterdir() if d.name.isdigit()]
+    except OSError:
+        return out
+    for d in dirs:
+        try:
+            argv = (d / "cmdline").read_bytes().decode(
+                "utf-8", "replace").split("\0")
+            comm = (d / "comm").read_text().strip()
+        except OSError:
+            continue
+        line = " ".join(a for a in argv if a)
+        if SOFA_R100_NS in line and comm in ("pw-cli", "pw-link", "pw-play",
+                                             "pw-record", "pw-cat", "pactl"):
+            out.append({"pid": int(d.name), "comm": comm,
+                        "argv": line[:160]})
+    return sorted(out, key=lambda r: r["pid"])
+
+
+def _sofa_r100_teardown(entry, failures, loads=None, shared=False):
+    """Residue census after an entry. Nothing foreign is ever touched: only
+    this seat's namespace is looked for, and any surviving r100a_<pid> node is
+    destroyed by id.
+
+    Three independent witnesses, because one of them is degraded on this host:
+    (1) the /proc process census (no PipeWire dependency at all); (2) the
+    shared-graph node census via `pw-dump` -- which the shared daemon did not
+    answer during this round, so a reader failure is recorded as a NAMED
+    coverage block rather than silently passing; (3) the operator's
+    wireplumber `stream-properties` store, which the space-separated
+    `sink_properties` form must leave untouched.
+    """
+    procs = _sofa_r100_own_procs()
+    entry["own_procs_after"] = procs
+    if procs:
+        failures.append("teardown: r100a client processes survived: "
+                        f"{[p['pid'] for p in procs]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: `pw-dump` did not answer -- the shared-graph node "
+            "census is unmeasured on this host (the per-leg post_sweep and "
+            "the sandbox stop are the node witnesses)")
+    else:
+        rest = sorted(n for n in names if SOFA_R100_NS in n)
+        if rest:
+            entry["residual_destroy"] = []
+            for nid, meta in sorted((_jack_r95_graph().get("nodes") or {})
+                                    .items()):
+                if not meta.get("name") or SOFA_R100_NS not in meta["name"]:
+                    continue
+                try:
+                    subprocess.run(["pw-cli", "destroy", str(nid)],
+                                   capture_output=True, timeout=10)
+                    entry["residual_destroy"].append({"id": nid,
+                                                      "name": meta["name"]})
+                except (subprocess.TimeoutExpired, OSError) as exc:
+                    entry["residual_destroy"].append(
+                        {"id": nid, "error": str(exc)[:120]})
+            time.sleep(0.4)
+            after = _playback_r78_node_names() or []
+            entry["own_nodes_after"] = sorted(n for n in after
+                                              if SOFA_R100_NS in n)
+            if entry["own_nodes_after"]:
+                failures.append("teardown: r100a-tagged nodes survived: "
+                                f"{entry['own_nodes_after']}")
+        else:
+            entry["own_nodes_after"] = []
+    store = Path.home() / ".local/state/wireplumber" / "stream-properties"
+    own_rows = None
+    if store.exists():
+        try:
+            own_rows = sorted({
+                ln.split("=", 1)[0] for ln in
+                store.read_text(errors="replace").splitlines()
+                if f"r100a_{SOFA_R100_PID}" in ln})
+        except OSError:
+            own_rows = None
+    entry["stream_properties_own_rows"] = own_rows
+    if own_rows and shared:
+        # The disclosed r90/r95 residue class: on the SHARED graph the
+        # operator's session manager writes restore rows for the nodes this
+        # seat creates, and no CLI deletes them. Recorded, never hidden -- and
+        # never a failure, because this seat did not choose the writer.
+        entry["stream_properties_residue_class"] = (
+            "r90/r95 disclosed class: the operator's WirePlumber writes "
+            "restore rows for foreign-created nodes on the shared graph; no "
+            "CLI deletes them")
+    elif own_rows:
+        failures.append("teardown: stream-properties rows left by this seat: "
+                        f"{own_rows} -- the private-core arming (redirected "
+                        "XDG_STATE_HOME) must leave none")
+    elif own_rows is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: the wireplumber stream-properties store is unreadable "
+            "-- the restore-row witness is unmeasured")
+
+
+SOFA_R100_LAW_PROVENANCE = {
+    "boundary_published": [
+        "FINE ILD az90 4.6084 / az270 -4.6084 / az0 0.0 / az180 0.0",
+        "FINE rms az0 0.11650992, az90 L 0.16278101, az90 R 0.0957599, "
+        "az180 0.09857826",
+        "front/back 440 Hz -1.4517 dB",
+        "n_samples 512 @44100, 558 @48000, 1115 @96000",
+        "the whole boundary verdict table (ports, no-config -22, rate-string "
+        "absence, teardown, the falsified Radius ladder and the symlink file)"],
+    "this_seat_measured": [
+        "COARSE_ILD 4-decimal centers (the boundary's receipts store 3): "
+        "3.4653 / 4.6118 / 4.1954 / -4.1954 / -3.4653",
+        "MISMATCH_ILD 4-decimal centers: 4.6163 / 4.6157 / 4.6176",
+        "ELEV90 fine-recipe rms 0.10322302 (boundary's coarse 0.10320148 is "
+        "inside the band)",
+        "XFER az0_db -9.6423 (boundary published -9.6421; neither recomputes "
+        "from the boundary's printed rms pair, which gives ~-9.646)"],
+    "extrapolated": [
+        "N_SAMPLES[88200] = 1024 = ceil(512 * 88200 / 44100) -- the boundary "
+        "lost that leg; this seat measured 1024"],
+    "bands": "the boundary's documented spread; widened where a different "
+             "window recipe is involved",
+}
+
+
+def _sofa_r100_entry_head(probe):
+    return {"probe": probe,
+            "law_provenance": SOFA_R100_LAW_PROVENANCE,
+            "contention": _playback_r78_foreign_clients(),
+            "loadavg": _alsapw_r84_loadavg(),
+            "shared_graph_pwdump": _sofa_r100_shared_probe(),
+            "sandbox_root": None,
+            "sandbox": None}
+
+
+def _sofa_r100_entry(probe, note=None):
+    entry = _sofa_r100_entry_head(probe)
+    if note:
+        entry["note"] = note
+    entry["tools"] = {t: shutil.which(t) for t in
+                      ("pipewire", "wireplumber", "pw-cli", "pw-dump",
+                       "pw-link", "pw-play", "pw-record", "pactl")}
+    return entry
+
+
+# ------------------------------------------------------------------- entries
+def sofa_shape_r100_entry():
+    """The arming shape: the filter chain publishes a mono capture side and a
+    stereo playback side, every link takes one try, and the node is silent
+    until it is fed. A NEW parallel ledger family; prior rows untouched."""
+    entry = _sofa_r100_entry(
+        "r100a sofa/spatializer graph shape, ports and silence-until-fed")
+    failures = entry.setdefault("failures", [])
+    missing = [t for t, p in entry["tools"].items()
+               if not p and t in ("pipewire", "wireplumber", "pw-cli",
+                                  "pw-dump", "pw-link", "pw-play",
+                                  "pw-record")]
+    if missing or not SOFA_R100_SRC.exists():
+        _sofa_r100_block(entry, f"missing tools/fixture: {missing} "
+                               f"src={SOFA_R100_SRC.exists()}")
+        entry["failures"] = failures
+        return entry
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        row = _sofa_r100_leg(entry, "s_shape", tmp, env,
+                             rate=SOFA_R100_FC_RATE, az=0.0)
+        if _sofa_r100_leg_ok(entry, "s_shape", row):
+            _sofa_r100_shape_laws(entry, "s_shape", row)
+            ana = row.get("analysis") or {}
+            _sofa_r100_band(entry, "s_shape", "capture frames",
+                            ana.get("frames"), 20000, 400000)
+            _sofa_r100_band(entry, "s_shape", "peak", ana.get("peak"),
+                            0.05, 0.60)
+            nz = ana.get("nonzero") or [0, 0]
+            _sofa_r100_band(entry, "s_shape", "nonzero ch0", nz[0],
+                            1000, 400000)
+            _sofa_r100_eq(entry, "s_shape", "n_samples",
+                          row.get("n_samples"),
+                          SOFA_R100_N_SAMPLES[SOFA_R100_FC_RATE])
+            _sofa_r100_true(entry, "s_shape", "rate string absent",
+                            row.get("rate_string_seen") is False)
+            _sofa_r100_teardown_laws(entry, "s_shape", row)
+        row = _sofa_r100_leg(entry, "s_unfed", tmp, env,
+                             rate=SOFA_R100_FC_RATE, az=0.0, play="none",
+                             rec_secs=2.0)
+        if _sofa_r100_leg_ok(entry, "s_unfed", row):
+            _sofa_r100_shape_laws(entry, "s_unfed", row)
+            chans = _sofa_r100_recipe(row).get("channels") or []
+            if len(chans) < 2:
+                _sofa_r100_fail(entry, "s_unfed: the capture is not stereo")
+            else:
+                for ci, c in enumerate(chans):
+                    _sofa_r100_eq(entry, "s_unfed", f"rms ch{ci}", c.get("rms"),
+                                  0.0)
+                _sofa_r100_band(entry, "s_unfed", "frames",
+                                (row.get("analysis") or {}).get("frames"),
+                                20000, 400000)
+            _sofa_r100_teardown_laws(entry, "s_unfed", row)
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures)
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_azimuth_r100_entry():
+    """The ILD law -- the robust pin. Cardinal points with reps, the exact
+    mirror, and the front/back spectral offset that is NOT an ILD effect.
+    The armed recipe is stride-1; the coarse recipe is recorded."""
+    entry = _sofa_r100_entry("r100a sofa azimuth law (ILD, mirror, front/back)")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        rows = {}
+        for az, reps in ((0.0, 2), (90.0, 2), (270.0, 2), (180.0, 1)):
+            for rep in range(reps):
+                leg = f"az{int(az)}_r{rep}"
+                rows[leg] = _sofa_r100_leg(entry, leg, tmp, env,
+                                           rate=SOFA_R100_FC_RATE, az=az)
+        for leg, row in rows.items():
+            if not _sofa_r100_leg_ok(entry, leg, row):
+                continue
+            _sofa_r100_teardown_laws(entry, leg, row)
+            az = int(row.get("azimuth"))
+            want = SOFA_R100_FINE_ILD[f"az{az}"]
+            got = _sofa_r100_ild(row)
+            _sofa_r100_close(entry, leg, "fine ILD", got, want,
+                             SOFA_R100_FINE_ILD_TOL, rel=False)
+            _sofa_r100_eq(entry, leg, "n_samples", row.get("n_samples"),
+                          SOFA_R100_N_SAMPLES[SOFA_R100_FC_RATE])
+            _sofa_r100_true(entry, leg, "rate string absent",
+                            row.get("rate_string_seen") is False)
+        # the cardinal cells: fine rms bands and the exact mirror
+        for leg in ("az0_r0", "az0_r1"):
+            if leg in rows:
+                _sofa_r100_close(entry, leg, "fine rms ch0",
+                                 _sofa_r100_chan(rows[leg], 0).get("rms"),
+                                 SOFA_R100_FINE_RMS["az0"],
+                                 SOFA_R100_FINE_RMS_TOL)
+        for leg in ("az90_r0", "az90_r1"):
+            if leg in rows:
+                _sofa_r100_close(entry, leg, "fine rms L",
+                                 _sofa_r100_chan(rows[leg], 0).get("rms"),
+                                 SOFA_R100_FINE_RMS["az90_l"],
+                                 SOFA_R100_FINE_RMS_TOL)
+                _sofa_r100_close(entry, leg, "fine rms R",
+                                 _sofa_r100_chan(rows[leg], 1).get("rms"),
+                                 SOFA_R100_FINE_RMS["az90_r"],
+                                 SOFA_R100_FINE_RMS_TOL)
+        if "az180_r0" in rows:
+            _sofa_r100_close(entry, "az180_r0", "fine rms ch0",
+                             _sofa_r100_chan(rows["az180_r0"], 0).get("rms"),
+                             SOFA_R100_FINE_RMS["az180"],
+                             SOFA_R100_FINE_RMS_TOL)
+        for rep in range(2):
+            a, b = f"az90_r{rep}", f"az270_r{rep}"
+            if a in rows and b in rows:
+                ia, ib = _sofa_r100_ild(rows[a]), _sofa_r100_ild(rows[b])
+                if ia is None or ib is None:
+                    _sofa_r100_fail(entry, f"{a}/{b}: mirror unmeasured")
+                elif abs(ia + ib) > SOFA_R100_MIRROR_TOL:
+                    _sofa_r100_fail(entry, f"{a}/{b}: mirror |{ia} + {ib}| = "
+                                           f"{abs(ia + ib):.6f} > "
+                                           f"{SOFA_R100_MIRROR_TOL}")
+                ra = _sofa_r100_chan(rows[a], 0).get("rms")
+                rb = _sofa_r100_chan(rows[b], 1).get("rms")
+                _sofa_r100_close(entry, f"{a}/{b}", "mirror rms L(90)/R(270)",
+                                 ra, rb, SOFA_R100_IDENT_TOL)
+        # front/back @440 Hz is spectral (equal L/R), not an ILD effect
+        if "az0_r0" in rows and "az180_r0" in rows:
+            a0 = _sofa_r100_chan(rows["az0_r0"], 0).get("rms")
+            a180 = _sofa_r100_chan(rows["az180_r0"], 0).get("rms")
+            _sofa_r100_close(entry, "az180_r0", "front/back 440 Hz offset",
+                             _sofa_r100_ratio_db(a180, a0),
+                             SOFA_R100_FRONTBACK_440_DB,
+                             SOFA_R100_FRONTBACK_TOL, rel=False)
+            l = _sofa_r100_chan(rows["az180_r0"], 0).get("rms")
+            r = _sofa_r100_chan(rows["az180_r0"], 1).get("rms")
+            _sofa_r100_close(entry, "az180_r0", "front/back L/R identity",
+                             l, r, SOFA_R100_IDENT_TOL)
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_curve_r100_entry():
+    """The azimuth curve beyond the cardinals (the boundary's extension),
+    armed on the coarse recipe the boundary published it from, plus the exact
+    mirror pairs 45/315 and 135/225."""
+    entry = _sofa_r100_entry("r100a sofa azimuth curve (45/135/225/315)")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        rows = {}
+        for az in (45.0, 135.0, 225.0, 315.0):
+            leg = f"az{int(az)}_r0"
+            rows[leg] = _sofa_r100_leg(entry, leg, tmp, env,
+                                       rate=SOFA_R100_FC_RATE, az=az)
+        for leg, row in rows.items():
+            if not _sofa_r100_leg_ok(entry, leg, row):
+                continue
+            _sofa_r100_teardown_laws(entry, leg, row)
+            az = int(row.get("azimuth"))
+            _sofa_r100_close(entry, leg, "coarse ILD",
+                             _sofa_r100_ild(row, SOFA_R100_COARSE_RECIPE),
+                             SOFA_R100_COARSE_ILD[az],
+                             SOFA_R100_COARSE_ILD_TOL, rel=False)
+        for a, b in ((45, 315), (135, 225)):
+            la, lb = f"az{a}_r0", f"az{b}_r0"
+            if la in rows and lb in rows:
+                ia = _sofa_r100_ild(rows[la], SOFA_R100_COARSE_RECIPE)
+                ib = _sofa_r100_ild(rows[lb], SOFA_R100_COARSE_RECIPE)
+                if ia is None or ib is None:
+                    _sofa_r100_fail(entry, f"{la}/{lb}: mirror unmeasured")
+                elif abs(ia + ib) > SOFA_R100_MIRROR_TOL:
+                    _sofa_r100_fail(entry, f"{la}/{lb}: mirror |{ia} + {ib}| "
+                                           f"> {SOFA_R100_MIRROR_TOL}")
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_rate_r100_entry():
+    """The rate mismatch: NOT refused, the IR resampled, the ILD preserved.
+    n_samples is armed as the ceil(512 * fc_rate / 44100) scaling law the
+    boundary's 512/558/1115 ladder implies; the plugin's `Only the same
+    sampling rate supported` string is recorded as not reached on this path."""
+    entry = _sofa_r100_entry("r100a sofa rate mismatch (IR resample, ILD)")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        plan = [(48000, 3), (88200, 1), (96000, 1)]
+        for rate, reps in plan:
+            for rep in range(reps):
+                leg = f"r{rate}_az90_r{rep}"
+                row = _sofa_r100_leg(entry, leg, tmp, env, rate=rate, az=90.0)
+                if not _sofa_r100_leg_ok(entry, leg, row):
+                    continue
+                _sofa_r100_teardown_laws(entry, leg, row)
+                want = int(np.ceil(512 * rate / SOFA_R100_FC_RATE))
+                _sofa_r100_eq(entry, leg, "n_samples", row.get("n_samples"),
+                              want)
+                _sofa_r100_eq(entry, leg, "declared n_samples ladder",
+                              SOFA_R100_N_SAMPLES.get(rate), want)
+                _sofa_r100_true(entry, leg, "rate string absent",
+                                row.get("rate_string_seen") is False)
+                got = _sofa_r100_ild(row, SOFA_R100_COARSE_RECIPE)
+                _sofa_r100_band(entry, leg, "coarse ILD", got,
+                                SOFA_R100_MISMATCH_ILD[rate]
+                                - SOFA_R100_MISMATCH_ILD_TOL,
+                                SOFA_R100_MISMATCH_ILD[rate]
+                                + SOFA_R100_MISMATCH_ILD_TOL)
+                chans = _sofa_r100_recipe(row).get("channels") or []
+                if len(chans) < 2 or min(c.get("rms", 0) for c in chans) <= 0:
+                    _sofa_r100_fail(entry, f"{leg}: the mismatched graph is "
+                                           f"silent -- the mismatch WAS "
+                                           f"refused on this path")
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_control_r100_entry():
+    """The control plane: the Props param exposes the graph controls on the
+    capture-side node only, a live `set-param` moves a RUNNING spatializer, and
+    the quoted token form silently drops the control object (its own falsifier
+    class)."""
+    entry = _sofa_r100_entry("r100a sofa control plane (Props, live change, "
+                             "quoted-token drop)")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        # --- c_props: the control block is on the capture node only
+        row = _sofa_r100_leg(entry, "c_props", tmp, env,
+                             rate=SOFA_R100_FC_RATE, az=0.0)
+        if _sofa_r100_leg_ok(entry, "c_props", row):
+            _sofa_r100_teardown_laws(entry, "c_props", row)
+            pin = row.get("props_enum_in") or {}
+            pout = row.get("props_enum_out") or {}
+            for key in ("has_azimuth", "has_elevation", "has_radius"):
+                _sofa_r100_true(entry, "c_props", f"capture node {key}",
+                                pin.get(key))
+                _sofa_r100_eq(entry, "c_props", f"playback node {key}",
+                              pout.get(key), False)
+            vals = pin.get("values") or {}
+            _sofa_r100_close(entry, "c_props", "read-back s0:Azimuth",
+                             vals.get("s0:Azimuth"), 0.0, 1e-6, rel=False)
+            _sofa_r100_close(entry, "c_props", "read-back s0:Radius",
+                             vals.get("s0:Radius"), 1.0, 1e-6, rel=False)
+        # --- c_runtime: a live control change on a running node
+        row = _sofa_r100_leg(entry, "c_runtime", tmp, env,
+                             rate=SOFA_R100_FC_RATE, az=0.0, series=True,
+                             post=[{"t": 1.2, "do": "set_azimuth",
+                                    "value": 90.0}])
+        if _sofa_r100_leg_ok(entry, "c_runtime", row):
+            _sofa_r100_teardown_laws(entry, "c_runtime", row)
+            evs = row.get("post_events") or []
+            res = (evs[0] or {}).get("result") if evs else None
+            if not res:
+                _sofa_r100_fail(entry, "c_runtime: the mid-stream action "
+                                       "produced no record")
+            else:
+                _sofa_r100_eq(entry, "c_runtime", "set-param rc", res.get("rc"),
+                              0)
+                _sofa_r100_close(entry, "c_runtime",
+                                 "read-back before",
+                                 (res.get("values_before") or {}).get(
+                                     "s0:Azimuth"), 0.0, 1e-6, rel=False)
+                _sofa_r100_close(entry, "c_runtime",
+                                 "read-back after",
+                                 (res.get("values_after") or {}).get(
+                                     "s0:Azimuth"), 90.0, 1e-6, rel=False)
+            series = ((row.get("series") or {}).get("series")) or []
+            ilds = [x.get("ild") for x in series if x.get("ild") is not None]
+            if not ilds:
+                _sofa_r100_fail(entry, "c_runtime: no ILD time series")
+            else:
+                if max(ilds) < SOFA_R100_FINE_ILD["az90"] - 0.05:
+                    _sofa_r100_fail(entry, "c_runtime: the ILD series never "
+                                           f"reached az90 ({max(ilds)})")
+                if min(ilds) > SOFA_R100_ZERO_ILD_TOL:
+                    _sofa_r100_fail(entry, "c_runtime: the ILD series never "
+                                           f"started at az0 ({min(ilds)})")
+        # --- c_quoted: the quoted token form loads, plays, and drops control
+        row = _sofa_r100_leg(entry, "c_quoted", tmp, env,
+                             rate=SOFA_R100_FC_RATE, az=90.0, quote=True)
+        if _sofa_r100_leg_ok(entry, "c_quoted", row):
+            _sofa_r100_teardown_laws(entry, "c_quoted", row)
+            vals = ((row.get("props_enum_in") or {}).get("values")) or {}
+            _sofa_r100_close(entry, "c_quoted",
+                             "read-back s0:Azimuth with Azimuth=90 requested",
+                             vals.get("s0:Azimuth"), 0.0, 1e-6, rel=False)
+            _sofa_r100_close(entry, "c_quoted", "fine ILD (az0 signature)",
+                             _sofa_r100_ild(row), 0.0,
+                             SOFA_R100_ZERO_ILD_TOL, rel=False)
+            _sofa_r100_close(entry, "c_quoted", "fine rms ch0 (az0 signature)",
+                             _sofa_r100_chan(row, 0).get("rms"),
+                             SOFA_R100_FINE_RMS["az0"], SOFA_R100_FINE_RMS_TOL)
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_transfer_r100_entry():
+    """The transfer law and the rig falsifiers: the reference tap proves the
+    node filters rather than copies, the channel swap flips the ILD sign, the
+    front/back offset flips sign with frequency, and `gain` is exactly
+    linear."""
+    entry = _sofa_r100_entry("r100a sofa transfer (ref tap, channel swap, "
+                             "997 Hz, gain linearity)")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        rows = {}
+        plan = (("x_az0", dict(az=0.0, ref_tap=True)),
+                ("x_az90", dict(az=90.0, ref_tap=True)),
+                ("x_swap", dict(az=90.0, swap=True)),
+                ("fb997_az0", dict(az=0.0, tone_hz=SOFA_R100_TONE_ALT_HZ)),
+                ("fb997_az180", dict(az=180.0, tone_hz=SOFA_R100_TONE_ALT_HZ)),
+                ("gain05", dict(az=90.0, extra_cfg={"gain": "0.5"})),
+                ("gain20", dict(az=90.0, extra_cfg={"gain": "2.0"})))
+        for leg, kw in plan:
+            kw = dict(kw)
+            kw.setdefault("rate", SOFA_R100_FC_RATE)
+            rows[leg] = _sofa_r100_leg(entry, leg, tmp, env, **kw)
+        for leg, row in rows.items():
+            if not _sofa_r100_leg_ok(entry, leg, row):
+                continue
+            _sofa_r100_teardown_laws(entry, leg, row)
+        # the reference tap: the FC's real input, and the transfer to az0/az90
+        for leg in ("x_az0", "x_az90"):
+            row = rows.get(leg) or {}
+            ra = row.get("ref_analysis") or {}
+            ref = (ra.get(SOFA_R100_ARMED_RECIPE) or {}).get("channels") or []
+            if len(ref) < 1:
+                _sofa_r100_fail(entry, f"{leg}: no reference tap analysis")
+                continue
+            _sofa_r100_band(entry, leg, "reference tap rms", ref[0].get("rms"),
+                            *SOFA_R100_REF_RMS_BAND)
+            _sofa_r100_band(entry, leg, "reference tap tone",
+                            ref[0].get("tone"), *SOFA_R100_REF_TONE_BAND)
+            ref_rms = ref[0].get("rms")
+            if leg == "x_az0":
+                _sofa_r100_close(
+                    entry, leg, "az0 out/ref transfer (dB)",
+                    _sofa_r100_ratio_db(_sofa_r100_chan(row, 0).get("rms"),
+                                        ref_rms),
+                    SOFA_R100_XFER["az0_db"], SOFA_R100_XFER_TOL, rel=False)
+            else:
+                _sofa_r100_close(
+                    entry, leg, "az90 L/ref transfer (dB)",
+                    _sofa_r100_ratio_db(_sofa_r100_chan(row, 0).get("rms"),
+                                        ref_rms),
+                    SOFA_R100_XFER["az90_l_db"], SOFA_R100_XFER_TOL,
+                    rel=False)
+                _sofa_r100_close(
+                    entry, leg, "az90 R/ref transfer (dB)",
+                    _sofa_r100_ratio_db(_sofa_r100_chan(row, 1).get("rms"),
+                                        ref_rms),
+                    SOFA_R100_XFER["az90_r_db"], SOFA_R100_XFER_TOL,
+                    rel=False)
+        # the channel-swap falsifier: the asymmetry is physical
+        if "x_swap" in rows:
+            _sofa_r100_close(entry, "x_swap", "swapped fine ILD",
+                             _sofa_r100_ild(rows["x_swap"]),
+                             SOFA_R100_FINE_ILD["az270"],
+                             SOFA_R100_FINE_ILD_TOL, rel=False)
+        # 997 Hz front/back: the offset flips SIGN with frequency
+        a0 = _sofa_r100_chan(rows.get("fb997_az0") or {}, 0,
+                             SOFA_R100_COARSE_RECIPE).get("rms")
+        a180 = _sofa_r100_chan(rows.get("fb997_az180") or {}, 0,
+                               SOFA_R100_COARSE_RECIPE).get("rms")
+        _sofa_r100_close(entry, "fb997_az180", "front/back 997 Hz offset",
+                         _sofa_r100_ratio_db(a180, a0),
+                         SOFA_R100_FRONTBACK_997_DB,
+                         SOFA_R100_FRONTBACK_TOL, rel=False)
+        if "fb997_az0" in rows and "fb997_az180" in rows:
+            for leg in ("fb997_az0", "fb997_az180"):
+                _sofa_r100_close(entry, leg, "997 Hz L/R identity",
+                                 _sofa_r100_chan(rows[leg], 0).get("rms"),
+                                 _sofa_r100_chan(rows[leg], 1).get("rms"),
+                                 SOFA_R100_IDENT_TOL)
+        # gain is exactly linear
+        base = SOFA_R100_FINE_RMS["az90_l"]
+        for leg, factor in (("gain05", 0.5), ("gain20", 2.0)):
+            _sofa_r100_close(entry, leg, f"fine rms L / base (gain {factor})",
+                             _sofa_r100_chan(rows.get(leg) or {}, 0).get("rms"),
+                             base * factor, SOFA_R100_GAIN_TOL)
+            _sofa_r100_close(entry, leg, "fine ILD under gain",
+                             _sofa_r100_ild(rows.get(leg) or {}),
+                             SOFA_R100_FINE_ILD["az90"],
+                             SOFA_R100_FINE_ILD_TOL, rel=False)
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_inert_r100_entry():
+    """The controls with NO measurable effect here, armed as their
+    falsification: Radius 0.5/1.0/3.0 are indistinguishable, Elevation is
+    effective, and `default.sofa` is a symlink to the canonical file (identical
+    sha256, identical output) rather than a second corpus."""
+    entry = _sofa_r100_entry("r100a sofa inert controls + the symlink file")
+    failures = entry.setdefault("failures", [])
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    env, srec, procs = _sofa_r100_sandbox_start(root, "q1024",
+                                                {"default.clock.quantum": 1024})
+    entry["sandbox_root"] = str(root)
+    entry["sandbox"] = srec
+    if env is None:
+        _sofa_r100_block(entry, f"private core did not come up: "
+                               f"{srec.get('error')}")
+        entry["failures"] = failures
+        return entry
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        plan = (("i_radius05", dict(az=90.0, radius=0.5)),
+                ("i_radius30", dict(az=90.0, radius=3.0)),
+                ("i_elev90", dict(az=0.0, el=90.0)),
+                ("i_default", dict(az=90.0, filename=SOFA_R100_DEFAULT_SOFA)))
+        rows = {}
+        for leg, kw in plan:
+            kw = dict(kw)
+            kw.setdefault("rate", SOFA_R100_FC_RATE)
+            rows[leg] = _sofa_r100_leg(entry, leg, tmp, env, **kw)
+        for leg, row in rows.items():
+            if not _sofa_r100_leg_ok(entry, leg, row):
+                continue
+            _sofa_r100_teardown_laws(entry, leg, row)
+        base_l = SOFA_R100_FINE_RMS["az90_l"]
+        base_r = SOFA_R100_FINE_RMS["az90_r"]
+        for leg in ("i_radius05", "i_radius30", "i_default"):
+            _sofa_r100_close(entry, leg, "fine rms L == base",
+                             _sofa_r100_chan(rows.get(leg) or {}, 0).get("rms"),
+                             base_l, SOFA_R100_IDENT_TOL)
+            _sofa_r100_close(entry, leg, "fine rms R == base",
+                             _sofa_r100_chan(rows.get(leg) or {}, 1).get("rms"),
+                             base_r, SOFA_R100_IDENT_TOL)
+            _sofa_r100_close(entry, leg, "fine ILD == base",
+                             _sofa_r100_ild(rows.get(leg) or {}),
+                             SOFA_R100_FINE_ILD["az90"],
+                             SOFA_R100_FINE_ILD_TOL, rel=False)
+        if "i_elev90" in rows:
+            _sofa_r100_close(entry, "i_elev90", "fine ILD (el 90)",
+                             _sofa_r100_ild(rows["i_elev90"]),
+                             0.0, SOFA_R100_ZERO_ILD_TOL, rel=False)
+            _sofa_r100_close(entry, "i_elev90", "fine rms ch0",
+                             _sofa_r100_chan(rows["i_elev90"], 0).get("rms"),
+                             SOFA_R100_ELEV90_RMS, SOFA_R100_FINE_RMS_TOL)
+        host = ((rows.get("i_default") or {}).get("host")) or {}
+        entry["sofa_files"] = {
+            "canonical": SOFA_R100_SOFA,
+            "default": SOFA_R100_DEFAULT_SOFA,
+            "canonical_sha256": host.get("sofa_sha256"),
+            "default_sha256": host.get("default_sofa_sha256"),
+            "default_is_symlink": host.get("sofa_is_symlink"),
+            "default_realpath": host.get("default_sofa_realpath")}
+        if not host:
+            _sofa_r100_fail(entry, "i_default: the fixture reported no host "
+                                   "file identity")
+        else:
+            _sofa_r100_eq(entry, "i_default", "default.sofa is a symlink",
+                          host.get("sofa_is_symlink"), True)
+            _sofa_r100_eq(entry, "i_default", "default.sofa realpath",
+                          host.get("default_sofa_realpath"), SOFA_R100_SOFA)
+            if host.get("default_sofa_sha256") != host.get("sofa_sha256"):
+                _sofa_r100_fail(entry, "i_default: default.sofa is NOT the "
+                                       "same file (sha256 differs) -- the "
+                                       "symlink premise fails")
+    finally:
+        entry["sandbox_stop"] = _sofa_r100_sandbox_stop(procs)
+        _sofa_r100_teardown(entry, failures, {})
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_clock_r100_entry():
+    """The node is clock-invariant: the same ILD under a different SERVER
+    quantum and a different SERVER rate, on a private core with no hardware
+    monitors (the boundary's §4.7 claim, which is what makes the whole family's
+    private-core arming legitimate)."""
+    entry = _sofa_r100_entry("r100a sofa clock invariance (private core, "
+                             "server quantum/rate)")
+    failures = entry.setdefault("failures", [])
+    missing = [t for t in ("pipewire", "wireplumber")
+               if shutil.which(t) is None]
+    if missing or not SOFA_R100_SRC.exists():
+        _sofa_r100_block(entry, f"missing tools/fixture: {missing}")
+        entry["failures"] = failures
+        return entry
+    root = Path(tempfile.mkdtemp(prefix="r100a-sbx-", dir=SOFA_R100_TMP))
+    entry["sandbox_root"] = str(root)
+    entry["variants"] = []
+    try:
+        tmp = root / "scratch"
+        tmp.mkdir(parents=True, exist_ok=True)
+        for variant, props in SOFA_R100_CLOCK_VARIANTS:
+            env, srec, procs = _sofa_r100_sandbox_start(root, variant, props)
+            vrec = {"variant": variant, "props": props, "start": srec}
+            entry["variants"].append(vrec)
+            if env is None:
+                _sofa_r100_block(entry, f"variant {variant}: the private core "
+                                       f"did not come up: {srec.get('error')}")
+                continue
+            try:
+                leg = f"clk_{variant}_az90"
+                row = _sofa_r100_leg(entry, leg, tmp, env, rate=SOFA_R100_FC_RATE,
+                                     az=90.0)
+                vrec["leg"] = leg
+                if not _sofa_r100_leg_ok(entry, leg, row):
+                    continue
+                _sofa_r100_teardown_laws(entry, leg, row)
+                mid = row.get("clock_mid") or {}
+                vrec["server_clock"] = mid.get("core")
+                vrec["driver"] = mid.get("drivers") or []
+                vrec["settings"] = mid.get("settings") or {}
+                try:
+                    vrec["dropin"] = (root / "conf" / variant /
+                                      "pipewire.conf.d" /
+                                      "10-r100a.conf").read_text().strip()
+                except OSError:
+                    vrec["dropin"] = None
+                _sofa_r100_close(entry, leg, "fine ILD under the variant",
+                                 _sofa_r100_ild(row),
+                                 SOFA_R100_FINE_ILD["az90"],
+                                 SOFA_R100_MISMATCH_ILD_TOL, rel=False)
+                _sofa_r100_eq(entry, leg, "n_samples",
+                              row.get("n_samples"),
+                              SOFA_R100_N_SAMPLES[SOFA_R100_FC_RATE])
+            finally:
+                vrec["stop"] = _sofa_r100_sandbox_stop(procs)
+                time.sleep(0.5)
+        # the session manager must never have enumerated a hardware device
+        wp_logs = sorted((root / "logs").glob("*-wp.log"))
+        alsa_lines = 0
+        for p in wp_logs:
+            try:
+                alsa_lines += sum(1 for ln in p.read_text(errors="replace")
+                                  .splitlines() if "alsa" in ln.lower())
+            except OSError:
+                alsa_lines = -1
+        entry["wp_alsa_lines"] = alsa_lines
+        if alsa_lines != 0:
+            _sofa_r100_fail(entry, "clock: the private session manager log "
+                                   f"mentions alsa {alsa_lines} times -- the "
+                                   "no-hardware premise is unproven")
+        _sofa_r100_teardown(entry, failures, {})
+    finally:
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
+
+def sofa_shared_r100_entry():
+    """The shared-graph reachability entry. The round-100 family arms on a
+    seat-owned private core because the shared daemon could not serve a fresh
+    `pw-dump` (0 bytes in 30 s) while two FOREIGN clients sat wedged in the
+    graph. This entry re-tests that: if the shared daemon answers, the SAME
+    laws are measured on the shared graph; if it does not, the entry records a
+    NAMED coverage block with the evidence -- never a silent green."""
+    entry = _sofa_r100_entry("r100a shared-graph reachability (cross-witness "
+                             "for the private-core arming)")
+    failures = entry.setdefault("failures", [])
+    entry["shared_pwdump"] = _sofa_r100_pwdump(wall=12.0)
+    stuck = []
+    try:
+        for pid_dir in Path("/proc").iterdir():
+            if not pid_dir.name.isdigit():
+                continue
+            try:
+                argv = (pid_dir / "cmdline").read_bytes().decode(
+                    "utf-8", "replace").split("\0")
+                comm = (pid_dir / "comm").read_text().strip()
+            except OSError:
+                continue
+            line = " ".join(a for a in argv if a)
+            if comm in ("pw-dump", "pw-cli", "pw-link", "pw-play",
+                        "pw-record", "pw-cat") or "rjack" in line:
+                stuck.append({"pid": int(pid_dir.name), "comm": comm,
+                              "argv": line[:120]})
+    except OSError:
+        stuck = []
+    entry["foreign_pw_clients"] = sorted(stuck, key=lambda r: r["pid"])[:20]
+    probe = entry["shared_pwdump"]
+    if not probe.get("objects"):
+        _sofa_r100_block(
+            entry,
+            "shared graph did not answer a fresh `pw-dump` "
+            f"(rc={probe.get('rc')}, timed_out={probe.get('timed_out')}, "
+            f"bytes={probe.get('bytes')}); the family's laws are armed on the "
+            "seat-owned private core instead (see the report's environment "
+            "deviation section)")
+        entry["failures"] = failures
+        return entry
+    if not SOFA_R100_SRC.exists():
+        _sofa_r100_block(entry, "fixture source missing")
+        entry["failures"] = failures
+        return entry
+    root = Path(tempfile.mkdtemp(prefix="r100a-shared-", dir=SOFA_R100_TMP))
+    entry["scratch_root"] = str(root)
+    try:
+        for az in (0.0, 90.0):
+            base = f"shared_az{int(az)}"
+            armed = None
+            silent = []
+            for attempt in (1, 2):
+                name = base if attempt == 1 else base + "_retry"
+                cand = _sofa_r100_leg(entry, name, root, None,
+                                      rate=SOFA_R100_FC_RATE, az=az)
+                if not _sofa_r100_leg_ok(entry, name, cand):
+                    break
+                _sofa_r100_teardown_laws(entry, name, cand)
+                chans = _sofa_r100_recipe(cand).get("channels") or []
+                if chans and min(c.get("rms", 0.0) for c in chans) > 0:
+                    armed = (name, cand)
+                    break
+                silent.append(name)
+            if armed is None:
+                _sofa_r100_block(
+                    entry,
+                    f"{base}: the shared graph produced no non-silent take "
+                    f"({silent}) -- the r98 §3.5 / boundary rig-flake class on "
+                    "a graph this seat does not own, recorded as a named "
+                    "block rather than a law violation")
+                continue
+            name, row = armed
+            _sofa_r100_shape_laws(entry, name, row)
+            _sofa_r100_close(entry, name, "fine ILD (shared graph)",
+                             _sofa_r100_ild(row), SOFA_R100_FINE_ILD[
+                                 f"az{int(az)}"], SOFA_R100_FINE_ILD_TOL,
+                             rel=False)
+    finally:
+        _sofa_r100_teardown(entry, failures, {}, shared=True)
+        try:
+            shutil.rmtree(root, ignore_errors=True)
+        except OSError:
+            pass
+    entry["failures"] = failures
+    return entry
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -52935,6 +54378,7 @@ def main():
     parser.add_argument("--probe-wppol-r97", action="store_true")
     parser.add_argument("--probe-ebur-r93", action="store_true")
     parser.add_argument("--probe-rtp-r99", action="store_true")
+    parser.add_argument("--probe-sofa-r100", action="store_true")
     parser.add_argument("--probe-pwstream-r98", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
@@ -52945,7 +54389,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_rtp_r99, args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
+    if sum([args.probe_sofa_r100, args.probe_rtp_r99, args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -53802,6 +55246,43 @@ def main():
         measurements["rtp_refusal_r99_probe"] = rtp_refusal_r99_entry()
         measurements["rtp_e2e_r99_probe"] = rtp_e2e_r99_entry()
         measurements["rtp_axis_r99_probe"] = rtp_axis_r99_entry()
+
+
+    if args.probe_sofa_r100:
+        # r100: the sofa/spatializer HRTF node -- the arming shape and the
+        # silence-until-fed law; the azimuth ILD law with the exact mirror
+        # (stride-1 recipe armed, the scout's coarse stride recorded as the
+        # falsified stability artifact); the 8-point curve; the rate-mismatch
+        # ladder (IR resample, n_samples scaling law); the control plane
+        # (Props exposure, live set-param, the quoted-token control drop); the
+        # transfer law with a reference tap, the channel-swap and 997 Hz
+        # falsifiers, and gain linearity; the inert controls and the
+        # default.sofa symlink identity; clock invariance on a seat-owned
+        # private core; and the shared graph's reachability (a named coverage
+        # block when the daemon cannot serve a fresh pw-dump). A NEW parallel
+        # ledger family, prior rows untouched; r76-r95 guards inherited
+        # (seat-owned r100a_<pid> names, name-verified unloads, never
+        # set-default-*, bounded process groups). The family lock is a FIXED
+        # corpus/live/ path -- the r84 F1 3-seat consensus.
+        _r100_family_lock = _sofa_r100_family_lock()   # held to exit
+        measurements["sofa_shape_r100_probe"] = \
+            sofa_shape_r100_entry()
+        measurements["sofa_azimuth_r100_probe"] = \
+            sofa_azimuth_r100_entry()
+        measurements["sofa_curve_r100_probe"] = \
+            sofa_curve_r100_entry()
+        measurements["sofa_rate_r100_probe"] = \
+            sofa_rate_r100_entry()
+        measurements["sofa_control_r100_probe"] = \
+            sofa_control_r100_entry()
+        measurements["sofa_transfer_r100_probe"] = \
+            sofa_transfer_r100_entry()
+        measurements["sofa_inert_r100_probe"] = \
+            sofa_inert_r100_entry()
+        measurements["sofa_clock_r100_probe"] = \
+            sofa_clock_r100_entry()
+        measurements["sofa_shared_r100_probe"] = \
+            sofa_shared_r100_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -54452,7 +55933,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-rtp-r99" if args.probe_rtp_r99 else "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-sofa-r100" if args.probe_sofa_r100 else "probe-rtp-r99" if args.probe_rtp_r99 else "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -54472,7 +55953,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-rtp-r99" if args.probe_rtp_r99 else "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-sofa-r100" if args.probe_sofa_r100 else "-rtp-r99" if args.probe_rtp_r99 else "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
