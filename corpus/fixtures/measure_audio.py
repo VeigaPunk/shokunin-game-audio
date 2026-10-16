@@ -45903,6 +45903,2357 @@ def wppol_settings_r97_entry():
     return entry
 
 
+# =====================================================================
+# ROUND 98 — the NATIVE pw_stream C-API family (--probe-pwstream-r98).
+#
+# The first battery in 98 rounds that drives libpipewire's own client
+# stream API instead of a consumer binary. The C fixture is
+# corpus/fixtures/r98stream.c (namespace r98a_*), compiled once per
+# entry; every leg is a bounded spawn, silence-only except the capture
+# tone, which targets only the private r98a_ null sink.
+#
+# Rows encode ONLY claims that SURVIVED the r98 boundary
+# (reports/round-98/r98-boundary.md); the scout's falsified or
+# re-attributed rows are dropped or re-armed at the boundary's values:
+#
+#   * dropped: "each pw_stream_trigger_process() yields a callback"
+#     (FALS: 30 triggers -> 3 callbacks at the ~485 ms BUFFER cadence,
+#     and a 2 s extended window still gives 3); "buffer geometry is
+#     fixed at 12288 frames" (FALS as a universal: it is rate-relative
+#     — a 44100 graph with a 48000 client gives 53500 B = 13375
+#     frames); "capture Goertzel identical to the last digit"
+#     (alignment-locked: two states exist) -> the tone row arms
+#     frames/nz/peak invariants and a 100x dominance floor, never the
+#     magnitude pair; "ticks advances" (FALS: sample-point-
+#     deterministic).
+#   * re-attributed: the "no target node available" refusal and the
+#     silent default-sink fallback are WirePlumber 0.5.17 POLICY, not
+#     the native client/core — the private-core entry arms the
+#     bare-core twin (no session manager -> no link, no refusal, no
+#     fallback, no error).
+#   * extended: the AUTOCONNECT gate is prop-level and env-overridable
+#     (env > explicit prop > flag); the drain period is
+#     2 x graph-quantum / graph-rate, so it is armed RELATIVE to the
+#     leg's own measured request, never as an absolute millisecond
+#     band; `node.latency` IS a request lever (the scout's "changed
+#     nothing" tested 1024/48000, indistinguishable from the ambient
+#     quantum).
+#
+# A NEW parallel ledger family; prior rows untouched; every r76-r97
+# guard inherited (seat-owned r98a_<pid> names, the private
+# r98arole<pid> key, name-verified sink_name= unloads, never
+# set-default-*, bounded process groups, RLIMIT_CORE=0 on the crash
+# class). The family lock is a FIXED corpus/live/ path (the r84 F1
+# 3-seat consensus — never $TMPDIR). Volatile text (ids, serials,
+# cookies, wall times, cpu_load, foreign driver names) is recorded,
+# never armed. The private-core sandbox runs its OWN PipeWire and
+# WirePlumber under a redirected runtime/config dir with the hardware
+# monitors DISABLED — the r98 boundary's sandbox enumerated and probed
+# the host's PCI HDMI sink; this one enumerates no ALSA node at all,
+# and arms that absence.
+
+PWSTREAM_R98_PID = os.getpid()
+PWSTREAM_R98_PREFIX = f"r98a_{PWSTREAM_R98_PID}"
+PWSTREAM_R98_NS = f"r98a_ns_{PWSTREAM_R98_PID}"
+PWSTREAM_R98_NS2 = f"r98a_ns2_{PWSTREAM_R98_PID}"
+PWSTREAM_R98_ROLE = f"r98arole{PWSTREAM_R98_PID}"
+PWSTREAM_R98_DEAD = "r98a_bogus_remote_zxqw"      # never-live remote
+PWSTREAM_R98_NO_SUCH = "r98a_no_such_node_zxqw"   # never-live target
+PWSTREAM_R98_SPA_ID_INVALID = 4294967295          # SPA_ID_INVALID
+PWSTREAM_R98_CAD_MIN, PWSTREAM_R98_CAD_MAX = 200, 330   # 256 ms cadence
+PWSTREAM_R98_FMT_F32_LE = 283
+PWSTREAM_R98_FMT_S16_LE = 259
+PWSTREAM_R98_SCHED_OTHER = 0
+# the env levers stream.c reads (2142-2163) — cleared from the inherited
+# environment before every leg, then set explicitly where a leg arms one
+PWSTREAM_R98_ENV_LEVERS = ("PIPEWIRE_NODE", "PIPEWIRE_QUANTUM",
+                           "PIPEWIRE_AUTOCONNECT", "PIPEWIRE_PROPS",
+                           "PIPEWIRE_LATENCY")
+PWSTREAM_R98_TOOLS = ("gcc", "pkg-config", "pactl", "pw-cli", "pw-dump",
+                      "pw-play")
+PWSTREAM_R98_SB_VARIANTS = {
+    "q512": {"default.clock.quantum": 512,
+             "default.clock.max-quantum": 2048},
+    "q1024": {"default.clock.quantum": 1024},
+    "q2048": {"default.clock.quantum": 2048},
+    "r44100": {"default.clock.rate": 44100,
+               "default.clock.allowed-rates": "[ 44100 ]",
+               "default.clock.quantum": 1024},
+    # the bare-core twin gets its OWN directory: reusing a variant dir
+    # whose core has already been stopped races the fresh core's socket
+    # against the previous one's teardown (measured once: legs 2-4 could
+    # not connect while leg 1 could)
+    "bare": {"default.clock.quantum": 1024},
+}
+
+
+def _pwstream_r98_env(extra=None):
+    """The leg environment: the launcher's PIPEWIRE_* levers are cleared
+    (a sibling shell that exported PIPEWIRE_QUANTUM would otherwise
+    silently re-arm every geometry row), then `extra` is applied."""
+    e = dict(os.environ)
+    for k in PWSTREAM_R98_ENV_LEVERS:
+        e.pop(k, None)
+    if extra:
+        e.update(extra)
+    return e
+
+
+def _pwstream_r98_sigreset():
+    """preexec_fn for every r98 arm child — the r89 g_hup fold: SIG_IGN
+    survives exec(), so an inherited-ignored signal would make a signal
+    arm measure the launcher instead of the host default."""
+    for _s in (signal.SIGHUP, signal.SIGINT, signal.SIGQUIT,
+               signal.SIGTERM, signal.SIGUSR1):
+        try:
+            signal.signal(_s, signal.SIG_DFL)
+        except (OSError, ValueError):
+            pass
+
+
+def _pwstream_r98_corelimit():
+    """preexec_fn for the crash-class legs: RLIMIT_CORE=0 (the r86
+    convention) — the media.class SIGSEGV must not leave a core dump."""
+    _pwstream_r98_sigreset()
+    try:
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except (OSError, ValueError):
+        pass
+
+
+def _pwstream_r98_probe_build(tmp):
+    """Compile the committed C fixture. Returns (path, leaf); a missing
+    toolchain is a NAMED coverage block for every dependent entry, never
+    a silent skip."""
+    out = Path(tmp) / "r98a_probe"
+    src = ROOT / "fixtures" / "r98stream.c"
+    leaf = {"source": str(src), "binary": str(out)}
+    try:
+        leaf["source_sha256"] = hashlib.sha256(
+            src.read_bytes()).hexdigest()
+    except OSError as exc:
+        leaf["error"] = f"source unreadable: {exc}"
+        return None, leaf
+    try:
+        cflags = subprocess.run(
+            ["pkg-config", "--cflags", "--libs", "libpipewire-0.3"],
+            capture_output=True, timeout=15)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        leaf["error"] = f"pkg-config: {exc}"
+        return None, leaf
+    if cflags.returncode != 0:
+        leaf["error"] = ("pkg-config libpipewire-0.3 rc="
+                         f"{cflags.returncode}")
+        return None, leaf
+    argv = (["gcc", "-O2", "-o", str(out), str(src)]
+            + cflags.stdout.decode(errors="replace").split() + ["-lm"])
+    leaf["argv"] = " ".join(argv)
+    try:
+        build = subprocess.run(argv, capture_output=True, timeout=120)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        leaf["error"] = f"gcc: {exc}"
+        return None, leaf
+    leaf["gcc_rc"] = build.returncode
+    if build.returncode != 0:
+        leaf["error"] = build.stderr.decode(errors="replace")[-300:]
+        return None, leaf
+    try:
+        leaf["binary_sha256"] = hashlib.sha256(
+            out.read_bytes()).hexdigest()
+    except OSError as exc:
+        leaf["error"] = f"binary unreadable: {exc}"
+        return None, leaf
+    return str(out), leaf
+
+
+def _pwstream_r98_parse(text):
+    """R98 stdout -> (fields, lines, core_props). Multi-pair lines
+    (`fmt_seen=1 fmt_format=283 …`) fold every k=v on the line; the
+    `core_prop <key>=<value>` form keeps the dotted key intact; `EV` and
+    `PROP` lines are kept verbatim in `lines` (the state-machine and
+    flag->prop witnesses live there)."""
+    fields, lines, props = {}, [], {}
+    for ln in (text or "").splitlines():
+        if ln.startswith("EV ") or ln.startswith("PROP "):
+            lines.append(ln.strip())
+            continue
+        if not ln.startswith("R98 "):
+            continue
+        body = ln[4:].strip()
+        if body.startswith("core_prop "):
+            k, _, v = body[len("core_prop "):].partition("=")
+            props[k.strip()] = v.strip()
+            continue
+        for m in re.finditer(r"([A-Za-z_][A-Za-z0-9_]*)=(\S*)", body):
+            fields[m.group(1)] = m.group(2)
+        # free-text fields: the probe prints the library's own message,
+        # which contains spaces ("no target node available") — the token
+        # pass above would truncate it to "no"
+        for key in ("stream_error",):
+            m = re.search(rf"\b{key}=(.*)$", body)
+            if m:
+                fields[key] = m.group(1).strip()
+    return fields, lines, props
+
+
+def _pwstream_r98_int(fields, key):
+    """Numeric read of a recorded field (None when absent/unparsable)."""
+    try:
+        return int(fields.get(key))
+    except (TypeError, ValueError):
+        return None
+
+
+def _pwstream_r98_state_seq(rec):
+    """The state transitions the probe reported (`EV state old=… new=…`),
+    in order — the connect/bind state-machine witness (the `state` mode
+    exits before the summary block, so this is its only state channel)."""
+    out = []
+    for ln in rec.get("lines") or []:
+        m = re.search(r"EV state old=(\S+) new=(\S+)", ln)
+        if m:
+            out.append((m.group(1), m.group(2)))
+    return out
+
+
+def _pwstream_r98_prop(rec, key):
+    """The last `PROP after <key>=<value>` the probe printed (None when
+    absent) — the flag->prop projection witness."""
+    val = None
+    for ln in rec.get("lines") or []:
+        m = re.match(rf"PROP after {re.escape(key)}=(.*)$", ln)
+        if m:
+            val = m.group(1)
+    return val
+
+
+def _pwstream_r98_gaps(cb_log):
+    """cb_log (comma-joined ms offsets) -> consecutive gaps in ms."""
+    try:
+        vals = [int(v) for v in (cb_log or "").split(",") if v.strip()]
+    except ValueError:
+        return []
+    return [b - a for a, b in zip(vals, vals[1:])]
+
+
+def _pwstream_r98_median(vals):
+    vals = sorted(v for v in vals if v is not None)
+    if not vals:
+        return None
+    n = len(vals)
+    return (float(vals[n // 2]) if n % 2 else
+            (vals[n // 2 - 1] + vals[n // 2]) / 2.0)
+
+
+def _pwstream_r98_wants_autoconnect(args, env):
+    """Did this leg ask for autoconnect? (the retry trigger below is
+    scoped to legs that expect a LINK — a negative-control leg like
+    `flags=autoconnect` + PIPEWIRE_AUTOCONNECT=false must not be
+    retried, and a leg with no flag at all must not either)."""
+    if (env or {}).get("PIPEWIRE_AUTOCONNECT") == "false":
+        return False
+    if (env or {}).get("PIPEWIRE_AUTOCONNECT") == "true":
+        return True
+    return any(str(a).startswith("flags=") and "autoconnect" in str(a)
+               for a in args)
+
+
+def _pwstream_r98_run(probe, args, env=None, timeout=40.0, live=None,
+                      node_name=None, core_limit=False, wd=None,
+                      retry_transient=True):
+    """One probe spawn. `live` (seconds) snapshots pw-dump while the
+    client is alive and records the Link objects touching `node_name` —
+    the routing witness; `core_limit` arms RLIMIT_CORE=0 (crash class).
+    The process group is killed on timeout.
+
+    The r98 boundary §3.5 host class — an autoconnect leg landing
+    `paused` with NO link and NO error — is retried once here, and a
+    still-transient leg is marked `transient` so the entry can name it
+    a coverage block instead of a red or a silent green."""
+    rec = {"argv": " ".join([str(probe)] + [str(a) for a in args]),
+           "utc": datetime.now(timezone.utc).strftime(
+               "%Y-%m-%dT%H:%M:%SZ")}
+    t0 = time.monotonic()
+    try:
+        proc = subprocess.Popen(
+            [str(probe)] + [str(a) for a in args],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, env=env, cwd=wd,
+            start_new_session=True,
+            preexec_fn=(_pwstream_r98_corelimit if core_limit
+                        else _pwstream_r98_sigreset))
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:200]
+        return rec
+    snap = None
+    if live is not None and node_name:
+        time.sleep(live)
+        snap = _pwstream_r98_node_links(_pwstream_r98_graph(), node_name)
+    try:
+        out, err = proc.communicate(timeout=timeout)
+        rec["rc"] = proc.returncode
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGKILL)
+        try:
+            out, err = proc.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            out, err = b"", b""
+        rec["rc"] = "timeout"
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    text = out.decode(errors="replace")
+    fields, lines, props = _pwstream_r98_parse(text)
+    rec["fields"] = fields
+    rec["lines"] = lines
+    rec["core_props"] = props
+    rec["stderr"] = err.decode(errors="replace")[-400:]
+    if snap is not None:
+        rec["link_snapshot"] = snap
+    if (retry_transient and not core_limit
+            and _pwstream_r98_wants_autoconnect(args, env)
+            and fields.get("state") == "paused"
+            and fields.get("stream_error") == "-"
+            and not _pwstream_r98_int(fields, "cb_count")):
+        # the boundary's §3.5 class is `paused` + NO link + NO error on a
+        # leg that never ran: a leg that recorded callbacks and THEN went
+        # paused (the `time` mode deactivates itself at cb 8) is a
+        # measured leg, not a transient
+        rec["transient_first"] = True
+        # retry_transient=False: the retry must NOT itself retry. The
+        # first draft omitted it and recursed — a leg that stayed
+        # `paused` looped forever (measured live: the activation arm
+        # spun for 15 minutes without progressing the entry).
+        rec2 = _pwstream_r98_run(probe, args, env=env, timeout=timeout,
+                                 live=live, node_name=node_name,
+                                 core_limit=False, wd=wd,
+                                 retry_transient=False)
+        if (rec2.get("fields") or {}).get("state") == "streaming":
+            rec2["transient_recovered"] = True
+            return rec2
+        rec2["transient"] = "autoconnect_link_transient"
+        return rec2
+    return rec
+
+
+def _pwstream_r98_graph(attempts=2, timeout=60.0):
+    """Family-local pw-dump reader -> the r85 graph shape {nodes, ports,
+    links}. The shared reader's 15 s pw-dump timeout is too short for a
+    loaded shared graph (a foreign 12 h pactl wedge + 50-loadavg
+    contention makes pw-dump take tens of seconds): this reader gets its
+    own bound, retries once, and returns {"error": ...} rather than
+    fabricating an empty graph (an empty graph would silently pass every
+    absence arm)."""
+    last = None
+    for attempt in range(attempts):
+        try:
+            proc = subprocess.run(["pw-dump"], capture_output=True,
+                                  timeout=timeout)
+            dump = json.loads(proc.stdout or b"[]")
+        except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+            last = {"error": f"{type(exc).__name__}",
+                    "attempts": attempt + 1}
+            time.sleep(0.5)
+            continue
+        nodes, ports, links = {}, {}, []
+        for o in dump:
+            t = str(o.get("type", ""))
+            info = o.get("info") or {}
+            props = info.get("props") or {}
+            if t.endswith("Node"):
+                nodes[o["id"]] = {
+                    "name": props.get("node.name"),
+                    "state": info.get("state"),
+                    "media_class": props.get("media.class"),
+                    "object_serial": props.get("object.serial"),
+                    "object_id": props.get("object.id")}
+            elif t.endswith("Port"):
+                ports[o["id"]] = {
+                    "node_id": (info.get("node-id")
+                                or props.get("node.id")),
+                    "name": props.get("port.name"),
+                    "direction": (info.get("direction")
+                                  or props.get("port.direction"))}
+            elif t.endswith("Link"):
+                links.append({"out_node": info.get("output-node-id"),
+                              "out_port": info.get("output-port-id"),
+                              "in_node": info.get("input-node-id"),
+                              "in_port": info.get("input-port-id"),
+                              "state": info.get("state")})
+        return {"nodes": nodes, "ports": ports, "links": links,
+                "attempts": attempt + 1}
+    return last or {"error": "unknown"}
+
+
+def _pwstream_r98_node_links(g, node_name):
+    """Link objects touching `node_name` (either end) from an r85 graph
+    snapshot, plus the peer node names — the routing witness."""
+    if not node_name:
+        return None
+    if g.get("error"):
+        return {"error": g["error"]}
+    nodes = g.get("nodes") or {}
+    out = []
+    for l in g.get("links") or []:
+        on = (nodes.get(l.get("out_node")) or {}).get("name")
+        inn = (nodes.get(l.get("in_node")) or {}).get("name")
+        if node_name in (on, inn):
+            out.append({"out": on, "in": inn,
+                        "peer": inn if on == node_name else on,
+                        "state": l.get("state")})
+    return {"count": len(out), "links": out,
+            "peers": sorted({e["peer"] for e in out if e["peer"]})}
+
+
+def _pwstream_r98_serial(name):
+    """object.serial of a live node by exact name (None absent)."""
+    n = _pactlmon_r85_node(_pwstream_r98_graph(), name)
+    return (n or {}).get("object_serial")
+
+
+def _pwstream_r98_object_id(name):
+    """object.id of a live node by exact name (None absent) — the
+    fallback-witness target (an id is NOT a serial: law 11 FALS)."""
+    n = _pactlmon_r85_node(_pwstream_r98_graph(), name)
+    return (n or {}).get("node_id")
+
+
+def _pwstream_r98_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude). A second --probe-pwstream-r98 waits HERE."""
+    path = ROOT / "live" / "measure_audio-pwstream-r98.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={PWSTREAM_R98_PID} ns={PWSTREAM_R98_NS} "
+                     f"role={PWSTREAM_R98_ROLE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _pwstream_r98_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, the inherited-lever census, and the foreign-r98a census
+    (another seat's residue is a witness, never a verdict)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r98a_nodes": sorted(
+                n for n in names if "r98a_" in n
+                and f"_{PWSTREAM_R98_PID}" not in n),
+            "inherited_env_levers": sorted(
+                k for k in PWSTREAM_R98_ENV_LEVERS if os.environ.get(k)),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _pwstream_r98_default_sink():
+    """Resolve the shared graph's default sink to a REAL node name.
+
+    `pactl info` renders the default as the symbolic `@DEFAULT_SINK@`
+    whenever the pulse socket is answering in its degraded mode (the r98
+    author's window caught exactly that, right after a host-wide
+    enumeration wedge lifted), and the r79 oracle's pactl reading can
+    lag the live value. `pactl get-default-sink` is a dedicated
+    read-only query that returns the name; it is used first, the info
+    line second, and an unresolved alias is returned as-is so the caller
+    can name the row unmeasured instead of comparing against a symbol."""
+    inv = _capture_inventory()
+    raw = inv.get("default_sink")
+    if raw and not raw.startswith("@"):
+        return raw, {"source": "pactl_info", "raw": raw}
+    try:
+        proc = subprocess.run(["pactl", "get-default-sink"],
+                              capture_output=True, timeout=20)
+        name = proc.stdout.decode(errors="replace").strip()
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return raw, {"source": "get_default_sink", "error":
+                     type(exc).__name__}
+    if name and not name.startswith("@"):
+        return name, {"source": "get_default_sink", "raw": name,
+                      "info_raw": raw}
+    return (name or raw), {"source": "unresolved", "raw": raw,
+                           "info_raw": name}
+
+
+def _pwstream_r98_load_ns(name, attempts=2):
+    """Load + gate one null sink (r83 loader); carries field/value for
+    the name-verified unload. A loaded or half-wedged pulse socket can
+    lose a single load round-trip (the r98 author's window measured
+    pactl timing out under sibling contention), so the load is retried
+    once — the SECOND attempt is only reached when the first did not
+    enumerate, and the retry count is recorded."""
+    leaf = {}
+    for attempt in range(attempts):
+        leaf = _pwcat_r83_ns_load(name)
+        leaf["load_attempts"] = attempt + 1
+        leaf["field"] = "sink_name"
+        leaf["value"] = name
+        if leaf.get("sink_seen"):
+            return leaf
+        if leaf.get("module_id") is not None:
+            # the module loaded but never enumerated: unload it before
+            # retrying so the retry cannot stack a second sink
+            leaf.setdefault("retry_unload", _pactlmon_r85_unload_own(
+                leaf.get("module_id"), "sink_name", name))
+        time.sleep(1.0)
+    return leaf
+
+
+def _pwstream_r98_teardown(entry, failures, loads, players=()):
+    """Kill every tracked tone process group first, then the
+    name-verified unload of every own module, then the residue destroy:
+    any surviving r98a_<pid>-tagged node is destroyed by id via pw-cli
+    before the final sweep."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    g = _pwstream_r98_graph(attempts=1, timeout=30.0)
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and f"r98a_{PWSTREAM_R98_PID}" in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_pwprof_r89_stream(["pw-cli", "destroy", nid], 8.0,
+                                  keep_chars=300)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if f"r98a_{PWSTREAM_R98_PID}" in n
+                      or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r98a-tagged nodes survived: {rest}")
+
+
+def _pwstream_r98_block(entry, failures, msg, loads=None, players=()):
+    """The named coverage block: kill tone processes, unload anything
+    loaded, record the block."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _pwstream_r98_write_tone(path, seconds=75.0):
+    """The capture tone: MONO 997 Hz s16 at amplitude 16383 — the r98
+    scout's and boundary's measured source (peak 16383/32768 = 0.499969
+    in the sink's f32 monitor, 3/3 + 3/3). Mono keeps the downmix
+    identity, so the peak is a structural pin, not a mixer artefact."""
+    n = int(48000 * seconds)
+    t = np.arange(n) / 48000.0
+    pcm = (16383 * np.sin(2 * np.pi * 997.0 * t)).astype("<i2")
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(48000)
+        w.writeframes(pcm.tobytes())
+
+
+def _pwstream_r98_play(tag, target, tone):
+    """Spawn one tagged pw-play tone process -> target sink; the private
+    r98arole<pid> media.role tags it as ours."""
+    try:
+        return subprocess.Popen(
+            ["pw-play", "-P", f"node.name={tag}",
+             "-P", f"media.role={PWSTREAM_R98_ROLE}",
+             "--target", target, str(tone)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, start_new_session=True,
+            preexec_fn=_pwstream_r98_sigreset)
+    except OSError:
+        return None
+
+
+def _pwstream_r98_wait_link(node_name, target_name, wait_s=6.0):
+    """Poll pw-dump until `node_name` has a link touching
+    `target_name`; returns (ok, waited_s, last_snapshot)."""
+    t0 = time.monotonic()
+    snap = None
+    while time.monotonic() - t0 < wait_s:
+        snap = _pwstream_r98_node_links(_pwstream_r98_graph(attempts=1,
+                                                           timeout=20.0),
+                                       node_name)
+        if snap and target_name in (snap.get("peers") or []):
+            return True, round(time.monotonic() - t0, 3), snap
+        time.sleep(0.25)
+    return False, round(time.monotonic() - t0, 3), snap
+
+
+def _pwstream_r98_streaming_leg(probe, args, legs, entry, key, env=None,
+                                live=None, node_name=None, timeout=20.0):
+    """Run a leg whose armed expectation is `streaming`. The r98
+    boundary §3.5 documented a silent host class — an autoconnect leg
+    that lands `paused` with NO link and NO error (9/44 attack legs in
+    one window, not load-induced) — so such a leg is retried once and
+    then recorded as a NAMED coverage block, never a red and never a
+    silent green. Returns (rec, ok) with ok True/False/None =
+    measured-streaming / measured-other / unmeasured."""
+    rec = _pwstream_r98_run(probe, args, env=env, timeout=timeout,
+                            live=live, node_name=node_name)
+    f = rec.get("fields") or {}
+    if f.get("state") == "streaming":
+        legs[key] = rec
+        return rec, True
+    if (f.get("state") == "paused" and f.get("stream_error") == "-"
+            and not _pwstream_r98_int(f, "cb_count")):
+        rec2 = _pwstream_r98_run(probe, args, env=env, timeout=timeout,
+                                 live=live, node_name=node_name)
+        f2 = rec2.get("fields") or {}
+        legs[key] = rec2
+        if f2.get("state") == "streaming":
+            entry.setdefault("coverage_blocked", []).append(
+                f"{key}: autoconnect_link_transient (paused, no link, no "
+                "error) — recovered on one retry (the r98 boundary §3.5 "
+                "host class)")
+            return rec2, True
+        entry.setdefault("coverage_blocked", []).append(
+            f"{key}: autoconnect_link_transient — still unlinked after "
+            "one retry")
+        return rec2, None
+    legs[key] = rec
+    return rec, False
+
+
+def _pwstream_r98_prof(follower_name, driver_name, n_arg=120,
+                       timeout_s=14.0, env=None, wd=None):
+    """One bounded `pw-profiler -J -n <n>` overlap window, scoped to OUR
+    node names (the r98 boundary's parse hazard: an unscoped driver
+    scan picked up a FOREIGN ALSA driver's xrun). Returns the r98a
+    follower/driver xrun census."""
+    rec = _pwprof_r89_stream(
+        ["pw-profiler", "-J", "-n", str(n_arg)], timeout_s,
+        wd=wd, env=env, keep_raw=True)
+    arr, perr = _pwprof_r89_jparse(rec.get("stdout_raw") or "")
+    rec["parse_error"] = perr
+    fol = [r for r in (arr or [])
+           if isinstance(r, dict) and r.get("type") == "follower"
+           and str(r.get("name")) == follower_name]
+    drv = [r for r in (arr or [])
+           if isinstance(r, dict) and r.get("type") == "driver"
+           and str(r.get("name")) == driver_name]
+    rec["records"] = len(arr or [])
+    rec["follower_records"] = len(fol)
+    rec["follower_xrun_max"] = max(
+        [r.get("xrun_count") for r in fol
+         if r.get("xrun_count") is not None] or [None])
+    rec["follower_statuses"] = sorted({str(r.get("status")) for r in fol})
+    rec["follower_negative_wait"] = sum(
+        1 for r in fol if (r.get("awake") or 0) < (r.get("signal") or 0))
+    rec["driver_records"] = len(drv)
+    rec["driver_xrun_max"] = max(
+        [r.get("xrun_count") for r in drv
+         if r.get("xrun_count") is not None] or [None])
+    rec["foreign_followers"] = sorted(
+        {str(r.get("name")) for r in (arr or [])
+         if isinstance(r, dict) and r.get("type") == "follower"
+         and str(r.get("name")) != follower_name})[:8]
+    rec.pop("stdout_raw", None)
+    return rec
+
+
+# ---------------------------------------------------------------- sandbox ---
+
+def _pwstream_r98_sb_env(tmp, variant):
+    """Private-core environment: PIPEWIRE_RUNTIME_DIR / XDG_* redirected
+    into the run tmpdir, a per-variant client.conf + pipewire.conf.d
+    (the boundary's rc -11 lesson: a PIPEWIRE_CONFIG_DIR without
+    client.conf makes pw_context_new() return NULL), and a WirePlumber
+    config whose profile DISABLES the hardware monitors — the boundary's
+    sandbox enumerated and probed the host's PCI HDMI sink; this one
+    enumerates no ALSA node, and that absence is armed."""
+    sb = Path(tmp) / "sbx" / variant
+    rt = sb / "rt"
+    rt.mkdir(parents=True, exist_ok=True, mode=0o700)
+    pw = sb / "pw"
+    (pw / "pipewire.conf.d").mkdir(parents=True, exist_ok=True)
+    shutil.copy("/usr/share/pipewire/pipewire.conf", pw / "pipewire.conf")
+    shutil.copy("/usr/share/pipewire/client.conf", pw / "client.conf")
+    lines = ["context.properties = {"]
+    for k, v in PWSTREAM_R98_SB_VARIANTS[variant].items():
+        lines.append(f"  {k} = {v}")
+    lines += ["  module.profiler = false", "  module.portal = false", "}"]
+    (pw / "pipewire.conf.d" / "10-r98a.conf").write_text(
+        "\n".join(lines) + "\n")
+    wp = sb / "wp"
+    (wp / "wireplumber.conf.d").mkdir(parents=True, exist_ok=True)
+    shutil.copy("/usr/share/wireplumber/wireplumber.conf",
+                wp / "wireplumber.conf")
+    (wp / "wireplumber.conf.d" / "60-r98a-nohw.conf").write_text(
+        "wireplumber.profiles = {\n"
+        "  main = {\n"
+        "    hardware.audio = disabled\n"
+        "    hardware.bluetooth = disabled\n"
+        "    hardware.video-capture = disabled\n"
+        "  }\n"
+        "}\n")
+    for d in ("xdg-config", "xdg-state", "xdg-data"):
+        (sb / d).mkdir(parents=True, exist_ok=True)
+    e = _pwstream_r98_env()
+    e.update({"PIPEWIRE_RUNTIME_DIR": str(rt),
+              "XDG_RUNTIME_DIR": str(rt),
+              "XDG_CONFIG_HOME": str(sb / "xdg-config"),
+              "XDG_STATE_HOME": str(sb / "xdg-state"),
+              "XDG_DATA_HOME": str(sb / "xdg-data"),
+              "PIPEWIRE_CONFIG_DIR": str(pw),
+              "WIREPLUMBER_CONFIG_DIR": str(wp),
+              "PIPEWIRE_REMOTE": "pipewire-0"})
+    return e
+
+
+def _pwstream_r98_sb_stop(ctx, entry):
+    """Teardown for the private core: TERM the session manager, then the
+    core; SIGKILL escalation after 6 s; the socket's disappearance is
+    recorded (the boundary's exit witness)."""
+    out = {}
+    for name in ("wp", "core"):
+        p = (ctx.get("procs") or {}).get(name)
+        if p is None:
+            continue
+        if p.poll() is None:
+            try:
+                os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+            except OSError:
+                pass
+            try:
+                p.wait(timeout=6)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+                    p.wait(timeout=5)
+                except (OSError, subprocess.TimeoutExpired):
+                    pass
+        out[name] = {"pid": p.pid, "rc": p.returncode}
+    for fh in (ctx.get("logs") or {}).values():
+        try:
+            fh.close()
+        except OSError:
+            pass
+    sock = Path(ctx["rt"]) / "pipewire-0"
+    out["socket_gone"] = not sock.exists()
+    entry.setdefault("sandbox_stop", {})[ctx["variant"]] = out
+
+
+def _pwstream_r98_sb_start(tmp, variant, with_wp=True):
+    """Start one private core (+ optional private WirePlumber + one
+    null sink). Returns ctx; raises RuntimeError with a typed reason
+    when the socket never appears."""
+    env = _pwstream_r98_sb_env(tmp, variant)
+    rt = Path(env["PIPEWIRE_RUNTIME_DIR"])
+    logs, procs = {}, {}
+    logs["core"] = open(Path(tmp) / "sbx" / variant / "core.log", "wb")
+    procs["core"] = subprocess.Popen(
+        ["pipewire", "-c", "pipewire.conf"], env=env,
+        stdout=logs["core"], stderr=logs["core"],
+        start_new_session=True, preexec_fn=_pwstream_r98_corelimit)
+    sock = rt / "pipewire-0"
+    for _ in range(80):
+        if sock.exists():
+            break
+        if procs["core"].poll() is not None:
+            for fh in logs.values():
+                fh.close()
+            raise RuntimeError(
+                f"private core {variant} died rc="
+                f"{procs['core'].returncode}")
+        time.sleep(0.25)
+    else:
+        for fh in logs.values():
+            fh.close()
+        raise RuntimeError(f"private core {variant} socket never appeared")
+    subprocess.run(
+        ["pw-cli", "create-node", "adapter",
+         "{ factory.name=support.null-audio-sink node.name="
+         f"{PWSTREAM_R98_NS} media.class=Audio/Sink object.linger=true "
+         "audio.position=[MONO] }"],
+        env=env, capture_output=True, timeout=25)
+    ctx = {"env": env, "rt": str(rt), "procs": procs, "logs": logs,
+           "variant": variant, "with_wp": with_wp}
+    if with_wp:
+        logs["wp"] = open(Path(tmp) / "sbx" / variant / "wp.log", "wb")
+        procs["wp"] = subprocess.Popen(
+            ["wireplumber"], env=env, stdout=logs["wp"],
+            stderr=logs["wp"], start_new_session=True,
+            preexec_fn=_pwstream_r98_corelimit)
+        time.sleep(4.0)
+    return ctx
+
+
+def _pwstream_r98_sb_nodes(env):
+    """Node names enumerated by the PRIVATE core (None when the private
+    core's pw-dump is unreadable)."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True,
+                              timeout=20, env=env)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError):
+        return None
+    out = []
+    for o in dump:
+        if str(o.get("type", "")).endswith("Node"):
+            p = (o.get("info") or {}).get("props") or {}
+            out.append({"id": o.get("id"), "name": p.get("node.name"),
+                        "class": p.get("media.class")})
+    return out
+
+
+def _pwstream_r98_sweep_transient(entry, legs, failures):
+    """Single-point guard for the two host classes that are UNMEASURED
+    rather than wrong: (a) the r98 boundary §3.5 silent link transient
+    (the runner retried and still found paused-with-no-error), and (b)
+    an unreadable link witness (a wedged/loaded shared graph answers no
+    pw-dump). Both become NAMED coverage blocks and the arms that would
+    have redded them are dropped — never a silent green, never a false
+    red."""
+    for key, rec in (legs or {}).items():
+        if not isinstance(rec, dict):
+            continue
+        if rec.get("transient"):
+            entry.setdefault("coverage_blocked", []).append(
+                f"{key}: {rec['transient']} (paused, no link, no error — "
+                "the r98 boundary §3.5 host class)")
+            failures[:] = [x for x in failures
+                           if not str(x).startswith(key + ":")]
+            continue
+        snap = rec.get("link_snapshot")
+        if isinstance(snap, dict) and snap.get("error"):
+            entry.setdefault("coverage_blocked", []).append(
+                f"{key}: link witness unreadable (pw-dump "
+                f"{snap.get('error')}) — the routing arm is unmeasured")
+            failures[:] = [x for x in failures
+                           if not str(x).startswith(key + ":")]
+
+
+# ----------------------------------------------------------------- entries ---
+
+def pwstream_core_r98_probe():
+    """Entry 1 — availability, the connect/bind state machine, the
+    flag->prop projection and the error rc lattice (r98 boundary
+    verdicts on the scout's laws 1, 2, 4, 15 + F2/F3/F6). Silence-only;
+    every streaming leg targets the private null sink, and the two
+    fallback-witness legs send silence to the default sink for <=1 s."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_core_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players = {}, []
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-core-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable", loads)
+            loads[PWSTREAM_R98_NS] = _pwstream_r98_load_ns(
+                PWSTREAM_R98_NS)
+            if not loads[PWSTREAM_R98_NS].get("sink_seen"):
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unavailable",
+                    loads)
+            serial = _pwstream_r98_serial(PWSTREAM_R98_NS)
+            entry["ns_serial"] = serial
+            if serial is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unserialized",
+                    loads)
+            default_sink, default_src = _pwstream_r98_default_sink()
+            entry["default_sink"] = {"name": default_sink,
+                                     "resolution": default_src}
+
+            # --- availability / version agreement (law 1 CONF)
+            legs["c_info"] = _pwstream_r98_run(probe, ["info"],
+                                               timeout=20.0)
+            f = legs["c_info"].get("fields") or {}
+            if legs["c_info"].get("rc") != 0:
+                failures.append(
+                    f"c_info: rc={legs['c_info'].get('rc')} != 0")
+            if not f.get("library_version"):
+                failures.append("c_info: library_version absent")
+            if f.get("library_version") != f.get("core_version"):
+                failures.append(
+                    "c_info: library_version != core_version "
+                    f"({f.get('library_version')} vs "
+                    f"{f.get('core_version')}) — the client API is not "
+                    "the daemon API")
+            if f.get("core_name") != "pipewire-0":
+                failures.append(f"c_info: core_name={f.get('core_name')!r}"
+                                " != 'pipewire-0'")
+            if f.get("connect_rc") != "0":
+                failures.append(
+                    f"c_info: connect_rc={f.get('connect_rc')} != 0")
+            for key in ("default.clock.rate", "default.clock.quantum",
+                        "link.max-buffers"):
+                if key not in (legs["c_info"].get("core_props") or {}):
+                    failures.append(f"c_info: core prop {key} absent")
+
+            # --- connect-then-bind state machine (law 2 CONF, F2 FALS)
+            legs["c_state"] = _pwstream_r98_run(
+                probe, ["state", "target=" + str(serial)], timeout=20.0)
+            f = legs["c_state"].get("fields") or {}
+            seq = _pwstream_r98_state_seq(legs["c_state"])
+            if _pwstream_r98_int(f, "node_id") != \
+                    PWSTREAM_R98_SPA_ID_INVALID:
+                failures.append(
+                    "c_state: node_id at connect is not SPA_ID_INVALID "
+                    f"({f.get('node_id')}) — F2 refuted")
+            if _pwstream_r98_int(f, "get_time_pre_rc") != -5:
+                failures.append("c_state: get_time_pre_rc="
+                                f"{f.get('get_time_pre_rc')} != -5")
+            if _pwstream_r98_int(f, "disconnect_rc") != 0:
+                failures.append("c_state: disconnect_rc="
+                                f"{f.get('disconnect_rc')} != 0")
+            news = [n for _o, n in seq]
+            entry["c_state_transitions"] = seq
+            if news[:2] != ["connecting", "paused"]:
+                failures.append(
+                    f"c_state: transitions {seq} are not "
+                    "connecting -> paused (no AUTOCONNECT)")
+            nid = _pwstream_r98_int(f, "node_id_final")
+            if nid is None or nid in (PWSTREAM_R98_SPA_ID_INVALID, 0):
+                failures.append("c_state: node_id_final never became a "
+                                f"real id ({f.get('node_id_final')})")
+            loop_class = _pwstream_r98_prop(legs["c_state"],
+                                            "node.loop.class")
+            entry["c_state_loop_class"] = loop_class
+            if loop_class != "main":
+                failures.append("c_state: node.loop.class="
+                                f"{loop_class!r} != 'main' (non-RT stream "
+                                "runs on the main loop — law 6 twin)")
+
+            # --- flag -> prop projection (law 4 CONF + EXT, F6 FALS)
+            legs["c_flags_dr"] = _pwstream_r98_run(
+                probe, ["flags", "flags=autoconnect,dont_reconnect",
+                        "target=" + str(serial), "ms=900"], timeout=20.0)
+            f = legs["c_flags_dr"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("c_flags_dr: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            if _pwstream_r98_prop(legs["c_flags_dr"],
+                                  "node.dont-reconnect") != "true":
+                failures.append(
+                    "c_flags_dr: node.dont-reconnect prop="
+                    f"{_pwstream_r98_prop(legs['c_flags_dr'], 'node.dont-reconnect')!r}"
+                    " != 'true' (the DONT_RECONNECT flag did not project)")
+            if _pwstream_r98_prop(legs["c_flags_dr"],
+                                  "node.autoconnect") != "true":
+                failures.append("c_flags_dr: node.autoconnect prop not "
+                                "set by the AUTOCONNECT flag")
+
+            legs["c_flags_dr_false"] = _pwstream_r98_run(
+                probe, ["flags", "flags=autoconnect,dont_reconnect",
+                        "props=node.dont-reconnect=false",
+                        "target=" + str(serial), "ms=900"], timeout=20.0)
+            if _pwstream_r98_prop(legs["c_flags_dr_false"],
+                                  "node.dont-reconnect") != "false":
+                failures.append(
+                    "c_flags_dr_false: explicit "
+                    "node.dont-reconnect=false did not survive the flag "
+                    "(only-if-absent law refuted) — F6")
+
+            legs["c_env_props_false"] = _pwstream_r98_run(
+                probe, ["flags", "flags=autoconnect,dont_reconnect",
+                        "target=" + str(serial), "ms=900"],
+                env=_pwstream_r98_env(
+                    {"PIPEWIRE_PROPS": "node.dont-reconnect=false"}),
+                timeout=20.0)
+            if _pwstream_r98_prop(legs["c_env_props_false"],
+                                  "node.dont-reconnect") != "false":
+                failures.append("c_env_props_false: PIPEWIRE_PROPS did "
+                                "not win over the flag")
+
+            # --- the AUTOCONNECT gate is prop-level + env-overridable
+            legs["c_env_ac_false"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial), "ms=1200"],
+                env=_pwstream_r98_env({"PIPEWIRE_AUTOCONNECT": "false"}),
+                timeout=20.0)
+            f = legs["c_env_ac_false"].get("fields") or {}
+            if f.get("state") != "paused" or \
+                    _pwstream_r98_int(f, "cb_count") != 0:
+                failures.append(
+                    "c_env_ac_false: PIPEWIRE_AUTOCONNECT=false did not "
+                    f"beat the flag (state={f.get('state')!r}, "
+                    f"cb={f.get('cb_count')})")
+
+            legs["c_env_ac_true"] = _pwstream_r98_run(
+                probe, ["run", "target=" + str(serial), "ms=1200"],
+                env=_pwstream_r98_env({"PIPEWIRE_AUTOCONNECT": "true"}),
+                timeout=20.0)
+            f = legs["c_env_ac_true"].get("fields") or {}
+            if f.get("state") != "streaming" or \
+                    (_pwstream_r98_int(f, "cb_count") or 0) < 1:
+                failures.append(
+                    "c_env_ac_true: PIPEWIRE_AUTOCONNECT=true did not "
+                    f"open the gate without the flag "
+                    f"(state={f.get('state')!r}, cb={f.get('cb_count')})")
+
+            # --- env beats the explicit target prop (env > prop > flag)
+            legs["c_env_node_serial"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + PWSTREAM_R98_NO_SUCH, "ms=1200",
+                        "name=envnode"],
+                env=_pwstream_r98_env({"PIPEWIRE_NODE": str(serial)}),
+                live=0.7, node_name="r98a_envnode", timeout=20.0)
+            snap = legs["c_env_node_serial"].get("link_snapshot") or {}
+            if PWSTREAM_R98_NS not in (snap.get("peers") or []):
+                failures.append(
+                    "c_env_node_serial: PIPEWIRE_NODE=<serial> did not "
+                    f"beat target=<garbage> (peers={snap.get('peers')})")
+
+            # the deliberate fallback witness: silence to the DEFAULT
+            # sink for <=1 s (the scout's/boundary's law-11 leg)
+            legs["c_env_node_garbage"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial), "ms=1000",
+                        "name=envnodeg"],
+                env=_pwstream_r98_env(
+                    {"PIPEWIRE_NODE": PWSTREAM_R98_NO_SUCH}),
+                live=0.6, node_name="r98a_envnodeg", timeout=20.0)
+            snap = legs["c_env_node_garbage"].get("link_snapshot") or {}
+            if not default_sink or str(default_sink).startswith("@"):
+                entry.setdefault("coverage_blocked", []).append(
+                    "c_env_node_garbage: the default sink did not resolve "
+                    f"to a real node name ({default_sink!r}) — the "
+                    "fallback destination is unmeasured")
+            elif default_sink not in (snap.get("peers") or []):
+                failures.append(
+                    "c_env_node_garbage: PIPEWIRE_NODE=<garbage> did not "
+                    f"fall back to the default sink "
+                    f"({default_sink}); peers={snap.get('peers')}")
+            if PWSTREAM_R98_NS in (snap.get("peers") or []):
+                failures.append("c_env_node_garbage: the explicit serial "
+                                "target survived the garbage env override")
+
+            # --- the error rc lattice (law 15 CONF-L)
+            legs["c_err_set_active_pre"] = _pwstream_r98_run(
+                probe, ["error", "case=set_active_pre"], timeout=20.0)
+            f = legs["c_err_set_active_pre"].get("fields") or {}
+            for key, want in (("set_active_pre_rc", -5),
+                              ("get_time_pre_rc", -5),
+                              ("disconnect_pre_rc", 0),
+                              ("flush_pre_rc", -5),
+                              ("set_rate_pre_rc", -95)):
+                got = _pwstream_r98_int(f, key)
+                if got != want:
+                    failures.append(
+                        f"c_err_set_active_pre: {key}={got} != {want}")
+
+            legs["c_err_connect_twice"] = _pwstream_r98_run(
+                probe, ["error", "case=connect_twice"], timeout=20.0)
+            f = legs["c_err_connect_twice"].get("fields") or {}
+            if _pwstream_r98_int(f, "connect_rc") != 0:
+                failures.append("c_err_connect_twice: first connect_rc="
+                                f"{f.get('connect_rc')} != 0")
+            if _pwstream_r98_int(f, "connect2_rc") != -16:
+                failures.append("c_err_connect_twice: second connect_rc="
+                                f"{f.get('connect2_rc')} != -16 (EBUSY)")
+
+            legs["c_err_bad_direction"] = _pwstream_r98_run(
+                probe, ["error", "case=bad_direction"], timeout=20.0)
+            f = legs["c_err_bad_direction"].get("fields") or {}
+            if _pwstream_r98_int(f, "connect_rc") != 0:
+                failures.append("c_err_bad_direction: connect_rc="
+                                f"{f.get('connect_rc')} != 0")
+            seq = _pwstream_r98_state_seq(legs["c_err_bad_direction"])
+            if not any(n == "unconnected" for _o, n in seq):
+                failures.append(
+                    "c_err_bad_direction: no unconnected transition "
+                    f"(events={seq})")
+
+            legs["c_err_no_params"] = _pwstream_r98_run(
+                probe, ["error", "case=no_params"], timeout=20.0)
+            f = legs["c_err_no_params"].get("fields") or {}
+            if _pwstream_r98_int(f, "connect_rc") != 0 or \
+                    f.get("state") != "paused":
+                failures.append(
+                    "c_err_no_params: connect_rc="
+                    f"{f.get('connect_rc')}, state={f.get('state')!r} "
+                    "(want 0/'paused')")
+
+            legs["c_err_remote_bad"] = _pwstream_r98_run(
+                probe, ["info"],
+                env=_pwstream_r98_env(
+                    {"PIPEWIRE_REMOTE": PWSTREAM_R98_DEAD}),
+                timeout=20.0)
+            f = legs["c_err_remote_bad"].get("fields") or {}
+            if legs["c_err_remote_bad"].get("rc") != 1:
+                failures.append("c_err_remote_bad: rc="
+                                f"{legs['c_err_remote_bad'].get('rc')} "
+                                "!= 1")
+            if _pwstream_r98_int(f, "connect_rc") != -112:
+                failures.append("c_err_remote_bad: connect_rc="
+                                f"{f.get('connect_rc')} != -112 "
+                                "(EHOSTDOWN)")
+
+            legs["c_err_queue_unowned"] = _pwstream_r98_run(
+                probe, ["error", "case=queue_unowned"], timeout=20.0)
+            f = legs["c_err_queue_unowned"].get("fields") or {}
+            if (f.get("dequeue_pre_rc") or "") not in ("(nil)", "0x0",
+                                                       "NULL"):
+                failures.append("c_err_queue_unowned: pre-connect "
+                                f"dequeue={f.get('dequeue_pre_rc')!r} "
+                                "not NULL")
+            if _pwstream_r98_int(f, "disconnect_pre_rc") != 0:
+                failures.append("c_err_queue_unowned: disconnect_pre_rc="
+                                f"{f.get('disconnect_pre_rc')} != 0")
+
+            _pwstream_r98_teardown(entry, failures, loads, players)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
+def pwstream_run_r98_probe():
+    """Entry 2 — the gate, buffer geometry, the process thread, params,
+    time and drain (boundary verdicts on the scout's laws 3, 6, 7, 8, 9,
+    10 + the §3.6 latency falsification + the law-5 trigger/activation
+    corrections, both of which need the `hold=` window). Silence-only,
+    one private null sink."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_run_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players = {}, []
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-run-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable", loads)
+            loads[PWSTREAM_R98_NS] = _pwstream_r98_load_ns(
+                PWSTREAM_R98_NS)
+            if not loads[PWSTREAM_R98_NS].get("sink_seen"):
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unavailable",
+                    loads)
+            serial = _pwstream_r98_serial(PWSTREAM_R98_NS)
+            entry["ns_serial"] = serial
+            if serial is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unserialized",
+                    loads)
+
+            # --- the gate (law 3 CONF + EXT, F3 FALS)
+            legs["r_gate_off"] = _pwstream_r98_run(
+                probe, ["run", "target=" + str(serial), "ms=1200"],
+                timeout=20.0)
+            f = legs["r_gate_off"].get("fields") or {}
+            if f.get("state") != "paused":
+                failures.append("r_gate_off: state="
+                                f"{f.get('state')!r} != 'paused'")
+            if _pwstream_r98_int(f, "cb_count") != 0:
+                failures.append("r_gate_off: callbacks without "
+                                f"AUTOCONNECT (cb={f.get('cb_count')}) — "
+                                "F3 refuted")
+            if "4" in (f.get("param_ids") or "").split(","):
+                failures.append("r_gate_off: a Format param was negotiated "
+                                f"without AUTOCONNECT "
+                                f"({f.get('param_ids')})")
+
+            geo = {}
+            for rep in range(2):
+                key = f"r_gate_on_r{rep}"
+                legs[key] = _pwstream_r98_run(
+                    probe, ["run", "flags=autoconnect",
+                            "target=" + str(serial), "ms=1500"],
+                    timeout=20.0)
+                f = legs[key].get("fields") or {}
+                if f.get("state") != "streaming":
+                    if f.get("state") == "paused" and \
+                            f.get("stream_error") == "-":
+                        entry.setdefault("coverage_blocked", []).append(
+                            f"{key}: autoconnect_link_transient (paused, "
+                            "no link, no error — the r98 boundary §3.5 "
+                            "host class)")
+                    else:
+                        failures.append(
+                            f"{key}: state={f.get('state')!r} != "
+                            f"'streaming' (error={f.get('stream_error')})")
+                    continue
+                if (_pwstream_r98_int(f, "cb_count") or 0) < 3:
+                    failures.append(f"{key}: cb_count="
+                                    f"{f.get('cb_count')} < 3")
+                if _pwstream_r98_int(f, "fmt_seen") != 1:
+                    failures.append(f"{key}: no negotiated Format")
+                if _pwstream_r98_int(f, "fmt_format") != \
+                        PWSTREAM_R98_FMT_F32_LE:
+                    failures.append(f"{key}: fmt_format="
+                                    f"{f.get('fmt_format')} != "
+                                    f"{PWSTREAM_R98_FMT_F32_LE} (F32LE)")
+                if _pwstream_r98_int(f, "fmt_rate") != 48000:
+                    failures.append(f"{key}: fmt_rate="
+                                    f"{f.get('fmt_rate')} != 48000")
+                if _pwstream_r98_int(f, "fmt_channels") != 1:
+                    failures.append(f"{key}: fmt_channels="
+                                    f"{f.get('fmt_channels')} != 1")
+                # the non-RT param lattice (law 10, boundary EXT): the
+                # 7-event class with Format; the neg mode zeroes its own
+                # counter before the post-update window, so this is the
+                # leg that can see the lattice at all
+                ids = [v for v in (f.get("param_ids") or "").split(",")
+                       if v]
+                if "4" not in ids:
+                    failures.append(f"{key}: no Format(4) in the param "
+                                    f"lattice ({f.get('param_ids')})")
+                elif len(ids) < 7:
+                    failures.append(
+                        f"{key}: param lattice {f.get('param_ids')!r} is "
+                        "not the 7-event non-RT class")
+                maxsize = _pwstream_r98_int(f, "last_maxsize")
+                nbufs = _pwstream_r98_int(f, "last_nbufs")
+                stride = _pwstream_r98_int(f, "last_stride")
+                if stride != 4:
+                    failures.append(f"{key}: stride={stride} != 4 "
+                                    "(f32 mono)")
+                if None in (maxsize, nbufs) or maxsize != nbufs * stride:
+                    failures.append(f"{key}: maxsize={maxsize} != "
+                                    f"nbufs*stride ({nbufs}*{stride})")
+                if nbufs not in (12288, 13375):
+                    failures.append(
+                        f"{key}: {nbufs} frames is neither the "
+                        "rate-matched 12288 nor the 44100-graph 13375 "
+                        "(rate-relative geometry)")
+                if maxsize not in (49152, 53500):
+                    failures.append(f"{key}: maxsize={maxsize} outside "
+                                    "{49152, 53500}")
+                # pw_time at the streaming sample (law 8 CONF): the
+                # scout's/boundary's structural values, measured here on
+                # the run leg's cb-4 sample
+                if _pwstream_r98_int(f, "time_rc_after") != 0:
+                    failures.append(f"{key}: get_time while streaming "
+                                    "rc="
+                                    f"{f.get('time_rc_after')} != 0")
+                if _pwstream_r98_int(f, "queued") != nbufs:
+                    failures.append(
+                        f"{key}: queued={f.get('queued')} != one buffer "
+                        f"({nbufs} frames)")
+                if _pwstream_r98_int(f, "queued_buffers") != 1:
+                    failures.append(f"{key}: queued_buffers="
+                                    f"{f.get('queued_buffers')} != 1")
+                if _pwstream_r98_int(f, "size") != \
+                        _pwstream_r98_int(f, "last_bufid"):
+                    failures.append(f"{key}: pw_time size="
+                                    f"{f.get('size')} != the request "
+                                    f"({f.get('last_bufid')})")
+                gaps = _pwstream_r98_gaps(f.get("cb_log"))
+                if len(gaps) < 3:
+                    failures.append(f"{key}: cb_log too short for a "
+                                    f"cadence ({f.get('cb_log')})")
+                elif not all(PWSTREAM_R98_CAD_MIN <= g <=
+                             PWSTREAM_R98_CAD_MAX for g in gaps):
+                    failures.append(
+                        f"{key}: callback cadence outside "
+                        f"[{PWSTREAM_R98_CAD_MIN},{PWSTREAM_R98_CAD_MAX}]"
+                        f" ms ({gaps})")
+                geo[key] = {"maxsize": maxsize, "nbufs": nbufs,
+                            "stride": stride,
+                            "requested": _pwstream_r98_int(f,
+                                                           "last_bufid")}
+            entry["geometry"] = geo
+            if len(geo) == 2 and len({(v["maxsize"], v["nbufs"])
+                                      for v in geo.values()}) != 1:
+                failures.append("r_gate_on: buffer geometry not stable "
+                                f"across two identical reps ({geo})")
+
+            # --- node.latency IS a request lever (the boundary's §3.6
+            #     FALS of "changed nothing": the scout tested 1024/48000,
+            #     indistinguishable from the ambient quantum)
+            legs["r_latency512"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial), "ms=1500"],
+                env=_pwstream_r98_env({"PIPEWIRE_LATENCY": "512/48000"}),
+                timeout=20.0)
+            f = legs["r_latency512"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("r_latency512: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            else:
+                req = _pwstream_r98_int(f, "last_bufid")
+                if req is None or not 480 <= req <= 540:
+                    failures.append(
+                        "r_latency512: requested="
+                        f"{req} did not follow node.latency=512/48000")
+                if _pwstream_r98_int(f, "last_maxsize") not in (49152,
+                                                                53500):
+                    failures.append(
+                        "r_latency512: maxsize="
+                        f"{f.get('last_maxsize')} moved with the latency "
+                        "lever (it must not)")
+
+            # --- the process thread (law 6 CONF-L)
+            legs["r_thread_rt"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect,rt_process",
+                        "target=" + str(serial), "ms=1500"], timeout=20.0)
+            f = legs["r_thread_rt"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("r_thread_rt: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            else:
+                if _pwstream_r98_int(f, "proc_tid") == \
+                        _pwstream_r98_int(f, "main_tid"):
+                    failures.append("r_thread_rt: RT_PROCESS did not move "
+                                    "the callback off the main thread")
+                sched = _pwstream_r98_int(f, "proc_sched")
+                if sched is None or (sched & 3) != \
+                        PWSTREAM_R98_SCHED_OTHER:
+                    failures.append(
+                        "r_thread_rt: callback thread scheduler="
+                        f"{sched} is not SCHED_OTHER — the 'realtime "
+                        "thread' is realtime-scheduled")
+                # the RT param lattice (law 10 boundary EXT: 5 events
+                # 20,15,17,17,4 — the 7-event lattice is the non-RT class)
+                ids_rt = [v for v in (f.get("param_ids") or "").split(",")
+                          if v]
+                if "4" not in ids_rt:
+                    failures.append("r_thread_rt: no Format(4) in the "
+                                    f"param lattice ({f.get('param_ids')})")
+                elif len(ids_rt) > 6:
+                    failures.append(
+                        "r_thread_rt: param lattice "
+                        f"{f.get('param_ids')!r} is not the 5-event "
+                        "RT_PROCESS class")
+
+            legs["r_thread_main"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial), "ms=1500"], timeout=20.0)
+            f = legs["r_thread_main"].get("fields") or {}
+            if f.get("state") == "streaming" and _pwstream_r98_int(
+                    f, "proc_tid") != _pwstream_r98_int(f, "main_tid"):
+                failures.append("r_thread_main: callback ran on a "
+                                "separate thread without RT_PROCESS")
+
+            # --- the activation arm (law 5 EXT: the scout's cb_count=1
+            #     was its 20 ms window; the boundary's hold=1500 window
+            #     shows the full 256 ms cadence)
+            legs["r_inactive_activate"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect,inactive",
+                        "target=" + str(serial), "ms=1500",
+                        "activate_after=600", "hold=1500"], timeout=25.0)
+            f = legs["r_inactive_activate"].get("fields") or {}
+            if _pwstream_r98_int(f, "set_active_rc") != 0:
+                failures.append("r_inactive_activate: set_active(true) "
+                                "rc="
+                                f"{f.get('set_active_rc')} != 0")
+            if f.get("state") != "streaming":
+                failures.append("r_inactive_activate: state="
+                                f"{f.get('state')!r} != 'streaming' after "
+                                "activation")
+            elif (_pwstream_r98_int(f, "cb_count") or 0) < 2:
+                failures.append(
+                    "r_inactive_activate: cb_count="
+                    f"{f.get('cb_count')} < 2 — the activation arm was "
+                    "truncated (hold=1500 must show the cadence)")
+
+            # --- the trigger arm (law 5 FALS: one rc-1 trigger call does
+            #     NOT yield one callback; the callbacks are the buffer
+            #     cadence, and a 2 s window still gives only 3)
+            legs["r_trigger"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect,trigger",
+                        "target=" + str(serial), "ms=2000",
+                        "trigger_after=400", "hold=2000"], timeout=30.0)
+            f = legs["r_trigger"].get("fields") or {}
+            tc = _pwstream_r98_int(f, "trigger_count")
+            cb = _pwstream_r98_int(f, "cb_count")
+            if _pwstream_r98_int(f, "trigger_rc") != 1:
+                failures.append("r_trigger: trigger_process rc="
+                                f"{f.get('trigger_rc')} != 1")
+            if tc is None or not 29 <= tc <= 30:
+                failures.append(f"r_trigger: trigger_count={tc} outside "
+                                "[29, 30]")
+            if cb is None or cb > 4:
+                failures.append(
+                    f"r_trigger: cb_count={cb} > 4 — a trigger call "
+                    "yielded a callback (the scout's law-5 mechanism "
+                    "refuted by the boundary is back)")
+            gaps = _pwstream_r98_gaps(f.get("cb_log"))
+            if len(gaps) >= 2 and min(gaps) < 350:
+                failures.append(
+                    f"r_trigger: callbacks follow the trigger cadence "
+                    f"(min gap {min(gaps)} ms < 350) — they must follow "
+                    "the ~485 ms buffer cadence")
+            if cb is not None and tc is not None and cb >= tc:
+                failures.append(f"r_trigger: cb_count={cb} >= "
+                                f"trigger_count={tc}")
+
+            # --- pw_time (law 8 CONF, ticks FALS)
+            times = {}
+            for rep in ("a", "b"):
+                key = f"r_time_{rep}"
+                legs[key] = _pwstream_r98_run(
+                    probe, ["time", "flags=autoconnect",
+                            "target=" + str(serial), "ms=2600"],
+                    timeout=25.0)
+                f = legs[key].get("fields") or {}
+                if _pwstream_r98_int(f, "rate_num") != 1 or \
+                        _pwstream_r98_int(f, "rate_denom") != 48000:
+                    failures.append(
+                        f"{key}: pw_time rate="
+                        f"{f.get('rate_num')}/{f.get('rate_denom')} "
+                        "!= 1/48000")
+                # BOUNDARY CORRECTION: the boundary's "after
+                # set_active(false) get_time_n still rc 0" row came from
+                # legs that never reached cb 8 (its window was 1.5 s =
+                # 6 callbacks), so the deactivation never fired. With the
+                # deactivation actually armed (ms=2600 -> cb 8) this host
+                # reports rc -5 (EIO) and queued 0, twice per battery in
+                # two batteries; that is what is armed here.
+                if _pwstream_r98_int(
+                        f, "get_time_after_deactivate_rc") != -5:
+                    failures.append(
+                        f"{key}: get_time after deactivate rc="
+                        f"{f.get('get_time_after_deactivate_rc')} != -5 "
+                        "(the deactivated stream reports nothing)")
+                if _pwstream_r98_int(f, "set_active_false_rc") != 0:
+                    failures.append(f"{key}: set_active(false) rc="
+                                    f"{f.get('set_active_false_rc')} != 0")
+                if _pwstream_r98_int(f, "set_rate_rc") != 0:
+                    failures.append(
+                        f"{key}: live set_rate rc="
+                        f"{f.get('set_rate_rc')} != 0 (the stream carries "
+                        "a rate_match while streaming)")
+                q, nbufs = _pwstream_r98_int(f, "queued"), \
+                    _pwstream_r98_int(f, "last_nbufs")
+                if q != 0:
+                    failures.append(f"{key}: queued={q} != 0 on the "
+                                    "DEACTIVATED sample (the streaming "
+                                    "sample's queued == one buffer is "
+                                    "armed on the run legs)")
+                if nbufs is None:
+                    failures.append(f"{key}: buffer size unrecorded")
+                if _pwstream_r98_int(f, "queued_buffers") != 1:
+                    failures.append(f"{key}: queued_buffers="
+                                    f"{f.get('queued_buffers')} != 1")
+                if _pwstream_r98_int(f, "size") != _pwstream_r98_int(
+                        f, "last_bufid"):
+                    failures.append(f"{key}: pw_time size="
+                                    f"{f.get('size')} != the request "
+                                    f"({f.get('last_bufid')})")
+                times[key] = {"ticks": _pwstream_r98_int(f, "ticks"),
+                              "cb": _pwstream_r98_int(f, "cb_count"),
+                              "size": _pwstream_r98_int(f, "size"),
+                              "requested": _pwstream_r98_int(
+                                  f, "last_bufid")}
+            entry["time_ticks"] = times
+            if len(times) == 2:
+                a, b = times["r_time_a"], times["r_time_b"]
+                if a["cb"] == b["cb"] and a["size"] == b["size"] and \
+                        a["requested"] == b["requested"]:
+                    if a["ticks"] != b["ticks"]:
+                        failures.append(
+                            "r_time: ticks is NOT sample-point-"
+                            f"deterministic ({a['ticks']} vs {b['ticks']}"
+                            " on structurally equal legs) — the "
+                            "boundary's law-8 correction is refuted")
+                else:
+                    entry.setdefault("coverage_blocked", []).append(
+                        "r_time: structurally unequal legs — the ticks "
+                        "determinism row is unmeasured, not passed")
+
+            # --- drain (law 9 CONF + EXT: period = 2*quantum/rate, armed
+            #     RELATIVE to the leg's own measured request)
+            legs["r_drain_cb"] = _pwstream_r98_run(
+                probe, ["drain", "flags=autoconnect",
+                        "target=" + str(serial), "ms=2200", "nbuf=5"],
+                timeout=25.0)
+            f = legs["r_drain_cb"].get("fields") or {}
+            if _pwstream_r98_int(f, "flush_rc") != 0:
+                failures.append("r_drain_cb: flush(drain=true) rc="
+                                f"{f.get('flush_rc')} != 0")
+            if f.get("state") != "streaming":
+                failures.append("r_drain_cb: state="
+                                f"{f.get('state')!r} != 'streaming' (a "
+                                "drain must not park the stream)")
+            nd = _pwstream_r98_int(f, "n_drained")
+            if nd is None or nd < 8:
+                failures.append(f"r_drain_cb: n_drained={nd} < 8")
+            else:
+                ms = [int(e.split("t_ms=")[1])
+                      for e in (legs["r_drain_cb"].get("lines") or [])
+                      if "drained t_ms=" in e]
+                period = _pwstream_r98_median(_pwstream_r98_gaps(
+                    ",".join(str(v) for v in ms)))
+                req = _pwstream_r98_int(f, "last_bufid")
+                entry["drain_period_ms"] = period
+                entry["drain_requested"] = req
+                if period is None:
+                    failures.append("r_drain_cb: no drained period "
+                                    "measurable")
+                elif not req:
+                    entry.setdefault("coverage_blocked", []).append(
+                        "r_drain_cb: requested=0 — the period ratio is "
+                        "unmeasured")
+                else:
+                    expect = 2000.0 * req / 48000.0
+                    if not 0.6 * expect <= period <= 1.6 * expect:
+                        failures.append(
+                            f"r_drain_cb: drained period {period:.1f} ms "
+                            "is not 2 x quantum / rate "
+                            f"({expect:.1f} ms from the leg's own "
+                            f"request {req})")
+
+            legs["r_drain_timer"] = _pwstream_r98_run(
+                probe, ["drain", "flags=autoconnect",
+                        "target=" + str(serial), "ms=2600", "nbuf=5",
+                        "drain_at=800"], timeout=25.0)
+            f = legs["r_drain_timer"].get("fields") or {}
+            if _pwstream_r98_int(f, "flush_rc") != 0:
+                failures.append("r_drain_timer: flush rc="
+                                f"{f.get('flush_rc')} != 0")
+            if f.get("state") != "streaming":
+                failures.append("r_drain_timer: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            first = _pwstream_r98_int(f, "first_drained_ms")
+            if first is None or not 800 <= first <= 2400:
+                failures.append("r_drain_timer: first_drained_ms="
+                                f"{first} outside [800, 2400] (the timer "
+                                "arm's first event follows its flush)")
+
+            # --- params (law 10 EXT: the 7-event lattice holds only
+            #     without RT_PROCESS; ordering is not stable, so only the
+            #     Format id and the count classes are armed)
+            legs["r_neg"] = _pwstream_r98_run(
+                probe, ["neg", "flags=autoconnect",
+                        "target=" + str(serial), "ms=900"], timeout=25.0)
+            f = legs["r_neg"].get("fields") or {}
+            if _pwstream_r98_int(f, "update_params_rc") != 0:
+                failures.append("r_neg: update_params rc="
+                                f"{f.get('update_params_rc')} != 0")
+            if _pwstream_r98_int(f, "n_param_changed") != 0:
+                failures.append("r_neg: renegotiation observable at the "
+                                "client (n_param_changed="
+                                f"{f.get('n_param_changed')})")
+            # the lattice itself is armed on the RUN legs: the neg mode
+            # zeroes n_params_seen before its post-update window, so
+            # param_ids here is empty by construction
+
+            legs["r_neg_rt"] = _pwstream_r98_run(
+                probe, ["neg", "flags=autoconnect,rt_process",
+                        "target=" + str(serial), "ms=900"], timeout=25.0)
+            f = legs["r_neg_rt"].get("fields") or {}
+            if _pwstream_r98_int(f, "update_params_rc") != 0:
+                failures.append("r_neg_rt: update_params rc="
+                                f"{f.get('update_params_rc')} != 0")
+            if _pwstream_r98_int(f, "n_param_changed") != 0:
+                failures.append("r_neg_rt: renegotiation observable at "
+                                "the client (n_param_changed="
+                                f"{f.get('n_param_changed')})")
+
+            # --- buffer lifecycle (law 13 CONF)
+            legs["r_alloc_buffers"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect,alloc_buffers",
+                        "target=" + str(serial), "ms=1500"], timeout=20.0)
+            f = legs["r_alloc_buffers"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("r_alloc_buffers: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            if _pwstream_r98_int(f, "add_buffer_data_null") != 1:
+                failures.append("r_alloc_buffers: ALLOC_BUFFERS did not "
+                                "hand over a NULL data pointer")
+            if _pwstream_r98_int(f, "dequeue_null") != 0 or \
+                    _pwstream_r98_int(f, "queue_err") != 0:
+                failures.append("r_alloc_buffers: dequeue_null="
+                                f"{f.get('dequeue_null')} queue_err="
+                                f"{f.get('queue_err')} (want 0/0)")
+
+            # --- format + flags (the scout's single-witness rows)
+            legs["r_s16"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect", "fmt=s16",
+                        "target=" + str(serial), "ms=1500"], timeout=20.0)
+            f = legs["r_s16"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("r_s16: state="
+                                f"{f.get('state')!r} != 'streaming'")
+            else:
+                if _pwstream_r98_int(f, "fmt_format") != \
+                        PWSTREAM_R98_FMT_S16_LE:
+                    failures.append("r_s16: fmt_format="
+                                    f"{f.get('fmt_format')} != "
+                                    f"{PWSTREAM_R98_FMT_S16_LE} (S16LE)")
+                if _pwstream_r98_int(f, "last_stride") != 2:
+                    failures.append("r_s16: stride="
+                                    f"{f.get('last_stride')} != 2")
+                mx, nb = _pwstream_r98_int(f, "last_maxsize"), \
+                    _pwstream_r98_int(f, "last_nbufs")
+                if None not in (mx, nb) and mx != nb * 2:
+                    failures.append(f"r_s16: maxsize={mx} != nbufs*2 "
+                                    f"({nb}*2) — the same frame count at "
+                                    "a 2-byte stride")
+
+            legs["r_exclusive"] = _pwstream_r98_run(
+                probe, ["flags", "flags=autoconnect,exclusive",
+                        "target=" + str(serial), "ms=1200"], timeout=20.0)
+            f = legs["r_exclusive"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("r_exclusive: EXCLUSIVE is not a refusal "
+                                "surface on the null sink (state="
+                                f"{f.get('state')!r})")
+
+            legs["r_driver_flag"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect,driver",
+                        "target=" + str(serial), "ms=1200"], timeout=20.0)
+            f = legs["r_driver_flag"].get("fields") or {}
+            if f.get("state") == "streaming" and _pwstream_r98_int(
+                    f, "is_driving") != 0:
+                failures.append("r_driver_flag: pw_stream_is_driving()="
+                                f"{f.get('is_driving')} != 0 — the null "
+                                "sink stays the graph driver")
+
+            _pwstream_r98_teardown(entry, failures, loads, players)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
+def pwstream_route_r98_probe():
+    """Entry 3 — target resolution and the link witness (law 11 CONF +
+    REATTR + EXT): exact serial/name/prefix resolution, the id and
+    garbage fallback to the default sink (WirePlumber policy, disclosed
+    as silence for <=1 s per leg), the duplicate Link object on fallback
+    arms, and the §3.5 silent link-transient census."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_route_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players = {}, []
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-route-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable", loads)
+            for tag, name in (("ns", PWSTREAM_R98_NS),
+                              ("ns2", PWSTREAM_R98_NS2)):
+                loads[tag] = _pwstream_r98_load_ns(name)
+                if not loads[tag].get("sink_seen"):
+                    return _pwstream_r98_block(
+                        entry, failures,
+                        f"pwstream_null_sink_unavailable:{tag}", loads)
+            serial = _pwstream_r98_serial(PWSTREAM_R98_NS)
+            entry["ns_serial"] = serial
+            entry["ns2_serial"] = _pwstream_r98_serial(PWSTREAM_R98_NS2)
+            if serial is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unserialized",
+                    loads)
+            default_sink, default_src = _pwstream_r98_default_sink()
+            entry["default_sink"] = {"name": default_sink,
+                                     "resolution": default_src}
+
+            # exact target by serial / by exact name
+            for tag, target in (("t_serial", str(serial)),
+                                ("t_name", PWSTREAM_R98_NS)):
+                for rep in range(2):
+                    key = f"{tag}_r{rep}"
+                    legs[key] = _pwstream_r98_run(
+                        probe, ["run", "flags=autoconnect",
+                                "target=" + target, "ms=1200",
+                                "name=" + tag],
+                        live=0.6, node_name="r98a_" + tag, timeout=20.0)
+                    f = legs[key].get("fields") or {}
+                    snap = legs[key].get("link_snapshot") or {}
+                    if f.get("state") != "streaming":
+                        failures.append(f"{key}: state="
+                                        f"{f.get('state')!r} != "
+                                        "'streaming'")
+                        continue
+                    if PWSTREAM_R98_NS not in (snap.get("peers") or []):
+                        failures.append(
+                            f"{key}: target {target!r} did not link to "
+                            f"{PWSTREAM_R98_NS} "
+                            f"(peers={snap.get('peers')})")
+                    # the r98 boundary's exact-1 / fallback-2 Link-count
+                    # split did NOT reproduce in this author window: ALL
+                    # four arm types (serial, name, id, garbage) showed
+                    # the same duplicate pair at 0.6 s. The count is
+                    # therefore RECORDED (link_snapshot.count), never
+                    # armed — an arm here would encode a window
+                    # artifact, not a law.
+
+            # prefix collision: ns2 is live, the target is the exact ns
+            legs["t_prefix"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + PWSTREAM_R98_NS, "ms=1200",
+                        "name=t_prefix"],
+                live=0.6, node_name="r98a_t_prefix", timeout=20.0)
+            snap = legs["t_prefix"].get("link_snapshot") or {}
+            if PWSTREAM_R98_NS2 in (snap.get("peers") or []):
+                failures.append("t_prefix: exact-name resolution matched "
+                                f"the prefix neighbour "
+                                f"{PWSTREAM_R98_NS2}")
+            if PWSTREAM_R98_NS not in (snap.get("peers") or []):
+                failures.append("t_prefix: exact-name target did not link "
+                                f"(peers={snap.get('peers')})")
+
+            # the fallback arms (id and garbage) — the WirePlumber
+            # policy witness, with the duplicate-Link extension
+            for tag, target in (("t_id", str(_pwstream_r98_object_id(
+                    PWSTREAM_R98_NS))),
+                    ("t_garbage", PWSTREAM_R98_NO_SUCH)):
+                for rep in range(2):
+                    key = f"{tag}_r{rep}"
+                    legs[key] = _pwstream_r98_run(
+                        probe, ["run", "flags=autoconnect",
+                                "target=" + target, "ms=1000",
+                                "name=" + tag],
+                        live=0.6, node_name="r98a_" + tag, timeout=20.0)
+                    f = legs[key].get("fields") or {}
+                    snap = legs[key].get("link_snapshot") or {}
+                    if f.get("state") != "streaming":
+                        failures.append(f"{key}: state="
+                                        f"{f.get('state')!r} != "
+                                        "'streaming'")
+                        continue
+                    if not default_sink or str(default_sink).startswith(
+                            "@"):
+                        entry.setdefault("coverage_blocked", []).append(
+                            f"{key}: the default sink did not resolve to a "
+                            f"real node name ({default_sink!r}) — the "
+                            "fallback destination is unmeasured")
+                    elif default_sink not in (snap.get("peers") or []):
+                        failures.append(
+                            f"{key}: no link to the default sink "
+                            f"({default_sink}); peers="
+                            f"{snap.get('peers')}")
+                    # duplicate-Link count: recorded, not armed (see the
+                    # exact-target arm comment above)
+
+            # the §3.5 transient census: three identical exact legs
+            stable = []
+            for rep in range(3):
+                legs[f"t_stable_r{rep}"] = _pwstream_r98_run(
+                    probe, ["run", "flags=autoconnect",
+                            "target=" + str(serial), "ms=900",
+                            "name=t_stable"],
+                    live=0.5, node_name="r98a_t_stable", timeout=20.0)
+                f = legs[f"t_stable_r{rep}"].get("fields") or {}
+                snap = legs[f"t_stable_r{rep}"].get("link_snapshot") or {}
+                stable.append({"state": f.get("state"),
+                               "error": f.get("stream_error"),
+                               "peers": snap.get("peers")})
+            entry["link_stability"] = stable
+            bad = [s for s in stable if s["state"] == "paused"
+                   and s["error"] == "-"]
+            if bad:
+                entry.setdefault("coverage_blocked", []).append(
+                    f"t_stable: {len(bad)}/3 exact-target legs landed "
+                    "paused with no link and no error (the r98 boundary "
+                    "§3.5 class)")
+            for s in stable:
+                if s["state"] == "error":
+                    failures.append("t_stable: exact-target leg reached "
+                                    f"state error ({s['error']})")
+
+            _pwstream_r98_teardown(entry, failures, loads, players)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
+def pwstream_cap_r98_probe():
+    """Entry 4 — capture (law 14 CONF on the sample pins, FALS on the
+    Goertzel identity, REATTR on the refusal): the prop gate, the
+    no-default-source fallback absence, and the tone pins (frames, nz,
+    peak, a 100x dominance floor). The tone is the only non-silence in
+    the whole family and it targets only the private null sink."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_cap_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players = {}, []
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-cap-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable", loads)
+            loads[PWSTREAM_R98_NS] = _pwstream_r98_load_ns(
+                PWSTREAM_R98_NS)
+            if not loads[PWSTREAM_R98_NS].get("sink_seen"):
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unavailable",
+                    loads)
+            serial = _pwstream_r98_serial(PWSTREAM_R98_NS)
+            entry["ns_serial"] = serial
+            if serial is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unserialized",
+                    loads)
+            default_source = (entry["inventory"] or {}).get(
+                "default_source")
+
+            tone = Path(tmp) / "r98a_tone997.wav"
+            _pwstream_r98_write_tone(tone)
+            entry["tone"] = {"path": str(tone), "hz": 997,
+                             "amp_s16": 16383, "channels": 1,
+                             "sha256": hashlib.sha256(
+                                 tone.read_bytes()).hexdigest()}
+            player = _pwstream_r98_play(f"{PWSTREAM_R98_PREFIX}pl",
+                                        PWSTREAM_R98_NS, tone)
+            players.append(player)
+            linked, waited, snap = _pwstream_r98_wait_link(
+                f"{PWSTREAM_R98_PREFIX}pl", PWSTREAM_R98_NS)
+            entry["tone_link"] = {"linked": linked, "waited_s": waited,
+                                  "snapshot": snap}
+            if not linked:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_tone_not_linked", loads,
+                    players)
+
+            legs["cap_prop"] = _pwstream_r98_run(
+                probe, ["cap", "flags=autoconnect", "dir=in",
+                        "target=" + str(serial),
+                        "props=stream.capture.sink=true", "ms=1500"],
+                timeout=25.0)
+            f = legs["cap_prop"].get("fields") or {}
+            if f.get("state") != "streaming":
+                failures.append("cap_prop: state="
+                                f"{f.get('state')!r} != 'streaming' "
+                                f"(error={f.get('stream_error')})")
+            else:
+                frames = _pwstream_r98_int(f, "cap_frames")
+                nz = _pwstream_r98_int(f, "cap_nz")
+                peak = f.get("cap_peak")
+                g997, g440 = f.get("g997_mag2"), f.get("g440_mag2")
+                entry["cap_pins"] = {"frames": frames, "nz": nz,
+                                     "peak": peak, "g997_mag2": g997,
+                                     "g440_mag2": g440}
+                if frames is None or frames < 40000:
+                    failures.append(f"cap_prop: cap_frames={frames} < "
+                                    "40000")
+                if frames and nz is not None and nz < 0.9 * frames:
+                    failures.append(f"cap_prop: cap_nz={nz} < 90% of "
+                                    f"{frames} frames (the tone is not "
+                                    "the content)")
+                try:
+                    pk = float(peak)
+                except (TypeError, ValueError):
+                    pk = None
+                if pk is None or not 0.49 <= pk <= 0.51:
+                    failures.append(
+                        "cap_prop: peak="
+                        f"{peak} outside [0.49, 0.51] (the 16383/32768 "
+                        "s16 tone at 0.499969)")
+                try:
+                    r997, r440 = float(g997), float(g440)
+                except (TypeError, ValueError):
+                    r997 = r440 = None
+                if r997 is None or r440 is None or r440 <= 0:
+                    failures.append("cap_prop: Goertzel pair unparsable "
+                                    f"({g997}, {g440})")
+                elif r997 <= 100.0 * r440:
+                    failures.append("cap_prop: 997 Hz is not dominant "
+                                    f"over 440 Hz ({r997} vs {r440})")
+
+            # the prop gate (the observation is real; the ATTRIBUTION is
+            # WirePlumber's — see the sandbox entry's bare-core twin)
+            for tag, args in (
+                    ("cap_noprop", ["cap", "flags=autoconnect",
+                                    "dir=in", "target=" + str(serial),
+                                    "ms=1200"]),
+                    ("cap_notarget", ["cap", "flags=autoconnect",
+                                      "dir=in", "ms=1200"])):
+                legs[tag] = _pwstream_r98_run(probe, args, timeout=25.0)
+                f = legs[tag].get("fields") or {}
+                if legs[tag].get("rc") != 0:
+                    failures.append(
+                        f"{tag}: rc={legs[tag].get('rc')} != 0 (the "
+                        "outcome is reported in-band, not by exit)")
+                state = f.get("state")
+                if state not in ("error", "streaming"):
+                    failures.append(f"{tag}: state={state!r} is neither "
+                                    "the refusal nor a capture")
+                if tag == "cap_notarget":
+                    # the NO-TARGET arm reproduces the boundary's refusal
+                    # (and the scout's no-default-source-fallback law)
+                    if state != "error":
+                        failures.append(
+                            "cap_notarget: state="
+                            f"{state!r} != 'error' — the no-target "
+                            "capture fell back to a source")
+                    if "no target node available" not in (
+                            f.get("stream_error") or ""):
+                        failures.append(
+                            "cap_notarget: stream_error="
+                            f"{f.get('stream_error')!r} is not the "
+                            "WirePlumber 'no target node available' "
+                            "string")
+                    if _pwstream_r98_int(f, "cap_frames") not in (0, None):
+                        failures.append(
+                            "cap_notarget: captured "
+                            f"{f.get('cap_frames')} frames with no "
+                            "target")
+                else:
+                    # the PROP-LESS arm did NOT reproduce in this window
+                    # (2/2 batteries: it streamed and captured the tone
+                    # at peak 0.499969, i.e. the sink monitor). Recorded,
+                    # class-armed, never armed as the refusal.
+                    entry.setdefault("coverage_blocked", []).append(
+                        "cap_noprop: the boundary's 'no target node "
+                        "available' refusal did not reproduce in this "
+                        f"window (state={state!r}, "
+                        f"frames={f.get('cap_frames')}, "
+                        f"peak={f.get('cap_peak')}) — the policy row is "
+                        "recorded, not armed")
+
+            if default_source:
+                legs["cap_source"] = _pwstream_r98_run(
+                    probe, ["cap", "flags=autoconnect", "dir=in",
+                            "target=" + str(default_source), "ms=1200"],
+                    timeout=25.0)
+                f = legs["cap_source"].get("fields") or {}
+                if f.get("state") != "streaming":
+                    failures.append("cap_source: state="
+                                    f"{f.get('state')!r} != 'streaming' "
+                                    "for an explicit source target")
+                elif (_pwstream_r98_int(f, "cap_frames") or 0) < 1:
+                    failures.append("cap_source: no frames from the "
+                                    "explicit source target")
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "cap_source: no default source enumerated")
+
+            _pwstream_r98_teardown(entry, failures, loads, players)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
+def pwstream_xw_r98_probe():
+    """Entry 5 — induced xruns (the r89 §11 gap, closed by the scout and
+    re-pinned by the boundary: the follower xrun_count is linear in the
+    stall, the driver stays at 0) plus the media.class crash-class
+    negative control (recorded, NEVER gated: the class is
+    timing-dependent, 32/32 direct vs 0/7 under gdb)."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_xw_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS + (
+        "pw-profiler",)}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players = {}, []
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-xw-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable", loads)
+            loads[PWSTREAM_R98_NS] = _pwstream_r98_load_ns(
+                PWSTREAM_R98_NS)
+            if not loads[PWSTREAM_R98_NS].get("sink_seen"):
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unavailable",
+                    loads)
+            serial = _pwstream_r98_serial(PWSTREAM_R98_NS)
+            entry["ns_serial"] = serial
+            if serial is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_null_sink_unserialized",
+                    loads)
+
+            xruns = {}
+            for stall_ms in (300, 600):
+                tag = f"x_stall{stall_ms}"
+                try:
+                    proc = subprocess.Popen(
+                        [probe, "stall", "flags=autoconnect",
+                         "target=" + str(serial), "ms=2000",
+                         "stall_at=3", f"stall_ms={stall_ms}",
+                         "name=" + tag],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        stdin=subprocess.DEVNULL, start_new_session=True,
+                        preexec_fn=_pwstream_r98_sigreset)
+                except OSError as exc:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{tag}: spawn failed ({exc})")
+                    continue
+                time.sleep(0.6)
+                # -n 900, not 120: the profiler's wall time for the same
+                # -n varied 2x between batteries (0.44 s vs 0.86 s per
+                # 120 infos, the graph's cycle rate moves), and a 0.44 s
+                # window CLIPPED the 600 ms stall (23 follower xruns
+                # instead of 55). The larger budget covers the whole
+                # ~2.6 s probe window in both observed rates.
+                prof = _pwstream_r98_prof("r98a_" + tag, PWSTREAM_R98_NS,
+                                          n_arg=900, timeout_s=20.0)
+                try:
+                    out, err = proc.communicate(timeout=20)
+                    rc = proc.returncode
+                except subprocess.TimeoutExpired:
+                    _alsapw_r84_killpg(proc, signal.SIGKILL)
+                    out, err, rc = b"", b"", "timeout"
+                fields, lines, _props = _pwstream_r98_parse(
+                    out.decode(errors="replace"))
+                legs[tag] = {"argv": f"stall stall_ms={stall_ms}",
+                             "rc": rc, "fields": fields, "lines": lines,
+                             "stderr": err.decode(errors="replace")[-300:],
+                             "profiler": prof}
+                # the injection itself is a PROBE-side fact and must not
+                # depend on the profiler window's coverage
+                gap = _pwstream_r98_int(fields, "stall_gap_ms")
+                lo, hi = ((250, 400) if stall_ms == 300 else (550, 700))
+                if gap is None or not lo <= gap <= hi:
+                    failures.append(
+                        f"{tag}: stall_gap_ms={gap} outside [{lo}, {hi}] — "
+                        "the process-callback stall did not run")
+                xruns[tag] = prof
+                if prof.get("parse_error"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{tag}: profiler JSON unparseable "
+                        f"({prof.get('parse_error')})")
+                    continue
+                if not prof.get("follower_records"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{tag}: no r98a follower record in the profiler "
+                        f"window ({prof.get('records')} records)")
+                    continue
+                want = 10 if stall_ms == 300 else 40
+                if (prof.get("follower_xrun_max") or 0) < want:
+                    failures.append(
+                        f"{tag}: follower xrun_count="
+                        f"{prof.get('follower_xrun_max')} < {want} — the "
+                        "stalled follower is invisible to xrun accounting")
+                if prof.get("follower_negative_wait", 0) < 1:
+                    failures.append(f"{tag}: no negative-wait record on "
+                                    "the stalled follower")
+                if not prof.get("driver_records"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"{tag}: no r98a driver record — driver_xrun is "
+                        "unmeasured")
+                elif (prof.get("driver_xrun_max") or 0) != 0:
+                    failures.append(
+                        f"{tag}: r98a driver xrun_count="
+                        f"{prof.get('driver_xrun_max')} != 0 — the driver "
+                        "did not xrun (only the follower did)")
+            entry["xrun_census"] = xruns
+            if all(x.get("follower_xrun_max") for x in xruns.values()):
+                a = xruns["x_stall300"]["follower_xrun_max"]
+                b = xruns["x_stall600"]["follower_xrun_max"]
+                entry["xrun_ratio_600_300"] = round(b / a, 3)
+                if not 1.4 <= b / a <= 2.6:
+                    failures.append(
+                        f"x_stall: 600/300 ms xrun ratio {b / a:.2f} "
+                        "outside [1.4, 2.6] — the counter is not linear "
+                        "in the stall")
+
+            # the crash class — recorded, NEVER gated (RLIMIT_CORE=0)
+            legs["x_crash_sink"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial),
+                        "props=media.class=Audio/Sink", "ms=1200",
+                        "name=x_crash_sink"],
+                timeout=20.0, core_limit=True)
+            rc = legs["x_crash_sink"].get("rc")
+            entry["crash_class"] = {
+                "rc": rc,
+                "signal": (signal.Signals(-rc).name
+                           if isinstance(rc, int) and rc < 0 else None),
+                "gated": False}
+            legs["x_crash_source"] = _pwstream_r98_run(
+                probe, ["run", "flags=autoconnect",
+                        "target=" + str(serial),
+                        "props=media.class=Audio/Source", "ms=1200",
+                        "name=x_crash_source"],
+                timeout=20.0, core_limit=True)
+            f = legs["x_crash_source"].get("fields") or {}
+            # the surviving claim is "the Audio/Source twin does not
+            # crash" (rc 0). Its post-connect state is NOT armed: the
+            # scout/boundary saw `paused`, this seat's two batteries saw
+            # `paused` (run 1) and `streaming` (run 2) — recorded, not
+            # armed, and the crash class itself is never gated.
+            if legs["x_crash_source"].get("rc") != 0:
+                failures.append("x_crash_source: the Audio/Source twin "
+                                "must not crash (rc="
+                                f"{legs['x_crash_source'].get('rc')})")
+            entry["crash_source_state"] = f.get("state")
+
+            _pwstream_r98_teardown(entry, failures, loads, players)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
+def pwstream_sbx_r98_probe():
+    """Entry 6 — the private-core sandbox: the rate-relative buffer
+    geometry (the boundary's FALS of "fixed at 12288 frames"), the
+    quantum axis, and the bare-core twins that re-attribute the
+    fallback/refusal to WirePlumber. Nothing here touches the shared
+    graph or the host's audio devices; the sandbox's own no-ALSA
+    enumeration is armed."""
+    failures, legs = [], {}
+    entry = _pwstream_r98_entry_head("pwstream_sbx_r98_probe")
+    tools = {t: shutil.which(t) for t in PWSTREAM_R98_TOOLS + (
+        "pipewire", "wireplumber")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwstream_r98_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    entry.setdefault("coverage_blocked", [])
+    try:
+        with tempfile.TemporaryDirectory(prefix="r98a-sbx-") as tmp:
+            probe, build = _pwstream_r98_probe_build(tmp)
+            entry["probe_build"] = build
+            if probe is None:
+                return _pwstream_r98_block(
+                    entry, failures, "pwstream_probe_unbuildable")
+
+            def sb_run(ctx, key, args, reps=1, timeout=30.0):
+                """Run one leg inside the private core. The sandbox's
+                documented startup race (the boundary §7.7: a fresh
+                private WirePlumber's first legs can land unlinked) is
+                absorbed by ONE named retry, then a coverage_blocked —
+                never a silent pass."""
+                for rep in range(reps):
+                    name = f"{key}_r{rep}" if reps > 1 else key
+                    rec = _pwstream_r98_run(probe, args, env=ctx["env"],
+                                            timeout=timeout)
+                    legs[name] = rec
+                    f = rec.get("fields") or {}
+                    if f.get("state") == "paused" and \
+                            f.get("stream_error") == "-":
+                        rec = _pwstream_r98_run(probe, args,
+                                                env=ctx["env"],
+                                                timeout=timeout)
+                        legs[name + "_retry"] = rec
+                        f = rec.get("fields") or {}
+                        if f.get("state") == "paused":
+                            entry.setdefault(
+                                "coverage_blocked", []).append(
+                                f"{name}: sandbox_warmup_unlinked "
+                                "(paused, no error, after one retry)")
+                            continue
+                    yield name, rec, f
+
+            def geometry(ctx, key, args, want_max, want_nbufs,
+                         want_req=None, reps=2):
+                for name, _rec, f in sb_run(ctx, key, args, reps=reps):
+                    if f.get("state") != "streaming":
+                        failures.append(
+                            f"{name}: state={f.get('state')!r} != "
+                            f"'streaming' (error={f.get('stream_error')})")
+                        continue
+                    mx = _pwstream_r98_int(f, "last_maxsize")
+                    nb = _pwstream_r98_int(f, "last_nbufs")
+                    if mx != want_max or nb != want_nbufs:
+                        failures.append(
+                            f"{name}: geometry {mx}B/{nb} frames != "
+                            f"{want_max}B/{want_nbufs} frames")
+                    if want_req is not None and _pwstream_r98_int(
+                            f, "last_bufid") != want_req:
+                        failures.append(
+                            f"{name}: requested={f.get('last_bufid')} "
+                            f"!= {want_req}")
+
+            def check_no_alsa(variant, nodes):
+                if nodes is None:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"sbx_{variant}: private-core pw-dump unreadable")
+                    return
+                alsa = [n["name"] for n in nodes
+                        if str(n.get("name") or "").startswith("alsa_")]
+                entry.setdefault("sandbox", {}).setdefault(
+                    variant, {})["alsa_nodes"] = alsa
+                if alsa:
+                    failures.append(
+                        f"sbx_{variant}: the private core enumerated ALSA "
+                        f"nodes {alsa} — the no-hardware profile did not "
+                        "hold")
+
+            # --- the quantum axis: maxsize is quantum-INVARIANT, the
+            #     request follows the server quantum
+            for variant, want_req in (("q512", 512), ("q1024", 1024),
+                                      ("q2048", 2048)):
+                try:
+                    ctx = _pwstream_r98_sb_start(tmp, variant)
+                except RuntimeError as exc:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"sbx_{variant}: {exc}")
+                    continue
+                entry.setdefault("sandbox", {}).setdefault(
+                    variant, {}).update({"env_runtime": ctx["rt"],
+                                         "with_wp": True})
+                nodes = _pwstream_r98_sb_nodes(ctx["env"])
+                entry["sandbox"][variant]["nodes"] = nodes
+                check_no_alsa(variant, nodes)
+                geometry(ctx, f"sbx_geom_{variant}",
+                         ["run", "flags=autoconnect",
+                          "target=" + PWSTREAM_R98_NS, "ms=3000"],
+                         49152, 12288, want_req=want_req)
+                _pwstream_r98_sb_stop(ctx, entry)
+
+            # --- the rate axis: a 44100 graph with a 48000 client is
+            #     13375 frames = 12288 * 48000/44100 (the boundary's
+            #     FALS); the rate-matched twin is 12288 again
+            try:
+                ctx = _pwstream_r98_sb_start(tmp, "r44100")
+            except RuntimeError as exc:
+                entry.setdefault("coverage_blocked", []).append(
+                    f"sbx_r44100: {exc}")
+                ctx = None
+            if ctx is not None:
+                entry.setdefault("sandbox", {}).setdefault(
+                    "r44100", {}).update({"env_runtime": ctx["rt"],
+                                          "with_wp": True})
+                nodes = _pwstream_r98_sb_nodes(ctx["env"])
+                entry["sandbox"]["r44100"]["nodes"] = nodes
+                check_no_alsa("r44100", nodes)
+                geometry(ctx, "sbx_geom_r44100_upsampled",
+                         ["run", "flags=autoconnect",
+                          "target=" + PWSTREAM_R98_NS, "ms=3000"],
+                         53500, 13375)
+                geometry(ctx, "sbx_geom_r44100_matched",
+                         ["run", "flags=autoconnect",
+                          "target=" + PWSTREAM_R98_NS, "ms=3000",
+                          "rate=44100"], 49152, 12288, want_req=1024)
+                _pwstream_r98_sb_stop(ctx, entry)
+
+            # --- the bare-core twin: with NO session manager there is no
+            #     linking, no fallback and no refusal — the
+            #     re-attribution of law 11 / law 14 / F8 to WirePlumber
+            try:
+                bare = _pwstream_r98_sb_start(tmp, "bare",
+                                              with_wp=False)
+            except RuntimeError as exc:
+                bare = None
+                entry.setdefault("coverage_blocked", []).append(
+                    f"sbx_bare: {exc}")
+            if bare is not None:
+                entry.setdefault("sandbox", {}).setdefault(
+                    "bare", {}).update({"env_runtime": bare["rt"],
+                                        "with_wp": False})
+                for tag, args in (
+                        ("sb_bare_run",
+                         ["run", "flags=autoconnect",
+                          "target=" + PWSTREAM_R98_NS, "ms=1200"]),
+                        ("sb_bare_target_garbage",
+                         ["run", "flags=autoconnect",
+                          "target=" + PWSTREAM_R98_NO_SUCH, "ms=1200"]),
+                        ("sb_bare_cap_noprop",
+                         ["cap", "dir=in",
+                          "target=" + PWSTREAM_R98_NS, "ms=1200"]),
+                        ("sb_bare_cap_prop",
+                         ["cap", "dir=in",
+                          "target=" + PWSTREAM_R98_NS,
+                          "props=stream.capture.sink=true", "ms=1200"])):
+                    # the bare core's WHOLE point is `paused`: this
+                    # leg must not be retried as a transient
+                    legs[tag] = _pwstream_r98_run(
+                        probe, args, env=bare["env"], timeout=25.0,
+                        retry_transient=False)
+                    f = legs[tag].get("fields") or {}
+                    if f.get("state") != "paused":
+                        failures.append(
+                            f"{tag}: state={f.get('state')!r} != 'paused' "
+                            "— a session manager's policy is visible "
+                            "without a session manager")
+                    if f.get("stream_error") != "-":
+                        failures.append(
+                            f"{tag}: stream_error="
+                            f"{f.get('stream_error')!r} != '-' (the "
+                            "refusal string is WirePlumber's)")
+                    if _pwstream_r98_int(f, "cb_count") not in (0, None):
+                        failures.append(
+                            f"{tag}: cb_count={f.get('cb_count')} without "
+                            "a session manager")
+                _pwstream_r98_sb_stop(bare, entry)
+    finally:
+        entry["legs"] = legs
+        _pwstream_r98_sweep_transient(entry, legs, failures)
+        entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -46039,6 +48390,7 @@ def main():
                         action="store_true")
     parser.add_argument("--probe-pulsecli-r96", action="store_true")
     parser.add_argument("--probe-wppol-r97", action="store_true")
+    parser.add_argument("--probe-pwstream-r98", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
@@ -46048,7 +48400,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
+    if sum([args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -46741,6 +49093,37 @@ def main():
             wppol_wpexec_r97_entry()
         measurements["wppol_settings_r97_probe"] = \
             wppol_settings_r97_entry()
+    if args.probe_pwstream_r98:
+        # r98: the NATIVE pw_stream C-API family — the connect/bind
+        # state machine (node id invalid until the node global is
+        # bound), the only-if-absent flag->prop projection, the
+        # env-overridable AUTOCONNECT gate, the rc lattice, the
+        # rate-RELATIVE buffer geometry (12288 frames at a rate match,
+        # 13375 when a 44100 graph upsamples a 48000 client — the
+        # boundary's falsification of "fixed at 12288"), the
+        # non-realtime RT_PROCESS thread, the trigger FALS (30 calls
+        # -> 3 callbacks at the buffer cadence), the drain period as
+        # 2 x quantum / rate, the WirePlumber-policy routing lattice
+        # with its duplicate-Link fallback, the capture prop gate, and
+        # induced xruns. A NEW parallel ledger family, prior rows
+        # untouched; r76-r97 guards inherited (seat-owned r98a_<pid>
+        # names, the private r98arole<pid> key, name-verified
+        # sink_name= unloads, never set-default-*, bounded process
+        # groups, RLIMIT_CORE=0 on the crash class). The family lock is
+        # a FIXED corpus/live/ path — the r84 F1 3-seat consensus.
+        _r98_family_lock = _pwstream_r98_family_lock()   # held to exit
+        measurements["pwstream_core_r98_probe"] = \
+            pwstream_core_r98_probe()
+        measurements["pwstream_run_r98_probe"] = \
+            pwstream_run_r98_probe()
+        measurements["pwstream_route_r98_probe"] = \
+            pwstream_route_r98_probe()
+        measurements["pwstream_cap_r98_probe"] = \
+            pwstream_cap_r98_probe()
+        measurements["pwstream_xw_r98_probe"] = \
+            pwstream_xw_r98_probe()
+        measurements["pwstream_sbx_r98_probe"] = \
+            pwstream_sbx_r98_probe()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -47391,7 +49774,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -47411,7 +49794,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
