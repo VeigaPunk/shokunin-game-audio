@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -48673,6 +48674,2001 @@ def pwstream_sbx_r98_probe():
     return entry
 
 
+# ---------------------------------------------------------------------------
+# r93: the ebur128 SPA filter-graph loudness node — the loudness meter's
+# measured lattice. A NEW parallel ledger family, --probe-ebur-r93; every
+# prior row untouched.
+#
+# ONLY boundary-surviving claims are armed (r93-scout.md §1 + r93-boundary.md
+# §1/§2). Where the boundary falsified a constant, the LAW is armed instead
+# and the constant is recorded, never pinned:
+#   C1  port topology 7 in / 7 out / 7 notify + the exact notify names
+#   C2  the notify values live in no node param; a `debug` node's Control
+#       link is the readout (`[I] ... debug_run()] control: <v>`)
+#   C3  Momentary == an own BS.1770 K-weighted 400 ms measurement
+#   C4  the per-port channel map is dead (all 7 input ports identical)
+#   C5  Momentary/Shortterm/Window are dB-domain means, Global a block-energy
+#       average — a stereo pair does NOT sum
+#   C6  one silent channel poisons Momentary to -inf; Global stays finite
+#   C8  Window-only => lib mode 0 => constant NaN pass-through (audio flows)
+#   C9  Peak/True Peak use the state index as the channel number (only
+#       `In FL` reads correctly; DUAL MONO reads 0.0, a stereo pair FL)
+#   C10 `max-window` is honoured; absent => constant NaN. The constant is
+#       NOT pinned: the decay scales with the configured window (boundary:
+#       0.085/0.426/1.024/2.025 s vs the scout's 0.04/0.38/1.00/2.00 s).
+#   C11 `max-history` is an above-gate BLOCK cap, not a time window:
+#       silence never evicts, a second burst does
+#   C12 lufs2gain: gain = 10^((target-LUFS)/20); target clamps to [-70,0];
+#       non-finite => 1.0. The gain CONSTANTS are leg-dependent (boundary
+#       §2.3 falsified them) — the same-leg residual is armed instead.
+#   C13 a control key containing a space must be quoted (raw form is a
+#       properties-parse load failure)
+#   C14 label table: debug/busy/sqrt/ramp/zeroramp load; null/avg/sum/gain/
+#       nop do not (`null` is in the table but unparsable — a distinct class)
+#   C15 the audio path is bit-exact at lag 0; an unknown config key is
+#       warning-only; a non-numeric config value is a DEFERRED activation
+#       failure (module load rc 0, no readout ever)
+#   C16 `Global LUFS` is NOT an independent BS.1770 integrated measurement:
+#       the boundary's deviation spans -0.53..+0.21 LU and changes sign
+#       (block-phase quantised). An envelope is armed, never a constant.
+#
+# Guards inherited from r76-r89: seat-owned r93a_<pid> names, the private
+# r93arole<pid> key, name-verified sink_name= unloads (the index is re-read
+# immediately before firing), never set-default-*, bounded process groups,
+# link-validated taps, a FIXED corpus/live/ family lock (the r84 F1 3-seat
+# consensus — a $TMPDIR lock does not exclude cross-TMPDIR same-family runs).
+# New for r93: the pw-cli session is opened with PIPEWIRE_DEBUG=3 (the
+# notify readout is an INFO line the client logs), the module load is
+# retried and its attempt count recorded (a refused descriptor load is an
+# arm failure, never a semantic), and every recorded float is JSON-safe
+# (`allow_nan=False` in the receipt).
+
+EBUR_R93_PID = os.getpid()
+EBUR_R93_ROLE = "r93arole%d" % EBUR_R93_PID
+EBUR_R93_PREFIX = "r93a_%d" % EBUR_R93_PID
+EBUR_R93_NS = EBUR_R93_PREFIX + "_in"
+EBUR_R93_FC_IN = EBUR_R93_PREFIX + "_fc_in"
+EBUR_R93_FC_OUT = EBUR_R93_PREFIX + "_fc_out"
+EBUR_R93_PRE = EBUR_R93_PREFIX + "_pre"
+EBUR_R93_POST = EBUR_R93_PREFIX + "_post"
+EBUR_R93_STIM_DIR = ROOT / "live" / "round-93"
+EBUR_R93_RATE = 48000
+EBUR_R93_TONE_S = 3.5
+EBUR_R93_READ_S = 1.5
+EBUR_R93_LOAD_TRIES = 3
+EBUR_R93_GATE_S = 60.0
+EBUR_R93_FEED_TRIES = 6
+EBUR_R93_CAL_1K_050 = -9.024196
+EBUR_R93_CAL_1K_025 = -15.044795
+EBUR_R93_CAL_40 = -15.288830
+EBUR_R93_CAL_100 = -10.855398
+EBUR_R93_CAL_4K = -5.753903
+EBUR_R93_CAL_10K = -5.680018
+EBUR_R93_REF_TOL_DB = 1e-3
+EBUR_R93_CAL_TOL_DB = 1e-4
+EBUR_R93_GLOBAL_ENVELOPE_LU = 1.0
+EBUR_R93_CTRL_RE = re.compile(
+    r"\[I\]\[(\d\d):(\d\d):(\d\d)\.(\d+)\]\[[^\]]*\]\s+control:\s+"
+    r"(-?nan|-?inf|[+-]?[\d.]+)")
+EBUR_R93_TOPOLOGY_RE = re.compile(
+    r"load_node\(\)\]\s+loaded\s+n_input:(\d+)\s+n_output:(\d+)\s+"
+    r"n_control:(\d+)\s+n_notify:(\d+)")
+EBUR_R93_ERR_CLASSES = (
+    ("ebur_r93_daemon_down",
+     r"Can't connect|Host is down|Connection refused|Connection reset"),
+    ("ebur_r93_plugin_refused", r"cannot create label"),
+    ("ebur_r93_label_parse", r"error parsing label"),
+    ("ebur_r93_ctl_grammar",
+     r"error parsing more than 0 properties"),
+    ("ebur_r93_no_graph", r"missing filter\.graph property"),
+    ("ebur_r93_activate_refused", r"cannot create plugin instance"),
+    ("ebur_r93_ns_refused", r"module-null-sink|Failure: No such entity"),
+)
+EBUR_R93_NOTIFY = ("Momentary LUFS", "Shortterm LUFS", "Global LUFS",
+                   "Window LUFS", "Range LU", "Peak", "True Peak")
+EBUR_R93_PORTS = ("FL", "FR", "FC", "UNUSED", "SL", "SR", "DUAL MONO")
+EBUR_R93_LOAD_LABELS = ("debug", "busy", "sqrt", "ramp", "zeroramp")
+EBUR_R93_FAIL_LABELS = ("null", "avg", "sum", "gain", "nop")
+
+
+def _ebur_r93_json_safe(obj):
+    """Recursively replace non-finite floats with their verbatim literals —
+    the receipt is written with `allow_nan=False`, and a single stray -inf
+    must never cost a whole battery (r93 author: it did once)."""
+    if isinstance(obj, dict):
+        return {k: _ebur_r93_json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_ebur_r93_json_safe(v) for v in obj]
+    if isinstance(obj, float):
+        return _ebur_r93_num(obj)
+    return obj
+
+
+def _ebur_r93_num(value, nd=6):
+    """JSON-safe number: the receipt is written with allow_nan=False, so a
+    non-finite readout is recorded as its verbatim literal instead."""
+    if value is None or isinstance(value, str):
+        return value
+    if not isinstance(value, (int, float)):
+        return str(value)[:80]
+    if math.isnan(value):
+        return "nan"
+    if math.isinf(value):
+        return "inf" if value > 0 else "-inf"
+    return round(value, nd)
+
+
+def _ebur_r93_delta(a, b, nd=6):
+    """a - b, or a literal class when either side is non-finite."""
+    if a is None or b is None:
+        return None
+    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
+        return None
+    if not (math.isfinite(a) and math.isfinite(b)):
+        return _ebur_r93_num(a) + "-" + _ebur_r93_num(b)
+    return round(a - b, nd)
+
+
+def _ebur_r93_errclass(text):
+    for name, pat in EBUR_R93_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _btwit_r88_errclass(text or "")
+
+
+def _ebur_r93_norm(text):
+    """Volatile-field scrub: r88's node/seq/id classes plus the nanosecond
+    counters that fill the -J style records."""
+    s = _btwit_r88_norm(text or "")
+    return re.sub(r"\b\d{9,}\b", "<ns>", s)
+
+
+# --------------------------------------------------------------- own WAV I/O
+
+def _ebur_r93_sine(freq, dur_s, amp=0.5, rate=EBUR_R93_RATE, phase=0.0):
+    n = int(round(dur_s * rate))
+    w = 2.0 * math.pi * freq / rate
+    return [amp * math.sin(w * i + phase) for i in range(n)]
+
+
+def _ebur_r93_write_wav_f32(path, samples, ch=1, rate=EBUR_R93_RATE):
+    """Minimal IEEE-float RIFF writer (format tag 3) — the format the arm
+    feeds and the reference reads, so no third-party reader is involved."""
+    if ch == 1:
+        flat = [float(s) for s in samples]
+    else:
+        flat = [float(s) for tup in samples for s in tup]
+    data = struct.pack("<%df" % len(flat), *flat)
+    hdr = (b"RIFF" + struct.pack("<I", 36 + len(data)) + b"WAVE"
+           + b"fmt " + struct.pack("<IHHIIHH", 16, 3, ch, rate,
+                                   rate * ch * 4, ch * 4, 32)
+           + b"data" + struct.pack("<I", len(data)))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "wb") as fh:
+        fh.write(hdr + data)
+    return {"path": str(path), "frames": len(flat) // ch, "ch": ch,
+            "rate": rate}
+
+
+def _ebur_r93_sha256(path):
+    try:
+        with open(path, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+    except OSError:
+        return None
+
+
+# -------------------------------------------------- own BS.1770 reference
+# ITU-R BS.1770-4 K-weighting (the libebur128 1.2.6 coefficients the
+# installed plugin links against) + the gated integrated measurement.
+# The r93 boundary validated the scout's Python reference against the
+# INSTALLED libebur128 to 1e-6 dB on the same captures (§4.1) — this is
+# that reference, re-derived in-fixture.
+
+def _ebur_r93_coeffs(rate=EBUR_R93_RATE):
+    f0 = 1681.974450955533
+    gain = 3.999843853973347
+    q = 0.7071752369554196
+    k = math.tan(math.pi * f0 / rate)
+    vh = 10 ** (gain / 20.0)
+    vb = vh ** 0.4996667741545416
+    a0 = 1 + k / q + k * k
+    pb = [(vh + vb * k / q + k * k) / a0, 2 * (k * k - vh) / a0,
+          (vh - vb * k / q + k * k) / a0]
+    pa = [1.0, 2 * (k * k - 1.0) / a0, (1 - k / q + k * k) / a0]
+    rb = [1.0, -2.0, 1.0]
+    f0 = 38.13547087602444
+    q = 0.5003270373238773
+    k = math.tan(math.pi * f0 / rate)
+    ra = [1.0, 2 * (k * k - 1.0) / (1 + k / q + k * k),
+          (1 - k / q + k * k) / (1 + k / q + k * k)]
+    b = [pb[0] * rb[0], pb[0] * rb[1] + pb[1] * rb[0],
+         pb[0] * rb[2] + pb[1] * rb[1] + pb[2] * rb[0],
+         pb[1] * rb[2] + pb[2] * rb[1], pb[2] * rb[2]]
+    a = [pa[0] * ra[0], pa[0] * ra[1] + pa[1] * ra[0],
+         pa[0] * ra[2] + pa[1] * ra[1] + pa[2] * ra[0],
+         pa[1] * ra[2] + pa[2] * ra[1], pa[2] * ra[2]]
+    return b, a
+
+
+def _ebur_r93_filter5(x, b, a):
+    y = [0.0] * len(x)
+    v = [0.0] * 5
+    for i, xx in enumerate(x):
+        v0 = xx - a[1] * v[1] - a[2] * v[2] - a[3] * v[3] - a[4] * v[4]
+        yv = b[0] * v0 + b[1] * v[1] + b[2] * v[2] + b[3] * v[3] + b[4] * v[4]
+        v[4], v[3], v[2], v[1] = v[3], v[2], v[1], v0
+        y[i] = yv
+    return y
+
+
+def _ebur_r93_k_weight(x, rate=EBUR_R93_RATE):
+    b, a = _ebur_r93_coeffs(rate)
+    return _ebur_r93_filter5(x, b, a)
+
+
+def _ebur_r93_ref_momentary(x, rate=EBUR_R93_RATE, win_s=0.4):
+    """Own reference: the loudest 400 ms window of the K-weighted signal
+    (single state, LEFT weight 1.0 — the plugin's actual channel map)."""
+    y = _ebur_r93_k_weight(x, rate)
+    win = int(round(win_s * rate))
+    if len(y) < win:
+        return None
+    step = max(1, win // 8)
+    best = -1.0
+    for i in range(0, len(y) - win + 1, step):
+        e = sum(v * v for v in y[i:i + win]) / win
+        if e > best:
+            best = e
+    return (10.0 * math.log10(best) - 0.691) if best > 0 else float("-inf")
+
+
+def _ebur_r93_ref_global(x, rate=EBUR_R93_RATE, block_s=0.4,
+                         overlap=0.75, weight=1.0):
+    """Own gated integrated loudness (BS.1770-4: -70 LUFS absolute gate,
+    -10 LU relative gate). The boundary's witness for the eviction law."""
+    y = _ebur_r93_k_weight(x, rate)
+    win = int(round(block_s * rate))
+    step = max(1, int(round(win * (1.0 - overlap))))
+    blocks = []
+    for st in range(0, max(1, len(y) - win), step):
+        blocks.append(weight * sum(v * v for v in y[st:st + win]) / win)
+    if not blocks:
+        return {"lufs": None, "n_blocks": 0, "n_above_abs": 0, "n_keep": 0}
+    abs_gate = 10 ** ((-70.0 + 0.691) / 10.0)
+    above = [e for e in blocks if e >= abs_gate]
+    if not above:
+        return {"lufs": None, "n_blocks": len(blocks), "n_above_abs": 0,
+                "n_keep": 0}
+    rel = max((sum(above) / len(above)) * 10 ** (-1.0), abs_gate)
+    keep = [e for e in above if e >= rel]
+    mean = sum(keep) / len(keep)
+    return {"lufs": _ebur_r93_num(10.0 * math.log10(mean) - 0.691),
+            "n_blocks": len(blocks), "n_above_abs": len(above),
+            "n_keep": len(keep)}
+
+
+# ------------------------------------------------------------ readout parse
+
+def _ebur_r93_series(text):
+    """[(t_rel, value)] for every `control:` INFO line in the session log.
+    The three observed literals are -nan / -inf / a finite dB value."""
+    out = []
+    for m in EBUR_R93_CTRL_RE.finditer(text or ""):
+        lit = m.group(5)
+        low = lit.lower()
+        if low.endswith("nan"):
+            val = float("nan")
+        elif low.endswith("inf"):
+            val = float("-inf") if lit.startswith("-") else float("inf")
+        else:
+            try:
+                val = float(lit)
+            except ValueError:
+                continue
+        t = (int(m.group(1)) * 3600 + int(m.group(2)) * 60
+             + int(m.group(3)) + int(m.group(4)) / 1e6)
+        out.append((t, val))
+    if out:
+        t0 = out[0][0]
+        out = [(round(t - t0, 4), v) for t, v in out]
+    return out
+
+
+def _ebur_r93_stats(series):
+    """The scout's plateau convention (median of the longest run of
+    consecutive near-equal finite values, 0.05 dB grouping) so every r93
+    number is directly comparable with the scout/boundary tables."""
+    vals = [v for _, v in series]
+    st = {"n": len(vals),
+          "n_nan": sum(1 for v in vals
+                       if isinstance(v, str) and v.endswith("nan")
+                       or (isinstance(v, float) and math.isnan(v))),
+          "n_inf": sum(1 for v in vals
+                       if v == float("-inf")
+                       or (isinstance(v, str) and v.endswith("-inf"))),
+          "n_finite": sum(1 for v in vals
+                          if isinstance(v, (int, float))
+                          and math.isfinite(v))}
+    groups, cur = [], []
+    for i, v in enumerate(vals):
+        if isinstance(v, (int, float)) and math.isfinite(v):
+            if cur and abs(v - cur[-1][1]) > 0.05:
+                groups.append(cur)
+                cur = []
+            cur.append((i, v))
+        else:
+            if cur:
+                groups.append(cur)
+                cur = []
+    if cur:
+        groups.append(cur)
+    if groups:
+        g = max(groups, key=len)
+        gv = sorted(v for _, v in g)
+        st["plateau"] = _ebur_r93_num(gv[len(gv) // 2])
+        st["plateau_n"] = len(g)
+        st["plateau_t0"] = series[g[0][0]][0]
+        st["plateau_t1"] = series[g[-1][0]][0]
+        st["plateau_span"] = round(st["plateau_t1"] - st["plateau_t0"], 3)
+        st["tail_finite"] = [_ebur_r93_num(v) for v in vals[-6:]]
+    st["head"] = [_ebur_r93_num(v, 4) for _, v in series[:6]]
+    return st
+
+
+def _ebur_r93_plateau_is(stats, value, tol=1e-6):
+    """The plateau (not the whole series) is the comparator: every armed
+    leg's head carries the pre-tone -inf run and its tail the post-tone
+    decay, and neither is a semantic."""
+    p = (stats or {}).get("plateau")
+    return isinstance(p, (int, float)) and abs(p - value) <= tol
+
+
+def _ebur_r93_plateau_in(stats, lo, hi):
+    p = (stats or {}).get("plateau")
+    return isinstance(p, (int, float)) and lo <= p <= hi
+
+
+def _ebur_r93_decay(series, plateau, t_end, drop_db=30.0):
+    """Seconds after the plateau's last sample at which the readout falls
+    `drop_db` below the plateau (the window-length fingerprint)."""
+    if plateau is None or not isinstance(plateau, (int, float)) \
+            or not math.isfinite(plateau):
+        return None
+    thr = plateau - drop_db
+    for t, v in series:
+        if not isinstance(v, (int, float)):
+            continue
+        if t >= t_end and math.isfinite(v) and v <= thr:
+            return round(t - t_end, 3)
+    return None
+
+
+# ---------------------------------------------------------------- the rig
+
+def _ebur_r93_args(nodes, links, inputs, outputs, ch=1, position="[MONO]",
+                   ns=EBUR_R93_NS, fc_in=EBUR_R93_FC_IN,
+                   fc_out=EBUR_R93_FC_OUT):
+    return ("node.description=%s,"
+            "filter.graph={nodes=[%s],links=[%s],inputs=[%s],outputs=[%s]},"
+            "audio.channels=%d,audio.position=%s,"
+            "capture.props={node.name=%s,node.autoconnect=false,"
+            "media.class=Audio/Sink},"
+            "playback.props={node.name=%s,node.autoconnect=false}"
+            % (EBUR_R93_PREFIX + "_fc", ",".join(nodes), ",".join(links),
+               ",".join('"%s"' % i for i in inputs),
+               ",".join('"%s"' % o for o in outputs), ch, position,
+               fc_in, fc_out))
+
+
+def _ebur_r93_link(spec_out, spec_in, tries=EBUR_R93_FEED_TRIES):
+    """Bounded pw-link with retries; `File exists` counts as linked (the
+    same convention r89 uses — a re-link of a live edge is not a failure)."""
+    last = None
+    for i in range(max(1, tries)):
+        last = _btwit_r88_run(["pw-link", spec_out, spec_in], 6.0,
+                              keep_chars=300)
+        if last.get("exit_code") == 0 or \
+                "File exists" in (last.get("stderr") or ""):
+            return {"ok": True, "tries": i + 1,
+                    "exit_code": last.get("exit_code")}
+        time.sleep(0.3)
+    return {"ok": False, "tries": max(1, tries),
+            "exit_code": (last or {}).get("exit_code"),
+            "stderr": (last or {}).get("stderr")}
+
+
+def _ebur_r93_unlink(spec_out, spec_in):
+    return _btwit_r88_run(["pw-link", "-d", spec_out, spec_in], 6.0,
+                          keep_chars=200)
+
+
+def _ebur_r93_cli_open(debug=3):
+    """A held pw-cli session. `load-module` inside it creates the
+    filter-chain in THIS process, so the plugin's INFO readout
+    (`debug_run()] control: <v>`) is logged to this session's merged
+    stream — hence PIPEWIRE_DEBUG=3 and the drained-pipe discipline."""
+    env = dict(os.environ)
+    env["PIPEWIRE_DEBUG"] = str(debug)
+    proc = subprocess.Popen(["pw-cli"], stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            start_new_session=True, bufsize=0, env=env)
+    chunks = []
+
+    def drain():
+        try:
+            while True:
+                b = proc.stdout.read(65536)
+                if not b:
+                    return
+                chunks.append(b)
+        except (OSError, ValueError):
+            return
+
+    threading.Thread(target=drain, daemon=True).start()
+    return {"proc": proc, "chunks": chunks}
+
+
+def _ebur_r93_cli_send(sess, line):
+    try:
+        sess["proc"].stdin.write(line.encode() + b"\n")
+        sess["proc"].stdin.flush()
+        return True
+    except (BrokenPipeError, OSError, ValueError):
+        return False
+
+
+def _ebur_r93_cli_text(sess, start=0):
+    return b"".join(sess["chunks"][start:]).decode(errors="replace")
+
+
+def _ebur_r93_cli_chunks(sess):
+    return len(sess["chunks"])
+
+
+def _ebur_r93_cli_close(sess, bound_s=8.0):
+    _ebur_r93_cli_send(sess, "quit")
+    try:
+        sess["proc"].stdin.close()
+    except OSError:
+        pass
+    try:
+        sess["proc"].wait(timeout=bound_s)
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(sess["proc"])
+        try:
+            sess["proc"].wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            pass
+    return _ebur_r93_cli_text(sess)
+
+
+def _ebur_r93_load_module(sess, args, tries=EBUR_R93_LOAD_TRIES):
+    """Load the filter-chain in the session and read its module var.
+    A refused descriptor load (`cannot create label ...`) is retried and
+    its attempts are recorded: it is an ARM failure, never a semantic."""
+    rec = {"attempts": [], "var": None}
+    for attempt in range(max(1, tries)):
+        mark = _ebur_r93_cli_chunks(sess)
+        _ebur_r93_cli_send(
+            sess, "load-module libpipewire-module-filter-chain %s" % args)
+        time.sleep(1.0)
+        text = _ebur_r93_cli_text(sess, mark)
+        var = None
+        for line in text.splitlines():
+            if "= @module:" in line:
+                head = line.split("=")[0].strip()
+                if head.isdigit():
+                    var = int(head)
+        cls, hit = _ebur_r93_errclass(text)
+        topo = EBUR_R93_TOPOLOGY_RE.search(text)
+        rec["attempts"].append({
+            "n": attempt + 1, "var": var, "error_class": cls,
+            "error_hit": (hit or "")[:120] if cls else None,
+            "topology": ([int(topo.group(i)) for i in (1, 2, 3, 4)]
+                         if topo else None),
+            "lines": [_ebur_r93_norm(ln).strip()[:200]
+                      for ln in text.splitlines()
+                      if "[E]" in ln or "[W]" in ln or "n_input" in ln][:8]})
+        if var is not None:
+            rec["var"] = var
+            rec["topology"] = rec["attempts"][-1]["topology"]
+            rec["load_text"] = _ebur_r93_norm(text)[-800:]
+            rec["warn_lines"] = [_ebur_r93_norm(ln).strip()[:200]
+                                 for ln in text.splitlines()
+                                 if "[E]" in ln or "[W]" in ln][:40]
+            break
+        time.sleep(1.2)
+    return rec
+
+
+def _ebur_r93_unload_module(sess, var):
+    if var is None:
+        return {"skipped": "no_var"}
+    mark = _ebur_r93_cli_chunks(sess)
+    _ebur_r93_cli_send(sess, "unload-module %d" % var)
+    time.sleep(0.6)
+    text = _ebur_r93_cli_text(sess, mark)
+    cls, hit = _ebur_r93_errclass(text)
+    return {"var": var, "error_class": cls,
+            "error_hit": (hit or "")[:120] if cls else None,
+            "lines": [_ebur_r93_norm(ln).strip()[:160]
+                      for ln in text.splitlines() if "[E]" in ln][:4]}
+
+
+def _ebur_r93_ns_load(name, channels=1):
+    """Load + gate one probe-owned null sink (the r83 loader: sink
+    enumerated AND monitor listed AND monitor ports published)."""
+    leaf = _pwcat_r83_ns_load(name, ("channels=%d" % channels,))
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    return leaf
+
+
+def _ebur_r93_play(stim, target=EBUR_R93_NS, wall=EBUR_R93_TONE_S + 8.0):
+    """One tagged pw-play follower -> the seat sink; the private
+    r93arole<pid> media.role tags it as ours."""
+    env = dict(os.environ)
+    env["PIPEWIRE_PROPS"] = ("{node.name=%s_pl,media.role=%s,"
+                             "application.name=%s}"
+                             % (EBUR_R93_PREFIX, EBUR_R93_ROLE,
+                                EBUR_R93_PREFIX))
+    try:
+        proc = subprocess.Popen(
+            ["pw-play", "--target", target, str(stim)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, start_new_session=True, env=env)
+    except OSError as exc:
+        return None, str(exc)[:160]
+    return proc, None
+
+
+def _ebur_r93_reap(proc, wall_s):
+    """Bounded reap: TERM the group at the bound, then KILL; returns the
+    exit code and the stderr tail (an rc-1 empty-stderr arm failure is a
+    class the r93 boundary had to retry — it is recorded, never read as
+    a semantic)."""
+    if proc is None:
+        return {"exit_code": None}
+    try:
+        _, err = proc.communicate(timeout=max(0.5, wall_s))
+        rc = proc.returncode
+    except subprocess.TimeoutExpired:
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            _, err = proc.communicate(timeout=2.0)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+            _, err = proc.communicate()
+        rc = proc.returncode
+    return {"exit_code": rc,
+            "stderr": _ebur_r93_norm(
+                err.decode(errors="replace"))[-300:] or None}
+
+
+def _ebur_r93_capture_start(kind, ch=1, tapdir=None):
+    """A pw-record tap on the seat sink's monitor (`pre`, the filter-chain
+    input) or on the chain's own output (`post`). Bounded, autoconnect
+    off, own node name; the caller links it explicitly."""
+    name = EBUR_R93_PRE if kind == "pre" else EBUR_R93_POST
+    path = Path(tapdir or tempfile.gettempdir()) / (
+        "%s_%s.wav" % (EBUR_R93_PREFIX, kind))
+    try:
+        path.unlink()
+    except OSError:
+        pass
+    argv = ["pw-record", "--format", "f32", "--channels", str(ch),
+            "--rate", str(EBUR_R93_RATE),
+            "-P", "node.name=%s" % name,
+            "-P", "node.autoconnect=false",
+            "-P", "media.role=%s" % EBUR_R93_ROLE,
+            str(path)]
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
+                                stdin=subprocess.DEVNULL,
+                                start_new_session=True)
+    except OSError as exc:
+        return None, str(exc)[:160], str(path)
+    return proc, None, str(path)
+
+
+def _ebur_r93_capture_stats(path):
+    """Frames / RMS / peak / nonzero count of a f32 tap — the 'audio still
+    flows' witness. Own RIFF parse (the stdlib rejects format tag 3)."""
+    try:
+        with open(path, "rb") as fh:
+            raw = fh.read()
+    except OSError:
+        return None
+    if raw[:4] != b"RIFF" or raw[8:12] != b"WAVE":
+        return None
+    pos, fmt, data = 12, None, None
+    while pos + 8 <= len(raw):
+        cid = raw[pos:pos + 4]
+        csz = struct.unpack_from("<I", raw, pos + 4)[0]
+        body = raw[pos + 8:pos + 8 + csz]
+        if cid == b"fmt ":
+            fmt = struct.unpack_from("<HHIIHH", body, 0)
+        elif cid == b"data":
+            data = body
+        pos += 8 + csz + (csz & 1)
+    if fmt is None or data is None:
+        return None
+    tag, ch, rate, _br, _ba, bits = fmt
+    if tag != 3 or bits != 32:
+        return {"fmt_tag": tag, "bits": bits, "frames": 0}
+    vals = struct.unpack("<%df" % (len(data) // 4), data[:len(data) // 4 * 4])
+    n = len(vals) // max(1, ch)
+    if n == 0:
+        return {"fmt_tag": tag, "bits": bits, "frames": 0, "rms": None,
+                "peak": None, "nonzero": 0, "rate": rate, "ch": ch}
+    rms = math.sqrt(sum(v * v for v in vals) / len(vals))
+    # the mid-tone window is the audio-domain comparator: a whole-capture
+    # RMS is dominated by the pre-convergence period, in which lufs2gain
+    # still passes the signal at 1.0 (the scout's 0.199-0.206 was measured
+    # on a mid-tone second, and the whole-capture ratio reads ~0.88)
+    half = min(24000, max(1, len(vals) // 4))
+    mid = vals[max(0, len(vals) // 2 - half):len(vals) // 2 + half]
+    mid_rms = (math.sqrt(sum(v * v for v in mid) / len(mid)) if mid else None)
+    return {"fmt_tag": tag, "bits": bits, "frames": n, "rate": rate,
+            "ch": ch, "rms": round(rms, 8),
+            "mid_frames": len(mid),
+            "mid_rms": round(mid_rms, 8) if mid_rms is not None else None,
+            "peak": round(max(abs(v) for v in vals), 8),
+            "nonzero": sum(1 for v in vals if v != 0.0)}
+
+
+def _ebur_r93_leg(ctx, spec):
+    """One armed leg: fresh null sink, fresh pw-cli session, fresh module,
+    optional taps, the feed link, the stimulus, the readout, index-verified
+    unload. Every failure class is recorded per leg."""
+    tag = spec["tag"]
+    row = {"tag": tag, "kind": spec.get("kind", "meter"),
+           "rep": spec.get("rep"),
+           "readout": spec.get("readout"),
+           "note": spec.get("note")}
+    dur = spec.get("dur", EBUR_R93_TONE_S)
+    read_extra = spec.get("read_extra", EBUR_R93_READ_S)
+    ch = spec.get("ch", 1)
+    stim = spec.get("stim")
+    if spec.get("args") is not None:
+        args = spec["args"]
+    else:
+        args = _ebur_r93_args(spec.get("nodes") or [], spec.get("links") or [],
+                              spec.get("inputs") or [], spec.get("outputs") or [],
+                              ch=ch,
+                              position=("[MONO]" if ch == 1 else "[FL,FR]"))
+    row["args"] = args
+    procs = []
+    sess = None
+    var = None
+    try:
+        sink = _ebur_r93_ns_load(EBUR_R93_NS,
+                                 spec.get("sink_channels", ch))
+        row["sink"] = sink
+        ctx["loads"][EBUR_R93_NS] = sink
+        if sink.get("module_id") is None:
+            row["arm_failed"] = "null sink never enumerated"
+            row["error_class"] = sink.get("error_class")
+            return row
+        sess = _ebur_r93_cli_open()
+        time.sleep(0.4)
+        load = _ebur_r93_load_module(sess, args)
+        row["load"] = load
+        var = load.get("var")
+        if var is None:
+            row["arm_failed"] = "filter-chain module refused"
+            row["error_class"] = (load["attempts"][-1].get("error_class")
+                                  if load.get("attempts") else None)
+            return row
+        time.sleep(0.4)
+        row["fc_ports"] = (_ebur_r93_chain_ports()
+                           if spec.get("ports") else None)
+        taps = []
+        chan = "MONO" if ch == 1 else "FL"
+        for kind in spec.get("capture") or ():
+            proc, err, path = _ebur_r93_capture_start(
+                kind, ch=ch, tapdir=ctx.get("tapdir"))
+            if proc is None:
+                row["capture_error"] = err
+                continue
+            procs.append(proc)
+            taps.append((kind, proc, path))
+        time.sleep(0.6)
+        feeds = {}
+        for kind, _p, _path in taps:
+            # a SINK's outputs are monitor_*, a SOURCE's (the chain's
+            # playback side) are output_*; a record stream's input is
+            # input_<channel> — the r93 pre-flight measured the ENOENT
+            # that guessing the wrong side produces
+            if kind == "pre":
+                feeds["pre"] = _ebur_r93_link(
+                    "%s:monitor_%s" % (EBUR_R93_NS, chan),
+                    "%s:input_%s" % (EBUR_R93_PRE, chan), tries=10)
+            else:
+                feeds["post"] = _ebur_r93_link(
+                    "%s:output_%s" % (EBUR_R93_FC_OUT, chan),
+                    "%s:input_%s" % (EBUR_R93_POST, chan), tries=10)
+        if ch == 1:
+            feeds["feed"] = _ebur_r93_link(
+                "%s:monitor_MONO" % EBUR_R93_NS,
+                "%s:playback_MONO" % EBUR_R93_FC_IN)
+        else:
+            feeds["feed_fl"] = _ebur_r93_link(
+                "%s:monitor_FL" % EBUR_R93_NS,
+                "%s:playback_FL" % EBUR_R93_FC_IN)
+            feeds["feed_fr"] = _ebur_r93_link(
+                "%s:monitor_FR" % EBUR_R93_NS,
+                "%s:playback_FR" % EBUR_R93_FC_IN)
+        row["links"] = feeds
+        if not all(v.get("ok") for k, v in feeds.items()
+                   if k.startswith("feed")):
+            row["arm_failed"] = "feed link never bound"
+            row["error_class"] = "ebur_r93_feed_refused"
+            return row
+        play = None
+        if stim:
+            play, perr = _ebur_r93_play(stim)
+            if perr:
+                row["play"] = {"spawn_error": perr}
+            else:
+                procs.append(play)
+        mark = _ebur_r93_cli_chunks(sess)
+        deadline = time.monotonic() + dur + read_extra
+        while time.monotonic() < deadline:
+            time.sleep(0.25)
+        text = _ebur_r93_cli_text(sess, mark)
+        if play is not None:
+            row["play"] = _ebur_r93_reap(play, 3.0)
+            procs = [p for p in procs if p is not play]
+        series = _ebur_r93_series(text)
+        row["stats"] = _ebur_r93_stats(series)
+        # the recorded series is JSON-safe (the receipt uses allow_nan=False);
+        # every consumer tolerates the literal classes
+        row["series"] = [[t, _ebur_r93_num(v)] for t, v in series]
+        row["control_lines"] = [ln.strip()[:170]
+                                for ln in text.splitlines()
+                                if "control:" in ln][:2]
+        row["log_warn_lines"] = [_ebur_r93_norm(ln).strip()[:200]
+                                 for ln in text.splitlines()
+                                 if "[E]" in ln or "[W]" in ln][:40]
+        for kind, proc, path in taps:
+            row["%s_stop" % kind] = _ebur_r93_reap(proc, 2.0)
+            procs = [p for p in procs if p is not proc]
+            row["%s_capture" % kind] = _ebur_r93_capture_stats(path)
+            row["%s_path" % kind] = str(path)
+        if spec.get("stim") is not None:
+            row["ref"] = ctx["refs"].get(spec.get("stim_key"))
+        row["unload"] = _ebur_r93_unload_module(sess, var)
+        var = None
+        return row
+    finally:
+        for proc in procs:
+            _alsapw_r84_killpg(proc, signal.SIGTERM)
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(proc)
+        if sess is not None:
+            if var is not None:
+                _ebur_r93_unload_module(sess, var)
+            _ebur_r93_cli_close(sess)
+        ctx["unloads"][EBUR_R93_NS] = _pactlmon_r85_unload_own(
+            ctx["loads"].get(EBUR_R93_NS, {}).get("module_id"),
+            "sink_name", EBUR_R93_NS)
+
+
+def _ebur_r93_chain_ports():
+    """The chain's own PipeWire port pair (the exported sink side), read
+    from pw-dump — the internal filter ports are graph-internal and never
+    appear here (that is why the notify readout needs the debug link)."""
+    g = _pactlmon_r85_graph()
+    nodes = g.get("nodes") or {}
+    ports = g.get("ports") or {}
+    nid = None
+    for oid, node in nodes.items():
+        if node.get("name") == EBUR_R93_FC_IN:
+            nid = oid
+    if nid is None:
+        return None
+    return sorted(
+        (p.get("name"), p.get("direction"))
+        for p in ports.values() if p.get("node_id") == nid)
+
+
+# ------------------------------------------------------------ fixtures
+
+_EBUR_R93_STIM_CACHE = None
+_EBUR_R93_REF_CACHE = None
+
+
+def _ebur_r93_stim_defs():
+    """The fixture members this family needs — analytic f32/48 kHz only,
+    written under the repo's fixture-member convention (corpus/live/
+    round-93, the same place round-3..round-66 members live) and recorded
+    by sha256 in every receipt. Every one is source-generated here: no
+    borrowed audio, no seeded noise, no rights question."""
+    def sine(freq, amp, dur=EBUR_R93_TONE_S):
+        return _ebur_r93_sine(freq, dur, amp)
+
+    def bursts():
+        return (sine(1000, 0.5, 2.5) + [0.0] * int(1.5 * EBUR_R93_RATE)
+                + sine(1000, 0.25, 2.5))
+
+    return {
+        "tone_1k_100": (1, lambda: sine(1000, 1.0)),
+        "tone_1k_050": (1, lambda: sine(1000, 0.5)),
+        "tone_1k_025": (1, lambda: sine(1000, 0.25)),
+        "tone_40_050": (1, lambda: sine(40, 0.5)),
+        "tone_100_050": (1, lambda: sine(100, 0.5)),
+        "tone_4k_050": (1, lambda: sine(4000, 0.5)),
+        "tone_10k_050": (1, lambda: sine(10000, 0.5)),
+        "silence": (1, lambda: [0.0] * int(EBUR_R93_TONE_S * EBUR_R93_RATE)),
+        "burst_1500ms": (1, lambda: sine(1000, 0.5, 1.5)),
+        "bursts_two": (1, bursts),
+        "st_mix": (2, lambda: list(zip(sine(1000, 0.5), sine(1000, 0.05)))),
+        "st_both": (2, lambda: list(zip(sine(1000, 0.5), sine(1000, 0.5)))),
+        "st_tone_silence": (2, lambda: list(zip(
+            sine(1000, 0.5), [0.0] * int(EBUR_R93_TONE_S * EBUR_R93_RATE)))),
+        "st_02_08": (2, lambda: list(zip(sine(1000, 0.2), sine(1000, 0.8)))),
+    }
+
+
+def _ebur_r93_stimuli():
+    """Build (once per run) and record the fixture members: path, frames,
+    channel count, rate and sha256 — the bytes the arm fed."""
+    global _EBUR_R93_STIM_CACHE
+    if _EBUR_R93_STIM_CACHE is not None:
+        return _EBUR_R93_STIM_CACHE
+    out = {}
+    for key, (ch, builder) in sorted(_ebur_r93_stim_defs().items()):
+        path = EBUR_R93_STIM_DIR / ("%s.wav" % key)
+        samples = builder()
+        leaf = _ebur_r93_write_wav_f32(path, samples, ch=ch)
+        leaf["key"] = key
+        leaf["path"] = str(path)
+        leaf["sha256"] = _ebur_r93_sha256(path)
+        leaf["synthesis"] = ("analytic sine, f32, %d Hz, %d ch"
+                             % (EBUR_R93_RATE, ch))
+        out[key] = leaf
+    _EBUR_R93_STIM_CACHE = out
+    return out
+
+
+def _ebur_r93_refs():
+    """The own BS.1770 reference per mono fixture member (the plugin's
+    states are 1-channel, so a mono reference is the right comparator).
+    Stereo members carry no single reference — their law is the dB mean
+    (C5), armed from the mono constants instead."""
+    global _EBUR_R93_REF_CACHE
+    if _EBUR_R93_REF_CACHE is not None:
+        return _EBUR_R93_REF_CACHE
+    defs = _ebur_r93_stim_defs()
+    out = {}
+    for key, (ch, builder) in sorted(defs.items()):
+        if ch != 1:
+            continue
+        x = builder()
+        out[key] = {"momentary": _ebur_r93_num(
+            _ebur_r93_ref_momentary(x)),
+            "global": _ebur_r93_ref_global(x),
+            "frames": len(x)}
+    _EBUR_R93_REF_CACHE = out
+    return out
+
+
+# ---------------------------------------------------------------- context
+
+def _ebur_r93_ctx():
+    return {"stim": _ebur_r93_stimuli(), "refs": _ebur_r93_refs(),
+            "loads": {}, "unloads": {},
+            "tapdir": tempfile.mkdtemp(prefix="r93a-tap-")}
+
+
+def _ebur_r93_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude). A second --probe-ebur-r93 waits HERE."""
+    path = ROOT / "live" / "measure_audio-ebur-r93.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, ("pid=%d role=%s\n" % (EBUR_R93_PID,
+                                            EBUR_R93_ROLE)).encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _ebur_r93_daemon_gate(timeout_s=EBUR_R93_GATE_S):
+    """The shared host daemon is a PREREQUISITE of this family, not a
+    variable: the arm needs the pulse module path (the driver sink) and a
+    pw-dump census. This gate waits (bounded) for both to answer before
+    the first leg and, when they do not, blocks the family with a named
+    class instead of spending the battery on hung clients. Measured on
+    this host in this window: a ~3 h partial wedge in which `pactl` and
+    `pw-dump` never answered while `pw-cli info`/`pw-link` still did."""
+    t0 = time.monotonic()
+    attempts = []
+    while True:
+        p = _btwit_r88_pactl("info", timeout_s=8.0, keep_chars=200)
+        d = _btwit_r88_run(["pw-dump"], 10.0, keep_chars=200)
+        # stdout_bytes is the TRUE drained length; `stdout` is the
+        # keep_chars-bounded copy, so len() on it can never clear 1000
+        dumped = d.get("stdout_bytes") or 0
+        ready = (p.get("exit_code") == 0 and not p.get("killed_at_bound")
+                 and d.get("exit_code") == 0 and not d.get("killed_at_bound")
+                 and dumped > 1000)
+        attempts.append({"t": round(time.monotonic() - t0, 1),
+                         "pactl_exit": p.get("exit_code"),
+                         "pactl_killed": p.get("killed_at_bound"),
+                         "pw_dump_exit": d.get("exit_code"),
+                         "pw_dump_killed": d.get("killed_at_bound"),
+                         "pw_dump_bytes": dumped})
+        if ready:
+            return {"ready": True, "waited_s": round(time.monotonic() - t0, 1),
+                    "attempts": attempts}
+        if time.monotonic() - t0 >= timeout_s:
+            return {"ready": False,
+                    "waited_s": round(time.monotonic() - t0, 1),
+                    "class": "ebur_r93_daemon_unavailable",
+                    "attempts": attempts}
+        time.sleep(5.0)
+
+
+def _ebur_r93_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, the foreign r93a census (another seat's residue is a
+    witness, never a verdict) and the fixture manifest."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r93a_nodes": sorted(
+                n for n in names if "r93a_" in n
+                and EBUR_R93_PREFIX not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg(),
+            "stimuli": {k: {"sha256": v["sha256"], "frames": v["frames"],
+                            "ch": v["ch"], "rate": v["rate"],
+                            "path": str(Path(v["path"]).relative_to(ROOT))}
+                        for k, v in _ebur_r93_stimuli().items()}}
+
+
+def _ebur_r93_teardown(entry, failures, ctx):
+    """Every own process group killed, every own module unloaded through
+    the name-verified index, any surviving r93a_<pid> node destroyed by
+    id, then the two witnesses: sinks gone from pactl and no seat-tagged
+    node left in pw-dump."""
+    for tag, leaf in (ctx.get("loads") or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = _pactlmon_r85_unload_own(
+            leaf.get("module_id"), leaf.get("field", "sink_name"),
+            leaf.get("value", tag))
+    g = _pactlmon_r85_graph()
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and EBUR_R93_PREFIX in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_btwit_r88_cli("destroy", nid, timeout_s=8.0,
+                              keep_chars=300)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (ctx.get("loads") or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names if EBUR_R93_PREFIX in n)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r93a-tagged nodes survived: {rest}")
+    procs = _btwit_r88_run(
+        ["bash", "-c",
+         "ps -eo pid,cmd | grep -E 'pw-(play|record|cli)' | grep -F %s "
+         "| grep -v grep || true" % EBUR_R93_PREFIX], 8.0, keep_chars=600)
+    entry["own_procs_after"] = [ln.strip()[:140] for ln in
+                                (procs.get("stdout") or "").splitlines() if ln.strip()]
+    if entry["own_procs_after"]:
+        failures.append("teardown: r93a processes survived: "
+                        f"{entry['own_procs_after']}")
+
+
+def _ebur_r93_block(entry, failures, msg, ctx=None):
+    """The named coverage block: unload anything loaded, record it."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in ((ctx or {}).get("loads") or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = _pactlmon_r85_unload_own(
+            leaf.get("module_id"), leaf.get("field", "sink_name"),
+            leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _ebur_r93_fail(failures, leg, msg, row=None):
+    """One armed failure: the leg id, the claim, and the readout that
+    falsified it (a bare boolean is not evidence)."""
+    rec = "%s: %s" % (leg, msg)
+    if row is not None:
+        st = row.get("stats") or {}
+        rec += (" [plateau=%s n=%s nan=%s inf=%s fin=%s]"
+                % (st.get("plateau"), st.get("n"), st.get("n_nan"),
+                   st.get("n_inf"), st.get("n_finite")))
+        if row.get("arm_failed"):
+            rec += " [arm_failed=%s cls=%s]" % (row["arm_failed"],
+                                                row.get("error_class"))
+    failures.append(rec)
+
+
+def _ebur_r93_run(ctx, arm, legs, entry):
+    """Run one arm `reps` times; every arm failure is named in
+    coverage_blocked (never silently green)."""
+    reps = max(1, arm.get("reps", 1))
+    rows = []
+    for rep in range(reps):
+        spec = dict(arm)
+        spec.pop("reps", None)
+        spec["rep"] = rep
+        key = arm.get("stim_key")
+        spec["stim"] = (ctx["stim"][key]["path"] if key else None)
+        spec["stim_key"] = key
+        row = _ebur_r93_leg(ctx, spec)
+        legs["%s_r%d" % (arm["tag"], rep)] = row
+        rows.append(row)
+        if row.get("arm_failed") and not arm.get("expect_refusal"):
+            entry.setdefault("coverage_blocked", []).append(
+                "%s: %s (cls=%s)" % (row["tag"], row["arm_failed"],
+                                     row.get("error_class")))
+    return rows
+
+
+def _ebur_r93_meter(nodes=None, links=None, inputs=None, outputs=None,
+                    readout="Momentary LUFS", stim_key="tone_1k_050",
+                    dur=EBUR_R93_TONE_S, read_extra=EBUR_R93_READ_S,
+                    ch=1, reps=1, tag="leg", capture=(), note=None,
+                    args=None, kind="meter", expect_refusal=False,
+                    ports=False):
+    return {"tag": tag, "kind": kind, "readout": readout,
+            "stim_key": stim_key, "dur": dur, "read_extra": read_extra,
+            "ch": ch, "reps": reps, "capture": capture, "note": note,
+            "args": args, "expect_refusal": expect_refusal,
+            "ports": ports,
+            "nodes": nodes if nodes is not None else [
+                "{type=ebur128,name=e,label=ebur128}",
+                "{type=builtin,name=dbg,label=debug}"],
+            "links": links if links is not None else [
+                "{output=\"e:%s\",input=\"dbg:Control\"}" % readout],
+            "inputs": inputs if inputs is not None else ["e:In DUAL MONO"],
+            "outputs": outputs if outputs is not None else ["e:Out DUAL MONO"]}
+
+
+def _ebur_r93_ebu(cfg=None, ctl=None, name="e", label="ebur128"):
+    """A node of the ebur128 plugin: `label` selects the meter
+    (`ebur128`) or the transfer node (`lufs2gain`) — the r93 author's
+    first gain legs declared a second METER and the graph refused the
+    `l2g:LUFS` link with `unknown input port`."""
+    s = "{type=ebur128,name=%s,label=%s" % (name, label)
+    if cfg:
+        s += ",config={%s}" % cfg
+    if ctl:
+        s += ",control={%s}" % ctl
+    return s + "}"
+
+
+def _ebur_r93_builtin(label, name, cfg=None):
+    s = "{type=builtin,name=%s,label=%s" % (name, label)
+    if cfg:
+        s += ",config={%s}" % cfg
+    return s + "}"
+
+
+def _ebur_r93_link_spec(out_port, in_port):
+    return "{output=\"%s\",input=\"%s\"}" % (out_port, in_port)
+
+
+def _ebur_r93_split_series(series):
+    """The scout's range split for a two-debug leg: a LUFS reading is
+    < -1, a lufs2gain `Gain` is in (0, 1] (or > 1 for a target above the
+    measured loudness). Returns (lufs_values, gain_values)."""
+    lufs, gain = [], []
+    for _, v in series:
+        if not isinstance(v, (int, float)) or not math.isfinite(v):
+            continue
+        if v < -1.0:
+            lufs.append(v)
+        elif v > 0.0:
+            gain.append(v)
+    return lufs, gain
+
+
+def _ebur_r93_tail(values, n=5):
+    return [_ebur_r93_num(v) for v in values[-n:]]
+
+
+# =============================================================== entry 1
+
+def ebur_topology_r93_entry():
+    """C1 + C2 + C4: the port topology re-derived from the module's own
+    load log (7 in / 7 out / 0 control / 7 notify), every notify name
+    linkable as the `debug` readout, and the per-port channel map dead —
+    all 7 input ports read one identical Momentary value."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 topology + notify readout")
+    tools = {t: shutil.which(t) for t in
+             ("pw-cli", "pw-play", "pw-link", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    ctx = _ebur_r93_ctx()
+    if not all(tools.values()):
+        return _ebur_r93_block(
+            entry, failures,
+            "missing tools: %s" % [t for t, p in tools.items() if not p], ctx)
+    try:
+        # ---- C1: the topology line + the notify-name lattice -----------
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag="topo_load", reps=2, ports=True,
+            note="C1 topology from the load log"), legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            topo = (row.get("load") or {}).get("topology")
+            if topo != [7, 7, 0, 7]:
+                _ebur_r93_fail(failures, row["tag"],
+                               "load log did not carry "
+                               "n_input:7 n_output:7 n_control:0 n_notify:7 "
+                               f"(got {topo})", row)
+            if not _ebur_r93_plateau_is(row.get("stats"),
+                                        EBUR_R93_CAL_1K_050,
+                                        EBUR_R93_CAL_TOL_DB):
+                _ebur_r93_fail(failures, row["tag"],
+                               "the topology leg's Momentary is not the "
+                               f"calibration constant {EBUR_R93_CAL_1K_050}",
+                               row)
+            ports = row.get("fc_ports")
+            if sorted(n for n, _d in (ports or [])) != \
+                    ["monitor_MONO", "playback_MONO"]:
+                _ebur_r93_fail(failures, row["tag"],
+                               "the chain's exported port pair is not "
+                               f"playback_MONO+monitor_MONO (got {ports})",
+                               row)
+        for name in EBUR_R93_NOTIFY:
+            tag = "notify_%s" % name.split()[0].lower()
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag=tag, readout=name, dur=1.4, read_extra=0.8,
+                note="C1 notify name %r is a linkable port" % name),
+                legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                if not (row.get("series") or []):
+                    _ebur_r93_fail(
+                        failures, row["tag"],
+                        "linking %r to dbg:Control produced no readout "
+                        "(the name is not a live notify port)" % name, row)
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag="notify_bogus", readout="Momentary LUFSX", dur=1.4,
+            read_extra=0.8,
+            note="control: a bogus notify name yields no readout at all"),
+            legs, entry)
+        for row in rows:
+            row["control_class"] = ("load_refused" if row.get("arm_failed")
+                                    else ("silent" if not row.get("series")
+                                          else "readout"))
+            if row.get("series"):
+                _ebur_r93_fail(failures, row["tag"],
+                               "a BOGUS notify name produced a readout — "
+                               "the debug link is not load-bearing", row)
+        # ---- C4: the dead channel map ----------------------------------
+        for port in EBUR_R93_PORTS:
+            tag = "port_%s" % port.split()[0].lower()
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag=tag, reps=1, dur=2.0, read_extra=1.0,
+                inputs=["e:In %s" % port], outputs=["e:Out %s" % port],
+                note="C4 input port %r reads the same value as every "
+                     "other port" % port), legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                if not _ebur_r93_plateau_is(row.get("stats"),
+                                            EBUR_R93_CAL_1K_050,
+                                            EBUR_R93_CAL_TOL_DB):
+                    _ebur_r93_fail(
+                        failures, row["tag"],
+                        "input port %r does not read the single-state "
+                        "value %s (the channel map is NOT dead here)"
+                        % (port, EBUR_R93_CAL_1K_050), row)
+    finally:
+        _ebur_r93_teardown(entry, failures, ctx)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 2
+
+def ebur_cal_r93_entry():
+    """C3 + the calibration table: Momentary is an exact BS.1770
+    K-weighted 400 ms measurement (own reference over the very bytes the
+    arm fed), the amplitude ladder is exact 6.0206 dB per doubling, and
+    the K-weighting deltas fingerprint the filter."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 calibration vs own BS.1770")
+    ctx = _ebur_r93_ctx()
+    table = (("tone_1k_100", 1.0, None), ("tone_1k_050", 0.5, EBUR_R93_CAL_1K_050),
+             ("tone_1k_025", 0.25, EBUR_R93_CAL_1K_025),
+             ("tone_40_050", 40, EBUR_R93_CAL_40),
+             ("tone_100_050", 100, EBUR_R93_CAL_100),
+             ("tone_4k_050", 4000, EBUR_R93_CAL_4K),
+             ("tone_10k_050", 10000, EBUR_R93_CAL_10K))
+    measured = {}
+    try:
+        for key, label, constant in table:
+            reps = 2 if key in ("tone_1k_050", "tone_10k_050") else 1
+            tag = "cal_%s" % key
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag=tag, reps=reps, stim_key=key,
+                note="C3 %s: plugin Momentary vs the own BS.1770 reference "
+                     "over the same bytes" % label), legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    continue
+                st = row.get("stats") or {}
+                plateau = st.get("plateau")
+                ref = ((row.get("ref") or {}).get("momentary")
+                       if row.get("ref") else None)
+                if not isinstance(plateau, (int, float)) or \
+                        not isinstance(ref, (int, float)):
+                    _ebur_r93_fail(failures, row["tag"],
+                                   "no finite plateau/reference pair "
+                                   f"(plateau={plateau} ref={ref})", row)
+                    continue
+                measured.setdefault(key, []).append(plateau)
+                if abs(plateau - ref) > EBUR_R93_REF_TOL_DB:
+                    _ebur_r93_fail(
+                        failures, row["tag"],
+                        "Momentary deviates from the own BS.1770 reference "
+                        f"by {round(plateau - ref, 6)} dB "
+                        f"(> {EBUR_R93_REF_TOL_DB})", row)
+                if constant is not None and \
+                        abs(plateau - constant) > EBUR_R93_CAL_TOL_DB:
+                    _ebur_r93_fail(
+                        failures, row["tag"],
+                        f"Momentary {plateau} is not the boundary's "
+                        f"byte-stable {constant}", row)
+        entry["calibration"] = {
+            k: {"measured": [_ebur_r93_num(v) for v in vs],
+                "reference": (ctx["refs"].get(k) or {}).get("momentary")}
+            for k, vs in sorted(measured.items())}
+        entry["k_weighting"] = _ebur_r93_kweight_report(ctx, measured)
+        for item in entry["k_weighting"].get("failures") or ():
+            failures.append(item)
+    finally:
+        _ebur_r93_teardown(entry, failures, ctx)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _ebur_r93_json_safe(entry)
+
+
+def _ebur_r93_kweight_report(ctx, measured):
+    """The K-weighting transfer, from the same-battery legs: the delta to
+    the 1 kHz leg, against the own reference's delta."""
+    def one(key):
+        vs = measured.get(key) or []
+        return vs[0] if vs else None
+
+    base = one("tone_1k_050")
+    out = {"base_key": "tone_1k_050", "base": _ebur_r93_num(base),
+           "rows": {}, "failures": []}
+    if base is None:
+        out["failures"].append("k-weighting: no finite 1 kHz leg")
+        return out
+    for key, label, want in (("tone_40_050", "40 Hz", -6.2646),
+                             ("tone_100_050", "100 Hz", -1.8312),
+                             ("tone_4k_050", "4 kHz", 3.2703),
+                             ("tone_10k_050", "10 kHz", 3.3442)):
+        v = one(key)
+        ref = (ctx["refs"].get(key) or {}).get("momentary")
+        refbase = (ctx["refs"].get("tone_1k_050") or {}).get("momentary")
+        row = {"measured_delta": _ebur_r93_delta(v, base),
+               "boundary_delta": want,
+               "reference_delta": _ebur_r93_delta(ref, refbase)}
+        out["rows"][label] = row
+        if not isinstance(row["measured_delta"], float) or \
+                abs(row["measured_delta"] - want) > 0.01:
+            out["failures"].append(
+                "k-weighting %s: measured delta %s vs the boundary's %s"
+                % (label, row["measured_delta"], want))
+    return out
+
+
+# =============================================================== entry 3
+
+def ebur_channel_r93_entry():
+    """C4 + C5 + C6: no stereo summation (Momentary is a dB-domain mean,
+    Global a block-energy average), a stereo pair reads one channel's
+    value, and one silent channel poisons Momentary to -inf while Global
+    stays finite."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 channel map + dB mean")
+    ctx = _ebur_r93_ctx()
+    two = {"nodes": ["{type=ebur128,name=e,label=ebur128}",
+                     "{type=builtin,name=dbg,label=debug}"],
+           "inputs": ["e:In FL", "e:In FR"],
+           "outputs": ["e:Out FL", "e:Out FR"], "ch": 2}
+    arms = [
+        dict(two, tag="ch_mix", stim_key="st_mix", reps=2,
+             note="C5 FL 0.5 + FR 0.05: Momentary is the dB mean of the "
+                  "two states, never the energy mean"),
+        dict(two, tag="ch_both", stim_key="st_both", reps=2,
+             note="C5 a stereo pair of the same tone does NOT sum (+3 dB)"),
+        dict(two, tag="ch_silent_mom", stim_key="st_tone_silence", reps=2,
+             note="C6 one silent channel poisons Momentary to -inf"),
+        dict(two, tag="ch_silent_glob", stim_key="st_tone_silence", reps=2,
+             readout="Global LUFS",
+             note="C6 Global stays finite when Momentary is -inf"),
+        dict(two, tag="ch_mono_fl", stim_key="tone_1k_050", ch=1,
+             inputs=["e:In FL"], outputs=["e:Out FL"],
+             note="C4 mono FL reads the single-state value"),
+        dict(two, tag="ch_mono_fr", stim_key="tone_1k_050", ch=1,
+             inputs=["e:In FR"], outputs=["e:Out FR"],
+             note="C4 mono FR reads the same value as FL"),
+    ]
+    for arm in arms:
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(**arm), legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            st = row.get("stats") or {}
+            plateau = st.get("plateau")
+            tag = row["tag"]
+            if row["tag"].startswith("ch_mix"):
+                want = (EBUR_R93_CAL_1K_050 + (EBUR_R93_CAL_1K_050 - 20.0)) / 2.0
+                if not isinstance(plateau, (int, float)) or \
+                        abs(plateau - want) > 0.01:
+                    _ebur_r93_fail(failures, tag,
+                                   "the dB-mean law predicts "
+                                   f"{round(want, 6)} (got {plateau})", row)
+                elif plateau > -17.0:
+                    _ebur_r93_fail(failures, tag,
+                                   "the mix summed (the energy mean is "
+                                   f"-11.99, the dB mean {round(want, 6)})",
+                                   row)
+            elif row["tag"].startswith("ch_both"):
+                if not _ebur_r93_plateau_is(row.get("stats"),
+                                            EBUR_R93_CAL_1K_050,
+                                            EBUR_R93_REF_TOL_DB):
+                    _ebur_r93_fail(
+                        failures, tag,
+                        "a stereo pair of one tone reads "
+                        f"{plateau}, not the single-channel "
+                        f"{EBUR_R93_CAL_1K_050} — the states summed", row)
+            elif row["tag"].startswith("ch_silent_mom"):
+                if st.get("n_finite") != 0 or st.get("n_inf") != st.get("n"):
+                    _ebur_r93_fail(failures, tag,
+                                   "one silent channel did not poison "
+                                   "Momentary to -inf", row)
+            elif row["tag"].startswith("ch_silent_glob"):
+                if not isinstance(plateau, (int, float)):
+                    _ebur_r93_fail(failures, tag,
+                                   "Global is not finite with a silent "
+                                   f"channel (plateau={plateau})", row)
+                else:
+                    ref = (ctx["refs"].get("tone_1k_050") or {}).get("global")
+                    refv = (ref or {}).get("lufs")
+                    dev = _ebur_r93_delta(plateau, refv)
+                    row["global_deviation_lu"] = dev
+                    if isinstance(dev, float) and \
+                            abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+                        _ebur_r93_fail(
+                            failures, tag,
+                            "C16: Global deviates from the own gated "
+                            f"reference by {dev} LU "
+                            f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})", row)
+            else:
+                if not _ebur_r93_plateau_is(row.get("stats"),
+                                            EBUR_R93_CAL_1K_050,
+                                            EBUR_R93_CAL_TOL_DB):
+                    _ebur_r93_fail(failures, tag,
+                                   "mono leg does not read the "
+                                   f"single-state {EBUR_R93_CAL_1K_050}",
+                                   row)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 4
+
+def ebur_modes_r93_entry():
+    """C8 + the silence envelope: which notify links initialise the lib
+    mode. Window-only leaves mode 0 => a NaN meter on a LIVE pass-through;
+    Range-only and Peak-only read a stale 0.0; Momentary/Global/
+    Shortterm-only read real values."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 notify-only coupling")
+    ctx = _ebur_r93_ctx()
+    arms = [
+        _ebur_r93_meter(tag="m_window_only", readout="Window LUFS", reps=2,
+                        capture=("post",),
+                        note="C8 Window-only: constant NaN, audio flows"),
+        _ebur_r93_meter(tag="m_range_only", readout="Range LU", reps=2,
+                        note="Range-only reads a stale 0.0"),
+        _ebur_r93_meter(tag="m_peak_only", readout="Peak", reps=2,
+                        note="Peak-only reads a stale 0.0"),
+        _ebur_r93_meter(tag="m_momentary_only", readout="Momentary LUFS",
+                        reps=2, capture=("post",),
+                        note="Momentary-only: a real value, audio flows"),
+        _ebur_r93_meter(tag="m_global_only", readout="Global LUFS", reps=2,
+                        note="Global-only: a real value"),
+        _ebur_r93_meter(tag="m_shortterm_only", readout="Shortterm LUFS",
+                        note="Shortterm-only: a real value (boundary left "
+                             "this notify name unread)"),
+    ]
+    for arm in arms:
+        rows = _ebur_r93_run(ctx, arm, legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            st = row.get("stats") or {}
+            tag, plateau = row["tag"], st.get("plateau")
+            if tag.startswith("m_window_only"):
+                if st.get("n_finite") != 0 or \
+                        st.get("n_nan", 0) < st.get("n", 0) - 2:
+                    _ebur_r93_fail(failures, tag,
+                                   "Window-only is not a constant-NaN meter",
+                                   row)
+                cap = row.get("post_capture") or {}
+                if not cap.get("frames") or (cap.get("nonzero") or 0) < 1000 \
+                        or (cap.get("rms") or 0.0) <= 0.01:
+                    _ebur_r93_fail(failures, tag,
+                                   "the Window-only graph is not a live "
+                                   f"pass-through (post={cap})", row)
+            elif tag.startswith(("m_range_only", "m_peak_only")):
+                if plateau != 0.0 or st.get("n_nan") != 0 or \
+                        st.get("n_finite", 0) < st.get("n", 0) - 2:
+                    _ebur_r93_fail(failures, tag,
+                                   "a Range/Peak-only readout is not the "
+                                   f"stale 0.0 class (plateau={plateau})",
+                                   row)
+            elif tag.startswith("m_momentary_only"):
+                if not isinstance(plateau, (int, float)) or \
+                        abs(plateau - EBUR_R93_CAL_1K_050) > \
+                        EBUR_R93_CAL_TOL_DB:
+                    _ebur_r93_fail(failures, tag,
+                                   "Momentary-only is not the calibration "
+                                   f"value (plateau={plateau})", row)
+                cap = row.get("post_capture") or {}
+                if (cap.get("nonzero") or 0) < 1000 or \
+                        (cap.get("rms") or 0.0) <= 0.01:
+                    _ebur_r93_fail(failures, tag,
+                                   f"audio did not flow (post={cap})", row)
+            else:
+                if not isinstance(plateau, (int, float)) or plateau >= 0.0:
+                    _ebur_r93_fail(failures, tag,
+                                   "a single notify link does not read a "
+                                   f"real loudness value (plateau={plateau})",
+                                   row)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 5
+
+def ebur_peaks_r93_entry():
+    """C9: Peak/True Peak pass the STATE index as the channel number, so
+    only `In FL` reads correctly — DUAL MONO reads a stale 0.0 and a
+    stereo pair reads FL's peak, never FR's."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 peaks")
+    ctx = _ebur_r93_ctx()
+    arms = [
+        _ebur_r93_meter(tag="p_fl", readout="Peak", stim_key="tone_1k_050",
+                        ch=1, inputs=["e:In FL"], outputs=["e:Out FL"],
+                        dur=2.0, read_extra=1.0,
+                        note="C9 Peak on In FL reads the true 0.5"),
+        _ebur_r93_meter(tag="p_dual", readout="Peak", stim_key="tone_1k_050",
+                        dur=2.0, read_extra=1.0,
+                        note="C9 Peak on In DUAL MONO reads 0.0 (index bug)"),
+        _ebur_r93_meter(tag="p_st", readout="Peak", stim_key="st_02_08",
+                        ch=2, inputs=["e:In FL", "e:In FR"],
+                        outputs=["e:Out FL", "e:Out FR"], dur=2.0,
+                        read_extra=1.0,
+                        note="C9 Peak on a stereo pair reads FL's 0.2, "
+                             "never FR's 0.8"),
+        _ebur_r93_meter(tag="tp_fl", readout="True Peak",
+                        stim_key="tone_1k_050", ch=1, inputs=["e:In FL"],
+                        outputs=["e:Out FL"], dur=2.0, read_extra=1.0,
+                        note="C9 True Peak on In FL reads 0.5"),
+        _ebur_r93_meter(tag="tp_dual", readout="True Peak",
+                        stim_key="tone_1k_050", dur=2.0, read_extra=1.0,
+                        note="C9 True Peak on In DUAL MONO reads 0.0"),
+        _ebur_r93_meter(tag="tp_st", readout="True Peak",
+                        stim_key="st_02_08", ch=2,
+                        inputs=["e:In FL", "e:In FR"],
+                        outputs=["e:Out FL", "e:Out FR"], dur=2.0,
+                        read_extra=1.0,
+                        note="C9 True Peak on a stereo pair reads FL's 0.2"),
+    ]
+    wants = {"p_fl": 0.5, "p_dual": 0.0, "p_st": 0.2,
+             "tp_fl": 0.5, "tp_dual": 0.0, "tp_st": 0.2}
+    for arm in arms:
+        rows = _ebur_r93_run(ctx, arm, legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            want = wants[row["tag"].split("_r")[0]]
+            plateau = (row.get("stats") or {}).get("plateau")
+            if plateau is None or abs(plateau - want) > 1e-6:
+                _ebur_r93_fail(failures, row["tag"],
+                               f"the {row['readout']} readout is {plateau}, "
+                               f"not {want} (C9 index-as-channel)", row)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 6
+
+def ebur_window_r93_entry():
+    """C10: `max-window` is honoured. Absent it is a constant NaN; with
+    it the readout's post-tone decay SCALES with the configured window
+    (the boundary's 0.085/0.426/1.024/2.025 s vs the scout's
+    0.04/0.38/1.00/2.00 — the constant is not pinned, the scaling is)."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 max-window matrix")
+    ctx = _ebur_r93_ctx()
+    decays = {}
+    arms = [
+        ("w_absent", None, 2, EBUR_R93_TONE_S, EBUR_R93_READ_S),
+        ("w_040", "max-window=0.4", 2, EBUR_R93_TONE_S, 1.6),
+        ("w_200", "max-window=2.0", 2, EBUR_R93_TONE_S, 3.6),
+    ]
+    for tag, cfg, reps, dur, extra in arms:
+        nodes = [_ebur_r93_ebu(cfg=cfg),
+                 _ebur_r93_builtin("linear", "lin"),
+                 _ebur_r93_builtin("debug", "dbg")]
+        links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
+                 _ebur_r93_link_spec("e:Window LUFS", "dbg:Control")]
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag=tag, readout="Window LUFS", nodes=nodes, links=links,
+            reps=reps, dur=dur, read_extra=extra,
+            note="C10 %s" % (cfg or "no max-window")), legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            st = row.get("stats") or {}
+            if tag == "w_absent":
+                if st.get("n_finite") != 0 or \
+                        st.get("n_nan", 0) < st.get("n", 0) - 2:
+                    _ebur_r93_fail(failures, row["tag"],
+                                   "an absent max-window is not a "
+                                   "constant-NaN meter", row)
+                continue
+            if not _ebur_r93_plateau_is(st, EBUR_R93_CAL_1K_050,
+                                        EBUR_R93_REF_TOL_DB):
+                _ebur_r93_fail(failures, row["tag"],
+                               "the Window readout's plateau is not the "
+                               f"calibration value (plateau="
+                               f"{st.get('plateau')})", row)
+                continue
+            dec = _ebur_r93_decay(row.get("series") or [], st.get("plateau"),
+                                  st.get("plateau_t1") or 0.0)
+            row["decay_s"] = dec
+            decays.setdefault(tag, []).append(dec)
+    entry["decays"] = {k: [_ebur_r93_num(v) for v in vs]
+                       for k, vs in sorted(decays.items())}
+    d040 = [d for d in (decays.get("w_040") or []) if isinstance(d, float)]
+    d200 = [d for d in (decays.get("w_200") or []) if isinstance(d, float)]
+    if not d040 or not d200:
+        failures.append("max-window decay: a configured arm produced no "
+                        f"30 dB decay inside the read window "
+                        f"(0.4={d040} 2.0={d200})")
+    else:
+        if max(d040) > 0.8:
+            failures.append("max-window=0.4: the readout took "
+                            f"{max(d040)} s to fall 30 dB (> 0.8 s)")
+        if min(d200) < 1.5:
+            failures.append("max-window=2.0: the readout fell 30 dB after "
+                            f"only {min(d200)} s (< 1.5 s)")
+        if min(d200) - max(d040) < 1.0:
+            failures.append("max-window scaling: the 2.0 s window did not "
+                            f"decay at least 1 s later than the 0.4 s "
+                            f"window ({d200} vs {d040})")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 7
+
+def ebur_history_r93_entry():
+    """C11: `max-history` is an above-gate BLOCK cap, not a time window —
+    5 s of silence never evicts, a second burst does. The own gated
+    reference on the same bytes is the outside witness."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 max-history cap")
+    ctx = _ebur_r93_ctx()
+    arms = [
+        ("h_sil_default", None, "burst_1500ms", 1.5, 5.5),
+        ("h_sil_cap2", "max-history=2.0", "burst_1500ms", 1.5, 5.5),
+        ("h_bursts_default", None, "bursts_two", 6.5, 2.0),
+        ("h_bursts_cap2", "max-history=2.0", "bursts_two", 6.5, 2.0),
+    ]
+    got = {}
+    for tag, cfg, key, dur, extra in arms:
+        nodes = [_ebur_r93_ebu(cfg=cfg),
+                 _ebur_r93_builtin("linear", "lin"),
+                 _ebur_r93_builtin("debug", "dbg")]
+        links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin:Control"),
+                 _ebur_r93_link_spec("e:Global LUFS", "dbg:Control")]
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag=tag, readout="Global LUFS", nodes=nodes, links=links,
+            stim_key=key, reps=2, dur=dur, read_extra=extra,
+            note="C11 %s on %s" % (cfg or "default max-history", key)),
+            legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            plateau = (row.get("stats") or {}).get("plateau")
+            if isinstance(plateau, (int, float)):
+                got.setdefault(tag, []).append(plateau)
+    ref = (ctx["refs"].get("bursts_two") or {}).get("global") or {}
+    ref_lufs = ref.get("lufs")
+    entry["own_reference"] = {"bursts_two_global": ref_lufs,
+                              "burst_1500ms_global":
+                              (ctx["refs"].get("burst_1500ms")
+                               or {}).get("global", {}).get("lufs")}
+    entry["global_plateaus"] = {k: [_ebur_r93_num(v) for v in vs]
+                                for k, vs in sorted(got.items())}
+    if not all(got.get(t) for t in ("h_sil_default", "h_sil_cap2",
+                                    "h_bursts_default", "h_bursts_cap2")):
+        failures.append("max-history: a leg produced no finite Global "
+                        f"plateau ({sorted(got)})")
+    else:
+        for i, (a, b) in enumerate(zip(got["h_sil_default"],
+                                       got["h_sil_cap2"])):
+            if abs(a - b) > 0.05:
+                failures.append(
+                    "max-history: 5 s of silence EVICTED "
+                    f"(default {a} vs cap {b}) — silence must not evict")
+        for i, (d, c) in enumerate(zip(got["h_bursts_default"],
+                                       got["h_bursts_cap2"])):
+            if c > d - 3.0:
+                failures.append(
+                    "max-history=2.0 did not evict the first burst "
+                    f"(default {d} vs cap {c})")
+            if isinstance(ref_lufs, (int, float)):
+                dev = _ebur_r93_delta(d, ref_lufs)
+                if isinstance(dev, float) and \
+                        abs(dev) > EBUR_R93_GLOBAL_ENVELOPE_LU:
+                    failures.append(
+                        "C16: the two-burst default Global deviates from "
+                        f"the own gated reference by {dev} LU "
+                        f"(> {EBUR_R93_GLOBAL_ENVELOPE_LU})")
+                devc = _ebur_r93_delta(c, ref_lufs)
+                if isinstance(devc, float) and \
+                        abs(devc) <= EBUR_R93_GLOBAL_ENVELOPE_LU:
+                    failures.append(
+                        "the max-history=2.0 arm is within the envelope of "
+                        "the own reference — the cap did not evict anything "
+                        f"({devc} LU)")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 8
+
+def ebur_gain_r93_entry():
+    """C12 + C13: the lufs2gain transfer law is exact in the SAME leg
+    (20log10(gain) + Global = 0), the target clamps at -70, a non-finite
+    LUFS yields exactly 1.0, the gain reaches the audio domain, and an
+    unquoted control key is a load failure. No gain constant is pinned:
+    the boundary falsified them as leg-dependent."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 lufs2gain law")
+    ctx = _ebur_r93_ctx()
+    same_leg_nodes = [_ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+                      _ebur_r93_builtin("linear", "lin"),
+                      _ebur_r93_builtin("linear", "lin2"),
+                      _ebur_r93_builtin("debug", "dbgG"),
+                      _ebur_r93_builtin("debug", "dbgK")]
+    same_leg_links = [_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
+                      _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
+                      _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
+                      _ebur_r93_link_spec("e:Global LUFS", "dbgG:Control"),
+                      _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
+                      _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")]
+    arms = [
+        _ebur_r93_meter(tag="g_target0", nodes=[
+            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=0'),
+            _ebur_r93_builtin("linear", "lin"),
+            _ebur_r93_builtin("linear", "lin2"),
+            _ebur_r93_builtin("debug", "dbgG"),
+            _ebur_r93_builtin("debug", "dbgK")],
+            links=same_leg_links, inputs=["e:In DUAL MONO"],
+            outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
+            note="C12 target 0: gain = 10^((0-Global)/20) in the SAME leg"),
+        _ebur_r93_meter(tag="g_clamp", nodes=[
+            _ebur_r93_ebu(),
+            _ebur_r93_ebu(name="l2g", label="lufs2gain", ctl='"Target LUFS"=-100'),
+            _ebur_r93_builtin("linear", "lin"),
+            _ebur_r93_builtin("linear", "lin2"),
+            _ebur_r93_builtin("debug", "dbgG"),
+            _ebur_r93_builtin("debug", "dbgK")],
+            links=same_leg_links, inputs=["e:In DUAL MONO"],
+            outputs=["lin:Out"], dur=3.5, read_extra=2.0, reps=2,
+            note="C12 target -100 clamps to -70 (the same-leg law holds at "
+                 "the clamped target)"),
+        _ebur_r93_meter(tag="g_silence", nodes=[
+            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+            _ebur_r93_builtin("linear", "lin"),
+            _ebur_r93_builtin("linear", "lin2"),
+            _ebur_r93_builtin("debug", "dbgG"),
+            _ebur_r93_builtin("debug", "dbgK")],
+            links=same_leg_links, inputs=["e:In DUAL MONO"],
+            outputs=["lin:Out"], stim_key="silence", dur=2.0,
+            read_extra=1.5, reps=2,
+            note="C12 a non-finite LUFS yields exactly 1.0"),
+        _ebur_r93_meter(tag="g_default", nodes=[
+            _ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
+            _ebur_r93_builtin("linear", "lin"),
+            _ebur_r93_builtin("linear", "lin2"),
+            _ebur_r93_builtin("debug", "dbgK")],
+            links=[_ebur_r93_link_spec("e:Momentary LUFS", "lin2:Control"),
+                   _ebur_r93_link_spec("e:Global LUFS", "l2g:LUFS"),
+                   _ebur_r93_link_spec("l2g:Gain", "lin:Mult"),
+                   _ebur_r93_link_spec("l2g:Gain", "dbgK:Control"),
+                   _ebur_r93_link_spec("e:Out DUAL MONO", "lin:In")],
+            inputs=["e:In DUAL MONO"], outputs=["lin:Out"], reps=2,
+            capture=("pre", "post"), dur=3.5, read_extra=2.0,
+            note="C12 the default target's gain reaches the audio domain"),
+    ]
+    for arm in arms:
+        rows = _ebur_r93_run(ctx, arm, legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            tag = row["tag"]
+            lufs, gain = _ebur_r93_split_series(row.get("series") or [])
+            row["lufs_tail"] = _ebur_r93_tail(lufs)
+            row["gain_tail"] = _ebur_r93_tail(gain)
+            if tag.startswith("g_target0"):
+                if not lufs or not gain:
+                    _ebur_r93_fail(failures, tag,
+                                   "the same-leg Global/Gain split is empty "
+                                   f"(lufs={len(lufs)} gain={len(gain)})",
+                                   row)
+                    continue
+                residual = 20.0 * math.log10(gain[-1]) + lufs[-1]
+                row["residual_db"] = round(residual, 6)
+                if abs(residual) > 0.01:
+                    _ebur_r93_fail(failures, tag,
+                                   "gain != 10^((0-Global)/20): residual "
+                                   f"{round(residual, 6)} dB", row)
+            elif tag.startswith("g_clamp"):
+                if not lufs or not gain:
+                    _ebur_r93_fail(failures, tag,
+                                   "the clamped arm produced no Global/Gain "
+                                   "pair", row)
+                    continue
+                g70 = 10.0 ** ((-70.0 - lufs[-1]) / 20.0)
+                g100 = 10.0 ** ((-100.0 - lufs[-1]) / 20.0)
+                residual = 20.0 * math.log10(gain[-1] / g70)
+                row.update({"clamped_prediction": round(g70, 9),
+                            "unclamped_prediction": round(g100, 9),
+                            "residual_vs_clamp_db": round(residual, 6)})
+                if abs(residual) > 0.05:
+                    _ebur_r93_fail(failures, tag,
+                                   "the clamped target does not behave as "
+                                   f"-70 (residual {round(residual, 6)} dB)",
+                                   row)
+                if gain[-1] < 10.0 * g100:
+                    _ebur_r93_fail(failures, tag,
+                                   "the target was not clamped at all "
+                                   f"(gain {gain[-1]} vs the unclamped "
+                                   f"prediction {g100})", row)
+            elif tag.startswith("g_silence"):
+                if not gain or abs(gain[-1] - 1.0) > 1e-9:
+                    _ebur_r93_fail(failures, tag,
+                                   "a non-finite LUFS did not yield exactly "
+                                   f"1.0 (gain={gain[-1] if gain else None})",
+                                   row)
+            else:
+                pre = (row.get("pre_capture") or {})
+                post = (row.get("post_capture") or {})
+                if not gain:
+                    _ebur_r93_fail(failures, tag,
+                                   "the default arm produced no Gain readout",
+                                   row)
+                if not (pre.get("mid_rms") and post.get("mid_rms")):
+                    row["audio_domain"] = ("unmeasured: a tap carries no "
+                                           "mid-tone window")
+                    entry.setdefault("coverage_blocked", []).append(
+                        "%s: audio-domain ratio unmeasured (pre=%s post=%s)"
+                        % (row["tag"], pre.get("mid_rms"),
+                           post.get("mid_rms")))
+                elif gain:
+                    ratio = post["mid_rms"] / pre["mid_rms"]
+                    row["audio_ratio"] = round(ratio, 6)
+                    if not (0.85 * gain[-1] <= ratio <= 1.15 * gain[-1]):
+                        _ebur_r93_fail(
+                            failures, tag,
+                            "the logged gain does not reach the audio "
+                            f"domain (ratio {round(ratio, 6)} vs gain "
+                            f"{gain[-1]})", row)
+    # ---- C13: the unquoted control key ------------------------------
+    raw_args = ("node.description=%s,"
+                "filter.graph={nodes=[{type=ebur128,name=e,label=ebur128},"
+                "{type=ebur128,name=l2g,label=lufs2gain,"
+                "control={Target LUFS=-100}},"
+                "{type=builtin,name=dbg,label=debug}],"
+                "links=[{output=\"e:Global LUFS\",input=\"l2g:LUFS\"},"
+                "{output=\"l2g:Gain\",input=\"dbg:Control\"}],"
+                "inputs=[\"e:In DUAL MONO\"],"
+                "outputs=[\"e:Out DUAL MONO\"]},"
+                "audio.channels=1,audio.position=[MONO],"
+                "capture.props={node.name=%s,node.autoconnect=false,"
+                "media.class=Audio/Sink},"
+                "playback.props={node.name=%s,node.autoconnect=false}"
+                % (EBUR_R93_PREFIX + "_fc", EBUR_R93_FC_IN, EBUR_R93_FC_OUT))
+    rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+        tag="g_unquoted", args=raw_args, dur=1.6, read_extra=1.0,
+        expect_refusal=True,
+        note="C13 an unquoted control key with a space is a load failure"),
+        legs, entry)
+    for row in rows:
+        if not row.get("arm_failed"):
+            _ebur_r93_fail(failures, row["tag"],
+                           "the raw control key LOADED — the grammar is not "
+                           "load-bearing", row)
+            continue
+        cls = row.get("error_class")
+        row["expected_class"] = "ebur_r93_ctl_grammar"
+        if cls != "ebur_r93_ctl_grammar":
+            _ebur_r93_fail(failures, row["tag"],
+                           "the unquoted key did not carry the properties "
+                           f"parse refusal (class={cls})", row)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    _ebur_r93_teardown(entry, failures, ctx)
+    return _ebur_r93_json_safe(entry)
+
+
+# =============================================================== entry 9
+
+def ebur_error_r93_entry():
+    """C14 + C15: the label matrix (five labels load, five do not — `null`
+    is in the table but unparsable, a distinct class), an unknown config
+    key is warning-only, and a non-numeric config value is a DEFERRED
+    activation failure (module load rc 0, no readout ever)."""
+    failures, legs = [], {}
+    entry = _ebur_r93_entry_head("r93a ebur128 labels + error classes")
+    ctx = _ebur_r93_ctx()
+    try:
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag="e_unknown_key", nodes=[_ebur_r93_ebu(cfg="bogus=1"),
+                                        _ebur_r93_builtin("debug", "dbg")],
+            dur=2.0, read_extra=1.2, reps=2,
+            note="C15 an unknown config key is warning-only and the meter "
+                 "still works"), legs, entry)
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            if not _ebur_r93_plateau_is(row.get("stats"),
+                                        EBUR_R93_CAL_1K_050,
+                                        EBUR_R93_CAL_TOL_DB):
+                _ebur_r93_fail(failures, row["tag"],
+                               "the unknown-key leg does not read the "
+                               "calibration value", row)
+            lines = "\n".join((((row.get("load") or {}).get("warn_lines")
+                                or []) + (row.get("log_warn_lines") or [])))
+            if "unknown key" not in lines:
+                _ebur_r93_fail(failures, row["tag"],
+                               "the unknown key produced no warning line "
+                               "(the class is not warning-only)", row)
+            if "[E]" in lines:
+                _ebur_r93_fail(failures, row["tag"],
+                               "the unknown key produced an [E] line", row)
+        rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+            tag="e_bad_history", nodes=[_ebur_r93_ebu(cfg="max-history=abc"),
+                                        _ebur_r93_builtin("debug", "dbg")],
+            dur=2.0, read_extra=1.2, reps=2,
+            note="C15 a non-numeric config value defers the failure to "
+                 "activation: the module loads and never meters"),
+            legs, entry)
+        witnessed = False
+        for row in rows:
+            if row.get("arm_failed"):
+                continue
+            if row.get("series"):
+                _ebur_r93_fail(failures, row["tag"],
+                               "the deferred-activation leg produced a "
+                               "readout — the failure is not deferred", row)
+            lines = "\n".join((((row.get("load") or {}).get("warn_lines")
+                                or []) + (row.get("log_warn_lines") or [])))
+            if "requires a number" in lines and \
+                    "cannot create plugin instance" in lines:
+                witnessed = True
+        if not witnessed:
+            failures.append(
+                "e_bad_history: the deferred class never carried both the "
+                "config [E] and the activation [E] in any rep — the "
+                "mechanism witness was not captured")
+        for label in EBUR_R93_LOAD_LABELS:
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag="e_label_%s" % label,
+                nodes=[_ebur_r93_builtin(label, "x")],
+                links=[], inputs=["x:In"], outputs=["x:Out"], dur=0.8,
+                read_extra=0.6, kind="label",
+                note="C14 the label %r loads" % label), legs, entry)
+            for row in rows:
+                if row.get("arm_failed"):
+                    _ebur_r93_fail(failures, row["tag"],
+                                   f"the label {label!r} did not load", row)
+        for label in EBUR_R93_FAIL_LABELS:
+            rows = _ebur_r93_run(ctx, _ebur_r93_meter(
+                tag="e_labelfail_%s" % label,
+                nodes=[_ebur_r93_builtin(label, "x")],
+                links=[], inputs=["x:In"], outputs=["x:Out"], dur=0.8,
+                read_extra=0.6, kind="label", expect_refusal=True,
+                note="C14 the label %r does not load" % label), legs, entry)
+            for row in rows:
+                if not row.get("arm_failed"):
+                    _ebur_r93_fail(failures, row["tag"],
+                                   f"the label {label!r} LOADED", row)
+                    continue
+                want = ("ebur_r93_label_parse" if label == "null"
+                        else "ebur_r93_plugin_refused")
+                row["expected_class"] = want
+                if row.get("error_class") != want:
+                    _ebur_r93_fail(failures, row["tag"],
+                                   "the failure class is "
+                                   f"{row.get('error_class')}, not {want}",
+                                   row)
+    finally:
+        _ebur_r93_teardown(entry, failures, ctx)
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return _ebur_r93_json_safe(entry)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -48809,6 +50805,7 @@ def main():
                         action="store_true")
     parser.add_argument("--probe-pulsecli-r96", action="store_true")
     parser.add_argument("--probe-wppol-r97", action="store_true")
+    parser.add_argument("--probe-ebur-r93", action="store_true")
     parser.add_argument("--probe-pwstream-r98", action="store_true")
     parser.add_argument("--probe-sox-r94", action="store_true")
     parser.add_argument("--probe-jack-r95", action="store_true")
@@ -48819,7 +50816,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
+    if sum([args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -49592,6 +51589,62 @@ def main():
             pwstream_xw_r98_probe()
         measurements["pwstream_sbx_r98_probe"] = \
             pwstream_sbx_r98_probe()
+    if args.probe_ebur_r93:
+        # r93: the ebur128 SPA filter-graph loudness node. A NEW
+        # parallel ledger family, prior rows untouched; r76-r89 guards
+        # inherited (seat-owned r93a_<pid> names, the private
+        # r93arole<pid> key, name-verified sink_name= unloads, never
+        # set-default-*, bounded process groups, link-validated taps).
+        # New: the pw-cli session carries PIPEWIRE_DEBUG=3 (the notify
+        # readout is an INFO line the client logs), the module load is
+        # retried with its attempts recorded (a refused descriptor load
+        # is an arm failure, never a semantic), the shared daemon is a
+        # GATED PREREQUISITE (a wedge blocks the family with a named
+        # class instead of spending the battery on hung clients), and the
+        # boundary's falsified constants are replaced by the laws they
+        # obey. The family lock is a FIXED corpus/live/ path — the r84 F1
+        # 3-seat consensus.
+        _r93_family_lock = _ebur_r93_family_lock()   # held to exit
+        _r93_gate = _ebur_r93_daemon_gate()
+        if not _r93_gate["ready"]:
+            measurements["ebur_r93_daemon_gate"] = {
+                "probe": "r93a ebur128 daemon readiness gate",
+                "gate": _r93_gate,
+                "blocked": ("the shared PipeWire/pulse daemon did not "
+                            "answer pactl info + a pw-dump census inside "
+                            "the gate bound — no leg was armed"),
+                "coverage_blocked": [
+                    "%s: pactl/pw-dump unanswered after %s s"
+                    % (_r93_gate.get("class"), _r93_gate.get("waited_s"))],
+                # a BLOCKED family must never read as a green battery: the
+                # gate names itself in failures so the run exits non-zero.
+                # The class is a host prerequisite, not a claim failure —
+                # read the entry name before judging the claim set.
+                "failures": [
+                    "%s: no leg was armed — the shared PipeWire/pulse "
+                    "daemon did not answer pactl info + a pw-dump census "
+                    "inside %s s (%d attempts)"
+                    % (_r93_gate.get("class"), _r93_gate.get("waited_s"),
+                       len(_r93_gate.get("attempts") or []))]}
+        else:
+            measurements["ebur_topology_r93_probe"] = \
+                ebur_topology_r93_entry()
+            measurements["ebur_cal_r93_probe"] = \
+                ebur_cal_r93_entry()
+            measurements["ebur_channel_r93_probe"] = \
+                ebur_channel_r93_entry()
+            measurements["ebur_modes_r93_probe"] = \
+                ebur_modes_r93_entry()
+            measurements["ebur_peaks_r93_probe"] = \
+                ebur_peaks_r93_entry()
+            measurements["ebur_window_r93_probe"] = \
+                ebur_window_r93_entry()
+            measurements["ebur_history_r93_probe"] = \
+                ebur_history_r93_entry()
+            measurements["ebur_gain_r93_probe"] = \
+                ebur_gain_r93_entry()
+            measurements["ebur_error_r93_probe"] = \
+                ebur_error_r93_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -50242,7 +52295,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -50262,7 +52315,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
