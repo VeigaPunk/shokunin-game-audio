@@ -1,0 +1,39 @@
+# r87 scribe — host / ambient state (read-only)
+wall: 2026-10-16T04:12:12-03:00  host: plazir27
+kernel: 7.2.3-arch1-3  nproc: 32
+loadavg: 95.54 87.57 73.07
+TMPDIR(seat): /home/vgpnk/Projects/shokunin/tmp
+pipewire: pw-cli
+Compiled with libpipewire 1.6.8
+Linked with libpipewire 1.6.8
+
+live graph census (attribution):
+  pw-dump r87a_ hits: 41
+  names seen: r87a_4055867_p_nt_vs_flag r87a_ns2_4055867 r87a_ns_4055867 r87a_tone
+  r87a processes:
+    6923 pw-play -P node.name=r87a_4055867_p_nt_vs_flag -P node.target=r87a_ns2_4055867 --target r87a_ns_4055867 /home/vgpnk/Projects/shokunin/tmp/r87a-tgt-y_jiwk14/r87a_tone.wav
+  ATTRIBUTION: sibling wave-B seats run the fixture from their OWN
+  tree copies concurrently (observed during this audit: verifier pid
+  763463 at 04:05:25 from corpus/live/r87-verifier/tree; runs
+  r87a_2476582/r87a_2643100 at 04:09; r87a_4055867 at 04:12 — each
+  from its own tree, so each holds its own corpus/live lock, not the
+  lane one). The author's post-run-B zero-census claim (04:03) is not
+  contradicted by this; it cannot be re-observed now because the
+  siblings own the live namespace.
+
+tracked-file state (this seat wrote NO tracked file):
+  corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc: exists=True size=1570039 sha=b88260195e65d1f116a96114860fe220d51201ebef7b332ea7f903ea027b2faa mtime=03:55:12
+  (dirty since 03:55:12 — INSIDE the r87 author window, between dev2
+  and dev3, alongside the fixture edit: a fixture import re-wrote the
+  tracked bytecode. NOT this seat: audit started 04:05, the fixture
+  was never imported here, PYTHONDONTWRITEBYTECODE=1 on every python
+  call. Operator item.)
+  tracked-file diff at audit end: only this pyc (git diff --stat)
+  this seat's additions are untracked: corpus/live/r87-scribe/,
+  reports/round-87/r87-scribe.md (plus the pre-existing untracked
+  lock files / run dirs / scratch).
+
+write-scope: this seat wrote ONLY reports/round-87/r87-scribe.md and
+corpus/live/r87-scribe/ (untracked); scratch under
+~/Projects/shokunin/tmp/r87-scribe-work; no commit; no PipeWire object
+created/destroyed by this seat (pw-dump/pactl list/pgrep/read-only flock only).

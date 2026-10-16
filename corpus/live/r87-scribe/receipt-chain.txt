@@ -1,0 +1,21 @@
+# r87 run inventory (host-only receipts; none tracked)
+run    wall(local)  sha256           bytes   verdict
+dev1   064958       b3d839b0172c0d66  226302 RED {'pwbind_modes_r87_probe': 8, 'pwbind_target_r87_probe': 0, 'pwbind_cli_r87_probe': 7, 'pwbind_midi_r87_probe': 0} cb={'pwbind_midi_r87_probe': ['midi pin leg unmeasured — bridge capture port or seq 14:0 absent']}
+dev2   065456       694fb8d6d770337e  226936 RED {'pwbind_modes_r87_probe': 0, 'pwbind_target_r87_probe': 0, 'pwbind_cli_r87_probe': 2, 'pwbind_midi_r87_probe': 0} cb={}
+dev3   065750       6f137cf804301a5f  236821 green
+A      070036       01f04d354f2186db  237144 green
+B      070305       2970c944375f2e3b  236828 green
+
+tracked status:
+  corpus/live/runs/20261016T064958137082Z-pwbind-r87/measurements.json -> untracked (host-only)
+  corpus/live/runs/20261016T065456126915Z-pwbind-r87/measurements.json -> untracked (host-only)
+  corpus/live/runs/20261016T065750423328Z-pwbind-r87/measurements.json -> untracked (host-only)
+  corpus/live/runs/20261016T070036115509Z-pwbind-r87/measurements.json -> untracked (host-only)
+  corpus/live/runs/20261016T070305393338Z-pwbind-r87/measurements.json -> untracked (host-only)
+  corpus/live/measure_audio-pwbind-r87.lock -> untracked (host-only)
+
+timeline: dev1 03:49:58 -> dev2 03:54:56 -> fixture mtime 03:55:12 -> dev3 03:57:50 -> runA 04:00:36 -> runB 04:03:05 -> commit 04:04:24
+=> dev1+dev2 measured PRE-FIX bytes (their failures below); dev3/A/B measured the committed bytes (fixture sha be31da67...).
+receipts embed NO fixture sha / git HEAD (r84-ADJ-6 class): 'identical bytes' rests on the host timeline.
+dev1 failures: {"pwbind_modes_r87_probe": ["m_p_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}", "m_r_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}", "m_p_r_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}", "m_r_p_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}", "m_play_r: no input_* ports on {'input_FL': 'input', 'input_FR': 'input', 'monitor_FL': 'output', 'monitor_FR': 'output'}", "m_record_p: no output_* ports on {'output_FL': 'output', 'output_FR': 'output'}", "m_midi_p: midi output_1 absent on {'output_1': 'output'}", "m_midi_r: midi input_1 absent on {'input_1': 'input'}"], "pwbind_cli_r87_probe": ["warm_control: a warm pw-cli info failed \u2014 the artifact contrast is unmeasured", "unknowns/enum-params: the unknown-global class failed (pwcli_usage)", "fmt_stream: negotiated Format moved {'rate': None, 'format_id': None} -> {'rate': None, 'format_id': None} \u2014 the seal fails", "fmt_stream: negotiated Format moved {'rate': None, 'format_id': None} -> {'rate': None, 'format_id': None} \u2014 the seal fails", "fmt_unlinked: enum Format did not fail res:-2 (Error: \"enum-params: unknown global '196'\"\n)", "fmt_unlinked: enum Props did not read on the unlinked node (Error: \"enum-params: unknown global '196'\"\n)", "create_usage: no usage refusal (\"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0\"\n \t\tapplication.name = \"blender\"\n \t\tpipewire.access = \"unrestricted\"\nquit\npipewire-0>> )"]}
+dev2 failures: {"pwbind_cli_r87_probe": ["fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': None, 'format_id': 259} \u2014 the seal fails", "fmt_stream: negotiated Format moved {'rate': None, 'format_id': 259} -> {'rate': None, 'format_id': 259} \u2014 the seal fails"]}

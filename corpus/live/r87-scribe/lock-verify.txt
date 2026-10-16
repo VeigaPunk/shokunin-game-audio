@@ -1,0 +1,59 @@
+# r87 fixed-path family lock — scribe verification
+Method: (1) static read of the pinned commit; (2) dynamic exec of
+the COMMITTED lock function with __file__ pointed at the pin copy
+(ROOT = <pin>/corpus -> lock inside the pin's corpus/live, NOT the
+lane file), two concurrent children with DIFFERENT TMPDIRs;
+(3) negative control with the r84 TMPDIR-scoped lock verbatim;
+(4) cross-tree control (second copy of the pin); (5) dead-holder
+re-acquire; (6) a read-only LOCK_NB probe of the LANE file.
+
+hold_s=2.0  driver: locktest.py (spawns both children back-to-back via Popen)
+  A-r87-cross-tmpdir               expect=SERIALIZED got=SERIALIZED overlap= -0.0003 waited=(0.0001,1.9754) pass=True
+      A path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/corpus/live/measure_audio-pwbind-r87.lock
+  B-r84-control-cross-tmpdir       expect=RACED      got=RACED      overlap=  1.9861 waited=(0.0001,0.0) pass=True
+      A path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/locktest/tmpA2/measure_audio-alsapw-r84.lock
+      B path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/locktest/tmpB2/measure_audio-alsapw-r84.lock
+  C-r87-same-tmpdir                expect=SERIALIZED got=SERIALIZED overlap= -0.0030 waited=(1.9826,0.0001) pass=True
+      A path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/corpus/live/measure_audio-pwbind-r87.lock
+  D-r87-dead-holder                expect=IMMEDIATE  got=IMMEDIATE  first_waited=0.0001s second_waited=0.0001s pass=True
+      A path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/corpus/live/measure_audio-pwbind-r87.lock
+  E-r87-cross-tree                 expect=RACED      got=RACED      overlap=  1.9996 waited=(0.0001,0.0001) pass=True
+      A path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/corpus/live/measure_audio-pwbind-r87.lock
+      B path: /home/vgpnk/Projects/shokunin/tmp/r87-scribe-work/tree2/corpus/live/measure_audio-pwbind-r87.lock
+
+A = the assigned focus: r87 lock, two TMPDIRs, same pin ->
+    SAME path (pin corpus/live/...), strict serialization.
+B = negative control: r84 lock, two TMPDIRs -> two paths -> RACED
+    (the harness CAN see non-exclusion; not vacuous).
+C = r87 same TMPDIR -> serialized.
+D = dead holder: acquire+exit, re-acquire in 0.0001s (flock released on death).
+E = cross-TREE copy of the same commit -> two different lock paths
+    -> RACED: the lock is fixed PER CHECKOUT (tree-relative), the
+    known r86 cross-tree co-tenancy residual (r86-verifier F1).
+
+LANE file observations (last-writer-wins witness, never unlinked):
+  at audit start 04:07: pid=799468 ns=r87a_ns_799468 (49 B, dead pid)
+  at 04:09:51     : pid=4145810 ns=r87a_ns_4145810 role=r87arole4145810 (52 B)
+  sha256          : 415bfdb8a43a6ac8461e7d8e03df5c851e4f6742fb843906f3cc9a9cd03a2553
+  read-only O_RDONLY|LOCK_NB probe: acquired immediately (6e-06 s), content unchanged by the probe
+  -> no live lane-tree holder at probe time; the sibling wave-B runs
+     execute from their OWN tree copies (verifier/reviewer/critic),
+     so they hold their own corpus/live lock, not the lane one.
+
+Independent sibling corroboration (read-only peek, r87-critic seat):
+  A-r87-cross-tmpdir             expect=SERIALIZED overlap= -0.0050s serialized=True  waited=(0.000,2.003) PASS
+  B-r86-cross-tmpdir             expect=SERIALIZED overlap= -0.0022s serialized=True  waited=(1.981,0.000) PASS
+  C-r85-cross-tmpdir-CONTROL     expect=RACED      overlap=  1.9981s serialized=False waited=(0.000,0.005) PASS
+  D-r87-same-tmpdir              expect=SERIALIZED overlap= -0.0001s serialized=True  waited=(1.989,0.000) PASS
+  E-r87-cross-tree               expect=RACED      overlap=  1.9906s serialized=False waited=(0.000,0.000) PASS
+
+Static properties (pin, see fixture-refs.txt for the verbatim fn):
+  L26 ROOT = Path(__file__).resolve().parents[1]
+  L25849 path = ROOT/'live'/'measure_audio-pwbind-r87.lock'
+  L25854 blocking fcntl.flock(fd, LOCK_EX); no LOCK_NB/timeout
+  L28046 dispatch: _r87_family_lock = ... # held to exit
+  no unlink() of the path; no gettempdir() in the r87 block;
+  legacy r82/r84/r85 locks stay TMPDIR-scoped (L14764/L19846/L22318);
+  r86 lock stays fixed-path (L24124).
+  open-failure channel: os.open OSError -> return None (exclusion
+  silently skipped) — not TMPDIR-dependent.

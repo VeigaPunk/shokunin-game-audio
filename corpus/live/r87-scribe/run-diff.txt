@@ -1,0 +1,84 @@
+# r87 runA vs runB — pid/num-normalized diff
+leaves total: 3779   normalized-differing: 287
+verdict-class differing (exit_code/signal/killed_at_bound): []
+
+differing leaf-name histogram: {"argv": 88, "at_s": 86, "wall_s": 38, "0": 15, "1": 10, "node_id": 8, "stderr": 7, "done_at_s": 6, "2": 5, "stdout": 4, "wait_s": 4, "spawn_at_s": 4, "id_in_session": 2, "state": 2, "object_id": 2, "error_hit": 1, "log_tail": 1, "tap_windows": 1, "3": 1, "id": 1, "ns_id": 1}
+
+all differences are volatile by design (pids/node ids/serials/wall times/observation offsets/log text); the armed fields (failures, consumers, regions medians, volumes, SMF bytes, error classes, teardown witnesses) are identical.
+
+examples:
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/error_hit
+     A="unknown global '204'"
+     B="unknown global '135'"
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/errors/0
+     A="info: unknown global '204'"
+     B="info: unknown global '135'"
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/stderr
+     A="Error: \"info: unknown global '204'\"\nError: \"unsupported type PipeWire:Interface:SecurityContext\"\nError:
+     B="Error: \"info: unknown global '135'\"\nError: \"unsupported type PipeWire:Interface:SecurityContext\"\nError:
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/stderr_head/0
+     A="Error: \"info: unknown global '204'\""
+     B="Error: \"info: unknown global '135'\""
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/stdout
+     A="Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 204\n>> remote 0 is named 'pipewire-0'\nqu
+     B="Welcome to PipeWire version 1.6.8. Type 'help' for usage.\n>> info 135\n>> remote 0 is named 'pipewire-0'\nqu
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/stdout_head/1
+     A=">> info 204"
+     B=">> info 135"
+  /measurements/pwbind_cli_r87_probe/legs/cold_nowarm/wall_s
+     A=0.005
+     B=0.003
+  /measurements/pwbind_cli_r87_probe/legs/create_linger/destroy/argv
+     A="pw-cli destroy 128"
+     B="pw-cli destroy 98"
+  /measurements/pwbind_cli_r87_probe/legs/create_linger/id_in_session
+     A=128
+     B=98
+  /measurements/pwbind_cli_r87_probe/legs/create_linger/log_tail
+     A="ote 0 client 68 changed\nremote 0 removed global: \tid 68, type PipeWire:Interface:Client/3\n \t\tobject.seri
+     B="ote 0 client 63 changed\nremote 0 removed global: \tid 63, type PipeWire:Interface:Client/3\n \t\tobject.seri
+  /measurements/pwbind_cli_r87_probe/legs/create_session/id_in_session
+     A=128
+     B=98
+  /measurements/pwbind_cli_r87_probe/legs/destroy_sink_module/destroy/argv
+     A="pw-cli destroy 204"
+     B="pw-cli destroy 135"
+  /measurements/pwbind_cli_r87_probe/legs/destroy_sink_module/destroy/wall_s
+     A=0.005
+     B=0.006
+  /measurements/pwbind_cli_r87_probe/legs/destroy_sink_module/node_id
+     A=204
+     B=135
+  /measurements/pwbind_cli_r87_probe/legs/destroy_stream/destroy/argv
+     A="pw-cli destroy 135"
+     B="pw-cli destroy 233"
+  /measurements/pwbind_cli_r87_probe/legs/destroy_stream/destroy/wall_s
+     A=0.008
+     B=0.004
+  /measurements/pwbind_cli_r87_probe/legs/destroy_stream/node_id
+     A=135
+     B=233
+  /measurements/pwbind_cli_r87_probe/legs/fmt_sink/post_valid/argv
+     A="pw-cli enum-params 204 Format"
+     B="pw-cli enum-params 135 Format"
+  /measurements/pwbind_cli_r87_probe/legs/fmt_sink/pre/argv
+     A="pw-cli enum-params 204 Format"
+     B="pw-cli enum-params 135 Format"
+  /measurements/pwbind_cli_r87_probe/legs/fmt_sink/write_valid/argv
+     A="pw-cli set-param 204 Format { mediaType: 1, mediaSubtype: 1, format: 259, rate: <num>, channels: 2 }"
+     B="pw-cli set-param 135 Format { mediaType: 1, mediaSubtype: 1, format: 259, rate: <num>, channels: 2 }"
+  /measurements/pwbind_cli_r87_probe/legs/fmt_sink/write_valid/wall_s
+     A=0.007
+     B=0.004
+  /measurements/pwbind_cli_r87_probe/legs/fmt_stream/post_empty/argv
+     A="pw-cli enum-params 217 Format"
+     B="pw-cli enum-params 259 Format"
+  /measurements/pwbind_cli_r87_probe/legs/fmt_stream/post_valid/argv
+     A="pw-cli enum-params 217 Format"
+     B="pw-cli enum-params 259 Format"
+  /measurements/pwbind_cli_r87_probe/legs/fmt_stream/post_valid/wall_s
+     A=0.004
+     B=0.006
+  /measurements/pwbind_cli_r87_probe/legs/fmt_stream/pre/argv
+     A="pw-cli enum-params 217 Format"
+     B="pw-cli enum-params 259 Format"
