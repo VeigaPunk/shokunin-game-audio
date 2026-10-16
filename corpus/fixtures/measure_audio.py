@@ -46819,6 +46819,8 @@ def _pwstream_r98_teardown(entry, failures, loads, players=()):
                 leaf.get("module_id"),
                 leaf.get("field", "sink_name"),
                 leaf.get("value", tag))
+    load_names = [(leaf or {}).get("value", tag)
+                  for tag, leaf in (loads or {}).items()]
     g = _pwstream_r98_graph(attempts=1, timeout=30.0)
     residual = sorted(
         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
@@ -46836,7 +46838,7 @@ def _pwstream_r98_teardown(entry, failures, loads, players=()):
         entry.setdefault("coverage_blocked", []).append(
             "teardown: pactl sink reader failed — sinks_gone unmeasured")
     else:
-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        gone = {nm: nm not in sinks_now for nm in load_names}
         entry["sinks_gone"] = gone
         if not all(gone.values()):
             failures.append(
@@ -46850,7 +46852,7 @@ def _pwstream_r98_teardown(entry, failures, loads, players=()):
     else:
         rest = sorted(n for n in names
                       if f"r98a_{PWSTREAM_R98_PID}" in n
-                      or n in (loads or {}))
+                      or n in load_names)
         entry["own_nodes_after"] = rest
         if rest:
             failures.append(
@@ -46870,6 +46872,7 @@ def _pwstream_r98_block(entry, failures, msg, loads=None, players=()):
             _alsapw_r84_killpg(proc)
     entry["blocked"] = msg
     entry.setdefault("coverage_blocked", []).append(msg)
+    failures.append(f"blocked: {msg}")
     for tag, leaf in (loads or {}).items():
         leaf = leaf or {}
         entry.setdefault("unloads", {})[tag] = \
@@ -47087,42 +47090,42 @@ def _pwstream_r98_sb_start(tmp, variant, with_wp=True):
     env = _pwstream_r98_sb_env(tmp, variant)
     rt = Path(env["PIPEWIRE_RUNTIME_DIR"])
     logs, procs = {}, {}
-    logs["core"] = open(Path(tmp) / "sbx" / variant / "core.log", "wb")
-    procs["core"] = subprocess.Popen(
-        ["pipewire", "-c", "pipewire.conf"], env=env,
-        stdout=logs["core"], stderr=logs["core"],
-        start_new_session=True, preexec_fn=_pwstream_r98_corelimit)
-    sock = rt / "pipewire-0"
-    for _ in range(80):
-        if sock.exists():
-            break
-        if procs["core"].poll() is not None:
-            for fh in logs.values():
-                fh.close()
-            raise RuntimeError(
-                f"private core {variant} died rc="
-                f"{procs['core'].returncode}")
-        time.sleep(0.25)
-    else:
-        for fh in logs.values():
-            fh.close()
-        raise RuntimeError(f"private core {variant} socket never appeared")
-    subprocess.run(
-        ["pw-cli", "create-node", "adapter",
-         "{ factory.name=support.null-audio-sink node.name="
-         f"{PWSTREAM_R98_NS} media.class=Audio/Sink object.linger=true "
-         "audio.position=[MONO] }"],
-        env=env, capture_output=True, timeout=25)
     ctx = {"env": env, "rt": str(rt), "procs": procs, "logs": logs,
            "variant": variant, "with_wp": with_wp}
-    if with_wp:
-        logs["wp"] = open(Path(tmp) / "sbx" / variant / "wp.log", "wb")
-        procs["wp"] = subprocess.Popen(
-            ["wireplumber"], env=env, stdout=logs["wp"],
-            stderr=logs["wp"], start_new_session=True,
-            preexec_fn=_pwstream_r98_corelimit)
-        time.sleep(4.0)
-    return ctx
+    try:
+        logs["core"] = open(Path(tmp) / "sbx" / variant / "core.log", "wb")
+        procs["core"] = subprocess.Popen(
+            ["pipewire", "-c", "pipewire.conf"], env=env,
+            stdout=logs["core"], stderr=logs["core"],
+            start_new_session=True, preexec_fn=_pwstream_r98_corelimit)
+        sock = rt / "pipewire-0"
+        for _ in range(80):
+            if sock.exists():
+                break
+            if procs["core"].poll() is not None:
+                raise RuntimeError(
+                    f"private core {variant} died rc="
+                    f"{procs['core'].returncode}")
+            time.sleep(0.25)
+        else:
+            raise RuntimeError(f"private core {variant} socket never appeared")
+        subprocess.run(
+            ["pw-cli", "create-node", "adapter",
+             "{ factory.name=support.null-audio-sink node.name="
+             f"{PWSTREAM_R98_NS} media.class=Audio/Sink object.linger=true "
+             "audio.position=[MONO] }"],
+            env=env, capture_output=True, timeout=25)
+        if with_wp:
+            logs["wp"] = open(Path(tmp) / "sbx" / variant / "wp.log", "wb")
+            procs["wp"] = subprocess.Popen(
+                ["wireplumber"], env=env, stdout=logs["wp"],
+                stderr=logs["wp"], start_new_session=True,
+                preexec_fn=_pwstream_r98_corelimit)
+            time.sleep(4.0)
+        return ctx
+    except BaseException:
+        _pwstream_r98_sb_stop(ctx, {})
+        raise
 
 
 def _pwstream_r98_sb_nodes(env):
@@ -47447,11 +47450,14 @@ def pwstream_core_r98_probe():
                 failures.append("c_err_queue_unowned: disconnect_pre_rc="
                                 f"{f.get('disconnect_pre_rc')} != 0")
 
-            _pwstream_r98_teardown(entry, failures, loads, players)
     finally:
-        entry["legs"] = legs
-        _pwstream_r98_sweep_transient(entry, legs, failures)
-        entry["failures"] = failures
+        try:
+            if "blocked" not in entry:
+                _pwstream_r98_teardown(entry, failures, loads, players)
+        finally:
+            entry["legs"] = legs
+            _pwstream_r98_sweep_transient(entry, legs, failures)
+            entry["failures"] = failures
     return entry
 
 
@@ -47955,11 +47961,14 @@ def pwstream_run_r98_probe():
                                 f"{f.get('is_driving')} != 0 — the null "
                                 "sink stays the graph driver")
 
-            _pwstream_r98_teardown(entry, failures, loads, players)
     finally:
-        entry["legs"] = legs
-        _pwstream_r98_sweep_transient(entry, legs, failures)
-        entry["failures"] = failures
+        try:
+            if "blocked" not in entry:
+                _pwstream_r98_teardown(entry, failures, loads, players)
+        finally:
+            entry["legs"] = legs
+            _pwstream_r98_sweep_transient(entry, legs, failures)
+            entry["failures"] = failures
     return entry
 
 
@@ -48107,11 +48116,14 @@ def pwstream_route_r98_probe():
                     failures.append("t_stable: exact-target leg reached "
                                     f"state error ({s['error']})")
 
-            _pwstream_r98_teardown(entry, failures, loads, players)
     finally:
-        entry["legs"] = legs
-        _pwstream_r98_sweep_transient(entry, legs, failures)
-        entry["failures"] = failures
+        try:
+            if "blocked" not in entry:
+                _pwstream_r98_teardown(entry, failures, loads, players)
+        finally:
+            entry["legs"] = legs
+            _pwstream_r98_sweep_transient(entry, legs, failures)
+            entry["failures"] = failures
     return entry
 
 
@@ -48283,11 +48295,14 @@ def pwstream_cap_r98_probe():
                 entry.setdefault("coverage_blocked", []).append(
                     "cap_source: no default source enumerated")
 
-            _pwstream_r98_teardown(entry, failures, loads, players)
     finally:
-        entry["legs"] = legs
-        _pwstream_r98_sweep_transient(entry, legs, failures)
-        entry["failures"] = failures
+        try:
+            if "blocked" not in entry:
+                _pwstream_r98_teardown(entry, failures, loads, players)
+        finally:
+            entry["legs"] = legs
+            _pwstream_r98_sweep_transient(entry, legs, failures)
+            entry["failures"] = failures
     return entry
 
 
@@ -48443,11 +48458,14 @@ def pwstream_xw_r98_probe():
                                 f"{legs['x_crash_source'].get('rc')})")
             entry["crash_source_state"] = f.get("state")
 
-            _pwstream_r98_teardown(entry, failures, loads, players)
     finally:
-        entry["legs"] = legs
-        _pwstream_r98_sweep_transient(entry, legs, failures)
-        entry["failures"] = failures
+        try:
+            if "blocked" not in entry:
+                _pwstream_r98_teardown(entry, failures, loads, players)
+        finally:
+            entry["legs"] = legs
+            _pwstream_r98_sweep_transient(entry, legs, failures)
+            entry["failures"] = failures
     return entry
 
 
@@ -49530,10 +49548,37 @@ def _ebur_r93_refs():
 
 # ---------------------------------------------------------------- context
 
+_EBUR_R93_TAPDIR_OWNERS = {}
+
+
 def _ebur_r93_ctx():
-    return {"stim": _ebur_r93_stimuli(), "refs": _ebur_r93_refs(),
-            "loads": {}, "unloads": {},
-            "tapdir": tempfile.mkdtemp(prefix="r93a-tap-")}
+    ctx = {"stim": _ebur_r93_stimuli(), "refs": _ebur_r93_refs(),
+           "loads": {}, "unloads": {}}
+    owner = tempfile.TemporaryDirectory(prefix="r93a-tap-")
+    ctx["tapdir"] = owner.name
+    _EBUR_R93_TAPDIR_OWNERS[owner.name] = owner
+    return ctx
+
+
+def _ebur_r93_cleanup_tapdir(entry, failures, ctx):
+    path = (ctx or {}).get("tapdir")
+    if path is None:
+        return
+    owner = _EBUR_R93_TAPDIR_OWNERS.get(path)
+    if owner is None:
+        entry["tapdir_gone"] = None
+        failures.append("teardown: unregistered tapdir; cleanup unmeasured")
+        return
+    try:
+        owner.cleanup()
+    except OSError as exc:
+        entry["tapdir_gone"] = False
+        failures.append(f"teardown: owned tapdir cleanup failed: {exc}")
+    else:
+        _EBUR_R93_TAPDIR_OWNERS.pop(path)
+        entry["tapdir_gone"] = not Path(path).exists()
+        if not entry["tapdir_gone"]:
+            failures.append("teardown: owned tapdir survived cleanup")
 
 
 def _ebur_r93_family_lock():
@@ -49655,17 +49700,20 @@ def _ebur_r93_teardown(entry, failures, ctx):
     if entry["own_procs_after"]:
         failures.append("teardown: r93a processes survived: "
                         f"{entry['own_procs_after']}")
+    _ebur_r93_cleanup_tapdir(entry, failures, ctx)
 
 
 def _ebur_r93_block(entry, failures, msg, ctx=None):
     """The named coverage block: unload anything loaded, record it."""
     entry["blocked"] = msg
     entry.setdefault("coverage_blocked", []).append(msg)
+    failures.append(f"blocked: {msg}")
     for tag, leaf in ((ctx or {}).get("loads") or {}).items():
         leaf = leaf or {}
         entry.setdefault("unloads", {})[tag] = _pactlmon_r85_unload_own(
             leaf.get("module_id"), leaf.get("field", "sink_name"),
             leaf.get("value", tag))
+    _ebur_r93_cleanup_tapdir(entry, failures, ctx)
     entry["failures"] = failures
     return entry
 
@@ -49686,8 +49734,7 @@ def _ebur_r93_fail(failures, leg, msg, row=None):
 
 
 def _ebur_r93_run(ctx, arm, legs, entry):
-    """Run one arm `reps` times; every arm failure is named in
-    coverage_blocked (never silently green)."""
+    """Unexpected arm failures fail closed; explicit refusals keep their class."""
     reps = max(1, arm.get("reps", 1))
     rows = []
     for rep in range(reps):
@@ -49700,10 +49747,20 @@ def _ebur_r93_run(ctx, arm, legs, entry):
         row = _ebur_r93_leg(ctx, spec)
         legs["%s_r%d" % (arm["tag"], rep)] = row
         rows.append(row)
-        if row.get("arm_failed") and not arm.get("expect_refusal"):
-            entry.setdefault("coverage_blocked", []).append(
-                "%s: %s (cls=%s)" % (row["tag"], row["arm_failed"],
-                                     row.get("error_class")))
+        if arm.get("expect_refusal"):
+            continue
+        reason = row.get("arm_failed")
+        # A silent readout alone cannot distinguish these laws from a dead feed.
+        if (not reason and arm.get("tag") in
+                ("ch_silent_mom", "m_range_only", "m_peak_only")
+                and (row.get("play") or {}).get("exit_code") != 0):
+            reason = ("stimulus playback did not succeed; "
+                      "silent/plateau readout unmeasured")
+        if reason:
+            msg = "%s: %s (cls=%s)" % (row["tag"], reason,
+                                      row.get("error_class"))
+            entry.setdefault("coverage_blocked", []).append(msg)
+            entry.setdefault("failures", []).append(msg)
     return rows
 
 
@@ -49779,6 +49836,7 @@ def ebur_topology_r93_entry():
     all 7 input ports read one identical Momentary value."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 topology + notify readout")
+    failures = entry.setdefault("failures", failures)
     tools = {t: shutil.which(t) for t in
              ("pw-cli", "pw-play", "pw-link", "pw-dump", "pactl")}
     entry["tools"] = tools
@@ -49877,6 +49935,7 @@ def ebur_cal_r93_entry():
     the K-weighting deltas fingerprint the filter."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 calibration vs own BS.1770")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     table = (("tone_1k_100", 1.0, None), ("tone_1k_050", 0.5, EBUR_R93_CAL_1K_050),
              ("tone_1k_025", 0.25, EBUR_R93_CAL_1K_025),
@@ -49974,6 +50033,7 @@ def ebur_channel_r93_entry():
     stays finite."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 channel map + dB mean")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     two = {"nodes": ["{type=ebur128,name=e,label=ebur128}",
                      "{type=builtin,name=dbg,label=debug}"],
@@ -50071,6 +50131,7 @@ def ebur_modes_r93_entry():
     Shortterm-only read real values."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 notify-only coupling")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     arms = [
         _ebur_r93_meter(tag="m_window_only", readout="Window LUFS", reps=2,
@@ -50147,6 +50208,7 @@ def ebur_peaks_r93_entry():
     stereo pair reads FL's peak, never FR's."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 peaks")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     arms = [
         _ebur_r93_meter(tag="p_fl", readout="Peak", stim_key="tone_1k_050",
@@ -50204,6 +50266,7 @@ def ebur_window_r93_entry():
     0.04/0.38/1.00/2.00 — the constant is not pinned, the scaling is)."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 max-window matrix")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     decays = {}
     arms = [
@@ -50276,6 +50339,7 @@ def ebur_history_r93_entry():
     reference on the same bytes is the outside witness."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 max-history cap")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     arms = [
         ("h_sil_default", None, "burst_1500ms", 1.5, 5.5),
@@ -50357,6 +50421,7 @@ def ebur_gain_r93_entry():
     the boundary falsified them as leg-dependent."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 lufs2gain law")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     same_leg_nodes = [_ebur_r93_ebu(), _ebur_r93_ebu(name="l2g", label="lufs2gain"),
                       _ebur_r93_builtin("linear", "lin"),
@@ -50534,6 +50599,7 @@ def ebur_error_r93_entry():
     activation failure (module load rc 0, no readout ever)."""
     failures, legs = [], {}
     entry = _ebur_r93_entry_head("r93a ebur128 labels + error classes")
+    failures = entry.setdefault("failures", failures)
     ctx = _ebur_r93_ctx()
     try:
         rows = _ebur_r93_run(ctx, _ebur_r93_meter(
