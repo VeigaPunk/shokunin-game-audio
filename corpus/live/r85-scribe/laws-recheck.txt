@@ -1,0 +1,194 @@
+############################## run1
+[addr] ns_props: {'object_serial': 235221, 'object_id_prop': 106, 'node_id': 106, 'media_class': 'Audio/Sink'} ns2_serial: 235232
+[addr] serial_cycles: {'serials': [235347, 235361, 235375], 'module_indices': [536870916, 536870916, 536870916]}
+  g_name               rc=0 cls=None pct=100 armed=- stderr=''
+  g_serial             rc=0 cls=None pct=100 armed=- stderr=''
+  g_objid              rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_defsink            rc=0 cls=None pct=40 armed=- stderr=''
+  g_defsrc             rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_defmon             rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_monitor_as_sink    rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_bogus              rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_huge               rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_neg                rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_empty              rc=1 cls=pa_invalid_arg pct=None armed=- stderr='Operation failed: Invalid argument'
+  g_zero               rc=0 cls=None pct=40 armed=- stderr=''
+  g_leadspace          rc=0 cls=None pct=100 armed=- stderr=''
+  g_plus               rc=0 cls=None pct=100 armed=- stderr=''
+  g_float              rc=0 cls=None pct=100 armed=- stderr=''
+  g_xsuf               rc=0 cls=None pct=100 armed=- stderr=''
+  g_hex                rc=0 cls=None pct=100 armed=- stderr=''
+  g_uscr               rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_lead0              rc=1 cls=pa_get_info_noent pct=None armed=False stderr='Failed to get sink information: No such entity'
+  g_defsinkX           rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  s_monitor_name       rc=0 cls=None pct=100
+  s_sink_serial        rc=0 cls=None pct=100
+  s_defmon             rc=0 cls=None pct=100
+  s_defsrc             rc=0 cls=None pct=100
+  s_sinkname           rc=1 cls=pa_get_info_noent pct=None
+  s_defsink            rc=1 cls=pa_get_info_noent pct=None
+  s_bogus              rc=1 cls=pa_get_info_noent pct=None
+  s_zero               rc=0 cls=None pct=100
+  pwcli_id             rc=0 cls=None out='\tid: 106\n\tpermissions: rwxm-\n\ttype: Pipe' err=''
+  pwcli_serial         rc=0 cls=pwcli_unknown_global out='' err='Error: "info: unknown global \'235221\'"\n'
+  mv_name              rc=0 after_sink=235232 cls=None
+  mv_serial            rc=0 after_sink=235221 cls=None
+  mv_bogus             rc=1 after_sink=235221 cls=pa_failure_noent
+  cdup_move rc= 0 after_sink= 235221 ns_idx= {'ns': 235221, 'ns2': 235232}
+  cdup_cap rc= 1 alive= True realization= serial_monitor_bypass cls= None
+     sample at 1.03 size 196652 alive True links [('r85a_ns_2546640', 'monitor_FL'), ('r85a_ns_2546640', 'monitor_FR')]
+     sample at 2.03 size 385068 alive True links [('r85a_ns_2546640', 'monitor_FL'), ('r85a_ns_2546640', 'monitor_FR')]
+[mix]
+  solo ref: {'l_a': 8190.7, 'r_b': 8190.8, 'r_a_bleed': 0.0, 'l_b_bleed': 0.0} solo_ref_ok: None
+  mix2 meds: {'l_a': 8190.7, 'r_b': 8190.7, 'l_c': 8190.7, 'r_d': 8190.7} bleed: {'r_a': 0, 'l_b': 0, 'r_c': 0, 'l_d': 0}
+  mix2 mix_edges: 4 [('r85a_2546640_mix2_p0:output_FL', 'r85a_mix_2546640:playback_FL'), ('r85a_2546640_mix2_p0:output_FR', 'r85a_mix_2546640:playback_FR'), ('r85a_2546640_mix2_p1:output_FL', 'r85a_mix_2546640:playback_FL'), ('r85a_2546640_mix2_p1:output_FR', 'r85a_mix_2546640:playback_FR')]
+  mixdup: ratio=2.0 realization=coherent_2x tap_link=2
+  mixdelay: ratio=0.22570720451243484 realization=partial tap_link=2
+  mixinv: ratio=1.868655914634891 realization=slipped tap_link=2
+  mixclip: {'peak_med': 32768.0, 'rail_frac_med': 0.2321, 'spur_max': 1921.5} tap_link= 2
+    solo tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mix2 tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixdup tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixdelay tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixinv tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixclip tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+[aplayenv]
+  env_node       rc=0 targets=['r85a_ns_2546640'] consumers=[['r85a_ns_2546640']] cand=1
+  env_props      rc=0 targets=['r85a_ns_2546640'] consumers=[['r85a_ns_2546640']] cand=1
+  env_conflict   rc=0 targets=['r85a_ns_2546640'] consumers=[['r85a_ns_2546640']] cand=1
+  env_serial     rc=0 targets=[235558] consumers=[['r85a_ns_2546640']] cand=1
+  env_bogus      rc=0 targets=['no_such_r85a'] consumers=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29']] cand=1
+  env_none       rc=0 targets=[None] consumers=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29']] cand=0
+[capture]
+  cap_baseline     rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2546640'] real=-
+  t_srcname        rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2546640'] real=-
+  t_srcserial      rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2546640'] real=-
+  t_srcid          rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2546640'] real=-
+  t_prop_srcname   rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] real=-
+  t_sinkname       rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2546640'] real=bound_source
+  t_sinkserial     rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['r85a_ns2_2546640'] real=-
+  t_prop_sinkname  rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['r85a_ns2_2546640'] real=-
+  cap_loss_0       rc=1 alive=True unloaded={'verified_index': 536870926, 'captured': None, 'field': 'source_name', 'value': 'r85a_vsrc_2546640', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.511} post={'exists': True, 'bytes': 286764, 'loss_bytes': 278572, 'post_frames': 2048, 'post_peak': 8192, 'post_nonzero': 2048, 'realization': 'grew_content'} sizes=[155692, 286764, 286764] post_links=[]
+  cap_loss_1       rc=1 alive=True unloaded={'verified_index': 536870926, 'captured': None, 'field': 'source_name', 'value': 'r85a_vsrc_2546640b', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.513} post={'exists': True, 'bytes': 286764, 'loss_bytes': 286764, 'post_frames': 0, 'post_peak': 0, 'post_nonzero': 0, 'realization': 'froze'} sizes=[155692, 286764, 286764] post_links=[]
+  cap_loss_prop    rc=1 alive=True unloaded={'verified_index': 536870924, 'captured': None, 'field': 'sink_name', 'value': 'r85a_tone_2546640', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.614} post=None sizes=[155692, 458796, 765996] post_links=[('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR')]
+  sd_idle        mod_dead=None src_dead=None links=[] real=- sd_gone=- out=
+  sd_record      mod_dead=0.08 src_dead=0.08 links=[] real=- sd_gone=- out={'exists': True, 'bytes': 44, 'riff': True, 'data_actual': 0, 'data_declared': 0, 'unsupported': 'no s16 stereo data chunk'}
+  sd_parec       mod_dead=0.08 src_dead=0.08 links=[] real=- sd_gone=- out={'exists': True, 'bytes': 44, 'riff': True, 'data_actual': 0, 'data_declared': 0, 'unsupported': 'no s16 stereo data chunk'}
+  sd_prop        mod_dead=None src_dead=None links=[('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR')] real=bind_killed_then_default sd_gone=True out=
+  sd_pwlink      mod_dead=None src_dead=None links=[] real=- sd_gone=- out=
+  latebind: rc= 1 alive= True real= late_bound late_load_mod= 536870924 links= [('r85a_late_2546640', 'capture_FL', 'active'), ('r85a_late_2546640', 'capture_FR', 'active'), ('r85a_late_2546640', 'capture_FL', 'active'), ('r85a_late_2546640', 'capture_FR', 'active')] sizes= [44, 208940, 479276]
+[negctl]
+  ctl_pactl_info     rc=0 cls=None sig=None killed=False
+  ctl_pwcli_ser      rc=0 cls=pwcli_unknown_global sig=None killed=False
+  ctl_pwdump         rc=0 cls=None sig=None killed=False
+  ctl_sigkill        rc=-9 cls=None sig=SIGKILL killed=None
+  u_empty            expect=None got=None hit=None
+  u_failure_noent    expect=pa_failure_noent got=pa_failure_noent hit='Failure: No such entity'
+  u_getinfo          expect=pa_get_info_noent got=pa_get_info_noent hit='Failed to get sink information: No such entity'
+  u_getinfo_src      expect=pa_get_info_noent got=pa_get_info_noent hit='Failed to get source information: No such entity'
+  u_invalid_arg      expect=pa_invalid_arg got=pa_invalid_arg hit='Operation failed: Invalid argument'
+  u_move_parse       expect=pa_no_such_entity got=pa_no_such_entity hit='No such entity'
+  u_no_target        expect=no_target_node got=no_target_node hit='no target node available'
+  u_noise            expect=None got=None hit=None
+  u_pwcli_global     expect=pwcli_unknown_global got=pwcli_unknown_global hit="unknown global '232456'"
+  u_recording        expect=None got=None hit=None
+  u_segv_words       expect=None got=None hit=None
+  u_stream_noent     expect=pa_stream_noent got=pa_stream_noent hit='Stream error: No such entity'
+  u_unknown_pcm      expect=alsa_unknown_pcm got=alsa_unknown_pcm hit='Unknown PCM pulse'
+############################## run2
+[addr] ns_props: {'object_serial': 236235, 'object_id_prop': 240, 'node_id': 240, 'media_class': 'Audio/Sink'} ns2_serial: 236246
+[addr] serial_cycles: {'serials': [236361, 236375, 236389], 'module_indices': [536870916, 536870916, 536870916]}
+  g_name               rc=0 cls=None pct=100 armed=- stderr=''
+  g_serial             rc=0 cls=None pct=100 armed=- stderr=''
+  g_objid              rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_defsink            rc=0 cls=None pct=40 armed=- stderr=''
+  g_defsrc             rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_defmon             rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_monitor_as_sink    rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_bogus              rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_huge               rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_neg                rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_empty              rc=1 cls=pa_invalid_arg pct=None armed=- stderr='Operation failed: Invalid argument'
+  g_zero               rc=0 cls=None pct=40 armed=- stderr=''
+  g_leadspace          rc=0 cls=None pct=100 armed=- stderr=''
+  g_plus               rc=0 cls=None pct=100 armed=- stderr=''
+  g_float              rc=0 cls=None pct=100 armed=- stderr=''
+  g_xsuf               rc=0 cls=None pct=100 armed=- stderr=''
+  g_hex                rc=0 cls=None pct=100 armed=- stderr=''
+  g_uscr               rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  g_lead0              rc=1 cls=pa_get_info_noent pct=None armed=False stderr='Failed to get sink information: No such entity'
+  g_defsinkX           rc=1 cls=pa_get_info_noent pct=None armed=- stderr='Failed to get sink information: No such entity'
+  s_monitor_name       rc=0 cls=None pct=100
+  s_sink_serial        rc=0 cls=None pct=100
+  s_defmon             rc=0 cls=None pct=100
+  s_defsrc             rc=0 cls=None pct=100
+  s_sinkname           rc=1 cls=pa_get_info_noent pct=None
+  s_defsink            rc=1 cls=pa_get_info_noent pct=None
+  s_bogus              rc=1 cls=pa_get_info_noent pct=None
+  s_zero               rc=0 cls=None pct=100
+  pwcli_id             rc=0 cls=None out='\tid: 240\n\tpermissions: rwxm-\n\ttype: Pipe' err=''
+  pwcli_serial         rc=0 cls=pwcli_unknown_global out='' err='Error: "info: unknown global \'236235\'"\n'
+  mv_name              rc=0 after_sink=236246 cls=None
+  mv_serial            rc=0 after_sink=236235 cls=None
+  mv_bogus             rc=1 after_sink=236235 cls=pa_failure_noent
+  cdup_move rc= 0 after_sink= 236235 ns_idx= {'ns': 236235, 'ns2': 236246}
+  cdup_cap rc= 1 alive= True realization= serial_monitor_bypass cls= None
+     sample at 1.03 size 196652 alive True links [('r85a_ns_2553733', 'monitor_FL'), ('r85a_ns_2553733', 'monitor_FR')]
+     sample at 2.01 size 385068 alive True links [('r85a_ns_2553733', 'monitor_FL'), ('r85a_ns_2553733', 'monitor_FR')]
+[mix]
+  solo ref: {'l_a': 8190.7, 'r_b': 8190.7, 'r_a_bleed': 0.0, 'l_b_bleed': 0.0} solo_ref_ok: None
+  mix2 meds: {'l_a': 8190.7, 'r_b': 8190.7, 'l_c': 8190.7, 'r_d': 8190.7} bleed: {'r_a': 0, 'l_b': 0, 'r_c': 0, 'l_d': 0}
+  mix2 mix_edges: 4 [('r85a_2553733_mix2_p0:output_FL', 'r85a_mix_2553733:playback_FL'), ('r85a_2553733_mix2_p0:output_FR', 'r85a_mix_2553733:playback_FR'), ('r85a_2553733_mix2_p1:output_FL', 'r85a_mix_2553733:playback_FL'), ('r85a_2553733_mix2_p1:output_FR', 'r85a_mix_2553733:playback_FR')]
+  mixdup: ratio=0.25897664424286077 realization=partial tap_link=2
+  mixdelay: ratio=0.02512605760191437 realization=cancelled tap_link=2
+  mixinv: ratio=1.8501471180729365 realization=slipped tap_link=2
+  mixclip: {'peak_med': 32768.0, 'rail_frac_med': 0.2325, 'spur_max': 1921.3} tap_link= 2
+    solo tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mix2 tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixdup tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixdelay tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixinv tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+    mixclip tap ports: ['monitor_FL', 'monitor_FR'] in_ports: ['input_FL', 'input_FR']
+[aplayenv]
+  env_node       rc=0 targets=['r85a_ns_2553733'] consumers=[['r85a_ns_2553733']] cand=1
+  env_props      rc=0 targets=['r85a_ns_2553733'] consumers=[['r85a_ns_2553733']] cand=1
+  env_conflict   rc=0 targets=['r85a_ns_2553733'] consumers=[['r85a_ns_2553733']] cand=1
+  env_serial     rc=0 targets=[236572] consumers=[['r85a_ns_2553733']] cand=1
+  env_bogus      rc=0 targets=['no_such_r85a'] consumers=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29']] cand=1
+  env_none       rc=0 targets=[None] consumers=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29']] cand=0
+[capture]
+  cap_baseline     rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2553733'] real=-
+  t_srcname        rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2553733'] real=-
+  t_srcserial      rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2553733'] real=-
+  t_srcid          rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2553733'] real=-
+  t_prop_srcname   rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29'] real=-
+  t_sinkname       rc=1 alive=True ports=['capture_FL', 'capture_FR'] nodes=['r85a_vsrc_2553733'] real=bound_source
+  t_sinkserial     rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['r85a_ns2_2553733'] real=-
+  t_prop_sinkname  rc=1 alive=True ports=['monitor_FL', 'monitor_FR'] nodes=['r85a_ns2_2553733'] real=-
+  cap_loss_0       rc=1 alive=True unloaded={'verified_index': 536870924, 'captured': None, 'field': 'source_name', 'value': 'r85a_vsrc_2553733', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.514} post={'exists': True, 'bytes': 294956, 'loss_bytes': 286764, 'post_frames': 2048, 'post_peak': 8192, 'post_nonzero': 2048, 'realization': 'grew_content'} sizes=[163884, 294956, 294956] post_links=[]
+  cap_loss_1       rc=1 alive=True unloaded={'verified_index': 536870924, 'captured': None, 'field': 'source_name', 'value': 'r85a_vsrc_2553733b', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.512} post={'exists': True, 'bytes': 294956, 'loss_bytes': 286764, 'post_frames': 2048, 'post_peak': 8192, 'post_nonzero': 2048, 'realization': 'grew_content'} sizes=[155692, 294956, 294956] post_links=[]
+  cap_loss_prop    rc=1 alive=True unloaded={'verified_index': 536870921, 'captured': None, 'field': 'sink_name', 'value': 'r85a_tone_2553733', 'recycled': False, 'exit_code': 0, 'stderr_tail': None, 'at_s': 1.615} post=None sizes=[155692, 454700, 765996] post_links=[('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR')]
+  sd_idle        mod_dead=None src_dead=None links=[] real=- sd_gone=- out=
+  sd_record      mod_dead=0.08 src_dead=0.08 links=[] real=- sd_gone=- out={'exists': True, 'bytes': 44, 'riff': True, 'data_actual': 0, 'data_declared': 0, 'unsupported': 'no s16 stereo data chunk'}
+  sd_parec       mod_dead=0.09 src_dead=0.02 links=[] real=- sd_gone=- out={'exists': True, 'bytes': 44, 'riff': True, 'data_actual': 0, 'data_declared': 0, 'unsupported': 'no s16 stereo data chunk'}
+  sd_prop        mod_dead=None src_dead=None links=[('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FL'), ('alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'monitor_FR')] real=bind_killed_then_default sd_gone=True out=
+  sd_pwlink      mod_dead=None src_dead=None links=[] real=- sd_gone=- out=
+  latebind: rc= 1 alive= True real= late_bound late_load_mod= 536870921 links= [('r85a_late_2553733', 'capture_FL', 'active'), ('r85a_late_2553733', 'capture_FR', 'active'), ('r85a_late_2553733', 'capture_FL', 'active'), ('r85a_late_2553733', 'capture_FR', 'active')] sizes= [44, 213036, 483372]
+[negctl]
+  ctl_pactl_info     rc=0 cls=None sig=None killed=False
+  ctl_pwcli_ser      rc=0 cls=pwcli_unknown_global sig=None killed=False
+  ctl_pwdump         rc=0 cls=None sig=None killed=False
+  ctl_sigkill        rc=-9 cls=None sig=SIGKILL killed=None
+  u_empty            expect=None got=None hit=None
+  u_failure_noent    expect=pa_failure_noent got=pa_failure_noent hit='Failure: No such entity'
+  u_getinfo          expect=pa_get_info_noent got=pa_get_info_noent hit='Failed to get sink information: No such entity'
+  u_getinfo_src      expect=pa_get_info_noent got=pa_get_info_noent hit='Failed to get source information: No such entity'
+  u_invalid_arg      expect=pa_invalid_arg got=pa_invalid_arg hit='Operation failed: Invalid argument'
+  u_move_parse       expect=pa_no_such_entity got=pa_no_such_entity hit='No such entity'
+  u_no_target        expect=no_target_node got=no_target_node hit='no target node available'
+  u_noise            expect=None got=None hit=None
+  u_pwcli_global     expect=pwcli_unknown_global got=pwcli_unknown_global hit="unknown global '232456'"
+  u_recording        expect=None got=None hit=None
+  u_segv_words       expect=None got=None hit=None
+  u_stream_noent     expect=pa_stream_noent got=pa_stream_noent hit='Stream error: No such entity'
+  u_unknown_pcm      expect=alsa_unknown_pcm got=alsa_unknown_pcm hit='Unknown PCM pulse'

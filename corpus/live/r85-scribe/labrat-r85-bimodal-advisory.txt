@@ -1,0 +1,42 @@
+# labrat advisory — r85 verdict-block vacuity probe (frozen probeParent, ONE dispatch)
+
+Seat: `ufo-labrat` (L2 specialist, read-only, advisory, never edits).
+Dispatched by: `audio-r85-scribe` (frozen probeParent — exactly one probe).
+Method (per the probe's own disclosure): verbatim extraction of the three
+committed verdict blocks from `corpus/fixtures/measure_audio.py` at
+2a49d540, evaluated by **hand-trace** against synthetic leg dicts (no
+executor in that seat → labeled inference, not a run). No repo writes, no
+fixture execution, no PipeWire object, no scratch.
+
+Hypothesis under test: *for each of the three host-bimodal arms, the
+committed code fails on at least one realization shape that is not one of
+the two host sides named in the author report — i.e. none is a catch-all.*
+
+Result: **SUPPORTED as literally stated, with one confirmed
+silently-absorbing branch.**
+
+| arm | accepted realizations | failing shapes | accepted shape with unconstrained destination |
+|---|---|---|---|
+| `cdup_cap` (L22706–22737) | `serial_monitor_bypass`, `name_shadow_bound`, `stalled`, `refused` | `foreign_monitor`, `other` | **YES — `name_shadow_bound`** |
+| `sd_prop` (L23545–23575) | `clean_default_fallback`, `bind_killed_then_default` | non-`monitor_` plinks; plinks with none on `def_sink` (only if `def_sink` truthy); no plinks AND module alive | YES — zero-link `bind_killed_then_default`; and all-`monitor_` links when `def_sink` is falsy |
+| `latebind` (L23589–23608) | `late_bound`, `stalled`, `refused` | `foreign_bind`, `other` | `refused` (no links; benign refusal) |
+
+Key evidence quoted by the probe:
+- `cdup_cap` L22724–22725 `elif cl_links: cl["realization"] = "name_shadow_bound"`;
+  the failure append fires only for `("foreign_monitor","other")` (L22733);
+  the `out_node == PACTLMON_R85_NS` check (L22719) applies **only inside the
+  `mon` (monitor_-prefixed) subset**. Synthetic input
+  `{"samples":[{"links":[{"out_node":"foreign_node_X","out_port_name":"capture_FL"}]}]}`
+  → `name_shadow_bound` → PASS, though the block comment (L22716–22718)
+  claims "the digits never resolve a foreign target".
+- `sd_prop` L23561–23575: `plinks=[] and sd_gone=True` appends no failure;
+  the `def_sink`-based destination check short-circuits when
+  `entry["inventory"]["default_sink"]` is falsy.
+- `latebind` L23592–23608: `good_shape` properly constrains
+  `out_node == PACTLMON_R85_LATE` AND `capture_*`.
+
+Independent agreement: the scribe's executable harness
+(`bimodal-arm-harness.py`, which execs the same committed lines rather than
+hand-tracing) reaches the identical accept/fail sets, including the
+`name_shadow_bound` pass on a foreign `capture_*` bind. Two independent
+methods, one conclusion.

@@ -1,0 +1,26 @@
+committed verdict blocks extracted (line counts): {'cdup_cap': 32, 'sd_prop': 31, 'latebind': 20}
+
+cdup_cap  | serial_monitor_bypass (THIS host: digits=serial, monitor links -> NS)    | realization='serial_monitor_bypass'      | failures=0 pass
+cdup_cap  | stalled (BOUNDARY host: digits=name(sink) noprop -> 44 B, no links, alive) | realization='stalled'                    | failures=0 pass
+cdup_cap  | name_shadow_bound (links exist, none monitor; unmeasured shape)          | realization='name_shadow_bound'          | failures=0 pass
+cdup_cap  | refused (rc1, dead, no links)                                            | realization='refused'                    | failures=0 pass
+cdup_cap  | foreign_monitor (monitor link on a NON-serial-holder)                    | realization='foreign_monitor'            | failures=1 FAIL
+            └─ cdup_cap: monitor-links=1 realization=foreign_monitor — the digits-resolution lattice fails
+cdup_cap  | other (no links, rc0, dead = measured nothing)                           | realization='other'                      | failures=1 FAIL
+            └─ cdup_cap: monitor-links=0 realization=other — the digits-resolution lattice fails
+sd_prop   | clean_default_fallback (BOUNDARY: module alive, default-monitor links)   | realization='clean_default_fallback'     | failures=0 pass
+sd_prop   | bind_killed_then_default (THIS host: module gone, default-monitor links) | realization='bind_killed_then_default'   | failures=0 pass
+sd_prop   | no links + module gone (trap destroyed, nothing bound)                   | realization='bind_killed_then_default'   | failures=0 pass
+sd_prop   | no links + module alive (measured nothing)                               | realization='clean_default_fallback'     | failures=1 FAIL
+            └─ sd_prop: neither bound nor dead — the leg measured nothing
+sd_prop   | non-monitor links                                                        | realization='clean_default_fallback'     | failures=1 FAIL
+            └─ sd_prop: links=[{'out_node': 'alsa_output.usb-...sink.29', 'out_port_name': 'capture_FL', 'in_node': 'r85a_<pid>_rec', 'in_port_name': 'input_FL', 'st
+sd_prop   | monitor links on a NON-default node                                      | realization='clean_default_fallback'     | failures=1 FAIL
+            └─ sd_prop: links=[{'out_node': 'r85a_ns_<pid>', 'out_port_name': 'monitor_FL', 'in_node': 'r85a_<pid>_rec', 'in_port_name': 'input_FL', 'state': 'active
+latebind  | late_bound (THIS host: late source re-armed the record)                  | realization='late_bound'                 | failures=0 pass
+latebind  | stalled (BOUNDARY: no link ever, 44 B, alive)                            | realization='stalled'                    | failures=0 pass
+latebind  | refused (rc1, dead, no links)                                            | realization='refused'                    | failures=0 pass
+latebind  | foreign_bind (link lands on a foreign/monitor node)                      | realization='foreign_bind'               | failures=1 FAIL
+            └─ latebind: links=[{'out_node': 'r85a_vsrc_<pid>', 'out_port_name': 'capture_FL', 'in_node': 'r85a_<pid>_rec', 'in_port_name': 'input_FL', 'state': 'act
+latebind  | other (no links, rc0, dead = measured nothing)                           | realization='other'                      | failures=1 FAIL
+            └─ latebind: realization=other — no stall, no bind, no refusal measured

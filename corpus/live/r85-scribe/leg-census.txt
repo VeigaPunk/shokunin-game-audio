@@ -1,0 +1,65 @@
+======================================================================
+RECEIPT red mode: probe-pactlmon-r85
+  pactlmon_addr_r85_probe: legs=40 failures=1 extra_keys=['ns_props', 'ns2_serial', 'defaults', 'sink_index', 'serial_cycles']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2483753': True, 'r85a_ns2_2483753': True, '233161': True} own_nodes_after=[] loadavg=['53.07', '55.89', '54.73']
+      FAIL: cdup_cap: monitor-links=4 realization=refused — the digits-as-name shadow fails
+  pactlmon_mix_r85_probe: legs=7 failures=3 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_mix_2483753': True} own_nodes_after=[] loadavg=['52.91', '55.81', '54.71']
+      FAIL: mixdup: l_a=6221.3 vs ref=8190.7 — the coherent 2x-sum envelope fails
+      FAIL: mixdelay: late l_a=205.8 vs ref=8190.7 — the delayed 2x-sum envelope fails
+      FAIL: mixclip: peak=32768.0 != 32767 — the s16-tap hard-clip arm fails
+  pactlmon_aplayenv_r85_probe: legs=6 failures=1 extra_keys=['ns_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2483753': True, 'r85a_ns2_2483753': True} own_nodes_after=[] loadavg=['51.71', '55.24', '54.55']
+      FAIL: env_serial: no node carried target.object=233497 — the env landing arm fails
+  pactlmon_capture_r85_probe: legs=17 failures=3 extra_keys=['vsrc', 'ns2_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_tone_2483753': True, 'r85a_ns2_2483753': True, 'r85a_sd_2483753': True} own_nodes_after=[] loadavg=['51.26', '54.96', '54.47']
+      FAIL: cap_loss_1: NEW CONTENT post-loss (peak=8192) — the no-new-content law fails
+      FAIL: sd_prop: the module died under the prop form — the never-touched arm fails
+      FAIL: latebind: links=[{'out': 'r85a_late_2483753:capture_FL', 'in': 'r85a_2483753_latebind:input_FL', 'out_node': 'r85a_late_2483753', 'in_node': 'r85a_2483753_latebind', 'out_port_name': 'capture_FL', 'in_port_name': 'input_
+  pactlmon_negctl_r85_probe: legs=0 failures=1 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2483753': True} own_nodes_after=[] loadavg=['50.08', '54.02', '54.18']
+      FAIL: u_move_parse: class pa_no_such_entity != pa_failure_noent
+  TOTAL legs: 70
+  sections: {'stem_sections': 9, 'stem_layer': 9, 'stem_layer_alt': 9, 'stem_layer_third': 9}
+======================================================================
+RECEIPT mid mode: probe-pactlmon-r85
+  pactlmon_addr_r85_probe: legs=40 failures=0 extra_keys=['ns_props', 'ns2_serial', 'defaults', 'sink_index', 'serial_cycles']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2539852': True, 'r85a_ns2_2539852': True, '234202': True} own_nodes_after=[] loadavg=['51.94', '53.56', '53.93']
+  pactlmon_mix_r85_probe: legs=7 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_mix_2539852': True} own_nodes_after=[] loadavg=['51.34', '53.38', '53.86']
+  pactlmon_aplayenv_r85_probe: legs=6 failures=0 extra_keys=['ns_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2539852': True, 'r85a_ns2_2539852': True} own_nodes_after=[] loadavg=['52.53', '53.47', '53.88']
+  pactlmon_capture_r85_probe: legs=17 failures=0 extra_keys=['vsrc', 'ns2_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_tone_2539852': True, 'r85a_ns2_2539852': True, 'r85a_sd_2539852': True} own_nodes_after=[] loadavg=['51.24', '53.11', '53.75']
+  pactlmon_negctl_r85_probe: legs=0 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2539852': True} own_nodes_after=[] loadavg=['49.70', '52.40', '53.48']
+  TOTAL legs: 70
+  sections: {'stem_sections': 9, 'stem_layer': 9, 'stem_layer_alt': 9, 'stem_layer_third': 9}
+======================================================================
+RECEIPT run1 mode: probe-pactlmon-r85
+  pactlmon_addr_r85_probe: legs=40 failures=0 extra_keys=['ns_props', 'ns2_serial', 'defaults', 'sink_index', 'serial_cycles']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2546640': True, 'r85a_ns2_2546640': True, '235221': True} own_nodes_after=[] loadavg=['49.25', '51.95', '53.28']
+  pactlmon_mix_r85_probe: legs=7 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_mix_2546640': True} own_nodes_after=[] loadavg=['49.31', '51.92', '53.26']
+  pactlmon_aplayenv_r85_probe: legs=6 failures=0 extra_keys=['ns_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2546640': True, 'r85a_ns2_2546640': True} own_nodes_after=[] loadavg=['49.13', '51.63', '53.12']
+  pactlmon_capture_r85_probe: legs=17 failures=0 extra_keys=['vsrc', 'ns2_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_tone_2546640': True, 'r85a_ns2_2546640': True, 'r85a_sd_2546640': True} own_nodes_after=[] loadavg=['49.17', '51.47', '53.04']
+  pactlmon_negctl_r85_probe: legs=17 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2546640': True} own_nodes_after=[] loadavg=['49.27', '51.15', '52.84']
+  TOTAL legs: 87
+  sections: {'stem_sections': 9, 'stem_layer': 9, 'stem_layer_alt': 9, 'stem_layer_third': 9}
+======================================================================
+RECEIPT run2 mode: probe-pactlmon-r85
+  pactlmon_addr_r85_probe: legs=40 failures=0 extra_keys=['ns_props', 'ns2_serial', 'defaults', 'sink_index', 'serial_cycles']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2553733': True, 'r85a_ns2_2553733': True, '236235': True} own_nodes_after=[] loadavg=['49.41', '51.15', '52.83']
+  pactlmon_mix_r85_probe: legs=7 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_mix_2553733': True} own_nodes_after=[] loadavg=['49.37', '51.11', '52.81']
+  pactlmon_aplayenv_r85_probe: legs=6 failures=0 extra_keys=['ns_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2553733': True, 'r85a_ns2_2553733': True} own_nodes_after=[] loadavg=['49.44', '50.96', '52.71']
+  pactlmon_capture_r85_probe: legs=17 failures=0 extra_keys=['vsrc', 'ns2_serial']
+      coverage_blocked=ABSENT sinks_gone={'r85a_tone_2553733': True, 'r85a_ns2_2553733': True, 'r85a_sd_2553733': True} own_nodes_after=[] loadavg=['49.37', '50.84', '52.63']
+  pactlmon_negctl_r85_probe: legs=17 failures=0 extra_keys=[]
+      coverage_blocked=ABSENT sinks_gone={'r85a_ns_2553733': True} own_nodes_after=[] loadavg=['49.34', '50.63', '52.46']
+  TOTAL legs: 87
+  sections: {'stem_sections': 9, 'stem_layer': 9, 'stem_layer_alt': 9, 'stem_layer_third': 9}
