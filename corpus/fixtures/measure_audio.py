@@ -33368,6 +33368,10 @@ JACK_R95_PRESENT_SYMS = ("jack_session_notify", "jack_reserve_client_name",
                          "jack_set_buffer_size", "jack_connect",
                          "jack_set_property", "jack_transport_reposition")
 
+JACK_R95_LOCK_WAIT_S = 600.0                  # bounded acquire cap (F6/C4)
+JACK_R95_LOCK_POLL_S = 0.25
+JACK_R95_LOCK_NAME = "ufo-measure_audio-jack-r95.lock"
+
 _JACK_R95_ERR_CLASSES = (
     ("jack_r95_no_daemon", r"Could not connect to JACK server"),
     ("jack_r95_unknown_mode", r"unknown"),
@@ -33515,6 +33519,75 @@ def _jack_r95_probe(probe, args, timeout_s, env=None, wd=None,
     return rec
 
 
+def _jack_r95_daemon_gate(timeout_s=12.0):
+    """The ENTRY-LEVEL daemon gate (C2/C3): one bounded `pactl info`.
+    On 2026-10-16 06:00Z the shared PipeWire/pipewire-pulse instance
+    wedged host-wide (`pactl info` rc 124 at every bound, `pw-dump` 0
+    bytes) and the family armed that host condition as FALSIFIED CLAIMS
+    — four entries reporting `failures: {}` while measuring nothing and
+    one entry red on the version law for a client that never opened. An
+    unresponsive daemon is a NAMED entry-level coverage block, never a
+    red and never a silent green."""
+    rec = _jack_r95_run(["pactl", "info"], timeout_s, keep_chars=400)
+    ok = (rec.get("exit_code") == 0
+          and "Server Name:" in (rec.get("stdout") or ""))
+    rec["ok"] = ok
+    rec["block"] = None if ok else (
+        "jack_r95_daemon_unresponsive: bounded `pactl info` did not answer "
+        f"(rc={rec.get('exit_code')} killed_at_bound="
+        f"{rec.get('killed_at_bound')} wall_s={rec.get('wall_s')} "
+        f"stderr={(rec.get('stderr') or '').strip()[:120]!r}) — the "
+        "shared daemon is not measuring; no r95 leg is armed")
+    return rec
+
+
+def _jack_r95_probe_state(rec):
+    """The open-state of one probe invocation (F4): a client that never
+    opened is a NAMED coverage state, never a falsified law. The 06:00Z
+    wedge killed the `info` child inside `jack_client_open` at the bound
+    (libjack's open has no timeout of its own and the fixture's SIGTERM
+    handler only sets a flag), so the version arm read `version = None`
+    and redded a premise that was true."""
+    if (rec or {}).get("json") is not None:
+        return {"ok": True, "state": "ok", "detail": None}
+    if (rec or {}).get("killed_at_bound"):
+        return {"ok": False, "state": "jack_r95_open_timeout",
+                "detail": (f"the bounded child was SIGKILLed at "
+                           f"{rec.get('wall_s')}s with "
+                           f"{rec.get('stdout_bytes')} stdout bytes and no "
+                           "R95AJSON record — jack_client_open never "
+                           "returned")}
+    if (rec or {}).get("error_class") == "jack_r95_no_daemon":
+        return {"ok": False, "state": "jack_r95_no_daemon",
+                "detail": (f"libjack refused the open: "
+                           f"{(rec.get('error_hit') or '')[:120]!r}")}
+    return {"ok": False, "state": "jack_r95_no_record",
+            "detail": (f"rc={rec.get('exit_code')} "
+                       f"stderr={(rec.get('stderr') or '').strip()[:120]!r} "
+                       f"stdout={(rec.get('stdout') or '').strip()[:120]!r} "
+                       "— no R95AJSON record")}
+
+
+def _jack_r95_witness_gate(entry, lname, mid):
+    """A concurrent graph witness that could not read the snapshot is a
+    NAMED coverage block, never an armed law (C2): the author's own dev
+    run `20261016T085246666582Z-jack-r95` reported 29 "falsified" laws
+    (`client.api = None, want 'jack'` …) that were one unreadable
+    `pw-dump`, because `_jack_r95_shape_slice` had no error field and the
+    entry head discarded `_jack_r95_graph()["error"]`. Returns True when
+    the witness is readable (the caller arms its laws), False when the
+    caller must skip them and leave the block named."""
+    err = (mid or {}).get("error")
+    if err is None and (mid or {}).get("graph_ok") is False:
+        err = "graph snapshot unreadable (no error text)"
+    if err is None:
+        return True
+    entry.setdefault("coverage_blocked", []).append(
+        f"{lname}: concurrent graph witness unreadable ({err}) — the "
+        "PW-side arms of this leg are unmeasured, not falsified")
+    return False
+
+
 def _jack_r95_build(tmp):
     """Compile the fixture source into the entry's temp dir. gcc is the
     host compiler (16.1.1); `-ljack` is pipewire-jack's libjack and
@@ -33641,6 +33714,16 @@ def _jack_r95_edges_touching(g, tag):
                   if tag in (e.get("out") or "") or tag in (e.get("in") or ""))
 
 
+def _jack_r95_edges_witness(cname):
+    """The concurrent link-edge witness. It carries the snapshot's OWN
+    readability (C2) so that an unreadable pw-dump names a coverage
+    block instead of arming `edges = []` — an absent link and a link
+    list that was never read are different measurements."""
+    g = _jack_r95_graph()
+    return {"edges": _jack_r95_edges_touching(g, cname),
+            "error": g.get("error"), "graph_ok": not g.get("error")}
+
+
 def _jack_r95_port(g, node_name, port_name):
     nid = ((g.get("node_by_name") or {}).get(node_name) or {}).get("id")
     for pid, p in (g.get("ports") or {}).items():
@@ -33650,21 +33733,32 @@ def _jack_r95_port(g, node_name, port_name):
 
 
 def _jack_r95_meta_rows(name):
-    """`pw-metadata -n <name>` -> {key: {subject, value, type}}.
-    pw-dump carries Metadata objects with a null info on this host, so
-    the text surface is the only row witness (the boundary's receipts
-    read it the same way); the `update: id:N key:'…' value:'…'
-    type:'…'` row shape is parsed verbatim and the trailing
-    `type:' type:' type:''` quirk some rows carry is tolerated."""
+    """`pw-metadata -n <name>` -> {key: {subject, value, type}} PLUS the
+    SUBJECT-keyed census `rows_by_subject` (F1). The r95 client writes
+    the LITERAL keys `r95a/key1` / `r95a/portkey` (no pid), while every
+    node/client/sink in the family is `r95a_<pid>`: a key-only collapse
+    makes a concurrent same-family seat's row indistinguishable from
+    ours, and two seats can hold the same key with different subjects in
+    the same store. The armed witness is therefore the subject-keyed
+    census; the key-only map stays as display. pw-dump carries Metadata
+    objects with a null info on this host, so the text surface is the
+    only row witness (the boundary's receipts read it the same way); the
+    `update: id:N key:'…' value:'…' type:'…'` row shape is parsed
+    verbatim and the trailing `type:' type:' type:''` quirk some rows
+    carry is tolerated."""
     rec = _jack_r95_run(["pw-metadata", "-n", name], 12.0, keep_raw=True)
-    rows = {}
+    rows, by_subject = {}, {}
     for m in re.finditer(
             r"id:(\d+)\s+key:'((?:[^'\\]|\\.)*)'\s+"
             r"value:'((?:[^'\\]|\\.)*)'\s+type:'", rec.get("stdout_raw") or ""):
-        rows[m.group(2)] = {"subject": int(m.group(1)),
-                            "value": m.group(3)}
+        key, subj, val = m.group(2), int(m.group(1)), m.group(3)
+        rows[key] = {"subject": subj, "value": val}
+        by_subject.setdefault(subj, {})[key] = {"subject": subj,
+                                                "value": val}
     rec["rows"] = rows
+    rec["rows_by_subject"] = by_subject
     rec["row_count"] = len(rows)
+    rec["subject_count"] = len(by_subject)
     return rec
 
 
@@ -33687,7 +33781,11 @@ def _jack_r95_driver(g, node):
 def _jack_r95_shape_slice(g, cname):
     """The concurrent witness for one JACK client run: its Client and
     Node leaves, its own port props, the links touching it, the
-    resolved driver and the settings store."""
+    resolved driver and the settings store. `error` / `graph_ok` carry
+    the witness's OWN readability (C2) so the caller can name a block
+    instead of arming laws off a snapshot that was never read."""
+    if g.get("error"):
+        return {"error": g["error"], "graph_ok": False}
     client = next((c for c in (g.get("clients") or {}).values()
                    if c.get("name") == cname), None)
     node = (g.get("node_by_name") or {}).get(cname)
@@ -33698,7 +33796,8 @@ def _jack_r95_shape_slice(g, cname):
             if p.get("node_id") == nid:
                 ports[p.get("name")] = {"port_id": pid, **p}
     drv = _jack_r95_driver(g, node)
-    return {"client": client, "node": node, "ports": ports,
+    return {"error": None, "graph_ok": True,
+            "client": client, "node": node, "ports": ports,
             "links": _jack_r95_edges_touching(g, cname),
             "driver": drv, "settings": _jack_r95_settings()}
 
@@ -33796,31 +33895,137 @@ def _jack_r95_load_ns(name, desc=None, channels=1):
     return leaf
 
 
-def _jack_r95_family_lock():
-    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
-    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
-    exclude). A second --probe-jack-r95 waits HERE."""
-    path = ROOT / "live" / "measure_audio-jack-r95.lock"
+def _jack_r95_lock_path():
+    """The family lock lives at a HOST-GLOBAL, tree-independent path
+    (F6/C4): the r84 F1 3-seat consensus ("never $TMPDIR; cross-TMPDIR
+    same-family runs must still exclude") is only honoured when the path
+    does not move with the tree the file is executed from. Every seat in
+    this repo runs `git archive` / per-seat tree copies, so a
+    `ROOT`-derived path gave two seats two different lock files and both
+    ran the family concurrently through the same host daemon (the
+    2026-10-16 06:02Z observation). `$XDG_RUNTIME_DIR` (or the
+    per-user `/run/user/<uid>`) is shared by every tree on the host;
+    `~/.local/state` is the fallback when the runtime dir is absent."""
+    base = os.environ.get("XDG_RUNTIME_DIR")
+    if base and Path(base).is_dir():
+        return Path(base) / JACK_R95_LOCK_NAME
+    return Path.home() / ".local/state" / JACK_R95_LOCK_NAME
+
+
+def _jack_r95_lock_text(path):
+    """The lock file's advisory text (pid=/ns=/role=). It is EVIDENCE,
+    never the lock: a stale file left by a dead seat must not read as a
+    live holder (C5) — the flock probe is the witness."""
     try:
-        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+        return path.read_text(errors="replace").strip()[:200]
     except OSError:
         return None
-    fcntl.flock(fd, fcntl.LOCK_EX)
+
+
+def _jack_r95_lock_release(fd):
+    """Release + TRUNCATE the lock file (C5): a released lock leaves no
+    text that a later reader could mistake for a live holder."""
+    if fd is None:
+        return
+    try:
+        os.ftruncate(fd, 0)
+    except OSError:
+        pass
+    try:
+        os.close(fd)
+    except OSError:
+        pass
+
+
+def _jack_r95_family_lock(wait_s=JACK_R95_LOCK_WAIT_S):
+    """Same-family exclusion at a HOST-GLOBAL path, acquired with a
+    BOUNDED NON-BLOCKING retry (F6/C4): a live holder that outlives the
+    cap is a NAMED coverage block (`jack_r95_family_lock_busy`), never an
+    unbounded wait. Stale state is handled explicitly (C5): the holder
+    text is read only as evidence, the file is truncated on release, and
+    a text naming a dead pid is recorded as `stale_text` (the seat that
+    inherited it) rather than reported as a live holder.
+
+    Returns a record: `fd` (held by the caller to exit; None when the
+    lock was not acquired), `block` (the named coverage block, or None),
+    `path`, `waited_s`, `holder_text`, `stale_text`."""
+    path = _jack_r95_lock_path()
+    rec = {"path": str(path), "pid": JACK_R95_PID, "wait_cap_s": wait_s,
+           "waited_s": 0.0, "holder_text": None, "stale_text": None,
+           "fd": None, "block": None}
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError as exc:
+        rec["block"] = (f"jack_r95_family_lock_unavailable: {path} "
+                        f"({type(exc).__name__}: {exc})"[:200])
+        return rec
+    t0 = time.monotonic()
+    while True:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            break
+        except OSError:
+            pass
+        if rec["holder_text"] is None:
+            rec["holder_text"] = _jack_r95_lock_text(path)
+        waited = time.monotonic() - t0
+        rec["waited_s"] = round(waited, 3)
+        if waited >= wait_s:
+            rec["block"] = (
+                f"jack_r95_family_lock_busy: {path} held for "
+                f"{round(waited, 1)}s > cap {wait_s}s — a same-family run "
+                f"is live (holder text {rec['holder_text']!r}); the "
+                "family is not run against a shared host-global quantum")
+            _jack_r95_lock_release(fd)
+            return rec
+        time.sleep(JACK_R95_LOCK_POLL_S)
+    prior = _jack_r95_lock_text(path)
+    if prior:
+        m = re.search(r"pid=(\d+)", prior)
+        alive = None
+        if m:
+            try:
+                os.kill(int(m.group(1)), 0)
+                alive = True
+            except OSError:
+                alive = False
+        if alive is False:
+            rec["stale_text"] = prior
+            rec["stale_pid_dead"] = int(m.group(1))
     try:
         os.ftruncate(fd, 0)
         os.write(fd, f"pid={JACK_R95_PID} ns={JACK_R95_NS} "
-                     f"role={JACK_R95_ROLE}\n".encode())
+                     f"role={JACK_R95_ROLE} path={path}\n".encode())
     except OSError:
         pass
-    return fd
+    rec["fd"] = fd
+    return rec
+
+
+def _jack_r95_lock_blocked_entry(name, msg):
+    """Every r95 entry when the family lock could not be acquired: a
+    NAMED block with NO legs measured and `measured: false`, so a gate
+    reading only `failures` cannot mistake it for a green (C1) and the
+    run never waits unbounded on a live same-family holder (C4)."""
+    return {"probe": f"{name}: family lock not acquired",
+            "blocked": msg, "coverage_blocked": [msg],
+            "legs": {}, "legs_measured": 0, "measured": False,
+            "failures": []}
 
 
 def _jack_r95_entry_head(probe):
-    """Shared entry preamble: contention census, loadavg, the settings
-    store (the host-global quantum/rate lattice), and the foreign-r95a
-    census (another seat's residue is a witness, never a verdict)."""
+    """Shared entry preamble: the bounded daemon gate, contention census,
+    loadavg, the settings store (the host-global quantum/rate lattice),
+    the foreign-r95a census (another seat's residue is a witness, never a
+    verdict) and the graph-readability record (C2: an unreadable pw-dump
+    snapshot used to be silently discarded, so a witness failure read as
+    29 falsified laws in the author's own dev run)."""
     g = _jack_r95_graph()
+    gate = _jack_r95_daemon_gate()
     return {"probe": probe,
+            "daemon_gate": gate,
+            "graph_error_at_start": g.get("error"),
             "contention": _playback_r78_foreign_clients(),
             "foreign_r95a_nodes": sorted(
                 n for n in (g.get("node_by_name") or {})
@@ -33833,11 +34038,18 @@ def _jack_r95_entry_head(probe):
             "loadavg": _alsapw_r84_loadavg()}
 
 
-def _jack_r95_teardown(entry, failures, loads, procs=()):
+def _jack_r95_teardown(entry, failures, loads, procs=(), census=()):
     """Kill every tracked child process group first, then the
     name-verified unload of every own module, then the residue destroy:
     any surviving r95a_<pid>-tagged node is destroyed by id via pw-cli
-    before the final sweep."""
+    before the final sweep.
+
+    `census` names the sinks this seat loaded and ALREADY unloaded
+    mid-entry, so the exit census measures something in every entry
+    (F7: `all({}.values())` made `sinks_gone` vacuous in the two entries
+    that unload their null sink before teardown) — the sweep is always
+    run, including on block/abort paths (F3/C2: the block path is where
+    residue is most likely, and it used to run no census at all)."""
     for proc in procs or ():
         if proc is None:
             continue
@@ -33864,14 +34076,20 @@ def _jack_r95_teardown(entry, failures, loads, procs=()):
                              keep_chars=300)}
             for nid, nm in residual]
         time.sleep(0.4)
+    censused = list(dict.fromkeys([*(census or ()), *(loads or {})]))
+    entry["sinks_censused"] = censused
     sinks_now = _capture_r77_sink_names_strict()
     if sinks_now is None:
         entry["sinks_gone"] = "reader_error"
         entry.setdefault("coverage_blocked", []).append(
             "teardown: pactl sink reader failed — sinks_gone unmeasured")
     else:
-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        gone = {nm: nm not in sinks_now for nm in censused}
         entry["sinks_gone"] = gone
+        if not censused:
+            entry["sinks_gone_note"] = (
+                "no sink was loaded by this entry — the census measured "
+                "nothing (named, not a vacuous true)")
         if not all(gone.values()):
             failures.append(
                 "teardown: probe sinks survived unload: "
@@ -33904,34 +34122,75 @@ def _jack_r95_teardown(entry, failures, loads, procs=()):
     else:
         rest = sorted(n for n in names
                       if f"r95a_{JACK_R95_PID}" in n
-                      or n in (loads or {}))
+                      or n in censused)
         entry["own_nodes_after"] = rest
         if rest:
             failures.append(
                 f"teardown: r95a-tagged nodes survived: {rest}")
+    _jack_r95_settings_restore(entry, failures)
 
 
-def _jack_r95_block(entry, failures, msg, loads=None, procs=()):
-    """The named coverage block: kill children, unload anything loaded,
-    record the block (a missing tool/compiler/daemon is a block, never
-    a silent green)."""
-    for proc in procs or ():
-        if proc is None:
-            continue
-        _alsapw_r84_killpg(proc, signal.SIGTERM)
-        try:
-            proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            _alsapw_r84_killpg(proc)
+def _jack_r95_settings_restore(entry, failures):
+    """F5: the ONE host-global mutation this family performs is the
+    `settings` clock.force-quantum metadata written by the q_global arm
+    through `jack.global-buffer-size=true`. The in-entry restore is a
+    second FIXTURE CLIENT (jack_set_buffer_size(1)); if that client is
+    killed at the bound, or an exception lands between the two legs, the
+    shared host is left at a forced 512-sample quantum for every other
+    seat. The harness therefore owns the restore: whenever the entry's
+    own record says the arm ran (`settings_global_moved`), teardown
+    fires a bounded `pw-metadata -n settings 0 clock.force-quantum 0` and
+    re-reads the store. This writes only the key the family itself set —
+    never a `set-default-*`, never a foreign key."""
+    if not entry.get("settings_global_moved"):
+        return
+    rec = _jack_r95_run(["pw-metadata", "-n", "settings", "0",
+                         "clock.force-quantum", "0"], 8.0, keep_chars=200)
+    entry["settings_restore"] = rec
+    after = _jack_r95_settings()
+    entry["settings_after_restore"] = after
+    if after.get("clock.force-quantum") != "0":
+        failures.append(
+            "teardown: clock.force-quantum = "
+            f"{after.get('clock.force-quantum')!r} after the harness-side "
+            "restore — the host-global quantum was not returned to '0'")
+
+
+def _jack_r95_block(entry, failures, msg, loads=None, procs=(),
+                    legs=None, census=()):
+    """The named coverage block: carry the partial legs (F2/C1 — the
+    per-leg evidence is what justifies the block and it used to be
+    dropped on exactly this path), run the SAME exit residue census as
+    the normal path (F3/C2), restore the host-global quantum if the arm
+    moved it (F5), and mark the entry `measured: false` so a gate can
+    never read `failures: []` as "24 legs green" (C1)."""
     entry["blocked"] = msg
     entry.setdefault("coverage_blocked", []).append(msg)
-    for tag, leaf in (loads or {}).items():
-        leaf = leaf or {}
-        entry.setdefault("unloads", {})[tag] = \
-            _pactlmon_r85_unload_own(
-                leaf.get("module_id"),
-                leaf.get("field", "sink_name"),
-                leaf.get("value", tag))
+    entry["legs"] = legs if legs is not None else entry.get("legs", {})
+    entry["legs_measured"] = len(entry["legs"] or {})
+    entry["measured"] = False
+    try:
+        _jack_r95_teardown(entry, failures, loads, procs, census=census)
+    except Exception as exc:                  # the census may never
+        entry.setdefault("coverage_blocked", []).append(   # lose the receipt
+            f"teardown aborted: {type(exc).__name__}: {exc}"[:200])
+    entry["measured"] = False
+    entry["failures"] = failures
+    return entry
+
+
+def _jack_r95_finish(entry, failures, legs, loads, procs=(), census=()):
+    """The normal-path close: carry the legs, run the exit residue
+    census, then set the machine-readable discriminators (C1) —
+    `measured` is true only when the entry RAN its leg set to the end
+    (an early block or an exception leaves it false, so `failures: {}`
+    can never be read as a green for an entry that measured nothing),
+    `legs_measured` counts the legs actually executed, and
+    `coverage_blocked` names the arms that stayed unmeasured."""
+    entry["legs"] = legs
+    entry["legs_measured"] = len(legs)
+    entry["measured"] = True
+    _jack_r95_teardown(entry, failures, loads, procs, census=census)
     entry["failures"] = failures
     return entry
 
@@ -33963,6 +34222,9 @@ def jack_surface_r95_entry():
     driver running)."""
     failures, legs = [], {}
     entry = _jack_r95_entry_head("r95a JACK availability + citizen shape")
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _jack_r95_block(entry, failures, gate["block"], legs=legs)
     tools = {t: shutil.which(t) for t in
              ("gcc", "jackd", "jack_lsp", "jack_connect", "pw-jack",
               "pactl", "pw-dump", "pw-cli", "pw-play", "pw-record",
@@ -33973,7 +34235,7 @@ def jack_surface_r95_entry():
                if not tools[t]]
     if missing:
         return _jack_r95_block(entry, failures,
-                               f"missing tools: {missing}")
+                               f"missing tools: {missing}", legs=legs)
     loads, procs = {}, []
     try:
         with tempfile.TemporaryDirectory(prefix="r95a-surf-") as tmp:
@@ -33983,7 +34245,7 @@ def jack_surface_r95_entry():
                 return _jack_r95_block(
                     entry, failures,
                     f"fixture build failed: {build.get('rc')} "
-                    f"{build.get('stderr_tail')}")
+                    f"{build.get('stderr_tail')}", legs=legs)
             # --- a_avail: the host has no JACK server, only the lib.
             leg = {"jackd": tools["jackd"], "jack_lsp": tools["jack_lsp"],
                    "jack_connect": tools["jack_connect"],
@@ -33998,6 +34260,20 @@ def jack_surface_r95_entry():
                 env=_jack_r95_env(f"{JACK_R95_PREFIX}_avail"))
             legs["a_avail"] = leg
             vj = (leg["version_probe"].get("json") or {})
+            # F4: the version/export premises are judged only on a client
+            # that OPENED. A client that never opened (open killed at the
+            # bound, libjack refusal, no JSON record) is a named coverage
+            # block — the receipt used to read "the version-pinned
+            # premise fails" where the truth was "the probe never opened".
+            vstate = _jack_r95_probe_state(leg["version_probe"])
+            leg["version_probe_state"] = vstate
+            if not vstate["ok"]:
+                return _jack_r95_block(
+                    entry, failures,
+                    f"a_avail: the JACK client never opened "
+                    f"({vstate['state']}): {vstate['detail']} — the "
+                    "version / export / addressing premises are unmeasured",
+                    loads, procs, legs)
             if tools["jackd"] is not None or tools["jack_lsp"] is not None \
                     or tools["jack_connect"] is not None:
                 failures.append(
@@ -34040,7 +34316,7 @@ def jack_surface_r95_entry():
                 return _jack_r95_block(
                     entry, failures,
                     f"probe null sink {JACK_R95_NS} never enumerated",
-                    loads, procs)
+                    loads, procs, legs, census=[JACK_R95_NS])
             cname = f"{JACK_R95_PREFIX}_shape"
             legs["s_shape"] = _jack_r95_probe(
                 probe, ["shape", "2.4"], 14.0,
@@ -34092,80 +34368,98 @@ def jack_surface_r95_entry():
             for r in (j.get("resolve") or []):
                 _jack_r95_true(failures, "s_shape",
                                f"resolve {r.get('name')}", r.get("found"))
-            client = mid.get("client") or {}
-            node = mid.get("node") or {}
-            _jack_r95_eq(failures, "s_shape", "client.api",
-                         client.get("api"), "jack")
-            _jack_r95_eq(failures, "s_shape", "node.name",
-                         node.get("name"), cname)
-            _jack_r95_eq(failures, "s_shape", "node.description",
-                         node.get("description"), cname)
-            _jack_r95_eq(failures, "s_shape", "node.group",
-                         node.get("group"), "group.dsp.0")
-            _jack_r95_eq(failures, "s_shape", "media.category",
-                         node.get("media_category"), "Duplex")
-            _jack_r95_eq(failures, "s_shape", "media.role",
-                         node.get("media_role"), "DSP")
-            _jack_r95_true(failures, "s_shape", "node.always-process",
-                           node.get("always_process"))
-            _jack_r95_eq(failures, "s_shape", "media.class absent",
-                         node.get("media_class"), None)
-            own = mid.get("ports") or {}
-            for tag, path_idx in (("out", 0), ("outp", 1), ("outt", 2),
-                                  ("outm", 3)):
-                p = own.get(tag) or {}
-                _jack_r95_eq(failures, "s_shape", f"PW port.alias {tag}",
-                             p.get("alias"), f"{cname}:{tag}")
-                _jack_r95_eq(
-                    failures, "s_shape", f"PW object.path {tag}",
-                    p.get("object_path"), f"{cname}:output_{path_idx}")
-                _jack_r95_eq(failures, "s_shape", f"PW direction {tag}",
-                             p.get("direction"), "out")
-                _jack_r95_eq(failures, "s_shape", f"PW format.dsp {tag}",
-                             p.get("format_dsp"),
-                             "32 bit float mono audio")
-            pin = own.get("in") or {}
-            _jack_r95_eq(failures, "s_shape", "PW port.alias in",
-                         pin.get("alias"), f"{cname}:in")
-            _jack_r95_eq(failures, "s_shape", "PW direction in",
-                         pin.get("direction"), "in")
-            _jack_r95_true(failures, "s_shape", "PW port.physical outp",
-                           (own.get("outp") or {}).get("physical"))
-            _jack_r95_true(failures, "s_shape", "PW port.terminal outt",
-                           (own.get("outt") or {}).get("terminal"))
-            _jack_r95_eq(failures, "s_shape", "PW port.physical outm",
-                         (own.get("outm") or {}).get("physical"), None)
-            _jack_r95_eq(failures, "s_shape", "PW port.terminal outm",
-                         (own.get("outm") or {}).get("terminal"), None)
-            _jack_r95_eq(failures, "s_shape", "PW port.extra outm",
-                         (own.get("outm") or {}).get("extra"), None)
-            _jack_r95_eq(failures, "s_shape", "links while running",
-                         mid.get("links"), [])
-            drv = mid.get("driver") or {}
-            l["driver_name"] = drv.get("name")
-            l["driver_priority"] = drv.get("priority_driver")
-            if drv.get("name") == "Dummy-Driver":
+
+            def shape_witness_arms(mid):
+                """The PW-side arms fed by the concurrent witness. They
+                are armed only when the witness actually read the graph
+                (C2) — an unreadable pw-dump used to surface as 29
+                falsified laws in the author's own dev run."""
+                client = mid.get("client") or {}
+                node = mid.get("node") or {}
+                _jack_r95_eq(failures, "s_shape", "client.api",
+                             client.get("api"), "jack")
+                _jack_r95_eq(failures, "s_shape", "node.name",
+                             node.get("name"), cname)
+                _jack_r95_eq(failures, "s_shape", "node.description",
+                             node.get("description"), cname)
+                _jack_r95_eq(failures, "s_shape", "node.group",
+                             node.get("group"), "group.dsp.0")
+                _jack_r95_eq(failures, "s_shape", "media.category",
+                             node.get("media_category"), "Duplex")
+                _jack_r95_eq(failures, "s_shape", "media.role",
+                             node.get("media_role"), "DSP")
+                _jack_r95_true(failures, "s_shape", "node.always-process",
+                               node.get("always_process"))
+                _jack_r95_eq(failures, "s_shape", "media.class absent",
+                             node.get("media_class"), None)
+                own = mid.get("ports") or {}
+                for tag, path_idx in (("out", 0), ("outp", 1),
+                                      ("outt", 2), ("outm", 3)):
+                    p = own.get(tag) or {}
+                    _jack_r95_eq(failures, "s_shape",
+                                 f"PW port.alias {tag}",
+                                 p.get("alias"), f"{cname}:{tag}")
+                    _jack_r95_eq(
+                        failures, "s_shape", f"PW object.path {tag}",
+                        p.get("object_path"), f"{cname}:output_{path_idx}")
+                    _jack_r95_eq(failures, "s_shape",
+                                 f"PW direction {tag}",
+                                 p.get("direction"), "out")
+                    _jack_r95_eq(failures, "s_shape",
+                                 f"PW format.dsp {tag}",
+                                 p.get("format_dsp"),
+                                 "32 bit float mono audio")
+                pin = own.get("in") or {}
+                _jack_r95_eq(failures, "s_shape", "PW port.alias in",
+                             pin.get("alias"), f"{cname}:in")
+                _jack_r95_eq(failures, "s_shape", "PW direction in",
+                             pin.get("direction"), "in")
                 _jack_r95_true(failures, "s_shape",
-                               "Dummy-Driver node.driver",
-                               drv.get("driver"))
+                               "PW port.physical outp",
+                               (own.get("outp") or {}).get("physical"))
+                _jack_r95_true(failures, "s_shape",
+                               "PW port.terminal outt",
+                               (own.get("outt") or {}).get("terminal"))
                 _jack_r95_eq(failures, "s_shape",
-                             "Dummy-Driver priority.driver",
-                             drv.get("priority_driver"), 200000)
-            else:
-                entry.setdefault("coverage_blocked", []).append(
-                    f"s_shape: driver resolved to {drv.get('name')!r} "
-                    "— foreign driver confound, the fallback-driver "
-                    "props are unmeasured")
-            ns_port = _jack_r95_port(_jack_r95_graph(), JACK_R95_NS,
-                                     "playback_MONO")
-            l["ns_port"] = {"alias": (ns_port or {}).get("alias"),
-                            "object_path": (ns_port or {}).get("object_path")}
-            _jack_r95_eq(failures, "s_shape", "ns rendered alias",
-                         (ns_port or {}).get("alias"),
-                         f"{JACK_R95_DS}:playback_MONO")
-            _jack_r95_eq(failures, "s_shape", "ns object.path",
-                         (ns_port or {}).get("object_path"),
-                         f"{JACK_R95_NS}:playback_0")
+                             "PW port.physical outm",
+                             (own.get("outm") or {}).get("physical"), None)
+                _jack_r95_eq(failures, "s_shape",
+                             "PW port.terminal outm",
+                             (own.get("outm") or {}).get("terminal"), None)
+                _jack_r95_eq(failures, "s_shape", "PW port.extra outm",
+                             (own.get("outm") or {}).get("extra"), None)
+                _jack_r95_eq(failures, "s_shape", "links while running",
+                             mid.get("links"), [])
+                drv = mid.get("driver") or {}
+                l["driver_name"] = drv.get("name")
+                l["driver_priority"] = drv.get("priority_driver")
+                if drv.get("name") == "Dummy-Driver":
+                    _jack_r95_true(failures, "s_shape",
+                                   "Dummy-Driver node.driver",
+                                   drv.get("driver"))
+                    _jack_r95_eq(failures, "s_shape",
+                                 "Dummy-Driver priority.driver",
+                                 drv.get("priority_driver"), 200000)
+                else:
+                    entry.setdefault("coverage_blocked", []).append(
+                        f"s_shape: driver resolved to {drv.get('name')!r} "
+                        "— foreign driver confound, the fallback-driver "
+                        "props are unmeasured")
+                nsg = _jack_r95_graph()
+                ns_port = None if nsg.get("error") else _jack_r95_port(
+                    nsg, JACK_R95_NS, "playback_MONO")
+                l["ns_port"] = {"alias": (ns_port or {}).get("alias"),
+                                "object_path": (ns_port or {}).get(
+                                    "object_path")}
+                _jack_r95_eq(failures, "s_shape", "ns rendered alias",
+                             (ns_port or {}).get("alias"),
+                             f"{JACK_R95_DS}:playback_MONO")
+                _jack_r95_eq(failures, "s_shape", "ns object.path",
+                             (ns_port or {}).get("object_path"),
+                             f"{JACK_R95_NS}:playback_0")
+
+            if _jack_r95_witness_gate(entry, "s_shape", mid):
+                shape_witness_arms(mid)
 
             # --- s_liveness: no seat sink, no links, the always-process
             # node must still be scheduled (the boundary's F1).
@@ -34200,23 +34494,31 @@ def jack_surface_r95_entry():
                 failures, "s_liveness", "frames advance",
                 (j.get("last_last_frame") or 0)
                 > (j.get("first_last_frame") or 0))
-            if drv.get("name") == "Dummy-Driver":
-                _jack_r95_true(failures, "s_liveness",
-                               "Dummy-Driver node.driver",
-                               drv.get("driver"))
-            else:
-                entry.setdefault("coverage_blocked", []).append(
-                    "s_liveness: driver resolved to "
-                    f"{drv.get('name')!r} — foreign driver confound")
-            _jack_r95_eq(failures, "s_liveness", "links",
-                         mid.get("links"), [])
-        entry["legs"] = legs
-        entry["failures"] = failures
-        _jack_r95_teardown(entry, failures, loads, procs)
+            if _jack_r95_witness_gate(entry, "s_liveness", mid):
+                if drv.get("name") == "Dummy-Driver":
+                    _jack_r95_true(failures, "s_liveness",
+                                   "Dummy-Driver node.driver",
+                                   drv.get("driver"))
+                else:
+                    entry.setdefault("coverage_blocked", []).append(
+                        "s_liveness: driver resolved to "
+                        f"{drv.get('name')!r} — foreign driver confound")
+                _jack_r95_eq(failures, "s_liveness", "links",
+                             mid.get("links"), [])
+        _jack_r95_finish(entry, failures, legs, loads, procs,
+                         census=[JACK_R95_NS])
     except Exception as exc:                      # never lose the receipt
         entry.setdefault("coverage_blocked", []).append(
             f"entry aborted: {type(exc).__name__}: {exc}"[:200])
         entry["legs"] = legs
+        entry["legs_measured"] = len(legs)
+        entry["measured"] = False
+        try:
+            _jack_r95_teardown(entry, failures, loads, procs,
+                               census=[JACK_R95_NS])   # F3/C2
+        except Exception as exc2:
+            entry.setdefault("coverage_blocked", []).append(
+                f"teardown aborted: {type(exc2).__name__}: {exc2}"[:200])
         entry["failures"] = failures
     return entry
 
@@ -34230,10 +34532,14 @@ def jack_addr_r95_entry():
     connection list + a concurrent pw-dump link edge)."""
     failures, legs = [], {}
     entry = _jack_r95_entry_head("r95a JACK cross-domain addressing")
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _jack_r95_block(entry, failures, gate["block"], legs=legs)
     missing = [t for t in ("gcc", "pactl", "pw-dump", "pw-cli")
                if not shutil.which(t)]
     if missing:
-        return _jack_r95_block(entry, failures, f"missing tools: {missing}")
+        return _jack_r95_block(entry, failures, f"missing tools: {missing}",
+                               legs=legs)
     loads, procs = {}, []
     try:
         with tempfile.TemporaryDirectory(prefix="r95a-addr-") as tmp:
@@ -34242,7 +34548,7 @@ def jack_addr_r95_entry():
             if probe is None:
                 return _jack_r95_block(
                     entry, failures,
-                    f"fixture build failed: {build.get('rc')}")
+                    f"fixture build failed: {build.get('rc')}", legs=legs)
             for name, desc in ((JACK_R95_NS, JACK_R95_DS),
                                (JACK_R95_CORNER, JACK_R95_CORNER)):
                 leaf = _jack_r95_load_ns(name, desc=desc)
@@ -34251,7 +34557,7 @@ def jack_addr_r95_entry():
                     return _jack_r95_block(
                         entry, failures,
                         f"probe null sink {name} never enumerated",
-                        loads, procs)
+                        loads, procs, legs, census=list(loads))
             cname = f"{JACK_R95_PREFIX}_xc"
             src = f"{cname}:out"
             # conns_want is the CANONICAL rendered name the connection
@@ -34277,8 +34583,7 @@ def jack_addr_r95_entry():
                 legs[lname] = _jack_r95_probe(
                     probe, ["xconnect", src, dst, "0.9"], 12.0,
                     env=_jack_r95_env(cname, env_extra),
-                    mid=lambda: {"edges": _jack_r95_edges_touching(
-                        _jack_r95_graph(), cname)}, mid_at=0.6)
+                    mid=lambda: _jack_r95_edges_witness(cname), mid_at=0.6)
                 l = legs[lname]
                 j = l.get("json") or {}
                 l["dst"] = dst
@@ -34296,13 +34601,15 @@ def jack_addr_r95_entry():
                 if dst != conns_want[0] if conns_want else False:
                     l["alias_addressed"] = dst
                     l["conns_canonical"] = conns_want
+                mw = l.get("mid") or {}
                 edges = sorted(
                     e.get("out") + "|->" + e.get("in")
-                    for e in ((l.get("mid") or {}).get("edges") or []))
+                    for e in (mw.get("edges") or []))
                 l["edges"] = edges
                 want = [f"{src}|->{edge_in}"] if edge_in else []
-                _jack_r95_eq(failures, lname, "pw link edges",
-                             edges, want)
+                if _jack_r95_witness_gate(entry, lname, mw):
+                    _jack_r95_eq(failures, lname, "pw link edges",
+                                 edges, want)
             l = legs["x_fillalias"]
             j = l.get("json") or {}
             _jack_r95_eq(failures, "x_fillalias", "dst_type",
@@ -34314,21 +34621,27 @@ def jack_addr_r95_entry():
             legs["x_corner"]["corner_name"] = corner.get("name")
             legs["x_rendered"]["ns_description"] = ns.get("description")
             legs["x_rendered"]["ns_name"] = ns.get("name")
-            _jack_r95_eq(failures, "x_corner", "corner description",
-                         corner.get("description"), JACK_R95_CORNER)
-            _jack_r95_eq(failures, "x_corner", "corner name",
-                         corner.get("name"), JACK_R95_CORNER)
-            if ns.get("description") == ns.get("name"):
-                entry.setdefault("coverage_blocked", []).append(
-                    "x_rendered/x_native: the driver sink's description "
-                    "equals its name — the two forms coincide")
-        entry["legs"] = legs
-        entry["failures"] = failures
-        _jack_r95_teardown(entry, failures, loads, procs)
+            if _jack_r95_witness_gate(entry, "x_corner", g):
+                _jack_r95_eq(failures, "x_corner", "corner description",
+                             corner.get("description"), JACK_R95_CORNER)
+                _jack_r95_eq(failures, "x_corner", "corner name",
+                             corner.get("name"), JACK_R95_CORNER)
+                if ns.get("description") == ns.get("name"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        "x_rendered/x_native: the driver sink's description "
+                        "equals its name — the two forms coincide")
+        _jack_r95_finish(entry, failures, legs, loads, procs)
     except Exception as exc:
         entry.setdefault("coverage_blocked", []).append(
             f"entry aborted: {type(exc).__name__}: {exc}"[:200])
         entry["legs"] = legs
+        entry["legs_measured"] = len(legs)
+        entry["measured"] = False
+        try:
+            _jack_r95_teardown(entry, failures, loads, procs)   # F3/C2
+        except Exception as exc2:
+            entry.setdefault("coverage_blocked", []).append(
+                f"teardown aborted: {type(exc2).__name__}: {exc2}"[:200])
         entry["failures"] = failures
     return entry
 
@@ -34345,11 +34658,15 @@ def jack_bytes_r95_entry():
     must track the nonzero window."""
     failures, legs = [], {}
     entry = _jack_r95_entry_head("r95a JACK byte path (both directions)")
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _jack_r95_block(entry, failures, gate["block"], legs=legs)
     missing = [t for t in ("gcc", "pactl", "pw-dump", "pw-cli",
                            "pw-record", "pw-play", "pw-link")
                if not shutil.which(t)]
     if missing:
-        return _jack_r95_block(entry, failures, f"missing tools: {missing}")
+        return _jack_r95_block(entry, failures, f"missing tools: {missing}",
+                               legs=legs)
     loads, procs = {}, []
     try:
         with tempfile.TemporaryDirectory(prefix="r95a-bytes-") as tmp:
@@ -34358,14 +34675,14 @@ def jack_bytes_r95_entry():
             if probe is None:
                 return _jack_r95_block(
                     entry, failures,
-                    f"fixture build failed: {build.get('rc')}")
+                    f"fixture build failed: {build.get('rc')}", legs=legs)
             leaf = _jack_r95_load_ns(JACK_R95_NS, desc=JACK_R95_DS)
             loads = {JACK_R95_NS: leaf}
             if leaf.get("module_id") is None:
                 return _jack_r95_block(
                     entry, failures,
                     f"probe null sink {JACK_R95_NS} never enumerated",
-                    loads, procs)
+                    loads, procs, legs, census=[JACK_R95_NS])
 
             # --- b_jack2pw
             cap = Path(tmp) / "jack2pw.wav"
@@ -34397,8 +34714,7 @@ def jack_bytes_r95_entry():
                 ["tone", "1.8", "0", "0",
                  f"{JACK_R95_DS}:playback_MONO"], 12.0,
                 env=_jack_r95_env(cname),
-                mid=lambda: {"edges": _jack_r95_edges_touching(
-                    _jack_r95_graph(), cname)}, mid_at=1.1)
+                mid=lambda: _jack_r95_edges_witness(cname), mid_at=1.1)
             l = legs["b_jack2pw"]
             j = l.get("json") or {}
             l["recorder_linked"] = linked
@@ -34420,13 +34736,15 @@ def jack_bytes_r95_entry():
                          l.get("exit_code"), 0)
             _jack_r95_eq(failures, "b_jack2pw", "conn_rc",
                          j.get("conn_rc"), 0)
+            mw = l.get("mid") or {}
             edges = sorted(
                 e.get("out") + "|->" + e.get("in")
-                for e in ((l.get("mid") or {}).get("edges") or []))
+                for e in (mw.get("edges") or []))
             l["edges"] = edges
-            _jack_r95_eq(
-                failures, "b_jack2pw", "pw link edge", edges,
-                [f"{cname}:out|->{JACK_R95_NS}:playback_MONO"])
+            if _jack_r95_witness_gate(entry, "b_jack2pw", mw):
+                _jack_r95_eq(
+                    failures, "b_jack2pw", "pw link edge", edges,
+                    [f"{cname}:out|->{JACK_R95_NS}:playback_MONO"])
             cap_st = l.get("capture") or {}
             _jack_r95_true(failures, "b_jack2pw", "recorder linked",
                            linked)
@@ -34479,6 +34797,7 @@ def jack_bytes_r95_entry():
 
             def mid():
                 g = _jack_r95_graph()
+                graph_err = g.get("error")
                 try:
                     player = subprocess.Popen(
                         ["pw-play", "-P", "node.autoconnect=false",
@@ -34490,6 +34809,8 @@ def jack_bytes_r95_entry():
                         stdin=subprocess.DEVNULL, start_new_session=True)
                 except OSError as exc:
                     return {"error": str(exc)[:160],
+                            "graph_error": graph_err,
+                            "graph_ok": not graph_err,
                             "edges": _jack_r95_edges_touching(g, cname2)}
                 holder["player"] = player
                 link_rc, linked = None, False
@@ -34516,7 +34837,9 @@ def jack_bytes_r95_entry():
                         "edges_after_exit": _jack_r95_edges_touching(
                             _jack_r95_graph(), cname2),
                         "link_rc": link_rc, "linked": linked,
-                        "player_rc": player.returncode}
+                        "player_rc": player.returncode,
+                        "graph_error": graph_err,
+                        "graph_ok": not graph_err}
 
             legs["b_pw2jack"] = _jack_r95_probe(
                 probe, ["tone", "2.6", "0", "0", ""], 16.0,
@@ -34563,16 +34886,24 @@ def jack_bytes_r95_entry():
                 e.get("out") + "|->" + e.get("in")
                 for e in (m.get("edges") or []))
             l["edges"] = edges
-            _jack_r95_eq(
-                failures, "b_pw2jack", "pw link edge", edges,
-                [f"{play_tag}:output_MONO|->{cname2}:in"])
-        entry["legs"] = legs
-        entry["failures"] = failures
-        _jack_r95_teardown(entry, failures, loads, procs)
+            if _jack_r95_witness_gate(entry, "b_pw2jack", m):
+                _jack_r95_eq(
+                    failures, "b_pw2jack", "pw link edge", edges,
+                    [f"{play_tag}:output_MONO|->{cname2}:in"])
+        _jack_r95_finish(entry, failures, legs, loads, procs,
+                         census=[JACK_R95_NS])
     except Exception as exc:
         entry.setdefault("coverage_blocked", []).append(
             f"entry aborted: {type(exc).__name__}: {exc}"[:200])
         entry["legs"] = legs
+        entry["legs_measured"] = len(legs)
+        entry["measured"] = False
+        try:
+            _jack_r95_teardown(entry, failures, loads, procs,
+                               census=[JACK_R95_NS])   # F3/C2
+        except Exception as exc2:
+            entry.setdefault("coverage_blocked", []).append(
+                f"teardown aborted: {type(exc2).__name__}: {exc2}"[:200])
         entry["failures"] = failures
     return entry
 
@@ -34592,10 +34923,14 @@ def jack_quantum_r95_entry():
     re-verified by teardown)."""
     failures, legs = [], {}
     entry = _jack_r95_entry_head("r95a JACK period-size / quantum lattice")
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _jack_r95_block(entry, failures, gate["block"], legs=legs)
     missing = [t for t in ("gcc", "pactl", "pw-dump", "pw-cli", "pw-jack")
                if not shutil.which(t)]
     if missing:
-        return _jack_r95_block(entry, failures, f"missing tools: {missing}")
+        return _jack_r95_block(entry, failures, f"missing tools: {missing}",
+                               legs=legs)
     loads, procs = {}, []
     settings_before = entry.get("settings_at_start") or {}
     try:
@@ -34605,23 +34940,29 @@ def jack_quantum_r95_entry():
             if probe is None:
                 return _jack_r95_block(
                     entry, failures,
-                    f"fixture build failed: {build.get('rc')}")
+                    f"fixture build failed: {build.get('rc')}", legs=legs)
             leaf = _jack_r95_load_ns(JACK_R95_NS, desc=JACK_R95_DS)
             loads = {JACK_R95_NS: leaf}
             if leaf.get("module_id") is None:
                 return _jack_r95_block(
                     entry, failures,
                     f"probe null sink {JACK_R95_NS} never enumerated",
-                    loads, procs)
+                    loads, procs, legs, census=[JACK_R95_NS])
 
             def node_slice(cname, tag="q"):
                 def hook():
                     g = _jack_r95_graph()
                     n = (g.get("node_by_name") or {}).get(cname) or {}
+                    srec = _jack_r95_meta_rows("settings")
                     return {tag: {"force_quantum": n.get("force_quantum"),
                                   "force_rate": n.get("force_rate"),
                                   "state": n.get("state")},
-                            "settings": _jack_r95_settings()}
+                            "settings": {k: v["value"] for k, v
+                                         in (srec.get("rows") or {}).items()},
+                            "error": g.get("error"),
+                            "graph_ok": (not g.get("error")
+                                         and srec.get("exit_code") == 0
+                                         and not srec.get("killed_at_bound"))}
                 return hook
 
             # --- q_default: inactive set invisible, activated lands.
@@ -34640,12 +34981,15 @@ def jack_quantum_r95_entry():
                          j.get("bufsize_inactive"))
             _jack_r95_eq(failures, "q_default", "activated",
                          j.get("bufsize_activated"), 2048)
-            _jack_r95_eq(failures, "q_default", "node.force-quantum",
-                         ((l.get("mid") or {}).get("q") or {})
-                         .get("force_quantum"), "2048")
-            _jack_r95_eq(failures, "q_default", "settings force-quantum",
-                         ((l.get("mid") or {}).get("settings") or {})
-                         .get("clock.force-quantum"), "0")
+            mw = l.get("mid") or {}
+            if _jack_r95_witness_gate(entry, "q_default", mw):
+                _jack_r95_eq(failures, "q_default", "node.force-quantum",
+                             (mw.get("q") or {}).get("force_quantum"),
+                             "2048")
+                _jack_r95_eq(failures, "q_default",
+                             "settings force-quantum",
+                             (mw.get("settings") or {})
+                             .get("clock.force-quantum"), "0")
 
             # --- q_live: the live set delivers the callback.
             cname = f"{JACK_R95_PREFIX}_ql"
@@ -34665,9 +35009,12 @@ def jack_quantum_r95_entry():
                 > (j.get("bufsize_cbs") or 0))
             _jack_r95_eq(failures, "q_live", "last_bufsize_cb_after",
                          j.get("last_bufsize_cb_after"), 512)
-            _jack_r95_eq(failures, "q_live", "node.force-quantum after",
-                         ((l.get("mid") or {}).get("q2") or {})
-                         .get("force_quantum"), "512")
+            mw = l.get("mid") or {}
+            if _jack_r95_witness_gate(entry, "q_live", mw):
+                _jack_r95_eq(failures, "q_live",
+                             "node.force-quantum after",
+                             (mw.get("q2") or {}).get("force_quantum"),
+                             "512")
 
             # --- q_cross: a second client sees the changed value.
             cname = f"{JACK_R95_PREFIX}_qa"
@@ -34681,8 +35028,11 @@ def jack_quantum_r95_entry():
                 n = (g.get("node_by_name") or {}).get(cname) or {}
                 return {"client_b": rec.get("json"),
                         "client_b_rc": rec.get("exit_code"),
+                        "client_b_state": _jack_r95_probe_state(rec),
                         "a_force_quantum": n.get("force_quantum"),
-                        "settings": _jack_r95_settings()}
+                        "settings": _jack_r95_settings(),
+                        "error": g.get("error"),
+                        "graph_ok": not g.get("error")}
 
             legs["q_cross"] = _jack_r95_probe(
                 probe, ["bufsize", "2.8", "2048", "0"], 12.0,
@@ -34692,16 +35042,27 @@ def jack_quantum_r95_entry():
             m = l.get("mid") or {}
             _jack_r95_eq(failures, "q_cross", "a activated",
                          j.get("bufsize_activated"), 2048)
-            _jack_r95_eq(failures, "q_cross", "a force-quantum",
-                         m.get("a_force_quantum"), "2048")
-            _jack_r95_eq(failures, "q_cross", "second client rc",
-                         m.get("client_b_rc"), 0)
-            _jack_r95_eq(
-                failures, "q_cross", "second client bufsize_active",
-                (m.get("client_b") or {}).get("bufsize_active"), 2048)
-            _jack_r95_eq(failures, "q_cross", "settings force-quantum",
-                         (m.get("settings") or {}).get("clock.force-quantum"),
-                         "0")
+            if _jack_r95_witness_gate(entry, "q_cross", m):
+                _jack_r95_eq(failures, "q_cross", "a force-quantum",
+                             m.get("a_force_quantum"), "2048")
+                b_state = m.get("client_b_state") or {}
+                if not b_state.get("ok"):
+                    entry.setdefault("coverage_blocked", []).append(
+                        "q_cross: the second JACK client never opened "
+                        f"({b_state.get('state')}): "
+                        f"{b_state.get('detail')} — the cross-client "
+                        "quantum read is unmeasured")
+                else:
+                    _jack_r95_eq(failures, "q_cross", "second client rc",
+                                 m.get("client_b_rc"), 0)
+                    _jack_r95_eq(
+                        failures, "q_cross", "second client bufsize_active",
+                        (m.get("client_b") or {}).get("bufsize_active"),
+                        2048)
+                _jack_r95_eq(failures, "q_cross",
+                             "settings force-quantum",
+                             (m.get("settings") or {})
+                             .get("clock.force-quantum"), "0")
 
             # --- q_env / q_wrapper: the same node props.
             for lname, argv, env_extra in (
@@ -34723,13 +35084,15 @@ def jack_quantum_r95_entry():
                          "bufsize", "1.4", "0", "0"])
                 l = legs[lname]
                 j = l.get("json") or {}
-                mid = (l.get("mid") or {}).get("q") or {}
+                mw = l.get("mid") or {}
+                mid = mw.get("q") or {}
                 _jack_r95_eq(failures, lname, "set skipped",
                              j.get("set_inactive_attempted"), False)
-                _jack_r95_eq(failures, lname, "force-quantum",
-                             mid.get("force_quantum"), "512")
-                _jack_r95_eq(failures, lname, "force-rate",
-                             mid.get("force_rate"), "48000")
+                if _jack_r95_witness_gate(entry, lname, mw):
+                    _jack_r95_eq(failures, lname, "force-quantum",
+                                 mid.get("force_quantum"), "512")
+                    _jack_r95_eq(failures, lname, "force-rate",
+                                 mid.get("force_rate"), "48000")
                 _jack_r95_eq(failures, lname, "bufsize_activated",
                              j.get("bufsize_activated"), 512)
                 _jack_r95_eq(failures, lname, "srate_live",
@@ -34743,9 +35106,11 @@ def jack_quantum_r95_entry():
                 mid=node_slice(cname), mid_at=0.7)
             l = legs["q_env_rate"]
             j = l.get("json") or {}
-            mid = (l.get("mid") or {}).get("q") or {}
-            _jack_r95_eq(failures, "q_env_rate", "force-rate",
-                         mid.get("force_rate"), "44100")
+            mw = l.get("mid") or {}
+            mid = mw.get("q") or {}
+            if _jack_r95_witness_gate(entry, "q_env_rate", mw):
+                _jack_r95_eq(failures, "q_env_rate", "force-rate",
+                             mid.get("force_rate"), "44100")
             _jack_r95_eq(failures, "q_env_rate", "srate_active",
                          j.get("srate_active"), 44100)
             _jack_r95_eq(failures, "q_env_rate", "srate_live",
@@ -34756,9 +35121,14 @@ def jack_quantum_r95_entry():
                          j.get("bufsize_activated"), 512)
             after_rate = _jack_r95_settings()
             l["settings_after"] = after_rate
-            _jack_r95_eq(failures, "q_env_rate", "clock.rate restored",
-                         after_rate.get("clock.rate"),
-                         settings_before.get("clock.rate"))
+            if after_rate:
+                _jack_r95_eq(failures, "q_env_rate", "clock.rate restored",
+                             after_rate.get("clock.rate"),
+                             settings_before.get("clock.rate"))
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "q_env_rate: the settings store read back empty — the "
+                    "clock.rate restore witness is unmeasured")
 
             # --- q_bufsize1: the metadata-only reset (F7).
             cname = f"{JACK_R95_PREFIX}_q1"
@@ -34768,14 +35138,16 @@ def jack_quantum_r95_entry():
                 mid_at=0.7)
             l = legs["q_bufsize1"]
             j = l.get("json") or {}
-            mid = (l.get("mid") or {}).get("q") or {}
-            _jack_r95_eq(failures, "q_bufsize1", "node.force-quantum",
-                         mid.get("force_quantum"), "1")
+            mw = l.get("mid") or {}
+            mid = mw.get("q") or {}
+            if _jack_r95_witness_gate(entry, "q_bufsize1", mw):
+                _jack_r95_eq(failures, "q_bufsize1", "node.force-quantum",
+                             mid.get("force_quantum"), "1")
+                _jack_r95_eq(failures, "q_bufsize1", "settings untouched",
+                             (mw.get("settings") or {})
+                             .get("clock.force-quantum"), "0")
             _jack_r95_band(failures, "q_bufsize1", "effective bufsize",
                            j.get("bufsize_activated"), 1, 8)
-            _jack_r95_eq(failures, "q_bufsize1", "settings untouched",
-                         (l.get("mid") or {}).get("settings", {})
-                         .get("clock.force-quantum"), "0")
 
             # --- q_global: the metadata write + restore (disclosed).
             cname = f"{JACK_R95_PREFIX}_qg"
@@ -34787,8 +35159,15 @@ def jack_quantum_r95_entry():
                 g = _jack_r95_graph()
                 n = (g.get("node_by_name") or {}).get(cname) or {}
                 return {"settings": _jack_r95_settings(),
-                        "node_force_quantum": n.get("force_quantum")}
+                        "node_force_quantum": n.get("force_quantum"),
+                        "error": g.get("error"),
+                        "graph_ok": not g.get("error")}
 
+            # F5: arm the harness-side restore BEFORE the writer runs —
+            # if the q_global client is killed at the bound, or an
+            # exception lands before the reset leg, the teardown (and the
+            # except path) still returns clock.force-quantum to "0".
+            entry["settings_global_moved"] = True
             legs["q_global"] = _jack_r95_probe(
                 probe, ["bufsize", "1.4", "512", "0"], 10.0,
                 env=env_global, mid=global_mid, mid_at=0.7)
@@ -34807,8 +35186,16 @@ def jack_quantum_r95_entry():
             legs["q_global_second"] = _jack_r95_probe(
                 probe, ["info", "0.5"], 8.0, env=_jack_r95_env(cname_b))
             jb = legs["q_global_second"].get("json") or {}
-            _jack_r95_eq(failures, "q_global_second", "second client",
-                         jb.get("bufsize_active"), 512)
+            bstate = _jack_r95_probe_state(legs["q_global_second"])
+            legs["q_global_second"]["probe_state"] = bstate
+            if bstate["ok"]:
+                _jack_r95_eq(failures, "q_global_second", "second client",
+                             jb.get("bufsize_active"), 512)
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "q_global_second: the second JACK client never opened "
+                    f"({bstate['state']}): {bstate['detail']} — the "
+                    "host-global quantum read is unmeasured")
             cname_r = f"{JACK_R95_PREFIX}_qgr"
             legs["q_global_reset"] = _jack_r95_probe(
                 probe, ["bufsize", "1.4", "1", "0"], 10.0,
@@ -34831,13 +35218,20 @@ def jack_quantum_r95_entry():
                 failures.append(
                     f"q_global: settings keys moved across the global "
                     f"arm: {moved} — only clock.force-quantum may move")
-        entry["legs"] = legs
-        entry["failures"] = failures
-        _jack_r95_teardown(entry, failures, loads, procs)
+        _jack_r95_finish(entry, failures, legs, loads, procs,
+                         census=[JACK_R95_NS])
     except Exception as exc:
         entry.setdefault("coverage_blocked", []).append(
             f"entry aborted: {type(exc).__name__}: {exc}"[:200])
         entry["legs"] = legs
+        entry["legs_measured"] = len(legs)
+        entry["measured"] = False
+        try:
+            _jack_r95_teardown(entry, failures, loads, procs,
+                               census=[JACK_R95_NS])   # F3/C2 + F5
+        except Exception as exc2:
+            entry.setdefault("coverage_blocked", []).append(
+                f"teardown aborted: {type(exc2).__name__}: {exc2}"[:200])
         entry["failures"] = failures
     return entry
 
@@ -34852,14 +35246,21 @@ def jack_defects_r95_entry():
     read-only projection; locate/reposition are inert. Metadata:
     jack_set_property writes the `default` store keyed by the object's
     REGISTRY id (the row is visible to pw-dump while the client lives
-    and dies with it), while the client's own getter stays stale after
-    its own removal."""
+    and dies with it), while the client's own getter after its own
+    removal is a CACHE RACE — the stale hit (0, 'value1') under load, the
+    refreshed not-found (-1, '') on a quiet host; both are admissible and
+    the branch is recorded (the fold's correction of the verifier's
+    §8.1 false-red generator)."""
     failures, legs = [], {}
     entry = _jack_r95_entry_head("r95a JACK defect families")
+    gate = entry.get("daemon_gate") or {}
+    if not gate.get("ok"):
+        return _jack_r95_block(entry, failures, gate["block"], legs=legs)
     missing = [t for t in ("gcc", "pactl", "pw-dump", "pw-cli")
                if not shutil.which(t)]
     if missing:
-        return _jack_r95_block(entry, failures, f"missing tools: {missing}")
+        return _jack_r95_block(entry, failures, f"missing tools: {missing}",
+                               legs=legs)
     loads, procs = {}, []
     try:
         with tempfile.TemporaryDirectory(prefix="r95a-def-") as tmp:
@@ -34868,14 +35269,14 @@ def jack_defects_r95_entry():
             if probe is None:
                 return _jack_r95_block(
                     entry, failures,
-                    f"fixture build failed: {build.get('rc')}")
+                    f"fixture build failed: {build.get('rc')}", legs=legs)
             leaf = _jack_r95_load_ns(JACK_R95_NS, desc=JACK_R95_DS)
             loads = {JACK_R95_NS: leaf}
             if leaf.get("module_id") is None:
                 return _jack_r95_block(
                     entry, failures,
                     f"probe null sink {JACK_R95_NS} never enumerated",
-                    loads, procs)
+                    loads, procs, legs, census=[JACK_R95_NS])
 
             # --- d_xrun_stall: 8 deliberate stalls, no callback.
             cname = f"{JACK_R95_PREFIX}_xrun"
@@ -34994,9 +35395,47 @@ def jack_defects_r95_entry():
             def meta_mid():
                 g = _jack_r95_graph()
                 n = (g.get("node_by_name") or {}).get(cname) or {}
-                rows = _jack_r95_meta_rows("default").get("rows") or {}
-                return {"node_id": n.get("id"),
-                        "rows": {k: v for k, v in rows.items()
+                nid = n.get("id")
+                # F1: OUR subjects are our node's registry id plus the
+                # registry ids of OUR ports (the port entries of
+                # `_jack_r95_graph` are keyed BY the global port id) —
+                # the client writes the LITERAL keys `r95a/key1` /
+                # `r95a/portkey`, so a concurrent same-family seat's rows
+                # are the same keys with other subjects. The armed census
+                # is subject-keyed; a key-only collapse could not tell
+                # the two apart. Measured mapping: `jack_set_property` on
+                # the client uuid lands on the node id, on the port uuid
+                # on the port's global id.
+                pids = {pid for pid, p in (g.get("ports") or {}).items()
+                        if p.get("node_id") == nid}
+                mrec = _jack_r95_meta_rows("default")
+                by_subj = mrec.get("rows_by_subject") or {}
+                own_subjects = sorted(
+                    s for s in by_subj if s == nid or s in pids)
+                own_rows = {k: v for s in own_subjects
+                            for k, v in (by_subj.get(s) or {}).items()
+                            if str(k).startswith("r95a/")}
+                foreign = {s: {k: v for k, v in r.items()
+                               if str(k).startswith("r95a/")}
+                           for s, r in by_subj.items()
+                           if s not in own_subjects
+                           and any(str(k).startswith("r95a/")
+                                   for k in r)}
+                return {"node_id": nid,
+                        "own_port_ids": sorted(pids),
+                        "own_subjects": own_subjects,
+                        "own_rows": own_rows,
+                        "foreign_r95a_rows": foreign,
+                        "meta_read": {"rc": mrec.get("exit_code"),
+                                      "killed_at_bound":
+                                          mrec.get("killed_at_bound"),
+                                      "row_count": mrec.get("row_count"),
+                                      "subject_count":
+                                          mrec.get("subject_count")},
+                        "error": g.get("error"),
+                        "graph_ok": not g.get("error"),
+                        "rows": {k: v for k, v in
+                                 (mrec.get("rows") or {}).items()
                                  if str(k).startswith("r95a/")}}
 
             legs["d_metadata"] = _jack_r95_probe(
@@ -35005,10 +35444,19 @@ def jack_defects_r95_entry():
             l = legs["d_metadata"]
             j = l.get("json") or {}
             m = l.get("mid") or {}
-            l["rows_after_exit"] = {
-                k: v for k, v in
-                (_jack_r95_meta_rows("default").get("rows") or {}).items()
-                if str(k).startswith("r95a/")}
+            after_rec = _jack_r95_meta_rows("default")
+            after_by_subj = after_rec.get("rows_by_subject") or {}
+            own_after = {k: v for s in (m.get("own_subjects") or [])
+                         for k, v in (after_by_subj.get(s) or {}).items()
+                         if str(k).startswith("r95a/")}
+            l["rows_after_exit"] = own_after
+            l["rows_after_exit_subject_keyed"] = {
+                s: {k: v for k, v in r.items()
+                    if str(k).startswith("r95a/")}
+                for s, r in after_by_subj.items()
+                if any(str(k).startswith("r95a/") for k in r)}
+            l["own_subjects"] = m.get("own_subjects")
+            l["foreign_r95a_rows_while_running"] = m.get("foreign_r95a_rows")
             _jack_r95_eq(failures, "d_metadata", "set_client_rc",
                          j.get("set_client_rc"), 0)
             _jack_r95_eq(failures, "d_metadata", "set_port_rc",
@@ -35027,33 +35475,78 @@ def jack_defects_r95_entry():
                          j.get("own_desc_count"), 2)
             _jack_r95_eq(failures, "d_metadata", "remove_client_rc",
                          j.get("remove_client_rc"), 0)
-            _jack_r95_eq(failures, "d_metadata", "stale after remove",
-                         j.get("get_after_remove_value"), "value1")
-            rows = m.get("rows") or {}
-            _jack_r95_eq(failures, "d_metadata", "live row value",
-                         (rows.get("r95a/key1") or {}).get("value"),
-                         "value1")
-            if not rows:
+            # FOLD (not in the C1-C5/F1-F8 union; required by the green
+            # contract): the post-removal getter is a CACHE RACE between
+            # the removal round-trip and the fixture's fixed 250 ms sleep,
+            # and the stale-branch equality was a false-red generator —
+            # 13/13 prior observations (author + scout/boundary receipts,
+            # loadavg 50+) recorded the stale hit (0, 'value1') while the
+            # verifier's 4 runs on committed bytes and this fold's own
+            # direct fixture probe (loadavg ~10, responsive daemon)
+            # recorded the refreshed (-1, ''). Arm the admissible PAIR and
+            # RECORD the branch; anything else is a failure.
+            got_after = (j.get("get_after_remove_rc"),
+                         j.get("get_after_remove_value"))
+            l["get_after_remove_branch"] = (
+                "cache_hit" if got_after == (0, "value1")
+                else "refreshed" if got_after == (-1, "")
+                else f"unexpected {got_after!r}")
+            if got_after not in ((0, "value1"), (-1, "")):
                 failures.append(
-                    "d_metadata: no r95a/ row in the `default` store "
-                    "while the client ran — the live-row law fails")
-            else:
-                subj = (rows.get("r95a/key1") or {}).get("subject")
-                _jack_r95_eq(failures, "d_metadata",
-                             "row subject is the registry id",
-                             subj, m.get("node_id"))
-            l["rows_after_exit_ok"] = not l["rows_after_exit"]
-            if l["rows_after_exit"]:
-                failures.append(
-                    "d_metadata: r95a/ rows survived the writer: "
-                    f"{l['rows_after_exit']}")
-        entry["legs"] = legs
-        entry["failures"] = failures
-        _jack_r95_teardown(entry, failures, loads, procs)
+                    "d_metadata: get_after_remove = "
+                    f"{got_after!r}, want the stale cache hit (0, 'value1') "
+                    "or the refreshed not-found (-1, '') — the "
+                    "post-removal getter returned an inadmissible state")
+            if _jack_r95_witness_gate(entry, "d_metadata", m):
+                rows = m.get("own_rows") or {}
+                _jack_r95_eq(failures, "d_metadata", "live row value",
+                             (rows.get("r95a/key1") or {}).get("value"),
+                             "value1")
+                if not rows:
+                    failures.append(
+                        "d_metadata: no r95a/ row under OUR subjects "
+                        f"{(m.get('own_subjects') or [])} in the `default` "
+                        "store while the client ran — the live-row law "
+                        "fails")
+                else:
+                    subj = (rows.get("r95a/key1") or {}).get("subject")
+                    _jack_r95_eq(failures, "d_metadata",
+                                 "row subject is the registry id",
+                                 subj, m.get("node_id"))
+                # F1 completeness: BOTH rows the client wrote (the client
+                # row under our node id, the port row under one of our
+                # port ids) must be attributable to OUR subjects — the
+                # fixture's own `own_desc_count == 2` says both landed.
+                missing_own = [k for k in ("r95a/key1", "r95a/portkey")
+                               if k not in rows]
+                if missing_own:
+                    entry.setdefault("coverage_blocked", []).append(
+                        "d_metadata: our own r95a rows are not attributable "
+                        f"to our subjects {(m.get('own_subjects') or [])} "
+                        f"(node {m.get('node_id')}, ports "
+                        f"{(m.get('own_port_ids') or [])}): missing "
+                        f"{missing_own} — the per-client census is "
+                        "incomplete, so a sibling's row could not be told "
+                        "from ours")
+                l["rows_after_exit_ok"] = not own_after
+                if own_after:
+                    failures.append(
+                        "d_metadata: r95a/ rows under OUR subjects survived "
+                        f"the writer: {own_after}")
+        _jack_r95_finish(entry, failures, legs, loads, procs,
+                         census=[JACK_R95_NS])
     except Exception as exc:
         entry.setdefault("coverage_blocked", []).append(
             f"entry aborted: {type(exc).__name__}: {exc}"[:200])
         entry["legs"] = legs
+        entry["legs_measured"] = len(legs)
+        entry["measured"] = False
+        try:
+            _jack_r95_teardown(entry, failures, loads, procs,
+                               census=[JACK_R95_NS])   # F3/C2
+        except Exception as exc2:
+            entry.setdefault("coverage_blocked", []).append(
+                f"teardown aborted: {type(exc2).__name__}: {exc2}"[:200])
         entry["failures"] = failures
     return entry
 
@@ -35677,19 +36170,36 @@ def main():
         # ledger family, prior rows untouched; r76-r89 guards inherited
         # (seat-owned r95a_<pid> names, the private r95arole<pid> key,
         # name-verified sink_name= unloads, never set-default-*,
-        # bounded process groups). The family lock is a FIXED
-        # corpus/live/ path — the r84 F1 3-seat consensus.
-        _r95_family_lock = _jack_r95_family_lock()   # held to exit
-        measurements["jack_surface_r95_probe"] = \
-            jack_surface_r95_entry()
-        measurements["jack_addr_r95_probe"] = \
-            jack_addr_r95_entry()
-        measurements["jack_bytes_r95_probe"] = \
-            jack_bytes_r95_entry()
-        measurements["jack_quantum_r95_probe"] = \
-            jack_quantum_r95_entry()
-        measurements["jack_defects_r95_probe"] = \
-            jack_defects_r95_entry()
+        # bounded process groups). The family lock is a HOST-GLOBAL path
+        # ($XDG_RUNTIME_DIR/ufo-measure_audio-jack-r95.lock) acquired with
+        # a BOUNDED NON-BLOCKING retry: the r84 F1 3-seat consensus
+        # ("cross-TMPDIR same-family runs must still exclude") is only
+        # honoured when the path does not move with the tree (F6/C4) — a
+        # live holder past the cap names a coverage block on every entry
+        # instead of waiting unbounded, and the file is truncated on
+        # release so a stale holder never reads as a live one (C5).
+        lock = _jack_r95_family_lock()               # held to exit
+        measurements["jack_r95_family_lock"] = {
+            "probe": "r95a family lock (host-global, bounded acquire)",
+            "path": lock["path"], "pid": lock["pid"],
+            "wait_cap_s": lock["wait_cap_s"], "waited_s": lock["waited_s"],
+            "acquired": lock["fd"] is not None,
+            "holder_text": lock["holder_text"],
+            "stale_text": lock["stale_text"],
+            "block": lock["block"],
+            "coverage_blocked": [lock["block"]] if lock["block"] else [],
+            "failures": []}
+        _r95_lock_block = lock["block"]
+        for _r95_key, _r95_fn in (
+                ("jack_surface_r95_probe", jack_surface_r95_entry),
+                ("jack_addr_r95_probe", jack_addr_r95_entry),
+                ("jack_bytes_r95_probe", jack_bytes_r95_entry),
+                ("jack_quantum_r95_probe", jack_quantum_r95_entry),
+                ("jack_defects_r95_probe", jack_defects_r95_entry)):
+            measurements[_r95_key] = (
+                _jack_r95_lock_blocked_entry(_r95_key, _r95_lock_block)
+                if _r95_lock_block else _r95_fn())
+        _jack_r95_lock_release(lock["fd"])
 
 
     if args.probe_pwprof_r89:
