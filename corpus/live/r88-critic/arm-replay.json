@@ -1,0 +1,1620 @@
+{
+  "block_sha": {
+    "btabs_bluez_r88_probe": "2e60d34801d5f9cef6c7bf241b2e5eb3944cf2437a5ee617b22e8fec9ed9ce9c",
+    "pwtop_r88_probe": "7a2af78514e311903024fea6663741f02aaf02c543ea1843ab2e85a1698167ac",
+    "witdiff_dump_r88_probe": "fd2b3257f47aa9103e46e1481cc83adbf24b1a6f4d174885203178479841fc4f"
+  },
+  "controls": [],
+  "mutations": [
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_device: /org/bluez/hci0/dev_BC_C7_46_34_C5_66 advertises audio UUIDs ['110a'] \u2014 it could become a bluez audio node"
+      ],
+      "id": "B1_device_audio_uuid",
+      "note": "the paired device gains an A2DP UUID",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_device: /org/bluez/hci0/dev_BC_C7_46_34_C5_66 advertises audio UUIDs ['110a'] \u2014 it could become a bluez audio node"
+      ],
+      "id": "B1_device_audio_uuid",
+      "note": "the paired device gains an A2DP UUID",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_cards: bluez card exists ['bluez_card.BC_C7_46_34_C5_66'] \u2014 the absent class fails"
+      ],
+      "id": "B2_bluez_card_exists",
+      "note": "a bluez card appears",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_cards: bluez card exists ['bluez_card.BC_C7_46_34_C5_66'] \u2014 the absent class fails"
+      ],
+      "id": "B2_bluez_card_exists",
+      "note": "a bluez card appears",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_sinks: bluez sink exists ['bluez_output.BC_C7_46_34_C5_66.a2dp-sink']"
+      ],
+      "id": "B3_bluez_sink_exists",
+      "note": "a bluez sink appears",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_sinks: bluez sink exists ['bluez_output.BC_C7_46_34_C5_66.a2dp-sink']"
+      ],
+      "id": "B3_bluez_sink_exists",
+      "note": "a bluez sink appears",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_midi_bridge: bluez object {'id': 49, 'name': 'bluez_midi.server', 'media_class': 'Audio/Sink', 'factory': 'api.bluez5.midi.node'} is not Midi/Bridge \u2014 an audio-class bluez node exists"
+      ],
+      "id": "B4_bridge_not_midi",
+      "note": "the one bluez5 object is audio-class",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_midi_bridge: bluez object {'id': 49, 'name': 'bluez_midi.server', 'media_class': 'Audio/Sink', 'factory': 'api.bluez5.midi.node'} is not Midi/Bridge \u2014 an audio-class bluez node exists"
+      ],
+      "id": "B4_bridge_not_midi",
+      "note": "the one bluez5 object is audio-class",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_adapter: Powered != true (b false\n) \u2014 stack-alive fails"
+      ],
+      "id": "B5_adapter_unpowered",
+      "note": "adapter Powered=false",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_adapter: Powered != true (b false\n) \u2014 stack-alive fails"
+      ],
+      "id": "B5_adapter_unpowered",
+      "note": "adapter Powered=false",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_media1: A2DP src/sink UUIDs not advertised as 1 \"0000110e-0000-1000-8000-00805f9b34fb\"\n"
+      ],
+      "id": "B6_media1_no_a2dp",
+      "note": "A2DP endpoints not advertised",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_media1: A2DP src/sink UUIDs not advertised as 1 \"0000110e-0000-1000-8000-00805f9b34fb\"\n"
+      ],
+      "id": "B6_media1_no_a2dp",
+      "note": "A2DP endpoints not advertised",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_create_a2dpsink: rc=0 class=None \u2014 the fabrication refusal class fails"
+      ],
+      "id": "B7_fabrication_succeeds",
+      "note": "create-node a2dp-sink is not refused",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_create_a2dpsink: rc=0 class=None \u2014 the fabrication refusal class fails"
+      ],
+      "id": "B7_fabrication_succeeds",
+      "note": "create-node a2dp-sink is not refused",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_own_residue: create-node attempts left objects ['r88a_1_bz_create_a2dpsink']"
+      ],
+      "id": "B8_fabrication_residue",
+      "note": "a create-node attempt left an object",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_own_residue: create-node attempts left objects ['r88a_1_bz_create_a2dpsink']"
+      ],
+      "id": "B8_fabrication_residue",
+      "note": "a create-node attempt left an object",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_mods_after: a bluez-named module is loaded ['42 module-bluez5-discover']"
+      ],
+      "id": "B9_bluez_module_loaded",
+      "note": "a bluez-named module is loaded",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_mods_after: a bluez-named module is loaded ['42 module-bluez5-discover']"
+      ],
+      "id": "B9_bluez_module_loaded",
+      "note": "a bluez-named module is loaded",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_loadmod_device: rc=0 class=None \u2014 the module-miss refusal class fails"
+      ],
+      "id": "B10_loadmod_succeeds",
+      "note": "module-bluez5-device loads",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_loadmod_device: rc=0 class=None \u2014 the module-miss refusal class fails"
+      ],
+      "id": "B10_loadmod_succeeds",
+      "note": "module-bluez5-device loads",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_sendmsg: rc=0 class=pa_sendmsg_noent"
+      ],
+      "id": "B11_sendmsg_ok",
+      "note": "send-message succeeds",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_sendmsg: rc=0 class=pa_sendmsg_noent"
+      ],
+      "id": "B11_sendmsg_ok",
+      "note": "send-message succeeds",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_spa_inventory: 13 files \u2014 the boundary's 14-file correction fails"
+      ],
+      "id": "B12_spa_count_13",
+      "note": "the boundary's 14-file correction is 13 again",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_spa_inventory: 13 files \u2014 the boundary's 14-file correction fails"
+      ],
+      "id": "B12_spa_count_13",
+      "note": "the boundary's 14-file correction is 13 again",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_spa_codecs_str: bluez5.codecs strings [] \u2014 the parsed-property evidence fails"
+      ],
+      "id": "B13_codecs_absent",
+      "note": "the parsed bluez5.codecs property vanishes (scout's claim)",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_spa_codecs_str: bluez5.codecs strings [] \u2014 the parsed-property evidence fails"
+      ],
+      "id": "B13_codecs_absent",
+      "note": "the parsed bluez5.codecs property vanishes (scout's claim)",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_find_module: module-bluez5*.so exists ['/usr/lib/pipewire-0.3/module-bluez5-device.so']"
+      ],
+      "id": "B14_module_on_disk",
+      "note": "module-bluez5*.so exists on disk",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_find_module: module-bluez5*.so exists ['/usr/lib/pipewire-0.3/module-bluez5-device.so']"
+      ],
+      "id": "B14_module_on_disk",
+      "note": "module-bluez5*.so exists on disk",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_media_transport: MediaTransport objects exist ['MediaTransport1']"
+      ],
+      "id": "B15_media_transport",
+      "note": "a MediaTransport object exists",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_media_transport: MediaTransport objects exist ['MediaTransport1']"
+      ],
+      "id": "B15_media_transport",
+      "note": "a MediaTransport object exists",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_pactl_lines: 2 bluez-lines ['session.services = \"[bluetooth.audio, api.alsa, policy.default-nodes, api.libcamera, audio, api.alsa-seq, policy.device.routes, midi, bluetooth.midi, policy.linking.role-based, policy.linking.standard, api.bluez, policy.device.profile, api.v4l2, video-capture]\"', 'bluez_card.BC_C7_46_34_C5_66'] \u2014 expected exactly the session.services advertisement"
+      ],
+      "id": "B16_pactl_two_lines",
+      "note": "pactl list grows a second bluez line",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_pactl_lines: 2 bluez-lines ['session.services = \"[bluetooth.audio, api.alsa, policy.default-nodes, api.libcamera, audio, api.alsa-seq, policy.device.routes, midi, bluetooth.midi, policy.linking.role-based, policy.linking.standard, api.bluez, policy.device.profile, api.v4l2, video-capture]\"', 'bluez_card.BC_C7_46_34_C5_66'] \u2014 expected exactly the session.services advertisement"
+      ],
+      "id": "B16_pactl_two_lines",
+      "note": "pactl list grows a second bluez line",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_nullsink_ctl: rc=1 \u2014 the load-module positive control failed"
+      ],
+      "id": "B17_nullctl_fails",
+      "note": "the live positive control (module-null-sink) fails",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_nullsink_ctl: rc=1 \u2014 the load-module positive control failed"
+      ],
+      "id": "B17_nullctl_fails",
+      "note": "the live positive control (module-null-sink) fails",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_setcard_bogusctl: rc=0 class=None \u2014 the bogus-profile confound did not reproduce"
+      ],
+      "id": "B18_setcard_bogus_ok",
+      "note": "the bogus-profile confound does not reproduce",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_setcard_bogusctl: rc=0 class=None \u2014 the bogus-profile confound did not reproduce"
+      ],
+      "id": "B18_setcard_bogus_ok",
+      "note": "the bogus-profile confound does not reproduce",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_tree: no hci adapter \u2014 stack dead?"
+      ],
+      "id": "B19_tree_no_adapter",
+      "note": "no hci adapter",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "bz_tree: no hci adapter \u2014 stack dead?"
+      ],
+      "id": "B19_tree_no_adapter",
+      "note": "no hci adapter",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "B20_device_record_gone",
+      "note": "SILENT-SKIP probe: device list emptied -> is the HID-only claim then vacuous without coverage_blocked?",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "B20_device_record_gone",
+      "note": "SILENT-SKIP probe: device list emptied -> is the HID-only claim then vacuous without coverage_blocked?",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_setrule_own_id: pw-dump 153 -> ['153', '154'] but census predicts ['153'] \u2014 the {id\u222aserial} set-query law fails"
+      ],
+      "id": "W1_setrule_extra_id",
+      "note": "pw-dump returns one id too many",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_setrule_own_id: pw-dump 153 -> ['153', '154'] but census predicts ['153'] \u2014 the {id\u222aserial} set-query law fails"
+      ],
+      "id": "W1_setrule_extra_id",
+      "note": "pw-dump returns one id too many",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_setrule_own_id: pw-dump 153 -> [] but census predicts ['153'] \u2014 the {id\u222aserial} set-query law fails"
+      ],
+      "id": "W2_setrule_missing_id",
+      "note": "pw-dump returns nothing",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_setrule_own_id: pw-dump 153 -> [] but census predicts ['153'] \u2014 the {id\u222aserial} set-query law fails"
+      ],
+      "id": "W2_setrule_missing_id",
+      "note": "pw-dump returns nothing",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_no_nested: pw-dump 153 returned 1 Port objects \u2014 nested expansion falsified"
+      ],
+      "id": "W3_nested_ports",
+      "note": "pw-dump <id> expands ports",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_no_nested: pw-dump 153 returned 1 Port objects \u2014 nested expansion falsified"
+      ],
+      "id": "W3_nested_ports",
+      "note": "pw-dump <id> expands ports",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_mode_raw: mode output ['154'] \u2014 membership not mode-invariant"
+      ],
+      "id": "W4_mode_variant",
+      "note": "membership is mode-dependent",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_mode_raw: mode output ['154'] \u2014 membership not mode-invariant"
+      ],
+      "id": "W4_mode_variant",
+      "note": "membership is mode-dependent",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_mode_spa: SPA form lacks the id/serial pair"
+      ],
+      "id": "W5_spa_form_broken",
+      "note": "-s form lacks id/serial",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_mode_spa: SPA form lacks the id/serial pair"
+      ],
+      "id": "W5_spa_form_broken",
+      "note": "-s form lacks id/serial",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_cli_serial: rc=0 class=None \u2014 the id-keyed singleton law fails"
+      ],
+      "id": "W6_cli_serial_resolves",
+      "note": "pw-cli info accepts a serial",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_cli_serial: rc=0 class=None \u2014 the id-keyed singleton law fails"
+      ],
+      "id": "W6_cli_serial_resolves",
+      "note": "pw-cli info accepts a serial",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_ls_serial: ls Node does not expose the own serial \u2014 the serial IS resolvable through ls fails"
+      ],
+      "id": "W7_ls_serial_hidden",
+      "note": "ls stops exposing object.serial",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_ls_serial: ls Node does not expose the own serial \u2014 the serial IS resolvable through ls fails"
+      ],
+      "id": "W7_ls_serial_hidden",
+      "note": "ls stops exposing object.serial",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_propblock: ls=star info=flat \u2014 the two-layout law fails"
+      ],
+      "id": "W8_propblock_swapped",
+      "note": "the two layouts swap",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_propblock: ls=star info=flat \u2014 the two-layout law fails"
+      ],
+      "id": "W8_propblock_swapped",
+      "note": "the two layouts swap",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_keyset_own: prop keys diverge cli_only=['ghost'] dump_only=[]"
+      ],
+      "id": "W9_keyset_diverges",
+      "note": "prop key sets diverge",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_keyset_own: prop keys diverge cli_only=['ghost'] dump_only=[]"
+      ],
+      "id": "W9_keyset_diverges",
+      "note": "prop key sets diverge",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_params_own: param names diverge cli=['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag'] dump=['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag', 'Ghost']"
+      ],
+      "id": "W10_param_names_diverge",
+      "note": "param names diverge",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_params_own: param names diverge cli=['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag'] dump=['EnumFormat', 'EnumPortConfig', 'Format', 'Latency', 'PortConfig', 'ProcessLatency', 'PropInfo', 'Props', 'Tag', 'Ghost']"
+      ],
+      "id": "W10_param_names_diverge",
+      "note": "param names diverge",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_silent_dump_id: rc=0 \u2014 the silent-absence class fails (expected rc 0 + both empty)"
+      ],
+      "id": "W11_silent_dump_speaks",
+      "note": "a dead-id dump is not silent",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_silent_dump_id: rc=0 \u2014 the silent-absence class fails (expected rc 0 + both empty)"
+      ],
+      "id": "W11_silent_dump_speaks",
+      "note": "a dead-id dump is not silent",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_empty: rc=0 parsed=False \u2014 '' is not the full dump"
+      ],
+      "id": "W12_dump_empty_partial",
+      "note": "'' is not the full dump",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_empty: rc=0 parsed=False \u2014 '' is not the full dump"
+      ],
+      "id": "W12_dump_empty_partial",
+      "note": "'' is not the full dump",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_two: ids ['153', '29'] \u2014 the two-arg form does not honor id1 only"
+      ],
+      "id": "W13_dump_two_both",
+      "note": "multi-id honors both ids",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_two: ids ['153', '29'] \u2014 the two-arg form does not honor id1 only"
+      ],
+      "id": "W13_dump_two_both",
+      "note": "multi-id honors both ids",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_color: rc=0 ansi=True parses=True \u2014 the ANSI-breaks-JSON class fails"
+      ],
+      "id": "W14_color_parses",
+      "note": "ANSI does not break JSON",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_color: rc=0 ansi=True parses=True \u2014 the ANSI-breaks-JSON class fails"
+      ],
+      "id": "W14_color_parses",
+      "note": "ANSI does not break JSON",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_neg: rc=0 class=None"
+      ],
+      "id": "W15_neg_rc0",
+      "note": "pw-dump -1 is accepted",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_dump_neg: rc=0 class=None"
+      ],
+      "id": "W15_neg_rc0",
+      "note": "pw-dump -1 is accepted",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_ls_metadata: ls=['31', '34', '35', '36', '37', '38', '39', '41', '42'] dump=['31', '34', '36', '39'] \u2014 the ls\u228bdump visibility split fails"
+      ],
+      "id": "W16_meta_not_superset",
+      "note": "ls Metadata == dump Metadata (no visibility split)",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_ls_metadata: ls=['31', '34', '35', '36', '37', '38', '39', '41', '42'] dump=['31', '34', '36', '39'] \u2014 the ls\u228bdump visibility split fails"
+      ],
+      "id": "W16_meta_not_superset",
+      "note": "ls Metadata == dump Metadata (no visibility split)",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_info_all: info all describes Metadata objects ['31'] \u2014 the silent-omission class fails"
+      ],
+      "id": "W17_info_all_metadata",
+      "note": "info all stops omitting Metadata",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_info_all: info all describes Metadata objects ['31'] \u2014 the silent-omission class fails"
+      ],
+      "id": "W17_info_all_metadata",
+      "note": "info all stops omitting Metadata",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_num2: `enum-params <id> 2` differs from `enum-params <id> Props` \u2014 the numeric\u2261name law fails"
+      ],
+      "id": "W18_enum_name_ne_num",
+      "note": "numeric != name on a readable param",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_num2: `enum-params <id> 2` differs from `enum-params <id> Props` \u2014 the numeric\u2261name law fails"
+      ],
+      "id": "W18_enum_name_ne_num",
+      "note": "numeric != name on a readable param",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_bogus: rc=0 class=pwcli_unknown_global"
+      ],
+      "id": "W19_enum_bogus_class",
+      "note": "unknown param name changes class",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_bogus: rc=0 class=pwcli_unknown_global"
+      ],
+      "id": "W19_enum_bogus_class",
+      "note": "unknown param name changes class",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_serial_law: violations=[{'name': 'x', 'pactl_index': 1, 'serial': '2'}] own=True \u2014 pactl index \u2260 object.serial"
+      ],
+      "id": "W20_serial_violation",
+      "note": "pactl index != object.serial",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_serial_law: violations=[{'name': 'x', 'pactl_index': 1, 'serial': '2'}] own=True \u2014 pactl index \u2260 object.serial"
+      ],
+      "id": "W20_serial_violation",
+      "note": "pactl index != object.serial",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_state3: pactl=SUSPENDED dump=suspended cli=suspended \u2014 the tight-window vocab agreement fails"
+      ],
+      "id": "W21_state3_disagrees",
+      "note": "vocabularies disagree in the tight window",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_state3: pactl=SUSPENDED dump=suspended cli=suspended \u2014 the tight-window vocab agreement fails"
+      ],
+      "id": "W21_state3_disagrees",
+      "note": "vocabularies disagree in the tight window",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_fmt: a write-only param returned a pod on the suspended own sink \u2014 the write-only signature fails"
+      ],
+      "id": "W22_writeonly_pod",
+      "note": "a write-only param returns a pod",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "wd_enum_fmt: a write-only param returned a pod on the suspended own sink \u2014 the write-only signature fails"
+      ],
+      "id": "W22_writeonly_pod",
+      "note": "a write-only param returns a pod",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W23_setrule_foreign_absent",
+      "note": "SILENT-SKIP probe: foreign set-rule legs removed (the no-foreign-node host shape)",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W23_setrule_foreign_absent",
+      "note": "SILENT-SKIP probe: foreign set-rule legs removed (the no-foreign-node host shape)",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W24_dump_two_absent",
+      "note": "SILENT-SKIP probe: wd_dump_two removed (the f_id-None host shape)",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W24_dump_two_absent",
+      "note": "SILENT-SKIP probe: wd_dump_two removed (the f_id-None host shape)",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "wd_enum_props: the readable param answered nothing \u2014 the \u2261 leg was vacuous"
+      ],
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS+CB",
+      "failures": [],
+      "id": "W25_enum_props_vacuous",
+      "note": "readable-param leg answers nothing -> expect coverage_blocked",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "wd_enum_props: the readable param answered nothing \u2014 the \u2261 leg was vacuous"
+      ],
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS+CB",
+      "failures": [],
+      "id": "W25_enum_props_vacuous",
+      "note": "readable-param leg answers nothing -> expect coverage_blocked",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W26_enum_fmt_rc1",
+      "note": "ARM-STRENGTH probe: a rc=1, classless, empty enum call is admitted as the no-pod signature",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "W26_enum_fmt_rc1",
+      "note": "ARM-STRENGTH probe: a rc=1, classless, empty enum call is admitted as the no-pod signature",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n1: frames=2 statuses=['C'] \u2014 the all-CREATING first frame fails"
+      ],
+      "id": "P1_n1_two_frames",
+      "note": "-n 1 prints two frames",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n1: frames=2 statuses=['C'] \u2014 the all-CREATING first frame fails"
+      ],
+      "id": "P1_n1_two_frames",
+      "note": "-n 1 prints two frames",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n1: frames=1 statuses=['C', 'S'] \u2014 the all-CREATING first frame fails"
+      ],
+      "id": "P2_n1_has_S",
+      "note": "the first frame is not all-CREATING",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n1: frames=1 statuses=['C', 'S'] \u2014 the all-CREATING first frame fails"
+      ],
+      "id": "P2_n1_has_S",
+      "note": "the first frame is not all-CREATING",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n0: 2 frames \u2014 expected exactly one"
+      ],
+      "id": "P3_n0_two_frames",
+      "note": "-n 0 prints two frames",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n0: 2 frames \u2014 expected exactly one"
+      ],
+      "id": "P3_n0_two_frames",
+      "note": "-n 0 prints two frames",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_nneg: killed=False frames=1 \u2014 the infinite class fails"
+      ],
+      "id": "P4_nneg_exits",
+      "note": "-n -1 is not infinite",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_nneg: killed=False frames=1 \u2014 the infinite class fails"
+      ],
+      "id": "P4_nneg_exits",
+      "note": "-n -1 is not infinite",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_nabc: killed=True frames=0 \u2014 the infinite class fails"
+      ],
+      "id": "P5_nabc_no_frames",
+      "note": "-n abc is infinite but emitted no frame",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_nabc: killed=True frames=0 \u2014 the infinite class fails"
+      ],
+      "id": "P5_nabc_no_frames",
+      "note": "-n abc is infinite but emitted no frame",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_rbogus: rc=0 class=None \u2014 the loud remote refusal fails"
+      ],
+      "id": "P6_rbogus_ok",
+      "note": "the loud remote refusal goes quiet",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_rbogus: rc=0 class=None \u2014 the loud remote refusal fails"
+      ],
+      "id": "P6_rbogus_ok",
+      "note": "the loud remote refusal goes quiet",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_state_idle: {'top_frames': 3, 'pactl': 'SUSPENDED', 'dump': 'suspended', 'cli': 'suspended', 'top': 'S', 'vocab': {'pactl': 'suspended', 'dump': 'suspended', 'cli': 'suspended', 'top': 'running'}} \u2014 the four-witness agreement fails"
+      ],
+      "id": "P7_idle_vocab_split",
+      "note": "idle-side four-witness agreement fails",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_state_idle: {'top_frames': 3, 'pactl': 'SUSPENDED', 'dump': 'suspended', 'cli': 'suspended', 'top': 'S', 'vocab': {'pactl': 'suspended', 'dump': 'suspended', 'cli': 'suspended', 'top': 'running'}} \u2014 the four-witness agreement fails"
+      ],
+      "id": "P7_idle_vocab_split",
+      "note": "idle-side four-witness agreement fails",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame",
+        "pt_state_active: stream never linked/running \u2014 the RUNNING-side agreement is unmeasured"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS+CB",
+      "failures": [],
+      "id": "P8_active_not_linked",
+      "note": "stream never linked -> expect coverage_blocked",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame",
+        "pt_state_active: stream never linked/running \u2014 the RUNNING-side agreement is unmeasured"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS+CB",
+      "failures": [],
+      "id": "P8_active_not_linked",
+      "note": "stream never linked -> expect coverage_blocked",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n3: own row still CREATING in the last frame \u2014 the real-state frame fails"
+      ],
+      "id": "P9_n3_own_still_C",
+      "note": "own row still CREATING in the last frame (synthetic cache)",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_n3: own row still CREATING in the last frame \u2014 the real-state frame fails"
+      ],
+      "id": "P9_n3_own_still_C",
+      "note": "own row still CREATING in the last frame (synthetic cache)",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_state_active: {'linked': True, 'top_frames': 3, 'pactl': 'RUNNING', 'dump': 'running', 'cli': 'running', 'top': 'R', 'vocab': {'pactl': 'running', 'dump': 'suspended', 'cli': 'running', 'top': 'running'}} \u2014 the RUNNING-side four-witness agreement fails"
+      ],
+      "id": "P10_active_vocab_split",
+      "note": "RUNNING-side agreement fails",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "RED",
+      "failures": [
+        "pt_state_active: {'linked': True, 'top_frames': 3, 'pactl': 'RUNNING', 'dump': 'running', 'cli': 'running', 'top': 'R', 'vocab': {'pactl': 'running', 'dump': 'suspended', 'cli': 'running', 'top': 'running'}} \u2014 the RUNNING-side four-witness agreement fails"
+      ],
+      "id": "P10_active_vocab_split",
+      "note": "RUNNING-side agreement fails",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C1_btabs_wall_noise",
+      "note": "control: volatile fields unarmed",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "btabs_bluez_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C1_btabs_wall_noise",
+      "note": "control: volatile fields unarmed",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C2_dump_stderr_noise",
+      "note": "control: non-armed field change",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "witdiff_dump_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C2_dump_stderr_noise",
+      "note": "control: non-armed field change",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C3_top_wall_noise",
+      "note": "control: volatile field unarmed",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "C3_top_wall_noise",
+      "note": "control: volatile field unarmed",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "P9c_n3_cache_clean",
+      "note": "control: reconstructed cache with own row at idle state -> PASS",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": null,
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS",
+      "failures": [],
+      "id": "P9c_n3_cache_clean",
+      "note": "control: reconstructed cache with own row at idle state -> PASS",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "P11_active_no_vocab",
+      "note": "STRUCTURAL probe: linked + real frames but no vocab -> is the four-witness arm silently skipped?",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "P11_active_no_vocab",
+      "note": "STRUCTURAL probe: linked + real frames but no vocab -> is the four-witness arm silently skipped?",
+      "run": "B"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "P12_idle_no_vocab",
+      "note": "STRUCTURAL probe: idle frames but no vocab -> silent pass?",
+      "run": "A"
+    },
+    {
+      "as_designed": true,
+      "coverage_blocked": [
+        "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+      ],
+      "entry": "pwtop_r88_probe",
+      "expect": "PASS?",
+      "failures": [],
+      "id": "P12_idle_no_vocab",
+      "note": "STRUCTURAL probe: idle frames but no vocab -> silent pass?",
+      "run": "B"
+    }
+  ],
+  "pt_n3_as_recorded_rederive": {
+    "coverage_blocked": [
+      "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+    ],
+    "failures": []
+  },
+  "rederive": {
+    "A": {
+      "btabs_bluez_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": null,
+        "rederived_failures": []
+      },
+      "pwtop_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": [
+          "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+        ],
+        "rederived_failures": []
+      },
+      "witdiff_dump_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": null,
+        "rederived_failures": []
+      }
+    },
+    "B": {
+      "btabs_bluez_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": null,
+        "rederived_failures": []
+      },
+      "pwtop_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": [
+          "pt_n3: 0 frames in 1 tries \u2014 the -n advisory emitted no real-state frame"
+        ],
+        "rederived_failures": []
+      },
+      "witdiff_dump_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [],
+        "rederive_error": null,
+        "rederived_coverage_blocked": null,
+        "rederived_failures": []
+      }
+    },
+    "dev": {
+      "btabs_bluez_r88_probe": {
+        "match": true,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [
+          "bz_pactl_lines: 0 bluez-lines [] \u2014 expected exactly the session.services advertisement",
+          "bz_spa_codecs_str: bluez5.codecs strings [] \u2014 the parsed-property evidence fails",
+          "bz_create_a2dpsink: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_sink: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_a2dpsource: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_midi: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails"
+        ],
+        "rederive_error": null,
+        "rederived_coverage_blocked": null,
+        "rederived_failures": [
+          "bz_pactl_lines: 0 bluez-lines [] \u2014 expected exactly the session.services advertisement",
+          "bz_spa_codecs_str: bluez5.codecs strings [] \u2014 the parsed-property evidence fails",
+          "bz_create_a2dpsink: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_sink: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_a2dpsource: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails",
+          "bz_create_midi: rc=0 class=cli_cant_create \u2014 the fabrication refusal class fails"
+        ]
+      },
+      "pwtop_r88_probe": {
+        "match": false,
+        "receipt_coverage_blocked": null,
+        "receipt_failures": [
+          "pt_n2: 1 frames < 2",
+          "pt_state_idle: {'pactl': 'SUSPENDED', 'dump': 'suspended', 'cli': 'suspended', 'top': None, 'vocab': {'pactl': 'suspended', 'dump': 'suspended', 'cli': 'suspended', 'top': 'None'}} \u2014 the four-witness agreement fails",
+          "pt_state_active: {'linked': True, 'pactl': 'RUNNING', 'dump': 'running', 'cli': 'running', 'top': None, 'vocab': {'pactl': 'running', 'dump': 'running', 'cli': 'running', 'top': 'None'}} \u2014 the RUNNING-side four-witness agreement fails"
+        ],
+        "rederive_error": "KeyError: 'pt_n3'",
+        "rederived_coverage_blocked": null,
+        "rederived_failures": null
+      },
+      "witdiff_dump_r88_probe": {
+        "match": false,
+        "receipt_coverage_blocked": [
+          "wd_enum_client: no client returned the not-implemented class (last class=None)"
+        ],
+        "receipt_failures": [
+          "wd_mode_spa: SPA form lacks the id/serial pair",
+          "wd_ls_serial: ls Node does not expose the own serial \u2014 the serial IS resolvable through ls fails",
+          "wd_propblock: ls=none info=star \u2014 the two-layout law fails",
+          "wd_ls_metadata: ls=[] dump=['31', '34', '36', '39'] \u2014 the ls\u228bdump visibility split fails",
+          "wd_enum_num4: `enum-params <id> 4` differs from `enum-params <id> Format` \u2014 the numeric\u2261name law fails"
+        ],
+        "rederive_error": "KeyError: 'wd_enum_props'",
+        "rederived_coverage_blocked": null,
+        "rederived_failures": null
+      }
+    }
+  }
+}

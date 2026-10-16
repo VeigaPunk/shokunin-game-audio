@@ -1,0 +1,6 @@
+A: mode=r88 c1(tree A,t1) waited=0.0 c2(tree A,t1) waited=1.5 -> SERIALIZED (expect SERIALIZED) OK
+B: mode=r88 c1(tree A,t1) waited=0.0 c2(tree A,t2) waited=1.523 -> SERIALIZED (expect SERIALIZED) OK
+C: mode=r85 c1(tree A,t1) waited=0.0 c2(tree A,t2) waited=0.0 -> RACED (expect RACED) OK
+D: mode=r88 c1(tree A,t1) waited=0.0 c2(tree B,t1) waited=0.003 -> RACED (expect RACED) OK
+E: mode=r85 c1(tree A,t1) waited=0.0 c2(tree A,t1) waited=1.518 -> SERIALIZED (expect SERIALIZED) OK
+as-designed: 5 / 5

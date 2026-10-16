@@ -1,0 +1,145 @@
+block shas:
+  btabs_bluez_r88_probe: 2e60d34801d5f9cef6c7bf241b2e5eb3944cf2437a5ee617b22e8fec9ed9ce9c
+  witdiff_dump_r88_probe: fd2b3257f47aa9103e46e1481cc83adbf24b1a6f4d174885203178479841fc4f
+  pwtop_r88_probe: 7a2af78514e311903024fea6663741f02aaf02c543ea1843ab2e85a1698167ac
+
+re-derivation (A/B green, dev red):
+  A btabs_bluez_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=None err=None
+  A witdiff_dump_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=None err=None
+  A pwtop_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame'] err=None
+  B btabs_bluez_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=None err=None
+  B witdiff_dump_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=None err=None
+  B pwtop_r88_probe: receipt_failures=0 rederived=0 cb_receipt=None cb_rederived=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame'] err=None
+  dev btabs_bluez_r88_probe: receipt_failures=6 rederived=6 cb_receipt=None cb_rederived=None err=None
+  dev witdiff_dump_r88_probe: receipt_failures=5 rederived=None cb_receipt=['wd_enum_client: no client returned the not-implemented class (last class=None)'] cb_rederived=None err=KeyError: 'wd_enum_props'
+  dev pwtop_r88_probe: receipt_failures=3 rederived=None cb_receipt=None cb_rederived=None err=KeyError: 'pt_n3'
+
+mutations:
+  OK B1_device_audio_uuid         A expect=RED      fails=1 cb=None
+  OK B1_device_audio_uuid         B expect=RED      fails=1 cb=None
+  OK B2_bluez_card_exists         A expect=RED      fails=1 cb=None
+  OK B2_bluez_card_exists         B expect=RED      fails=1 cb=None
+  OK B3_bluez_sink_exists         A expect=RED      fails=1 cb=None
+  OK B3_bluez_sink_exists         B expect=RED      fails=1 cb=None
+  OK B4_bridge_not_midi           A expect=RED      fails=1 cb=None
+  OK B4_bridge_not_midi           B expect=RED      fails=1 cb=None
+  OK B5_adapter_unpowered         A expect=RED      fails=1 cb=None
+  OK B5_adapter_unpowered         B expect=RED      fails=1 cb=None
+  OK B6_media1_no_a2dp            A expect=RED      fails=1 cb=None
+  OK B6_media1_no_a2dp            B expect=RED      fails=1 cb=None
+  OK B7_fabrication_succeeds      A expect=RED      fails=1 cb=None
+  OK B7_fabrication_succeeds      B expect=RED      fails=1 cb=None
+  OK B8_fabrication_residue       A expect=RED      fails=1 cb=None
+  OK B8_fabrication_residue       B expect=RED      fails=1 cb=None
+  OK B9_bluez_module_loaded       A expect=RED      fails=1 cb=None
+  OK B9_bluez_module_loaded       B expect=RED      fails=1 cb=None
+  OK B10_loadmod_succeeds         A expect=RED      fails=1 cb=None
+  OK B10_loadmod_succeeds         B expect=RED      fails=1 cb=None
+  OK B11_sendmsg_ok               A expect=RED      fails=1 cb=None
+  OK B11_sendmsg_ok               B expect=RED      fails=1 cb=None
+  OK B12_spa_count_13             A expect=RED      fails=1 cb=None
+  OK B12_spa_count_13             B expect=RED      fails=1 cb=None
+  OK B13_codecs_absent            A expect=RED      fails=1 cb=None
+  OK B13_codecs_absent            B expect=RED      fails=1 cb=None
+  OK B14_module_on_disk           A expect=RED      fails=1 cb=None
+  OK B14_module_on_disk           B expect=RED      fails=1 cb=None
+  OK B15_media_transport          A expect=RED      fails=1 cb=None
+  OK B15_media_transport          B expect=RED      fails=1 cb=None
+  OK B16_pactl_two_lines          A expect=RED      fails=1 cb=None
+  OK B16_pactl_two_lines          B expect=RED      fails=1 cb=None
+  OK B17_nullctl_fails            A expect=RED      fails=1 cb=None
+  OK B17_nullctl_fails            B expect=RED      fails=1 cb=None
+  OK B18_setcard_bogus_ok         A expect=RED      fails=1 cb=None
+  OK B18_setcard_bogus_ok         B expect=RED      fails=1 cb=None
+  OK B19_tree_no_adapter          A expect=RED      fails=1 cb=None
+  OK B19_tree_no_adapter          B expect=RED      fails=1 cb=None
+  OK B20_device_record_gone       A expect=PASS?    fails=0 cb=None
+  OK B20_device_record_gone       B expect=PASS?    fails=0 cb=None
+  OK W1_setrule_extra_id          A expect=RED      fails=1 cb=None
+  OK W1_setrule_extra_id          B expect=RED      fails=1 cb=None
+  OK W2_setrule_missing_id        A expect=RED      fails=1 cb=None
+  OK W2_setrule_missing_id        B expect=RED      fails=1 cb=None
+  OK W3_nested_ports              A expect=RED      fails=1 cb=None
+  OK W3_nested_ports              B expect=RED      fails=1 cb=None
+  OK W4_mode_variant              A expect=RED      fails=1 cb=None
+  OK W4_mode_variant              B expect=RED      fails=1 cb=None
+  OK W5_spa_form_broken           A expect=RED      fails=1 cb=None
+  OK W5_spa_form_broken           B expect=RED      fails=1 cb=None
+  OK W6_cli_serial_resolves       A expect=RED      fails=1 cb=None
+  OK W6_cli_serial_resolves       B expect=RED      fails=1 cb=None
+  OK W7_ls_serial_hidden          A expect=RED      fails=1 cb=None
+  OK W7_ls_serial_hidden          B expect=RED      fails=1 cb=None
+  OK W8_propblock_swapped         A expect=RED      fails=1 cb=None
+  OK W8_propblock_swapped         B expect=RED      fails=1 cb=None
+  OK W9_keyset_diverges           A expect=RED      fails=1 cb=None
+  OK W9_keyset_diverges           B expect=RED      fails=1 cb=None
+  OK W10_param_names_diverge      A expect=RED      fails=1 cb=None
+  OK W10_param_names_diverge      B expect=RED      fails=1 cb=None
+  OK W11_silent_dump_speaks       A expect=RED      fails=1 cb=None
+  OK W11_silent_dump_speaks       B expect=RED      fails=1 cb=None
+  OK W12_dump_empty_partial       A expect=RED      fails=1 cb=None
+  OK W12_dump_empty_partial       B expect=RED      fails=1 cb=None
+  OK W13_dump_two_both            A expect=RED      fails=1 cb=None
+  OK W13_dump_two_both            B expect=RED      fails=1 cb=None
+  OK W14_color_parses             A expect=RED      fails=1 cb=None
+  OK W14_color_parses             B expect=RED      fails=1 cb=None
+  OK W15_neg_rc0                  A expect=RED      fails=1 cb=None
+  OK W15_neg_rc0                  B expect=RED      fails=1 cb=None
+  OK W16_meta_not_superset        A expect=RED      fails=1 cb=None
+  OK W16_meta_not_superset        B expect=RED      fails=1 cb=None
+  OK W17_info_all_metadata        A expect=RED      fails=1 cb=None
+  OK W17_info_all_metadata        B expect=RED      fails=1 cb=None
+  OK W18_enum_name_ne_num         A expect=RED      fails=1 cb=None
+  OK W18_enum_name_ne_num         B expect=RED      fails=1 cb=None
+  OK W19_enum_bogus_class         A expect=RED      fails=1 cb=None
+  OK W19_enum_bogus_class         B expect=RED      fails=1 cb=None
+  OK W20_serial_violation         A expect=RED      fails=1 cb=None
+  OK W20_serial_violation         B expect=RED      fails=1 cb=None
+  OK W21_state3_disagrees         A expect=RED      fails=1 cb=None
+  OK W21_state3_disagrees         B expect=RED      fails=1 cb=None
+  OK W22_writeonly_pod            A expect=RED      fails=1 cb=None
+  OK W22_writeonly_pod            B expect=RED      fails=1 cb=None
+  OK W23_setrule_foreign_absent   A expect=PASS?    fails=0 cb=None
+  OK W23_setrule_foreign_absent   B expect=PASS?    fails=0 cb=None
+  OK W24_dump_two_absent          A expect=PASS?    fails=0 cb=None
+  OK W24_dump_two_absent          B expect=PASS?    fails=0 cb=None
+  OK W25_enum_props_vacuous       A expect=PASS+CB  fails=0 cb=['wd_enum_props: the readable param answered nothing — the ≡ leg was vacuous']
+  OK W25_enum_props_vacuous       B expect=PASS+CB  fails=0 cb=['wd_enum_props: the readable param answered nothing — the ≡ leg was vacuous']
+  OK W26_enum_fmt_rc1             A expect=PASS?    fails=0 cb=None
+  OK W26_enum_fmt_rc1             B expect=PASS?    fails=0 cb=None
+  OK P1_n1_two_frames             A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P1_n1_two_frames             B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P2_n1_has_S                  A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P2_n1_has_S                  B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P3_n0_two_frames             A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P3_n0_two_frames             B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P4_nneg_exits                A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P4_nneg_exits                B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P5_nabc_no_frames            A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P5_nabc_no_frames            B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P6_rbogus_ok                 A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P6_rbogus_ok                 B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P7_idle_vocab_split          A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P7_idle_vocab_split          B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P8_active_not_linked         A expect=PASS+CB  fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame', 'pt_state_active: stream never linked/running — the RUNNING-side agreement is unmeasured']
+  OK P8_active_not_linked         B expect=PASS+CB  fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame', 'pt_state_active: stream never linked/running — the RUNNING-side agreement is unmeasured']
+  OK P9_n3_own_still_C            A expect=RED      fails=1 cb=None
+  OK P9_n3_own_still_C            B expect=RED      fails=1 cb=None
+  OK P10_active_vocab_split       A expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P10_active_vocab_split       B expect=RED      fails=1 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK C1_btabs_wall_noise          A expect=PASS     fails=0 cb=None
+  OK C1_btabs_wall_noise          B expect=PASS     fails=0 cb=None
+  OK C2_dump_stderr_noise         A expect=PASS     fails=0 cb=None
+  OK C2_dump_stderr_noise         B expect=PASS     fails=0 cb=None
+  OK C3_top_wall_noise            A expect=PASS     fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK C3_top_wall_noise            B expect=PASS     fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P9c_n3_cache_clean           A expect=PASS     fails=0 cb=None
+  OK P9c_n3_cache_clean           B expect=PASS     fails=0 cb=None
+  OK P11_active_no_vocab          A expect=PASS?    fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P11_active_no_vocab          B expect=PASS?    fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P12_idle_no_vocab            A expect=PASS?    fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+  OK P12_idle_no_vocab            B expect=PASS?    fails=0 cb=['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']
+
+not-as-designed: 0/124
+
+pt_n3 as-recorded rederive: {'failures': [], 'coverage_blocked': ['pt_n3: 0 frames in 1 tries — the -n advisory emitted no real-state frame']}

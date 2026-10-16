@@ -1,0 +1,61 @@
+# r88-critic receipts — MANIFEST
+
+Seat: ufo-executor (critic duties per .ufo/waves/shokunin-train-20261015-w22/tasks/audio-r88-critic.md)
+Committed tree ONLY: HEAD c19bec96087713633b817b47b8509d936da4fa56 (r88 author).
+Zero tracked writes; nothing committed. TMPDIR=/home/vgpnk/Projects/shokunin/tmp for all runs.
+
+## committed fixture under test
+corpus/fixtures/measure_audio.py  sha256 ad9d59b1e0dc5e2be4274f4966e571dabefed94076c06093eed1bf4cd2aef4c4
+  == git show c19bec96:corpus/fixtures/measure_audio.py sha256 ad9d59b1e0dc5e2be4274f4966e571dabefed94076c06093eed1bf4cd2aef4c4
+  == author-claimed implementation sha (report line 144).
+
+## receipts (untracked, this dir)
+_committed_measure_audio.py        ad9d59b1e0dc5e2be4274f4966e571dabefed94076c06093eed1bf4cd2aef4c4  1539408 B
+arm-replay.json                    e5428ad1c74c2e90f2edf60572f3f3e52eba5c12ec9b2e6af25418ee098539c8  52335 B
+arm-replay.out                     788f4485e8062970dbbfbdb907244f94eba530dc2d74ae614c5be53295ffcceb  12212 B
+arm-replay.py                      15040d9ed881b46f253af9465b801a197f70bdabcfd2b7e4e4f3c472780f144c  20332 B
+census.json                        b42d22507eab9633566d04ed7c53da86aeeeab4038ef62e91ee4a6f478d04451  15852 B
+census.out                         46c0800007cf2abebaa11ab2e4818697540ed045128969f69ee1195645c80b0e  4525 B
+census.py                          ff991a70f463fefef256f33258fcd4d24d7642244a74c99460e41b75b0dd817d  3121 B
+claims.json                        9d2f38e55cdfbf825d39e452ab34fd1d9309036e25c42f6aea84959eb4068481  5852 B
+co-tenancy-witness.txt             cab55150c964341785dee57311010f28dd4553845f51cf1e5dc0afe719ec2a06  5141 B
+live-readonly.json                 6cca407965ff1021a389902c4670372e6e5f8fe069c8de81a3c8ad940f3827d7  71195 B
+live-readonly.out                  1263ddadfb9e169cc1262d7d5b2965967ef5a1acd15d0fa2548f01b06c28ad94  4589 B
+live-readonly.py                   2d0e347adb4a791ab2700b34ca1aeed1a722eb8706d71617405c92d12dee305d  14032 B
+lockfn-r85.py                      ba9f24214492a4aedea7849855bf1a219730ab150d48205f2461762880b5ab91  691 B
+lockfn-r88.py                      a97496855894d85f442588bce8cd4e47a6fc97163e78edb1bafb40026eee312d  641 B
+locktest.json                      2c9c6e054be645f2ca3833a953c307ba8915fb9bf0cef9e420d8e626e0eb9f82  3901 B
+locktest.out                       3b06aab0df2f559c40abe314f5394c1efdd693f6fb4f24ce45c3be0ac3a4cdb1  500 B
+locktest.py                        b09fcc225c5466ed460021fcb666150efa6bf86745b14fa4106a3818fbfe9d33  3924 B
+locktest_child.py                  d03d43a22a77d6fa35c00b4f6f7ec9f08dbe4247827643ed9bf550655d160179  1782 B
+verdict-btabs_bluez_r88_probe.py   2e60d34801d5f9cef6c7bf241b2e5eb3944cf2437a5ee617b22e8fec9ed9ce9c  6932 B
+verdict-pwtop_r88_probe.py         7a2af78514e311903024fea6663741f02aaf02c543ea1843ab2e85a1698167ac  4112 B
+verdict-witdiff_dump_r88_probe.py  fd2b3257f47aa9103e46e1481cc83adbf24b1a6f4d174885203178479841fc4f  10845 B
+
+## verdict blocks sliced VERBATIM from the commit object
+verdict-btabs_bluez_r88_probe.py  sha256 2e60d34801d5f9cef6c7bf241b2e5eb3944cf2437a5ee617b22e8fec9ed9ce9c
+verdict-pwtop_r88_probe.py  sha256 7a2af78514e311903024fea6663741f02aaf02c543ea1843ab2e85a1698167ac
+verdict-witdiff_dump_r88_probe.py  sha256 fd2b3257f47aa9103e46e1481cc83adbf24b1a6f4d174885203178479841fc4f
+
+## lock-function slices (verbatim from the commit object)
+lockfn-r88.py  sha256 a97496855894d85f442588bce8cd4e47a6fc97163e78edb1bafb40026eee312d
+lockfn-r85.py  sha256 ba9f24214492a4aedea7849855bf1a219730ab150d48205f2461762880b5ab91
+
+## commands (all from the repo root, PYTHONDONTWRITEBYTECODE=1)
+python3 corpus/live/r88-critic/census.py
+python3 corpus/live/r88-critic/arm-replay.py
+python3 corpus/live/r88-critic/locktest.py
+python3 corpus/live/r88-critic/live-readonly.py
+python3 - <<'EOF'  (claims.py inline: per-run claim table -> claims.json)
+
+## live lane lock file (NOT touched by this gate)
+corpus/live/measure_audio-btwit-r88.lock  sha256 930d6404da2da9765cfa7160c439eb46cfe0289e4407b0e4881b22354f6ed9b4  content 'pid=1298372 ns=r88a_ns_1298372 role=r88arole1298372'
+  (author run-B witness; the locktest used SCRATCH trees under corpus/live/r88-critic/locktest/ so the lane file was never written)
+
+## scratch artifacts created by the gate (untracked)
+corpus/live/r88-critic/locktest/{treeA,treeB}/corpus/live/measure_audio-btwit-r88.lock
+corpus/live/r88-critic/locktest/{tmp1,tmp2}/measure_audio-pactlmon-r85.lock
+
+
+## critic report (untracked, uncommitted)
+reports/round-88/r88-critic.md  sha256 40f6c277e0f0c71aa4611edaad42cfb3a88b8a12455de90335e43415b7a54517
