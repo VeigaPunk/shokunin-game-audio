@@ -29252,6 +29252,1535 @@ def pwtop_r88_entry():
     return entry
 
 
+# r89: the PW-PROFILER OUTPUT LATTICE — the profiler module (resident
+#     module, id 4 on this host) broadcasts ONE record stream to every
+#     attached client; `pw-profiler` is that client's argv surface. The
+#     lattice pins the -n gating law (N counts info records summed over
+#     ALL driver domains — an idle graph hangs forever, so every leg
+#     either rides the seat's own driver or is bound-killed), the -J
+#     stream semantics (lazy `[`, exact-4096 B block flushes, the
+#     graceful signal class {INT,TERM} -> rc 0 + `{ } ]` terminator,
+#     every other signal truncates), the -o artifact mode (eager file
+#     creation, INCREMENTAL writes — the boundary's falsification of
+#     the scout's exit-only claim — aux set iff samples, truncating
+#     open, `Logging to` on stderr), the strtol+full-string -n parser
+#     (007/+3/" 3" parse; 2.5/1e1/3abc/overflow all run unbounded —
+#     the scout's atoi mechanism is falsified, the no-error outcome
+#     survives), the record schema's own-driver invariants, the
+#     refusal lattice (rc 255 — unlike the pw-cli rc-0 class), the
+#     PIPEWIRE_REMOTE env honoring, the one-stream broadcast law
+#     (overlapping (driver,count) blocks are dict-identical — the
+#     scout's byte-identity was its low-rate window, not a law), the
+#     1-Client footprint, the Profiler object's introspection refusal,
+#     and the pactl-modules blank-line hazard — --probe-pwprof-r89.
+#
+# A NEW parallel ledger family; prior rows untouched; every r76-r88
+# guard inherited (seat-owned r89a_<pid> names, the private
+# r89arole<pid> key, name-verified sink_name= unloads, never
+# set-default-*, bounded process groups). The family lock is a FIXED
+# lane path under corpus/live/ (the r84 F1 3-seat consensus — never
+# TMPDIR). All claims are the r89 boundary's THIS-HOST survivals
+# (PipeWire 1.6.8, WirePlumber 0.5.17, libpulse 17.0, python 3.14.7);
+# the scout's falsified rows are dropped or re-armed at the boundary's
+# values (SIGKILL leaves INCREMENTAL -o content, -n is strtol not
+# atoi, concurrent -J streams are NOT byte-identical, pactl blank
+# line is `modules`-only). Rows assert rc + error class + record-set
+# membership + per-driver invariants; volatile text (ids, nsec
+# counters, cpu_load values, wall times, sibling driver names) is
+# recorded, never armed. Own objects carry the deterministic arms;
+# foreign drivers are measured, never trusted to cycle.
+
+PWPROF_R89_PID = os.getpid()
+PWPROF_R89_PREFIX = f"r89a_{PWPROF_R89_PID}"
+PWPROF_R89_NS = f"r89a_ns_{PWPROF_R89_PID}"        # probe null sink
+PWPROF_R89_NS2 = f"r89a_ns2_{PWPROF_R89_PID}"      # second driver
+PWPROF_R89_NSB = f"r89a_nsb_{PWPROF_R89_PID}"      # follower-less sink
+PWPROF_R89_ROLE = f"r89arole{PWPROF_R89_PID}"      # private restore
+                                                 # key — never `music`
+PWPROF_R89_DEAD = "r89a_bogus_remote_zxqw"          # never-live remote
+PWPROF_R89_SIG_S = 1.4            # unbounded-class signal point
+
+# r89-local error classes — family-local, checked before the
+# r88->r87->r86 chain (never prepended into any shared table).
+_PWPROF_R89_ERR_CLASSES = (
+    ("pwprof_connect_down", r"Can't connect[^\n]*Host is down"),
+    ("pwprof_cant_open", r"Can't open file [^\n]+"),
+    ("pwprof_opt", r"unrecognized option '[^']+'"),
+)
+
+
+def _pwprof_r89_errclass(text):
+    for name, pat in _PWPROF_R89_ERR_CLASSES:
+        m = re.search(pat, text or "")
+        if m:
+            return name, m.group(0).strip()
+    return _btwit_r88_errclass(text or "")
+
+
+def _pwprof_r89_norm(text):
+    """Volatile-field scrub: r88's node/seq/id classes plus the
+    nanosecond counters (>=9 digits) that fill every -J record."""
+    s = _btwit_r88_norm(text or "")
+    s = re.sub(r"\b\d{9,}\b", "<ns>", s)
+    return s
+
+
+def _pwprof_r89_stream(argv, timeout_s, wd=None, env=None,
+                       sig_at=None, sig=signal.SIGTERM,
+                       sample_ts=(), keep_chars=900, keep_raw=False,
+                       watch=None, hooks=()):
+    """One bounded pw-profiler spawn with a CONTINUOUSLY DRAINED
+    stdout — the r89 boundary's backpressure law: a full undrained
+    pipe turns a graceful INT/TERM into an anon_pipe_write stall, so
+    communicate() alone cannot host the signal legs. `sig_at` fires
+    `sig` at that wall offset and `alive_at_sig` records whether the
+    process was still running then (the unbounded-class witness —
+    valid -n parses exit on their own BEFORE the bound, invalid ones
+    never do). `sample_ts` snapshots cumulative drained bytes (the
+    exact-4096 B block law). `watch` = a path whose first existence is
+    timestamped (the -o eager-creation law). `hooks` = (t, callable)
+    fired once inside the loop (the suspension leg kills its own
+    follower mid-run this way)."""
+    rec = {"argv": " ".join(str(a) for a in argv)}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, env=env, cwd=wd,
+            start_new_session=True)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:160]
+        return rec
+    try:
+        os.set_blocking(proc.stdout.fileno(), False)
+    except OSError:
+        pass
+    t0 = time.monotonic()
+    buf = bytearray()
+    samples = []
+    fired = False
+    alive_at_sig = None
+    killed = False
+    pending = list(sample_ts)
+    pending_hooks = sorted(list(hooks))
+    seen_watch = None
+    while True:
+        now = time.monotonic() - t0
+        while pending and now >= pending[0]:
+            samples.append({"t": pending.pop(0), "bytes": len(buf)})
+        while pending_hooks and now >= pending_hooks[0][0]:
+            try:
+                pending_hooks.pop(0)[1]()
+            except Exception:
+                pass
+        if watch is not None and seen_watch is None and \
+                os.path.exists(watch):
+            try:
+                wsz = os.path.getsize(watch)
+            except OSError:
+                wsz = None
+            seen_watch = {"t": round(now, 3), "bytes": wsz}
+        if sig_at is not None and not fired and now >= sig_at:
+            alive_at_sig = proc.poll() is None
+            if alive_at_sig:
+                try:
+                    proc.send_signal(sig)
+                except ProcessLookupError:
+                    alive_at_sig = False
+            fired = True
+        if proc.poll() is not None:
+            while True:
+                try:
+                    chunk = os.read(proc.stdout.fileno(), 65536)
+                except (BlockingIOError, OSError):
+                    chunk = b""
+                if not chunk:
+                    break
+                buf += chunk
+            break
+        if now >= timeout_s:
+            killed = True
+            _alsapw_r84_killpg(proc, signal.SIGKILL)
+            proc.wait()
+            continue
+        try:
+            chunk = os.read(proc.stdout.fileno(), 65536)
+            if chunk:
+                buf += chunk
+        except (BlockingIOError, OSError):
+            pass
+        time.sleep(0.01)
+    try:
+        err = proc.stderr.read() or b""
+    except OSError:
+        err = b""
+    outt = bytes(buf).decode(errors="replace")
+    errt = err.decode(errors="replace")
+    cls, hit = _pwprof_r89_errclass(errt + "\n" + outt)
+    rec.update({"exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed_at_bound": killed,
+                "alive_at_sig": alive_at_sig,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "stdout": _pwprof_r89_norm(outt)[:keep_chars],
+                "stdout_bytes": len(buf),
+                "stderr": _pwprof_r89_norm(errt)[:keep_chars],
+                "stderr_bytes": len(errt),
+                "stream_samples": samples,
+                "error_class": cls, "error_hit": hit})
+    if seen_watch is not None:
+        rec["watch_seen"] = seen_watch
+    if keep_raw:
+        rec["stdout_raw"] = outt
+        rec["stderr_raw"] = errt
+    return rec
+
+
+def _pwprof_r89_jparse(text):
+    """`pw-profiler -J` stdout -> (record list, parse error). The
+    graceful stream closes `…, { } ]` — the trailing {} is the
+    terminator; a SIGKILL/other-signal cut leaves invalid JSON and a
+    consumer must treat "parses cleanly" as the only completeness
+    witness."""
+    txt = (text or "").strip()
+    try:
+        arr = json.loads(txt)
+    except ValueError as exc:
+        return None, f"{exc} (len={len(txt)})"
+    return arr, None
+
+
+def _pwprof_r89_blocks(arr):
+    """Group a -J record array into per-cycle blocks: every `info`
+    record opens a block and the clock/driver/follower(/followerClock)
+    records that follow it belong to the SAME emitting driver. The
+    info record carries no driver key — attribution comes from the
+    block's own clock/driver `name`/`id`."""
+    blocks, cur = [], None
+    for r in arr or []:
+        if not isinstance(r, dict) or not r:
+            continue
+        if r.get("type") == "info":
+            cur = {"info": r, "clock": None, "driver": None,
+                   "followers": [], "fclocks": [], "other": [],
+                   "seq": ["info"]}
+            blocks.append(cur)
+        elif cur is None:
+            continue
+        else:
+            cur["seq"].append(r.get("type"))
+            if r.get("type") == "clock":
+                cur["clock"] = r
+            elif r.get("type") == "driver":
+                cur["driver"] = r
+            elif r.get("type") == "follower":
+                cur["followers"].append(r)
+            elif r.get("type") == "followerClock":
+                cur["fclocks"].append(r)
+            else:
+                cur["other"].append(r)
+    return blocks
+
+
+def _pwprof_r89_nleg(n_arg, bound_s=PWPROF_R89_SIG_S, extra=(),
+                     wd=None):
+    """One `-J -n <n_arg>` leg: SIGTERM at `bound_s` unless the run
+    already exited — alive_at_sig + n_info together separate the
+    valid-parse class (exits, exactly N infos) from the unbounded
+    class (still alive, flushed with >= min infos)."""
+    rec = _pwprof_r89_stream(
+        ["pw-profiler", "-J", *extra, "-n", str(n_arg)],
+        bound_s + 8.0, wd=wd, sig_at=bound_s, sig=signal.SIGTERM,
+        keep_raw=True)
+    arr, perr = _pwprof_r89_jparse(rec.get("stdout_raw") or "")
+    rec["parse_error"] = perr
+    rec["n_info"] = (sum(1 for r in arr
+                       if isinstance(r, dict) and
+                       r.get("type") == "info")
+                     if arr else None)
+    rec["term_ok"] = bool(arr) and arr[-1] == {}
+    return rec
+
+
+def _pwprof_r89_family_lock():
+    """Same-family exclusion at a FIXED lane path — the r84 F1 3-seat
+    consensus (never $TMPDIR; cross-TMPDIR same-family runs must still
+    exclude). A second --probe-pwprof-r89 waits HERE."""
+    path = ROOT / "live" / "measure_audio-pwprof-r89.lock"
+    try:
+        fd = os.open(str(path), os.O_RDWR | os.O_CREAT, 0o644)
+    except OSError:
+        return None
+    fcntl.flock(fd, fcntl.LOCK_EX)
+    try:
+        os.ftruncate(fd, 0)
+        os.write(fd, f"pid={PWPROF_R89_PID} ns={PWPROF_R89_NS} "
+                     f"role={PWPROF_R89_ROLE}\n".encode())
+    except OSError:
+        pass
+    return fd
+
+
+def _pwprof_r89_entry_head(probe):
+    """Shared entry preamble: contention census, oracle, inventory,
+    loadavg, and the foreign-r89a census (another seat's residue is a
+    witness, never a verdict)."""
+    inv = _capture_inventory()
+    names = _playback_r78_node_names() or []
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "foreign_r89a_nodes": sorted(
+                n for n in names if "r89a_" in n
+                and f"_{PWPROF_R89_PID}" not in n),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]},
+            "loadavg": _alsapw_r84_loadavg()}
+
+
+def _pwprof_r89_load_ns(name):
+    """Load + gate one null sink (r83 loader); carries field/value for
+    the name-verified unload."""
+    leaf = _pwcat_r83_ns_load(name)
+    leaf["field"] = "sink_name"
+    leaf["value"] = name
+    return leaf
+
+
+def _pwprof_r89_teardown(entry, failures, loads, players=()):
+    """Kill every tracked pw-play process group first, then the
+    name-verified unload of every own module, then the residue
+    destroy: any surviving r89a_<pid>-tagged node is destroyed by id
+    via pw-cli before the final sweep."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    g = _pactlmon_r85_graph()
+    residual = sorted(
+        (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+        if n.get("name") and f"r89a_{PWPROF_R89_PID}" in n["name"])
+    if residual:
+        entry["residual_destroy"] = [
+            {"id": nid, "name": nm,
+             **_pwprof_r89_stream(["pw-cli", "destroy", nid], 8.0,
+                                  keep_chars=300)}
+            for nid, nm in residual]
+        time.sleep(0.4)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in (loads or {})}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(
+                "teardown: probe sinks survived unload: "
+                f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after "
+            "unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if f"r89a_{PWPROF_R89_PID}" in n
+                      or n in (loads or {}))
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(
+                f"teardown: r89a-tagged nodes survived: {rest}")
+
+
+def _pwprof_r89_block(entry, failures, msg, loads=None, players=()):
+    """The named coverage block: kill players, unload anything
+    loaded, record the block."""
+    for proc in players or ():
+        if proc is None:
+            continue
+        _alsapw_r84_killpg(proc, signal.SIGTERM)
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _alsapw_r84_killpg(proc)
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    for tag, leaf in (loads or {}).items():
+        leaf = leaf or {}
+        entry.setdefault("unloads", {})[tag] = \
+            _pactlmon_r85_unload_own(
+                leaf.get("module_id"),
+                leaf.get("field", "sink_name"),
+                leaf.get("value", tag))
+    entry["failures"] = failures
+    return entry
+
+
+def _pwprof_r89_play(tag, target, tone, role=None):
+    """Spawn one tagged pw-play follower -> target sink; the private
+    r89arole<pid> media.role tags it as ours."""
+    try:
+        return subprocess.Popen(
+            ["pw-play", "-P", f"node.name={tag}",
+             "-P", f"media.role={role or PWPROF_R89_ROLE}",
+             "--target", target, str(tone)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL, start_new_session=True)
+    except OSError:
+        return None
+
+
+def _pwprof_r89_ensure_player(ctx, tag, wait_s=6.0):
+    """(Re)spawn the seat's pw-play follower when dead, then wait for
+    its link into the seat sink — a null-sink driver cycles only while
+    a follower is attached (the suspension law), so a dead player
+    silently turns every -n leg into an idle-graph hang."""
+    proc = ctx.get("player")
+    if proc is None or proc.poll() is not None:
+        proc = _pwprof_r89_play(tag, ctx["ns"], ctx["tone"])
+        ctx["player"] = proc
+        ctx["linked"] = False
+    if proc is None or ctx.get("linked"):
+        return ctx.get("linked", False)
+    deadline = time.monotonic() + wait_s
+    while time.monotonic() < deadline:
+        g = _pactlmon_r85_graph()
+        if _pactlmon_r85_node(g, tag) and any(
+                e.get("in_node") == ctx["ns"]
+                for e in _pactlmon_r85_edges_out(g, tag)):
+            ctx["linked"] = True
+            break
+        time.sleep(0.25)
+    return ctx.get("linked", False)
+
+
+def _pwprof_r89_ctx(tmp):
+    """Seat context: one null sink + one tagged follower tone."""
+    tone = Path(tmp) / f"{PWPROF_R89_PREFIX}_tone.wav"
+    _playback_r78_write_tone(tone, 75.0)
+    return {"ns": PWPROF_R89_NS, "tone": tone, "player": None,
+            "linked": False}
+
+
+def _pwprof_r89_us(text):
+    """pw-top WAIT/BUSY cell -> µs float ('4.5us' -> 4.5, '---' ->
+    None)."""
+    m = re.match(r"^([0-9.]+)us$", text or "")
+    return float(m.group(1)) if m else None
+
+
+def _pwprof_r89_top_rows(text):
+    """pw-top -b -> per-frame rows {status,id,quant,rate,wait,busy}
+    with parsed µs floats — the full-row form of r88's status-only
+    parser."""
+    frames, cur = [], None
+    for ln in (text or "").splitlines():
+        if re.match(r"^S\s+ID\s+QUANT", ln):
+            cur = []
+            frames.append(cur)
+            continue
+        m = re.match(r"^([A-Za-z])\s+(\d+)\s+(\d+)\s+(\d+)\s+(\S+)"
+                     r"\s+(\S+)\s", ln)
+        if cur is not None and m:
+            cur.append({"status": m.group(1), "id": int(m.group(2)),
+                        "quant": int(m.group(3)),
+                        "rate": int(m.group(4)),
+                        "wait": m.group(5), "busy": m.group(6),
+                        "wait_us": _pwprof_r89_us(m.group(5)),
+                        "busy_us": _pwprof_r89_us(m.group(6))})
+    return frames
+
+
+def _pwprof_r89_schema_stats(blocks, own_name, mono_lo, mono_hi):
+    """All own-driver invariants of one parsed -J window in one pass —
+    the schema lattice arms are computed here, armed by the caller."""
+    own = [b for b in blocks
+           if (b.get("driver") or {}).get("name") == own_name]
+    clocks = [b["clock"] for b in own if b.get("clock")]
+    drivers = [b["driver"] for b in own if b.get("driver")]
+    followers = [f for b in own for f in b["followers"]]
+    counts = [b["info"]["count"] for b in own if b.get("info")]
+    rate_ns = lambda c: (c["duration"] * 10**9) // 48000 if \
+        c.get("rate") == "1/48000" else None
+    return {
+        "own_blocks": len(own),
+        "driver_names": sorted({(b.get("driver") or {}).get("name")
+                                for b in blocks if b.get("driver")}),
+        "block_types": sorted({t for b in blocks
+                               for t in b["seq"]}),
+        "own_seq_shapes": sorted({tuple(b["seq"]) for b in own}),
+        "seq_order_ok": all(
+            b["seq"][:3] == ["info", "clock", "driver"]
+            for b in own) if own else None,
+        "own_counts": counts,
+        "count_step_ok": all(
+            counts[i + 1] == counts[i] + 1
+            for i in range(len(counts) - 1)) if counts else None,
+        "durations": sorted({c.get("duration") for c in clocks}),
+        "rates": sorted({c.get("rate") for c in clocks}),
+        "clock_names": sorted({c.get("name") for c in clocks}),
+        "quantum_relation_ok": all(
+            c["next_nsec"] - c["nsec"] == rate_ns(c)
+            for c in clocks) if clocks else None,
+        "pos_step_ok": all(
+            clocks[i + 1]["position"] - clocks[i]["position"]
+            == clocks[i + 1]["duration"]
+            for i in range(len(clocks) - 1)) if clocks else None,
+        "transports": sorted({c.get("transport") for c in clocks}),
+        "diffs": sorted({c.get("diff") for c in clocks}),
+        "order_ok": all(
+            o["prev"] <= o["signal"] <= o["awake"] <= o["finish"]
+            for o in drivers + followers) if (drivers or followers)
+        else None,
+        "prev_is_last_signal": all(
+            drivers[i + 1]["prev"] == drivers[i]["signal"]
+            for i in range(len(drivers) - 1)) if drivers else None,
+        "statuses": sorted({o.get("status")
+                            for o in drivers + followers}),
+        "driver_statuses": sorted({o.get("status") for o in drivers}),
+        "driver_latencies": sorted({o.get("latency")
+                                    for o in drivers}),
+        "follower_latencies": sorted({o.get("latency")
+                                      for o in followers}),
+        "follower_names": sorted({o.get("name") for o in followers}),
+        "clock_ids": sorted({c.get("id") for c in clocks}),
+        "driver_ids": sorted({o.get("id") for o in drivers}),
+        "xruns": sorted({c.get("xrun") for c in clocks}),
+        "xrun_counts": sorted({o.get("xrun_count")
+                               for o in drivers + followers}),
+        "fclock_rows": sum(len(b["fclocks"]) for b in own),
+        "nsec_in_window": (all(
+            mono_lo - 5 * 10**9 <= c["nsec"] <= mono_hi + 5 * 10**9
+            for c in clocks) if clocks else None),
+        "wait_us_range": [
+            (min((o["awake"] - o["signal"]
+                  for o in drivers + followers), default=None)),
+            (max((o["awake"] - o["signal"]
+                  for o in drivers + followers), default=None))],
+        "busy_us_range": [
+            (min((o["finish"] - o["awake"]
+                  for o in drivers + followers), default=None)),
+            (max((o["finish"] - o["awake"]
+                  for o in drivers + followers), default=None))],
+        "wait_us_median": (sorted(
+            o["awake"] - o["signal"] for o in drivers + followers)
+            [len(drivers + followers) // 2] / 1000.0
+            if (drivers or followers) else None),
+        "busy_us_median": (sorted(
+            o["finish"] - o["awake"] for o in drivers + followers)
+            [len(drivers + followers) // 2] / 1000.0
+            if (drivers or followers) else None),
+        "cpu_load_sorted_desc": all(
+            b["info"]["cpu_load0"] >= b["info"]["cpu_load1"]
+            >= b["info"]["cpu_load2"]
+            for b in own if b.get("info")) if counts else None,
+    }
+
+
+def pwprof_gate_r89_entry():
+    """The gating + stream + parse + refusal lattice: -n counts info
+    records summed over ALL driver domains (exact-N completions on
+    the seat driver; the unbounded class is proven by the seat driver
+    demonstrably cycling while the run never exits), -J streams in
+    exact-4096 B blocks and flushes `{ } ]` ONLY on INT/TERM (every
+    other signal truncates), -o is fully ignored under -J, a stray
+    positional is ignored, -r '' is the default remote, bogus remote/
+    option/env refuse rc 255, and the -n parser is strtol with
+    full-string validation — never atoi."""
+    failures, legs = [], {}
+    entry = _pwprof_r89_entry_head("r89a pw-profiler gating lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-profiler", "pw-play", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwprof_r89_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, players, ctx = {}, [], {}
+    try:
+        loads[PWPROF_R89_NS] = _pwprof_r89_load_ns(PWPROF_R89_NS)
+        if loads[PWPROF_R89_NS].get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NS} never enumerated",
+                loads)
+        loads[PWPROF_R89_NS2] = _pwprof_r89_load_ns(PWPROF_R89_NS2)
+        if loads[PWPROF_R89_NS2].get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NS2} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(
+                prefix="r89a-gate-") as tmp:
+            ctx = _pwprof_r89_ctx(tmp)
+            tag = f"{PWPROF_R89_PREFIX}_pl"
+            tag2 = f"{PWPROF_R89_PREFIX}_pl2"
+            legs["g_link"] = {"player": _pwprof_r89_ensure_player(
+                ctx, tag)}
+            players.append(_pwprof_r89_play(
+                tag2, PWPROF_R89_NS2, ctx["tone"]))
+            # ---------- the -n gating law, live side ---------------
+            legs["g_own"] = _pwprof_r89_nleg(8)
+            a8, _ = _pwprof_r89_jparse(
+                legs["g_own"].get("stdout_raw") or "")
+            legs["g_own"]["drivers"] = sorted(
+                {(b.get("driver") or {}).get("name")
+                 for b in _pwprof_r89_blocks(a8)
+                 if b.get("driver") and (b.get("driver") or {})
+                 .get("name")})
+            legs["g_two"] = _pwprof_r89_nleg(4)
+            a4, _ = _pwprof_r89_jparse(
+                legs["g_two"].get("stdout_raw") or "")
+            tblocks = _pwprof_r89_blocks(a4)
+            legs["g_two"]["driver_info_hist"] = sorted(
+                {n: sum(1 for b in tblocks
+                        if (b.get("driver") or {}).get("name") == n)
+                 for n in {(b.get("driver") or {}).get("name")
+                           for b in tblocks} if n}.items())
+            # ---------- the -J stream + signal class ---------------
+            legs["g_term"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=1.0,
+                sig=signal.SIGTERM, keep_raw=True)
+            legs["g_int"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=1.0,
+                sig=signal.SIGINT, keep_raw=True)
+            legs["g_kill"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=1.0,
+                sig=signal.SIGKILL, keep_raw=True)
+            legs["g_hup"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=0.8,
+                sig=signal.SIGHUP, keep_raw=True)
+            legs["g_usr1"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=0.8,
+                sig=signal.SIGUSR1, keep_raw=True)
+            for nm in ("g_term", "g_int", "g_kill", "g_hup",
+                       "g_usr1"):
+                l = legs[nm]
+                arr, perr = _pwprof_r89_jparse(
+                    l.get("stdout_raw") or "")
+                l["parse_error"] = perr
+                l["term_ok"] = bool(arr) and arr[-1] == {}
+                l["n_info"] = (sum(
+                    1 for r in arr
+                    if isinstance(r, dict)
+                    and r.get("type") == "info") if arr else None)
+                l.pop("stdout_raw", None)
+            legs["g_blocks"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=1.2,
+                sig=signal.SIGTERM,
+                sample_ts=(0.3, 0.6, 0.9))
+            # ---------- -o ignored under -J; stray argv ------------
+            od = Path(tmp) / "r89a_j_ignored"
+            legs["g_o_ignored"] = _pwprof_r89_nleg(
+                4, bound_s=3.0, extra=("-o", str(od)))
+            legs["g_o_ignored"]["file_created"] = od.exists()
+            legs["g_extra"] = _pwprof_r89_nleg(
+                4, bound_s=3.0, extra=("extrapositional",))
+            # ---------- refusals (all fresh processes) -------------
+            legs["g_remote_empty"] = _pwprof_r89_nleg(
+                4, bound_s=3.0, extra=("-r", ""))
+            legs["g_remote_bogus"] = _pwprof_r89_stream(
+                ["pw-profiler", "-r",
+                 f"{PWPROF_R89_DEAD}_{PWPROF_R89_PID}",
+                 "-J", "-n", "2"], 10.0, keep_chars=300)
+            env = dict(os.environ)
+            env["PIPEWIRE_REMOTE"] = \
+                f"{PWPROF_R89_DEAD}_env_{PWPROF_R89_PID}"
+            legs["g_env_bogus"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "2"], 10.0, env=env,
+                keep_chars=300)
+            legs["g_opt_bogus"] = _pwprof_r89_stream(
+                ["pw-profiler", "--r89bogus"], 10.0, keep_chars=400)
+            legs["g_version"] = _pwprof_r89_stream(
+                ["pw-profiler", "--version"], 10.0, keep_chars=200)
+            # ---------- the -n parser lattice ----------------------
+            legs["g_lastwins"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "4", "-n", "0"], 9.0,
+                sig_at=PWPROF_R89_SIG_S, sig=signal.SIGTERM,
+                keep_raw=True)
+            _arr, _pe = _pwprof_r89_jparse(
+                legs["g_lastwins"].get("stdout_raw") or "")
+            legs["g_lastwins"]["parse_error"] = _pe
+            legs["g_lastwins"]["n_info"] = (sum(
+                1 for r in _arr if isinstance(r, dict)
+                and r.get("type") == "info") if _arr else None)
+            legs["g_lastwins"].pop("stdout_raw", None)
+            for nm, narg in (("n_007", "007"), ("n_plus3", "+3"),
+                             ("n_space3", " 3")):
+                legs[nm] = _pwprof_r89_nleg(narg, bound_s=2.5)
+            for nm, narg in (("n_2_5", "2.5"), ("n_3abc", "3abc"),
+                             ("n_1e1", "1e1"), ("n_huge", "4294967298"),
+                             ("n_neg", "-1"), ("n_abc", "abc"),
+                             ("n_zero", "0")):
+                legs[nm] = _pwprof_r89_nleg(narg)
+    finally:
+        _pwprof_r89_teardown(entry, failures, loads,
+                             players + [ctx.get("player")])
+    # ---------------- verdicts ----------------
+    if not legs["g_link"].get("player"):
+        entry.setdefault("coverage_blocked", []).append(
+            "seat pw-play never linked — every -n arm below is "
+            "contention, not measurement")
+    l = legs["g_own"]
+    if l.get("exit_code") != 0 or not l.get("term_ok") or \
+            l.get("n_info") != 8:
+        failures.append(
+            f"g_own: rc={l.get('exit_code')} term={l.get('term_ok')} "
+            f"n_info={l.get('n_info')} drivers={l.get('drivers')} — "
+            "the exact-N completion fails")
+    l = legs["g_two"]
+    if l.get("exit_code") != 0 or l.get("n_info") != 4 or \
+            not l.get("term_ok") or (l.get("wall_s") or 9) > 1.5:
+        failures.append(
+            f"g_two: rc={l.get('exit_code')} n_info={l.get('n_info')} "
+            f"wall={l.get('wall_s')} hist={l.get('driver_info_hist')}"
+            " — the multi-driver summed-N completion fails")
+    for nm, sig_ok in (("g_term", 0), ("g_int", 0)):
+        l = legs[nm]
+        if l.get("exit_code") != sig_ok or not l.get("term_ok"):
+            failures.append(
+                f"{nm}: rc={l.get('exit_code')} term={l.get('term_ok')}"
+                f" — the graceful-class flush fails")
+    for nm, want_sig in (("g_kill", -9), ("g_hup", -1),
+                         ("g_usr1", -10)):
+        l = legs[nm]
+        if l.get("exit_code") != want_sig or l.get("parse_error") is None:
+            failures.append(
+                f"{nm}: rc={l.get('exit_code')} parse="
+                f"{l.get('parse_error')} — the truncating-signal "
+                "class fails")
+    l = legs["g_blocks"]
+    samples = l.get("stream_samples") or []
+    nonzero = [s for s in samples if s.get("bytes")]
+    if not nonzero or any(s["bytes"] % 4096 for s in nonzero):
+        failures.append(
+            f"g_blocks: {samples} — the exact-4096 stream-block law "
+            "fails")
+    l = legs["g_o_ignored"]
+    if l.get("file_created") or "Logging to" in (l.get("stderr") or ""):
+        failures.append(
+            f"g_o_ignored: created={l.get('file_created')} stderr="
+            f"{l.get('stderr')} — -o is NOT ignored under -J")
+    l = legs["g_extra"]
+    if l.get("exit_code") != 0 or l.get("n_info") != 4:
+        failures.append(
+            f"g_extra: rc={l.get('exit_code')} n_info={l.get('n_info')}"
+            " — the stray positional is not ignored")
+    l = legs["g_remote_empty"]
+    if l.get("exit_code") != 0 or l.get("n_info") != 4:
+        failures.append(
+            f"g_remote_empty: rc={l.get('exit_code')} "
+            f"n_info={l.get('n_info')} — -r '' is not the default "
+            "remote")
+    for nm in ("g_remote_bogus", "g_env_bogus"):
+        l = legs[nm]
+        if l.get("exit_code") != 255 or \
+                l.get("error_class") != "pwprof_connect_down":
+            failures.append(
+                f"{nm}: rc={l.get('exit_code')} class="
+                f"{l.get('error_class')} — the rc-255 remote refusal "
+                "fails")
+    l = legs["g_opt_bogus"]
+    if l.get("exit_code") != 255 or l.get("error_class") != "pwprof_opt":
+        failures.append(
+            f"g_opt_bogus: rc={l.get('exit_code')} class="
+            f"{l.get('error_class')} — the option refusal fails")
+    l = legs["g_version"]
+    if l.get("exit_code") != 0 or \
+            "libpipewire" not in (l.get("stdout") or ""):
+        failures.append(
+            f"g_version: rc={l.get('exit_code')} — the version leg "
+            "fails")
+    l = legs["g_lastwins"]
+    if l.get("alive_at_sig") is not True or l.get("exit_code") != 0 \
+            or (l.get("n_info") or 0) < 5:
+        failures.append(
+            f"g_lastwins: alive={l.get('alive_at_sig')} rc="
+            f"{l.get('exit_code')} infos={l.get('n_info')} — "
+            "last-wins unbounded fails")
+    for nm, want in (("n_007", 7), ("n_plus3", 3), ("n_space3", 3)):
+        l = legs[nm]
+        if l.get("exit_code") != 0 or l.get("n_info") != want or \
+                l.get("alive_at_sig") is True:
+            failures.append(
+                f"{nm}: rc={l.get('exit_code')} n_info="
+                f"{l.get('n_info')} alive={l.get('alive_at_sig')} — "
+                f"the strtol-parse-to-{want} leg fails")
+    for nm in ("n_2_5", "n_3abc", "n_1e1", "n_huge", "n_neg",
+               "n_abc", "n_zero"):
+        l = legs[nm]
+        if l.get("alive_at_sig") is not True or \
+                l.get("exit_code") != 0 or \
+                (l.get("n_info") or 0) < 5:
+            failures.append(
+                f"{nm}: alive={l.get('alive_at_sig')} rc="
+                f"{l.get('exit_code')} infos={l.get('n_info')} — "
+                "the unbounded-parse leg fails (cycles flowed, the "
+                "run never stopped)")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwprof_oart_r89_entry():
+    """The -o artifact lattice: eager creation, INCREMENTAL content
+    writes (the boundary's falsification — SIGKILL leaves real rows,
+    never the scout's 0-byte husk), the aux set iff samples, the
+    truncating open, `Logging to` on stderr, the write-error refusal
+    class, and the -o surface oddities (default profiler.log, `-o -`
+    is a literal filename, /dev/null still writes the aux set)."""
+    failures, legs = [], {}
+    entry = _pwprof_r89_entry_head("r89a pw-profiler -o lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-profiler", "pw-play", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwprof_r89_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, procs, ctx = {}, [], {}
+    try:
+        leaf = _pwprof_r89_load_ns(PWPROF_R89_NS)
+        loads = {PWPROF_R89_NS: leaf}
+        if leaf.get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NS} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(
+                prefix="r89a-oart-") as tmp:
+            ctx = _pwprof_r89_ctx(tmp)
+            tag = f"{PWPROF_R89_PREFIX}_pl"
+            legs["o_link"] = {"player": _pwprof_r89_ensure_player(
+                ctx, tag)}
+            procs.append(ctx.get("player"))
+            wd = Path(tmp) / "wd"
+            wd.mkdir()
+            legs["o_live"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "art", "-n", "10"], 15.0,
+                wd=str(wd), keep_chars=400)
+            legs["o_live"]["rows"] = sum(
+                1 for ln in (wd / "art").read_text(
+                    errors="replace").splitlines() if ln.strip()) \
+                if (wd / "art").exists() else None
+            legs["o_live"]["aux_present"] = sorted(
+                p.name for p in wd.iterdir())
+            legs["o_int"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "i", "-n", "0"], 9.0,
+                wd=str(wd), sig_at=1.3, sig=signal.SIGTERM,
+                keep_chars=400)
+            legs["o_int"]["bytes"] = (wd / "i").stat().st_size \
+                if (wd / "i").exists() else None
+            legs["o_kill"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "k", "-n", "0"], 9.0,
+                wd=str(wd), sig_at=2.0, sig=signal.SIGKILL,
+                keep_chars=400)
+            legs["o_kill"]["bytes"] = (wd / "k").stat().st_size \
+                if (wd / "k").exists() else None
+            legs["o_kill"]["rows"] = sum(
+                1 for ln in (wd / "k").read_text(
+                    errors="replace").splitlines() if ln.strip()) \
+                if (wd / "k").exists() else None
+            (wd / "exist").write_text("MARKER\n")
+            legs["o_exist"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "exist", "-n", "4"], 15.0,
+                wd=str(wd), keep_chars=300)
+            legs["o_exist"]["marker_gone"] = (
+                "MARKER" not in (wd / "exist").read_text(
+                    errors="replace")) \
+                if (wd / "exist").exists() else None
+            legs["o_eager"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "e", "-n", "0"], 9.0,
+                wd=str(wd), sig_at=0.7, sig=signal.SIGTERM,
+                watch=str(wd / "e"), keep_chars=300)
+            # default-name law: `-o` REQUIRES its filename on the
+            # next argv (`-o -n` eats "-n" as the filename and the
+            # run goes unbounded — measured, do not re-try); the
+            # default artifact is written by a plain `-n` run
+            legs["o_default"] = _pwprof_r89_stream(
+                ["pw-profiler", "-n", "4"], 15.0, wd=str(wd),
+                keep_chars=300)
+            legs["o_default"]["profiler_log"] = (
+                (wd / "profiler.log").stat().st_size
+                if (wd / "profiler.log").exists() else None)
+            legs["o_dash"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "-", "-n", "6"], 15.0,
+                wd=str(wd), keep_chars=300)
+            legs["o_dash"]["dash_file"] = (
+                (wd / "-").stat().st_size
+                if (wd / "-").exists() else None)
+            wd2 = wd / "devnull"
+            wd2.mkdir()
+            legs["o_devnull"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "/dev/null", "-n", "6"], 15.0,
+                wd=str(wd2), keep_chars=300)
+            legs["o_devnull"]["aux_present"] = sorted(
+                p.name for p in wd2.iterdir())
+            legs["o_dir"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", ".", "-n", "2"], 10.0,
+                wd=str(wd), keep_chars=300)
+            legs["o_empty"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o", "", "-n", "2"], 10.0,
+                wd=str(wd), keep_chars=300)
+            legs["o_proc"] = _pwprof_r89_stream(
+                ["pw-profiler", "-o",
+                 f"/proc/r89a_{PWPROF_R89_PID}/x", "-n", "2"], 10.0,
+                wd=str(wd), keep_chars=300)
+    finally:
+        _pwprof_r89_teardown(entry, failures, loads,
+                             procs)
+    # ---------------- verdicts ----------------
+    if not legs["o_link"].get("player"):
+        entry.setdefault("coverage_blocked", []).append(
+            "seat pw-play never linked — every -o arm below is "
+            "contention, not measurement")
+    l = legs["o_live"]
+    aux_want = {f"Timing{i}.plot" for i in range(1, 6)} | \
+        {"Timings.html", "generate_timings.sh"}
+    if l.get("exit_code") != 0 or l.get("rows") != 10 or \
+            not aux_want.issubset(set(l.get("aux_present") or ())) or \
+            "Logging to" not in (l.get("stderr") or "") or \
+            "generate_timings" not in (l.get("stdout") or "") + \
+                    (l.get("stderr") or ""):
+        failures.append(
+            f"o_live: rc={l.get('exit_code')} rows={l.get('rows')} "
+            f"aux={l.get('aux_present')} — the graceful artifact-set "
+            "law fails")
+    l = legs["o_int"]
+    if l.get("exit_code") != 0 or not (l.get("bytes") or 0) > 0:
+        failures.append(
+            f"o_int: rc={l.get('exit_code')} bytes={l.get('bytes')} — "
+            "the graceful incremental-write law fails")
+    l = legs["o_kill"]
+    if l.get("exit_code") != -9 or not (l.get("bytes") or 0) > 0 or \
+            not (l.get("rows") or 0) > 0:
+        failures.append(
+            f"o_kill: rc={l.get('exit_code')} bytes={l.get('bytes')} "
+            f"rows={l.get('rows')} — the incremental-write law fails "
+            "(the scout's 0-byte husk claim is dead on this host)")
+    l = legs["o_exist"]
+    if l.get("marker_gone") is not True:
+        failures.append(
+            f"o_exist: marker_gone={l.get('marker_gone')} — the "
+            "truncating-open law fails")
+    l = legs["o_eager"]
+    if l.get("watch_seen") is None:
+        failures.append(
+            f"o_eager: file never appeared inside the run — the "
+            "eager-creation law fails")
+    l = legs["o_default"]
+    if l.get("exit_code") != 0 or not (l.get("profiler_log") or 0) > 0:
+        failures.append(
+            f"o_default: rc={l.get('exit_code')} profiler.log="
+            f"{l.get('profiler_log')} — the default-name law fails")
+    l = legs["o_dash"]
+    if l.get("exit_code") != 0 or not (l.get("dash_file") or 0) > 0:
+        failures.append(
+            f"o_dash: rc={l.get('exit_code')} dash={l.get('dash_file')}"
+            " — the literal-filename law fails")
+    l = legs["o_devnull"]
+    if l.get("exit_code") != 0 or \
+            not aux_want.issubset(set(l.get("aux_present") or ())):
+        failures.append(
+            f"o_devnull: rc={l.get('exit_code')} aux="
+            f"{l.get('aux_present')} — the aux-in-cwd law fails")
+    for nm in ("o_dir", "o_empty", "o_proc"):
+        l = legs[nm]
+        if l.get("exit_code") != 255 or \
+                l.get("error_class") != "pwprof_cant_open":
+            failures.append(
+                f"{nm}: rc={l.get('exit_code')} class="
+                f"{l.get('error_class')} — the write-error refusal "
+                "fails")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwprof_schema_r89_entry():
+    """The record-schema lattice on the seat's OWN driver: the
+    per-cycle block is info->clock->driver->follower(+followerClock);
+    the own-driver invariants the boundary saw hold under loadavg 146
+    (order, count +1/cycle, position += duration, next_nsec-nsec ==
+    duration/rate exactly, transport=='stopped' while cycling —
+    the liveness trap — diff==1.0 on virtual drivers, xrun==0, the
+    prev==last-signal chain, nsec inside the host monotonic window),
+    the per-driver count persistence (monotone across detach — the
+    boundary's frozen-gap mechanism is host-volatile and is recorded,
+    not armed), and the suspension law (the follower-less second sink
+    emits zero blocks; killing the follower stops the own driver)."""
+    failures, legs = [], {}
+    entry = _pwprof_r89_entry_head("r89a pw-profiler schema lattice")
+    tools = {t: shutil.which(t) for t in
+             ("pw-profiler", "pw-play", "pw-dump", "pactl")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwprof_r89_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, procs = {}, []
+    ctx = {}
+    try:
+        loads[PWPROF_R89_NS] = _pwprof_r89_load_ns(PWPROF_R89_NS)
+        if loads[PWPROF_R89_NS].get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NS} never enumerated",
+                loads)
+        loads[PWPROF_R89_NSB] = _pwprof_r89_load_ns(PWPROF_R89_NSB)
+        if loads[PWPROF_R89_NSB].get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NSB} never enumerated",
+                loads)
+        with tempfile.TemporaryDirectory(
+                prefix="r89a-schema-") as tmp:
+            ctx = _pwprof_r89_ctx(tmp)
+            tag = f"{PWPROF_R89_PREFIX}_pl"
+            legs["s_link"] = {"player": _pwprof_r89_ensure_player(
+                ctx, tag)}
+            procs.append(ctx.get("player"))
+            g0 = _pactlmon_r85_graph()
+            own_node = _pactlmon_r85_node(g0, PWPROF_R89_NS) or {}
+            entry["refs"] = {"own_node_id": own_node.get("node_id")}
+            # ---------- window 1: the own-driver invariants --------
+            lo = time.monotonic_ns()
+            legs["s_window"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "40"], 15.0,
+                keep_raw=True)
+            hi = time.monotonic_ns()
+            arr, perr = _pwprof_r89_jparse(
+                legs["s_window"].get("stdout_raw") or "")
+            legs["s_window"]["parse_error"] = perr
+            blocks = _pwprof_r89_blocks(arr)
+            stats = _pwprof_r89_schema_stats(
+                blocks, PWPROF_R89_NS, lo, hi)
+            stats["nsb_blocks"] = sum(
+                1 for b in blocks
+                if (b.get("driver") or {}).get("name")
+                == PWPROF_R89_NSB)
+            legs["s_window"]["stats"] = stats
+            legs["s_window"].pop("stdout_raw", None)
+            # ---------- window 2: count persistence ----------------
+            legs["s_second"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "10"], 15.0,
+                keep_raw=True)
+            arr2, perr2 = _pwprof_r89_jparse(
+                legs["s_second"].get("stdout_raw") or "")
+            legs["s_second"]["parse_error"] = perr2
+            b2 = _pwprof_r89_blocks(arr2)
+            legs["s_second"]["own_counts"] = [
+                b["info"]["count"] for b in b2
+                if (b.get("driver") or {}).get("name")
+                == PWPROF_R89_NS and b.get("info")]
+            legs["s_second"].pop("stdout_raw", None)
+            # ---------- the suspension law -------------------------
+            # kill the follower mid-window: the own driver must stop
+            # emitting while the run itself continues or stalls
+            kill_mono = {}
+
+            def _kill_player():
+                p0 = ctx.get("player")
+                if p0 is not None:
+                    _alsapw_r84_killpg(p0, signal.SIGKILL)
+                    kill_mono["ns"] = time.monotonic_ns()
+
+            legs["s_suspend"] = _pwprof_r89_stream(
+                ["pw-profiler", "-J", "-n", "0"], 9.0, sig_at=2.4,
+                sig=signal.SIGTERM, keep_raw=True,
+                hooks=((0.9, _kill_player),))
+            arr3, perr3 = _pwprof_r89_jparse(
+                legs["s_suspend"].get("stdout_raw") or "")
+            legs["s_suspend"]["parse_error"] = perr3
+            b3 = _pwprof_r89_blocks(arr3)
+            own3 = [b for b in b3
+                    if (b.get("driver") or {}).get("name")
+                    == PWPROF_R89_NS]
+            legs["s_suspend"]["own_blocks"] = len(own3)
+            legs["s_suspend"]["own_pre_kill"] = sum(
+                1 for b in own3
+                if (b.get("clock") or {}).get("nsec", 0)
+                <= kill_mono.get("ns", 0))
+            legs["s_suspend"]["own_after_kill"] = sum(
+                1 for b in own3
+                if (b.get("clock") or {}).get("nsec", 0)
+                > kill_mono.get("ns", 0) + 600 * 10**6)
+            legs["s_suspend"]["foreign_after_kill"] = sum(
+                1 for b in b3
+                if (b.get("driver") or {}).get("name")
+                not in (None, PWPROF_R89_NS)
+                and (b.get("clock") or {}).get("nsec", 0)
+                > kill_mono.get("ns", 0) + 600 * 10**6)
+            legs["s_suspend"]["kill_mono"] = kill_mono.get("ns")
+            legs["s_suspend"].pop("stdout_raw", None)
+    finally:
+        _pwprof_r89_teardown(entry, failures, loads, procs)
+    # ---------------- verdicts ----------------
+    if not legs["s_link"].get("player"):
+        entry.setdefault("coverage_blocked", []).append(
+            "seat pw-play never linked — every schema arm below is "
+            "contention, not measurement")
+    l = legs["s_window"]
+    st = l.get("stats") or {}
+    if l.get("exit_code") != 0 or l.get("parse_error") is not None:
+        failures.append(
+            f"s_window: rc={l.get('exit_code')} parse="
+            f"{l.get('parse_error')} — the -J window fails")
+    if (st.get("own_blocks") or 0) < 3:
+        failures.append(
+            f"s_window: own_blocks={st.get('own_blocks')} — the seat "
+            "driver was starved out of its own window")
+    if st.get("own_blocks"):
+        if st.get("seq_order_ok") is not True:
+            failures.append(
+                f"s_window: block order != info->clock->driver: "
+                f"{st.get('own_seq_shapes')}")
+        if not st.get("count_step_ok"):
+            failures.append(
+                "s_window: own info.count does not step +1/cycle")
+        if st.get("quantum_relation_ok") is not True:
+            failures.append(
+                "s_window: next_nsec-nsec != duration/rate on own "
+                "clock rows")
+        if st.get("pos_step_ok") is not True:
+            failures.append(
+                "s_window: position += duration fails on own clock "
+                "rows")
+        if (st.get("transports") or []) != ["stopped"]:
+            failures.append(
+                f"s_window: transports={st.get('transports')} — the "
+                "stopped-while-cycling trap fails")
+        if (st.get("diffs") or []) != [1.0]:
+            failures.append(
+                f"s_window: diffs={st.get('diffs')} — virtual-driver "
+                "diff != 1.0")
+        if st.get("order_ok") is not True:
+            failures.append(
+                "s_window: prev<=signal<=awake<=finish fails on own "
+                "rows")
+        if st.get("prev_is_last_signal") is not True:
+            failures.append(
+                "s_window: prev[k+1] != signal[k] on own driver rows")
+        if (st.get("driver_statuses") or []) != ["finished"]:
+            failures.append(
+                f"s_window: statuses={st.get('driver_statuses')} — "
+                "the finished-status law fails")
+        if (st.get("driver_latencies") or []) != ["0/0"]:
+            failures.append(
+                f"s_window: driver latencies="
+                f"{st.get('driver_latencies')} — the 0/0 null-sink "
+                "latency fails")
+        if set(st.get("clock_ids") or ()) != \
+                {entry["refs"]["own_node_id"]} or \
+                set(st.get("driver_ids") or ()) != \
+                {entry["refs"]["own_node_id"]}:
+            failures.append(
+                f"s_window: clock_ids={st.get('clock_ids')} "
+                f"driver_ids={st.get('driver_ids')} != own node "
+                f"{entry['refs']['own_node_id']} — the id law fails")
+        if (st.get("clock_names") or []) != \
+                ["clock.system.monotonic"]:
+            failures.append(
+                f"s_window: clock_names={st.get('clock_names')}")
+        if st.get("nsec_in_window") is not True:
+            failures.append(
+                "s_window: own clock nsec outside the monotonic "
+                "window")
+        if (st.get("xruns") or [1]) != [0] or \
+                (st.get("xrun_counts") or [1]) != [0]:
+            failures.append(
+                f"s_window: xruns={st.get('xruns')} xrun_counts="
+                f"{st.get('xrun_counts')} — the virtual-driver "
+                "zero-xrun law fails")
+        if st.get("fclock_rows"):
+            failures.append(
+                "s_window: followerClock rows inside own blocks — "
+                "the pw-play-follower absence fails")
+        if (st.get("nsb_blocks") or 0) != 0:
+            failures.append(
+                f"s_window: follower-less sink emitted "
+                f"{st.get('nsb_blocks')} blocks — the suspension law "
+                "fails")
+    l = legs["s_second"]
+    c1 = (st.get("own_counts") or [None])[-1]
+    c2 = (l.get("own_counts") or [None])[0]
+    if not l.get("own_counts") or c1 is None or c2 is None or \
+            c2 <= c1:
+        failures.append(
+            f"s_second: counts {c1} -> {c2} — the per-driver count "
+            "monotone-persistence fails")
+    l = legs["s_suspend"]
+    if l.get("kill_mono") is None:
+        failures.append(
+            "s_suspend: the follower kill hook never fired — the "
+            "leg is unmeasured")
+    elif (l.get("own_pre_kill") or 0) == 0:
+        failures.append(
+            "s_suspend: zero own blocks before the kill — the "
+            "suspension arm is vacuous")
+    elif (l.get("own_after_kill") or 0) != 0:
+        failures.append(
+            f"s_suspend: {l.get('own_after_kill')} own blocks after "
+            "follower death — the per-driver suspension law fails")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+def pwprof_xw_r89_entry():
+    """The cross-witness lattice: the profiler's footprint is one
+    Client object (never a node, never a module), two concurrent -J
+    clients receive dict-identical overlapping (driver,count) blocks
+    (the one-stream broadcast law — byte-identity is NOT armed, the
+    boundary falsified it as a low-rate-window artifact), pw-top's
+    WAIT/BUSY track the profiler's awake-signal/finish-awake in the
+    same µs band, the Profiler object refuses pw-cli introspection
+    (rc 0 + unsupported type), pactl-loaded modules create Nodes but
+    never native Module objects, and the pactl blank-line hazard is
+    survived by the guarded parse."""
+    failures, legs = [], {}
+    entry = _pwprof_r89_entry_head("r89a pw-profiler cross-witness")
+    tools = {t: shutil.which(t) for t in
+             ("pw-profiler", "pw-top", "pw-cli", "pw-dump", "pactl",
+              "pw-play")}
+    entry["tools"] = tools
+    if not all(tools.values()):
+        return _pwprof_r89_block(
+            entry, failures,
+            f"missing tools: {[t for t, p in tools.items() if not p]}")
+    loads, procs, ctx = {}, [], {}
+    try:
+        pactl_pre = _pwprof_r89_stream(
+            ["pactl", "list", "modules", "short"], 10.0,
+            keep_chars=2000, keep_raw=True)
+        loads[PWPROF_R89_NS] = _pwprof_r89_load_ns(PWPROF_R89_NS)
+        if loads[PWPROF_R89_NS].get("module_id") is None:
+            return _pwprof_r89_block(
+                entry, failures,
+                f"probe null sink {PWPROF_R89_NS} never enumerated",
+                loads)
+        pactl_post = _pwprof_r89_stream(
+            ["pactl", "list", "modules", "short"], 10.0,
+            keep_chars=2000, keep_raw=True)
+        g_post = _pactlmon_r85_graph()
+        # ---------- x_modreg: the registry-mismatch law ------------
+        def _mod_ids(rec):
+            out = set()
+            for ln in (rec.get("stdout_raw") or "").splitlines():
+                f = ln.split("\t")
+                if f and f[0].strip().isdigit():
+                    out.add(f[0].strip())
+            return out
+        pre_ids, post_ids = _mod_ids(pactl_pre), _mod_ids(pactl_post)
+        try:
+            _raw = subprocess.run(["pw-dump"], capture_output=True,
+                                  timeout=15)
+            _objs = json.loads(_raw.stdout or b"[]")
+        except (subprocess.TimeoutExpired, OSError, ValueError):
+            _objs = []
+        dump_module_ids = sorted(
+            str(o.get("id")) for o in _objs
+            if str(o.get("type", "")).endswith("Module"))
+        own_idx = loads[PWPROF_R89_NS].get("module_id")
+        own_node = _pactlmon_r85_node(g_post, PWPROF_R89_NS) or {}
+        legs["x_modreg"] = {
+            "pactl_added": sorted(post_ids - pre_ids),
+            "own_pactl_idx": own_idx,
+            "own_in_dump_modules": str(own_idx) in dump_module_ids,
+            "own_node_in_dump": own_node.get("node_id") is not None,
+            "dump_module_count": len(dump_module_ids)}
+        # ---------- the blank-line hazard --------------------------
+        blank = [i + 1 for i, ln in enumerate(
+            (pactl_post.get("stdout_raw") or "").splitlines())
+            if not ln.strip()]
+        own_found = _pactlmon_r85_module_index(
+            "sink_name", PWPROF_R89_NS)
+        legs["x_blank"] = {"blank_lines": blank,
+                           "own_found": own_found,
+                           "own_idx": own_idx}
+        with tempfile.TemporaryDirectory(
+                prefix="r89a-xw-") as tmp:
+            ctx = _pwprof_r89_ctx(tmp)
+            tag = f"{PWPROF_R89_PREFIX}_pl"
+            legs["x_link"] = {"player": _pwprof_r89_ensure_player(
+                ctx, tag)}
+            procs.append(ctx.get("player"))
+            own_id = (_pactlmon_r85_node(
+                _pactlmon_r85_graph(), PWPROF_R89_NS) or {}
+                ).get("node_id")
+            entry["refs"] = {"own_node_id": own_id}
+            # ---------- x_foot: the 1-Client footprint -------------
+            # the pre-run census is taken AFTER the seat follower is
+            # linked, so the run's own objects are never miscounted
+            def _clients():
+                try:
+                    objs = json.loads(subprocess.run(
+                        ["pw-dump"], capture_output=True,
+                        timeout=15).stdout or b"[]")
+                except (subprocess.TimeoutExpired, OSError,
+                        ValueError):
+                    return None
+                return sorted(str(
+                    ((o.get("info") or {}).get("props") or {})
+                    .get("application.name"))
+                    for o in objs
+                    if str(o.get("type", "")).endswith("Client"))
+            c0 = _clients()
+            g_cpre = _pactlmon_r85_graph()
+            foot = subprocess.Popen(
+                ["pw-profiler", "-J", "-n", "30"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            time.sleep(0.35)
+            c1 = _clients()
+            g_during = _pactlmon_r85_graph()
+            try:
+                foot.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(foot, signal.SIGKILL)
+                foot.wait()
+            legs["x_foot"] = {
+                "pwprof_before": (c0 or []).count("pw-profiler"),
+                "pwprof_during": (c1 or []).count("pw-profiler"),
+                "clients_added": sorted(
+                    n for n in set(c1 or [])
+                    if (c1 or []).count(n) > (c0 or []).count(n)),
+                "nodes_delta": len(g_during.get("nodes", {}))
+                    - len(g_cpre.get("nodes", {})),
+                "rc": foot.returncode}
+            # ---------- x_conc: the one-stream broadcast -----------
+            p1 = subprocess.Popen(
+                ["pw-profiler", "-J", "-n", "8"],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            p2 = subprocess.Popen(
+                ["pw-profiler", "-J", "-n", "8"],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL, start_new_session=True)
+            try:
+                o1, _ = p1.communicate(timeout=15)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(p1, signal.SIGKILL)
+                o1, _ = p1.communicate()
+            try:
+                o2, _ = p2.communicate(timeout=15)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(p2, signal.SIGKILL)
+                o2, _ = p2.communicate()
+            a1, e1 = _pwprof_r89_jparse(o1.decode(errors="replace"))
+            a2, e2 = _pwprof_r89_jparse(o2.decode(errors="replace"))
+            def _key_blocks(a):
+                out = {}
+                for b in _pwprof_r89_blocks(a):
+                    drv = (b.get("driver") or {}).get("name")
+                    cnt = (b.get("info") or {}).get("count")
+                    if drv is not None and cnt is not None:
+                        out[(drv, cnt)] = [
+                            b["info"], b.get("clock"), b.get("driver"),
+                            *b["followers"], *b["fclocks"],
+                            *b["other"]]
+                return out
+            k1, k2 = _key_blocks(a1), _key_blocks(a2)
+            shared = sorted(set(k1) & set(k2))
+            legs["x_conc"] = {
+                "rc1": p1.returncode, "rc2": p2.returncode,
+                "parse1": e1, "parse2": e2,
+                "bytes1": len(o1), "bytes2": len(o2),
+                "byte_identical": o1 == o2,
+                "shared": len(shared),
+                "shared_identical": all(k1[k] == k2[k]
+                                        for k in shared)}
+            # ---------- x_top: pw-top vs profiler ------------------
+            prof = subprocess.Popen(
+                ["pw-profiler", "-J", "-n", "0"], stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.4)
+            top = _pwprof_r89_stream(
+                ["pw-top", "-b", "-n", "3"], 15.0, keep_raw=True)
+            time.sleep(0.3)
+            try:
+                prof.send_signal(signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                pout, _ = prof.communicate(timeout=8)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(prof, signal.SIGKILL)
+                pout, _ = prof.communicate()
+            frames = _pwprof_r89_top_rows(
+                top.get("stdout_raw") or "")
+            own_row = None
+            for fr in reversed(frames):
+                cand = next((r for r in fr if r["id"] == own_id), None)
+                if cand and cand["status"] != "C" and \
+                        cand["wait_us"] is not None:
+                    own_row = cand
+                    break
+            parr, _pe3 = _pwprof_r89_jparse(
+                pout.decode(errors="replace"))
+            pstats = _pwprof_r89_schema_stats(
+                _pwprof_r89_blocks(parr), PWPROF_R89_NS, 0,
+                10**20)
+            legs["x_top"] = {
+                "top_rc": top.get("exit_code"),
+                "frames": len(frames),
+                "own_row": own_row,
+                "prof_wait_us_med": pstats.get("wait_us_median"),
+                "prof_busy_us_med": pstats.get("busy_us_median"),
+                "prof_own_blocks": pstats.get("own_blocks")}
+            # ---------- x_profobj: the introspection refusal -------
+            try:
+                _raw = subprocess.run(["pw-dump"], capture_output=True,
+                                      timeout=15)
+                objs = json.loads(_raw.stdout or b"[]")
+            except (subprocess.TimeoutExpired, OSError, ValueError):
+                objs = []
+            prof_ids = [o.get("id") for o in objs
+                        if str(o.get("type", "")).endswith("Profiler")]
+            legs["x_profobj"] = {"ids": prof_ids}
+            if prof_ids:
+                pid0 = prof_ids[0]
+                legs["x_profobj"]["info"] = _pwprof_r89_stream(
+                    ["pw-cli", "info", str(pid0)], 10.0,
+                    keep_chars=400)
+                legs["x_profobj"]["enum"] = _pwprof_r89_stream(
+                    ["pw-cli", "enum-params", str(pid0), "Props"],
+                    10.0, keep_chars=400)
+            # ---------- x_sigpipe / x_devfull ----------------------
+            sp = subprocess.Popen(
+                ["pw-profiler", "-J", "-n", "0"], stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
+                start_new_session=True)
+            sp.stdout.close()
+            try:
+                sp.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                _alsapw_r84_killpg(sp, signal.SIGKILL)
+                sp.wait()
+            legs["x_sigpipe"] = {"rc": sp.returncode}
+            try:
+                with open("/dev/full", "wb") as full:
+                    df = subprocess.run(
+                        ["pw-profiler", "-J", "-n", "4"], stdout=full,
+                        stderr=subprocess.PIPE,
+                        stdin=subprocess.DEVNULL, timeout=15)
+                legs["x_devfull"] = {"rc": df.returncode,
+                                     "stderr_bytes": len(df.stderr)}
+            except subprocess.TimeoutExpired:
+                legs["x_devfull"] = {"rc": None,
+                                     "error": "harness timeout"}
+    finally:
+        _pwprof_r89_teardown(entry, failures, loads, procs)
+    # ---------------- verdicts ----------------
+    if not legs["x_link"].get("player"):
+        entry.setdefault("coverage_blocked", []).append(
+            "seat pw-play never linked — every cross-witness arm "
+            "below is contention, not measurement")
+    l = legs["x_modreg"]
+    if l.get("own_in_dump_modules") is not False or \
+            l.get("own_node_in_dump") is not True or \
+            str(l.get("own_pactl_idx")) not in \
+            (l.get("pactl_added") or ()):
+        failures.append(
+            f"x_modreg: {l} — the pactl-vs-native Module mismatch "
+            "fails")
+    l = legs["x_blank"]
+    if not l.get("blank_lines") or l.get("own_found") is None:
+        failures.append(
+            f"x_blank: {l} — the guarded blank-line parse fails")
+    l = legs["x_foot"]
+    if l.get("pwprof_during") != (l.get("pwprof_before") or 0) + 1 or \
+            l.get("nodes_delta") != 0:
+        failures.append(
+            f"x_foot: {l} — the one-Client footprint fails")
+    l = legs["x_conc"]
+    if l.get("rc1") != 0 or l.get("rc2") != 0 or \
+            l.get("parse1") or l.get("parse2"):
+        failures.append(
+            f"x_conc: rc={l.get('rc1')},{l.get('rc2')} parse="
+            f"{l.get('parse1')},{l.get('parse2')} — the concurrent "
+            "capture failed")
+    elif not l.get("shared"):
+        entry.setdefault("coverage_blocked", []).append(
+            "x_conc: zero overlapping (driver,count) blocks — the "
+            "streams were staggered (the r88 frame-count advisory "
+            "again); the broadcast law is unmeasured this run")
+    elif l.get("shared_identical") is not True:
+        failures.append(
+            f"x_conc: overlapping blocks differ — the one-stream "
+            "broadcast law fails")
+    l = legs["x_top"]
+    row = l.get("own_row") or {}
+    pw, pb = l.get("prof_wait_us_med"), l.get("prof_busy_us_med")
+    if l.get("own_row") is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "x_top: no real-state own row in the last pw-top frame "
+            "— the cross-witness is unmeasured")
+    elif pw is None or pb is None or row.get("wait_us") is None or \
+            row.get("busy_us") is None:
+        entry.setdefault("coverage_blocked", []).append(
+            f"x_top: partial witnesses {l} — the agreement arm is "
+            "unmeasured")
+    else:
+        def _close(a, b):
+            return a is not None and b is not None and \
+                0.25 <= (a / b if b else float("inf")) <= 4.0
+        if not (_close(row["wait_us"], pw) and
+                _close(row["busy_us"], pb)):
+            failures.append(
+                f"x_top: top {row['wait_us']}/{row['busy_us']}us vs "
+                f"profiler {pw}/{pb}us — the WAIT/BUSY cross-witness "
+                "fails")
+    l = legs["x_profobj"]
+    if not l.get("ids"):
+        entry.setdefault("coverage_blocked", []).append(
+            "x_profobj: no Profiler object in pw-dump — the refusal "
+            "leg is unmeasured")
+    else:
+        for sub in ("info", "enum"):
+            r = l.get(sub) or {}
+            if r.get("exit_code") != 0 or \
+                    "unsupported type PipeWire:Interface:Profiler" \
+                    not in (r.get("stderr") or "") + \
+                    (r.get("stdout") or ""):
+                failures.append(
+                    f"x_profobj.{sub}: rc={r.get('exit_code')} — the "
+                    "introspection refusal fails")
+    l = legs["x_sigpipe"]
+    if l.get("rc") != -13:
+        failures.append(
+            f"x_sigpipe: rc={l.get('rc')} — the closed-reader SIGPIPE "
+            "law fails")
+    l = legs["x_devfull"]
+    if l.get("rc") != 0 or l.get("stderr_bytes") != 0:
+        failures.append(
+            f"x_devfull: rc={l.get('rc')} stderr={l.get('stderr_bytes')}"
+            " — the silent write-error law fails")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -29381,6 +30910,7 @@ def main():
     parser.add_argument("--probe-pwctl-r86", action="store_true")
     parser.add_argument("--probe-pwbind-r87", action="store_true")
     parser.add_argument("--probe-btwit-r88", action="store_true")
+    parser.add_argument("--probe-pwprof-r89", action="store_true")
     parser.add_argument("--probe-gst-r81", action="store_true")
     parser.add_argument("--probe-module-r80", action="store_true")
     parser.add_argument("--probe-capture-r79", action="store_true")
@@ -29388,7 +30918,7 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88]) > 1:
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
@@ -29821,6 +31351,34 @@ def main():
             witdiff_dump_r88_entry()
         measurements["pwtop_r88_probe"] = \
             pwtop_r88_entry()
+    if args.probe_pwprof_r89:
+        # r89: the PW-PROFILER OUTPUT LATTICE — the -n gating law
+        # (exact-N completions summed over ALL driver domains, the
+        # unbounded class on invalid parses), the -J stream laws
+        # (lazy `[`, 4096 B blocks, graceful {INT,TERM} only), the -o
+        # artifact lattice (eager creation, INCREMENTAL writes — the
+        # boundary's falsification of the scout's exit-only claim),
+        # the strtol full-string -n parser, the own-driver schema
+        # invariants, the rc-255 refusal lattice + PIPEWIRE_REMOTE,
+        # the one-stream broadcast law (record-level, never
+        # byte-level), the 1-Client footprint, and the Profiler
+        # object's introspection refusal. A NEW parallel ledger
+        # family, prior rows untouched; r76-r88 guards inherited
+        # (seat-owned r89a_<pid> names, the private r89arole<pid>
+        # key, name-verified sink_name= unloads, never
+        # set-default-*, bounded process groups, continuously
+        # drained -J captures — the backpressure stall hazard
+        # folded). The family lock is a FIXED corpus/live/ path —
+        # the r84 F1 3-seat consensus.
+        _r89_family_lock = _pwprof_r89_family_lock()   # held to exit
+        measurements["pwprof_gate_r89_probe"] = \
+            pwprof_gate_r89_entry()
+        measurements["pwprof_oart_r89_probe"] = \
+            pwprof_oart_r89_entry()
+        measurements["pwprof_schema_r89_probe"] = \
+            pwprof_schema_r89_entry()
+        measurements["pwprof_xw_r89_probe"] = \
+            pwprof_xw_r89_entry()
     if args.probe_pactlmon_r85:
         # r85: the pactl short-name/serial addressing lattice + the
         # monitor-stream (N-streams-one-sink mixing + capture-side
@@ -30471,7 +32029,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -30491,7 +32049,7 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    suffix = "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     out = ROOT / "live" / "runs" / (stamp + suffix)
     out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
