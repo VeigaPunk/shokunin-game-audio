@@ -1,0 +1,269 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -21687,7 +21687,6 @@
+ PACTLMON_R85_ROLE = f"r85arole{PACTLMON_R85_PID}"    # private restore key —
+                                                     # NEVER shared `music`
+ PACTLMON_R85_BOGUS = "no_such_r85a"
+-PACTLMON_R85_STREAM_WAIT_S = 8.0
+ PACTLMON_R85_LINK_WAIT_S = 5.0
+ PACTLMON_R85_TAP_WAIT_S = 6.0
+ PACTLMON_R85_FEED_S = 30.0       # feed tone seconds (outlives the entry)
+@@ -22029,18 +22028,7 @@
+     _alsapw_r84_killpg(proc, sig)
+ 
+ 
+-def _pactlmon_r85_wait_node(name, timeout_s=PACTLMON_R85_LINK_WAIT_S):
+-    """Poll pw-dump until node.name == `name` exists."""
+-    t0 = time.monotonic()
+-    while time.monotonic() - t0 < timeout_s:
+-        g = _pactlmon_r85_graph()
+-        if _pactlmon_r85_node(g, name):
+-            return True, round(time.monotonic() - t0, 3)
+-        time.sleep(0.12)
+-    return False, round(time.monotonic() - t0, 3)
+-
+-
+-def _pactlmon_r85_wait_tap_link(sink, tap_tag,
++def _pactlmon_r85_wait_tap_link(tap_tag,
+                                 timeout_s=PACTLMON_R85_TAP_WAIT_S):
+     """The boundary's mandated tap validation: poll the graph until the
+     monitor tap's links `<sink>:monitor_* -> <tap_tag>:input_*` exist —
+@@ -22108,8 +22096,8 @@
+     frames = int(48000 * (dur_s + 1.2))
+     tap = _playback_r78_tap(ctx["mix"], tapf, frames, f"{tag}_tap")
+     t0 = time.monotonic()
+-    edges, waited = _pactlmon_r85_wait_tap_link(ctx["mix"],
+-                                              f"{tag}_tap")
++    edges, waited = _pactlmon_r85_wait_tap_link(
++        f"{tag}_tap")
+     leg = {"name": name, "tag": tag, "tap_link": edges,
+            "tap_link_wait_s": waited, "tap_target": ctx["mix"],
+            "dur_s": dur_s}
+@@ -22215,7 +22203,7 @@
+         proc.wait()
+         leg["sigkill"] = True
+     err = proc.stderr.read().decode(errors="replace")
+-    cls, hit = _pactlmon_r85_errclass(err)
++    cls, _ = _pactlmon_r85_errclass(err)
+     leg.update({"samples": samples, "size_at_loss": size_at_loss,
+                 "exit_code": proc.returncode,
+                 "signal": (signal.Signals(-proc.returncode).name
+@@ -22257,7 +22245,7 @@
+     return out
+ 
+ 
+-def _pactlmon_r85_sd_leg(name, ctx, sd, client_argv, dur_s=2.6):
++def _pactlmon_r85_sd_leg(name, sd, client_argv, dur_s=2.6):
+     """Audio/Source self-destruct witness: `client_argv` spawns against
+     the loaded `sd` null-sink; module + source absence are polled on a
+     ~60 ms grid; the file stays a 44-B stub when no link forms."""
+@@ -22301,7 +22289,7 @@
+         _pactlmon_r85_killpg(proc)
+         proc.wait()
+     err = proc.stderr.read().decode(errors="replace")
+-    cls, hit = _pactlmon_r85_errclass(err)
++    cls, _ = _pactlmon_r85_errclass(err)
+     leg.update({"exit_code": proc.returncode,
+                 "signal": (signal.Signals(-proc.returncode).name
+                            if (proc.returncode or 0) < 0 else None),
+@@ -22350,8 +22338,7 @@
+     record carries its OWN field name — sink_name or source_name), then
+     the witnesses: sinks gone from pactl, sources gone from pactl, and
+     no r85a_<pid>-tagged node survives."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -22364,8 +22351,8 @@
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        sink_names = [t for t, l in (loads or {}).items()
+-                      if (l or {}).get("field", "sink_name") ==
++        sink_names = [t for t, l in loads.items()
++                      if l.get("field", "sink_name") ==
+                       "sink_name"]
+         gone = {nm: nm not in sinks_now for nm in sink_names}
+         entry["sinks_gone"] = gone
+@@ -22380,8 +22367,8 @@
+             "teardown: pactl source reader failed — sources_gone "
+             "unmeasured")
+     else:
+-        src_names = [t for t, l in (loads or {}).items()
+-                     if (l or {}).get("field") == "source_name"]
++        src_names = [t for t, l in loads.items()
++                     if l.get("field") == "source_name"]
+         sgone = {nm: nm not in srcs_now for nm in src_names}
+         entry["sources_gone"] = sgone
+         if not all(sgone.values()):
+@@ -22397,7 +22384,7 @@
+     else:
+         rest = sorted(n for n in names
+                       if PACTLMON_R85_PREFIX in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -22409,7 +22396,6 @@
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -22421,7 +22407,7 @@
+ 
+ def _pactlmon_r85_vol_pct(rec):
+     """First front-* `N%` on a pactl volume row's stdout."""
+-    m = re.search(r"(\d+)\s*%", (rec or {}).get("stdout") or "")
++    m = re.search(r"(\d+)\s*%", rec.get("stdout") or "")
+     return int(m.group(1)) if m else None
+ 
+ 
+@@ -22484,32 +22470,32 @@
+                    "ns2": PACTLMON_R85_NS2}
+             try:
+                 # -------- get-sink-volume equivalence class --------
+-                def gsv(arg, label):
++                def gsv(arg):
+                     return _pactlmon_r85_pactl(
+                         "get-sink-volume", arg)
+-                legs["g_name"] = gsv(PACTLMON_R85_NS, "name")
+-                legs["g_serial"] = gsv(str(ser_a), "serial")
+-                legs["g_objid"] = gsv(str(oid_a), "object.id")
+-                legs["g_defsink"] = gsv("@DEFAULT_SINK@", "defsink")
+-                legs["g_defsrc"] = gsv("@DEFAULT_SOURCE@", "defsrc")
+-                legs["g_defmon"] = gsv("@DEFAULT_MONITOR@", "defmon")
++                legs["g_name"] = gsv(PACTLMON_R85_NS)
++                legs["g_serial"] = gsv(str(ser_a))
++                legs["g_objid"] = gsv(str(oid_a))
++                legs["g_defsink"] = gsv("@DEFAULT_SINK@")
++                legs["g_defsrc"] = gsv("@DEFAULT_SOURCE@")
++                legs["g_defmon"] = gsv("@DEFAULT_MONITOR@")
+                 legs["g_monitor_as_sink"] = gsv(
+-                    f"{PACTLMON_R85_NS}.monitor", "monitor_as_sink")
+-                legs["g_bogus"] = gsv(PACTLMON_R85_BOGUS, "bogus")
+-                legs["g_huge"] = gsv("99999999", "huge")
+-                legs["g_neg"] = gsv("-1", "neg")
+-                legs["g_empty"] = gsv("", "empty")
+-                legs["g_zero"] = gsv("0", "zero")
+-                legs["g_leadspace"] = gsv(f" {ser_a}", "leadspace")
+-                legs["g_plus"] = gsv(f"+{ser_a}", "plus")
+-                legs["g_float"] = gsv(f"{ser_a}.0", "float")
+-                legs["g_xsuf"] = gsv(f"{ser_a}x", "xsuf")
+-                legs["g_hex"] = gsv(f"0x{ser_a:X}", "hex")
++                    f"{PACTLMON_R85_NS}.monitor")
++                legs["g_bogus"] = gsv(PACTLMON_R85_BOGUS)
++                legs["g_huge"] = gsv("99999999")
++                legs["g_neg"] = gsv("-1")
++                legs["g_empty"] = gsv("")
++                legs["g_zero"] = gsv("0")
++                legs["g_leadspace"] = gsv(f" {ser_a}")
++                legs["g_plus"] = gsv(f"+{ser_a}")
++                legs["g_float"] = gsv(f"{ser_a}.0")
++                legs["g_xsuf"] = gsv(f"{ser_a}x")
++                legs["g_hex"] = gsv(f"0x{ser_a:X}")
+                 s = str(ser_a)
+-                legs["g_uscr"] = gsv(f"{s[:-3]}_{s[-3:]}", "uscr")
++                legs["g_uscr"] = gsv(f"{s[:-3]}_{s[-3:]}")
+                 # boundary-bimodal row — RECORDED ONLY, never armed
+-                legs["g_lead0"] = gsv(f"0{s}", "lead0")
+-                legs["g_defsinkX"] = gsv("@DEFAULT_SINK@X", "defsinkX")
++                legs["g_lead0"] = gsv(f"0{s}")
++                legs["g_defsinkX"] = gsv("@DEFAULT_SINK@X")
+                 # -------- get-source-volume equivalence class --------
+                 def gsvo(arg):
+                     return _pactlmon_r85_pactl(
+@@ -22679,18 +22665,18 @@
+                 if (legs["mv_name"]["pactl"].get("exit_code") != 0
+                         or a1.get("sink") != ns2_idx):
+                     failures.append(
+-                        f"mv_name: sink={(a1 or {}).get('sink')} != "
++                        f"mv_name: sink={a1.get('sink')} != "
+                         f"ns2 {ns2_idx} — move-by-name fails")
+                 a2 = (legs.get("mv_serial") or {}).get("after") or {}
+                 if (legs["mv_serial"]["pactl"].get("exit_code") != 0
+                         or a2.get("sink") != ns_idx):
+                     failures.append(
+-                        f"mv_serial: sink={(a2 or {}).get('sink')} "
++                        f"mv_serial: sink={a2.get('sink')} "
+                         f"!= ns {ns_idx} — move-by-serial fails")
+                 l3 = legs.get("mv_bogus") or {}
+                 if l3.get("pactl", {}).get("exit_code") == 0 or \
+                         (l3.get("after") or {}).get("sink") != \
+-                        (a2 or {}).get("sink"):
++                        a2.get("sink"):
+                     failures.append(
+                         "mv_bogus: bogus move did not refuse-and-"
+                         "stay")
+@@ -22700,7 +22686,7 @@
+                     if cm["pactl"].get("exit_code") != 0 or \
+                             a4.get("sink") != ns_idx:
+                         failures.append(
+-                            f"cdup_move: sink={(a4 or {}).get('sink')}"
++                            f"cdup_move: sink={a4.get('sink')}"
+                             f" != serial-holder ns {ns_idx} — the "
+                             "collision law fails")
+                 cl = legs.get("cdup_cap") or {}
+@@ -22735,8 +22721,6 @@
+                         f"cdup_cap: monitor-links={len(mon)} "
+                         f"realization={cl['realization']} — the "
+                         "digits-resolution lattice fails")
+-            sers = [s for s in
+-                    entry["serial_cycles"]["serials"] if s is not None]
+             if len(serials) != 3 or len(serials) != len(set(serials)) \
+                     or serials != sorted(serials):
+                 failures.append(
+@@ -23269,7 +23253,7 @@
+                 # the feeder lost its sink — kill it NOW, before the
+                 # r78 default-fallback lands a tag TONE on the shared
+                 # sink (only silence may ever land there).
+-                if feeder is not None and feeder.poll() is None:
++                if feeder.poll() is None:
+                     _pactlmon_r85_killpg(feeder)
+                     feeder.wait()
+                 # -------- Audio/Source self-destruct ladder -------
+@@ -23278,7 +23262,7 @@
+                 # idle leg — the loaded sd above stays untouched for
+                 # the whole window (a --version client never binds)
+                 legs["sd_idle"] = _pactlmon_r85_sd_leg(
+-                    "sd_idle", ctx, PACTLMON_R85_SD,
++                    "sd_idle", PACTLMON_R85_SD,
+                     ["pw-record", "--version"], dur_s=3.6)
+                 if loads[PACTLMON_R85_SD].get("module_id") is not None:
+                     # still alive after idle — the connect legs each
+@@ -23299,7 +23283,7 @@
+                         loads[PACTLMON_R85_SD] = \
+                             _pactlmon_r85_sd_load(PACTLMON_R85_SD)
+                         legs[nm] = _pactlmon_r85_sd_leg(
+-                            nm, ctx, PACTLMON_R85_SD, argv,
++                            nm, PACTLMON_R85_SD, argv,
+                             dur_s=2.6)
+                         legs[nm]["out"] = _alsapw_r84_nz_stats(
+                             Path(tmp) / ("sdr.wav" if nm ==
+@@ -23488,12 +23472,7 @@
+                 failures.append(
+                     f"t_sinkserial: links={sp} — the numeric-bypass "
+                     "monitor arm fails")
+-            for nm, want_node in (("t_srcname", PACTLMON_R85_VSRC +
+-                                   "b"),
+-                                  ("t_srcserial", PACTLMON_R85_VSRC +
+-                                   "b"),
+-                                  ("t_srcid", PACTLMON_R85_VSRC +
+-                                   "b")):
++            for nm in ("t_srcname", "t_srcserial", "t_srcid"):
+                 lp = link_ports(nm)
+                 if not lp or not all(
+                         (p or "").startswith("capture_") for p in
+@@ -23507,7 +23486,6 @@
+                 failures.append(
+                     f"t_prop_sinkname: links={lp} — the prop-form "
+                     "monitor arm fails")
+-            lp = link_ports("t_prop_srcname")
+             pl = [e for s in legs["t_prop_srcname"].get("samples", [])
+                   for e in s.get("links", [])]
+             if not pl or not all(

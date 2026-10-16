@@ -1,0 +1,292 @@
+[region] r85 block lines 21579..23728 (2150 lines)
+== r85 functions: 34
+== per-function: args, defaults, arg-usage, call sites, write-only locals
+  _pactlmon_r85_amps  L22062  args=['path', 'freqs', 'win_s', 'skip_s']  defaults={'win_s': '0.25', 'skip_s': '0.35'}
+      arg_loads={'path': 1, 'freqs': 2, 'win_s': 1, 'skip_s': 1}  unused_args=[]  callsites=6
+  _pactlmon_r85_block  L22407  args=['entry', 'failures', 'msg', 'loads']  defaults={'loads': 'None'}
+      arg_loads={'entry': 5, 'failures': 1, 'msg': 2, 'loads': 1}  unused_args=[]  callsites=11
+  _pactlmon_r85_cap_leg  L22149  args=['name', 'ctx', 'target', 'prop', 'dur_s', 'loss_at', 'loss_field', 'loss_value', 'late_at', 'late_master', 'late_name', 'link_samples', 'out_name']  defaults={'prop': 'False', 'dur_s': '4.6', 'loss_at': 'None', 'loss_field': 'None', 'loss_value': 'None', 'late_at': 'None', 'late_master': 'None', 'late_name': 'None', 'link_samples': '(0.8,)', 'out_name': 'None'}
+      arg_loads={'name': 4, 'ctx': 1, 'target': 2, 'prop': 2, 'dur_s': 1, 'loss_at': 2, 'loss_field': 1, 'loss_value': 1, 'late_at': 2, 'late_master': 1, 'late_name': 1, 'link_samples': 1, 'out_name': 1}  unused_args=[]  callsites=13
+      WRITE-ONLY-LOCALS=['hit']
+      STORE-AFTER-LAST-LOAD=[('hit', [22218], [])]
+  _pactlmon_r85_edges  L21825  args=['g']  defaults={}
+      arg_loads={'g': 3}  unused_args=[]  callsites=2
+  _pactlmon_r85_edges_in  L21843  args=['g', 'in_node_name']  defaults={}
+      arg_loads={'g': 1, 'in_node_name': 1}  unused_args=[]  callsites=4
+  _pactlmon_r85_edges_out  L21849  args=['g', 'out_node_name']  defaults={}
+      arg_loads={'g': 1, 'out_node_name': 1}  unused_args=[]  callsites=1
+  _pactlmon_r85_entry_head  L22333  args=['probe']  defaults={}
+      arg_loads={'probe': 1}  unused_args=[]  callsites=5
+  _pactlmon_r85_errclass  L21717  args=['text']  defaults={}
+      arg_loads={'text': 2}  unused_args=[]  callsites=5
+  _pactlmon_r85_family_lock  L22313  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+  _pactlmon_r85_graph  L21776  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=10
+  _pactlmon_r85_killpg  L22028  args=['proc', 'sig']  defaults={'sig': 'signal.SIGKILL'}
+      arg_loads={'proc': 1, 'sig': 1}  unused_args=[]  callsites=11
+  _pactlmon_r85_loadavg  L21727  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+  _pactlmon_r85_med  L22092  args=['windows', 'key', 'lo', 'hi']  defaults={'lo': 'None', 'hi': 'None'}
+      arg_loads={'windows': 1, 'key': 2, 'lo': 2, 'hi': 2}  unused_args=[]  callsites=17
+  _pactlmon_r85_module_index  L21854  args=['field', 'value']  defaults={}
+      arg_loads={'field': 1, 'value': 1}  unused_args=[]  callsites=4
+  _pactlmon_r85_node  L21816  args=['g', 'name']  defaults={}
+      arg_loads={'g': 1, 'name': 1}  unused_args=[]  callsites=8
+  _pactlmon_r85_pactl  L21771  args=['timeout_s']  defaults={'timeout_s': '8.0'}
+      arg_loads={'timeout_s': 1}  unused_args=[]  callsites=6
+  _pactlmon_r85_play  L21995  args=['tag', 'target', 'tone', 'role']  defaults={'role': 'None'}
+      arg_loads={'tag': 2, 'target': 1, 'tone': 1, 'role': 1}  unused_args=[]  callsites=3
+  _pactlmon_r85_post_stats  L22228  args=['path', 'loss_size']  defaults={}
+      arg_loads={'path': 1, 'loss_size': 4}  unused_args=[]  callsites=1
+  _pactlmon_r85_remap_load  L21904  args=['master_monitor', 'source_name']  defaults={}
+      arg_loads={'master_monitor': 2, 'source_name': 5}  unused_args=[]  callsites=3
+  _pactlmon_r85_run  L21731  args=['argv', 'timeout_s', 'env']  defaults={'env': 'None'}
+      arg_loads={'argv': 2, 'timeout_s': 1, 'env': 1}  unused_args=[]  callsites=8
+  _pactlmon_r85_sd_leg  L22260  args=['name', 'ctx', 'sd', 'client_argv', 'dur_s']  defaults={'dur_s': '2.6'}
+      arg_loads={'name': 2, 'ctx': 0, 'sd': 3, 'client_argv': 1, 'dur_s': 1}  unused_args=['ctx']  callsites=2
+      WRITE-ONLY-LOCALS=['hit']
+      STORE-AFTER-LAST-LOAD=[('hit', [22304], [])]
+  _pactlmon_r85_sd_load  L21950  args=['name']  defaults={}
+      arg_loads={'name': 5}  unused_args=[]  callsites=4
+  _pactlmon_r85_tapped_mix  L22100  args=['name', 'ctx', 'players', 'dur_s', 'settle_s']  defaults={'dur_s': '4.6', 'settle_s': '0.5'}
+      arg_loads={'name': 3, 'ctx': 6, 'players': 1, 'dur_s': 3, 'settle_s': 1}  unused_args=[]  callsites=6
+  _pactlmon_r85_teardown  L22348  args=['entry', 'failures', 'loads']  defaults={}
+      arg_loads={'entry': 10, 'failures': 3, 'loads': 4}  unused_args=[]  callsites=5
+  _pactlmon_r85_tone  L22009  args=['path', 'seconds', 'lhz', 'rhz', 'amp', 'invert_both']  defaults={'amp': 'PACTLMON_R85_AMP', 'invert_both': 'False'}
+      arg_loads={'path': 1, 'seconds': 1, 'lhz': 1, 'rhz': 1, 'amp': 2, 'invert_both': 1}  unused_args=[]  callsites=7
+  _pactlmon_r85_unload_own  L21878  args=['module_id', 'field', 'value']  defaults={}
+      arg_loads={'module_id': 3, 'field': 2, 'value': 2}  unused_args=[]  callsites=9
+  _pactlmon_r85_vol_pct  L22422  args=['rec']  defaults={}
+      arg_loads={'rec': 1}  unused_args=[]  callsites=7
+  _pactlmon_r85_wait_node  L22032  args=['name', 'timeout_s']  defaults={'timeout_s': 'PACTLMON_R85_LINK_WAIT_S'}
+      arg_loads={'name': 1, 'timeout_s': 1}  unused_args=[]  callsites=0
+  _pactlmon_r85_wait_tap_link  L22043  args=['sink', 'tap_tag', 'timeout_s']  defaults={'timeout_s': 'PACTLMON_R85_TAP_WAIT_S'}
+      arg_loads={'sink': 0, 'tap_tag': 1, 'timeout_s': 1}  unused_args=['sink']  callsites=1
+      STORE-AFTER-LAST-LOAD=[('e', [22056], [22055])]
+  pactlmon_addr_r85_entry  L22428  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+      WRITE-ONLY-LOCALS=['sers']
+      STORE-AFTER-LAST-LOAD=[('e', [22708, 22709, 22720], [22707, 22709, 22719, 22710]), ('sers', [22738], [])]
+  pactlmon_aplayenv_r85_entry  L23006  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+  pactlmon_capture_r85_entry  L23148  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+      WRITE-ONLY-LOCALS=['want_node']
+      STORE-AFTER-LAST-LOAD=[('e', [23445, 23512, 23547, 23591, 23376, 23378, 23411, 23450, 23595, 23487, 23515, 23563, 23568, 23517], [23444, 23511, 23546, 23590, 23375, 23410, 23378, 23448, 23485, 23568, 23593, 23517, 23449, 23514, 23562, 23594]), ('lp', [23504, 23510, 23497], [23505, 23498, 23508, 23502, 23506, 23500]), ('want_node', [23491], [])]
+  pactlmon_mix_r85_entry  L22751  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+  pactlmon_negctl_r85_entry  L23618  args=[]  defaults={}
+      arg_loads={}  unused_args=[]  callsites=1
+
+== call-site argument supply census (r85 funcs)
+  _pactlmon_r85_amps: 6 calls; supply={'path': 6, 'freqs': 6}
+  _pactlmon_r85_block: 11 calls; supply={'entry': 11, 'failures': 11, 'msg': 11, 'loads': 6}
+  _pactlmon_r85_cap_leg: 13 calls; supply={'name': 13, 'ctx': 13, 'target': 13, 'dur_s': 13, 'link_samples': 13, 'prop': 4, 'loss_at': 2, 'loss_field': 2, 'loss_value': 2, 'late_at': 1, 'late_master': 1, 'late_name': 1}
+  _pactlmon_r85_edges: 2 calls; supply={'g': 2}
+  _pactlmon_r85_edges_in: 4 calls; supply={'g': 4, 'in_node_name': 4}
+  _pactlmon_r85_edges_out: 1 calls; supply={'g': 1, 'out_node_name': 1}
+  _pactlmon_r85_entry_head: 5 calls; supply={'probe': 5}
+  _pactlmon_r85_errclass: 5 calls; supply={'text': 5}
+  _pactlmon_r85_killpg: 11 calls; supply={'proc': 11, 'sig': 3}
+  _pactlmon_r85_med: 17 calls; supply={'windows': 17, 'key': 17}
+  _pactlmon_r85_module_index: 4 calls; supply={'field': 4, 'value': 4}
+  _pactlmon_r85_node: 8 calls; supply={'g': 8, 'name': 8}
+  _pactlmon_r85_pactl: 6 calls; supply={}
+  _pactlmon_r85_play: 3 calls; supply={'tag': 3, 'target': 3, 'tone': 3}
+  _pactlmon_r85_post_stats: 1 calls; supply={'path': 1, 'loss_size': 1}
+  _pactlmon_r85_remap_load: 3 calls; supply={'master_monitor': 3, 'source_name': 3}
+  _pactlmon_r85_run: 8 calls; supply={'argv': 8, 'timeout_s': 8}
+  _pactlmon_r85_sd_leg: 2 calls; supply={'name': 2, 'ctx': 2, 'sd': 2, 'client_argv': 2, 'dur_s': 2}
+  _pactlmon_r85_sd_load: 4 calls; supply={'name': 4}
+  _pactlmon_r85_tapped_mix: 6 calls; supply={'name': 6, 'ctx': 6, 'players': 6, 'dur_s': 6}
+  _pactlmon_r85_teardown: 5 calls; supply={'entry': 5, 'failures': 5, 'loads': 5}
+  _pactlmon_r85_tone: 7 calls; supply={'path': 7, 'seconds': 7, 'lhz': 7, 'rhz': 7, 'invert_both': 1, 'amp': 3}
+  _pactlmon_r85_unload_own: 9 calls; supply={'module_id': 9, 'field': 9, 'value': 9}
+  _pactlmon_r85_vol_pct: 7 calls; supply={'rec': 7}
+  _pactlmon_r85_wait_node: 0 calls; supply={}
+  _pactlmon_r85_wait_tap_link: 1 calls; supply={'sink': 1, 'tap_tag': 1}
+
+== PACTLMON_R85_* constant usage (whole file, word-boundary)
+  PACTLMON_R85_PID @L21677 uses=11
+  PACTLMON_R85_PREFIX @L21678 uses=7
+  PACTLMON_R85_NS @L21679 uses=36
+  PACTLMON_R85_NS2 @L21680 uses=32
+  PACTLMON_R85_MIX @L21681 uses=7
+  PACTLMON_R85_TONE @L21682 uses=12
+  PACTLMON_R85_VSRC @L21683 uses=16
+  PACTLMON_R85_SD @L21684 uses=25
+  PACTLMON_R85_LATE @L21685 uses=4
+  PACTLMON_R85_CYC @L21686 uses=3
+  PACTLMON_R85_ROLE @L21687 uses=3
+  PACTLMON_R85_BOGUS @L21689 uses=5
+  PACTLMON_R85_STREAM_WAIT_S @L21690 uses=0
+  PACTLMON_R85_LINK_WAIT_S @L21691 uses=3
+  PACTLMON_R85_TAP_WAIT_S @L21692 uses=1
+  PACTLMON_R85_FEED_S @L21693 uses=1
+  PACTLMON_R85_AMP @L21694 uses=2
+  PACTLMON_R85_F3 @L21695 uses=1
+  PACTLMON_R85_F4 @L21696 uses=1
+  PACTLMON_R85_SOLO_ENV @L21697 uses=2
+  PACTLMON_R85_BLEED_MAX @L21698 uses=3
+  PACTLMON_R85_DUP_ENV @L21699 uses=4
+  PACTLMON_R85_CLIP_AMP @L21700 uses=2
+  PACTLMON_R85_RAIL_ENV @L21701 uses=2
+  PACTLMON_R85_SPUR_MIN @L21702 uses=2
+  PACTLMON_R85_FLUSH_BOUND @L21703 uses=2
+
+== names defined in r85 region: use census
+  PACTLMON_R85_PID @L21677 uses=11
+  PACTLMON_R85_PREFIX @L21678 uses=7
+  PACTLMON_R85_NS @L21679 uses=36
+  PACTLMON_R85_NS2 @L21680 uses=32
+  PACTLMON_R85_MIX @L21681 uses=7
+  PACTLMON_R85_TONE @L21682 uses=12
+  PACTLMON_R85_VSRC @L21683 uses=16
+  PACTLMON_R85_SD @L21684 uses=25
+  PACTLMON_R85_LATE @L21685 uses=4
+  PACTLMON_R85_CYC @L21686 uses=3
+  PACTLMON_R85_ROLE @L21687 uses=3
+  PACTLMON_R85_BOGUS @L21689 uses=5
+  PACTLMON_R85_STREAM_WAIT_S @L21690 uses=0
+  PACTLMON_R85_LINK_WAIT_S @L21691 uses=3
+  PACTLMON_R85_TAP_WAIT_S @L21692 uses=1
+  PACTLMON_R85_FEED_S @L21693 uses=1
+  PACTLMON_R85_AMP @L21694 uses=2
+  PACTLMON_R85_F3 @L21695 uses=1
+  PACTLMON_R85_F4 @L21696 uses=1
+  PACTLMON_R85_SOLO_ENV @L21697 uses=2
+  PACTLMON_R85_BLEED_MAX @L21698 uses=3
+  PACTLMON_R85_DUP_ENV @L21699 uses=4
+  PACTLMON_R85_CLIP_AMP @L21700 uses=2
+  PACTLMON_R85_RAIL_ENV @L21701 uses=2
+  PACTLMON_R85_SPUR_MIN @L21702 uses=2
+  PACTLMON_R85_FLUSH_BOUND @L21703 uses=2
+  _PACTLMON_R85_ERR_CLASSES @L21711 uses=1
+  _pactlmon_r85_errclass @L21717 uses=5
+  _pactlmon_r85_loadavg @L21727 uses=1
+  _pactlmon_r85_run @L21731 uses=8
+  _pactlmon_r85_pactl @L21771 uses=6
+  _pactlmon_r85_graph @L21776 uses=10
+  _pactlmon_r85_node @L21816 uses=8
+  _pactlmon_r85_edges @L21825 uses=2
+  _pactlmon_r85_edges_in @L21843 uses=4
+  _pactlmon_r85_edges_out @L21849 uses=1
+  _pactlmon_r85_module_index @L21854 uses=4
+  _pactlmon_r85_unload_own @L21878 uses=9
+  _pactlmon_r85_remap_load @L21904 uses=3
+  _pactlmon_r85_sd_load @L21950 uses=4
+  _pactlmon_r85_play @L21995 uses=3
+  _pactlmon_r85_tone @L22009 uses=7
+  _pactlmon_r85_killpg @L22028 uses=11
+  _pactlmon_r85_wait_node @L22032 uses=0
+  _pactlmon_r85_wait_tap_link @L22043 uses=1
+  _pactlmon_r85_amps @L22062 uses=6
+  _pactlmon_r85_med @L22092 uses=17
+  _pactlmon_r85_tapped_mix @L22100 uses=7
+  _pactlmon_r85_cap_leg @L22149 uses=13
+  _pactlmon_r85_post_stats @L22228 uses=1
+  _pactlmon_r85_sd_leg @L22260 uses=2
+  _pactlmon_r85_family_lock @L22313 uses=1
+  _pactlmon_r85_entry_head @L22333 uses=5
+  _pactlmon_r85_teardown @L22348 uses=5
+  _pactlmon_r85_block @L22407 uses=11
+  _pactlmon_r85_vol_pct @L22422 uses=7
+  pactlmon_addr_r85_entry @L22428 uses=1
+  pactlmon_mix_r85_entry @L22751 uses=1
+  pactlmon_aplayenv_r85_entry @L23006 uses=1
+  pactlmon_capture_r85_entry @L23148 uses=1
+  pactlmon_negctl_r85_entry @L23618 uses=1
+
+== r85 defs with zero call sites (name-based, whole file)
+  ZERO-CALLS: _pactlmon_r85_wait_node @L22032
+
+== wiring: --probe-pactlmon-r85 and entry names
+  L21581: #     leg lattice -- --probe-pactlmon-r85.
+  L22316: a second --probe-pactlmon-r85 waits HERE (the r82 convention)."""
+  L22333: def _pactlmon_r85_entry_head(probe):
+  L23854: parser.add_argument("--probe-pactlmon-r85", action="store_true")
+  L23862: if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.
+  L24220: if args.probe_pactlmon_r85:
+  L24870: mode = "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81"
+  L24890: suffix = "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 
+
+== ENTRY registry (name = entry) for r85
+  L24235: pactlmon_addr_r85_entry()
+  L24237: pactlmon_mix_r85_entry()
+  L24239: pactlmon_aplayenv_r85_entry()
+  L24241: pactlmon_capture_r85_entry()
+  L24243: pactlmon_negctl_r85_entry()
+
+== `or {}` / `or []` guard sites in the r85 region
+  L21789: info = o.get("info") or {}
+  L21790: props = info.get("props") or {}
+  L21819: for nid, n in (g.get("nodes") or {}).items():
+  L21830: op = ports.get(l["out_port"]) or {}
+  L21831: ip = ports.get(l["in_port"]) or {}
+  L21832: on = (nodes.get(l["out_node"]) or {}).get("name")
+  L21833: inn = (nodes.get(l["in_node"]) or {}).get("name")
+  L21933: seen = source_name in (_playback_r78_source_names() or [])
+  L21979: seen = name in (_playback_r78_source_names() or [])
+  L22073: rate = (insp.get("fmt") or {}).get("rate") or 48000
+  L22240: for c in insp.get("chunks") or []:
+  L22282: src_alive = sd in (_playback_r78_source_names() or [])
+  L22353: for tag, leaf in (loads or {}).items():
+  L22354: leaf = leaf or {}
+  L22367: sink_names = [t for t, l in (loads or {}).items()
+  L22368: if (l or {}).get("field", "sink_name") ==
+  L22383: src_names = [t for t, l in (loads or {}).items()
+  L22384: if (l or {}).get("field") == "source_name"]
+  L22400: or n in (loads or {}))
+  L22411: for tag, leaf in (loads or {}).items():
+  L22412: leaf = leaf or {}
+  L22424: m = re.search(r"(\d+)\s*%", (rec or {}).get("stdout") or "")
+  L22459: na = _pactlmon_r85_node(g0, PACTLMON_R85_NS) or {}
+  L22460: nb = _pactlmon_r85_node(g0, PACTLMON_R85_NS2) or {}
+  L22471: ns_idx = (_alsapw_r84_sink_leaf(PACTLMON_R85_NS) or {}).get(
+  L22473: ns2_idx = (_alsapw_r84_sink_leaf(PACTLMON_R85_NS2) or {}).get(
+  L22543: cur = (after1 or {}).get("sink")
+  L22548: cur = (after2 or {}).get("sink")
+  L22568: tag, (after3 or {}).get("sink"))
+  L22586: nn = _pactlmon_r85_node(gg, PACTLMON_R85_CYC) or {}
+  L22678: a1 = (legs.get("mv_name") or {}).get("after") or {}
+  L22682: f"mv_name: sink={(a1 or {}).get('sink')} != "
+  L22684: a2 = (legs.get("mv_serial") or {}).get("after") or {}
+  L22688: f"mv_serial: sink={(a2 or {}).get('sink')} "
+  L22690: l3 = legs.get("mv_bogus") or {}
+  L22692: (l3.get("after") or {}).get("sink") != \
+  L22693: (a2 or {}).get("sink"):
+  L22699: a4 = cm.get("after") or {}
+  L22703: f"cdup_move: sink={(a4 or {}).get('sink')}"
+  L22706: cl = legs.get("cdup_cap") or {}
+  L22832: edges = l.get("tap_link") or []
+  L22851: sw = sa.get("windows") or []
+  L22877: mw = ma.get("windows") or []
+  L22895: legs["mix2"].get("mix_edges") or []}
+  L22897: legs["mix2"].get("mix_edges") or []}
+  L22898: if len(legs["mix2"].get("mix_edges") or []) != 4 or \
+  L22917: dw = da.get("windows") or []
+  L22936: dw = [w for w in (da.get("windows") or [])
+  L22957: iw = ia_.get("windows") or []
+  L22974: cw = ca.get("windows") or []
+  L23035: na = _pactlmon_r85_node(gg, PACTLMON_R85_NS) or {}
+  L23093: hits = [c for c in (l.get("nodes_mid") or [])
+  L23094: if str((c.get("props") or {})
+  L23102: if not any(str(wc) in (c.get("consumers") or [])
+  L23113: if any(PACTLMON_R85_NS2 in (c.get("consumers") or [])
+  L23114: for c in (lc.get("nodes_mid") or [])):
+  L23123: cands = l.get("nodes_mid") or []
+  L23126: if str((c.get("props") or {})
+  L23136: def_bound in (c.get("consumers") or [])
+  L23197: vs = _pactlmon_r85_node(gg, PACTLMON_R85_VSRC) or {}
+  L23198: ns2n = _pactlmon_r85_node(gg, PACTLMON_R85_NS2) or {}
+  L23330: PACTLMON_R85_SD) or []
+  L23346: _playback_r78_source_names() or [])
+  L23367: if (lb_leg.get("late_load") or {}).get(
+  L23406: sams = l.get("samples") or []
+  L23424: if (l.get("unloaded") or {}).get("exit_code") != 0:
+  L23444: post_l = [e for s in (l.get("samples") or [])[1:]
+  L23455: if (l.get("unloaded") or {}).get("exit_code") != 0:
+  L23531: l = legs.get(nm) or {}
+  L23540: if (l.get("out") or {}).get("data_actual", 0) > 200 \
+

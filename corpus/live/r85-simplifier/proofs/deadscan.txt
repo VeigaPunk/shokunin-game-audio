@@ -1,0 +1,48 @@
+== store-without-later-load candidates (r85 family) ==
+  _pactlmon_r85_run @L21731: store a @L21734 (all loads [21734])
+  _pactlmon_r85_pactl @L21771: store a @L21772 (all loads [21772])
+  _pactlmon_r85_wait_tap_link @L22043: store e @L22056 (all loads [22055])
+  _pactlmon_r85_amps @L22062: store k @L22069 (all loads [22069])
+  _pactlmon_r85_amps @L22062: store v @L22069 (all loads [22069])
+  _pactlmon_r85_tapped_mix @L22100: store p @L22143 (all loads [22143, 22140, 22141, 22139])
+  _pactlmon_r85_cap_leg @L22149: store hit @L22218 (all loads [])
+  _pactlmon_r85_cap_leg @L22149: store s @L22176 (all loads [22176])
+  _pactlmon_r85_sd_leg @L22260: store hit @L22304 (all loads [])
+  _pactlmon_r85_sd_leg @L22260: store a @L22266 (all loads [22265, 22266, 22265, 22266])
+  _pactlmon_r85_teardown @L22348: store nm @L22385 (all loads [22370, 22385, 22370, 22385])
+  _pactlmon_r85_teardown @L22348: store t @L22383 (all loads [22367, 22383])
+  _pactlmon_r85_teardown @L22348: store g @L22390 (all loads [22375, 22390])
+  pactlmon_addr_r85_entry @L22428: store t @L22444 (all loads [22438, 22438, 22444])
+  pactlmon_addr_r85_entry @L22428: store sers @L22738 (all loads [])
+  pactlmon_addr_r85_entry @L22428: store e @L22720 (all loads [22707, 22709, 22719, 22710])
+  pactlmon_addr_r85_entry @L22428: store p @L22444 (all loads [22444])
+  pactlmon_mix_r85_entry @L22751: store t @L22767 (all loads [22761, 22761, 22767])
+  pactlmon_mix_r85_entry @L22751: store e @L22896 (all loads [22894, 22896, 22838])
+  pactlmon_mix_r85_entry @L22751: store p @L22900 (all loads [22767, 22900])
+  pactlmon_aplayenv_r85_entry @L23006: store t @L23020 (all loads [23014, 23014, 23020])
+  pactlmon_aplayenv_r85_entry @L23006: store c @L23140 (all loads [23093, 23125, 23113, 23102, 23106, 23140, 23136, 23094, 23126])
+  pactlmon_aplayenv_r85_entry @L23006: store p @L23020 (all loads [23020])
+  pactlmon_capture_r85_entry @L23148: store t @L23166 (all loads [23159, 23159, 23166])
+  pactlmon_capture_r85_entry @L23148: store lp @L23510 (all loads [23505, 23498, 23508, 23502, 23506, 23500])
+  pactlmon_capture_r85_entry @L23148: store want_node @L23491 (all loads [])
+  pactlmon_capture_r85_entry @L23148: store e @L23595 (all loads [23444, 23511, 23546, 23590, 23375, 23410, 23378, 23448, 23485, 23568, 23593, 23517, 23449, 23514, 23562, 23594])
+  pactlmon_capture_r85_entry @L23148: store p @L23506 (all loads [23332, 23166, 23462, 23333, 23383, 23483, 23506, 23499])
+  pactlmon_negctl_r85_entry @L23618: store t @L23633 (all loads [23627, 23627, 23633])
+  pactlmon_negctl_r85_entry @L23618: store p @L23633 (all loads [23633])
+
+== never-loaded parameters (r85 family) ==
+  _pactlmon_r85_wait_tap_link @L22043: param `sink` never loaded
+  _pactlmon_r85_sd_leg @L22260: param `ctx` never loaded
+
+== nested (entry-local) defs: params never loaded ==
+  pactlmon_addr_r85_entry.gsv @L22487: param `label` never loaded
+
+== nested (entry-local) defs: stores without later load ==
+  pactlmon_mix_r85_entry.tap_ok @L22830: store e @L22839 (all loads [22838])
+  pactlmon_aplayenv_r85_entry.to_sink @L23087: store c @L23106 (all loads [23093, 23102, 23106, 23094])
+  pactlmon_capture_r85_entry.links_of @L23373: store e @L23376 (all loads [23375])
+  pactlmon_capture_r85_entry.link_ports @L23377: store e @L23378 (all loads [23378])
+
+== module-level r85 names: zero whole-file references ==
+  PACTLMON_R85_STREAM_WAIT_S @L21690 uses=0
+  _pactlmon_r85_wait_node @L22032 uses=0

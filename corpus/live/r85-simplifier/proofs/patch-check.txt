@@ -1,0 +1,40 @@
+# r85 simplifier patch checks (read-only; the patch is NOT applied)
+
+$ git -C /home/vgpnk/Projects/shokunin/audio-shokunin apply --check corpus/live/r85-simplifier/r85-simplifier.patch
+clean (applies to the live tree; corpus/fixtures/measure_audio.py sha256 == the 2a49d540 blob, which is what the patch is anchored to)
+
+$ git -C /home/vgpnk/Projects/shokunin/audio-shokunin apply --numstat corpus/live/r85-simplifier/r85-simplifier.patch
+42	64	corpus/fixtures/measure_audio.py
+
+$ patch -p1 --dry-run < r85-simplifier.patch   (scratch copy of the pinned blob)
+checking file corpus/fixtures/measure_audio.py
+
+$ patch -p1 < r85-simplifier.patch && sha256sum   (round-trip identity)
+840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6  corpus/fixtures/measure_audio.py
+840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6  ../folded/measure_audio.py
+
+hunks: 21
+lines: added=42 deleted=64
+
+hunk base line numbers (must all fall inside the r85 block 21579..23728):
+  base 21687
+  base 22029
+  base 22108
+  base 22215
+  base 22257
+  base 22301
+  base 22350
+  base 22364
+  base 22380
+  base 22397
+  base 22409
+  base 22421
+  base 22484
+  base 22679
+  base 22700
+  base 22735
+  base 23269
+  base 23278
+  base 23299
+  base 23488
+  base 23507

@@ -1,0 +1,187 @@
+{
+  "seat": "r85-simplifier",
+  "wave": "shokunin-train-20261015-w22 / audio-r85-simplifier",
+  "pinned_commit": "2a49d5401b55371a667ac86f66a3c200648f19e9",
+  "base_blob": {
+    "path": "corpus/fixtures/measure_audio.py",
+    "sha256": "714564a32141f134f849401dd029e1e10c4aa19bb848a43fd50f70a251499ee2",
+    "lines": 24900
+  },
+  "folded_blob": {
+    "path": "corpus/live/r85-simplifier/proofs/folded/measure_audio.py",
+    "sha256": "840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6",
+    "lines": 24878
+  },
+  "patch": {
+    "path": "corpus/live/r85-simplifier/r85-simplifier.patch",
+    "sha256": "8d349469e61ac612251dcf61d66730099f2d946fe381edc61444f02b6d6e330c",
+    "hunks": 21,
+    "numstat": "42 64 corpus/fixtures/measure_audio.py",
+    "net_lines": -22,
+    "applied": false
+  },
+  "proofs": {
+    "static": "19/19 PASS",
+    "receipt": "8/8 PASS",
+    "differential": "13/13 PASS",
+    "bimodal_arms": "7/7 PASS",
+    "patch_roundtrip": "byte-identical",
+    "py_compile": "OK",
+    "labrat_probe": "14/14 NOT-FALSIFIED + C1/C2 CONFIRMED"
+  },
+  "items": [
+    "T1 dead constant PACTLMON_R85_STREAM_WAIT_S",
+    "T2 zero-call helper _pactlmon_r85_wait_node",
+    "T3 sd_leg ctx dead param (+2 call sites)",
+    "T4 wait_tap_link sink dead param (+1 call site)",
+    "T5 cap_leg/sd_leg `hit` dead stores x2",
+    "T6 addr entry `sers` dead store",
+    "T7 capture entry `lp` dead store",
+    "T8 capture entry `want_node` dead loop payload",
+    "T9 gsv closure `label` dead param (+20 call sites)",
+    "T10 teardown dead guards (loads/leaf/l) x7",
+    "T11 block `leaf = leaf or {}` (loads guard kept)",
+    "T12 four subsumed (aN or {}) guards",
+    "T13 vol_pct `(rec or {})` dead guard",
+    "T14 capture pre-ladder `feeder is not None` dead conjunct"
+  ],
+  "files": [
+    {
+      "path": "make-manifest.py",
+      "bytes": 3104,
+      "sha256": "bcca6c21a47e4638f4a9ca3d8cd347ff21fc50dd1b8648ef6ba7e189b61c19f8"
+    },
+    {
+      "path": "proofs/base-measure_audio.py",
+      "bytes": 1278923,
+      "sha256": "714564a32141f134f849401dd029e1e10c4aa19bb848a43fd50f70a251499ee2"
+    },
+    {
+      "path": "proofs/bimodal-arms.py",
+      "bytes": 15933,
+      "sha256": "8dd211522b078b04b79c74c879863663573749f111197f9a8bfb88e9925285ba"
+    },
+    {
+      "path": "proofs/bimodal-arms.txt",
+      "bytes": 3906,
+      "sha256": "9753a44c1045e7527e89ad2816c02c0e2f169ca5f84d6f59636738635a3a7658"
+    },
+    {
+      "path": "proofs/census.py",
+      "bytes": 6115,
+      "sha256": "f9a7af534eaf0bcc9e5bcc26e31fc93e1838b5e919f946e073037bba45bffc6c"
+    },
+    {
+      "path": "proofs/census.txt",
+      "bytes": 17033,
+      "sha256": "6e56b9b6a6139c3d70fd543d3c61a4cc426253b29333b586491772ad6d3aba8b"
+    },
+    {
+      "path": "proofs/deadscan.py",
+      "bytes": 4258,
+      "sha256": "c671a79a562af65660df8773605bcfb8516181ceb9603fb331546bcfe699f1df"
+    },
+    {
+      "path": "proofs/deadscan.txt",
+      "bytes": 3454,
+      "sha256": "2c4d5e0a5ace76ab181ddb22c0311507eb5955a2c1ab4a77e526509bfd6851f1"
+    },
+    {
+      "path": "proofs/differential.py",
+      "bytes": 21002,
+      "sha256": "e0d71fbe1218b9f26637253556b45d645f92afbd31f2ce6969c0b7c93ef711f1"
+    },
+    {
+      "path": "proofs/differential.txt",
+      "bytes": 3787,
+      "sha256": "9675df781e3672aef418f11f2de21ae750dd27f9839db5bcce7cceba3d317671"
+    },
+    {
+      "path": "proofs/dyn/base.py",
+      "bytes": 1278923,
+      "sha256": "714564a32141f134f849401dd029e1e10c4aa19bb848a43fd50f70a251499ee2"
+    },
+    {
+      "path": "proofs/dyn/folded.py",
+      "bytes": 1277629,
+      "sha256": "840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6"
+    },
+    {
+      "path": "proofs/fold-apply.txt",
+      "bytes": 2985,
+      "sha256": "942d4d699dee1e93823436c19abc87f96896a354954cace5ac7e3f2756c7a37e"
+    },
+    {
+      "path": "proofs/fold-r85-simplifier.py",
+      "bytes": 11207,
+      "sha256": "1ac5bf36b098b52c3f8f76388e231abbe95f56152bd0c1a35a757e1908068fc9"
+    },
+    {
+      "path": "proofs/folded/measure_audio.py",
+      "bytes": 1277629,
+      "sha256": "840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6"
+    },
+    {
+      "path": "proofs/labrat-probe.txt",
+      "bytes": 5104,
+      "sha256": "7874b371237f5c81069d0f04648ef14a5e429a43e98c1cacf9e2c009d7a2991f"
+    },
+    {
+      "path": "proofs/patch-check.txt",
+      "bytes": 1258,
+      "sha256": "a3eeb467e1425fd7bac31bb7361cf63ef791718d88dc29187acf4a405b81be3e"
+    },
+    {
+      "path": "proofs/pycompile.txt",
+      "bytes": 48,
+      "sha256": "7296d84bba5058f57a973f36cefeb1feed890be9e292f351b81919a23b9f67c5"
+    },
+    {
+      "path": "proofs/r85-block.py",
+      "bytes": 104593,
+      "sha256": "6efadf502e81bfeb3b158a4a8a9e746b0840963b428e87569a9a34fe097cbf18"
+    },
+    {
+      "path": "proofs/receipt-census.py",
+      "bytes": 8835,
+      "sha256": "aabee187b8c494e935ed28db8418197c69fa10120372be80c0f52f7a9c0b2f9b"
+    },
+    {
+      "path": "proofs/receipt-census.txt",
+      "bytes": 2017,
+      "sha256": "7ae23aeff89db0d090ba5e312859798a5db98560ccceb43e31be68eb95d3f8d7"
+    },
+    {
+      "path": "proofs/rt/corpus/fixtures/measure_audio.py",
+      "bytes": 1277629,
+      "sha256": "840f35be6d4930fc4783db909d509a5c93e5b7fc24baf372d8bdf813516a62c6"
+    },
+    {
+      "path": "proofs/sha256.txt",
+      "bytes": 2054,
+      "sha256": "d21d122198b813221115261f7a9ca35a65915202007a82b51980ac7706ed5a56"
+    },
+    {
+      "path": "proofs/static-proofs.py",
+      "bytes": 18408,
+      "sha256": "ecce640a4b2162634867c43e6ceabbfada8e22871e9b5306cda4bae8f4813164"
+    },
+    {
+      "path": "proofs/static-proofs.txt",
+      "bytes": 4564,
+      "sha256": "e7d4f7ed4a27d3a67a510f2d3aa837946070c3e432aa2d0350829cea0b18c658"
+    },
+    {
+      "path": "r85-simplifier.patch",
+      "bytes": 13053,
+      "sha256": "8d349469e61ac612251dcf61d66730099f2d946fe381edc61444f02b6d6e330c"
+    },
+    {
+      "path": "run-all.sh",
+      "bytes": 3826,
+      "sha256": "600b29cb19768a321f809f2acac8ba479b64bca87c7c51defd98c43d550cb9de"
+    }
+  ],
+  "file_count": 27,
+  "total_bytes": 6647277
+}

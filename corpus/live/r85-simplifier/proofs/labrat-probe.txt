@@ -1,0 +1,86 @@
+r85 simplifier — probeParent probe (ufo-labrat, read-only), agent id 10900a89
+verbatim report (static re-verification of the 14 dead-code claims + 2
+structural claims against the pinned base; read-only, no artifacts created)
+
+Probe: static re-verification of the seat's 14 dead-code claims + 2 structural
+claims against the pinned base file (grep -w census + full read of base lines
+21579-23728 + patch hunk headers). Expected observation: each claim survives a
+naive load-site census; falsification only if a real Load/use exists that the
+seat missed. Read-only; no files mutated, no processes spawned, no /tmp
+touched.
+
+T1: NOT-FALSIFIED - `PACTLMON_R85_STREAM_WAIT_S` occurs exactly once in the
+whole file (base L21690, the Store). Zero Loads.
+T2: NOT-FALSIFIED - `_pactlmon_r85_wait_node` occurs once (def at
+L22032-22040). Zero call sites file-wide.
+T3: NOT-FALSIFIED - `_pactlmon_r85_sd_leg` body (L22264-22310) never loads
+`ctx` (only name/sd/client_argv/dur_s/tag); both call sites pass it (L23281,
+L23302).
+T4: NOT-FALSIFIED - `_pactlmon_r85_wait_tap_link` body (L22049-22059) polls
+`edges_in(g, tap_tag)` only; `sink` appears only in the docstring. Single call
+site L22111-22112 passes `ctx["mix"]`.
+T5: NOT-FALSIFIED - L22218 `cls, hit = ...` in `cap_leg`: `hit` never loaded
+(L22219-22224 records `cls`, `stderr_tail` only); L22304 in `sd_leg`: `hit`
+never loaded (L22305-22309). Contrast: L21757 (`_pactlmon_r85_run`) does store
+`hit` into `rec["error_hit"]` - out of T5's scope.
+T6: NOT-FALSIFIED - `sers` bound L22738-22739, never loaded; the following
+check reads `serials` (L22740-22743).
+T7: NOT-FALSIFIED - `lp = link_ports("t_prop_srcname")` (L23510) is a dead
+store: the subsequent check reads `pl` (L23511-23520); earlier `lp` Loads
+(L23498, L23505) precede this assignment.
+T8: NOT-FALSIFIED - loop `for nm, want_node in (...)` L23491-23496: body
+L23497-23503 loads only `nm` and `lp`; `want_node` never loaded.
+T9: NOT-FALSIFIED - `def gsv(arg, label)` L22487-22489 body is
+`return _pactlmon_r85_pactl("get-sink-volume", arg)`; `label` never loaded.
+Exactly 20 call sites pass a label (L22490-22512).
+T10: NOT-FALSIFIED - `loads` is a required positional; all 5 call sites
+(L22746, 23001, 23143, 23613, 23701) pass a `loads` initialized as `{}` and
+only ever assigned dict values (`_pwcat_r83_ns_load` leaf-dict L16644/16649,
+`dict(dup,...)` L22560, `_pactlmon_r85_remap_load` dict L21911+,
+`_pactlmon_r85_sd_load` dict L21958+, `lb_leg["late_load"]` dict L23369). So
+`(loads or {})` x4 (L22353, 22367, 22383, 22400), `leaf = leaf or {}` (L22354),
+`(l or {})` x2 (L22368, 22384) are all dead.
+T11: NOT-FALSIFIED - `_pactlmon_r85_block` has `loads=None` default and 11
+call sites; 5 omit it (L22442, 22765, 23018, 23164, 23631) -> `(loads or {})`
+L22411 is LIVE; `leaf = leaf or {}` L22412 dead (same dict-values argument as
+T10).
+T12: NOT-FALSIFIED - `a1` bound `...or {}` at L22678 -> `(a1 or {})` L22682
+dead; `a2` bound L22684 -> `(a2 or {})` L22688, L22693 dead; `a4` bound
+`cm.get("after") or {}` L22699 -> `(a4 or {})` L22703 dead.
+T13: NOT-FALSIFIED - `_pactlmon_r85_vol_pct` `(rec or {})` L22424: all 7 call
+sites (L22616, 22617, 22634 x2, 22638, 22649, 22650) pass `legs[...]`/`l`
+dicts produced by `_pactlmon_r85_run`/`_pactlmon_r85_pactl` (always dicts).
+T14: NOT-FALSIFIED - `feeder = _pactlmon_r85_play(...)` at L23190 is
+unconditionally reached before the L23272 check within the same inner-try
+region (no intervening branch can leave it `None`; an exception exits to
+`finally`). The `finally` site L23610 is LIVE (exception before L23190 leaves
+`feeder=None`).
+
+C1: CONFIRMED either-way arming, no silent absorption -
+- latebind (L23589-23608): classifier yields
+`late_bound`/`foreign_bind`/`stalled`/`refused`/`other`; failure fires on
+foreign/monitor bind shape (L23601) and `other` (L23605). Both host
+realizations (`late_bound`, `stalled`/`refused`) pass; a wrong-target bind
+still fails.
+- cdup_cap (L22706-22737): `serial_monitor_bypass` and
+`name_shadow_bound`/`refused`/`stalled` all pass; `foreign_monitor`/`other`
+fail (L22733). Both host sides armed, broken state retained.
+- sd_prop (L23545-23575): `clean_default_fallback` and
+`bind_killed_then_default` both pass; non-monitor links (L23561), missing
+default-monitor fallback when links exist (L23567), and neither-bound-nor-dead
+(L23572) all fail.
+Neither side of any bimodal is silently absorbed - each keeps a failure
+predicate for the broken/measurement-free shape.
+
+C2: CONFIRMED - patch touches only `corpus/fixtures/measure_audio.py`; 21
+hunks, old-side ranges 21687-23513, all strictly inside the r85 block
+21579-23728 (min old start 21687 >= 21579; max old end 23486+6=23492-style
+bounds all <= 23513 < 23728). (Note: `git apply --numstat` was not executed -
+no shell capability; verified via `@@` hunk headers directly, which is
+equivalent static evidence.)
+
+Not checked / caveats: none blocking. All verdicts are measured census
+results, not inference; the only non-execution is C2's numstat, covered by
+hunk-header inspection.
+
+Cleanup status: no artifacts created; repository untouched.
