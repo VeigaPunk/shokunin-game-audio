@@ -44299,6 +44299,7 @@ WPPOL_R97_WP_READY_CAP = 30.0       # sm-settings gate, under host load
 WPPOL_R97_VARIANT_CAP = 8.0         # one bounded arming variant
 WPPOL_R97_ACCESS_CAP = 6.0          # the no-answer class bound
 WPPOL_R97_FLUSH_CAP = 8.0           # state-file row wait (lag ~1 s)
+WPPOL_R97_CHILDREN = {}
 
 # The exact Lua inventory lines of the r97 scout, cross-witnessed
 # byte-for-byte by the r97 boundary in BOTH arms (39 present / 26
@@ -44617,68 +44618,69 @@ def _wppol_r97_run(argv, timeout_s, env=None, stdin_data=None,
 
 
 def _wppol_r97_spawn(argv, env=None, log=None, root=None):
-    """Spawn a private daemon in its own session, log to file."""
+    """Retain the exact direct child and its private-root ownership."""
+    if root is None:
+        raise ValueError("r97 private spawn requires its owning root")
     lf = open(str(log), "w") if log else subprocess.DEVNULL
-    proc = subprocess.Popen([str(a) for a in argv], stdin=subprocess.DEVNULL,
-                            stdout=lf, stderr=subprocess.STDOUT, env=env,
-                            start_new_session=True)
+    try:
+        proc = subprocess.Popen(
+            [str(a) for a in argv], stdin=subprocess.DEVNULL,
+            stdout=lf, stderr=subprocess.STDOUT, env=env,
+            start_new_session=True)
+    finally:
+        if log:
+            lf.close()
+    WPPOL_R97_CHILDREN[proc.pid] = (str(root), proc)
     return proc
 
 
 def _wppol_r97_own(root, pid):
-    """True when /proc/<pid> names this private root in its cmdline OR
-    its environ — the boundary's §2.5 guard: a private `wireplumber -c
-    wireplumber.conf -p main` carries NO seat path in its cmdline, its
-    identity lives in the environment. A cmdline-only guard refuses to
-    kill this seat's own daemon."""
-    tag = str(root)
-    try:
-        cmd = Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0", b" ")
-    except OSError:
-        cmd = b""
-    try:
-        env = Path(f"/proc/{pid}/environ").read_bytes().replace(b"\0", b"\n")
-    except OSError:
-        env = b""
-    return tag.encode() in cmd or tag.encode() in env
+    """Only a still-live direct child registered under this exact root."""
+    child = WPPOL_R97_CHILDREN.get(pid)
+    return (child is not None and child[0] == str(root)
+            and child[1].poll() is None)
 
 
 def _wppol_r97_kill(root, pid, sig=signal.SIGTERM, grace=4.0):
-    """Guarded kill of one private pid: refuse anything that is not
-    this seat's (never a foreign daemon)."""
+    """Signal only a registered child session, then wait and reap it."""
     if pid is None:
         return {"pid": None, "killed": False, "reason": "no pid"}
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return {"pid": pid, "killed": False, "reason": "already gone"}
-    if not _wppol_r97_own(root, pid):
+    child = WPPOL_R97_CHILDREN.get(pid)
+    if child is None or child[0] != str(root):
         return {"pid": pid, "killed": False, "reason": "REFUSED foreign pid"}
-    try:
-        os.killpg(os.getpgid(pid), sig)
-    except OSError:
-        try:
-            os.kill(pid, sig)
-        except OSError:
-            pass
+    proc = child[1]
+    if proc.poll() is not None:
+        return {"pid": pid, "killed": False, "reason": "already gone"}
     t0 = time.monotonic()
-    while time.monotonic() - t0 < grace:
-        try:
-            os.kill(pid, 0)
-        except OSError:
-            return {"pid": pid, "killed": True, "sig": int(sig),
-                    "secs": round(time.monotonic() - t0, 3)}
-        time.sleep(0.1)
     try:
-        os.killpg(os.getpgid(pid), signal.SIGKILL)
-    except OSError:
+        os.killpg(proc.pid, sig)
+    except ProcessLookupError:
+        proc.poll()
+        return {"pid": pid, "killed": False, "reason": "already gone"}
+    except OSError as exc:
+        return {"pid": pid, "killed": False,
+                "reason": f"signal refused: {exc}"}
+    delivered = int(sig)
+    try:
+        proc.wait(timeout=grace)
+    except subprocess.TimeoutExpired:
+        if proc.poll() is None:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            except OSError as exc:
+                return {"pid": pid, "killed": False,
+                        "reason": f"signal refused: {exc}"}
+            delivered = "KILL"
         try:
-            os.kill(pid, signal.SIGKILL)
-        except OSError:
-            pass
-    time.sleep(0.3)
-    return {"pid": pid, "killed": True, "sig": "KILL",
-            "secs": round(time.monotonic() - t0, 3)}
+            proc.wait(timeout=4.0)
+        except subprocess.TimeoutExpired:
+            return {"pid": pid, "killed": False, "sig": delivered,
+                    "reason": "registered child did not exit"}
+    return {"pid": pid, "killed": True, "sig": delivered,
+            "secs": round(time.monotonic() - t0, 3),
+            "returncode": proc.returncode}
 
 
 def _wppol_r97_start_core(root, conf_path, env, run_dir, tag="core",
@@ -44687,7 +44689,7 @@ def _wppol_r97_start_core(root, conf_path, env, run_dir, tag="core",
     one: the runtime dir is this seat's)."""
     log = root / "logs" / f"{tag}.log"
     proc = _wppol_r97_spawn(["pipewire", "-c", str(conf_path)], env=env,
-                            log=log)
+                            log=log, root=root)
     sock = Path(run_dir) / "pipewire-0"
     t0 = time.monotonic()
     while time.monotonic() - t0 < cap:
@@ -44708,7 +44710,7 @@ def _wppol_r97_start_core(root, conf_path, env, run_dir, tag="core",
 def _wppol_r97_start_wp(root, env, tag="wp", profile="main"):
     log = root / "logs" / f"{tag}.log"
     proc = _wppol_r97_spawn(["wireplumber", "-c", "wireplumber.conf",
-                             "-p", profile], env=env, log=log)
+                             "-p", profile], env=env, log=log, root=root)
     return {"pid": proc.pid, "log": str(log)}
 
 
@@ -44742,7 +44744,7 @@ def _wppol_r97_variant(root, name, env, cap=WPPOL_R97_VARIANT_CAP):
     timing and the log lattice (the observables live in the log)."""
     log = root / "logs" / f"{name}.log"
     proc = _wppol_r97_spawn(["wireplumber", "-c", "wireplumber.conf",
-                             "-p", "main"], env=env, log=log)
+                             "-p", "main"], env=env, log=log, root=root)
     t0 = time.monotonic()
     timed = False
     while time.monotonic() - t0 < cap:
@@ -45064,8 +45066,8 @@ def _wppol_r97_shared_census():
 
 
 def _wppol_r97_own_procs(root):
-    """Every live process whose cmdline OR environ names this private
-    root (the exit census; never a namespace-blind sweep)."""
+    """Registered live direct children of this private root; not a general
+    descendant or root-text census."""
     out = []
     for p in sorted(Path("/proc").glob("[0-9]*")):
         try:
@@ -45126,6 +45128,7 @@ def _wppol_r97_teardown(entry, failures, root, conf, env, cli=None):
             pass
     time.sleep(0.5)
     own = _wppol_r97_own_procs(root)
+    entry["own_process_census_scope"] = "registered live direct children"
     entry["own_procs_after"] = own
     if own:
         failures.append(
