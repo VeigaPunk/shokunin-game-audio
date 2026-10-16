@@ -1,0 +1,26 @@
+[PASS] L1a r89 lock CODE (docstring/comments excluded) has no tempfile/gettempdir/TMPDIR 
+[PASS] L1b r89 lock path is ROOT/live/measure_audio-pwprof-r89.lock 
+[PASS] L1c ROOT derives from the fixture's own location ROOT = Path(__file__).resolve().parents[1]
+[PASS] L1d[r82] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r84] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r85] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1e[r86] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L1e[r87] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L1e[r88] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L0a committed resolution ROOT=corpus -> the on-disk lane lock /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L0b lane lock holds a one-line pid/ns/role witness b'pid=1728427 ns=r89a_ns_1728427 role=r89arole1728427\n'
+      lane lock: size=52 mtime=1792136862.762 (2026-10-16T04:47:42)
+[PASS] L9a dispatch exists 
+[PASS] L9b lock acquired exactly once, held to exit acquire count
+[PASS] L9c dispatch comment declares the hold 
+[PASS] L9d the fd is never released (no LOCK_UN / close of the held fd) 
+[PASS] L2a both TMPDIRs differ and both resolve the same lock path /home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeA/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L3a contender blocked for a real interval waited 1.525s (holder held 2.5s)
+[PASS] L3b contender could NOT acquire before the holder's release window opened acq=1792137453.309 holder_ready=1792137450.774 hold=2.5
+[PASS] L3c holder acquired immediately 0.0s
+[PASS] L3d contender arrived while the holder still held (ready_b before holder release) ready_b=1792137451.784 holder_release~1792137453.274
+[PASS] L6a cross-tree runs resolve DIFFERENT lock paths A=/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeA/corpus/live/measure_audio-pwprof-r89.lock B=/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeB/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L7a cross-tree contender did NOT block (race, residual) waited 0.0s while holder held 2.5s
+[PASS] L8a fail-open: missing corpus/live/ -> lock returns None (no exclusion), recorded as inherited caveat {'mode': 'N', 'wait_s': 0.0, 'fd': None, 'acq_abs': 1792137459.8986742, 'resolved': None, 'tmpdir': '/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/tmpA', 'root': '/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeNoLive/corpus'}
+
+LOCK PROOFS: ALL PASS

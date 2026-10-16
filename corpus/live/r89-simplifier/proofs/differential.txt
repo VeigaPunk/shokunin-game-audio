@@ -1,0 +1,77 @@
+[PASS] D1 argv identical base vs folded ['pw-play', '-P', 'node.name=t_pl', '-P', 'media.role=r89arole1822139', '--target', 'r89a_ns_TEST', 'tone.wav']
+[PASS] D1 media.role is the private seat role 
+[PASS] D1 node.name + target + tone identical 
+[PASS] D1 Popen kwargs identical {'stdout': -3, 'stderr': -1, 'stdin': -3, 'start_new_session': True}
+[PASS] D2[8] argv/timeout/sig identical (wd presence excluded) base=[{'argv': ['pw-profiler', '-J', '-n', '8'], 'timeout_s': 9.4, 'wd_present': True, 'wd_effective': None, 'sig_at': 1.4, 'sig': <Signals.SIGTERM: 15>}] fold=[{'argv': ['pw-profiler', '-J', '-n', '8'], 'timeout_s': 9.4, 'wd_present': False, 'wd_effective': None, 'sig_at': 1.4, 'sig': <Signals.SIGTERM: 15>}]
+[PASS] D2[8] effective wd is None on both sides 
+[PASS] D2[8] base passes wd explicitly, folded omits it (same effective default) 
+[PASS] D2[8] rec identical 
+[PASS] D2[007] argv/timeout/sig identical (wd presence excluded) base=[{'argv': ['pw-profiler', '-J', '-n', '007'], 'timeout_s': 10.5, 'wd_present': True, 'wd_effective': None, 'sig_at': 2.5, 'sig': <Signals.SIGTERM: 15>}] fold=[{'argv': ['pw-profiler', '-J', '-n', '007'], 'timeout_s': 10.5, 'wd_present': False, 'wd_effective': None, 'sig_at': 2.5, 'sig': <Signals.SIGTERM: 15>}]
+[PASS] D2[007] effective wd is None on both sides 
+[PASS] D2[007] base passes wd explicitly, folded omits it (same effective default) 
+[PASS] D2[007] rec identical 
+[PASS] D3[tools-3arg] entry identical 
+[PASS] D3[tools-3arg] failures identical 
+[PASS] D3[tools-3arg] unload calls identical [] vs []
+[PASS] D3[tools-3arg] killpg never fired (players unbound) 
+[PASS] D3[empty] entry identical 
+[PASS] D3[empty] failures identical 
+[PASS] D3[empty] unload calls identical [] vs []
+[PASS] D3[empty] killpg never fired (players unbound) 
+[PASS] D3[leaf] entry identical 
+[PASS] D3[leaf] failures identical 
+[PASS] D3[leaf] unload calls identical [(4242, 'sink_name', 'r89a_ns_TEST')] vs [(4242, 'sink_name', 'r89a_ns_TEST')]
+[PASS] D3[leaf] killpg never fired (players unbound) 
+[PASS] D3[mid-none] entry identical 
+[PASS] D3[mid-none] failures identical 
+[PASS] D3[mid-none] unload calls identical [(None, 'sink_name', 'r89a_ns_TEST')] vs [(None, 'sink_name', 'r89a_ns_TEST')]
+[PASS] D3[mid-none] killpg never fired (players unbound) 
+[PASS] D4[linked] return identical True vs True
+[PASS] D4[linked] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True}
+[PASS] D4[linked] play/graph call counts identical base={'play': 1, 'graph': 1, 'killpg': []} fold={'play': 1, 'graph': 1, 'killpg': []}
+[PASS] D4[linked] fake-clock end state identical (wait_s==6.0 inlined) base=(1000.0,1000000000000) fold=(1000.0,1000000000000)
+[PASS] D4[never] return identical False vs False
+[PASS] D4[never] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': False} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': False}
+[PASS] D4[never] play/graph call counts identical base={'play': 1, 'graph': 24, 'killpg': []} fold={'play': 1, 'graph': 24, 'killpg': []}
+[PASS] D4[never] fake-clock end state identical (wait_s==6.0 inlined) base=(1006.0,1006000000000) fold=(1006.0,1006000000000)
+[PASS] D4[never] the 6.0 s default was actually consumed tn=1006000000000 graph_calls=24
+[PASS] D4[dead-play] return identical True vs True
+[PASS] D4[dead-play] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True}
+[PASS] D4[dead-play] play/graph call counts identical base={'play': 1, 'graph': 1, 'killpg': []} fold={'play': 1, 'graph': 1, 'killpg': []}
+[PASS] D4[dead-play] fake-clock end state identical (wait_s==6.0 inlined) base=(1000.0,1000000000000) fold=(1000.0,1000000000000)
+[PASS] D5[empty] entry identical 
+[PASS] D5[empty] failures identical 
+[PASS] D5[empty] unload/cli/killpg calls identical base={'unload': [], 'cli': [], 'killpg': []} fold={'unload': [], 'cli': [], 'killpg': []}
+[PASS] D5[one-leaf] entry identical 
+[PASS] D5[one-leaf] failures identical 
+[PASS] D5[one-leaf] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[residual-destroy] entry identical 
+[PASS] D5[residual-destroy] failures identical 
+[PASS] D5[residual-destroy] unload/cli/killpg calls identical base={'unload': [(None, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []} fold={'unload': [(None, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []}
+[PASS] D5[reader-error-sinks] entry identical 
+[PASS] D5[reader-error-sinks] failures identical 
+[PASS] D5[reader-error-sinks] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[reader-error-nodes] entry identical 
+[PASS] D5[reader-error-nodes] failures identical 
+[PASS] D5[reader-error-nodes] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[foreign+own] entry identical 
+[PASS] D5[foreign+own] failures identical 
+[PASS] D5[foreign+own] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []}
+[PASS] D6[teardown loads=None] disclosed divergence (unreachable: all 4 call sites pass a dict) fold={'AttributeError': "'NoneType' object has no attribute 'items'"}
+[PASS] D6[leaf missing field] disclosed divergence (unreachable: every leaf comes from _pwprof_r89_load_ns, which sets both keys) base=[(1, 'sink_name', 'r89a_ns_TEST')] fold=KeyError 'field'
+[PASS] D6[block players=[proc]] disclosed divergence (unreachable: 0/10 call sites bind players) TypeError _pwprof_r89_block() takes from 3 to 4 positional arguments but 5 were given
+[PASS] D7[gate happy] entry byte-identical (json sort_keys, tempdir scrubbed) 
+[PASS] D7[gate happy] failures empty on both (crafted green path) [] / []
+[PASS] D7[gate happy] stream call surface identical (wd presence excluded, tempdir scrubbed) 
+[PASS] D7[gate happy] only nleg legs differ in wd presence 
+[PASS] D7[gate happy] popen argv (pw-play) identical 
+[PASS] D7[gate happy] 52 legs recorded 
+[PASS] D7[gate load-failure] entry byte-identical (exercises block) 
+[PASS] D7[gate load-failure] block unload calls identical [(None, 'sink_name', 'r89a_ns_1822139'), (None, 'sink_name', 'r89a_ns_1822139')] vs [(None, 'sink_name', 'r89a_ns_1822139'), (None, 'sink_name', 'r89a_ns_1822139')]
+[PASS] D7[gate load-failure] no killpg from the dead block loop 
+[PASS] D8[schema] entry byte-identical (json sort_keys) 
+[PASS] D8[schema] failures empty on both (crafted green path) [] / []
+[PASS] D8[schema] stream call surface identical 
+[PASS] D8[schema] unload calls identical 
+
+DIFFERENTIAL: ALL PASS

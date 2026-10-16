@@ -1,0 +1,45 @@
+[PASS] S1a pinned blob sha256 
+[PASS] S1b region markers 
+[PASS] S1c landing deletions == 3 wiring splices (the r88-head versions of mutex/mode/suffix) (3 deletions)
+[PASS] S1d landing additions == 1561 (1561)
+[PASS] S1e every wiring splice replaced by a pwprof line 
+[PASS] S2a every r89 module-level def/const referenced >=1x beyond definition (30 names)
+[PASS] S3a play: 2 call sites, all 3 positional, role never bound 2 sites
+[PASS] S3b nleg: 7 call sites, wd never bound 7 sites, bound=0
+[PASS] S3c ensure_player: 4 call sites, wait_s never bound 4 sites, bound=0
+[PASS] S3d block: 10 call sites (4x3-arg tools, 6x4-arg), players never bound 10 sites, arity=[3, 3, 3, 3, 4, 4, 4, 4, 4, 4], bound=0
+[PASS] S3e[_pwprof_r89_play] only referenced via direct calls loads=2 callees=2
+[PASS] S3e[_pwprof_r89_nleg] only referenced via direct calls loads=7 callees=7
+[PASS] S3e[_pwprof_r89_ensure_player] only referenced via direct calls loads=4 callees=4
+[PASS] S3e[_pwprof_r89_block] only referenced via direct calls loads=10 callees=10
+[PASS] S4a teardown has 4 params (players has a default), players IS bound at every call site 
+[PASS] S4b teardown 4/4 call sites pass 4 positionals 4 sites
+[PASS] S4c every loads[...] store is _pwprof_r89_load_ns(...) (5 subscript stores + the oart dict literal) 5 stores
+[PASS] S4d loads = {} initialized in all 4 entries [29818, 30060, 30240, 30470]
+[PASS] S5a _pwcat_r83_ns_load has exactly 2 returns, both `leaf` 
+[PASS] S5b leaf is built from dict literals on both paths 
+[PASS] S5c _pwprof_r89_load_ns sets field/value unconditionally 
+[PASS] S6a block has defaults (loads=None, players=()) 
+[PASS] S6b block: 4 call sites omit loads, 6 pass it omit=[29815, 30057, 30237, 30467] pass=[29822, 29828, 30065, 30245, 30251, 30477]
+[PASS] S6c omitted-loads sites are the missing-tools early blocks [29815, 30057, 30237, 30467]
+[PASS] S7a exactly 2 `leaf = leaf or {}` sites in the region (teardown + block) 2
+[PASS] S7b exactly 2 field + 2 value fallback sites (teardown + block) 2/2
+[PASS] S7c exactly 4 (loads or {}) sites: 3 teardown (dead) + 1 block (live) 4
+[PASS] S7d exactly 1 dead stats guard 1
+[PASS] S8a symtable deltas are exactly the removed params/locals {'_pwprof_r89_nleg': ({'wd'}, set()), '_pwprof_r89_block': ({'_alsapw_r84_killpg', 'players', 'proc', 'signal', 'subprocess'}, set()), '_pwprof_r89_play': ({'role'}, set()), '_pwprof_r89_ensure_player': ({'wait_s'}, set())}
+[PASS] S9a leg-key literals identical base vs folded region (42 literal + 10 loop-bound = 52) 42 literal, 10 loop-bound
+[PASS] S9b entry-key literals identical base vs folded region ['blocked', 'coverage_blocked', 'failures', 'legs', 'own_nodes_after', 'refs', 'residual_destroy', 'sinks_gone', 'tools', 'unloads']
+[PASS] S10a numstat 17 28 (net -11) 17	28	corpus/fixtures/measure_audio.py
+[PASS] S10b git apply --check clean against the committed tree 
+[PASS] S10c folded sha256 == 417344c3... 
+[PASS] S10d folded line count 32051 32051
+[PASS] S10e all hunks inside the r89 region [29482, 29564, 29589, 29604, 29649, 29661, 30340]
+[PASS] S11a r88 fold then r89 fold both apply cleanly r88_rc=0 r89_rc=0
+[PASS] S11b composed line count 32044 (32062-7-11) 32044
+[PASS] S11c composed file parses 
+[PASS] S11d composed r89 region == folded region start=29247 main=30765
+[PASS] S12a tracked fixture unmodified vs HEAD 
+[PASS] S12b working-tree sha256 == pin 
+S13a lsp device availability: no Python LSP server on this substrate (MCP servers: rea only) — recorded unavailable; all edits are exact-string folds, no renames
+
+STATIC PROOFS: ALL PASS

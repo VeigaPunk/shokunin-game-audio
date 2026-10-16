@@ -1,0 +1,128 @@
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+index fab804d..4d75c31 100755
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -29482,15 +29482,14 @@ def _pwprof_r89_blocks(arr):
+     return blocks
+ 
+ 
+-def _pwprof_r89_nleg(n_arg, bound_s=PWPROF_R89_SIG_S, extra=(),
+-                     wd=None):
++def _pwprof_r89_nleg(n_arg, bound_s=PWPROF_R89_SIG_S, extra=()):
+     """One `-J -n <n_arg>` leg: SIGTERM at `bound_s` unless the run
+     already exited — alive_at_sig + n_info together separate the
+     valid-parse class (exits, exactly N infos) from the unbounded
+     class (still alive, flushed with >= min infos)."""
+     rec = _pwprof_r89_stream(
+         ["pw-profiler", "-J", *extra, "-n", str(n_arg)],
+-        bound_s + 8.0, wd=wd, sig_at=bound_s, sig=signal.SIGTERM,
++        bound_s + 8.0, sig_at=bound_s, sig=signal.SIGTERM,
+         keep_raw=True)
+     arr, perr = _pwprof_r89_jparse(rec.get("stdout_raw") or "")
+     rec["parse_error"] = perr
+@@ -29564,13 +29563,12 @@ def _pwprof_r89_teardown(entry, failures, loads, players=()):
+             proc.wait(timeout=3)
+         except subprocess.TimeoutExpired:
+             _alsapw_r84_killpg(proc)
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     g = _pactlmon_r85_graph()
+     residual = sorted(
+         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+@@ -29589,7 +29587,7 @@ def _pwprof_r89_teardown(entry, failures, loads, players=()):
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -29604,44 +29602,35 @@ def _pwprof_r89_teardown(entry, failures, loads, players=()):
+     else:
+         rest = sorted(n for n in names
+                       if f"r89a_{PWPROF_R89_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+                 f"teardown: r89a-tagged nodes survived: {rest}")
+ 
+ 
+-def _pwprof_r89_block(entry, failures, msg, loads=None, players=()):
+-    """The named coverage block: kill players, unload anything
+-    loaded, record the block."""
+-    for proc in players or ():
+-        if proc is None:
+-            continue
+-        _alsapw_r84_killpg(proc, signal.SIGTERM)
+-        try:
+-            proc.wait(timeout=3)
+-        except subprocess.TimeoutExpired:
+-            _alsapw_r84_killpg(proc)
++def _pwprof_r89_block(entry, failures, msg, loads=None):
++    """The named coverage block: unload anything loaded, record the
++    block."""
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     entry["failures"] = failures
+     return entry
+ 
+ 
+-def _pwprof_r89_play(tag, target, tone, role=None):
++def _pwprof_r89_play(tag, target, tone):
+     """Spawn one tagged pw-play follower -> target sink; the private
+     r89arole<pid> media.role tags it as ours."""
+     try:
+         return subprocess.Popen(
+             ["pw-play", "-P", f"node.name={tag}",
+-             "-P", f"media.role={role or PWPROF_R89_ROLE}",
++             "-P", f"media.role={PWPROF_R89_ROLE}",
+              "--target", target, str(tone)],
+             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+             stdin=subprocess.DEVNULL, start_new_session=True)
+@@ -29649,7 +29638,7 @@ def _pwprof_r89_play(tag, target, tone, role=None):
+         return None
+ 
+ 
+-def _pwprof_r89_ensure_player(ctx, tag, wait_s=6.0):
++def _pwprof_r89_ensure_player(ctx, tag):
+     """(Re)spawn the seat's pw-play follower when dead, then wait for
+     its link into the seat sink — a null-sink driver cycles only while
+     a follower is attached (the suspension law), so a dead player
+@@ -29661,7 +29650,7 @@ def _pwprof_r89_ensure_player(ctx, tag, wait_s=6.0):
+         ctx["linked"] = False
+     if proc is None or ctx.get("linked"):
+         return ctx.get("linked", False)
+-    deadline = time.monotonic() + wait_s
++    deadline = time.monotonic() + 6.0
+     while time.monotonic() < deadline:
+         g = _pactlmon_r85_graph()
+         if _pactlmon_r85_node(g, tag) and any(
+@@ -30340,7 +30329,7 @@ def pwprof_schema_r89_entry():
+             "seat pw-play never linked — every schema arm below is "
+             "contention, not measurement")
+     l = legs["s_window"]
+-    st = l.get("stats") or {}
++    st = l.get("stats")
+     if l.get("exit_code") != 0 or l.get("parse_error") is not None:
+         failures.append(
+             f"s_window: rc={l.get('exit_code')} parse="

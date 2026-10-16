@@ -1,0 +1,31 @@
+Probe report — corpus/fixtures/measure_audio.py @0d732989, r89 region 29255–30783. NOTE: this seat has no shell/python tool; falsification used exhaustive grep enumeration + full region reads (equivalent coverage for static-binding questions). No writes performed.
+
+**H1: CONFIRMED** (all four params bound at zero call sites)
+- Grep for `_pwprof_r89_block|_pwprof_r89_play|_pwprof_r89_nleg|_pwprof_r89_ensure_player` returned 35 refs; every non-def ref is a call, no getattr/partial/globals aliasing.
+- (a) `players`: sig `29614 def _pwprof_r89_block(entry, failures, msg, loads=None, players=())`. 10 call sites: 3-arg at 29815, 30057, 30237, 30467; 4-arg at 29822, 29828, 30065, 30245, 30251, 30477 — 4th arg is `loads` each time; `players` never positional-5 or keyword. Kill loop at 29617 `for proc in players or ():` iterates the default `()`.
+- (b) `role`: calls at 29659 (`_pwprof_r89_play(tag, ctx["ns"], ctx["tone"])`) and 29839–40 (3 args). `role or PWPROF_R89_ROLE` at 29644 always takes the constant.
+- (c) `wd`: 7 calls — 29842, 29850, 29893/29896/29899 (kw `bound_s`/`extra` only), 29929, 29934 — `wd=None` every time; `wd=wd` at 29493 passes None.
+- (d) `wait_s`: 4 calls — 29837, 30073, 30259, 30524 — all 2-arg `(ctx, tag)`; default 6.0 always used.
+
+**H2: CONFIRMED** (in-domain dead guards)
+- Every r89 `loads` store: 29820, 29826, 30062→`loads = {PWPROF_R89_NS: leaf}` 30063, 30243, 30249, 30475 — all values from `_pwprof_r89_load_ns`, which at 29548–29551 sets `leaf["field"]="sink_name"`, `leaf["value"]=name` on the `_pwcat_r83_ns_load` result.
+- `_pwcat_r83_ns_load` (16633–16664) returns `leaf` dict on all paths (16645 or 16650 literal; early return 16652; fallthrough 16664) — never None/non-dict.
+- Teardown dead-in-domain: `(loads or {})` at 29567, 29592, 29607 — teardown's `loads` param is required (29554) and all 4 call sites (29936, 30149, 30336, 30693) pass a dict built only as above; `leaf = leaf or {}` (29568) and `.get("field","sink_name")`/`.get("value",tag)` (29572–73) can never fire their fallbacks.
+- `_pwprof_r89_block`: `(loads or {})` at 29627 IS live — 3-arg sites 29815/30057/30237/30467 leave `loads=None`; `leaf or {}` (29628) and the `.get` fallbacks (29632–33) are dead when reached.
+
+**H3: CONFIRMED**
+- `29509 path = ROOT / "live" / "measure_audio-pwprof-r89.lock"`; `26 ROOT = Path(__file__).resolve().parents[1]` → corpus/live. `os.open`/`flock(LOCK_EX)` at 29511/29514; no `tempfile`/`TMPDIR` in the function.
+- Only acquisition: `31373 _r89_family_lock = _pwprof_r89_family_lock()   # held to exit`. File-wide grep for `LOCK_UN|flock` shows no `LOCK_UN` anywhere; fd never closed.
+- Lock file `corpus/live/measure_audio-pwprof-r89.lock` read: single line `pid=1728427 ns=r89a_ns_1728427 role=r89arole1728427` — matches the 29517–18 write format.
+
+**H4: CONFIRMED**
+- `30281 legs["s_window"]["stats"] = stats` is unconditional inside the `with` block; only enclosing handler is `try/finally` (30242→30335), so any exception propagates past the verdicts — no path skips the assignment and reaches 30342–43.
+- `stats = _pwprof_r89_schema_stats(...)` (30275) returns a fixed multi-key dict literal (29724–29796) — always truthy; `stats["nsb_blocks"]=…` (30277) keeps it so.
+- `30342 l = legs["s_window"]`, `30343 st = l.get("stats") or {}` — `or {}` unreachable; no `del`/reassignment of `legs["s_window"]` or its `"stats"` key between 30281 and 30343 (verified lines 30282–30341 verbatim).
+
+Residual uncertainty
+- H1 "no aliasing" rests on grep enumeration of the exact identifier; a computed attribute access (e.g., `getattr(mod, "_pwprof_r89_"+...)`) would not appear — no such pattern was found, but no AST pass was runnable.
+- H2 assumes r89 `loads` is never mutated by helpers between store and teardown (no `loads.pop`/`del`/`loads.update` in region — none seen in reads; a line-range grep confirmed no r89 stores outside the six cited).
+- H4 ignores the hypothetical that `_pwprof_r89_teardown` in `finally` could mutate `legs["s_window"]["stats"]` — it takes `entry/failures/loads/procs` only (29554), not `legs`.
+
+Cleanup status: no artifacts created; probe was read-only.

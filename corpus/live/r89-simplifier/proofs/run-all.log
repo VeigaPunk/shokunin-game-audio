@@ -1,0 +1,331 @@
+== [1/9] fold (exact-string, region-scoped) ==
+T1a: 1 site(s) folded
+T1b: 1 site(s) folded
+T2a: 1 site(s) folded
+T2b: 1 site(s) folded
+T3a: 1 site(s) folded
+T4a: 1 site(s) folded
+T4b: 1 site(s) folded
+T5a: 1 site(s) folded
+T5b: 1 site(s) folded
+T5c: 1 site(s) folded
+T6: 1 site(s) folded
+T5d: 2 site(s) folded
+T7: 1 site(s) folded
+
+lines 32062 -> 32051 (net -11)
+base sha256  : 623c25cc55521472dc54a1ab2b4ccb4a9836fda3ca1a71dcca06092a4317cd22
+folded sha256: 417344c3e2d315cc2de10de9c367e3339411036de62c06e9fd32f41afa97b790
+fold.diff lines: 128
+numstat: 17	28	corpus/fixtures/measure_audio.py
+== [2/9] patch round-trip (patch -p1 -> byte identity) ==
+ROUNDTRIP-BYTE-IDENTICAL
+GIT-APPLY-CHECK-CLEAN vs committed tree
+17	28	corpus/fixtures/measure_audio.py
+== [3/9] py_compile + ast.parse (folded copy) ==
+AST-PARSE-CLEAN
+== [4/9] static proofs (S1..S13) ==
+[PASS] S1a pinned blob sha256 
+[PASS] S1b region markers 
+[PASS] S1c landing deletions == 3 wiring splices (the r88-head versions of mutex/mode/suffix) (3 deletions)
+[PASS] S1d landing additions == 1561 (1561)
+[PASS] S1e every wiring splice replaced by a pwprof line 
+[PASS] S2a every r89 module-level def/const referenced >=1x beyond definition (30 names)
+[PASS] S3a play: 2 call sites, all 3 positional, role never bound 2 sites
+[PASS] S3b nleg: 7 call sites, wd never bound 7 sites, bound=0
+[PASS] S3c ensure_player: 4 call sites, wait_s never bound 4 sites, bound=0
+[PASS] S3d block: 10 call sites (4x3-arg tools, 6x4-arg), players never bound 10 sites, arity=[3, 3, 3, 3, 4, 4, 4, 4, 4, 4], bound=0
+[PASS] S3e[_pwprof_r89_play] only referenced via direct calls loads=2 callees=2
+[PASS] S3e[_pwprof_r89_nleg] only referenced via direct calls loads=7 callees=7
+[PASS] S3e[_pwprof_r89_ensure_player] only referenced via direct calls loads=4 callees=4
+[PASS] S3e[_pwprof_r89_block] only referenced via direct calls loads=10 callees=10
+[PASS] S4a teardown has 4 params (players has a default), players IS bound at every call site 
+[PASS] S4b teardown 4/4 call sites pass 4 positionals 4 sites
+[PASS] S4c every loads[...] store is _pwprof_r89_load_ns(...) (5 subscript stores + the oart dict literal) 5 stores
+[PASS] S4d loads = {} initialized in all 4 entries [29818, 30060, 30240, 30470]
+[PASS] S5a _pwcat_r83_ns_load has exactly 2 returns, both `leaf` 
+[PASS] S5b leaf is built from dict literals on both paths 
+[PASS] S5c _pwprof_r89_load_ns sets field/value unconditionally 
+[PASS] S6a block has defaults (loads=None, players=()) 
+[PASS] S6b block: 4 call sites omit loads, 6 pass it omit=[29815, 30057, 30237, 30467] pass=[29822, 29828, 30065, 30245, 30251, 30477]
+[PASS] S6c omitted-loads sites are the missing-tools early blocks [29815, 30057, 30237, 30467]
+[PASS] S7a exactly 2 `leaf = leaf or {}` sites in the region (teardown + block) 2
+[PASS] S7b exactly 2 field + 2 value fallback sites (teardown + block) 2/2
+[PASS] S7c exactly 4 (loads or {}) sites: 3 teardown (dead) + 1 block (live) 4
+[PASS] S7d exactly 1 dead stats guard 1
+[PASS] S8a symtable deltas are exactly the removed params/locals {'_pwprof_r89_nleg': ({'wd'}, set()), '_pwprof_r89_block': ({'signal', 'subprocess', 'proc', 'players', '_alsapw_r84_killpg'}, set()), '_pwprof_r89_play': ({'role'}, set()), '_pwprof_r89_ensure_player': ({'wait_s'}, set())}
+[PASS] S9a leg-key literals identical base vs folded region (42 literal + 10 loop-bound = 52) 42 literal, 10 loop-bound
+[PASS] S9b entry-key literals identical base vs folded region ['blocked', 'coverage_blocked', 'failures', 'legs', 'own_nodes_after', 'refs', 'residual_destroy', 'sinks_gone', 'tools', 'unloads']
+[PASS] S10a numstat 17 28 (net -11) 17	28	corpus/fixtures/measure_audio.py
+[PASS] S10b git apply --check clean against the committed tree 
+[PASS] S10c folded sha256 == 417344c3... 
+[PASS] S10d folded line count 32051 32051
+[PASS] S10e all hunks inside the r89 region [29482, 29564, 29589, 29604, 29649, 29661, 30340]
+[PASS] S11a r88 fold then r89 fold both apply cleanly r88_rc=0 r89_rc=0
+[PASS] S11b composed line count 32044 (32062-7-11) 32044
+[PASS] S11c composed file parses 
+[PASS] S11d composed r89 region == folded region start=29247 main=30765
+[PASS] S12a tracked fixture unmodified vs HEAD 
+[PASS] S12b working-tree sha256 == pin 
+S13a lsp device availability: no Python LSP server on this substrate (MCP servers: rea only) — recorded unavailable; all edits are exact-string folds, no renames
+
+STATIC PROOFS: ALL PASS
+== [5/9] static census + call-site dump ==
+census/callsite written
+== [6/9] executed differential (D1..D8) ==
+[PASS] D1 argv identical base vs folded ['pw-play', '-P', 'node.name=t_pl', '-P', 'media.role=r89arole1944615', '--target', 'r89a_ns_TEST', 'tone.wav']
+[PASS] D1 media.role is the private seat role 
+[PASS] D1 node.name + target + tone identical 
+[PASS] D1 Popen kwargs identical {'stdout': -3, 'stderr': -1, 'stdin': -3, 'start_new_session': True}
+[PASS] D2[8] argv/timeout/sig identical (wd presence excluded) base=[{'argv': ['pw-profiler', '-J', '-n', '8'], 'timeout_s': 9.4, 'wd_present': True, 'wd_effective': None, 'sig_at': 1.4, 'sig': <Signals.SIGTERM: 15>}] fold=[{'argv': ['pw-profiler', '-J', '-n', '8'], 'timeout_s': 9.4, 'wd_present': False, 'wd_effective': None, 'sig_at': 1.4, 'sig': <Signals.SIGTERM: 15>}]
+[PASS] D2[8] effective wd is None on both sides 
+[PASS] D2[8] base passes wd explicitly, folded omits it (same effective default) 
+[PASS] D2[8] rec identical 
+[PASS] D2[007] argv/timeout/sig identical (wd presence excluded) base=[{'argv': ['pw-profiler', '-J', '-n', '007'], 'timeout_s': 10.5, 'wd_present': True, 'wd_effective': None, 'sig_at': 2.5, 'sig': <Signals.SIGTERM: 15>}] fold=[{'argv': ['pw-profiler', '-J', '-n', '007'], 'timeout_s': 10.5, 'wd_present': False, 'wd_effective': None, 'sig_at': 2.5, 'sig': <Signals.SIGTERM: 15>}]
+[PASS] D2[007] effective wd is None on both sides 
+[PASS] D2[007] base passes wd explicitly, folded omits it (same effective default) 
+[PASS] D2[007] rec identical 
+[PASS] D3[tools-3arg] entry identical 
+[PASS] D3[tools-3arg] failures identical 
+[PASS] D3[tools-3arg] unload calls identical [] vs []
+[PASS] D3[tools-3arg] killpg never fired (players unbound) 
+[PASS] D3[empty] entry identical 
+[PASS] D3[empty] failures identical 
+[PASS] D3[empty] unload calls identical [] vs []
+[PASS] D3[empty] killpg never fired (players unbound) 
+[PASS] D3[leaf] entry identical 
+[PASS] D3[leaf] failures identical 
+[PASS] D3[leaf] unload calls identical [(4242, 'sink_name', 'r89a_ns_TEST')] vs [(4242, 'sink_name', 'r89a_ns_TEST')]
+[PASS] D3[leaf] killpg never fired (players unbound) 
+[PASS] D3[mid-none] entry identical 
+[PASS] D3[mid-none] failures identical 
+[PASS] D3[mid-none] unload calls identical [(None, 'sink_name', 'r89a_ns_TEST')] vs [(None, 'sink_name', 'r89a_ns_TEST')]
+[PASS] D3[mid-none] killpg never fired (players unbound) 
+[PASS] D4[linked] return identical True vs True
+[PASS] D4[linked] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True}
+[PASS] D4[linked] play/graph call counts identical base={'play': 1, 'graph': 1, 'killpg': []} fold={'play': 1, 'graph': 1, 'killpg': []}
+[PASS] D4[linked] fake-clock end state identical (wait_s==6.0 inlined) base=(1000.0,1000000000000) fold=(1000.0,1000000000000)
+[PASS] D4[never] return identical False vs False
+[PASS] D4[never] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': False} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': False}
+[PASS] D4[never] play/graph call counts identical base={'play': 1, 'graph': 24, 'killpg': []} fold={'play': 1, 'graph': 24, 'killpg': []}
+[PASS] D4[never] fake-clock end state identical (wait_s==6.0 inlined) base=(1006.0,1006000000000) fold=(1006.0,1006000000000)
+[PASS] D4[never] the 6.0 s default was actually consumed tn=1006000000000 graph_calls=24
+[PASS] D4[dead-play] return identical True vs True
+[PASS] D4[dead-play] ctx identical (player object excluded) base={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True} fold={'ns': 'r89a_ns_TEST', 'tone': 't.wav', 'linked': True}
+[PASS] D4[dead-play] play/graph call counts identical base={'play': 1, 'graph': 1, 'killpg': []} fold={'play': 1, 'graph': 1, 'killpg': []}
+[PASS] D4[dead-play] fake-clock end state identical (wait_s==6.0 inlined) base=(1000.0,1000000000000) fold=(1000.0,1000000000000)
+[PASS] D5[empty] entry identical 
+[PASS] D5[empty] failures identical 
+[PASS] D5[empty] unload/cli/killpg calls identical base={'unload': [], 'cli': [], 'killpg': []} fold={'unload': [], 'cli': [], 'killpg': []}
+[PASS] D5[one-leaf] entry identical 
+[PASS] D5[one-leaf] failures identical 
+[PASS] D5[one-leaf] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[residual-destroy] entry identical 
+[PASS] D5[residual-destroy] failures identical 
+[PASS] D5[residual-destroy] unload/cli/killpg calls identical base={'unload': [(None, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []} fold={'unload': [(None, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []}
+[PASS] D5[reader-error-sinks] entry identical 
+[PASS] D5[reader-error-sinks] failures identical 
+[PASS] D5[reader-error-sinks] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[reader-error-nodes] entry identical 
+[PASS] D5[reader-error-nodes] failures identical 
+[PASS] D5[reader-error-nodes] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [], 'killpg': []}
+[PASS] D5[foreign+own] entry identical 
+[PASS] D5[foreign+own] failures identical 
+[PASS] D5[foreign+own] unload/cli/killpg calls identical base={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []} fold={'unload': [(4242, 'sink_name', 'r89a_ns_TEST')], 'cli': [((['pw-cli', 'destroy', 7], 8.0), {'keep_chars': 300})], 'killpg': []}
+[PASS] D6[teardown loads=None] disclosed divergence (unreachable: all 4 call sites pass a dict) fold={'AttributeError': "'NoneType' object has no attribute 'items'"}
+[PASS] D6[leaf missing field] disclosed divergence (unreachable: every leaf comes from _pwprof_r89_load_ns, which sets both keys) base=[(1, 'sink_name', 'r89a_ns_TEST')] fold=KeyError 'field'
+[PASS] D6[block players=[proc]] disclosed divergence (unreachable: 0/10 call sites bind players) TypeError _pwprof_r89_block() takes from 3 to 4 positional arguments but 5 were given
+[PASS] D7[gate happy] entry byte-identical (json sort_keys, tempdir scrubbed) 
+[PASS] D7[gate happy] failures empty on both (crafted green path) [] / []
+[PASS] D7[gate happy] stream call surface identical (wd presence excluded, tempdir scrubbed) 
+[PASS] D7[gate happy] only nleg legs differ in wd presence 
+[PASS] D7[gate happy] popen argv (pw-play) identical 
+[PASS] D7[gate happy] 27 gate legs recorded 
+[PASS] D7[gate load-failure] entry byte-identical (exercises block) 
+[PASS] D7[gate load-failure] block unload calls identical [(None, 'sink_name', 'r89a_ns_1944615'), (None, 'sink_name', 'r89a_ns_1944615')] vs [(None, 'sink_name', 'r89a_ns_1944615'), (None, 'sink_name', 'r89a_ns_1944615')]
+[PASS] D7[gate load-failure] no killpg from the dead block loop 
+[PASS] D8[schema] entry byte-identical (json sort_keys) 
+[PASS] D8[schema] failures empty on both (crafted green path) [] / []
+[PASS] D8[schema] stream call surface identical 
+[PASS] D8[schema] unload calls identical 
+
+DIFFERENTIAL: ALL PASS
+== [7/9] receipt census over the two pinned runs ==
+==========================================================================
+run: 20261016T074733533774Z-pwprof-r89
+sha256: 1d7a24afd20d5ad8f02441288426bbfd940d5667c8bf36dc5980d4718b1310ee
+mode: probe-pwprof-r89
+[PASS] mode == probe-pwprof-r89 probe-pwprof-r89
+  pwprof_gate_r89_probe: legs=27 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1723178": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_ns_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}, "r89a_ns2_1723178": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns2_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1723178': True, 'r89a_ns2_1723178': True} own_nodes_after=[] foreign_r89a=[]
+      refs=None
+      class pwprof_connect_down      x  2 ['g_env_bogus', 'g_remote_bogus']
+      class pwprof_opt               x  1 ['g_opt_bogus']
+[PASS] pwprof_gate_r89_probe: failures empty 
+[PASS] pwprof_gate_r89_probe: coverage_blocked empty 
+[PASS] pwprof_gate_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_gate_r89_probe: leg count 27 27
+[PASS] pwprof_gate_r89_probe: unload[r89a_ns_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1723178
+[PASS] pwprof_gate_r89_probe: unload[r89a_ns2_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_ns2_1723178
+[PASS] pwprof_gate_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_gate_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_gate_r89_probe: residual_destroy absent (no residue) 
+  pwprof_oart_r89_probe: legs=12 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1723178": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1723178': True} own_nodes_after=[] foreign_r89a=[]
+      refs=None
+      class pwprof_cant_open         x  3 ['o_dir', 'o_empty', 'o_proc']
+[PASS] pwprof_oart_r89_probe: failures empty 
+[PASS] pwprof_oart_r89_probe: coverage_blocked empty 
+[PASS] pwprof_oart_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_oart_r89_probe: leg count 12 12
+[PASS] pwprof_oart_r89_probe: unload[r89a_ns_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1723178
+[PASS] pwprof_oart_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_oart_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_oart_r89_probe: residual_destroy absent (no residue) 
+  pwprof_schema_r89_probe: legs=4 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1723178": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}, "r89a_nsb_1723178": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_nsb_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1723178': True, 'r89a_nsb_1723178': True} own_nodes_after=[] foreign_r89a=[]
+      refs={'own_node_id': 153}
+[PASS] pwprof_schema_r89_probe: failures empty 
+[PASS] pwprof_schema_r89_probe: coverage_blocked empty 
+[PASS] pwprof_schema_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_schema_r89_probe: leg count 4 4
+[PASS] pwprof_schema_r89_probe: unload[r89a_ns_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1723178
+[PASS] pwprof_schema_r89_probe: unload[r89a_nsb_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_nsb_1723178
+[PASS] pwprof_schema_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_schema_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_schema_r89_probe: residual_destroy absent (no residue) 
+[PASS] pwprof_schema_r89_probe: s_window.stats is a dict dict
+  pwprof_xw_r89_probe: legs=9 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1723178": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_ns_1723178", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1723178': True} own_nodes_after=[] foreign_r89a=[]
+      refs={'own_node_id': 183}
+[PASS] pwprof_xw_r89_probe: failures empty 
+[PASS] pwprof_xw_r89_probe: coverage_blocked empty 
+[PASS] pwprof_xw_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_xw_r89_probe: leg count 9 9
+[PASS] pwprof_xw_r89_probe: unload[r89a_ns_1723178] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1723178
+[PASS] pwprof_xw_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_xw_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_xw_r89_probe: residual_destroy absent (no residue) 
+[PASS] total leg keys == 52 52
+  needle 'leaf.get': 0
+  needle '"field": "sink_name"': 6
+  needle 'residual_destroy': 0
+  needle 'blocked': 0
+  needle 'killed_at_bound': 42
+  needle 'watch_seen': 1
+  needle 'stream_samples': 42
+  needle 'stdout_raw': 15
+  needle 'nsb_blocks': 1
+  needle 'pwprof_connect_down': 2
+  needle 'pwprof_opt': 1
+  needle 'pwprof_cant_open': 3
+==========================================================================
+run: 20261016T074816877001Z-pwprof-r89
+sha256: 3e756403ecca86d9d9c982812733c57aecdc8fd421428daadeef3aff097d4274
+mode: probe-pwprof-r89
+[PASS] mode == probe-pwprof-r89 probe-pwprof-r89
+  pwprof_gate_r89_probe: legs=27 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1728427": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_ns_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}, "r89a_ns2_1728427": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns2_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1728427': True, 'r89a_ns2_1728427': True} own_nodes_after=[] foreign_r89a=[]
+      refs=None
+      class pwprof_connect_down      x  2 ['g_env_bogus', 'g_remote_bogus']
+      class pwprof_opt               x  1 ['g_opt_bogus']
+[PASS] pwprof_gate_r89_probe: failures empty 
+[PASS] pwprof_gate_r89_probe: coverage_blocked empty 
+[PASS] pwprof_gate_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_gate_r89_probe: leg count 27 27
+[PASS] pwprof_gate_r89_probe: unload[r89a_ns_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1728427
+[PASS] pwprof_gate_r89_probe: unload[r89a_ns2_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_ns2_1728427
+[PASS] pwprof_gate_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_gate_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_gate_r89_probe: residual_destroy absent (no residue) 
+  pwprof_oart_r89_probe: legs=12 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1728427": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1728427': True} own_nodes_after=[] foreign_r89a=[]
+      refs=None
+      class pwprof_cant_open         x  3 ['o_dir', 'o_empty', 'o_proc']
+[PASS] pwprof_oart_r89_probe: failures empty 
+[PASS] pwprof_oart_r89_probe: coverage_blocked empty 
+[PASS] pwprof_oart_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_oart_r89_probe: leg count 12 12
+[PASS] pwprof_oart_r89_probe: unload[r89a_ns_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1728427
+[PASS] pwprof_oart_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_oart_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_oart_r89_probe: residual_destroy absent (no residue) 
+  pwprof_schema_r89_probe: legs=4 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1728427": {"verified_index": 536870917, "captured": 536870917, "field": "sink_name", "value": "r89a_ns_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}, "r89a_nsb_1728427": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_nsb_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1728427': True, 'r89a_nsb_1728427': True} own_nodes_after=[] foreign_r89a=[]
+      refs={'own_node_id': 197}
+[PASS] pwprof_schema_r89_probe: failures empty 
+[PASS] pwprof_schema_r89_probe: coverage_blocked empty 
+[PASS] pwprof_schema_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_schema_r89_probe: leg count 4 4
+[PASS] pwprof_schema_r89_probe: unload[r89a_ns_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1728427
+[PASS] pwprof_schema_r89_probe: unload[r89a_nsb_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_nsb_1728427
+[PASS] pwprof_schema_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_schema_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_schema_r89_probe: residual_destroy absent (no residue) 
+[PASS] pwprof_schema_r89_probe: s_window.stats is a dict dict
+  pwprof_xw_r89_probe: legs=9 failures=[] blocked=None coverage_blocked=None
+      unloads={"r89a_ns_1728427": {"verified_index": 536870922, "captured": 536870922, "field": "sink_name", "value": "r89a_ns_1728427", "recycled": false, "exit_code": 0, "stderr_tail": null}}
+      sinks_gone={'r89a_ns_1728427': True} own_nodes_after=[] foreign_r89a=[]
+      refs={'own_node_id': 96}
+[PASS] pwprof_xw_r89_probe: failures empty 
+[PASS] pwprof_xw_r89_probe: coverage_blocked empty 
+[PASS] pwprof_xw_r89_probe: blocked absent (block never ran) 
+[PASS] pwprof_xw_r89_probe: leg count 9 9
+[PASS] pwprof_xw_r89_probe: unload[r89a_ns_1728427] field/value == ('sink_name', tag) field=sink_name value=r89a_ns_1728427
+[PASS] pwprof_xw_r89_probe: sinks_gone keys == unload keys 
+[PASS] pwprof_xw_r89_probe: own_nodes_after == [] 
+[PASS] pwprof_xw_r89_probe: residual_destroy absent (no residue) 
+[PASS] total leg keys == 52 52
+  needle 'leaf.get': 0
+  needle '"field": "sink_name"': 6
+  needle 'residual_destroy': 0
+  needle 'blocked': 0
+  needle 'killed_at_bound': 42
+  needle 'watch_seen': 1
+  needle 'stream_samples': 42
+  needle 'stdout_raw': 15
+  needle 'nsb_blocks': 1
+  needle 'pwprof_connect_down': 2
+  needle 'pwprof_opt': 1
+  needle 'pwprof_cant_open': 3
+
+RECEIPT CENSUS: ALL PASS
+== [8/9] fixed-path lock proof (L0..L9) ==
+[PASS] L1a r89 lock CODE (docstring/comments excluded) has no tempfile/gettempdir/TMPDIR 
+[PASS] L1b r89 lock path is ROOT/live/measure_audio-pwprof-r89.lock 
+[PASS] L1c ROOT derives from the fixture's own location ROOT = Path(__file__).resolve().parents[1]
+[PASS] L1d[r82] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r84] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1d[r85] contrast lock CODE uses tempfile.gettempdir() 
+[PASS] L1e[r86] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L1e[r87] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L1e[r88] contrast lock CODE is fixed-path (no tempfile) 
+[PASS] L0a committed resolution ROOT=corpus -> the on-disk lane lock /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L0b lane lock holds a one-line pid/ns/role witness b'pid=1728427 ns=r89a_ns_1728427 role=r89arole1728427\n'
+      lane lock: size=52 mtime=1792136862.762 (2026-10-16T04:47:42)
+[PASS] L9a dispatch exists 
+[PASS] L9b lock acquired exactly once, held to exit acquire count
+[PASS] L9c dispatch comment declares the hold 
+[PASS] L9d the fd is never released (no LOCK_UN / close of the held fd) 
+[PASS] L2a both TMPDIRs differ and both resolve the same lock path /home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeA/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L3a contender blocked for a real interval waited 1.864s (holder held 2.5s)
+[PASS] L3b contender could NOT acquire before the holder's release window opened acq=1792137607.201 holder_ready=1792137604.667 hold=2.5
+[PASS] L3c holder acquired immediately 0.0s
+[PASS] L3d contender arrived while the holder still held (ready_b before holder release) ready_b=1792137605.337 holder_release~1792137607.167
+[PASS] L6a cross-tree runs resolve DIFFERENT lock paths A=/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeA/corpus/live/measure_audio-pwprof-r89.lock B=/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeB/corpus/live/measure_audio-pwprof-r89.lock
+[PASS] L7a cross-tree contender did NOT block (race, residual) waited 0.0s while holder held 2.5s
+[PASS] L8a fail-open: missing corpus/live/ -> lock returns None (no exclusion), recorded as inherited caveat {'mode': 'N', 'wait_s': 0.0, 'fd': None, 'acq_abs': 1792137613.8586597, 'resolved': None, 'tmpdir': '/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/tmpA', 'root': '/home/vgpnk/Projects/shokunin/tmp/r89-simplifier/r89simp-lock/treeNoLive/corpus'}
+
+LOCK PROOFS: ALL PASS
+== [9/9] tracked tree untouched ==
+TRACKED-FIXTURE-UNMODIFIED
+623c25cc55521472dc54a1ab2b4ccb4a9836fda3ca1a71dcca06092a4317cd22  /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/fixtures/measure_audio.py
+
+RUN-ALL: ALL SUITES PASS (patch NOT applied; nothing committed)
