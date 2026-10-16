@@ -51447,6 +51447,13 @@ def _rtp_r99_block(entry, failures, msg, inst=None):
 
 
 # ------------------------------------------------------------------ assertions
+def _rtp_r99_unmeasured(entry, key, leg, reason):
+    msg = f"{key}: {reason}; unmeasured"
+    leg.update({"measured": False, "blocked": msg})
+    entry.setdefault("coverage_blocked", []).append(msg)
+    return leg
+
+
 def _rtp_r99_eq(failures, lname, what, got, want):
     if got != want:
         failures.append(f"{lname}: {what} = {got!r}, want {want!r}")
@@ -51950,8 +51957,9 @@ def rtp_sink_r99_entry():
                           len(set(two["destination_ports"])) == 1 and
                           two["destination_ports"][0] == str(RTP_R99_PORT))
         except Exception as exc:
-            entry.setdefault("coverage_blocked", []).append(
-                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+            msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+            entry.setdefault("coverage_blocked", []).append(msg)
+            failures.append(msg)
         finally:
             entry["legs"] = legs
             _rtp_r99_teardown(entry, failures, inst)
@@ -52200,8 +52208,9 @@ def rtp_source_r99_entry():
                 "supported wire formats (F32 exists only inside the opus "
                 "path's internal conversion).")
         except Exception as exc:
-            entry.setdefault("coverage_blocked", []).append(
-                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+            msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+            entry.setdefault("coverage_blocked", []).append(msg)
+            failures.append(msg)
         finally:
             entry["legs"] = legs
             _rtp_r99_teardown(entry, failures, inst)
@@ -52323,8 +52332,9 @@ def rtp_refusal_r99_entry():
                         "the framecount follows the ptime alone",
                         op.get("rtp.framecount"), "960")
         except Exception as exc:
-            entry.setdefault("coverage_blocked", []).append(
-                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+            msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+            entry.setdefault("coverage_blocked", []).append(msg)
+            failures.append(msg)
         finally:
             entry["legs"] = legs
             _rtp_r99_teardown(entry, failures, inst)
@@ -52539,9 +52549,12 @@ def rtp_e2e_r99_entry():
             # ---- e_lan: confinement against bracketing idle windows
             iface = entry.get("default_iface")
             lan = {"iface": iface}
+            legs["e_lan"] = lan
             if not iface:
-                entry.setdefault("coverage_blocked", []).append(
-                    "e_lan: no default-route interface — confinement unmeasured")
+                for key in ("e_lan", "e_lan_control"):
+                    legs[key] = _rtp_r99_unmeasured(
+                        entry, key, lan if key == "e_lan" else {"iface": iface},
+                        "no default-route interface")
             else:
                 c0 = _rtp_r99_ifcounters(iface)
                 time.sleep(20.0)
@@ -52635,6 +52648,11 @@ def rtp_e2e_r99_entry():
                                 f"{allowance:.0f} (20% of the emitted volume)",
                                 excess <= allowance)
                     _rtp_r99_reap(inst, [cli])
+                if cli is None or not (lan.get("node") or {}).get("reached"):
+                    _rtp_r99_unmeasured(
+                        entry, "e_lan", lan,
+                        "pw-cli unavailable" if cli is None else
+                        "RTP sink did not reach running")
                 legs["e_lan"] = lan
                 lan["note"] = (
                     "C7: the interface counter cannot resolve small leakage "
@@ -52647,13 +52665,14 @@ def rtp_e2e_r99_entry():
                 if os.environ.get("RTP_R99_ALLOW_LAN_CONTROL") == "1":
                     cli, _ = _rtp_r99_cli_open(inst)
                     ctl_expected = int(round(6.0 * 1000))   # 6 s tone at 1 ms ptime
-                    ctl = {"iface": iface,
+                    ctl = {"iface": iface, "measured": False,
                            "expected_emission_pkts": ctl_expected,
                            "disclosure": "this arm deliberately binds the "
                                          "multicast send to the operator's LAN "
                                          "interface to prove the counter detects "
                                          "egress: TTL 1, group 239.255.42.99, "
                                          "one 6 s tone."}
+                    legs["e_lan_control"] = ctl
                     if cli is not None:
                         _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
                                           _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST,
@@ -52671,7 +52690,13 @@ def rtp_e2e_r99_entry():
                                 "a LAN-bound sink DOES add packets to the counter "
                                 "(the confinement verdict is not vacuous)",
                                 (ctl["arm_tx_packets"] or 0) >= 0.5 * ctl_expected)
+                            ctl["measured"] = True
                         _rtp_r99_reap(inst, [cli])
+                    if not ctl["measured"]:
+                        _rtp_r99_unmeasured(
+                            entry, "e_lan_control", ctl,
+                            "pw-cli unavailable" if cli is None else
+                            "RTP sink did not reach running")
                     legs["e_lan_control"] = ctl
                 else:
                     msg = ("e_lan_control: physical-LAN transmission disabled; "
@@ -52681,8 +52706,9 @@ def rtp_e2e_r99_entry():
                         "iface": iface, "measured": False, "blocked": msg}
                     entry.setdefault("coverage_blocked", []).append(msg)
         except Exception as exc:
-            entry.setdefault("coverage_blocked", []).append(
-                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+            msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+            entry.setdefault("coverage_blocked", []).append(msg)
+            failures.append(msg)
         finally:
             entry["legs"] = legs
             _rtp_r99_teardown(entry, failures, inst)
@@ -52835,8 +52861,9 @@ def rtp_axis_r99_entry():
                 "armed law is that both positions stream; the per-sink split "
                 "is recorded via the two SSRCs.")
         except Exception as exc:
-            entry.setdefault("coverage_blocked", []).append(
-                f"entry aborted: {type(exc).__name__}: {exc}"[:200])
+            msg = f"entry aborted: {type(exc).__name__}: {exc}"[:200]
+            entry.setdefault("coverage_blocked", []).append(msg)
+            failures.append(msg)
         finally:
             entry["legs"] = legs
             _rtp_r99_teardown(entry, failures, inst)

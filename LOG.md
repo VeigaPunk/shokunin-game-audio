@@ -1556,3 +1556,14 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   only its private runtime resolves it. Source 72b23e04..., unchanged C
   9f840a6b..., raw observation preserved with its hash in the fold report.
   No DSP/band change, physical LAN, full-family or clean-closure claim.
+- ROUND 99 MISSING-WITNESS FOLD (2026-10-16): name missing-client and
+  unreached-sink LAN/control legs, preserve both no-interface keys and
+  attach partial LAN dictionaries early. Executed counter observations
+  mark measured:true independently of whether the control law passes.
+  Five unexpected-entry handlers now fail the harness rather than only
+  append coverage blocks. Four tests expose eight pre-fix failures and
+  pass afterward; a fifth selected measured-but-refuted case and the
+  two default-off guard tests pass separately. All I/O is inert in these
+  tests; no LAN opt-in is set in the real environment. Existing packet
+  assertions/bands are unchanged. Source 9f242022..., details in
+  reports/round-99/r99-missing-fold.md. No full-family/closure claim.
