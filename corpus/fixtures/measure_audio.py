@@ -52605,34 +52605,42 @@ def rtp_e2e_r99_entry():
                     "method is not vacuous.")
 
                 # ---- e_lan_control: the positive control (DISCLOSED egress)
-                cli, _ = _rtp_r99_cli_open(inst)
-                ctl_expected = int(round(6.0 * 1000))   # 6 s tone at 1 ms ptime
-                ctl = {"iface": iface,
-                       "expected_emission_pkts": ctl_expected,
-                       "disclosure": "this arm deliberately binds the "
-                                     "multicast send to the operator's LAN "
-                                     "interface to prove the counter detects "
-                                     "egress: TTL 1, group 239.255.42.99, "
-                                     "one 6 s tone."}
-                if cli is not None:
-                    _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
-                                      _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST,
-                                                         ifname=iface))
-                    ctl["node"] = _rtp_r99_node(inst, RTP_R99_SINK)
-                    if ctl["node"].get("reached"):
-                        a0 = _rtp_r99_ifcounters(iface)
-                        _, ctl["play"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
-                        a1 = _rtp_r99_ifcounters(iface)
-                        ctl["arm_tx_packets"] = a1["tx_packets"] - a0["tx_packets"]
-                        ctl["fraction_of_emission"] = round(
-                            (ctl["arm_tx_packets"] or 0) / ctl_expected, 3)
-                        _rtp_r99_true(
-                            failures, "e_lan_control",
-                            "a LAN-bound sink DOES add packets to the counter "
-                            "(the confinement verdict is not vacuous)",
-                            (ctl["arm_tx_packets"] or 0) >= 0.5 * ctl_expected)
-                    _rtp_r99_reap(inst, [cli])
-                legs["e_lan_control"] = ctl
+                if os.environ.get("RTP_R99_ALLOW_LAN_CONTROL") == "1":
+                    cli, _ = _rtp_r99_cli_open(inst)
+                    ctl_expected = int(round(6.0 * 1000))   # 6 s tone at 1 ms ptime
+                    ctl = {"iface": iface,
+                           "expected_emission_pkts": ctl_expected,
+                           "disclosure": "this arm deliberately binds the "
+                                         "multicast send to the operator's LAN "
+                                         "interface to prove the counter detects "
+                                         "egress: TTL 1, group 239.255.42.99, "
+                                         "one 6 s tone."}
+                    if cli is not None:
+                        _rtp_r99_cli_load(cli, "libpipewire-module-rtp-sink",
+                                          _rtp_r99_sink_args(dest_ip=RTP_R99_MCAST,
+                                                             ifname=iface))
+                        ctl["node"] = _rtp_r99_node(inst, RTP_R99_SINK)
+                        if ctl["node"].get("reached"):
+                            a0 = _rtp_r99_ifcounters(iface)
+                            _, ctl["play"] = _rtp_r99_play(inst, RTP_R99_SINK, tone)
+                            a1 = _rtp_r99_ifcounters(iface)
+                            ctl["arm_tx_packets"] = a1["tx_packets"] - a0["tx_packets"]
+                            ctl["fraction_of_emission"] = round(
+                                (ctl["arm_tx_packets"] or 0) / ctl_expected, 3)
+                            _rtp_r99_true(
+                                failures, "e_lan_control",
+                                "a LAN-bound sink DOES add packets to the counter "
+                                "(the confinement verdict is not vacuous)",
+                                (ctl["arm_tx_packets"] or 0) >= 0.5 * ctl_expected)
+                        _rtp_r99_reap(inst, [cli])
+                    legs["e_lan_control"] = ctl
+                else:
+                    msg = ("e_lan_control: physical-LAN transmission disabled; "
+                           "requires explicit operator approval and "
+                           "RTP_R99_ALLOW_LAN_CONTROL=1")
+                    legs["e_lan_control"] = {
+                        "iface": iface, "measured": False, "blocked": msg}
+                    entry.setdefault("coverage_blocked", []).append(msg)
         except Exception as exc:
             entry.setdefault("coverage_blocked", []).append(
                 f"entry aborted: {type(exc).__name__}: {exc}"[:200])
