@@ -893,3 +893,23 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 | calibration | **improved** | r84's biggest defect closed in-family and measured; residual co-tenancy now precisely bounded (tree-relative -> cross-tree only, fail-closed); all caveat rows verified as declared (record-only/rc_only), none silently armed. |
 
 | r86 | audio | pwctl tools lattice | ADMIT-with-findings | fa5994a0 |
+
+## Capabilities
+
+| Capability | What it can now do | Evidence pointer | First-working round |
+|---|---|---|---|
+| — none yet — | | | |
+
+Rows enter only through a round that demonstrates the capability running (`AXES.md` §Capabilities); none enter through this rollout.
+
+## Saturation
+
+The lane's saturation line and stagnation window N are to be declared by the lane on its next round per `AXES.md` §The stagnation nudge; not asserted by this conformance change.
+
+## Planned
+
+Populated by the lane at each round start per the `SCORECARD.md` contract; no entries declared by this rollout.
+
+## Retired
+
+- none retired; record with justification when an axis is retired.

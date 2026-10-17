@@ -1577,3 +1577,9 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   pass. Source 4e0614f836...; details in
   reports/round-93/r93-entry-cleanup-fold.md. No full-family or
   clean-closure claim.
+
+## 2026-10-16 — protocol conformance: SCORECARD contract fields
+- Operator amendment at fleet root `84bade0`; this lane's SCORECARD.md had not yet carried the amended contract sections. This entry records a conformance rollout, not a craft round.
+- Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
+- Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
+- No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
