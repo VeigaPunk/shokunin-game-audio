@@ -1583,3 +1583,10 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+
+## 2026-10-17 — repository README
+
+- **Trigger.** Root `README.md` was the shared lane stub and named `SKILL.md` as possibly absent. `ls` shows no root `SKILL.md`.
+- **Evidence.** Domain, the round-24 action checklist, and the fixture-versus-listening limit are `PROVINCE.md`. `generate_timings.sh` is five `gnuplot TimingN.plot` lines. `ls` of the repo root finds no `Timing*.plot`; copies exist under `corpus/live/` (for example `corpus/live/r89-boundary/runs/`). `ports/frontier/fb-pipewire.md` exists.
+- **Action.** Replaced `README.md`. No corpus index was edited. No Devin wiki URL was present.
+- **Outcome.** No axis claim; no score moved.
