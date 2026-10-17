@@ -1,0 +1,34 @@
+noise_sha256=13b518c83e2b1d3720e6be2bd7c258c5f420bf9422f525d65ebb2f78c9c658b9
+--- paplay noise.wav (invalid input surface) ---
+rc=1
+stderr_lines=1
+--- ffplay noise.wav (invalid input surface) ---
+rc=0
+stderr_lines=11
+--- SDL_AUDIODRIVER=bogus ffplay silence.wav (driver-gate surface) ---
+rc=1
+stderr_lines=12
+--- aplay noise.wav (invalid input surface) ---
+rc=0
+stderr_lines=0
+=== paplay-noise.stderr ===
+  | Failed to open audio file.$
+=== ffplay-noise.stderr ===
+  |   libavutil      61.  1.101 / 61.  1.101$
+  |   libavcodec     63.  1.101 / 63.  1.101$
+  |   libavformat    63.  1.101 / 63.  1.101$
+  |   libavdevice    63.  1.101 / 63.  1.101$
+  |   libavfilter    12.  1.101 / 12.  1.101$
+  |   libswscale     10.  1.101 / 10.  1.101$
+  |   libswresample   7.  1.101 /  7.  1.101$
+  |     nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B ^Mcorpus/live/r75-scribe/raw/noise.wav: Invalid data found when processing input$
+=== ffplay-bogusdrv.stderr ===
+  |   libavcodec     63.  1.101 / 63.  1.101$
+  |   libavformat    63.  1.101 / 63.  1.101$
+  |   libavdevice    63.  1.101 / 63.  1.101$
+  |   libavfilter    12.  1.101 / 12.  1.101$
+  |   libswscale     10.  1.101 / 10.  1.101$
+  |   libswresample   7.  1.101 /  7.  1.101$
+  | Could not initialize SDL - Audio target 'bogus' not available$
+  | (Did you set the DISPLAY variable?)$
+=== aplay-noise.stderr ===

@@ -1,0 +1,70 @@
+# receipts: 2
+#   corpus/live/r81-baseline/runs-a/module-r80.receipt.json
+#   corpus/live/r81-baseline/runs-b/module-r80.receipt.json
+# total leaf paths: 1785  normalized-key collisions: 0
+
+case                                             exact   volat    jit   sem  added   rem  total
+TOP:ambience_family_comparisons                     10       0      0     0      0     0     10
+TOP:distinctness                                    20       0      0     0      0     0     20
+TOP:impact_family_comparisons                       10       0      0     0      0     0     10
+TOP:mode                                             1       0      0     0      0     0      1
+TOP:movement_family_comparisons                     10       0      0     0      0     0     10
+TOP:sections                                        44       0      0     0      0     0     44
+TOP:thresholds                                      47       0      0     0      0     0     47
+TOP:ui_family_comparisons                           10       0      0     0      0     0     10
+ambience                                            13       0      0     0      0     0     13
+ambience_alt                                        13       0      0     0      0     0     13
+ambience_third                                      13       0      0     0      0     0     13
+impact                                              13       0      0     0      0     0     13
+impact_alt                                          13       0      0     0      0     0     13
+impact_third                                        13       0      0     0      0     0     13
+module_args_lattice_r80_probe                      210      22     34     0      0     0    266
+module_topology_r80_probe                          706      40    399     1      0     0   1146
+movement                                            13       0      0     0      0     0     13
+movement_alt                                        13       0      0     0      0     0     13
+movement_third                                      13       0      0     0      0     0     13
+stem                                                13       0      0     0      0     0     13
+stem_layer                                          13       0      0     0      0     0     13
+stem_layer_alt                                      13       0      0     0      0     0     13
+stem_layer_third                                    13       0      0     0      0     0     13
+stem_sections                                       13       0      0     0      0     0     13
+ui                                                  13       0      0     0      0     0     13
+ui_alt                                              13       0      0     0      0     0     13
+ui_third                                            13       0      0     0      0     0     13
+TOTAL                                             1289      62    433     1      0     0   1785
+
+## jitter detail (numeric, non-bool):
+  module_args_lattice_r80_probe: 34 jitter paths
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/load/module_id
+      536870918..536870921 (rel 5.588e-09)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_id
+      102..128 (rel 0.2031)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_serial
+      8048..17950 (rel 0.5516)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/pulse_module_id
+      536870918..536870921 (rel 5.588e-09)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node_waited_s
+      0.007..0.008 (rel 0.125)
+    /measurements/module_args_lattice_r80_probe/legs/a2_desc_prop_wins/load/module_id
+      536870918..536870921 (rel 5.588e-09)
+    … 28 more
+  module_topology_r80_probe: 399 jitter paths
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/edge_a_waited_s
+      0.104..0.105 (rel 0.009524)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/index
+      8278..18117 (rel 0.5431)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/sink
+      8142..18044 (rel 0.5488)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_spans[0][1]
+      5.1..5.2 (rel 0.01923)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_windows
+      45..46 (rel 0.02174)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/peak_l
+      7980..8137 (rel 0.01929)
+    … 393 more
+
+## semantic detail (reportable instability):
+  module_topology_r80_probe: 1 semantic paths
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/windows[51]/mine   []
+      [0] True
+      [1] False

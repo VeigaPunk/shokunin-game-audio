@@ -1,0 +1,172 @@
+## A. ls class census
+-- rep1
+Core=1
+Device=3
+Node=13
+Port=34
+Client=8
+Module=13
+Link=2
+Factory=13
+Metadata=9
+Profiler=1
+Session=0
+Endpoint=0
+ClientNode=0
+Bogus=0
+node=0
+-- rep2
+Core=1
+Device=3
+Node=13
+Port=34
+Client=8
+Module=13
+Link=2
+Factory=13
+Metadata=9
+Profiler=1
+Session=0
+Endpoint=0
+ClientNode=0
+Bogus=0
+node=0
+-- rep3
+Core=1
+Device=3
+Node=13
+Port=34
+Client=8
+Module=13
+Link=2
+Factory=13
+Metadata=9
+Profiler=1
+Session=0
+Endpoint=0
+ClientNode=0
+Bogus=0
+node=0
+## B. namespace: ls<serial> vs info<id>
+-- rep1
+	id 46, type PipeWire:Interface:Node/3
+ 		factory.id = "19"
+	id: 63
+	type: PipeWire:Interface:Port/3
+ls99999 lines: 0
+Error: "info: unknown global '99999'"
+-- rep2
+	id 46, type PipeWire:Interface:Node/3
+ 		factory.id = "19"
+	id: 63
+	type: PipeWire:Interface:Port/3
+ls99999 lines: 0
+Error: "info: unknown global '99999'"
+-- rep3
+	id 46, type PipeWire:Interface:Node/3
+ 		factory.id = "19"
+	id: 63
+	type: PipeWire:Interface:Port/3
+ls99999 lines: 0
+Error: "info: unknown global '99999'"
+## C. enum-params matrix
+-- rep1
+id=133 Props =>   Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+id=133 PropInfo =>   Object: size 104, type Spa:Pod:Object:Param:PropInfo (262145), id Spa:Enum:ParamId:PropInfo (1)
+id=133 EnumFormat =>   Object: size 184, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=133 Format => EMPTY
+id=133 Latency => EMPTY
+id=133 ProcessLatency => EMPTY
+id=133 IO => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:7 (Spa:Enum:ParamId:IO) failed
+id=133 Meta => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:6 (Spa:Enum:ParamId:Meta) failed
+id=104 EnumFormat =>   Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=104 Format => remote 0: error id:83 seq:196 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed
+id=104 Latency =>   Object: size 176, type Spa:Pod:Object:Param:Latency (262155), id Spa:Enum:ParamId:Latency (15)
+id=104 IO =>   Object: size 56, type Spa:Pod:Object:Param:IO (262150), id Spa:Enum:ParamId:IO (7)
+id=104 Meta =>   Object: size 56, type Spa:Pod:Object:Param:Meta (262149), id Spa:Enum:ParamId:Meta (6)
+id=104 Props => remote 0: error id:83 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=48 Profile =>   Object: size 416, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:Profile (9)
+id=48 EnumProfile =>   Object: size 160, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:EnumProfile (8)
+id=48 Route =>   Object: size 792, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:Route (13)
+id=48 EnumRoute =>   Object: size 424, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:EnumRoute (12)
+id=48 Props => remote 0: error id:46 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=33 Props => Error: "enum-params not implemented on object 33 type:PipeWire:Interface:Client"
+id=133 BogusParam => Error: "enum-params: unknown param type: BogusParam"
+id=99999 Props => Error: "enum-params: unknown global '99999'"
+-- rep2
+id=133 Props =>   Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+id=133 PropInfo =>   Object: size 104, type Spa:Pod:Object:Param:PropInfo (262145), id Spa:Enum:ParamId:PropInfo (1)
+id=133 EnumFormat =>   Object: size 184, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=133 Format => EMPTY
+id=133 Latency => EMPTY
+id=133 ProcessLatency => EMPTY
+id=133 IO => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:7 (Spa:Enum:ParamId:IO) failed
+id=133 Meta => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:6 (Spa:Enum:ParamId:Meta) failed
+id=104 EnumFormat =>   Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=104 Format => EMPTY
+id=104 Latency =>   Object: size 176, type Spa:Pod:Object:Param:Latency (262155), id Spa:Enum:ParamId:Latency (15)
+id=104 IO =>   Object: size 56, type Spa:Pod:Object:Param:IO (262150), id Spa:Enum:ParamId:IO (7)
+id=104 Meta =>   Object: size 56, type Spa:Pod:Object:Param:Meta (262149), id Spa:Enum:ParamId:Meta (6)
+id=104 Props => remote 0: error id:83 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=48 Profile =>   Object: size 416, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:Profile (9)
+id=48 EnumProfile =>   Object: size 160, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:EnumProfile (8)
+id=48 Route =>   Object: size 792, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:Route (13)
+id=48 EnumRoute =>   Object: size 424, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:EnumRoute (12)
+id=48 Props => remote 0: error id:46 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=33 Props => Error: "enum-params not implemented on object 33 type:PipeWire:Interface:Client"
+id=133 BogusParam => Error: "enum-params: unknown param type: BogusParam"
+id=99999 Props => Error: "enum-params: unknown global '99999'"
+-- rep3
+id=133 Props =>   Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+id=133 PropInfo =>   Object: size 104, type Spa:Pod:Object:Param:PropInfo (262145), id Spa:Enum:ParamId:PropInfo (1)
+id=133 EnumFormat =>   Object: size 184, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=133 Format => EMPTY
+id=133 Latency => EMPTY
+id=133 ProcessLatency => EMPTY
+id=133 IO => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:7 (Spa:Enum:ParamId:IO) failed
+id=133 Meta => remote 0: error id:82 seq:196 res:-2 (No such file or directory): enum params id:6 (Spa:Enum:ParamId:Meta) failed
+id=104 EnumFormat =>   Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)
+id=104 Format => EMPTY
+id=104 Latency =>   Object: size 176, type Spa:Pod:Object:Param:Latency (262155), id Spa:Enum:ParamId:Latency (15)
+id=104 IO =>   Object: size 56, type Spa:Pod:Object:Param:IO (262150), id Spa:Enum:ParamId:IO (7)
+id=104 Meta =>   Object: size 56, type Spa:Pod:Object:Param:Meta (262149), id Spa:Enum:ParamId:Meta (6)
+id=104 Props => remote 0: error id:83 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=48 Profile =>   Object: size 416, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:Profile (9)
+id=48 EnumProfile =>   Object: size 160, type Spa:Pod:Object:Param:Profile (262151), id Spa:Enum:ParamId:EnumProfile (8)
+id=48 Route =>   Object: size 792, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:Route (13)
+id=48 EnumRoute =>   Object: size 424, type Spa:Pod:Object:Param:Route (262153), id Spa:Enum:ParamId:EnumRoute (12)
+id=48 Props => remote 0: error id:46 seq:196 res:-2 (No such file or directory): enum params id:2 (Spa:Enum:ParamId:Props) failed
+id=33 Props => Error: "enum-params not implemented on object 33 type:PipeWire:Interface:Client"
+id=133 BogusParam => Error: "enum-params: unknown param type: BogusParam"
+id=99999 Props => Error: "enum-params: unknown global '99999'"
+## D. set-param surface
+-- rep1
+malformed: None
+emptyobj: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+unknownkey: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+bogusparam: Error: "set-param: unknown param type: Bogus"
+badid: Error: "set-param: unknown global '99999'"
+noarg: Error: "set-param <object-id> <param-id> <param-json>"
+fmt-write-id133 rc-ish: Object: size 56, type Spa:Pod:Object:Param:Format (262147), 
+port-latency-write: Object: size 56, type Spa:Pod:Object:Param:Latency (262155),
+      Float 0.000000
+-- rep2
+malformed: None
+emptyobj: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+unknownkey: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+bogusparam: Error: "set-param: unknown param type: Bogus"
+badid: Error: "set-param: unknown global '99999'"
+noarg: Error: "set-param <object-id> <param-id> <param-json>"
+fmt-write-id133 rc-ish: Object: size 56, type Spa:Pod:Object:Param:Format (262147), 
+port-latency-write: Object: size 56, type Spa:Pod:Object:Param:Latency (262155),
+      Float 0.000000
+-- rep3
+malformed: None
+emptyobj: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+unknownkey: Object: size 8, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)
+bogusparam: Error: "set-param: unknown param type: Bogus"
+badid: Error: "set-param: unknown global '99999'"
+noarg: Error: "set-param <object-id> <param-id> <param-json>"
+fmt-write-id133 rc-ish: Object: size 56, type Spa:Pod:Object:Param:Format (262147), 
+port-latency-write: Object: size 56, type Spa:Pod:Object:Param:Latency (262155),
+      Float 0.000000

@@ -1,0 +1,25 @@
+FORGE normal-pin: sha=2587ff607dd5fce5… canonical=8e8cdad6cc3c356d… -> CAUGHT (signature gate)
+F1 base: g_hup rc=-9 wall=9.032 bytes=376832
+FORGE g_hup: expect=CAUGHT rc=1 n_fail=4 n_blocked=2 -> as-predicted
+    LAW forgery C02 pwprof_gate_r89_probe failures FAIL ["g_hup: rc=-9 parse=Expecting ',' delimiter: line 1851 column 19 (char 376832) (len=376832) — the truncating-signal class fails"]
+    LAW forgery C02 pwprof_xw_r89_probe failures FAIL ["x_foot: {'pwprof_before': 1, 'pwprof_during': 1, 'clients_added': ['blender', 'pactl'], 'nodes_delta': -4, 'rc': 0} — the one-Client footprint fails"]
+    LAW forgery R02 x_top real-row provenance FAIL row={"status": "R", "id": 44, "quant": 2048, "rate": 48000, "wait": "2.4us", "busy": "1.9us", "wait_us": 2.4, "busy_us": 1.9} real_rows=0 transient=None
+FORGE g_hup-G04-alone: expect=MISSED-G04 rc=1 n_fail=4 n_blocked=2 -> as-predicted
+    LAW forgery C02 pwprof_gate_r89_probe failures FAIL ["g_hup: rc=-9 parse=Expecting ',' delimiter: line 1851 column 19 (char 376832) (len=376832) — the truncating-signal class fails"]
+    LAW forgery C02 pwprof_xw_r89_probe failures FAIL ["x_foot: {'pwprof_before': 1, 'pwprof_during': 1, 'clients_added': ['blender', 'pactl'], 'nodes_delta': -4, 'rc': 0} — the one-Client footprint fails"]
+    LAW forgery R02 x_top real-row provenance FAIL row={"status": "R", "id": 44, "quant": 2048, "rate": 48000, "wait": "2.4us", "busy": "1.9us", "wait_us": 2.4, "busy_us": 1.9} real_rows=0 transient=None
+F2 base: own_clients=[] pwprof_during=0
+FORGE x_foot-partial: expect=CAUGHT-PARTIAL rc=0 n_fail=0 n_blocked=1 -> as-predicted
+    LAW forgery C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3057777 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured']
+FORGE x_foot-full: expect=MISSED rc=0 n_fail=0 n_blocked=0 -> as-predicted
+F3 base: own_row={"status": "R", "id": 124, "quant": 0, "rate": 0, "wait": "0.0us", "busy": "0.0us", "wait_us": 0.0, "busy_us": 0.0} failures=['x_top: top 0.0/0.0us vs profiler 9.94/5.63us — the WAIT/BUSY cross-witness fails']
+FORGE x_top-partial: expect=CAUGHT rc=1 n_fail=1 n_blocked=1 -> as-predicted
+    LAW forgery C02 pwprof_xw_r89_probe failures FAIL ['x_top: top 0.0/0.0us vs profiler 9.94/5.63us — the WAIT/BUSY cross-witness fails']
+    LAW forgery X03 x_foot own-scoped 1-Client footprint BLOCKED census unreadable — named coverage class {"pwprof_before": 2, "pwprof_during": 3, "clients_added": ["pw-profiler"], "nodes_delta": 0, "rc": 0}
+FORGE x_top-full: expect=MISSED rc=0 n_fail=0 n_blocked=1 -> as-predicted
+    LAW forgery X03 x_foot own-scoped 1-Client footprint BLOCKED census unreadable — named coverage class {"pwprof_before": 2, "pwprof_during": 3, "clients_added": ["pw-profiler"], "nodes_delta": 0, "rc": 0}
+FORGE census: expect=CAUGHT rc=1 n_fail=2 n_blocked=2 -> as-predicted
+    LAW forgery C01b leg census FAIL {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 8} total=51
+    LAW forgery R01 leg census == 27/12/4/9 (52) FAIL {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 8}
+    LAW forgery C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3057777 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured']
+FORGERY SPOT-CHECK: all predictions held

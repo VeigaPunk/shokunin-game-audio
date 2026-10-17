@@ -1,0 +1,29 @@
+fixture sha256: 317c0b486e103ac3
+helpers: True True
+fixture has ffplay/paplay/aplay refs: {'ffplay': 0, 'paplay': 0, 'aplay': 0}
+  tail_ffplay_valid: '   0.13 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B'
+  tail_ffplay_invalid: 'corpus/live/r75-scribe/raw/noise.wav: Invalid data found when processing input'
+  tail_ffplay_bogusdrv: '(Did you set the DISPLAY variable?)'
+  tail_paplay_invalid: 'Failed to open audio file.'
+  tail_aplay_invalid_verbose: "Playing raw data 'noise.wav' : Unsigned 8 bit, Rate 8000 Hz, Mono"
+  tail_aplay_valid: "Playing WAVE 'silence.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+  pwcatfields_paplay_invalid: (None, None)
+  pwcatfields_aplay_invalid: (None, None)
+  pwcatfields_ffplay_invalid: (None, None)
+  CR/ESC: {
+ "splitlines_count": 23,
+ "lines_with_input_tag": [
+  12
+ ],
+ "input_line_is_line_initial": [
+  true
+ ],
+ "line_with_input_head": "\"Input #0, wav, from 'corpus/live/r75-scribe/raw/silence.wav':\"",
+ "escape_bytes": 1,
+ "cr_bytes": 0
+}
+  tail pair equal: False | '   0.13 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B' | 'noise.wav: Invalid data found when processing input'
+  hex tokens in ffplay log: ['0x0001']
+  path echo: {"ffplay-noise.stderr": ["corpus/live/r75-scribe/raw/noise.wav"], "ffplay-file.stderr": ["corpus/live/r75-scribe/raw/silence.wav"], "paplay-noise.stderr": []}
+  aplay -q invalid: stderr bytes = 0
+wrote corpus/live/r75-scribe/parser-surface-audit.json

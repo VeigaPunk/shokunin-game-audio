@@ -1,0 +1,62 @@
+r74 scribe checks — raw command log (session 2026-10-14 15:18Z → 15:25Z, host plazir27)
+All commands read-only. Local TZ = UTC−3; receipts/stamps are UTC.
+Timestamps are anchored to the four landing-watch snapshots (15:22:14Z,
+15:23:06Z, 15:23:39Z, 15:24:28Z) plus the session open (15:18:36Z); entries
+between anchors are ordered as executed.
+
+15:18:36Z  date -u                                  -> Wed Oct 14 03:18:36 PM UTC 2026
+15:18:36Z  hostname                                 -> plazir27
+15:18:36Z  git log --oneline -1                     -> 1ba8103 (r73 report-last)
+15:18:36Z  git status --porcelain -uno              -> (clean)
+15:19:18Z  git hash-object corpus/fixtures/measure_audio.py -> 9b6e836ebda4c0ce6bfedec281a6d8d14d4a91d8
+15:19:18Z  sha256sum corpus/fixtures/measure_audio.py       -> 77f107864b74f794aea1d4fa8ea28f6f50d741591297dff192b9b6f949b2543b
+15:19:18Z  grep -c 'r74' corpus/fixtures/measure_audio.py   -> 0
+15:19:18Z  ls corpus/live/runs | grep -c r74                -> 0
+15:19:18Z  ls -d reports/round-74                           -> absent
+15:19:18Z  ls -d corpus/live/r74-*                          -> boundary, reviewer, scribe, simplifier
+15:19:5xZ  pw-cat --version / mpv --version / ffmpeg -version / sox --version / python3 --version
+           -> libpipewire 1.6.8 / v0.41.0 lavf 63.1.101 / n9.0.1 / SoX_ng 14.8.0.1 / 3.14.7
+15:20:0xZ  grep -rl '0x[0-9a-fA-F]\{6,\}' corpus/live/runs/*/measurements.json | wc -l -> 18
+           (3 ui-preempt-gsrt-r65 pre-fix ASLR leaks + 15 sndfile format_hex)
+15:20:0xZ  grep -rl '/home/vgpnk' corpus/live/runs/*/measurements.json | wc -l -> 399
+15:20:3xZ  git ls-files corpus/live/runs | grep -c consumers-r73 -> 0 (untracked family)
+15:20:3xZ  git ls-files corpus/live/runs | sed ... | sort | tail -> newest tracked 20261014T142733592435Z-sndfile-transport-r72
+15:20:3xZ  git status --porcelain -uall corpus/live/runs | wc -l -> 303
+15:21:0xZ  python3 corpus/live/r74-scribe/parser_audit.py  (run 1) -> exit 1 (harness bug: member path base)
+15:21:3xZ  python3 corpus/live/r74-scribe/parser_audit.py  (run 2) -> exit 1 (harness bug: exec indent)
+15:21:4xZ  python3 corpus/live/r74-scribe/parser_audit.py  (run 3) -> exit 0; 25 cases
+           (this import regenerated the tracked __pycache__ .pyc)
+15:22:0xZ  cat corpus/live/frontier-pipewire/pwcat-{file,fifo}-txw_piperefuse.wav.log,
+           pwcat-fifo-empty.log, pwcat-nodaemon.log   -> raw stderr = 2/2/2/1 lines
+15:22:14Z  corpus/live/r74-scribe/watch.sh (snapshot 1) -> worktree tracked-modified: 1 (__pycache__ .pyc)
+15:22:17Z  git status --porcelain -uno -> M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc
+           committed blob header vs regenerated; source mtime 15:05:09Z; size 153909
+15:22:2xZ  git cat-file blob HEAD:...pyc > /tmp/r74-scribe-pyc-restore.bin  (sha256 9e333fe1…)
+           cp restore -> file; git status -uno -> clean (0)
+15:22:3xZ  python3 -B parser_audit.py (run 4; C/G fixes) -> exit 0; 25 cases; clean=0
+15:22:4xZ  python3 -B parser_audit.py (run 5; C1 cut-index fix) -> exit 0; C1 fallback verified
+15:23:0xZ  python3 -B receipt_hygiene.py -> 13 receipts / 10 sha groups / stamp-vs-mtime max delta 0.000419 s
+15:23:0xZ  python3 -B -c "…leaf diff…" -> base(145502288182Z) vs new(151240011154Z): 1 leaf
+           (pacing_trickle wall_s 6.003->6.004); union across 12 others: wall_s + name-axis only
+15:23:06Z  watch snapshot 2 -> clean; r74 refs 0; r74 receipts 0; sibling scratch active
+15:23:1xZ  python3 -B -c "…S-case receipt…" -> 36/36 pw-cat legs rc=1 Host is down; pactl live=true;
+           3/3 name-axis legs Host is down; pacing_instant rc=1 @0.002 s; fifo_no_writer blocked=false; 5 ops failures
+15:23:2xZ  python3 -B parser_audit.py (run 6; B2/B3 fork-forgery cases) -> exit 0; 27 cases
+15:23:39Z  watch snapshot 3 -> r74-author scratch present (mk_members.py + lavf_* members)
+15:24:0xZ  python3 -B -c "…9 member entries…" -> all [[1,null]]x4, fork=false (S-case member-level view)
+15:24:28Z  watch snapshot 4 -> still 0 r74 refs / 0 r74 receipts / no reports/round-74
+15:24:31Z  report + checks.txt written; sha256sum scratch artifacts recorded
+15:25:13Z  watch snapshot 5 (final) -> new consumers-r73 receipt 20261014T152502427863Z
+           (sha 9b422aa2…, byte-identical to the 14:56:06/15:01:03 pair; family now 14);
+           reports/round-74/r74-scribe.md present; git status -uno -> 0
+15:25:2xZ  python3 -B receipt_hygiene.py (refresh, 14 receipts) -> stamp-vs-mtime max 0.001362 s
+           receipt-hygiene.json 3e5fd2ad…; landing-watch.log ecec3aa3… (5 snapshots)
+15:26:33Z  final state -> r74 refs 0 / r74 receipts 0 / fixture blob 9b6e836e / tracked-modified 0
+           reports/round-74: r74-scout.md 388bd35e… (15:26:19Z), r74-critic.md f502b394… (15:26:31Z),
+           r74-scribe.md (this seat's report; hash recorded by the operator at fold time,
+           not self-referenced here)
+           (sibling reports untracked; existence/hash spot-checked only)
+
+Exit codes: all inspection commands 0 except the two fixed harness runs above and
+documented absence probes. No git mutation; no product-code edit; no receipt written
+by this seat (audit subprocess layer monkeypatched; python3 -B to avoid .pyc writes).

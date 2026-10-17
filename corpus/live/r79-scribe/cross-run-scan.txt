@@ -1,0 +1,29 @@
+# r79-author receipt cross-run scan (scribe r79)
+# source: corpus/live/runs/*capture-r79*/measurements.json  (7 receipts)
+# matrix cm1/cm2 measured values per run (report §5 table = run 071014 exactly)
+receipt(UTC)             cm1 ch0                cm2 ch0/ch1                       
+20261015T063951          (no legs — run blocked/partial)
+20261015T064636          2269.3/2269.3p8191     4538.6/2.9p8192 | 3.9/4538.6p8192 
+20261015T070406          2269.3/2269.3p8191     4538.6/2.9p8192 | 3.9/4538.6p8192 
+20261015T071014          2269.3/2269.3p8191     4538.6/2.8p8192 | 4.0/4538.6p8192 
+20261015T071612          2269.3/2269.3p8192     4538.6/2.7p8192 | 4.1/4538.6p8192 
+20261015T072219          2269.3/2269.3p8192     4538.6/2.7p8192 | 4.1/4538.6p8192 
+20261015T072746          2269.3/2269.3p8191     4538.6/2.9p8192 | 3.9/4538.6p8192 
+
+# pwcat latency per-run verdict + node.latency vector
+20261015T063951          (no legs)
+20261015T064636          verdict=None latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+20261015T070406          verdict='latency_param_tracks_request' latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+20261015T071014          verdict='latency_param_tracks_request' latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+20261015T071612          verdict='latency_param_tracks_request' latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+20261015T072219          verdict='latency_param_tracks_request' latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+20261015T072746          verdict='latency_param_tracks_request' latencies=['4800/48000', '480/48000', '256/48000', 480, '1024/48000', '2048/48000', None, 0, '24000/48000', '480/48000', '4800/48000', '4800/48000', '4800/48000']
+
+# b09 (shared-monitor fallback leg) per-run tap peaks / verdict text
+20261015T063951          (no legs)
+20261015T064636          fed=False peak=0/0 mine_win=0 confound=False named_foreign=[] failures=6
+20261015T070406          fed=False peak=0/0 mine_win=0 confound=False named_foreign=[] failures=3
+20261015T071014          fed=False peak=0/0 mine_win=0 confound=False named_foreign=[] failures=0
+20261015T071612          fed=False peak=11997/8997 mine_win=11 confound=False named_foreign=[] failures=1
+20261015T072219          fed=False peak=0/0 mine_win=0 confound=False named_foreign=[] failures=0
+20261015T072746          fed=False peak=0/0 mine_win=0 confound=False named_foreign=[] failures=0

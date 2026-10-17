@@ -1,0 +1,40 @@
+{
+  "receipt": "corpus/live/runs/20261014T202043466524Z-capture-r77/measurements.json",
+  "rows": [
+    {
+      "claim": "failures:{} on this run",
+      "verdict": "AGREE",
+      "detail": "{}"
+    },
+    {
+      "claim": "1 fallback lattice (prop: default monitor; noprop: empty wav / real source)",
+      "verdict": "AGREE",
+      "detail": "11 cells, 9 live, default_sink_is_stable=True, confound=False"
+    },
+    {
+      "claim": "2 sustained_after_target_loss == re-link to the fallback node",
+      "verdict": "AGREE",
+      "detail": "sha_match_control=True sha_match_dead_sink=True after_loss_pct=98 contended=False"
+    },
+    {
+      "claim": "3 reader matrix: sndfile honest on every wound; soxi/wave declared_echo on over-declared headers",
+      "verdict": "AGREE",
+      "detail": "tally={\"wave\": {\"_wrong\": 3, \"_answered\": 12}, \"ffprobe\": {\"_wrong\": 1, \"_answered\": 12}, \"soxi_s\": {\"_wrong\": 6, \"_answered\": 12}, \"soxi_D\": {\"_wrong\": 6, \"_answered\": 12}, \"sndfile\": {\"_wrong\": 0, \"_answered\": 12}}"
+    },
+    {
+      "claim": "4 arecord open header is bound-derived (-d N -> N x 192000 B; unbounded -> 0x80000000)",
+      "verdict": "AGREE",
+      "detail": "eintr_cells=[] busy_cells=0 device_legs=15"
+    },
+    {
+      "claim": "5 split sentinel: silent rename to -01/-02, requested path never exists, finalized member declares 0x7FFFFFFF",
+      "verdict": "AGREE",
+      "detail": "rot-01=2147483692 B declared=0x7fffffff siblings=['rot-01.wav', 'rot-02.wav'] peak=2148443736 cap=2400000000 rename_is_silent=True"
+    },
+    {
+      "claim": "6 format axis: legal requests honored verbatim, refusals leave no file",
+      "verdict": "AGREE",
+      "detail": "16 legs, refusals=['format_bogus', 'rate_0', 'channels_0', 'channel_map_mismatch']"
+    }
+  ]
+}

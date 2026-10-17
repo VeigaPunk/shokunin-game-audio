@@ -1,0 +1,15 @@
+receipt (dir under corpus/live/runs/ or treeN mirror) | launcher | result
+20261016T084201819411Z (lane, pre-median bytes) | nohup | failures {} — g_hup rc -1 @0.816
+20261016T084804070899Z (lane, FINAL bytes) | nohup | failures {} — 52 legs; g_hup rc -1 @0.821; x_top med-arm green (1 real + 2 transient skipped); x_foot coverage_blocked (own client slower than bracket)
+tree2 20261016T084609262240Z (FINAL) | nohup, co-tenanted w/ tree3 | failures {} — g_hup rc -1 @0.817; x_foot own [131] green w/ foreign during=2; x_top coverage_blocked (3 transient rows, 0 real)
+tree3 20261016T084624699320Z (FINAL) | nohup, co-tenanted w/ tree2 | failures {} — g_hup rc -1 @0.823; x_foot own [223] green (foreign "blender"+pw-profiler added); x_top med 7.2/7.2 vs prof 7.12/6.87 green
+tree2 20261016T084235560485Z (solo, pre-median) | nohup | failures {}
+tree3 20261016T084349220052Z (co-tenant, pre-median) | nohup | RED x_top 7.1us vs 1.47us — the band-edge mechanism, real row (kept as the pre-fix witness)
+tree2 20261016T084333362366Z (co-tenant, pre-median) | nohup | failures {}
+27227c1f52daad1c4702775b7195d3025d81a47f67c65a1488b01d2a5badbfe5  corpus/live/r89-foldfix/receipts/cot1-tree2-green.measurements.json
+7d7f68dee26ffb05cffe366185777a66aeb5bc92a912a404f1785131e702ff55  corpus/live/r89-foldfix/receipts/cot1-tree3-red-single-row.measurements.json
+1ecd8a9e1a7177285296e35e860d4e338b55f98906832c5c20220e7f0b1d8e0a  corpus/live/r89-foldfix/receipts/cot2-tree2.measurements.json
+5b9a75f1060893f7ae4ae729327802dc7eb4358f25613cdcd365d87bcd7f97e9  corpus/live/r89-foldfix/receipts/cot2-tree3.measurements.json
+e67f91bd030e42be3dfdebdabc3d85984a2e89ca15e07a485a483fe33c79a8a8  corpus/live/r89-foldfix/receipts/final-nohup-lane.measurements.json
+c7f0147de63491e742e533af465d96ced41383bf6baf443deb088d38e7fb6bc5  corpus/live/r89-foldfix/receipts/premed-nohup-lane.measurements.json
+3e2a6e19d99e5247d7cd3016716a3a282a377996fb34c9b78db6f711bd54c0dc  corpus/live/r89-foldfix/receipts/solo-tree2.measurements.json

@@ -1,0 +1,202 @@
+{
+  "probe": "r77-verifier independent reader matrix",
+  "sever_s": 2.5,
+  "wounds": {
+    "pw_record_kill": {
+      "argv": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink <out>",
+      "signal": "SIGKILL",
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "/tmp/r77v-readers-8s_vajh4/pw_record_kill.wav"
+      ],
+      "file": {
+        "bytes": 479276,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "placeholder_8",
+        "data_declared": 0,
+        "data_actual": 479232,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 119808,
+        "declared_frames": 0,
+        "wave": {
+          "value": null,
+          "verdict": "rejects",
+          "error": "Error"
+        },
+        "ffprobe": {
+          "duration_s": 2.496,
+          "value": 119808,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "0",
+          "value": 0,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "0.000000",
+          "value": 0,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 119808,
+          "verdict": "honest"
+        }
+      }
+    },
+    "pw_record_term": {
+      "argv": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink <out>",
+      "signal": "SIGTERM",
+      "early_exit_code": null,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-readers-8s_vajh4/pw_record_term.wav"
+      ],
+      "file": {
+        "bytes": 479276,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "finalized",
+        "data_declared": 479232,
+        "data_actual": 479232,
+        "data_finalized": true
+      },
+      "readers": {
+        "honest_frames": 119808,
+        "declared_frames": 119808,
+        "wave": {
+          "value": 119808,
+          "verdict": "honest"
+        },
+        "ffprobe": {
+          "duration_s": 2.496,
+          "value": 119808,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "119808",
+          "value": 119808,
+          "verdict": "honest"
+        },
+        "soxi_D": {
+          "raw": "2.496000",
+          "value": 119808,
+          "verdict": "honest"
+        },
+        "sndfile": {
+          "value": 119808,
+          "verdict": "honest"
+        }
+      }
+    },
+    "arecord_bounded_kill": {
+      "argv": "arecord -D hw:0,0 -d 12 -f S16_LE -r 48000 -c 2 -t wav <out>",
+      "signal": "SIGKILL",
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-readers-8s_vajh4/arecord_bounded_kill.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 456044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 2304000,
+        "data_actual": 456000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 114000,
+        "declared_frames": 576000,
+        "wave": {
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 2.375,
+          "value": 114000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "576000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "12.000000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 114000,
+          "verdict": "honest"
+        }
+      }
+    },
+    "ffmpeg_pulse_kill": {
+      "argv": "ffmpeg -nostdin -nostats -v error -f pulse -i alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -t 12 -y <out>",
+      "signal": "SIGKILL",
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [],
+      "file": {
+        "bytes": 262144,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "placeholder_ff",
+        "data_declared": 4294967295,
+        "data_actual": 262066,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 65516,
+        "declared_frames": 1073741823,
+        "wave": {
+          "value": 1073741823,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 1.364938,
+          "value": 65517,
+          "verdict": "inflated"
+        },
+        "soxi_s": {
+          "raw": "0",
+          "value": 0,
+          "verdict": "underreports"
+        },
+        "soxi_D": {
+          "raw": "0.000000",
+          "value": 0,
+          "verdict": "underreports"
+        },
+        "sndfile": {
+          "value": 65516,
+          "verdict": "honest"
+        }
+      }
+    }
+  },
+  "failures": []
+}

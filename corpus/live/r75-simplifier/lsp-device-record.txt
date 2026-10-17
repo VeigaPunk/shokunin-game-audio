@@ -1,0 +1,16 @@
+r75 simplifier — LSP device record (2026-10-14 ~17:07Z, host plazir27)
+
+1) No Python language server answers this file:
+   - binaries absent: pyright, pylsp, jedi-language-server, lsp (command -v all miss)
+   - modules not importable: pygls, jedi (both ImportError)
+2) Sole MCP server `rea` is the Ghidra-bound native-binary device (same as r73/r74):
+   - binary_overview({}) -> {"error":{"code":"target_unavailable","category":"unavailable",
+     "message":"No app is open. Ask the user which app to investigate, then call open_binary
+     with its local path.","retryable":false,...}}
+   - its reference tools (procedure_references, procedure_callers, find_xrefs_to_name, xrefs)
+     serve loaded native binaries, not corpus/fixtures/measure_audio.py (a Python source file)
+   - no Python source/LSP device among its 173 tools (grep: source/bundle/JS tools only)
+
+Consequence: every "no callers / unreferenced" statement in reports/round-75/r75-simplifier.md
+is grep-literal fallback (word-boundary regex over the file), explicitly NOT semantic proof.
+No empty cold-start LSP result was recorded as absence: no server was ever started/queried.

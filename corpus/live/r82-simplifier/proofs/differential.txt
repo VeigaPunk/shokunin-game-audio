@@ -1,0 +1,40 @@
+== D0: patch re-application is byte-identical to the folded copy ==
+PASS  patch -p1 applied clean  (rc=0 patching file corpus/fixtures/measure_audio.py)
+PASS  patched copy == folded copy (sha256)  b8dfaf37cb82a9f9 == b8dfaf37cb82a9f9
+PASS  base copy == committed fixture sha
+
+== D1: imports ==
+PASS  both modules import from scratch (bytecode disabled)
+
+== D2: _ffpw_r82_last_node differential ==
+PASS  D2 linked_main: base == folded  ({"src": "main", "consumers": ["x"], "producers": []})
+PASS  D2 unlinked_main: base == folded  ({"src": "main", "consumers": [], "producers": []})
+PASS  D2 no_main: base == folded  (null)
+PASS  D2 empty: base == folded  (null)
+PASS  D2 removed surface documented: require_linked=True base->None, folded->TypeError (no call site uses it)
+
+== D3: _ffpw_r82_shot differential ==
+PASS  D3 ['true']: dicts identical  (rc=0 cls=None)
+PASS  D3 ['false']: dicts identical  (rc=1 cls=None)
+PASS  D3 ['/bin/echo', 'r82-probe']: dicts identical  (rc=0 cls=None)
+
+== D4: _ffpw_r82_kill_watch differential ==
+PASS  D4 live child: base sigkilled + dead  ({'sigkilled': True})
+PASS  D4 live child: folded sigkilled + dead  ({'sigkilled': True})
+PASS  D4 exited child: identical already_exited  ({'already_exited': 0} / {'already_exited': 0})
+
+== D5: _ffpw_r82_tone_windows differential ==
+PASS  D5 tone file: dicts identical  (mine_windows=5)
+PASS  D5 missing file: dicts identical  ({"exists": false, "bytes": null, "windows": [], "mine_spans": [], "unsupported":)
+
+== D6: AST census re-run on the folded copy ==
+PASS  folded: FFPW_R82_FFPLAY absent
+PASS  folded: _star absent
+PASS  folded: no require_linked anywhere
+PASS  folded: no env_extra on _ffpw_r82_shot
+PASS  folded: no taps on _landed_on
+PASS  folded: no post on _cap
+PASS  folded: kill_watch has 1 call site with 1 positional arg  [(14450, 1, [])]
+PASS  folded: entry-6 legs still omit out_path
+
+RESULT: ALL DIFFERENTIAL CHECKS PASS

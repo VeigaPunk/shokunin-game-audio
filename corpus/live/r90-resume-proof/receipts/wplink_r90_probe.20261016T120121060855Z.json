@@ -1,0 +1,592 @@
+{
+  "probe": "r90a pw-link grammar lattice",
+  "daemon_gate": {
+    "argv": "pactl info",
+    "exit_code": 0,
+    "stdout_bytes": 510,
+    "stderr_bytes": 0,
+    "stdout_token": "Server",
+    "stdout": "Server String: /run/user/1000/pulse/native\nLibrary Protocol Version: 35\nServer Protocol Version: 35\nIs Local: yes\nClient Index: <seq>\nTile Size: 65472\nUser Name: vgpnk\nHost Name: plazir27\nServer Name: PulseAudio (on PipeWire 1.6.8)\nServer Version: 15.0.0\nDefault Sample Specification: float32le 2ch 48000Hz\nDefault Channel Map: front-left,front-right\nDefault Sink: alsa_output.usb-Generic_USB_Audio-0",
+    "stderr": "",
+    "error_class": null,
+    "error_hit": null,
+    "ok": true,
+    "block": null
+  },
+  "contention": {
+    "pw_play": 0,
+    "pw_record": 0,
+    "pw_cat": 0,
+    "pw_loopback": 0,
+    "paplay": 0,
+    "parec": 0,
+    "pacat": 0,
+    "aplay": 0,
+    "arecord": 0,
+    "ffmpeg": 0,
+    "fixture_runs": 0,
+    "own_pid": 1389991,
+    "host_is_quiet": true
+  },
+  "oracle_at_start": {
+    "sink_meta": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "source_meta": null,
+    "sink_pactl": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "source_pactl": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "pactl_exit": 0
+  },
+  "foreign_r90a_nodes": [],
+  "inventory": {
+    "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "sources_count": 2,
+    "monitors_count": 4,
+    "alsa_capture_devices": [
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 0
+      },
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 1
+      },
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 2
+      }
+    ]
+  },
+  "loadavg": [
+    "0.22",
+    "0.32",
+    "0.40"
+  ],
+  "seat": "r90-resume-proof",
+  "pid": 1389991,
+  "fixture_sha256": "91f42214780c573a9f86c7e12b4979dd06df1998c181179c9d834c2e4d98e297",
+  "run_id": "20261016T120042860577Z",
+  "tools": {
+    "pw-link": "/usr/bin/pw-link",
+    "pactl": "/usr/bin/pactl",
+    "pw-dump": "/usr/bin/pw-dump"
+  },
+  "legs": {
+    "k_connect": {
+      "argv": "pw-link r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FL",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 1
+    },
+    "k_bulk": {
+      "argv": "pw-link r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FR r90a_la_1389991:monitor_FR r90a_lb_1389991:playback_FL",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 2
+    },
+    "k_dup": {
+      "argv": "pw-link r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FR",
+      "exit_code": 255,
+      "stdout_bytes": 0,
+      "stderr_bytes": 34,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "failed to link ports: File exists\n",
+      "error_class": "wpstate_link_failed",
+      "error_hit": "failed to link ports: File exists",
+      "own_links": 2
+    },
+    "k_ids": {
+      "rc": 0,
+      "links": [
+        {
+          "link_id": 156,
+          "out": "r90a_la_1389991:monitor_FL",
+          "in": "r90a_lb_1389991:playback_FL"
+        },
+        {
+          "link_id": 175,
+          "out": "r90a_la_1389991:monitor_FL",
+          "in": "r90a_lb_1389991:playback_FR"
+        }
+      ],
+      "n_links": 2,
+      "head": " 221 r90a_la_1389991:monitor_FL\n 156   |->  140 r90a_lb_1389991:playback_FL\n 175   |->  234 r90a_lb_1389991:playback_FR\n 140 r90a_lb_1389991:playback_FL\n 156   |<-  221 r90a_la_1389991:monitor_FL\n 234 r90a_lb_1389991:playback_FR\n 175   |<-  221 r90a_la_1389991:monitor_FL\n",
+      "mine": [
+        156,
+        175
+      ]
+    },
+    "k_two_ids": {
+      "argv": "pw-link -d 156 175",
+      "exit_code": 255,
+      "stdout_bytes": 0,
+      "stderr_bytes": 50,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "failed to unlink ports: No such file or directory\n",
+      "error_class": "wpstate_unlink_failed",
+      "error_hit": "failed to unlink ports: No such file or directory",
+      "own_links": 2
+    },
+    "k_single_id": {
+      "argv": "pw-link -d 156",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 1
+    },
+    "k_reset": {
+      "drop": [
+        {
+          "argv": "pw-link -d r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FL",
+          "exit_code": 255,
+          "stdout_bytes": 0,
+          "stderr_bytes": 50,
+          "stdout_token": "",
+          "stdout": "",
+          "stderr": "failed to unlink ports: No such file or directory\n",
+          "error_class": "wpstate_unlink_failed",
+          "error_hit": "failed to unlink ports: No such file or directory"
+        },
+        {
+          "argv": "pw-link -d r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FR",
+          "exit_code": 0,
+          "stdout_bytes": 0,
+          "stderr_bytes": 0,
+          "stdout_token": "",
+          "stdout": "",
+          "stderr": "",
+          "error_class": null,
+          "error_hit": null
+        }
+      ],
+      "make": [
+        {
+          "argv": "pw-link r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FL",
+          "exit_code": 0,
+          "stdout_bytes": 0,
+          "stderr_bytes": 0,
+          "stdout_token": "",
+          "stdout": "",
+          "stderr": "",
+          "error_class": null,
+          "error_hit": null
+        },
+        {
+          "argv": "pw-link r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FR",
+          "exit_code": 0,
+          "stdout_bytes": 0,
+          "stderr_bytes": 0,
+          "stdout_token": "",
+          "stdout": "",
+          "stderr": "",
+          "error_class": null,
+          "error_hit": null
+        }
+      ],
+      "own_links": 2
+    },
+    "k_bulk_d": {
+      "argv": "pw-link -d r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FL r90a_la_1389991:monitor_FR r90a_lb_1389991:playback_FR",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 1
+    },
+    "k_reversed": {
+      "argv": "pw-link r90a_lb_1389991:playback_FL r90a_la_1389991:monitor_FL",
+      "exit_code": 255,
+      "stdout_bytes": 0,
+      "stderr_bytes": 48,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "failed to link ports: No such file or directory\n",
+      "error_class": "wpstate_link_failed",
+      "error_hit": "failed to link ports: No such file or directory",
+      "own_links": 1
+    },
+    "k_glob": {
+      "argv": "pw-link r90a_la_1389991:monitor_* r90a_lb_1389991:playback_*",
+      "exit_code": 255,
+      "stdout_bytes": 0,
+      "stderr_bytes": 48,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "failed to link ports: No such file or directory\n",
+      "error_class": "wpstate_link_failed",
+      "error_hit": "failed to link ports: No such file or directory",
+      "own_links": 1
+    },
+    "k_w_valid": {
+      "argv": "pw-link -w r90a_la_1389991:monitor_FL r90a_lc_1389991:playback_FL",
+      "exit_code": 0,
+      "signal": null,
+      "killed_at_bound": false,
+      "alive_at_sig": null,
+      "wall_s": 0.01,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stream_samples": [],
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 2
+    },
+    "k_w_missing": {
+      "argv": "pw-link -w r90a_la_1389991z:monitor_FL r90a_lc_1389991:playback_FL",
+      "exit_code": -9,
+      "signal": "SIGKILL",
+      "killed_at_bound": true,
+      "alive_at_sig": null,
+      "wall_s": 3.005,
+      "stdout": "",
+      "stdout_bytes": 0,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stream_samples": [],
+      "error_class": null,
+      "error_hit": null
+    },
+    "k_w_late": {
+      "attempts": [
+        {
+          "argv": "pw-link -w r90a_late_1389991:monitor_FL r90a_lc_1389991:playback_FR",
+          "exit_code": 0,
+          "signal": null,
+          "killed_at_bound": false,
+          "alive_at_sig": null,
+          "wall_s": 1.516,
+          "stdout": "",
+          "stdout_bytes": 0,
+          "stderr": "",
+          "stderr_bytes": 0,
+          "stream_samples": [],
+          "error_class": null,
+          "error_hit": null,
+          "attempt": 1,
+          "late_name": "r90a_late_1389991",
+          "late_load": {
+            "argv": "pactl load-module module-null-sink sink_name=r90a_late_1389991",
+            "exit_code": 0,
+            "stdout_bytes": 10,
+            "stderr_bytes": 0,
+            "stdout_token": "536870916",
+            "stdout": "<mid>\n",
+            "stderr": "",
+            "error_class": null,
+            "error_hit": null
+          },
+          "late_edges": [
+            {
+              "link_id": 213,
+              "out": "r90a_late_1389991:monitor_FL",
+              "in": "r90a_lc_1389991:playback_FR",
+              "out_node": "r90a_late_1389991",
+              "in_node": "r90a_lc_1389991",
+              "props": {
+                "factory.id": 21,
+                "link.input.node": 155,
+                "link.input.port": 160,
+                "link.output.node": 137,
+                "link.output.port": 207,
+                "object.id": 213,
+                "object.linger": true,
+                "object.serial": 166543
+              }
+            }
+          ],
+          "own_links": 2,
+          "branch": "linked"
+        }
+      ],
+      "attempts_run": 1,
+      "branch": "linked",
+      "wall_s": 1.516,
+      "exit_code": 0,
+      "stderr": "",
+      "error_class": null,
+      "late_load": {
+        "argv": "pactl load-module module-null-sink sink_name=r90a_late_1389991",
+        "exit_code": 0,
+        "stdout_bytes": 10,
+        "stderr_bytes": 0,
+        "stdout_token": "536870916",
+        "stdout": "<mid>\n",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null
+      },
+      "late_edges": [
+        {
+          "link_id": 213,
+          "out": "r90a_late_1389991:monitor_FL",
+          "in": "r90a_lc_1389991:playback_FR",
+          "out_node": "r90a_late_1389991",
+          "in_node": "r90a_lc_1389991",
+          "props": {
+            "factory.id": 21,
+            "link.input.node": 155,
+            "link.input.port": 160,
+            "link.output.node": 137,
+            "link.output.port": 207,
+            "object.id": 213,
+            "object.linger": true,
+            "object.serial": 166543
+          }
+        }
+      ],
+      "own_links": 2,
+      "linked_seen": true,
+      "refused_seen": false
+    },
+    "k_p_foo": {
+      "argv": "pw-link -p {\"foo\":\"bar\"} r90a_la_1389991:monitor_FL r90a_lb_1389991:playback_FL",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": 3,
+      "foo_links": 1
+    },
+    "k_p_passive": {
+      "argv": "pw-link -p {\"link.passive\":true} r90a_la_1389991:monitor_FR r90a_lb_1389991:playback_FR",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "own_links": [
+        {
+          "link_id": 161,
+          "out": "r90a_la_1389991:monitor_FR",
+          "in": "r90a_lb_1389991:playback_FR",
+          "out_node": "r90a_la_1389991",
+          "in_node": "r90a_lb_1389991",
+          "props": {
+            "factory.id": 21,
+            "link.input.node": 107,
+            "link.input.port": 234,
+            "link.output.node": 97,
+            "link.output.port": 254,
+            "object.id": 161,
+            "object.linger": true,
+            "object.serial": 166549
+          }
+        }
+      ]
+    },
+    "k_list_slot": {
+      "argv": "pw-link -i r90a_lb_1389991:playback_*",
+      "exit_code": 0,
+      "stdout_bytes": 815,
+      "stderr_bytes": 0,
+      "stdout_token": "Midi-Bridge:Midi",
+      "stdout": "Midi-Bridge:Midi Through: Port-0 (playback)\nbluez_midi.server:in\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:playback_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:playback_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:playback_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink:playback_FR\nr90a_la_1389991:playback_FL\nr90a_la_1389991:playback_FR\nr90a_lb_1389991:playback_FL\nr90a_lb_1389991:playback_FR\nr90a_lc_1389991:playback_FL\nr90a_lc_1389991:playback_FR\nr90a_late_1389991:playback_FL\nr90a_late_1389991:playback_FR\n",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "n_rows": 18
+    },
+    "k_list_filtered": {
+      "argv": "pw-link -i  r90a_lb_1389991:playback_*",
+      "exit_code": 0,
+      "stdout_bytes": 56,
+      "stderr_bytes": 0,
+      "stdout_token": "r90a_lb_1389991:playback_FL",
+      "stdout": "r90a_lb_1389991:playback_FL\nr90a_lb_1389991:playback_FR\n",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "n_rows": 2
+    },
+    "k_l_pattern": {
+      "argv": "pw-link -l r90a_zzz_nomatch",
+      "exit_code": 0,
+      "stdout_bytes": 279,
+      "stderr_bytes": 0,
+      "stdout_token": "r90a_lb_1389991:playback_FL",
+      "stdout": "r90a_lb_1389991:playback_FL\n  |<- r90a_la_1389991:monitor_FL\nr90a_lb_1389991:playback_FR\n  |<- r90a_la_1389991:monitor_FL\n  |<- r90a_la_1389991:monitor_FR\nr90a_lc_1389991:playback_FL\n  |<- r90a_la_1389991:monitor_FL\nr90a_lc_1389991:playback_FR\n  |<- r90a_late_1389991:monitor_FL\n",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null
+    },
+    "k_o_pattern": {
+      "argv": "pw-link -o r90a_la_1389991:monitor_*",
+      "exit_code": 0,
+      "stdout_bytes": 54,
+      "stderr_bytes": 0,
+      "stdout_token": "r90a_la_1389991:monitor_FL",
+      "stdout": "r90a_la_1389991:monitor_FL\nr90a_la_1389991:monitor_FR\n",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "n_rows": 2
+    },
+    "k_t": {
+      "argv": "pw-link -t",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "out_len": 0
+    },
+    "k_t_live": {
+      "argv": "pw-link -t",
+      "exit_code": 0,
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "out_len": 0,
+      "stream_alive": true
+    },
+    "k_m": {
+      "argv": "pw-link -m",
+      "exit_code": 255,
+      "stdout_bytes": 0,
+      "stderr_bytes": 47,
+      "stdout_token": "",
+      "stdout": "",
+      "stderr": "missing output and input port names to connect\n",
+      "error_class": "wpstate_missing_ports",
+      "error_hit": "missing output and input port names to connect"
+    },
+    "k_m_stream": {
+      "argv": "pw-link -m -l",
+      "exit_code": -9,
+      "signal": "SIGKILL",
+      "killed_at_bound": true,
+      "alive_at_sig": null,
+      "wall_s": 2.007,
+      "stdout": "+r90a_la_1389991:monitor_FL\n+  |-> r90a_lb_1389991:playback_FR\n+  |-> r90a_lc_1389991:playback_FL\n+  |-> r90a_lb_1389991:playback_FL\n+r90a_la_1389991:monitor_FR\n+  |-> r90a_lb_1389991:playback_FR\n+r90a_lb_1389991:playback_FL\n+  |<- r90a_la_1389991:monitor_FL\n+  |<- r90a_1389991_plw:output_FL\n+r90a_l",
+      "stdout_bytes": 743,
+      "stderr": "",
+      "stderr_bytes": 0,
+      "stream_samples": [],
+      "error_class": null,
+      "error_hit": null
+    },
+    "k_v": {
+      "argv": "pw-link -v -l",
+      "exit_code": 0,
+      "stdout_bytes": 1357,
+      "stderr_bytes": 0,
+      "stdout_token": "r90a_la_1389991:monitor_FL",
+      "stdout": "r90a_la_1389991:monitor_FL\n  r90a_la_1389991:monitor_0\n  r90a_la_1389991 Audio/Sink sink:monitor_FL\n  |-> r90a_lb_1389991:playback_FR\n  |-> r90a_lc_1389991:playback_FL\n  |-> r90a_lb_1389991:playback_FL\nr90a_la_1389991:monitor_FR\n  r90a_la_1389991:monitor_1\n  r90a_la_1389991 Audio/Sink sink:monitor_FR\n  |-> r90a_lb_1389991:playback_FR\nr90a_lb_1389991:playback_FL\n  r90a_lb_1389991:playback_0\n  r90a_lb_1389991 Audio/Sink sink:playback_FL\n  |<- r90a_la_1389991:monitor_FL\n  |<- r90a_1389991_plw:output_FL\nr90a_lb_1389991:playback_FR\n  r90a_lb_1389991:playback_1\n  r90a_lb_1389991 Audio/Sink sink:playback_FR\n  |<- r90a_la_1389991:monitor_FL\n  |<- r90a_la_1389991:monitor_FR\n  |<- r90a_1389991_plw:output_FR\nr90a_lc_1389991:playback_FL\n  r90a_lc_1389991:playback_0\n  r90a_lc_1389991 Audio/Sink sink:playback_FL\n  |<- r90a_la_1389991:monitor_FL\nr90a_lc_1389991:playback_FR\n  r90a_lc_1389991:playback_1\n  r90a_lc_1389991 Audio/Sink sink:playback_FR\n  |<- r90a_late_1389991:monitor_FL\nr90a_late_1389991:monitor_FL\n  r90a_late_1389991:monitor_0\n  r90a_late_1389991 Audio/Sink sink:monitor_FL\n  |-> r90a_lc_1389991:playback_FR\nr90a_1389991_plw:output_FL\n  r90a_1389991_plw:output_0\n  r90a_1389991_plw:outpu",
+      "stderr": "",
+      "error_class": null,
+      "error_hit": null,
+      "n_rows": 36
+    }
+  },
+  "legs_measured": 24,
+  "measured": true,
+  "unloads": {
+    "r90a_la_1389991": {
+      "verified_index": 536870923,
+      "captured": 536870923,
+      "field": "sink_name",
+      "value": "r90a_la_1389991",
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    },
+    "r90a_lb_1389991": {
+      "verified_index": 536870928,
+      "captured": 536870928,
+      "field": "sink_name",
+      "value": "r90a_lb_1389991",
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    },
+    "r90a_lc_1389991": {
+      "verified_index": 536870926,
+      "captured": 536870926,
+      "field": "sink_name",
+      "value": "r90a_lc_1389991",
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    },
+    "r90a_late_1389991": {
+      "verified_index": 536870916,
+      "captured": 536870916,
+      "field": "sink_name",
+      "value": "r90a_late_1389991",
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    }
+  },
+  "own_modules_after": [],
+  "sinks_censused": [
+    "r90a_la_1389991",
+    "r90a_lb_1389991",
+    "r90a_lc_1389991",
+    "r90a_late_1389991"
+  ],
+  "sinks_gone": {
+    "r90a_la_1389991": true,
+    "r90a_lb_1389991": true,
+    "r90a_lc_1389991": true,
+    "r90a_late_1389991": true
+  },
+  "own_nodes_after": [],
+  "store_at_exit": {
+    "reader": "ok",
+    "rows": 9484,
+    "bytes": 1375962,
+    "own_keys": 5,
+    "family_rows": 384,
+    "family_rows_by_pid": 14
+  },
+  "store_residue": {
+    "family_rows": 384,
+    "family_rows_by_pid": 14,
+    "own_keys": 5,
+    "rows": 9484,
+    "ceiling": 1000
+  },
+  "failures": []
+}

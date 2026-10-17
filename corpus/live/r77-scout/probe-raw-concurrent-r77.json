@@ -1,0 +1,313 @@
+{
+ "concurrent": {
+  "BASELINE_no_playback": {
+   "cap_bytes": 192044,
+   "cap_nonzero_frac": 0.8777,
+   "cap_payload_bytes": 192000,
+   "cap_peak": 16384,
+   "rc": 1
+  },
+  "TWO pwrecord on same monitor": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc5.wav"
+   ],
+   "cap_bytes": 401452,
+   "cap_nonzero_frac": 0.7388,
+   "cap_payload_bytes": 401408,
+   "cap_peak": 16384,
+   "cap_rc": 1,
+   "leg": "TWO pwrecord on same monitor",
+   "play_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc5b.wav"
+   ],
+   "play_err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc5b.wav",
+   "play_rc": 1,
+   "wall_s": 2.13
+  },
+  "paplay_into_sink + pwrecord_monitor": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc2.wav"
+   ],
+   "cap_bytes": 401452,
+   "cap_nonzero_frac": 0.8906,
+   "cap_payload_bytes": 401408,
+   "cap_peak": 16384,
+   "cap_rc": 1,
+   "leg": "paplay_into_sink + pwrecord_monitor",
+   "play_argv": [
+    "paplay",
+    "--device",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/tone_1k_2s.wav"
+   ],
+   "play_err": "",
+   "play_rc": 0,
+   "wall_s": 2.13
+  },
+  "pwcat_play + ffmpeg_monitor": {
+   "cap_argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-t",
+    "2",
+    "-y",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc4.wav"
+   ],
+   "cap_bytes": 386302,
+   "cap_nonzero_frac": 0.8693,
+   "cap_payload_bytes": 386258,
+   "cap_peak": 26230,
+   "cap_rc": 255,
+   "leg": "pwcat_play + ffmpeg_monitor",
+   "play_argv": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/tone_1k_2s.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0,
+   "wall_s": 2.24
+  },
+  "pwcat_play + parec_monitor": {
+   "cap_argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_bytes": 0,
+   "cap_nonzero_frac": null,
+   "cap_payload_bytes": 0,
+   "cap_peak": null,
+   "cap_rc": 0,
+   "leg": "pwcat_play + parec_monitor",
+   "play_argv": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/tone_1k_2s.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0,
+   "wall_s": 2.12
+  },
+  "pwcat_play_into_sink + pwrecord_monitor": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/cc1.wav"
+   ],
+   "cap_bytes": 409644,
+   "cap_nonzero_frac": 0.9079,
+   "cap_payload_bytes": 409600,
+   "cap_peak": 32768,
+   "cap_rc": 1,
+   "leg": "pwcat_play_into_sink + pwrecord_monitor",
+   "play_argv": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j/tone_1k_2s.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0,
+   "wall_s": 2.13
+  }
+ },
+ "probe": "raw-concurrent-r77",
+ "raw": {
+  "parec_raw_KILL": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--raw"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "",
+   "leg": "parec_raw_KILL",
+   "nbytes": 65536,
+   "nonzero_frac": 0.0,
+   "peak": 0,
+   "rc": -9,
+   "sha": "de2f256064a0af79",
+   "signal": "KILL",
+   "wall_s": 2.003
+  },
+  "parec_raw_TERM": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--raw"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "",
+   "leg": "parec_raw_TERM",
+   "nbytes": 65536,
+   "nonzero_frac": 0.0,
+   "peak": 0,
+   "rc": 0,
+   "sha": "de2f256064a0af79",
+   "signal": "TERM",
+   "wall_s": 2.051
+  },
+  "parec_raw_mon_KILL": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "",
+   "leg": "parec_raw_mon_KILL",
+   "nbytes": 65536,
+   "nonzero_frac": 0.0,
+   "peak": 0,
+   "rc": -9,
+   "sha": "de2f256064a0af79",
+   "signal": "KILL",
+   "wall_s": 2.003
+  },
+  "parec_raw_mon_TERM": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "",
+   "leg": "parec_raw_mon_TERM",
+   "nbytes": 65536,
+   "nonzero_frac": 0.1021,
+   "peak": 32768,
+   "rc": 0,
+   "sha": "95340987e9bdc5c7",
+   "signal": "TERM",
+   "wall_s": 1.989
+  },
+  "pwcat_raw_KILL": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--raw",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "  -c, --midi-clip                       MIDI clip mode",
+   "leg": "pwcat_raw_KILL",
+   "nbytes": 0,
+   "nonzero_frac": null,
+   "peak": null,
+   "rc": 1,
+   "sha": "e3b0c44298fc1c14",
+   "signal": "TERM",
+   "wall_s": 0.002
+  },
+  "pwcat_raw_TERM": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--raw",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "  -c, --midi-clip                       MIDI clip mode",
+   "leg": "pwcat_raw_TERM",
+   "nbytes": 0,
+   "nonzero_frac": null,
+   "peak": null,
+   "rc": 1,
+   "sha": "e3b0c44298fc1c14",
+   "signal": "TERM",
+   "wall_s": 0.001
+  },
+  "pwcat_raw_stdout_KILL": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "  -c, --midi-clip                       MIDI clip mode",
+   "leg": "pwcat_raw_stdout_KILL",
+   "nbytes": 0,
+   "nonzero_frac": null,
+   "peak": null,
+   "rc": 1,
+   "sha": "e3b0c44298fc1c14",
+   "signal": null,
+   "wall_s": 0.001
+  },
+  "pwcat_raw_stdout_TERM": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "cap_hit": false,
+   "err_class": null,
+   "err_tail": "  -c, --midi-clip                       MIDI clip mode",
+   "leg": "pwcat_raw_stdout_TERM",
+   "nbytes": 0,
+   "nonzero_frac": null,
+   "peak": null,
+   "rc": 1,
+   "sha": "e3b0c44298fc1c14",
+   "signal": "TERM",
+   "wall_s": 0.002
+  },
+  "pwrecord_raw_exact_n48000": {
+   "bytes": 192000,
+   "err": "",
+   "expected": 192000,
+   "rc": 1
+  }
+ },
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ncw66s7j",
+ "tone_bytes": 384044
+}

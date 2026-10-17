@@ -1,0 +1,11 @@
+census before: []
+{"test": "combine slaves=<real>", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [null], "node.description": "r80c_cs_pos", "unload_rc": 0, "unload_err": ""}
+{"test": "combine sinks=<real>", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [null], "node.description": "r80c_cs_snk", "unload_rc": 0, "unload_err": ""}
+{"test": "combine slaves=<nonexistent>", "rc": 1, "stderr": "Failure: Input/Output error", "module_id": null}
+{"test": "combine slaves=@DEFAULT_SINK@", "rc": 1, "stderr": "Failure: Input/Output error", "module_id": null}
+{"test": "null-sink (no rate)", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [{"default": 48000, "min": 1, "max": 2147483647}], "node.description": "r80c_nr_def Audio/Sink sink", "unload_rc": 0, "unload_err": ""}
+{"test": "null-sink rate=44100", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [44100], "node.description": "r80c_nr_441 Audio/Sink sink", "unload_rc": 0, "unload_err": ""}
+{"test": "null-sink rate=768001", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [768001], "node.description": "r80c_nr_big Audio/Sink sink", "unload_rc": 0, "unload_err": ""}
+{"test": "null-sink description=R80CMARKERZZZ", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [{"default": 48000, "min": 1, "max": 2147483647}], "node.description": "r80c_nmk Audio/Sink sink", "marker_props": {"description": "R80CMARKERZZZ"}, "unload_rc": 0, "unload_err": ""}
+{"test": "null-sink foo.bar / totally.unknown.key", "rc": 0, "stderr": "", "module_id": 536870921, "enum_rates": [{"default": 48000, "min": 1, "max": 2147483647}], "node.description": "r80c_unk2 Audio/Sink sink", "marker_props": {"foo.bar": "R80FOOBAR", "totally.unknown.key": "R80UNK42"}, "unload_rc": 0, "unload_err": ""}
+census after: []

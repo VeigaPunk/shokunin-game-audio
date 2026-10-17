@@ -1,0 +1,67 @@
+# (a) _paplay_fields with/without the pa_context_connect fallback
+rv-pp-xdg.stderr: bytes=87 winner_idx=1 full=(None, 'Connection failure: Connection refused') t1=(None, 'Connection failure: Connection refused') identical=True
+rv-pp-pulseserver.stderr: bytes=39 winner_idx=1 full=(None, 'Connection failure: Connection refused') t1=(None, 'Connection failure: Connection refused') identical=True
+pp2.err: bytes=87 winner_idx=1 full=(None, 'Connection failure: Connection refused') t1=(None, 'Connection failure: Connection refused') identical=True
+pp3.err: bytes=39 winner_idx=1 full=(None, 'Connection failure: Connection refused') t1=(None, 'Connection failure: Connection refused') identical=True
+np-paplay_v_invalid.stderr: bytes=27 winner_idx=3 full=(None, 'Failed to open audio file.') t1=(None, 'Failed to open audio file.') identical=True
+rv-paplay-noise.stderr: bytes=27 winner_idx=3 full=(None, 'Failed to open audio file.') t1=(None, 'Failed to open audio file.') identical=True
+np-paplay_v_valid.stderr: bytes=700 winner_idx=None full=('s16le 1ch 44100Hz', None) t1=('s16le 1ch 44100Hz', None) identical=True
+ALL IDENTICAL: True
+
+# (b) _PACAT_RACY_TAIL alternatives vs captured lines
+  line 0: "Opening a playback stream with sample specification 's16le 1ch 44100Hz' and channel map 'mono'." -> matches []
+  line 1: 'Connection established.\x1b[K' -> matches []
+  line 2: 'Stream successfully created.' -> matches []
+  line 3: 'Buffer metrics: maxlength=4194304, tlength=176400, prebuf=174638, minreq=1764' -> matches []
+  line 4: "Using sample spec 's16le 1ch 44100Hz', channel map 'mono'." -> matches []
+  line 5: 'Connected to device alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink (index: 59, suspended: no).' -> matches ['Connected to device.*']
+  line 6: 'Stream started.\x1b[K' -> matches ['Stream started..*']
+  line 7: 'Time: 0.000 sec; Latency: 200000 usec.        ' -> matches ['Time:.*Latency:.*']
+  line 8: 'Time: 0.032 sec; Latency: 167969 usec.        ' -> matches ['Time:.*Latency:.*']
+  line 9: 'Time: 0.075 sec; Latency: 125339 usec.        ' -> matches ['Time:.*Latency:.*']
+  line10: 'Time: 0.117 sec; Latency: 82623 usec.        ' -> matches ['Time:.*Latency:.*']
+  line11: 'Time: 0.160 sec; Latency: 39980 usec.        ' -> matches ['Time:.*Latency:.*']
+  line12: 'Playback stream drained.' -> matches ['Playback stream drained.']
+  line13: 'Draining connection to server.' -> matches ['Draining connection to server.']
+
+# (c) tail preview on the captured valid surface
+  landed     tail='Time: 0.160 sec; Latency: 39980 usec.'
+  re-anchored tail="Using sample spec <input>', channel map <input>'."
+
+# (d) receipt paplay tails (committed landed receipt)
+  ('consumer2_dec_act_r75_probe', 'fifo_path', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_act_r75_probe', 'file', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_act_r75_probe', 'redirected_fd', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_act_r75_probe', 'stdin_pipe', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_hcom_r75_probe', 'fifo_path', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_hcom_r75_probe', 'file', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_hcom_r75_probe', 'redirected_fd', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_dec_hcom_r75_probe', 'stdin_pipe', 'Time: 0.000 sec; Latency: 34750 usec.')
+  ('consumer2_extsuffix_bin_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_extsuffix_bin_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_extsuffix_bin_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_extsuffix_bin_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_extsuffix_f32_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_extsuffix_f32_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_extsuffix_f32_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_extsuffix_f32_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_extsuffix_snd_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_extsuffix_snd_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_extsuffix_snd_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_extsuffix_snd_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_extsuffix_txw_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_extsuffix_txw_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_extsuffix_txw_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_extsuffix_txw_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_extsuffix_wav_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_extsuffix_wav_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_extsuffix_wav_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_extsuffix_wav_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_posttable_nomatch_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_posttable_nomatch_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_posttable_nomatch_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_posttable_nomatch_r75_probe', 'stdin_pipe', 'Failed to open audio file.')
+  ('consumer2_txw_piperefuse_r75_probe', 'fifo_path', 'Failed to open audio file.')
+  ('consumer2_txw_piperefuse_r75_probe', 'file', 'Failed to open audio file.')
+  ('consumer2_txw_piperefuse_r75_probe', 'redirected_fd', 'Failed to open audio file.')
+  ('consumer2_txw_piperefuse_r75_probe', 'stdin_pipe', 'Failed to open audio file.')

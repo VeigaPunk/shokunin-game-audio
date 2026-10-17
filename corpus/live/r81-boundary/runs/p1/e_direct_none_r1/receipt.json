@@ -1,0 +1,176 @@
+{
+ "name": "e_direct_none",
+ "stage": "p1",
+ "rep": 1,
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r81_bnd_cap",
+  "target-object=gst_r81_bnd_prod",
+  "stream-properties=props,stream.capture.sink=false",
+  "on-disconnect=none",
+  "num-buffers=1000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-boundary/tmp/p1_cap.wav"
+ ],
+ "env_extra": null,
+ "rc": 255,
+ "signal": null,
+ "killed": null,
+ "elapsed_s": 5.014,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+  "Additional debug info:",
+  "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0",
+  "ERROR: pipeline doesn't want to preroll."
+ ],
+ "err_class": "target_not_found",
+ "err_hit": "stream error: target not found",
+ "wall_cap": 4.0,
+ "byte_cap": 4194304,
+ "producers": [
+  {
+   "name": "prod",
+   "argv": [
+    "gst-launch-1.0",
+    "-q",
+    "audiotestsrc",
+    "wave=sine",
+    "freq=1000",
+    "num-buffers=200000",
+    "!",
+    "audio/x-raw,format=S16LE,rate=48000,channels=2",
+    "!",
+    "pipewiresink",
+    "client-name=gst_r81_bnd_prod",
+    "target-object=gst_r81_bndns"
+   ],
+   "at": 0.0,
+   "kill_at": 1.5,
+   "started": 0.001,
+   "ended": null,
+   "killed": null,
+   "rc": -9,
+   "stderr_head": []
+  }
+ ],
+ "actions": [],
+ "sizes": [
+  [
+   0.0,
+   null
+  ]
+ ],
+ "samples": [],
+ "post": {
+  "links": [
+   "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+   "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+   "output.r79lb_1287380_b10_autoconnect_off:output_FL -> r79lb_ns_b_1287380:playback_FL",
+   "output.r79lb_1287380_b10_autoconnect_off:output_FR -> r79lb_ns_b_1287380:playback_FR",
+   "r79lb_1287380_b10_autoconnect_off_feed:output_FL -> r79lb_ns_a_1287380:playback_FL",
+   "r79lb_1287380_b10_autoconnect_off_feed:output_FR -> r79lb_ns_a_1287380:playback_FR",
+   "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b10_autoconnect_off_tap:input_FL",
+   "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b10_autoconnect_off_tap:input_FR"
+  ],
+  "mine": {
+   "gst_r81_bndns": {
+    "class": "Audio/Sink",
+    "serial": 13859,
+    "state": "idle",
+    "props": {
+     "client.id": 156,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_bndns",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_bndns",
+     "object.id": 84,
+     "object.serial": 13859,
+     "pulse.module.id": 536870920
+    }
+   },
+   "gst_r81_auth_1291125": {
+    "class": "Audio/Sink",
+    "serial": 13949,
+    "state": "running",
+    "props": {
+     "client.id": 104,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_auth_1291125",
+     "object.id": 130,
+     "object.serial": 13949,
+     "pulse.module.id": 536870917
+    }
+   },
+   "gst-launch-1.0": {
+    "class": "Stream/Output/Audio",
+    "serial": 13959,
+    "state": "running",
+    "props": {
+     "client.id": 89,
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst-launch-1.0",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst-launch-1.0",
+     "node.driver-id": 130,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst-launch-1.0",
+     "node.rate": "1/48000",
+     "node.target": "gst_r81_auth_1291125",
+     "node.want-driver": true,
+     "object.id": 112,
+     "object.register": false,
+     "object.serial": 13959,
+     "stream.is-live": true,
+     "target.object": "gst_r81_auth_1291125"
+    }
+   }
+  },
+  "seat": [
+   [
+    "gst_r81_bndns#13859",
+    "Audio/Sink",
+    "idle"
+   ]
+  ],
+  "phys": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+  ],
+  "node_count": 19,
+  "clients": 16
+ },
+ "out": {
+  "exists": true,
+  "bytes": 0,
+  "riff": "short",
+  "data": null,
+  "frames": null,
+  "ch": null,
+  "rate": null,
+  "bits": null
+ },
+ "out_peak": null,
+ "kept": null,
+ "note": "true peer death, on-disconnect=none"
+}

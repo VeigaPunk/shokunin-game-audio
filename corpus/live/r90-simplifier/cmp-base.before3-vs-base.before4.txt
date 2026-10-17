@@ -1,0 +1,59 @@
+A /home/vgpnk/Projects/shokunin/r90s/base/corpus/live/runs/20261016T100744523490Z-wpstate-r90
+B /home/vgpnk/Projects/shokunin/r90s/base/corpus/live/runs/20261016T101234524956Z-wpstate-r90
+
+== wpformat_r90_probe: failures A=[] B=[] legs A=6 B=6 law-projection IDENTICAL
+
+== wplink_r90_probe: failures A=[] B=[] legs A=24 B=24 law-projection DIFFERS
+--- A
++++ B
+@@ -145,2 +145,13 @@
+      "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FL",
++     "error_class": null,
++     "error_hit": null,
++     "exit_code": 0,
++     "stderr": "",
++     "stderr_bytes": 0,
++     "stdout": "",
++     "stdout_bytes": 0,
++     "stdout_token": ""
++    },
++    {
++     "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FR",
+      "error_class": "wpstate_unlink_failed",
+@@ -150,13 +161,2 @@
+      "stderr_bytes": 50,
+-     "stdout": "",
+-     "stdout_bytes": 0,
+-     "stdout_token": ""
+-    },
+-    {
+-     "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FR",
+-     "error_class": null,
+-     "error_hit": null,
+-     "exit_code": 0,
+-     "stderr": "",
+-     "stderr_bytes": 0,
+      "stdout": "",
+   ... 0 more diff lines
+
+== wpstate_pmod_r90_probe: failures A=['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id'] B=['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id'] legs A=15 B=15 law-projection IDENTICAL
+
+== wpstate_store_r90_probe: failures A=[] B=['w_props: the pw-cli Props write landed at 3.282s, outside the coalescing band', 'w_optout_stream: the control stream wrote no row in the same window — the opt-out leg is vacuous'] legs A=15 B=15 law-projection DIFFERS
+--- A
++++ B
+@@ -1,3 +1,6 @@
+ {
+- "failures": [],
++ "failures": [
++  "w_props: the pw-cli Props write landed at 3.282s, outside the coalescing band",
++  "w_optout_stream: the control stream wrote no row in the same window \u2014 the opt-out leg is vacuous"
++ ],
+  "key_pre": {
+@@ -114,3 +117,3 @@
+    "control_key": "<foreign><pid>n<nonce>_y",
+-   "control_row_present": true,
++   "control_row_present": false,
+    "key": "<foreign><pid>n<nonce>_x",
+   ... 0 more diff lines
+
+VERDICT: DIFFERS (see the hunks above)

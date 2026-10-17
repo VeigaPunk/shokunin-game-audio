@@ -1,0 +1,281 @@
+# receipts: 4
+#   corpus/live/runs/20261015T160033687459Z-module-r80/measurements.json
+#   corpus/live/runs/20261015T161018039047Z-module-r80/measurements.json
+#   corpus/live/r81-baseline/runs-a/module-r80.receipt.json
+#   corpus/live/r81-baseline/runs-b/module-r80.receipt.json
+# total leaf paths: 1789  normalized-key collisions: 0
+
+case                                             exact   volat    jit   sem  added   rem  total
+TOP:ambience_family_comparisons                     10       0      0     0      0     0     10
+TOP:distinctness                                    20       0      0     0      0     0     20
+TOP:impact_family_comparisons                       10       0      0     0      0     0     10
+TOP:mode                                             1       0      0     0      0     0      1
+TOP:movement_family_comparisons                     10       0      0     0      0     0     10
+TOP:sections                                        44       0      0     0      0     0     44
+TOP:thresholds                                      47       0      0     0      0     0     47
+TOP:ui_family_comparisons                           10       0      0     0      0     0     10
+ambience                                            13       0      0     0      0     0     13
+ambience_alt                                        13       0      0     0      0     0     13
+ambience_third                                      13       0      0     0      0     0     13
+impact                                              13       0      0     0      0     0     13
+impact_alt                                          13       0      0     0      0     0     13
+impact_third                                        13       0      0     0      0     0     13
+module_args_lattice_r80_probe                      202      22     29    17      0     0    270
+module_topology_r80_probe                          678      36    402    30      0     0   1146
+movement                                            13       0      0     0      0     0     13
+movement_alt                                        13       0      0     0      0     0     13
+movement_third                                      13       0      0     0      0     0     13
+stem                                                13       0      0     0      0     0     13
+stem_layer                                          13       0      0     0      0     0     13
+stem_layer_alt                                      13       0      0     0      0     0     13
+stem_layer_third                                    13       0      0     0      0     0     13
+stem_sections                                       13       0      0     0      0     0     13
+ui                                                  13       0      0     0      0     0     13
+ui_alt                                              13       0      0     0      0     0     13
+ui_third                                            13       0      0     0      0     0     13
+TOTAL                                             1253      58    431    47      0     0   1789
+
+## jitter detail (numeric, non-bool):
+  module_args_lattice_r80_probe: 29 jitter paths
+    /measurements/module_args_lattice_r80_probe/contention/aplay
+      0..1 (rel 1)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/load/module_id
+      536870918..536870939 (rel 3.912e-08)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_id
+      83..237 (rel 0.6498)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_serial
+      8048..105116 (rel 0.9234)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/pulse_module_id
+      536870918..536870939 (rel 3.912e-08)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node_waited_s
+      0.007..0.008 (rel 0.125)
+    … 23 more
+  module_topology_r80_probe: 402 jitter paths
+    /measurements/module_topology_r80_probe/contention/aplay
+      0..1 (rel 1)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/edge_a_waited_s
+      0.104..0.106 (rel 0.01887)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/index
+      8278..105283 (rel 0.9214)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/sink
+      8142..105210 (rel 0.9226)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_spans[0][1]
+      5.1..5.2 (rel 0.01923)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_windows
+      45..46 (rel 0.02174)
+    … 396 more
+
+## semantic detail (reportable instability):
+  module_args_lattice_r80_probe: 17 semantic paths
+    /measurements/module_args_lattice_r80_probe/contention/host_is_quiet   [CODE-DELTA(ref-pair stable, fresh-pair stable, pairs differ)]
+      [0] False
+      [1] False
+      [2] True
+      [3] True
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/error_class   [ref-pair noise]
+      [0] 'pa_no_such_entity'
+      [1] '<absent>'
+      [2] '<absent>'
+      [3] '<absent>'
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/exit_code   [ref-pair noise]
+      [0] 1
+      [1] '<absent>'
+      [2] '<absent>'
+      [3] '<absent>'
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/stderr_tail   [ref-pair noise]
+      [0] 'Failure: No such entity'
+      [1] '<absent>'
+      [2] '<absent>'
+      [3] '<absent>'
+    /measurements/module_args_lattice_r80_probe/legs/a5_linger_orphan/re_unload/stdout_tail   [ref-pair noise]
+      [0] None
+      [1] '<absent>'
+      [2] '<absent>'
+      [3] '<absent>'
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a1/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a1/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a2/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a2/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a3/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a3/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a4/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a4/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a5/module_id   [mixed/noisy]
+      [0] '<absent>'
+      [1] 536870930
+      [2] 536870918
+      [3] 536870921
+    /measurements/module_args_lattice_r80_probe/unload_own/r80md_<N>_a5/skipped   [ref-pair noise]
+      [0] '<absent>'
+      [1] 'already_unloaded'
+      [2] 'already_unloaded'
+      [3] 'already_unloaded'
+  module_topology_r80_probe: 30 semantic paths
+    /measurements/module_topology_r80_probe/contention/host_is_quiet   [CODE-DELTA(ref-pair stable, fresh-pair stable, pairs differ)]
+      [0] False
+      [1] False
+      [2] True
+      [3] True
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/edges_while_running[0][0]   [mixed/noisy]
+      [0] 'r80md_1257780_lnk_a:monitor_FL'
+      [1] 'r80md_1351823_lnk_a:monitor_FR'
+      [2] 'r80md_1243214_lnk_a:monitor_FR'
+      [3] 'r80md_1382345_lnk_a:monitor_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/edges_while_running[0][1]   [mixed/noisy]
+      [0] 'r80md_1257780_lnk_b:playback_FL'
+      [1] 'r80md_1351823_lnk_b:playback_FR'
+      [2] 'r80md_1243214_lnk_b:playback_FR'
+      [3] 'r80md_1382345_lnk_b:playback_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/in   [mixed/noisy]
+      [0] 'r80md_1257780_lnk_b:playback_FL'
+      [1] 'r80md_1351823_lnk_b:playback_FR'
+      [2] 'r80md_1243214_lnk_b:playback_FR'
+      [3] 'r80md_1382345_lnk_b:playback_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/out   [mixed/noisy]
+      [0] 'r80md_1257780_lnk_a:monitor_FL'
+      [1] 'r80md_1351823_lnk_a:monitor_FR'
+      [2] 'r80md_1243214_lnk_a:monitor_FR'
+      [3] 'r80md_1382345_lnk_a:monitor_FR'
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/windows[51]/mine   [mixed/noisy]
+      [0] False
+      [1] True
+      [2] True
+      [3] False
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_a/error_class   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_a/exit_code   [ref-pair noise]
+      [0] '<absent>'
+      [1] 0
+      [2] 0
+      [3] 0
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_a/stderr_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_a/stdout_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_b/error_class   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_b/exit_code   [ref-pair noise]
+      [0] '<absent>'
+      [1] 0
+      [2] 0
+      [3] 0
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_b/stderr_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_dm_b/stdout_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_a/error_class   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_a/exit_code   [ref-pair noise]
+      [0] '<absent>'
+      [1] 0
+      [2] 0
+      [3] 0
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_a/stderr_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_a/stdout_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_b/error_class   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_b/exit_code   [ref-pair noise]
+      [0] '<absent>'
+      [1] 0
+      [2] 0
+      [3] 0
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_b/stderr_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_lnk_b/stdout_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_mv_a/error_class   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_mv_a/exit_code   [ref-pair noise]
+      [0] '<absent>'
+      [1] 0
+      [2] 0
+      [3] 0
+    /measurements/module_topology_r80_probe/unload_own/r80md_<N>_mv_a/stderr_tail   [ref-pair noise]
+      [0] '<absent>'
+      [1] None
+      [2] None
+      [3] None
+    … 5 more

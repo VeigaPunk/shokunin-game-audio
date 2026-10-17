@@ -1,0 +1,171 @@
+=== pre-vrun1 2026-10-15T07:59:45Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 0
+procs: 0
+modules: 0
+-- load --
+ 04:59:45 up 1 day, 18:01,  1 user,  load average: 1.55, 0.80, 1.56
+=== post-vrun1 2026-10-15T08:05:13Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+124459 [pw-record] <defunct>
+124573 pw-loopback -n r79lb_112759_b06_zero -C 0 -P r79lb_ns_b_112759
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+58250	r79lb_ns_a_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61713	r79lb_ns_a_112759	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61724	r79lb_ns_b_112759	PipeWire	float32le 2ch 48000Hz	RUNNING
+58250	r79lb_ns_a_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61713	r79lb_ns_a_112759.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61724	r79lb_ns_b_112759.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 51
+procs: 1
+modules: 4
+-- load --
+ 05:05:13 up 1 day, 18:07,  1 user,  load average: 4.24, 2.70, 2.16
+=== pre-vrun2 2026-10-15T08:05:18Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+126978 pw-record -P stream.capture.sink=true -P node.name=r79lb_112759_b07_prop_false_tap --target r79lb_ns_b_112759 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-lat-qr77zpk0/tap_b07_prop_false.wav
+126986 pw-loopback -n r79lb_112759_b07_prop_false -C r79lb_ns_a_112759 -i stream.capture.sink=false -P r79lb_ns_b_112759
+126999 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && sleep 45; date; ps -eo pid,etime,cmd | grep -E "measure_audio|r79b_probe|pw-loopback|pw-cat|pw-record|pw-play|parec|verify-run|aplay" | grep -v grep | head
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+58250	r79lb_ns_a_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61713	r79lb_ns_a_112759	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61724	r79lb_ns_b_112759	PipeWire	float32le 2ch 48000Hz	RUNNING
+58250	r79lb_ns_a_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61713	r79lb_ns_a_112759.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+61724	r79lb_ns_b_112759.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 62
+procs: 2
+modules: 4
+-- load --
+ 05:05:18 up 1 day, 18:07,  1 user,  load average: 4.38, 2.76, 2.18
+=== post-vrun2 2026-10-15T08:10:45Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+139146 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+139148 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+189483 pw-cat -p -P node.name=r79lb_139148_d10_force_latency --latency 10ms -P node.force-latency=true --target r79lb_ns_b_139148 -n 48000 /tmp/capture-r79-pwcat-ji1hv9a8/tag_tone.wav
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+58250	r79lb_ns_a_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+68919	r79lb_ns_b_139148	PipeWire	float32le 2ch 48000Hz	RUNNING
+69158	r79bchk14_ns_189544	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+69165	r79bchk14_nsb_189544	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58250	r79lb_ns_a_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+68919	r79lb_ns_b_139148.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+69158	r79bchk14_ns_189544.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+69165	r79bchk14_nsb_189544.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 36
+procs: 1
+modules: 3
+-- load --
+ 05:10:45 up 1 day, 18:12,  1 user,  load average: 3.43, 3.57, 2.73
+=== pre-vrun-r78 2026-10-15T08:10:54Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+139146 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+139148 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+189642 pw-cat -p -P node.name=r79bchk14_tone_189544 --target r79bchk14_ns_189544 /tmp/r79bchk14_tone.wav
+189643 timeout -s KILL 40 pw-loopback -n r79bchk14_lb_189544 -m [ MONO ] -C r79bchk14_ns_189544 -i stream.capture.sink=true -P r79bchk14_nsb_189544
+189644 pw-loopback -n r79bchk14_lb_189544 -m [ MONO ] -C r79bchk14_ns_189544 -i stream.capture.sink=true -P r79bchk14_nsb_189544
+189784 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-simplifier && sleep 200; cat healthy-seq.log; date; ps -eo pid,etime,cmd | grep -E "measure_audio" | grep -v grep
+189828 pw-record -P node.name=r79bchk14_rec_189544 -P stream.capture.sink=true --target r79bchk14_nsb_189544 -n 384000 /tmp/r79bchk14_tap_189544.wav
+190151 pw-cat -p -P node.name=r79lb_139148_d13_autoconnect_off -P node.autoconnect=false --target r79lb_ns_b_139148 -n 48000 /tmp/capture-r79-pwcat-ji1hv9a8/tag_tone.wav
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+58250	r79lb_ns_a_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+68919	r79lb_ns_b_139148	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+69158	r79bchk14_ns_189544	PipeWire	float32le 2ch 48000Hz	RUNNING
+69165	r79bchk14_nsb_189544	PipeWire	float32le 2ch 48000Hz	RUNNING
+58250	r79lb_ns_a_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+68919	r79lb_ns_b_139148.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+69158	r79bchk14_ns_189544.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+69165	r79bchk14_nsb_189544.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 36
+procs: 1
+modules: 3
+-- load --
+ 05:10:54 up 1 day, 18:12,  1 user,  load average: 3.37, 3.55, 2.73
+=== post-vrun-r78 2026-10-15T08:14:21Z ===
+measure_audio.py sha256: 4ee754b3fa7dab6c7be7c60930fc8c14854acf7f5439c9b150bb40aba0805095
+-- live probe/sibling processes --
+196167 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+196168 python3 corpus/fixtures/measure_audio.py --probe-capture-r79
+215894 pw-record -P stream.capture.sink=true -P node.name=r79lb_196168_c06_absent_tap --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-uicp6o6b/tap_c06_absent.wav
+216012 timeout -s KILL 20 pw-loopback -n r79b_215923_g3a-cycle-prop_l1 -C r79b_215923_ns_a -i stream.capture.sink=true -P r79b_215923_ns_b
+216013 timeout -s KILL 20 pw-loopback -n r79b_215923_g3a-cycle-prop_l2 -C r79b_215923_ns_b -i stream.capture.sink=true -P r79b_215923_ns_a
+216014 pw-loopback -n r79b_215923_g3a-cycle-prop_l1 -C r79b_215923_ns_a -i stream.capture.sink=true -P r79b_215923_ns_b
+216015 pw-loopback -n r79b_215923_g3a-cycle-prop_l2 -C r79b_215923_ns_b -i stream.capture.sink=true -P r79b_215923_ns_a
+216115 pw-record -P node.name=r79b_215923_g3a-cycle-prop_tap -P stream.capture.sink=true --target r79b_215923_ns_b -n 288000 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g3a-cycle-prop_tap_b.wav
+216166 pw-cat -p -P node.name=r79b_215923_g3a-cycle-prop_burst --target r79b_215923_ns_a /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/scratch/burst_215923.wav
+2202613 aplay -D null /tmp/nowriter-r75-zr9ge6r2/nowriter.wav
+-- default sink/source --
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+-- session default source metadata --
+Found "default" metadata 42
+-- foreign null sinks/sources (non-alsa) --
+58250	r79lb_ns_a_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+71962	r79lb_ns_a_196168	PipeWire	float32le 2ch 48000Hz	IDLE
+71973	r79lb_ns_b_196168	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+71984	r79lb_ns_b2_196168	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+72425	r79b_215923_ns_a	PipeWire	float32le 2ch 48000Hz	RUNNING
+72432	r79b_215923_ns_b	PipeWire	float32le 2ch 48000Hz	RUNNING
+58250	r79lb_ns_a_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+58261	r79lb_ns_b_4041488.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+71962	r79lb_ns_a_196168.monitor	PipeWire	float32le 2ch 48000Hz	IDLE
+71973	r79lb_ns_b_196168.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+71984	r79lb_ns_b2_196168.monitor	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+72425	r79b_215923_ns_a.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+72432	r79b_215923_ns_b.monitor	PipeWire	float32le 2ch 48000Hz	RUNNING
+-- r79 leftovers (nodes/procs/modules) --
+nodes: 59
+procs: 1
+modules: 5
+-- load --
+ 05:14:21 up 1 day, 18:16,  1 user,  load average: 1.88, 2.89, 2.65

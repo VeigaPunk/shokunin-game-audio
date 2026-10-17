@@ -1,0 +1,2113 @@
+{
+ "name": "e_direct_true",
+ "stage": "p1",
+ "rep": 0,
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r81_bnd_cap",
+  "target-object=gst_r81_bnd_prod",
+  "stream-properties=props,stream.capture.sink=true",
+  "on-disconnect=error",
+  "num-buffers=1000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-boundary/tmp/p1_cap.wav"
+ ],
+ "env_extra": null,
+ "rc": -9,
+ "signal": "SIGKILL",
+ "killed": "wallcap",
+ "elapsed_s": 4.015,
+ "stderr_head": [],
+ "err_class": null,
+ "err_hit": null,
+ "wall_cap": 4.0,
+ "byte_cap": 4194304,
+ "producers": [
+  {
+   "name": "prod",
+   "argv": [
+    "gst-launch-1.0",
+    "-q",
+    "audiotestsrc",
+    "wave=sine",
+    "freq=1000",
+    "num-buffers=200000",
+    "!",
+    "audio/x-raw,format=S16LE,rate=48000,channels=2",
+    "!",
+    "pipewiresink",
+    "client-name=gst_r81_bnd_prod",
+    "target-object=gst_r81_bndns"
+   ],
+   "at": 0.0,
+   "kill_at": null,
+   "started": 0.001,
+   "ended": 1.509,
+   "killed": "SIGKILL@1.50",
+   "rc": -9,
+   "stderr_head": []
+  }
+ ],
+ "actions": [],
+ "sizes": [
+  [
+   0.0,
+   null
+  ],
+  [
+   0.055,
+   0
+  ],
+  [
+   0.104,
+   0
+  ],
+  [
+   0.152,
+   0
+  ],
+  [
+   0.206,
+   0
+  ],
+  [
+   0.254,
+   0
+  ],
+  [
+   0.303,
+   0
+  ],
+  [
+   0.351,
+   0
+  ],
+  [
+   0.4,
+   0
+  ],
+  [
+   0.455,
+   65580
+  ],
+  [
+   0.504,
+   65580
+  ],
+  [
+   0.551,
+   65580
+  ],
+  [
+   0.606,
+   65580
+  ],
+  [
+   0.654,
+   65580
+  ],
+  [
+   0.703,
+   65580
+  ],
+  [
+   0.752,
+   65580
+  ],
+  [
+   0.8,
+   135212
+  ],
+  [
+   0.855,
+   135212
+  ],
+  [
+   0.903,
+   135212
+  ],
+  [
+   0.951,
+   135212
+  ],
+  [
+   1.0,
+   135212
+  ],
+  [
+   1.055,
+   135212
+  ],
+  [
+   1.103,
+   135212
+  ],
+  [
+   1.152,
+   135212
+  ],
+  [
+   1.201,
+   204844
+  ],
+  [
+   1.254,
+   204844
+  ],
+  [
+   1.302,
+   204844
+  ],
+  [
+   1.351,
+   204844
+  ],
+  [
+   1.406,
+   204844
+  ],
+  [
+   1.454,
+   204844
+  ],
+  [
+   1.503,
+   204844
+  ],
+  [
+   1.552,
+   274476
+  ],
+  [
+   1.605,
+   274476
+  ],
+  [
+   1.653,
+   274476
+  ],
+  [
+   1.702,
+   274476
+  ],
+  [
+   1.75,
+   274476
+  ],
+  [
+   1.805,
+   274476
+  ],
+  [
+   1.854,
+   274476
+  ],
+  [
+   1.902,
+   344108
+  ],
+  [
+   1.955,
+   344108
+  ],
+  [
+   2.004,
+   344108
+  ],
+  [
+   2.053,
+   344108
+  ],
+  [
+   2.101,
+   344108
+  ],
+  [
+   2.156,
+   344108
+  ],
+  [
+   2.205,
+   344108
+  ],
+  [
+   2.253,
+   413740
+  ],
+  [
+   2.306,
+   413740
+  ],
+  [
+   2.355,
+   413740
+  ],
+  [
+   2.404,
+   413740
+  ],
+  [
+   2.452,
+   413740
+  ],
+  [
+   2.501,
+   413740
+  ],
+  [
+   2.556,
+   413740
+  ],
+  [
+   2.605,
+   483372
+  ],
+  [
+   2.651,
+   483372
+  ],
+  [
+   2.7,
+   483372
+  ],
+  [
+   2.755,
+   483372
+  ],
+  [
+   2.803,
+   483372
+  ],
+  [
+   2.852,
+   483372
+  ],
+  [
+   2.901,
+   483372
+  ],
+  [
+   2.955,
+   483372
+  ],
+  [
+   3.002,
+   553004
+  ],
+  [
+   3.051,
+   553004
+  ],
+  [
+   3.105,
+   553004
+  ],
+  [
+   3.154,
+   553004
+  ],
+  [
+   3.203,
+   553004
+  ],
+  [
+   3.252,
+   553004
+  ],
+  [
+   3.301,
+   553004
+  ],
+  [
+   3.354,
+   622636
+  ],
+  [
+   3.402,
+   622636
+  ],
+  [
+   3.451,
+   622636
+  ],
+  [
+   3.506,
+   622636
+  ],
+  [
+   3.554,
+   622636
+  ],
+  [
+   3.603,
+   622636
+  ],
+  [
+   3.652,
+   622636
+  ],
+  [
+   3.705,
+   692268
+  ],
+  [
+   3.753,
+   692268
+  ],
+  [
+   3.802,
+   692268
+  ],
+  [
+   3.851,
+   692268
+  ],
+  [
+   3.905,
+   692268
+  ],
+  [
+   3.954,
+   692268
+  ],
+  [
+   4.003,
+   692268
+  ]
+ ],
+ "samples": [
+  {
+   "t": 0.152,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "gst_r81_bnd_prod:output_FL -> gst_r81_bndns:playback_FL",
+     "gst_r81_bnd_prod:output_FR -> gst_r81_bndns:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13096,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_auth_1291125",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13096,
+       "stream.is-live": true
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "running",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_prod": {
+      "class": "Stream/Output/Audio",
+      "serial": 13155,
+      "state": "running",
+      "props": {
+       "client.id": 85,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst_r81_bnd_prod",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_prod",
+       "node.driver-id": 103,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_prod",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_bndns",
+       "node.want-driver": true,
+       "object.id": 108,
+       "object.register": false,
+       "object.serial": 13155,
+       "stream.is-live": true,
+       "target.object": "gst_r81_bndns"
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bnd_prod#13155",
+      "Stream/Output/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "running"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 20,
+    "clients": 16
+   }
+  },
+  {
+   "t": 0.504,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "gst_r81_bnd_prod:output_FL -> gst_r81_bndns:playback_FL",
+     "gst_r81_bnd_prod:output_FR -> gst_r81_bndns:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13096,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_auth_1291125",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13096,
+       "stream.is-live": true
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "running",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_prod": {
+      "class": "Stream/Output/Audio",
+      "serial": 13155,
+      "state": "running",
+      "props": {
+       "client.id": 85,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst_r81_bnd_prod",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_prod",
+       "node.driver-id": 103,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_prod",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_bndns",
+       "node.want-driver": true,
+       "object.id": 108,
+       "object.register": false,
+       "object.serial": 13155,
+       "stream.is-live": true,
+       "target.object": "gst_r81_bndns"
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bnd_prod#13155",
+      "Stream/Output/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "running"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 20,
+    "clients": 16
+   }
+  },
+  {
+   "t": 0.855,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "gst_r81_bnd_prod:output_FL -> gst_r81_bndns:playback_FL",
+     "gst_r81_bnd_prod:output_FR -> gst_r81_bndns:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "running",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_prod": {
+      "class": "Stream/Output/Audio",
+      "serial": 13155,
+      "state": "running",
+      "props": {
+       "client.id": 85,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst_r81_bnd_prod",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_prod",
+       "node.driver-id": 103,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_prod",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_bndns",
+       "node.want-driver": true,
+       "object.id": 108,
+       "object.register": false,
+       "object.serial": 13155,
+       "stream.is-live": true,
+       "target.object": "gst_r81_bndns"
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13180,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13180,
+       "stream.is-live": true,
+       "target.object": "gst_r81_auth_1291125"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bnd_prod#13155",
+      "Stream/Output/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "running"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 20,
+    "clients": 16
+   }
+  },
+  {
+   "t": 1.201,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "gst_r81_bnd_prod:output_FL -> gst_r81_bndns:playback_FL",
+     "gst_r81_bnd_prod:output_FR -> gst_r81_bndns:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "running",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_prod": {
+      "class": "Stream/Output/Audio",
+      "serial": 13155,
+      "state": "running",
+      "props": {
+       "client.id": 85,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst_r81_bnd_prod",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_prod",
+       "node.driver-id": 103,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_prod",
+       "node.rate": "1/48000",
+       "node.target": "gst_r81_bndns",
+       "node.want-driver": true,
+       "object.id": 108,
+       "object.register": false,
+       "object.serial": 13155,
+       "stream.is-live": true,
+       "target.object": "gst_r81_bndns"
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13180,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13180,
+       "stream.is-live": true,
+       "target.object": "gst_r81_auth_1291125"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bnd_prod#13155",
+      "Stream/Output/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "running"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 20,
+    "clients": 16
+   }
+  },
+  {
+   "t": 1.552,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13180,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13180,
+       "stream.is-live": true,
+       "target.object": "gst_r81_auth_1291125"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 19,
+    "clients": 15
+   }
+  },
+  {
+   "t": 1.902,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13180,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13180,
+       "stream.is-live": true,
+       "target.object": "gst_r81_auth_1291125"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 19,
+    "clients": 15
+   }
+  },
+  {
+   "t": 2.253,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> gst_r81_auth_1291125:playback_FL",
+     "gst-launch-1.0:output_FR -> gst_r81_auth_1291125:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "running",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13180,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 130,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13180,
+       "stream.is-live": true,
+       "target.object": "gst_r81_auth_1291125"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 19,
+    "clients": 15
+   }
+  },
+  {
+   "t": 2.605,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+     "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR",
+     "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_b06_zero_tap:input_FL",
+     "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_b06_zero_tap:input_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "idle",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13233,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "no_such_sink_r81",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13233,
+       "stream.is-live": true,
+       "target.object": "no_such_sink_r81"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 19,
+    "clients": 15
+   }
+  },
+  {
+   "t": 2.955,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+     "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "idle",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13233,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "no_such_sink_r81",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13233,
+       "stream.is-live": true,
+       "target.object": "no_such_sink_r81"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 18,
+    "clients": 14
+   }
+  },
+  {
+   "t": 3.301,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+     "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "idle",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13233,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "no_such_sink_r81",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13233,
+       "stream.is-live": true,
+       "target.object": "no_such_sink_r81"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 18,
+    "clients": 14
+   }
+  },
+  {
+   "t": 3.652,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+     "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "idle",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13233,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "no_such_sink_r81",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13233,
+       "stream.is-live": true,
+       "target.object": "no_such_sink_r81"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 18,
+    "clients": 14
+   }
+  },
+  {
+   "t": 4.003,
+   "g": {
+    "links": [
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_bnd_cap:input_FL",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_bnd_cap:input_FR",
+     "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+     "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+     "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR"
+    ],
+    "mine": {
+     "gst_r81_auth_1291125": {
+      "class": "Audio/Sink",
+      "serial": 13040,
+      "state": "idle",
+      "props": {
+       "client.id": 104,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_auth_1291125",
+       "object.id": 130,
+       "object.serial": 13040,
+       "pulse.module.id": 536870917
+      }
+     },
+     "gst_r81_bndns": {
+      "class": "Audio/Sink",
+      "serial": 13145,
+      "state": "idle",
+      "props": {
+       "client.id": 125,
+       "media.class": "Audio/Sink",
+       "monitor.channel-volumes": true,
+       "monitor.passthrough": true,
+       "node.description": "gst_r81_bndns",
+       "node.driver": true,
+       "node.loop.name": "data-loop.0",
+       "node.name": "gst_r81_bndns",
+       "object.id": 103,
+       "object.serial": 13145,
+       "pulse.module.id": 536870920
+      }
+     },
+     "gst_r81_bnd_cap": {
+      "class": "Stream/Input/Audio",
+      "serial": 13156,
+      "state": "running",
+      "props": {
+       "client.id": 88,
+       "media.class": "Stream/Input/Audio",
+       "media.name": "gst_r81_bnd_cap",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst_r81_bnd_cap",
+       "node.dont-reconnect": true,
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst_r81_bnd_cap",
+       "node.target": "gst_r81_bnd_prod",
+       "node.want-driver": true,
+       "object.id": 98,
+       "object.register": false,
+       "object.serial": 13156,
+       "stream.capture.sink": "TRUE",
+       "stream.is-live": true,
+       "target.object": "gst_r81_bnd_prod"
+      }
+     },
+     "gst-launch-1.0": {
+      "class": "Stream/Output/Audio",
+      "serial": 13233,
+      "state": "running",
+      "props": {
+       "client.id": 89,
+       "media.class": "Stream/Output/Audio",
+       "media.name": "gst-launch-1.0",
+       "node.async": true,
+       "node.autoconnect": true,
+       "node.description": "gst-launch-1.0",
+       "node.driver-id": 61,
+       "node.loop.class": "main",
+       "node.loop.name": "pipewire-main-l",
+       "node.name": "gst-launch-1.0",
+       "node.rate": "1/48000",
+       "node.target": "no_such_sink_r81",
+       "node.want-driver": true,
+       "object.id": 114,
+       "object.register": false,
+       "object.serial": 13233,
+       "stream.is-live": true,
+       "target.object": "no_such_sink_r81"
+      }
+     }
+    },
+    "seat": [
+     [
+      "gst_r81_bnd_cap#13156",
+      "Stream/Input/Audio",
+      "running"
+     ],
+     [
+      "gst_r81_bndns#13145",
+      "Audio/Sink",
+      "idle"
+     ]
+    ],
+    "phys": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+     "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+     "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    ],
+    "node_count": 18,
+    "clients": 14
+   }
+  }
+ ],
+ "post": {
+  "links": [
+   "gst-launch-1.0:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+   "gst-launch-1.0:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+   "output.r79lb_1287380_b06_zero:output_FL -> r79lb_ns_b_1287380:playback_FL",
+   "output.r79lb_1287380_b06_zero:output_FR -> r79lb_ns_b_1287380:playback_FR"
+  ],
+  "mine": {
+   "gst_r81_auth_1291125": {
+    "class": "Audio/Sink",
+    "serial": 13040,
+    "state": "idle",
+    "props": {
+     "client.id": 104,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_auth_1291125 Audio/Sink sink",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_auth_1291125",
+     "object.id": 130,
+     "object.serial": 13040,
+     "pulse.module.id": 536870917
+    }
+   },
+   "gst_r81_bndns": {
+    "class": "Audio/Sink",
+    "serial": 13145,
+    "state": "idle",
+    "props": {
+     "client.id": 125,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_bndns",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_bndns",
+     "object.id": 103,
+     "object.serial": 13145,
+     "pulse.module.id": 536870920
+    }
+   },
+   "gst-launch-1.0": {
+    "class": "Stream/Output/Audio",
+    "serial": 13233,
+    "state": "running",
+    "props": {
+     "client.id": 89,
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst-launch-1.0",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst-launch-1.0",
+     "node.driver-id": 61,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst-launch-1.0",
+     "node.rate": "1/48000",
+     "node.target": "no_such_sink_r81",
+     "node.want-driver": true,
+     "object.id": 114,
+     "object.register": false,
+     "object.serial": 13233,
+     "stream.is-live": true,
+     "target.object": "no_such_sink_r81"
+    }
+   }
+  },
+  "seat": [
+   [
+    "gst_r81_bndns#13145",
+    "Audio/Sink",
+    "idle"
+   ]
+  ],
+  "phys": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+  ],
+  "node_count": 17,
+  "clients": 13
+ },
+ "out": {
+  "exists": true,
+  "bytes": 692268,
+  "riff": "wavenc_streaming",
+  "data": "other:2147418112",
+  "frames": 536854528,
+  "ch": 2,
+  "rate": 48000,
+  "bits": 16
+ },
+ "out_peak": 0,
+ "kept": null,
+ "note": "capture.sink=true against a STREAM target"
+}

@@ -1,0 +1,1970 @@
+{
+ "stage": "f5",
+ "reps": 3,
+ "started": "2026-10-15T11:21:21-0300",
+ "host": {
+  "pipewire": "1.6.8",
+  "wireplumber": "0.5.17"
+ },
+ "entry_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915,
+   536870921,
+   536870922
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_4041488"
+  ],
+  "clients": 8
+ },
+ "legs": [
+  {
+   "rep": 1,
+   "setup": {
+    "mid": 536870943,
+    "load": "536870943",
+    "node_id": 105,
+    "ports": [
+     {
+      "id": 94,
+      "name": "playback_FL",
+      "dir": "in",
+      "serial": 100570
+     },
+     {
+      "id": 264,
+      "name": "playback_FR",
+      "dir": "in",
+      "serial": 100571
+     },
+     {
+      "id": 304,
+      "name": "monitor_FL",
+      "dir": "out",
+      "serial": 100572
+     },
+     {
+      "id": 296,
+      "name": "monitor_FR",
+      "dir": "out",
+      "serial": 100573
+     }
+    ],
+    "port_in_id": 94
+   },
+   "rest": {
+    "node_enum": {
+     "label": "rest_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "rest_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "e6ace9066c9a082506d8bc8293bb5f2337d21a173d6308da807da724b1c255cf",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:94 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    },
+    "port_enum": {
+     "label": "rest_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "rest_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream48": {
+    "node_id": 151,
+    "alive": true,
+    "enum": {
+     "label": "s48_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "0fc44acee5214c859b271c092ad0bd7f34bb277c9b6fb06e8a8be41ec6ba474f",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 868,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "format": {
+     "label": "s48_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e718690a7ce24a69b4702430cfeca2674a1052d9dfb5ca32e479e8ccd7e66f30",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    },
+    "props": {
+     "label": "s48_props",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Props"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "734db9ceb66d3e7cd26be8c6cea32f9619085f5b2983815fbd9133155608e47e",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 2498,
+     "err_len": 0,
+     "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+     "err_head": ""
+    }
+   },
+   "during48": {
+    "node_enum": {
+     "label": "dur48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links48": {
+    "label": "s48_links",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "mid_setparam": {
+    "label": "s48_setparam_format",
+    "cmd": [
+     "pw-cli",
+     "set-param",
+     "105",
+     "Format",
+     "{ mediaType: 1, mediaSubtype: 1, format: 259, rate: 44100, channels: 2 }"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "0e19ac590851e64aeaca2e965ad40cf06a788d22cdaf390a998c7970e9fff845",
+    "err_sha": "8e5ee245f0dd0a9f5e054ddfc91bd0c4a77d06e3cee6da5f900d5bb6e57b2768",
+    "out_len": 622,
+    "err_len": 122,
+    "out_head": "Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n  Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n    Id 1        (Spa:Enum:MediaType:audio)\n  Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n    Id 1        (Spa:Enum:MediaSubtype:raw)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n    Id 259      (Spa:Enum:AudioFormat:S16LE)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n    Int 44100\n  Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n    Int 2\n",
+    "err_head": "remote 0: error id:94 seq:210 res:-5 (Input/output error): set param id:4 (Spa:Enum:ParamId:Format) flags:00000000 failed\n"
+   },
+   "post_setparam": {
+    "node_enum": {
+     "label": "postsp_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "postsp_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "postsp_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "postsp_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links_post": {
+    "label": "s48_links_post",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "stream_alive_post": true,
+   "stop48": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after48": {
+    "node_enum": {
+     "label": "after48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 4,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream441": {
+    "node_id": 151,
+    "alive": true,
+    "format": {
+     "label": "s441_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "684a7c8dad24b28a9953cc35527695e122ca3c765b0c42c84ad8bba458fe468b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 44100\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    }
+   },
+   "during441": {
+    "node_enum": {
+     "label": "dur441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "stop441": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after441": {
+    "node_enum": {
+     "label": "after441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 4,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "teardown": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870943"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "_wall_s": 4.13
+  },
+  {
+   "rep": 2,
+   "setup": {
+    "mid": 536870943,
+    "load": "536870943",
+    "node_id": 105,
+    "ports": [
+     {
+      "id": 300,
+      "name": "playback_FL",
+      "dir": "in",
+      "serial": 100625
+     },
+     {
+      "id": 296,
+      "name": "playback_FR",
+      "dir": "in",
+      "serial": 100626
+     },
+     {
+      "id": 304,
+      "name": "monitor_FL",
+      "dir": "out",
+      "serial": 100627
+     },
+     {
+      "id": 264,
+      "name": "monitor_FR",
+      "dir": "out",
+      "serial": 100628
+     }
+    ],
+    "port_in_id": 300
+   },
+   "rest": {
+    "node_enum": {
+     "label": "rest_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "rest_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "e6ace9066c9a082506d8bc8293bb5f2337d21a173d6308da807da724b1c255cf",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:94 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    },
+    "port_enum": {
+     "label": "rest_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "rest_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream48": {
+    "node_id": 151,
+    "alive": true,
+    "enum": {
+     "label": "s48_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "0fc44acee5214c859b271c092ad0bd7f34bb277c9b6fb06e8a8be41ec6ba474f",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 868,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "format": {
+     "label": "s48_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e718690a7ce24a69b4702430cfeca2674a1052d9dfb5ca32e479e8ccd7e66f30",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    },
+    "props": {
+     "label": "s48_props",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Props"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "734db9ceb66d3e7cd26be8c6cea32f9619085f5b2983815fbd9133155608e47e",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 2498,
+     "err_len": 0,
+     "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+     "err_head": ""
+    }
+   },
+   "during48": {
+    "node_enum": {
+     "label": "dur48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links48": {
+    "label": "s48_links",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "mid_setparam": {
+    "label": "s48_setparam_format",
+    "cmd": [
+     "pw-cli",
+     "set-param",
+     "105",
+     "Format",
+     "{ mediaType: 1, mediaSubtype: 1, format: 259, rate: 44100, channels: 2 }"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "0e19ac590851e64aeaca2e965ad40cf06a788d22cdaf390a998c7970e9fff845",
+    "err_sha": "8e5ee245f0dd0a9f5e054ddfc91bd0c4a77d06e3cee6da5f900d5bb6e57b2768",
+    "out_len": 622,
+    "err_len": 122,
+    "out_head": "Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n  Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n    Id 1        (Spa:Enum:MediaType:audio)\n  Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n    Id 1        (Spa:Enum:MediaSubtype:raw)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n    Id 259      (Spa:Enum:AudioFormat:S16LE)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n    Int 44100\n  Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n    Int 2\n",
+    "err_head": "remote 0: error id:94 seq:210 res:-5 (Input/output error): set param id:4 (Spa:Enum:ParamId:Format) flags:00000000 failed\n"
+   },
+   "post_setparam": {
+    "node_enum": {
+     "label": "postsp_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "postsp_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "postsp_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "postsp_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links_post": {
+    "label": "s48_links_post",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "stream_alive_post": true,
+   "stop48": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after48": {
+    "node_enum": {
+     "label": "after48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream441": {
+    "node_id": 151,
+    "alive": true,
+    "format": {
+     "label": "s441_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "684a7c8dad24b28a9953cc35527695e122ca3c765b0c42c84ad8bba458fe468b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 44100\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    }
+   },
+   "during441": {
+    "node_enum": {
+     "label": "dur441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "stop441": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after441": {
+    "node_enum": {
+     "label": "after441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "300",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "teardown": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870943"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "_wall_s": 4.13
+  },
+  {
+   "rep": 3,
+   "setup": {
+    "mid": 536870943,
+    "load": "536870943",
+    "node_id": 105,
+    "ports": [
+     {
+      "id": 94,
+      "name": "playback_FL",
+      "dir": "in",
+      "serial": 100680
+     },
+     {
+      "id": 264,
+      "name": "playback_FR",
+      "dir": "in",
+      "serial": 100681
+     },
+     {
+      "id": 304,
+      "name": "monitor_FL",
+      "dir": "out",
+      "serial": 100682
+     },
+     {
+      "id": 296,
+      "name": "monitor_FR",
+      "dir": "out",
+      "serial": 100683
+     }
+    ],
+    "port_in_id": 94
+   },
+   "rest": {
+    "node_enum": {
+     "label": "rest_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "rest_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "e6ace9066c9a082506d8bc8293bb5f2337d21a173d6308da807da724b1c255cf",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:94 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    },
+    "port_enum": {
+     "label": "rest_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "rest_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream48": {
+    "node_id": 151,
+    "alive": true,
+    "enum": {
+     "label": "s48_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "0fc44acee5214c859b271c092ad0bd7f34bb277c9b6fb06e8a8be41ec6ba474f",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 868,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "format": {
+     "label": "s48_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e718690a7ce24a69b4702430cfeca2674a1052d9dfb5ca32e479e8ccd7e66f30",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    },
+    "props": {
+     "label": "s48_props",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Props"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "734db9ceb66d3e7cd26be8c6cea32f9619085f5b2983815fbd9133155608e47e",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 2498,
+     "err_len": 0,
+     "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+     "err_head": ""
+    }
+   },
+   "during48": {
+    "node_enum": {
+     "label": "dur48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links48": {
+    "label": "s48_links",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "mid_setparam": {
+    "label": "s48_setparam_format",
+    "cmd": [
+     "pw-cli",
+     "set-param",
+     "105",
+     "Format",
+     "{ mediaType: 1, mediaSubtype: 1, format: 259, rate: 44100, channels: 2 }"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "0e19ac590851e64aeaca2e965ad40cf06a788d22cdaf390a998c7970e9fff845",
+    "err_sha": "8e5ee245f0dd0a9f5e054ddfc91bd0c4a77d06e3cee6da5f900d5bb6e57b2768",
+    "out_len": 622,
+    "err_len": 122,
+    "out_head": "Object: size 128, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n  Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n    Id 1        (Spa:Enum:MediaType:audio)\n  Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n    Id 1        (Spa:Enum:MediaSubtype:raw)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n    Id 259      (Spa:Enum:AudioFormat:S16LE)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n    Int 44100\n  Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n    Int 2\n",
+    "err_head": "remote 0: error id:94 seq:210 res:-5 (Input/output error): set param id:4 (Spa:Enum:ParamId:Format) flags:00000000 failed\n"
+   },
+   "post_setparam": {
+    "node_enum": {
+     "label": "postsp_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "postsp_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "postsp_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "postsp_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "links_post": {
+    "label": "s48_links_post",
+    "cmd": [
+     "pw-link",
+     "-l"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "11f34e69adc1117e18af160bdc36875d2fb2e3bca91a6b68228190424c63e23f",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 160,
+    "err_len": 0,
+    "out_head": "r90a:playback_FL\n  |<- r90e48:output_FL\nr90a:playback_FR\n  |<- r90e48:output_FR\nr90e48:output_FL\n  |-> r90a:playback_FL\nr90e48:output_FR\n  |-> r90a:playback_FR\n",
+    "err_head": ""
+   },
+   "stream_alive_post": true,
+   "stop48": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after48": {
+    "node_enum": {
+     "label": "after48_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after48_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after48_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after48_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "stream441": {
+    "node_id": 151,
+    "alive": true,
+    "format": {
+     "label": "s441_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "151",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "684a7c8dad24b28a9953cc35527695e122ca3c765b0c42c84ad8bba458fe468b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1247,
+     "err_len": 0,
+     "out_head": "  Object: size 256, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Id 259      (Spa:Enum:AudioFormat:S16LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 44100\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 20 4\n        Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Choice: type Spa:Enum:Choice:None, flags 00000000 32 16\n        Array: child.size 4, child.type Spa:Id\n          Id 3        (Spa:Enum:AudioChannel:FL)\n  ",
+     "err_head": ""
+    }
+   },
+   "during441": {
+    "node_enum": {
+     "label": "dur441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "dur441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "dur441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "dur441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "5a828addfad7b4390e003cec125babb434df249953cb858458937fa8e1d69e6b",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 456,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    }
+   },
+   "stop441": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "after441": {
+    "node_enum": {
+     "label": "after441_node_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 3,
+     "out_sha": "1735b4739ef7b131ff082dd83cf42f9cc262eb6ca76f609fd11d0f134ac3a168",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 1128,
+     "err_len": 0,
+     "out_head": "  Object: size 208, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Choice: type Spa:Enum:Choice:Enum, flags 00000000 28 4\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 518      (Spa:Enum:AudioFormat:F32P)\n        Id 283      (Spa:Enum:AudioFormat:F32LE)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Choice: type Spa:Enum:Choice:Range, flags 00000000 28 4\n        Int 48000\n        Int 1\n        Int 2147483647\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "node_format": {
+     "label": "after441_node_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "105",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "91f7342230f748bc1648c9048c61f0204e57e415d751e9b1005e52a9f71f0332",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 863,
+     "err_len": 0,
+     "out_head": "  Object: size 160, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:Format (4)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 1        (Spa:Enum:MediaSubtype:raw)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags 00000000\n      Int 48000\n    Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags 00000000\n      Int 2\n    Prop: key Spa:Pod:Object:Param:Format:Audio:position (65541), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n",
+     "err_head": ""
+    },
+    "port_enum": {
+     "label": "after441_port_enum",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "EnumFormat"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "ea7005d304ae83d23bf5ba8f26b546198ddb7df69ee10bba5b12ae4cb2b4f318",
+     "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "out_len": 460,
+     "err_len": 0,
+     "out_head": "  Object: size 80, type Spa:Pod:Object:Param:Format (262147), id Spa:Enum:ParamId:EnumFormat (3)\n    Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags 00000000\n      Id 1        (Spa:Enum:MediaType:audio)\n    Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags 00000000\n      Id 2        (Spa:Enum:MediaSubtype:dsp)\n    Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags 00000000\n      Id 518      (Spa:Enum:AudioFormat:F32P)\n",
+     "err_head": ""
+    },
+    "port_format": {
+     "label": "after441_port_format",
+     "cmd": [
+      "pw-cli",
+      "enum-params",
+      "94",
+      "Format"
+     ],
+     "rc": 0,
+     "timed_out": false,
+     "ms": 2,
+     "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "err_sha": "b55b7fe79a21bed36cbf3e20734852570d9e270a97b62cfd3da52b051ce46980",
+     "out_len": 0,
+     "err_len": 109,
+     "out_head": "",
+     "err_head": "remote 0: error id:95 seq:198 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n"
+    }
+   },
+   "teardown": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870943"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "_wall_s": 4.13
+  }
+ ],
+ "exit_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915,
+   536870921,
+   536870922
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_4041488"
+  ],
+  "clients": 8
+ },
+ "census_restored": true,
+ "r90_nodes_at_exit": []
+}

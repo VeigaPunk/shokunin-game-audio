@@ -1,0 +1,282 @@
+{
+ "probe": "r77-boundary/p4b-format-truth",
+ "t0": "2026-10-14T19:51:36Z",
+ "silence_baseline": {
+  "peak": 16384.0,
+  "nz": 0.6857,
+  "confounded": true
+ },
+ "legs": {
+  "s16_48k_2ch": {
+   "tag": "s16",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/g_s16.wav",
+   "rc": 1,
+   "wall": 1.716,
+   "err": "/dev/shm/r77b/g_s16.wav",
+   "out": "/dev/shm/r77b/g_s16.wav",
+   "bytes": 384044,
+   "fmt": {
+    "tag": 1,
+    "channels": 2,
+    "rate": 48000,
+    "byte_rate": 192000,
+    "block_align": 4,
+    "bits": 16
+   },
+   "frames": 96000,
+   "peak": 16384.0,
+   "nz": 0.7641,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "s24_48k_2ch": {
+   "tag": "s24",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --format s24 -n 96000 /dev/shm/r77b/g_s24.wav",
+   "rc": 1,
+   "wall": 1.716,
+   "err": "/dev/shm/r77b/g_s24.wav",
+   "out": "/dev/shm/r77b/g_s24.wav",
+   "bytes": 576044,
+   "fmt": {
+    "tag": 1,
+    "channels": 2,
+    "rate": 48000,
+    "byte_rate": 288000,
+    "block_align": 6,
+    "bits": 24
+   },
+   "frames": 96000,
+   "peak": 4194304.0,
+   "nz": 0.7641,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "s32_48k_2ch": {
+   "tag": "s32",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --format s32 -n 96000 /dev/shm/r77b/g_s32.wav",
+   "rc": 1,
+   "wall": 1.666,
+   "err": "/dev/shm/r77b/g_s32.wav",
+   "out": "/dev/shm/r77b/g_s32.wav",
+   "bytes": 768044,
+   "fmt": {
+    "tag": 1,
+    "channels": 2,
+    "rate": 48000,
+    "byte_rate": 384000,
+    "block_align": 8,
+    "bits": 32
+   },
+   "frames": 96000,
+   "peak": 1341784064.0,
+   "nz": 0.7796,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "f32_48k_2ch": {
+   "tag": "f32",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --format f32 -n 96000 /dev/shm/r77b/g_f32.wav",
+   "rc": 1,
+   "wall": 1.716,
+   "err": "/dev/shm/r77b/g_f32.wav",
+   "out": "/dev/shm/r77b/g_f32.wav",
+   "bytes": 768088,
+   "fmt": {
+    "tag": 3,
+    "channels": 2,
+    "rate": 48000,
+    "byte_rate": 384000,
+    "block_align": 8,
+    "bits": 32
+   },
+   "frames": 96000,
+   "peak": 1191182336.0,
+   "nz": 0.9192,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "r8000_c1": {
+   "tag": "r8000c1",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 8000 --channels 1 -n 16000 /dev/shm/r77b/g_r8000c1.wav",
+   "rc": 1,
+   "wall": 1.716,
+   "err": "/dev/shm/r77b/g_r8000c1.wav",
+   "out": "/dev/shm/r77b/g_r8000c1.wav",
+   "bytes": 32044,
+   "fmt": {
+    "tag": 1,
+    "channels": 1,
+    "rate": 8000,
+    "byte_rate": 16000,
+    "block_align": 2,
+    "bits": 16
+   },
+   "frames": 16000,
+   "peak": 16401.0,
+   "nz": 0.7984,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "r8000_c1_q15": {
+   "tag": "r8000c1q15",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 8000 --channels 1 --quality 15 -n 16000 /dev/shm/r77b/g_r8000c1q15.wav",
+   "rc": 1,
+   "wall": 1.766,
+   "err": "/dev/shm/r77b/g_r8000c1q15.wav",
+   "out": "/dev/shm/r77b/g_r8000c1q15.wav",
+   "bytes": 32044,
+   "fmt": {
+    "tag": 1,
+    "channels": 1,
+    "rate": 8000,
+    "byte_rate": 16000,
+    "block_align": 2,
+    "bits": 16
+   },
+   "frames": 16000,
+   "peak": 16421.0,
+   "nz": 0.7871,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  },
+  "r44100_c2": {
+   "tag": "r44100c2",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 44100 --channels 2 -n 88200 /dev/shm/r77b/g_r44100c2.wav",
+   "rc": 1,
+   "wall": 1.715,
+   "err": "/dev/shm/r77b/g_r44100c2.wav",
+   "out": "/dev/shm/r77b/g_r44100c2.wav",
+   "bytes": 352844,
+   "fmt": {
+    "tag": 1,
+    "channels": 2,
+    "rate": 44100,
+    "byte_rate": 176400,
+    "block_align": 4,
+    "bits": 16
+   },
+   "frames": 88200,
+   "peak": 16384.0,
+   "nz": 0.8082,
+   "fft_hz": 1000.0,
+   "data": "finalized"
+  }
+ },
+ "format_truth": {
+  "s24_mod256_zero": true,
+  "s24_distinct_mod256": [
+   0
+  ],
+  "s24_peak": 4194304,
+  "s24_peak_over_s16_peak": 256.0,
+  "s32_mod65536_zero": true,
+  "s32_peak": 1341784064,
+  "s32_peak_over_s16_peak": 81896.0,
+  "f32_peak_float": 0.5,
+  "f32_expected_s16_over_32768": 0.5,
+  "f32_ratio": 1.0,
+  "s24_aligned_residual": {
+   "lag_samples": 0,
+   "max_abs_residual": 0.0,
+   "rms_residual": 0.0,
+   "in_s16_lsb": {
+    "max": 0.0,
+    "rms": 0.0
+   }
+  },
+  "s32_aligned_residual": {
+   "lag_samples": 400,
+   "max_abs_residual": 2129920000.0,
+   "rms_residual": 1173480908.2780867,
+   "in_s16_lsb": {
+    "max": 8320000.0,
+    "rms": 4583909.79796
+   }
+  }
+ },
+ "four_gig_boundary": {
+  "free_gb_before": 16.15,
+  "legality_64ch": {
+   "rc": 1,
+   "bytes": 512608
+  },
+  "channels_used": "64",
+  "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 768000 --channels 64 --format f64 /dev/shm/r77b/big.wav",
+  "exited_on_its_own": false,
+  "rc": -9,
+  "err": "/dev/shm/r77b/big.wav",
+  "wall_s": 68.23,
+  "monitor_tripped": "cap_bytes",
+  "final_size": 5624336992,
+  "final_size_minus_4GiB": 1329369696,
+  "size_samples_head": [
+   [
+    0.0,
+    null,
+    16.15
+   ],
+   [
+    0.25,
+    10486368,
+    16.14
+   ],
+   [
+    0.5,
+    23069280,
+    16.13
+   ],
+   [
+    0.75,
+    35652192,
+    16.11
+   ],
+   [
+    1.0,
+    48235104,
+    16.1
+   ],
+   [
+    1.25,
+    60818016,
+    16.08
+   ]
+  ],
+  "size_samples_tail": [
+   [
+    66.78,
+    5481730656,
+    10.67
+   ],
+   [
+    67.03,
+    5506896480,
+    10.64
+   ],
+   [
+    67.28,
+    5532062304,
+    10.62
+   ],
+   [
+    67.53,
+    5555130976,
+    10.6
+   ],
+   [
+    67.78,
+    5580296800,
+    10.57
+   ],
+   [
+    68.03,
+    5605462624,
+    10.55
+   ]
+  ],
+  "free_gb_after": 10.53,
+  "header_head_hex": "524946460800000057415645666d742028000000feff400000b80b000000701700024000160040000000000003000000",
+  "riff_size_field": 8,
+  "riff_size_field_hex": "08000000",
+  "free_gb_after_cleanup": 16.15
+ }
+}

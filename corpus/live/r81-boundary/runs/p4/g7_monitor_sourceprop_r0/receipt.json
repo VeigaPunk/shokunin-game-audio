@@ -1,0 +1,149 @@
+{
+ "name": "g7_monitor_sourceprop",
+ "stage": "p4",
+ "rep": 0,
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pulsesrc",
+  "client-name=gst_r81_bnd_cap",
+  "device=gst_r81_bndns.monitor",
+  "num-buffers=8",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-boundary/tmp/p4_cap.wav"
+ ],
+ "env_extra": {
+  "PULSE_SOURCE": "no_such_r81_bnd"
+ },
+ "rc": 0,
+ "signal": null,
+ "killed": null,
+ "elapsed_s": 0.091,
+ "stderr_head": [],
+ "err_class": null,
+ "err_hit": null,
+ "wall_cap": 3.0,
+ "byte_cap": 4194304,
+ "producers": [],
+ "actions": [],
+ "sizes": [
+  [
+   0.0,
+   null
+  ],
+  [
+   0.055,
+   0
+  ]
+ ],
+ "samples": [],
+ "post": {
+  "links": [
+   "output.r79lb_1287380_c09_capsink_decoration:output_FL -> r79lb_ns_b_1287380:playback_FL",
+   "output.r79lb_1287380_c09_capsink_decoration:output_FR -> r79lb_ns_b_1287380:playback_FR",
+   "r79lb_1287380_c09_capsink_decoration_feed:output_FL -> r79lb_ns_a_1287380:playback_FL",
+   "r79lb_1287380_c09_capsink_decoration_feed:output_FR -> r79lb_ns_a_1287380:playback_FR",
+   "r79lb_ns_a_1287380:monitor_FL -> input.r79lb_1287380_c09_capsink_decoration:input_FL",
+   "r79lb_ns_a_1287380:monitor_FR -> input.r79lb_1287380_c09_capsink_decoration:input_FR",
+   "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_c09_capsink_decoration_tap:input_FL",
+   "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_c09_capsink_decoration_tap:input_FR"
+  ],
+  "mine": {
+   "gst_r81_auth_1297251": {
+    "class": "Audio/Sink",
+    "serial": 15317,
+    "state": "suspended",
+    "props": {
+     "client.id": 87,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_auth_1297251 Audio/Sink sink",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_auth_1297251",
+     "object.id": 94,
+     "object.serial": 15317,
+     "pulse.module.id": 536870919
+    }
+   },
+   "gst-launch-1.0": {
+    "class": "Stream/Output/Audio",
+    "serial": 15550,
+    "state": "suspended",
+    "props": {
+     "client.id": 102,
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst-launch-1.0",
+     "node.async": true,
+     "node.autoconnect": "FALSE",
+     "node.description": "gst-launch-1.0",
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst-launch-1.0",
+     "node.rate": "1/48000",
+     "node.target": "gst_r81_auth_1297251",
+     "node.want-driver": true,
+     "object.id": 83,
+     "object.register": false,
+     "object.serial": 15550,
+     "stream.is-live": true,
+     "target.object": "gst_r81_auth_1297251"
+    }
+   },
+   "gst_r81_bndns": {
+    "class": "Audio/Sink",
+    "serial": 15646,
+    "state": "idle",
+    "props": {
+     "client.id": 118,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_bndns",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_bndns",
+     "object.id": 112,
+     "object.serial": 15646,
+     "pulse.module.id": 536870920
+    }
+   }
+  },
+  "seat": [
+   [
+    "gst_r81_bndns#15646",
+    "Audio/Sink",
+    "idle"
+   ]
+  ],
+  "phys": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+  ],
+  "node_count": 20,
+  "clients": 17
+ },
+ "out": {
+  "exists": true,
+  "bytes": 15404,
+  "riff": "finalized",
+  "data": "finalized",
+  "frames": 3840,
+  "ch": 2,
+  "rate": 48000,
+  "bits": 16
+ },
+ "out_peak": 0,
+ "kept": null,
+ "note": "device=<NS>.monitor beats bogus PULSE_SOURCE"
+}

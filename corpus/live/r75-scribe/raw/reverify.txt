@@ -1,0 +1,21 @@
+date_utc=20261014T162941Z host=plazir27
+--- F6a: ffplay invalid input (noise.wav, SDL dummy) ---
+rc=0 stderr_lines=11 stderr_bytes=1821
+Invalid data found when processing input
+--- F6b: aplay text file (raw-PCM fallback) ---
+rc=0 stderr_lines=1
+Playing raw data 'corpus/live/r75-scribe/raw/noise.wav' : Unsigned 8 bit, Rate 8000 Hz, Mono
+--- F6c: paplay invalid input ---
+rc=1 stderr_lines=1
+Failed to open audio file.
+--- F7a: paplay PIPEWIRE_RUNTIME_DIR=<empty tmp> ---
+rc=0 stderr_bytes=0
+runtime_dir_entries=
+--- F7b: paplay XDG_RUNTIME_DIR=<empty tmp> ---
+rc=1 stderr_lines=2
+Connection failure: Connection refused
+pa_context_connect() failed: Connection refused
+runtime_dir_entries=pulse 
+--- F7c: paplay PULSE_SERVER=nonexistent ---
+rc=1 stderr_lines=1
+Connection failure: Connection refused

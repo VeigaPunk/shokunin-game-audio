@@ -1,0 +1,150 @@
+{
+  "F2_unload_blocks": {
+    "a": [
+      "entry.setdefault(\"unloads\", {})[JACK_R95_NS] = \\",
+      "_pactlmon_r85_unload_own(",
+      "leaf.get(\"module_id\"), \"sink_name\", JACK_R95_NS)",
+      "loads = {}",
+      "sinks_now = _capture_r77_sink_names_strict()",
+      "entry[\"ns_gone_after_unload\"] = (",
+      "None if sinks_now is None else JACK_R95_NS not in sinks_now)",
+      "if entry[\"ns_gone_after_unload\"] is False:",
+      "failures.append(",
+      "f\"<label>: probe sink {JACK_R95_NS} survived the \"",
+      "\"name-verified unload\")"
+    ],
+    "b": [
+      "entry.setdefault(\"unloads\", {})[JACK_R95_NS] = \\",
+      "_pactlmon_r85_unload_own(",
+      "leaf.get(\"module_id\"), \"sink_name\", JACK_R95_NS)",
+      "loads = {}",
+      "sinks_now = _capture_r77_sink_names_strict()",
+      "entry[\"ns_gone_after_unload\"] = (",
+      "None if sinks_now is None else JACK_R95_NS not in sinks_now)",
+      "if entry[\"ns_gone_after_unload\"] is False:",
+      "failures.append(",
+      "f\"<label>: probe sink {JACK_R95_NS} survived the \"",
+      "\"name-verified unload\")"
+    ],
+    "identical_modulo_label": true,
+    "shared_lines": 11
+  },
+  "F3_conditional": {
+    "all_equal": true,
+    "rows": [
+      {
+        "conns_want": [],
+        "dst": "A:playback_MONO",
+        "equal": true,
+        "new": false,
+        "old": false
+      },
+      {
+        "conns_want": [
+          "A:playback_MONO"
+        ],
+        "dst": "A:playback_0",
+        "equal": true,
+        "new": true,
+        "old": true
+      },
+      {
+        "conns_want": [
+          "A:playback_MONO"
+        ],
+        "dst": "A:playback_MONO",
+        "equal": true,
+        "new": false,
+        "old": false
+      },
+      {
+        "conns_want": [
+          "A:playback_MONO"
+        ],
+        "dst": "",
+        "equal": true,
+        "new": true,
+        "old": true
+      },
+      {
+        "conns_want": [],
+        "dst": "A:playback_0",
+        "equal": true,
+        "new": false,
+        "old": false
+      }
+    ]
+  },
+  "F3_real_arms": [
+    {
+      "arm": "x_rendered",
+      "new_alias_addressed": false,
+      "old_alias_addressed": false
+    },
+    {
+      "arm": "x_native",
+      "new_alias_addressed": false,
+      "old_alias_addressed": false
+    },
+    {
+      "arm": "x_fillalias",
+      "new_alias_addressed": true,
+      "old_alias_addressed": true
+    },
+    {
+      "arm": "x_corner",
+      "new_alias_addressed": false,
+      "old_alias_addressed": false
+    }
+  ],
+  "F4_double_killed_test": {
+    "all_equal": true,
+    "rows": [
+      {
+        "equal": true,
+        "killed_at_bound": true,
+        "new": [
+          [],
+          [
+            "d_xrun_stall: killed at the bound (unjudged)"
+          ]
+        ],
+        "old": [
+          [],
+          [
+            "d_xrun_stall: killed at the bound (unjudged)"
+          ]
+        ]
+      },
+      {
+        "equal": true,
+        "killed_at_bound": false,
+        "new": [
+          [
+            "rc",
+            "stall_cycles",
+            "cb",
+            "xrun_cbs"
+          ],
+          []
+        ],
+        "old": [
+          [
+            "rc",
+            "stall_cycles",
+            "cb",
+            "xrun_cbs"
+          ],
+          []
+        ]
+      }
+    ]
+  },
+  "F5_row_count": {
+    "has_reader": false,
+    "reader_lines": [],
+    "writer_lines": [
+      33667
+    ]
+  }
+}

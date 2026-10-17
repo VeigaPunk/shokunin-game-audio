@@ -1,0 +1,60 @@
+{
+ "default_sink": {
+  "argv": [
+   "pactl",
+   "get-default-sink"
+  ],
+  "dur_s": 0.002,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\n",
+  "stdout_sha256": "a88530d6f6a4225d742be7a29be739eb8ae4bb4029efe7f4e45163c1c027a038",
+  "timed_out": false
+ },
+ "default_source": {
+  "argv": [
+   "pactl",
+   "get-default-source"
+  ],
+  "dur_s": 0.003,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\n",
+  "stdout_sha256": "e06e0a54c5a2edf86c95b91a4e7fc4e1da02e3d17140e0507140d92e42a35638",
+  "timed_out": false
+ },
+ "modules_short": {
+  "argv": [
+   "pactl",
+   "list",
+   "modules",
+   "short"
+  ],
+  "dur_s": 0.002,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870917\tmodule-null-sink\tsink_name=r79lb_ns_a_1141702\t\n536870919\tmodule-null-sink\tsink_name=r79lb_ns_b_1141702\t\n536870920\tmodule-null-sink\tsink_name=r79lb_ns_b2_1141702\t\n",
+  "stdout_sha256": "5a1c85d8d4be53ea1e68942bf17459e5a7af897e99e18899b7166b64a0e9ed11",
+  "timed_out": false
+ },
+ "pw_dump_objects": 122,
+ "pw_link_l": {
+  "argv": [
+   "pw-link",
+   "-l"
+  ],
+  "dur_s": 0.002,
+  "rc": 0,
+  "stderr": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout": "r79lb_ns_a_1141702:monitor_FL\n  |-> input.r79lb_1141702_c02_second_sink:input_FL\nr79lb_ns_a_1141702:monitor_FR\n  |-> input.r79lb_1141702_c02_second_sink:input_FR\nr79lb_ns_a_1141702:playback_FL\n  |<- r79lb_1141702_c02_second_sink_feed:output_FL\nr79lb_ns_a_1141702:playback_FR\n  |<- r79lb_1141702_c02_second_sink_feed:output_FR\nr79lb_ns_b2_1141702:monitor_FL\n  |-> r79lb_1141702_c02_second_sink_tap:input_FL\nr79lb_ns_b2_1141702:monitor_FR\n  |-> r79lb_1141702_c02_second_sink_tap:input_FR\nr79lb_ns_b2_1141702:playback_FL\n  |<- output.r79lb_1141702_c02_second_sink:output_FL\nr79lb_ns_b2_1141702:playback_FR\n  |<- output.r79lb_1141702_c02_second_sink:output_FR\nr79lb_1141702_c02_second_sink_tap:input_FL\n  |<- r79lb_ns_b2_1141702:monitor_FL\nr79lb_1141702_c02_second_sink_tap:input_FR\n  |<- r79lb_ns_b2_1141702:monitor_FR\noutput.r79lb_1141702_c02_second_sink:output_FL\n  |-> r79lb_ns_b2_1141702:playback_FL\noutput.r79lb_1141702_c02_second_sink:output_FR\n  |-> r79lb_ns_b2_1141702:playback_FR\ninput.r79lb_1141702_c02_second_sink:input_FL\n  |<- r79lb_ns_a_1141702:monitor_FL\ninput.r79lb_1141702_c02_second_sink:input_FR\n  |<- r79lb_ns_a_1141702:monitor_FR\nr79lb_1141702_c02_second_sink_feed:output_FL\n  |-> r79lb_ns_a_1141702:playback_FL\nr79lb_1141702_c02_second_sink_feed:output_FR\n  |-> r79lb_ns_a_1141702:playback_FR\n",
+  "stdout_sha256": "1eace89913194c07ce97fbc95795b96366ad18256ffb01a71062827183aa083e",
+  "timed_out": false
+ },
+ "r91_residue": [],
+ "tag": "exit",
+ "when": "2026-10-15T17:07:50Z"
+}

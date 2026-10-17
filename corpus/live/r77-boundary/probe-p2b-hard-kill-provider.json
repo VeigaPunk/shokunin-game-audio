@@ -1,0 +1,202 @@
+{
+ "probe": "r77-boundary/p2b-hard-kill-provider",
+ "t0": "2026-10-14T19:49:44Z",
+ "create_node": {
+  "cmd": "create-node adapter { factory.name = support.null-audio-sink node.name = r77bkill media.class = Audio/Sink object.linger = false audio.rate = 48000 audio.channels = 2 audio.position = [ FL FR ] }",
+  "pid": 502864,
+  "listed": true,
+  "cli_alive": true
+ },
+ "topology_before_kill": 6,
+ "after_kill": {
+  "cli_rc": -9,
+  "sink_still_listed": false,
+  "pactl_sources_grep": "0"
+ },
+ "capture": {
+  "rc": 1,
+  "killed_by_us": false,
+  "err": "/dev/shm/r77b/hardkill.wav",
+  "file": {
+   "bytes": 1152044,
+   "riff_size_field": "finalized",
+   "data_declared_field": "finalized",
+   "payload_bytes_actual": 1152000,
+   "frames": 288000,
+   "peak": 0.0,
+   "nonzero_frac": 0.0
+  },
+  "nominal_bytes": 1152044,
+  "overrun_vs_nominal": 0
+ },
+ "pacing": {
+  "samples": [
+   [
+    0.0,
+    null
+   ],
+   [
+    0.15,
+    28716
+   ],
+   [
+    0.3,
+    57388
+   ],
+   [
+    0.45,
+    86060
+   ],
+   [
+    0.6,
+    114732
+   ],
+   [
+    0.751,
+    143404
+   ],
+   [
+    0.901,
+    172076
+   ],
+   [
+    1.051,
+    200748
+   ],
+   [
+    1.201,
+    229420
+   ],
+   [
+    1.351,
+    262188
+   ],
+   [
+    1.501,
+    290860
+   ],
+   [
+    1.651,
+    319532
+   ],
+   [
+    1.801,
+    348204
+   ],
+   [
+    1.951,
+    376876
+   ],
+   [
+    2.101,
+    405548
+   ],
+   [
+    2.252,
+    434220
+   ],
+   [
+    2.402,
+    462892
+   ],
+   [
+    2.552,
+    491564
+   ],
+   [
+    2.702,
+    520236
+   ],
+   [
+    2.852,
+    548908
+   ],
+   [
+    3.002,
+    577580
+   ],
+   [
+    3.152,
+    606252
+   ],
+   [
+    3.302,
+    634924
+   ],
+   [
+    3.452,
+    663596
+   ],
+   [
+    3.602,
+    692268
+   ],
+   [
+    3.753,
+    720940
+   ],
+   [
+    3.903,
+    749612
+   ],
+   [
+    4.053,
+    778284
+   ],
+   [
+    4.203,
+    806956
+   ],
+   [
+    4.353,
+    835628
+   ],
+   [
+    4.503,
+    864300
+   ],
+   [
+    4.653,
+    892972
+   ],
+   [
+    4.803,
+    921644
+   ],
+   [
+    4.953,
+    950316
+   ],
+   [
+    5.103,
+    978988
+   ],
+   [
+    5.254,
+    1007660
+   ],
+   [
+    5.404,
+    1036332
+   ],
+   [
+    5.554,
+    1069100
+   ],
+   [
+    5.704,
+    1097772
+   ],
+   [
+    5.854,
+    1126444
+   ],
+   [
+    6.004,
+    1152044
+   ]
+  ],
+  "rate_after_kill_Bps": 191262.1,
+  "nominal_Bps": 192000
+ }
+}

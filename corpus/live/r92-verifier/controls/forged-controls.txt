@@ -1,0 +1,25 @@
+== blank-verdicts
+   laws: 270  PASS: 270  FAIL: 0  BLOCKED: 0
+== forge-own-nodes-after
+   laws: 270  PASS: 269  FAIL: 1  BLOCKED: 0
+    FAIL filterchain_arm_r92_probe.hygiene: filterchain_arm_r92_probe.own_nodes_after_empty: own_nodes_after=['r92a_999999_fake']
+== forge-d-copy-gain
+   laws: 270  PASS: 269  FAIL: 1  BLOCKED: 0
+    FAIL d_copy: d_copy.unity: {'200': 0.5, '1000': -0.0, '4000': 0.0, '12000': -0.0, '20000': -0.0}
+== forge-d-gneg140-unclamped
+   laws: 270  PASS: 268  FAIL: 2  BLOCKED: 0
+    FAIL d_gneg140: d_gneg140.is_minus120_response: -66.0; d_gneg140.not_unclamped: -66.0
+== pop-leg-i-2tap
+   laws: 272  PASS: 265  FAIL: 0  BLOCKED: 7
+    BLOCKED i_2tap: i_2tap.present_in_receipt: leg absent from the ir receipt; i_2tap.measured: valid=False links_ok=None; i_2tap.present_in_receipt: leg 
+== forge-v-spa-count
+   laws: 270  PASS: 269  FAIL: 1  BLOCKED: 0
+    FAIL v_spa: v_spa.six_plugins_no_ffmpeg: {"filter_graph_count": 5, "spa_ffmpeg_hits": []}
+== forge-residual-lsb
+   laws: 270  PASS: 269  FAIL: 1  BLOCKED: 0
+    FAIL i_residual: i_residual:i_2tap.le_1.0lsb: {"max_residual_lsb": 4.0, "lag": 24576, "compared": 12287, "n_gt_1lsb": 0, "peak_expected": 0.999939, "i
+== forge-i-2tap-gap
+   laws: 270  PASS: 269  FAIL: 1  BLOCKED: 0
+    FAIL i_2tap: i_2tap.gap64: 70
+
+# forgery controls: caught = 7 of 8

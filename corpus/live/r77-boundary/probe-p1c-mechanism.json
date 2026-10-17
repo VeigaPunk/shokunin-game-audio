@@ -1,0 +1,165 @@
+{
+ "probe": "r77-boundary/p1c-mechanism",
+ "t0": "2026-10-14T19:50:59Z",
+ "node_inventory": {
+  "total_nodes": 14,
+  "names": [
+   "Dummy-Driver",
+   "Freewheel-Driver",
+   "Midi-Bridge",
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "bluez_midi.server",
+   "Chromium",
+   "Chromium",
+   "pw-record",
+   "pw-cat"
+  ],
+  "monitor_named_nodes": [],
+  "sink_nodes": [
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink"
+  ],
+  "source_nodes": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source"
+  ]
+ },
+ "pactl_set_default_noop": {
+  "before": {
+   "get": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "meta": "Found \"default\" metadata 39\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\nupdate: id:83 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.source' value:'{ \"name\": \"alsa_inpu"
+  },
+  "after_pactl_set": {
+   "get": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "meta": "Found \"default\" metadata 39\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\nupdate: id:83 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.source' value:'{ \"name\": \"alsa_inpu"
+  },
+  "pactl_noop": true
+ },
+ "default_after_move": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+ "moved_matrix": [
+  {
+   "tag": "moved_spdif_bare",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "moved_spdif_bare__SPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/p1c_moved_spdif_bare__SPDIF.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 16384.0,
+    "nz": 0.7437,
+    "fft_hz": 1000.0,
+    "tone": true
+   },
+   "b": {
+    "tag": "moved_spdif_bare__SPK",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/p1c_moved_spdif_bare__SPK.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false
+   }
+  },
+  {
+   "tag": "moved_spdif_monitor_name",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_spdif_monitor_name__SPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/p1c_moved_spdif_monitor_name__SPDIF.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false
+   },
+   "b": {
+    "tag": "moved_spdif_monitor_name__SPK",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/p1c_moved_spdif_monitor_name__SPK.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true
+   }
+  },
+  {
+   "tag": "moved_speaker_bare",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_speaker_bare__SPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1c_moved_speaker_bare__SPDIF.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false
+   },
+   "b": {
+    "tag": "moved_speaker_bare__SPK",
+    "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1c_moved_speaker_bare__SPK.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true
+   }
+  },
+  {
+   "tag": "moved_garbage",
+   "target": "no_such_node_xyz",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_garbage__SPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true --target no_such_node_xyz -n 96000 /dev/shm/r77b/p1c_moved_garbage__SPDIF.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 4124.0,
+    "nz": 0.2026,
+    "fft_hz": 220.0,
+    "tone": false
+   },
+   "b": {
+    "tag": "moved_garbage__SPK",
+    "cmd": "pw-record -P stream.capture.sink=true --target no_such_node_xyz -n 96000 /dev/shm/r77b/p1c_moved_garbage__SPK.wav",
+    "rc": 1,
+    "bytes": 384044,
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true
+   }
+  }
+ ],
+ "restored": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+}

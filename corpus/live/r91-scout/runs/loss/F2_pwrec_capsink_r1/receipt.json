@@ -1,0 +1,694 @@
+{
+ "family": "F2_pwrec_capsink",
+ "final_bytes": 925740,
+ "frozen_bytes_between": false,
+ "leg": "F2_pwrec_capsink_r1",
+ "node_props_at_connect": {
+  "adapt.follower.spa-node": "",
+  "application.name": "pw-record",
+  "client.id": 139,
+  "clock.quantum-limit": 8192,
+  "factory.id": 9,
+  "library.name": "audioconvert/libspa-audioconvert",
+  "media.category": "Capture",
+  "media.class": "Stream/Input/Audio",
+  "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav",
+  "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav",
+  "media.role": "Music",
+  "media.type": "Audio",
+  "node.async": true,
+  "node.autoconnect": true,
+  "node.loop.class": "main",
+  "node.loop.name": "main-loop",
+  "node.name": "r91s_pwrec_capsink",
+  "node.rate": "1/48000",
+  "node.want-driver": true,
+  "object.id": 98,
+  "object.register": false,
+  "object.serial": 3966,
+  "port.group": "stream.0",
+  "stream.capture.sink": true,
+  "stream.is-live": true,
+  "target.object": "r91s_ns1"
+ },
+ "ns1_load": {
+  "idx": 536870916,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-null-sink",
+    "sink_name=r91s_ns1",
+    "node.description=r91scout_r91s_ns1"
+   ],
+   "dur_s": 0.003,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870916\n",
+   "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+   "timed_out": false
+  },
+  "ok": true,
+  "row": [
+   {
+    "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+    "index": 536870916,
+    "name": "module-null-sink"
+   }
+  ]
+ },
+ "post_unload_link_lines": [
+  "  |-> r91s_pwrec_capsink:input_FL",
+  "  |-> r91s_pwrec_capsink:input_FR",
+  "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+  "r91s_pwrec_capsink:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "r91s_pwrec_capsink:input_FR",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+  "  |-> r91s_pwrec_capsink:input_FL",
+  "  |-> r91s_pwrec_capsink:input_FR",
+  "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+  "r91s_pwrec_capsink:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "r91s_pwrec_capsink:input_FR",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+  "  |-> r91s_pwrec_capsink:input_FL",
+  "  |-> r91s_pwrec_capsink:input_FR",
+  "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+  "r91s_pwrec_capsink:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "r91s_pwrec_capsink:input_FR"
+ ],
+ "rep": 1,
+ "run": {
+  "argv": [
+   "pw-record",
+   "-P",
+   "stream.capture.sink=true",
+   "-P",
+   "node.name=r91s_pwrec_capsink",
+   "--target",
+   "r91s_ns1",
+   "-n",
+   "1000000",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav"
+  ],
+  "byte_cap_bytes": 4194304,
+  "combined_log_head": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\n",
+  "combined_log_len": 100,
+  "combined_log_sha256": "1ea325ac6eecb08dda22069ba512c89b42037b4c86a8a94d4e6399e666b7036c",
+  "elapsed_s": 4.821,
+  "killed": "wallcap",
+  "rc": -9,
+  "timeline": [
+   {
+    "file_bytes": 4140,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.0
+   },
+   {
+    "file_bytes": 32812,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.165
+   },
+   {
+    "file_bytes": 65580,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.321
+   },
+   {
+    "file_bytes": 94252,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.477
+   },
+   {
+    "file_bytes": 122924,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.633
+   },
+   {
+    "file_bytes": 151596,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.789
+   },
+   {
+    "file_bytes": 184364,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 0.945
+   },
+   {
+    "file_bytes": 213036,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "97a9b80ed7a2a709580e739631cde7d3a600202f302fde57799f182c0e26bc34",
+    "links_relevant": [
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "13e88cb7306a52228c67573873cbb84234506efd5be989070e39f1459180171b",
+    "node_id": 98,
+    "t": 1.101
+   },
+   {
+    "file_bytes": 241708,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "fbea1ae18534b8546abdcda078a4f181c89d48f5945dee188a7f4a43fc6d6d0b",
+    "node_id": 98,
+    "t": 1.266
+   },
+   {
+    "file_bytes": 274476,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "fbea1ae18534b8546abdcda078a4f181c89d48f5945dee188a7f4a43fc6d6d0b",
+    "node_id": 98,
+    "t": 1.421
+   },
+   {
+    "file_bytes": 303148,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "fbea1ae18534b8546abdcda078a4f181c89d48f5945dee188a7f4a43fc6d6d0b",
+    "node_id": 98,
+    "t": 1.578
+   },
+   {
+    "file_bytes": 331820,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "fbea1ae18534b8546abdcda078a4f181c89d48f5945dee188a7f4a43fc6d6d0b",
+    "node_id": 98,
+    "t": 1.734
+   },
+   {
+    "file_bytes": 360492,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "fbea1ae18534b8546abdcda078a4f181c89d48f5945dee188a7f4a43fc6d6d0b",
+    "node_id": 98,
+    "t": 1.89
+   },
+   {
+    "file_bytes": 393260,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b6532dfc7f76bbb1f739ef3e4512fa54ea165f26a46a1feb1eed67273d9d644e",
+    "node_id": 98,
+    "t": 2.046
+   },
+   {
+    "file_bytes": 421932,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.202
+   },
+   {
+    "file_bytes": 450604,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.358
+   },
+   {
+    "file_bytes": 483372,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.514
+   },
+   {
+    "file_bytes": 512044,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.67
+   },
+   {
+    "file_bytes": 540716,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.824
+   },
+   {
+    "file_bytes": 573484,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 2.98
+   },
+   {
+    "file_bytes": 602156,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.136
+   },
+   {
+    "file_bytes": 630828,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.291
+   },
+   {
+    "file_bytes": 659500,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.447
+   },
+   {
+    "file_bytes": 692268,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.603
+   },
+   {
+    "file_bytes": 720940,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.759
+   },
+   {
+    "file_bytes": 749612,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 3.915
+   },
+   {
+    "file_bytes": 782380,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "395ce35001debe593e1fcc834efea4255a6a18ea2a27535fcdbb8dfa6fe66cce",
+    "node_id": 98,
+    "t": 4.071
+   },
+   {
+    "file_bytes": 811052,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "1ea9a34d5c0f6b500180b1a9acd79cf6aa1d2b67df4a3f7ecc9bdd34f4cee5ee",
+    "node_id": 98,
+    "t": 4.227
+   },
+   {
+    "file_bytes": 839724,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |-> r79lb_ns_b_1141702:playback_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "1ea9a34d5c0f6b500180b1a9acd79cf6aa1d2b67df4a3f7ecc9bdd34f4cee5ee",
+    "node_id": 98,
+    "t": 4.383
+   },
+   {
+    "file_bytes": 872492,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |<- gst_r81_bnd_snk:output_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "afd2af28180a8af1b2bf5f1088fc48e938e7d4c12dc056166d588dd7d435c324",
+    "node_id": 98,
+    "t": 4.538
+   },
+   {
+    "file_bytes": 901164,
+    "info_head": "\tid: 98\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tapplication.name = \"pw-record\"\n*\t\tnode.name = \"r91s_pwrec_capsink\"\n*\t\tstream.capture.sink = \"true\"\n*\t\tnode.rate = \"1/48000\"\n*\t\tmedia.type = \"Audio\"\n*\t\tmedia.category = \"Capture\"\n*\t\tmedia.role = \"Music\"\n*\t\tmedia.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\tmedia.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F2_pwrec_capsink_r1.wav\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = ",
+    "info_rc": 0,
+    "info_sha256": "31c878bffb199c134b1296ab1e467b905293eb0684cbf271bc697a9028649aa9",
+    "links_relevant": [
+     "  |-> r91s_pwrec_capsink:input_FL",
+     "  |-> r91s_pwrec_capsink:input_FR",
+     "  |<- gst_r81_bnd_snk:output_FR",
+     "r91s_pwrec_capsink:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "r91s_pwrec_capsink:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "afd2af28180a8af1b2bf5f1088fc48e938e7d4c12dc056166d588dd7d435c324",
+    "node_id": 98,
+    "t": 4.694
+   }
+  ],
+  "unload_at": 1.2,
+  "unload_result": {
+   "gone": true,
+   "ok": true,
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "unload_t": 1.228,
+  "wall_cap_s": 4.8
+ },
+ "src_load": null,
+ "src_state": null,
+ "tone_state": null
+}

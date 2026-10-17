@@ -1,0 +1,21 @@
+# r79 simplifier comparator — declared classes (regexes on the flattened leaf path).
+# Every class below is per-run identity or a host-state clock/snapshot; none is
+# a verdict leaf. The declared diff COUNT per class is reported; verdict leaves
+# (failures, unions, carries_tone/mine_*, exit codes, classes, blocked rows,
+# loader verdicts) are never declared.
+
+# identity: daemon-assigned ids and child pids (differ every run by design)
+\.client_id$
+\.module_id$
+# timing: measured clocks
+\.wall_s$
+\.when_s$
+\.waited_s$
+\.monitor_waited_s$
+\.applied_in_s$
+\.samples\[\d+\]\.at_s$
+# per-run negotiated stream params (the pwcat arm derives its verdict from
+# the within-run SET of these values, and records them as data)
+\.latency_param
+# host process snapshot taken at each entry's start (sibling lanes)
+\.contention\.

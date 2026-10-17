@@ -1,0 +1,1217 @@
+{
+ "group": "g1-both-sides",
+ "host_start": {
+  "t": 1792051314.232,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 20,
+  "foreign_r7x_nodes": [
+   "r79lb_4035425_c01_sink_tap",
+   "r79lb_ns_a_4035425",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b2_4035425",
+   "r79lb_ns_b_4035425",
+   "r79lb_ns_b_4041488"
+  ],
+  "foreign_procs": [
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log",
+   "4035425 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "4041479 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-simplifier/control && (time python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79) > control-run.stdout.log 2> control-run.stderr.log; echo \"exit=$?\"",
+   "4041486 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-simplifier/control && (time python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79) > control-run.stdout.log 2> control-run.stderr.log; echo \"exit=$?\"",
+   "4041487 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "4041488 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "4093446 [pw-record] <defunct>",
+   "4094948 pw-loopback -n r79lb_4041488_b02_sink_noprop -C r79lb_ns_a_4041488 -P r79lb_ns_b_4041488",
+   "4124411 pw-record -P stream.capture.sink=true -P node.name=r79lb_4035425_c01_sink_tap --target r79lb_ns_b_4035425 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-skeqxr13/tap_c01_sink.wav",
+   "4125919 pw-loopback -n r79lb_4035425_c01_sink -C r79lb_ns_a_4035425 -i stream.capture.sink=true -P r79lb_ns_b_4035425"
+  ]
+ },
+ "sinks": [
+  {
+   "name": "r79b_4127742_ns_a",
+   "module_id": 536870917,
+   "rc": 0,
+   "err": ""
+  },
+  {
+   "name": "r79b_4127742_ns_b",
+   "module_id": 536870916,
+   "rc": 0,
+   "err": ""
+  },
+  {
+   "name": "r79b_4127742_ns_c",
+   "module_id": 536870920,
+   "rc": 0,
+   "err": ""
+  }
+ ],
+ "legs": [
+  {
+   "leg": "g1a-both-honored",
+   "name": "r79b_4127742_g1a-both-honored",
+   "argv": [
+    "-C",
+    "r79b_4127742_ns_a",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79b_4127742_ns_b"
+   ],
+   "tone_into": "r79b_4127742_ns_a",
+   "tap_sink": "r79b_4127742_ns_b",
+   "note": "control: both sides resolvable",
+   "wait_s": 0.013,
+   "nodes_seen": [
+    "input.r79b_4127742_g1a-both-honored",
+    "output.r79b_4127742_g1a-both-honored"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 110,
+      "serial": 58625,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 132,
+      "serial": 58624,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1a-both-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1a-both-honored:output_FR -> r79b_4127742_ns_b:playback_FR",
+      "r79b_4127742_g1a-both-honored_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1a-both-honored_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1a-both-honored:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1a-both-honored:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 110,
+      "serial": 58625,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 132,
+      "serial": 58624,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1a-both-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1a-both-honored:output_FR -> r79b_4127742_ns_b:playback_FR",
+      "r79b_4127742_g1a-both-honored_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1a-both-honored_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1a-both-honored:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1a-both-honored:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "tap": {
+    "target": "r79b_4127742_ns_b",
+    "record": {
+     "rc": 1,
+     "bytes": 192044,
+     "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1a-both-honored_r79b_4127742_tap.wav\n"
+    },
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1a-both-honored_r79b_4127742_tap.wav",
+     "exists": true,
+     "frames": 48000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 192044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5667.4,
+      5667.3
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1b-capture-honored-playback-fallback",
+   "name": "r79b_4127742_g1b-capture-honored-playback-fallback",
+   "argv": [
+    "-C",
+    "r79b_4127742_ns_a",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "no_such_sink_4127742"
+   ],
+   "tone_into": null,
+   "tap_sink": null,
+   "note": "capture resolvable, playback garbage; no tone (playback may fall back to the shared default sink)",
+   "wait_s": 0.014,
+   "nodes_seen": [
+    "input.r79b_4127742_g1b-capture-honored-playback-fallback",
+    "output.r79b_4127742_g1b-capture-honored-playback-fallback"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 134,
+      "serial": 58813,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 178,
+      "serial": 58812,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1b-capture-honored-playback-fallback:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1b-capture-honored-playback-fallback:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1b-capture-honored-playback-fallback:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1b-capture-honored-playback-fallback:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 134,
+      "serial": 58813,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 178,
+      "serial": 58812,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1b-capture-honored-playback-fallback:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1b-capture-honored-playback-fallback:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1b-capture-honored-playback-fallback:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1b-capture-honored-playback-fallback:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1c-capture-fallback-playback-honored",
+   "name": "r79b_4127742_g1c-capture-fallback-playback-honored",
+   "argv": [
+    "-C",
+    "no_such_node_4127742",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79b_4127742_ns_b"
+   ],
+   "tone_into": null,
+   "tap_sink": null,
+   "note": "capture garbage+prop, playback resolvable; no tone",
+   "wait_s": 0.012,
+   "nodes_seen": [
+    "input.r79b_4127742_g1c-capture-fallback-playback-honored",
+    "output.r79b_4127742_g1c-capture-fallback-playback-honored"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 115,
+      "serial": 58862,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 151,
+      "serial": 58861,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79b_4127742_g1c-capture-fallback-playback-honored:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79b_4127742_g1c-capture-fallback-playback-honored:input_FR",
+      "output.r79b_4127742_g1c-capture-fallback-playback-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1c-capture-fallback-playback-honored:output_FR -> r79b_4127742_ns_b:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 115,
+      "serial": 58862,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 151,
+      "serial": 58861,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79b_4127742_g1c-capture-fallback-playback-honored:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79b_4127742_g1c-capture-fallback-playback-honored:input_FR",
+      "output.r79b_4127742_g1c-capture-fallback-playback-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1c-capture-fallback-playback-honored:output_FR -> r79b_4127742_ns_b:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1d-both-fallback-noprop",
+   "name": "r79b_4127742_g1d-both-fallback-noprop",
+   "argv": [
+    "-C",
+    "no_such_node_4127742",
+    "-P",
+    "no_such_sink_4127742"
+   ],
+   "tone_into": null,
+   "tap_sink": null,
+   "note": "both garbage, no prop; capture falls to the source domain (unnegotiated when no default source), playback to the default sink",
+   "wait_s": 0.014,
+   "nodes_seen": [
+    "input.r79b_4127742_g1d-both-fallback-noprop",
+    "output.r79b_4127742_g1d-both-fallback-noprop"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 104,
+      "serial": 58962,
+      "class": "Stream/Input/Audio",
+      "state": "suspended",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": []
+     },
+     "output": {
+      "present": true,
+      "id": 168,
+      "serial": 58961,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1d-both-fallback-noprop:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1d-both-fallback-noprop:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 104,
+      "serial": 58962,
+      "class": "Stream/Input/Audio",
+      "state": "suspended",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": []
+     },
+     "output": {
+      "present": true,
+      "id": 168,
+      "serial": 58961,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1d-both-fallback-noprop:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1d-both-fallback-noprop:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1e-both-fallback-prop-pair",
+   "name": "r79b_4127742_g1e-both-fallback-prop-pair",
+   "argv": [
+    "-C",
+    "no_such_node_4127742",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "no_such_sink_4127742"
+   ],
+   "tone_into": null,
+   "tap_sink": null,
+   "note": "both garbage + prop: capture -> default sink monitor, playback -> default sink; watch for a self-loop through the shared sink",
+   "wait_s": 0.014,
+   "nodes_seen": [
+    "input.r79b_4127742_g1e-both-fallback-prop-pair",
+    "output.r79b_4127742_g1e-both-fallback-prop-pair"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 132,
+      "serial": 59050,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 168,
+      "serial": 59049,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FR",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 132,
+      "serial": 59050,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 168,
+      "serial": 59049,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FR",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t4.0": {
+     "input": {
+      "present": true,
+      "id": 132,
+      "serial": 59050,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "no_such_node_4127742",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 168,
+      "serial": 59049,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "no_such_sink_4127742",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79b_4127742_g1e-both-fallback-prop-pair:input_FR",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+      "output.r79b_4127742_g1e-both-fallback-prop-pair:output_FR -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1f-playback-prop-overrides-flag",
+   "name": "r79b_4127742_g1f-playback-prop-overrides-flag",
+   "argv": [
+    "-C",
+    "r79b_4127742_ns_a",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79b_4127742_ns_b",
+    "-o",
+    "target.object=r79b_4127742_ns_c"
+   ],
+   "tone_into": "r79b_4127742_ns_a",
+   "tap_sink": "r79b_4127742_ns_c",
+   "note": "both flags resolvable + playback prop to a third probe sink",
+   "wait_s": 0.014,
+   "nodes_seen": [
+    "input.r79b_4127742_g1f-playback-prop-overrides-flag",
+    "output.r79b_4127742_g1f-playback-prop-overrides-flag"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 171,
+      "serial": 59194,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 153,
+      "serial": 59193,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_c",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_c:playback_FL",
+      "r79b_4127742_ns_c:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1f-playback-prop-overrides-flag:output_FL -> r79b_4127742_ns_c:playback_FL",
+      "output.r79b_4127742_g1f-playback-prop-overrides-flag:output_FR -> r79b_4127742_ns_c:playback_FR",
+      "r79b_4127742_g1f-playback-prop-overrides-flag_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1f-playback-prop-overrides-flag_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1f-playback-prop-overrides-flag:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1f-playback-prop-overrides-flag:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true,
+      "r79b_4127742_ns_c": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 171,
+      "serial": 59194,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 153,
+      "serial": 59193,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_c",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_c:playback_FL",
+      "r79b_4127742_ns_c:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1f-playback-prop-overrides-flag:output_FL -> r79b_4127742_ns_c:playback_FL",
+      "output.r79b_4127742_g1f-playback-prop-overrides-flag:output_FR -> r79b_4127742_ns_c:playback_FR",
+      "r79b_4127742_g1f-playback-prop-overrides-flag_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1f-playback-prop-overrides-flag_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1f-playback-prop-overrides-flag:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1f-playback-prop-overrides-flag:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true,
+      "r79b_4127742_ns_c": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "tap": {
+    "target": "r79b_4127742_ns_c",
+    "record": {
+     "rc": 1,
+     "bytes": 192044,
+     "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1f-playback-prop-overrides-flag_r79b_4127742_tap.wav\n"
+    },
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1f-playback-prop-overrides-flag_r79b_4127742_tap.wav",
+     "exists": true,
+     "frames": 48000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 192044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5667.4,
+      5667.3
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "leg": "g1g-long-flags-both-honored",
+   "name": "r79b_4127742_g1g-long-flags-both-honored",
+   "argv": [
+    "--capture",
+    "r79b_4127742_ns_a",
+    "--capture-props",
+    "stream.capture.sink=true",
+    "--playback",
+    "r79b_4127742_ns_b"
+   ],
+   "tone_into": "r79b_4127742_ns_a",
+   "tap_sink": "r79b_4127742_ns_b",
+   "note": "long-form flags equivalence",
+   "wait_s": 0.013,
+   "nodes_seen": [
+    "input.r79b_4127742_g1g-long-flags-both-honored",
+    "output.r79b_4127742_g1g-long-flags-both-honored"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 159,
+      "serial": 59326,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 92,
+      "serial": 59325,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1g-long-flags-both-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1g-long-flags-both-honored:output_FR -> r79b_4127742_ns_b:playback_FR",
+      "r79b_4127742_g1g-long-flags-both-honored_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1g-long-flags-both-honored_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1g-long-flags-both-honored:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1g-long-flags-both-honored:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 159,
+      "serial": 59326,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 92,
+      "serial": 59325,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_4127742_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_4127742_ns_a:monitor_FL",
+      "r79b_4127742_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_4127742_ns_b:playback_FL",
+      "r79b_4127742_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_4127742_g1g-long-flags-both-honored:output_FL -> r79b_4127742_ns_b:playback_FL",
+      "output.r79b_4127742_g1g-long-flags-both-honored:output_FR -> r79b_4127742_ns_b:playback_FR",
+      "r79b_4127742_g1g-long-flags-both-honored_tone:output_FL -> r79b_4127742_ns_a:playback_FL",
+      "r79b_4127742_g1g-long-flags-both-honored_tone:output_FR -> r79b_4127742_ns_a:playback_FR",
+      "r79b_4127742_ns_a:monitor_FL -> input.r79b_4127742_g1g-long-flags-both-honored:input_FL",
+      "r79b_4127742_ns_a:monitor_FR -> input.r79b_4127742_g1g-long-flags-both-honored:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_4127742_ns_a": true,
+      "r79b_4127742_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "tap": {
+    "target": "r79b_4127742_ns_b",
+    "record": {
+     "rc": 1,
+     "bytes": 192044,
+     "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1g-long-flags-both-honored_r79b_4127742_tap.wav\n"
+    },
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g1g-long-flags-both-honored_r79b_4127742_tap.wav",
+     "exists": true,
+     "frames": 48000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 192044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5667.4,
+      5667.3
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  }
+ ],
+ "host_end": {
+  "t": 1792051350.89,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 26,
+  "foreign_r7x_nodes": [
+   "r79b_4127742_ns_a",
+   "r79b_4127742_ns_b",
+   "r79b_4127742_ns_c",
+   "r79lb_4035425_c07_prop_beats_flag_ctrltap",
+   "r79lb_4035425_c07_prop_beats_flag_tap",
+   "r79lb_ns_a_4035425",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_a_60873",
+   "r79lb_ns_b2_4035425",
+   "r79lb_ns_b_4035425",
+   "r79lb_ns_b_4041488",
+   "r79lb_ns_b_60873"
+  ],
+  "foreign_procs": [
+   "35752 pw-loopback -n r79lb_4041488_b06_zero -C 0 -P r79lb_ns_b_4041488",
+   "59668 pw-record -P stream.capture.sink=true -P node.name=r79lb_4035425_c07_prop_beats_flag_ctrltap --target r79lb_ns_b_4035425 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-skeqxr13/tap_c07_ctrl.wav",
+   "59669 pw-record -P stream.capture.sink=true -P node.name=r79lb_4035425_c07_prop_beats_flag_tap --target r79lb_ns_b2_4035425 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-skeqxr13/tap_c07_prop_beats_flag.wav",
+   "61043 pw-loopback -n r79lb_4035425_c07_prop_beats_flag -C r79lb_ns_a_4035425 -i stream.capture.sink=true -P r79lb_ns_b_4035425 -o target.object=r79lb_ns_b2_4035425",
+   "61720 [pw-record] <defunct>",
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log",
+   "4035425 python3 corpus/fixtures/measure_audio.py --probe-capture-r79"
+  ]
+ },
+ "final_check": {
+  "group": "g1",
+  "own_nodes_after": [],
+  "own_sink_modules_after": [],
+  "own_procs_alive": []
+ }
+}

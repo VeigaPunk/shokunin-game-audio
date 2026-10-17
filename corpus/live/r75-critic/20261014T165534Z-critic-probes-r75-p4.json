@@ -1,0 +1,55 @@
+{
+ "P4": {
+  "probe": "P4 tail scrub / racy-line filter audit",
+  "regex_cases": {
+   "pacat_racy_match_real_line": false,
+   "pacat_racy_match_truncated": true,
+   "pacat_racy_match_drain": true,
+   "pacat_racy_match_spec": false,
+   "ffplay_status_filter_nan_fragment": true,
+   "ffplay_status_filter_detects": true
+  },
+  "synthetic": {
+   "spec_line": "Using sample spec <input>'",
+   "aplay_quoted_abs_path": "Playing WAVE <input>' : Signed 16 bit",
+   "aplay_quoted_abs_path_spaced": "Playing WAVE <input>' : Signed 16 bit",
+   "ffplay_unquoted_abs_path": "<input>: Invalid data found",
+   "ffplay_unquoted_abs_path_spaced": "/tmp/a <input>: Invalid data found",
+   "ffplay_dev_stdin": "Input #0, wav, from <input>':"
+  },
+  "receipt": {
+   "path": "corpus/live/runs/20261014T165017429491Z-consumers2-r75/measurements.json",
+   "sha256": "0829a5986bb6ca70c5c9b06b50bf661e9c8dbbe7cddefac5b16e860e2c2a76d4",
+   "tails": 121,
+   "racy_tail_leaves": 9,
+   "racy_tail_sample": [
+    [
+     "/measurements/consumer2_ffplay_ops_r75_probe/fifo_no_writer/stderr_tail",
+     "    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B"
+    ],
+    [
+     "/measurements/consumer2_dec_act_r75_probe/consumers/paplay/transport_axis/file/stderr_tail",
+     "Time: 0.000 sec; Latency: 34750 usec."
+    ],
+    [
+     "/measurements/consumer2_dec_act_r75_probe/consumers/paplay/transport_axis/stdin_pipe/stderr_tail",
+     "Time: 0.000 sec; Latency: 34750 usec."
+    ],
+    [
+     "/measurements/consumer2_dec_act_r75_probe/consumers/paplay/transport_axis/redirected_fd/stderr_tail",
+     "Time: 0.000 sec; Latency: 34750 usec."
+    ],
+    [
+     "/measurements/consumer2_dec_act_r75_probe/consumers/paplay/transport_axis/fifo_path/stderr_tail",
+     "Time: 0.000 sec; Latency: 34750 usec."
+    ],
+    [
+     "/measurements/consumer2_dec_hcom_r75_probe/consumers/paplay/transport_axis/file/stderr_tail",
+     "Time: 0.000 sec; Latency: 34750 usec."
+    ]
+   ],
+   "hostpath_tails": 0,
+   "witness_destroyed_spec_line": "Using sample spec <input>'"
+  }
+ }
+}

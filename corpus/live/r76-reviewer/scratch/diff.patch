@@ -1,0 +1,1221 @@
+commit d566a317e6b849032c444155e933b33a102bbada
+Author: ci <ci@local>
+Date:   Wed Oct 14 15:30:35 2026 -0300
+
+    r76: capture-side consumers — pw-record/parecord/arecord/ffmpeg capture lattice
+    
+    six-entry capture_*_r76_probe ledger family (gate, bounded, sever,
+    name-axis, device-axis, roundtrip) + shared capture helpers. Source
+    prescence gates measured (explicit --target/-d required); ALSA
+    default/pipewire capture-blocked (r75 playback inversion); bound-unit
+    partition (frame-exact vs stream-time vs byte-cap); TERM finalizes /
+    KILL leaves consumer-specific wounds (pw-record/parecord placeholder_8,
+    ffmpeg placeholder_ff, arecord 0x80000000 accept-and-lie); name axis
+    partitioned (extension-driven vs flag vs strict); monitor roundtrip
+    confirmed at exact byte count + content witness.
+    
+    Author receipts: 2 canonical runs byte-identical sha ba36cd70...
+
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+index 85fb691..b240aa3 100755
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -7,12 +7,15 @@ import json
+ import os
+ from pathlib import Path
+ import re
++import select
+ import signal
++import struct
+ import subprocess
+ import sys
+ import tempfile
+ import threading
+ import time
++import wave
+ 
+ import numpy as np
+ 
+@@ -2904,6 +2907,1126 @@ def consumers2_ffplay_ops_entry():
+     return entry
+ 
+ 
++# r76 CAPTURE direction: the corpus carried only PLAYBACK consumers; this
++# arm adds the RECORD side — four capture consumers on bounded record
++# operations (a new ledger family, --probe-capture-r76; prior rows
++# untouched). Surface facts below are THIS-HOST measurements (PipeWire
++# 1.6.8, pacat 17.0-98, alsa-utils 1.2.16, ffmpeg n9.0.1/lavf 63.1.101);
++# counts and byte shapes are the pinned claims, names are the inventory:
++#   pw-record (PipeWire native): --target is REQUIRED — the auto-link
++#     fails 'no target node available' (rc=1, 44-byte empty header); a
++#     monitor is reached by '--target <sink node> -P
++#     stream.capture.sink=true' ('<x>.monitor' is a pactl alias, not a
++#     node). -n/--sample-count is an EXACT frame bound; a complete
++#     bounded capture still exits rc=1 — rc is never the verdict. SIGTERM
++#     finalizes the header (rc=1); SIGKILL leaves riff_size=8/data=0 —
++#     the open-time header, never patched.
++#   parec/parecord (pacat record): -d is REQUIRED — bare parec/parecord
++#     fail 'Stream error: No such entity'; -d accepts @DEFAULT_SOURCE@ /
++#     @DEFAULT_MONITOR@ / literal source names. There is NO native
++#     duration or byte bound — the process bound is SIGTERM (then the
++#     outer KILL). Captured bytes land in 64 KiB flush granules: TERM
++#     exits rc=0 with a FINALIZED header carrying only the flushed
++#     granules (the buffered remainder is lost); KILL leaves the
++#     open-time header unpatched.
++#   arecord (in-process ALSA): -d/-s is an exact sample-domain bound —
++#     even on the UNPACED null device ('-d 1' returns in ~0.01 s with
++#     exactly 192044 B); an unbounded '-D null' run floods ~2 GiB
++#     rotation files at CPU speed — never run null without -d/-s. The
++#     device axis INVERTS r75's playback result: -D default/-D pipewire
++#     are BLOCKED for capture (set_params:1462) though they accepted
++#     playback. TERM -> 'Aborted by signal Terminated' rc=1 with a
++#     FINALIZED file; KILL leaves the 0x80000000 placeholder that stdlib
++#     wave ACCEPTS and inflates (~3.1 h on a ~216 KB file —
++#     accept-and-lie, distinct from the pw-record/parec reject shape).
++#   ffmpeg (lavf capture — the second lavf leg in the record direction):
++#     -f pulse wants a LITERAL source name ('default' is not one ->
++#     rc=251 EIO); -f alsa the same idiom. -t is a wall-domain bound that
++#     overshoots ~0.6 % on paced sources. File output is 256 KiB
++#     buffered: TERM flushes + finalizes (rc=255); KILL leaves the
++#     unfinalized class — no file, a 0-byte file, or an 0xFFFFFFFF
++#     placeholder header over whatever prefix was already flushed
++#     (observed both 256-KiB-aligned and not; alignment is muxer-internal).
++#     Output format is EXTENSION-driven — an unknown suffix fails the
++#     muxer (rc=234 EINVAL) before any capture; -f overrides.
++CAPTURE_R76_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
++CAPTURE_R76_SEVER_WAIT_S = 1.5
++CAPTURE_R76_KILL_WAIT_S = 5.0
++CAPTURE_R76_PAREC_CAP_BYTES = 262144       # 4 x the 64 KiB flush granule
++CAPTURE_R76_PWR_FRAMES = 48000             # 1.0 s @ 48000 Hz x 2ch x s16
++CAPTURE_R76_NAME_FRAMES = 4800             # 0.1 s — name-axis legs
++CAPTURE_R76_FLUSH_GRANULE = 65536          # pacat stdout/sndfile flush
++CAPTURE_R76_FFMPEG_GRANULE = 262144        # ffmpeg file-output flush
++CAPTURE_R76_MEMBER = CONSUMER_R73_PACER    # 4.0 s wav for the roundtrip
++
++
++def _capture_tail(text, label):
++    """_consumer2_tail plus the capture-side nondeterminism: pacat record
++    progress lines ride _PACAT_RACY_TAIL, and PipeWire stream errors
++    carry per-run node/id/seq counters that must be normalized."""
++    ftext = "\n".join(ln for ln in text.splitlines()
++                      if not _PACAT_RACY_TAIL.match(ln))
++    tail = _consumer2_tail(ftext, label)
++    if not tail:
++        return tail
++    tail = re.sub(r"node \d+", "node <n>", tail)
++    tail = re.sub(r"id=\d+ seq=\d+", "id=<n> seq=<n>", tail)
++    return tail
++
++
++# Named failure classes, most-specific first — a leg's stderr maps to at
++# most one class so "absent source" is a NAMED verdict, never inferred.
++_CAPTURE_ERR_CLASSES = (
++    ("no_target_node", r"no target node available"),
++    ("pw_connect_failed", r"pw_context_connect\(\) failed[^\n]*"),
++    ("pa_no_such_entity", r"No such entity"),
++    ("pa_connect_failed",
++     r"(?:Connection failure|pa_context_connect\(\) failed)[^\n]*"),
++    ("alsa_channels", r"Channels count non available"),
++    ("alsa_hwparams", r"Unable to install hw params"),
++    ("alsa_unknown_pcm", r"Unknown PCM \S+"),
++    ("alsa_busy", r"Device or resource busy"),
++    ("ffmpeg_muxer", r"(?:Unable to find a suitable output format|"
++                     r"Error initializing the muxer|"
++                     r"Error opening output files)[^\n]*"),
++    ("ffmpeg_alsa", r"cannot (?:set parameters|open audio device)[^\n]*"),
++    ("ffmpeg_esrch", r"No such process"),
++    ("ffmpeg_io", r"Input/output error"),
++    ("aborted_by_signal", r"Aborted by signal [A-Za-z]+[^\n]*"),
++)
++
++
++def _capture_errclass(text):
++    """First matching named failure class on a consumer's stderr."""
++    for name, pat in _CAPTURE_ERR_CLASSES:
++        m = re.search(pat, text)
++        if m:
++            return name, m.group(0).strip()
++    return None, None
++
++
++def _capture_run(argv, timeout_s=CAPTURE_R76_TIMEOUT_S, env=None):
++    """One bounded consumer run -> (stderr_text, rc, blocked)."""
++    try:
++        proc = subprocess.run(argv, capture_output=True,
++                              timeout=timeout_s, env=env)
++        return proc.stderr.decode(errors="replace"), proc.returncode, None
++    except subprocess.TimeoutExpired as exc:
++        return ((exc.stderr or b"").decode(errors="replace"), None,
++                f"blocked: no verdict within {timeout_s} s")
++    except OSError as exc:
++        return "", None, f"spawn failed: {exc}"
++
++
++def _capture_wav_inspect(path):
++    """Structural walk of a just-written output file (wav or raw).
++
++    `riff_size_field`/`data_declared_field` classify the header SIZE
++    fields — {finalized, placeholder_8, placeholder_ff,
++    placeholder_80000000, zero, other} — so a severed write lands in a
++    named class instead of leaking a volatile byte count. `chunks` stops
++    at the data chunk (its declared size can be a bogus placeholder that
++    would walk the table into payload bytes)."""
++    insp = {"exists": path.exists()}
++    if not insp["exists"]:
++        return insp
++    data = path.read_bytes()
++    insp["bytes"] = len(data)
++    insp["riff"] = data[:4] == b"RIFF" and data[8:12] == b"WAVE"
++    if not insp["riff"]:
++        # never record raw head bytes — a raw stream's first bytes are
++        # captured CONTENT (host-audio dependent, volatile); the kind
++        # field is the verdict.
++        return insp
++    riff_sz = struct.unpack("<I", data[4:8])[0]
++    insp["riff_size_field"] = (
++        "finalized" if riff_sz == len(data) - 8 else
++        "placeholder_8" if riff_sz == 8 else
++        "placeholder_ff" if riff_sz == 0xFFFFFFFF else
++        "placeholder_80000000" if riff_sz == 0x80000000 else "other")
++    off, chunks = 12, []
++    while off + 8 <= len(data) and len(chunks) < 8:
++        cid = data[off:off + 4].decode("latin1")
++        csz = struct.unpack("<I", data[off + 4:off + 8])[0]
++        chunks.append({"id": cid, "declared": csz, "offset": off})
++        if cid == "data":
++            break
++        off += 8 + csz + (csz & 1)
++    insp["chunks"] = chunks
++    if chunks and chunks[0]["id"] == "fmt " and chunks[0]["declared"] >= 16:
++        try:
++            tag, ch, rate, _br, _ba, bits = struct.unpack(
++                "<HHIIHH", data[20:36])
++            insp["fmt"] = {"tag": tag, "channels": ch, "rate": rate,
++                           "bits": bits}
++        except struct.error:
++            pass
++    for c in chunks:
++        if c["id"] == "data":
++            actual = len(data) - (c["offset"] + 8)
++            insp["data_declared"] = c["declared"]
++            insp["data_actual"] = actual
++            insp["data_finalized"] = c["declared"] == actual
++            insp["data_declared_field"] = (
++                "finalized" if c["declared"] == actual else
++                "zero" if c["declared"] == 0 else
++                "placeholder_ff" if c["declared"] == 0xFFFFFFFF else
++                "placeholder_80000000" if c["declared"] == 0x80000000
++                else "other")
++            insp["data_64k_aligned"] = (
++                actual % CAPTURE_R76_FLUSH_GRANULE == 0)
++            insp["data_256k_aligned"] = (
++                actual % CAPTURE_R76_FFMPEG_GRANULE == 0)
++            insp["data_4k_aligned"] = actual % 4096 == 0
++    return insp
++
++
++def _capture_out_kind(insp):
++    """Container class of a produced output: what the name axis selects.
++    Works on both the full inspect dict and the reduced sever-cell `file`
++    leaf (which carries file_zero_bytes / riff_size_field instead)."""
++    if not insp.get("exists"):
++        return "missing"
++    if insp.get("bytes") == 0 or insp.get("file_zero_bytes"):
++        return "empty"
++    if insp.get("riff") or insp.get("riff_size_field"):
++        return "riff_wav"
++    return "raw_stream"
++
++
++def _capture_parser_verdict(path, insp):
++    """stdlib wave + ffprobe usability on a possibly-unfinalized wav —
++    the `wave_frames_class` comparison to the honest frame count exposes
++    arecord-KILL's accept-and-lie (0x80000000 declared on ~54 K frames of
++    real data -> wave reports 536870912)."""
++    v = {"wave_opens": False, "wave_error": None,
++         "wave_frames_class": None, "ffprobe_parses": None}
++    try:
++        with wave.open(str(path), "rb") as w:
++            n = w.getnframes()
++        v["wave_opens"] = True
++        fmt = insp.get("fmt") or {}
++        frame_bytes = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
++        honest = insp.get("data_actual", 0) // frame_bytes \
++            if frame_bytes else 0
++        if n == 0:
++            cls = "honest_empty" if honest == 0 else "underreports"
++        elif n == honest:
++            cls = "honest"
++        elif n > honest * 4:
++            cls = "inflated"
++        else:
++            cls = "short"
++        v["wave_frames_class"] = cls
++    except Exception as exc:
++        v["wave_error"] = type(exc).__name__
++    try:
++        proc = subprocess.run(
++            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
++             "-of", "json", str(path)],
++            capture_output=True, timeout=10)
++        meta = json.loads(proc.stdout or b"{}")
++        v["ffprobe_parses"] = (proc.returncode == 0 and
++                               meta.get("format", {}).get("duration")
++                               is not None)
++    except (subprocess.TimeoutExpired, OSError, ValueError):
++        v["ffprobe_parses"] = False
++    return v
++
++
++def _capture_inventory():
++    """Source/device enumeration shared by the capture entries — the
++    gate of record: when an enumeration is empty the dependent leg is a
++    named `blocked`, never a fabricated capture."""
++    inv = {"sources": [], "monitors": [], "default_source": None,
++           "default_sink": None, "server_name": None,
++           "pw_capture_ports": [], "alsa_capture_devices": [],
++           "alsa_plugins": [], "ffmpeg_demuxers": {}}
++    try:
++        proc = subprocess.run(["pactl", "list", "sources", "short"],
++                              capture_output=True, timeout=10)
++        for ln in proc.stdout.decode(errors="replace").splitlines():
++            parts = ln.split()
++            if len(parts) >= 2:
++                name = parts[1]
++                (inv["monitors"] if name.endswith(".monitor")
++                 else inv["sources"]).append(name)
++        inv["pactl_sources_exit"] = proc.returncode
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        inv["pactl_sources_exit"] = None
++        inv["pactl_sources_error"] = str(exc)[:120]
++    try:
++        proc = subprocess.run(["pactl", "info"], capture_output=True,
++                              timeout=10)
++        out = proc.stdout.decode(errors="replace")
++        for key, pat in (("default_source", r"^Default Source:\s*(.*)$"),
++                         ("default_sink", r"^Default Sink:\s*(.*)$"),
++                         ("server_name", r"^Server Name:\s*(.*)$")):
++            m = re.search(pat, out, re.M)
++            inv[key] = m.group(1).strip() if m else None
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        inv["pactl_error"] = str(exc)[:120]
++    try:
++        proc = subprocess.run(["pw-link", "-o"], capture_output=True,
++                              timeout=10)
++        inv["pw_capture_ports"] = [
++            ln.strip() for ln in
++            proc.stdout.decode(errors="replace").splitlines()
++            if ":capture_" in ln or ":monitor_" in ln]
++        inv["pw_link_exit"] = proc.returncode
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        inv["pw_link_exit"] = None
++        inv["pw_link_error"] = str(exc)[:120]
++    try:
++        proc = subprocess.run(["arecord", "-l"], capture_output=True,
++                              timeout=10)
++        inv["alsa_capture_devices"] = [
++            {"card": int(m.group(1)), "card_id": m.group(2),
++             "device": int(m.group(3))}
++            for m in re.finditer(
++                r"card (\d+): (\S+) \[[^\]]*\], device (\d+):",
++                proc.stdout.decode(errors="replace"))]
++        inv["arecord_l_exit"] = proc.returncode
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        inv["arecord_l_exit"] = None
++        inv["arecord_l_error"] = str(exc)[:120]
++    try:
++        proc = subprocess.run(["arecord", "-L"], capture_output=True,
++                              timeout=10)
++        inv["alsa_plugins"] = [
++            ln.strip() for ln in
++            proc.stdout.decode(errors="replace").splitlines()
++            if ln.strip() and not ln.startswith(" ")]
++    except (subprocess.TimeoutExpired, OSError):
++        pass
++    for dem in ("pulse", "alsa"):
++        try:
++            proc = subprocess.run(
++                ["ffmpeg", "-hide_banner", "-h", f"demuxer={dem}"],
++                capture_output=True, timeout=10)
++            inv["ffmpeg_demuxers"][dem] = proc.returncode == 0
++        except (subprocess.TimeoutExpired, OSError):
++            inv["ffmpeg_demuxers"][dem] = False
++    return inv
++
++
++def _capture_leg_targets(inv):
++    """Resolve the per-entry leg targets from the inventory: the pulse
++    source (default preferred), the monitor alias of the default sink,
++    and the first enumerated ALSA capture device."""
++    src = inv["default_source"] if inv["default_source"] in inv["sources"] \
++        else (inv["sources"][0] if inv["sources"] else None)
++    mon = (inv["default_sink"] + ".monitor") \
++        if (inv["default_sink"] and inv["default_sink"] + ".monitor"
++            in inv["monitors"]) \
++        else (inv["monitors"][0] if inv["monitors"] else None)
++    dev = inv["alsa_capture_devices"]
++    hw0 = f"hw:{dev[0]['card']},{dev[0]['device']}" if dev else None
++    return src, mon, hw0
++
++
++def _capture_file_leg(argv, fname, tmp, timeout_s=CAPTURE_R76_TIMEOUT_S,
++                      env=None, exact_bytes=False, paced=None):
++    """One bounded file-writing capture leg: argv + the output path
++    inside tmp; the receipt leaf carries rc + error class + the
++    header inspect. `exact_bytes` keeps raw byte counts (deterministic
++    legs only — sample/duration bounds on paced or unpaced ALSA);
++    non-exact legs carry duration_bucket_s + structural classes so
++    timing-dependent sizes never destabilize the receipt."""
++    out = Path(tmp) / fname
++    t0 = time.monotonic()
++    text, rc, blocked = _capture_run(argv + [str(out)], timeout_s, env)
++    wall = time.monotonic() - t0
++    insp = _capture_wav_inspect(out)
++    cls, line = _capture_errclass(text)
++    leg = {"argv": " ".join(argv) + " <out>", "exit_code": rc,
++           "error_class": cls, "blocked": blocked is not None}
++    if line or blocked:
++        # the tmp output path is per-run — normalize it out of the
++        # recorded line the same way argv already does.
++        leg["error"] = (line.replace(str(out), "<out>") if line
++                        else blocked)
++    fin = {"exists": insp["exists"]}
++    if insp.get("bytes") is not None and (exact_bytes or
++                                          insp["bytes"] == 0):
++        fin["bytes"] = insp["bytes"]
++    if insp.get("riff"):
++        fin["riff_size_field"] = insp["riff_size_field"]
++        fin["fmt"] = insp.get("fmt")
++        fin["data_declared_field"] = insp.get("data_declared_field")
++        fin["data_finalized"] = insp.get("data_finalized")
++        if exact_bytes:
++            fin["data_declared"] = insp.get("data_declared")
++            fin["data_actual"] = insp.get("data_actual")
++        else:
++            fmt = insp.get("fmt") or {}
++            fr = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
++            if fr and fmt.get("rate") and insp.get("data_actual") is not None:
++                dur = insp["data_actual"] / fr / fmt["rate"]
++                fin["duration_bucket_s"] = round(dur * 4) / 4
++    else:
++        fin["kind"] = _capture_out_kind(insp)
++    leg["file"] = fin
++    if paced is not None:
++        # pacing evidence is a wall-clock CLASS: a paced -d N leg cannot
++        # beat its own duration, an unpaced device can.
++        leg["wall_lt_0.5s"] = wall < 0.5
++        leg["paced_expectation"] = paced
++    tail = _capture_tail(text, str(out))
++    if tail:
++        leg["stderr_tail"] = tail
++    return leg
++
++
++def _capture_sever_cell(argv, fname, sig,
++                        wait_s=CAPTURE_R76_SEVER_WAIT_S,
++                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S, env=None):
++    """Spawn a file-writing capture, sever it mid-record, classify the
++    wound: exit code, header-finalize class, and parser usability. A leg
++    that exits BEFORE the sever (e.g. arecord hitting a held device)
++    records `early_exit_code` — an honest named failure, not a wound
++    verdict. The outer bound after the signal is KILL on the process
++    group."""
++    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
++        out = Path(tmp) / fname
++        proc = subprocess.Popen(argv + [str(out)],
++                                stdout=subprocess.PIPE,
++                                stderr=subprocess.PIPE,
++                                env={**os.environ, **(env or {})},
++                                start_new_session=True)
++        early_rc = None
++        try:
++            proc.wait(timeout=wait_s)
++            early_rc = proc.returncode
++        except subprocess.TimeoutExpired:
++            pass
++        if early_rc is None:
++            if proc.poll() is None:
++                proc.send_signal(sig)
++            try:
++                proc.wait(timeout=kill_wait_s)
++            except subprocess.TimeoutExpired:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++        err = proc.stderr.read().decode(errors="replace") \
++            if proc.stderr else ""
++        insp = _capture_wav_inspect(out)
++        cell = {"argv": " ".join(argv) + " <out>",
++                "signal": "SIGTERM" if sig == signal.SIGTERM else "SIGKILL",
++                "sever_after_s": wait_s,
++                "early_exit_code": early_rc,
++                "exit_code": proc.returncode}
++        cls, line = _capture_errclass(err)
++        if cls:
++            cell["error_class"], cell["error"] = \
++                cls, line.replace(str(out), "<out>")
++        fin = {"exists": insp["exists"]}
++        if insp.get("bytes") is not None:
++            fin["file_zero_bytes"] = insp["bytes"] == 0
++        if insp.get("riff"):
++            fin["riff_size_field"] = insp["riff_size_field"]
++            fin["data_declared_field"] = insp.get("data_declared_field")
++            fin["data_finalized"] = insp.get("data_finalized")
++            fin["data_actual_zero"] = insp.get("data_actual") == 0
++            fin["data_64k_aligned"] = insp.get("data_64k_aligned")
++            fin["data_256k_aligned"] = insp.get("data_256k_aligned")
++            fin["fmt"] = insp.get("fmt")
++        cell["file"] = fin
++        if insp.get("exists") and insp.get("bytes"):
++            cell["parsers"] = _capture_parser_verdict(out, insp)
++        tail = _capture_tail(err, str(out))
++        if tail:
++            cell["stderr_tail"] = tail
++        return cell
++
++
++def capture_gate_r76_entry():
++    """(1) Source-presence gate per consumer: the enumeration of record
++    (pactl sources / pw-link ports / arecord -l / ffmpeg demuxers) plus
++    the named-failure legs that PROVE each consumer's gate is a named
++    verdict, not an inference — a leg whose gate fails still lands a
++    classified row."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "capture consumer gate + enumeration surface",
++             "inventory": inv}
++    src, mon, hw0 = _capture_leg_targets(inv)
++    entry["viability"] = {
++        "pulse_source": bool(inv["sources"]),
++        "pw_target": bool(inv["sources"]),
++        "alsa_capture_device": bool(inv["alsa_capture_devices"]),
++        "monitor": bool(inv["monitors"]),
++        "ffmpeg_pulse": bool(inv["sources"]) and
++        inv["ffmpeg_demuxers"].get("pulse") is True,
++        "ffmpeg_alsa": bool(inv["alsa_capture_devices"]) and
++        inv["ffmpeg_demuxers"].get("alsa") is True}
++    gate = {}
++    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
++        # pw-record auto-link — the implicit default is NOT reachable
++        gate["pwrecord_auto_target"] = _capture_file_leg(
++            ["pw-record", "-n", str(CAPTURE_R76_NAME_FRAMES)],
++            "gate_auto.wav", tmp)
++        # pw-record daemon gate — dead runtime dir is a named failure
++        tgt = src or "alsa_input.nonexistent-r76"
++        gate["pwrecord_dead_daemon"] = _capture_file_leg(
++            ["pw-record", "--target", tgt, "-n",
++             str(CAPTURE_R76_NAME_FRAMES)], "gate_dead.wav", tmp,
++            env={**os.environ,
++                 "PIPEWIRE_RUNTIME_DIR": "/nonexistent-r76-gate"})
++        # '<x>.monitor' is a pactl alias, not a node — must fail
++        if mon:
++            gate["pwrecord_monitor_alias"] = _capture_file_leg(
++                ["pw-record", "--target", mon, "-n",
++                 str(CAPTURE_R76_NAME_FRAMES)], "gate_mon.wav", tmp)
++        # pacat record without -d — default source does NOT resolve
++        text, rc, blocked = _capture_run(["parec", "--raw"], 10)
++        cls, line = _capture_errclass(text)
++        gate["parec_no_device"] = {
++            "argv": "parec --raw (no -d)", "exit_code": rc,
++            "error_class": cls, "error": line or blocked}
++        gate["parecord_no_device"] = _capture_file_leg(
++            ["parecord"], "gate_prd.wav", tmp)
++        # dead pulse server on a VALID device token
++        text, rc, blocked = _capture_run(
++            ["parec", "--raw", "-d", "@DEFAULT_SOURCE@"], 10,
++            env={**os.environ,
++                 "PULSE_SERVER": "unix:/nonexistent-r76-gate"})
++        cls, line = _capture_errclass(text)
++        gate["parec_dead_server"] = {
++            "argv": "parec --raw -d @DEFAULT_SOURCE@",
++            "env_override": "PULSE_SERVER=unix:<nonexistent>",
++            "exit_code": rc, "error_class": cls,
++            "error": line or blocked}
++        # ffmpeg name gates: literal 'default' is not a source/device
++        gate["ffmpeg_pulse_default"] = _capture_file_leg(
++            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++             "-f", "pulse", "-i", "default", "-t", "1", "-y"],
++            "gate_ffp.wav", tmp)
++        gate["ffmpeg_alsa_default"] = _capture_file_leg(
++            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++             "-f", "alsa", "-i", "default", "-t", "1", "-y"],
++            "gate_ffa.wav", tmp)
++        text, rc, blocked = _capture_run(
++            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++             "-f", "pulse", "-i", "@DEFAULT_SOURCE@", "-t", "1", "-y",
++             str(Path(tmp) / "gate_ffd.wav")], 15,
++            env={**os.environ,
++                 "PULSE_SERVER": "unix:/nonexistent-r76-gate"})
++        cls, line = _capture_errclass(text)
++        gate["ffmpeg_pulse_dead_server"] = {
++            "argv": "ffmpeg -f pulse -i @DEFAULT_SOURCE@ -t 1",
++            "env_override": "PULSE_SERVER=unix:<nonexistent>",
++            "exit_code": rc, "error_class": cls,
++            "error": line or blocked}
++        # arecord plugin routes — viable for playback (r75), blocked for
++        # capture on this host
++        gate["arecord_default"] = _capture_file_leg(
++            ["arecord", "-D", "default", "-d", "1", "-f", "S16_LE",
++             "-r", "48000", "-c", "2", "-t", "wav"], "gate_adef.wav", tmp)
++        gate["arecord_pipewire"] = _capture_file_leg(
++            ["arecord", "-D", "pipewire", "-d", "1", "-f", "S16_LE",
++             "-r", "48000", "-c", "2", "-t", "wav"], "gate_apw.wav", tmp)
++        gate["arecord_unknown_pcm"] = _capture_file_leg(
++            ["arecord", "-D", "does_not_exist", "-d", "1", "-t", "wav"],
++            "gate_ax.wav", tmp)
++    entry["gate"] = gate
++    expected = {
++        "pwrecord_auto_target": (1, "no_target_node"),
++        "pwrecord_dead_daemon": (1, "pw_connect_failed"),
++        "pwrecord_monitor_alias": (1, "no_target_node"),
++        "parec_no_device": (1, "pa_no_such_entity"),
++        "parecord_no_device": (1, "pa_no_such_entity"),
++        "parec_dead_server": (1, "pa_connect_failed"),
++        "ffmpeg_pulse_default": (251, "ffmpeg_io"),
++        "ffmpeg_alsa_default": (251, "ffmpeg_alsa"),
++        "ffmpeg_pulse_dead_server": (253, "ffmpeg_esrch"),
++        "arecord_default": (1, "alsa_hwparams"),
++        "arecord_pipewire": (1, "alsa_hwparams"),
++        "arecord_unknown_pcm": (1, "alsa_unknown_pcm")}
++    for name, (rc, cls) in expected.items():
++        leg = gate.get(name)
++        if leg is None:
++            continue
++        if leg.get("exit_code") != rc or leg.get("error_class") != cls:
++            failures.append(f"gate {name}: expected ({rc},{cls}) got "
++                            f"({leg.get('exit_code')},"
++                            f"{leg.get('error_class')})")
++    entry["failures"] = failures
++    return entry
++
++
++def capture_bounded_r76_entry():
++    """(2) Bounded capture per consumer: each consumer's own bound —
++    pw-record -n (exact frame count), parec byte-cap on stdout (the
++    parent reads exactly N), parecord's only bound is the SIGTERM
++    sever, arecord -d (exact sample domain, paced on hw / unpaced on
++    null), ffmpeg -t (wall domain, ~0.6 % overshoot on paced)."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "capture consumers — bounded record operations"}
++    legs = {}
++    src, mon, hw0 = _capture_leg_targets(inv)
++    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
++        # arecord's hw leg FIRST — nothing in this arm has held the card
++        # yet, and a held device is a named failure, never retried blind.
++        if hw0:
++            legs["arecord_duration_hw"] = _capture_file_leg(
++                ["arecord", "-D", hw0, "-d", "1", "-f", "S16_LE",
++                 "-r", "48000", "-c", "2", "-t", "wav"],
++                "arec_hw.wav", tmp, exact_bytes=True, paced="hw")
++        else:
++            legs["arecord_duration_hw"] = {
++                "blocked": "arecord -l enumerated no capture device"}
++        legs["arecord_duration_null_unpaced"] = _capture_file_leg(
++            ["arecord", "-D", "null", "-d", "1", "-f", "S16_LE",
++             "-r", "48000", "-c", "2", "-t", "wav"],
++            "arec_null.wav", tmp, exact_bytes=True, paced="unpaced")
++        if src:
++            legs["pwrecord_sample_bound"] = _capture_file_leg(
++                ["pw-record", "--target", src,
++                 "-n", str(CAPTURE_R76_PWR_FRAMES),
++                 "--rate", "48000", "--channels", "2",
++                 "--format", "s16"], "pwr_n.wav", tmp,
++                exact_bytes=True)
++        else:
++            legs["pwrecord_sample_bound"] = {
++                "blocked": "pactl enumerated no non-monitor source"}
++        if inv["default_sink"]:
++            legs["pwrecord_monitor_bound"] = _capture_file_leg(
++                ["pw-record", "-P", "stream.capture.sink=true",
++                 "--target", inv["default_sink"],
++                 "-n", str(CAPTURE_R76_PWR_FRAMES),
++                 "--rate", "48000", "--channels", "2",
++                 "--format", "s16"], "pwr_mon.wav", tmp,
++                exact_bytes=True)
++        else:
++            legs["pwrecord_monitor_bound"] = {
++                "blocked": "pactl enumerated no default sink"}
++        if inv["sources"] or inv["monitors"]:
++            # parec byte cap: the consumer has NO bound — the parent
++            # reads exactly cap bytes of its --raw stdout, then SIGTERM.
++            argv = ["parec", "-v", "--raw", "--rate=48000",
++                    "--channels=2", "--format=s16le",
++                    "-d", "@DEFAULT_SOURCE@"]
++            proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
++                                    stderr=subprocess.PIPE,
++                                    start_new_session=True)
++            buf = bytearray()
++            deadline = time.monotonic() + CAPTURE_R76_TIMEOUT_S
++            while len(buf) < CAPTURE_R76_PAREC_CAP_BYTES:
++                left = deadline - time.monotonic()
++                if left <= 0:
++                    break
++                ready, _, _ = select.select([proc.stdout], [], [],
++                                            min(0.5, left))
++                if not ready:
++                    if proc.poll() is not None:
++                        break
++                    continue
++                chunk = os.read(proc.stdout.fileno(),
++                                min(65536, CAPTURE_R76_PAREC_CAP_BYTES
++                                    - len(buf)))
++                if not chunk:
++                    break
++                buf += chunk
++            if proc.poll() is None:
++                proc.send_signal(signal.SIGTERM)
++            try:
++                proc.wait(timeout=CAPTURE_R76_KILL_WAIT_S)
++            except subprocess.TimeoutExpired:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++            err = proc.stderr.read().decode(errors="replace")
++            cls, line = _capture_errclass(err)
++            spec = re.search(r"sample spec(?:ification)? '([^']+)'",
++                             err)
++            legs["parec_byte_cap"] = {
++                "argv": "parec -v --raw --rate=48000 --channels=2 "
++                        "--format=s16le -d @DEFAULT_SOURCE@ > stdout",
++                "bound": "parent reads exactly cap_bytes, then SIGTERM",
++                "cap_bytes": CAPTURE_R76_PAREC_CAP_BYTES,
++                "bytes_read": len(buf),
++                "cap_honored": len(buf) == CAPTURE_R76_PAREC_CAP_BYTES,
++                "exit_code": proc.returncode,
++                "pa_sample_spec": spec.group(1) if spec else None,
++                "error_class": cls}
++            tail = _capture_tail(err, "-")
++            if tail:
++                legs["parec_byte_cap"]["stderr_tail"] = tail
++        else:
++            legs["parec_byte_cap"] = {
++                "blocked": "pactl enumerated no pulse source"}
++        if inv["sources"]:
++            # parecord's only bound is the sever — the TERM leg IS its
++            # bounded cell (and doubles as its sever-class evidence).
++            legs["parecord_term_bound"] = _capture_sever_cell(
++                ["parecord", "-d", "@DEFAULT_SOURCE@"],
++                "prd_bound.wav", signal.SIGTERM, wait_s=2.5)
++        else:
++            legs["parecord_term_bound"] = {
++                "blocked": "pactl enumerated no non-monitor source"}
++        if mon and inv["ffmpeg_demuxers"].get("pulse"):
++            legs["ffmpeg_pulse_t"] = _capture_file_leg(
++                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++                 "-f", "pulse", "-i", mon, "-t", "1", "-y"],
++                "ffm_p.wav", tmp)
++        else:
++            legs["ffmpeg_pulse_t"] = {
++                "blocked": "no monitor source or no pulse demuxer"}
++        if hw0 and inv["ffmpeg_demuxers"].get("alsa"):
++            legs["ffmpeg_alsa_t"] = _capture_file_leg(
++                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++                 "-f", "alsa", "-i", "plug" + hw0, "-t", "1", "-y"],
++                "ffm_a.wav", tmp)
++        else:
++            legs["ffmpeg_alsa_t"] = {
++                "blocked": "no ALSA capture device or no alsa demuxer"}
++    entry["legs"] = legs
++    exp44 = 44 + CAPTURE_R76_PWR_FRAMES * 4
++    for name in ("pwrecord_sample_bound", "pwrecord_monitor_bound"):
++        leg = legs[name]
++        if "blocked" in leg:
++            continue
++        fin = leg.get("file", {})
++        if not (leg.get("exit_code") == 1 and fin.get("bytes") == exp44
++                and fin.get("data_finalized")):
++            failures.append(
++                f"pwrecord {name}: expected exact-bounded finalized wav "
++                f"(rc=1 — rc is not the verdict — bytes={exp44})")
++    leg = legs["parec_byte_cap"]
++    if "blocked" not in leg and not (
++            leg["cap_honored"] and leg["exit_code"] == 0):
++        failures.append("parec byte cap deviated (expected exactly "
++                        f"{CAPTURE_R76_PAREC_CAP_BYTES} B read then rc=0 "
++                        "on SIGTERM)")
++    leg = legs["parecord_term_bound"]
++    if "blocked" not in leg:
++        fin = leg.get("file", {})
++        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
++                and fin.get("data_64k_aligned")):
++            failures.append("parecord TERM-bound deviated (expected rc=0 "
++                            "with a finalized 64-KiB-aligned header)")
++    leg = legs["arecord_duration_null_unpaced"]
++    if not (leg.get("exit_code") == 0
++            and leg.get("file", {}).get("bytes") == 192044
++            and leg.get("wall_lt_0.5s") is True):
++        failures.append("arecord -D null -d 1 deviated (expected exact "
++                        "192044 B in <0.5 s — the unpaced oracle)")
++    leg = legs["arecord_duration_hw"]
++    if "blocked" not in leg and leg.get("error_class") != "alsa_busy":
++        if not (leg.get("exit_code") == 0
++                and leg.get("file", {}).get("bytes") == 192044
++                and leg.get("wall_lt_0.5s") is False):
++            failures.append("arecord hw -d 1 deviated (expected paced "
++                            "exact 192044 B, wall >= 0.5 s)")
++    leg = legs["ffmpeg_pulse_t"]
++    if "blocked" not in leg:
++        fin = leg.get("file", {})
++        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
++                and fin.get("duration_bucket_s") in (0.75, 1.0, 1.25)):
++            failures.append("ffmpeg -f pulse -t 1 deviated (expected "
++                            "rc=0 finalized wav ~1.0 s)")
++    entry["failures"] = failures
++    return entry
++
++
++def capture_sever_r76_entry():
++    """(3) Sever classes: SIGTERM/SIGKILL mid-capture — does the
++    consumer finalize the header (usable partial wav) or leave a wound?
++    Per-consumer class pinned; parser usability (stdlib wave vs
++    ffprobe) distinguishes the reject shape from accept-and-lie.
++    Consumer order puts every pulse/pipewire consumer BEFORE the
++    arecord hw legs so the suspend-release window has elapsed."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "capture sever classes — TERM/KILL mid-record"}
++    src, mon, hw0 = _capture_leg_targets(inv)
++    cells = {}
++    tgt = src or "alsa_input.nonexistent-r76"
++    for sig, tag in ((signal.SIGTERM, "term"), (signal.SIGKILL, "kill")):
++        cells[f"pwrecord_{tag}"] = _capture_sever_cell(
++            ["pw-record", "--target", tgt, "--rate", "48000",
++             "--channels", "2", "--format", "s16"],
++            f"sev_pwr_{tag}.wav", sig)
++        # the sever CLASS is source-independent; the legs use the direct
++        # default source (not a monitor) so resume latency is short and
++        # the flushed-granule shape is deterministic run-over-run.
++        cells[f"parecord_{tag}"] = _capture_sever_cell(
++            ["parecord", "-d", "@DEFAULT_SOURCE@"],
++            f"sev_prd_{tag}.wav", sig, wait_s=2.5)
++        # ffmpeg takes only literal device names — blocked, not
++        # token-mangled, when no source was enumerated.
++        if src:
++            cells[f"ffmpeg_{tag}"] = _capture_sever_cell(
++                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++                 "-f", "pulse", "-i", src, "-y"],
++                f"sev_ffm_{tag}.wav", sig, wait_s=2.5)
++        else:
++            cells[f"ffmpeg_{tag}"] = {
++                "blocked": "pactl enumerated no non-monitor source"}
++    # arecord hw legs LAST: the pulse/pipewire cells above have held and
++    # released the card by now, and a still-held device lands as a named
++    # early-exit. Iterate the enumerated devices until one captures.
++    arec = {"attempts": []}
++    for d in inv["alsa_capture_devices"]:
++        dev = f"hw:{d['card']},{d['device']}"
++        for sig, tag in ((signal.SIGTERM, "term"),
++                         (signal.SIGKILL, "kill")):
++            key = f"arecord_{tag}"
++            if key in cells:
++                continue
++            cell = _capture_sever_cell(
++                ["arecord", "-D", dev, "-f", "S16_LE", "-r", "48000",
++                 "-c", "2", "-t", "wav"], f"sev_arc_{tag}.wav", sig)
++            if cell["early_exit_code"] == 1 and \
++                    cell.get("error_class") == "alsa_busy":
++                arec["attempts"].append(
++                    {"device": dev, "signal": cell["signal"],
++                     "named_failure": "alsa_busy"})
++                continue
++            cell["device"] = dev
++            cells[key] = cell
++    for tag in ("term", "kill"):
++        if f"arecord_{tag}" not in cells:
++            entry[f"arecord_{tag}_blockage"] = (
++                "every enumerated ALSA capture device hit the named busy "
++                "failure" if arec["attempts"] else
++                "no ALSA capture device enumerated")
++    if arec["attempts"]:
++        entry["arecord_contention"] = arec["attempts"]
++    entry["cells"] = cells
++    expected = {
++        # (rc, finalized-after-TERM, KILL placeholder classes)
++        "pwrecord": {"term_rc": 1, "term_final": True,
++                     "kill_rc": -signal.SIGKILL,
++                     "kill_riff": "placeholder_8"},
++        "parecord": {"term_rc": 0, "term_final": True,
++                     "kill_rc": -signal.SIGKILL,
++                     "kill_riff": "placeholder_8"},
++        "ffmpeg": {"term_rc": 255, "term_final": True,
++                   "kill_rc": -signal.SIGKILL, "kill_riff": None},
++        "arecord": {"term_rc": 1, "term_final": True,
++                    "kill_rc": -signal.SIGKILL,
++                    "kill_riff": "placeholder_80000000"}}
++    for consumer, exp in expected.items():
++        tcell = cells.get(f"{consumer}_term")
++        kcell = cells.get(f"{consumer}_kill")
++        if not tcell or not kcell or "file" not in tcell:
++            continue
++        if tcell.get("early_exit_code") is not None or \
++                kcell.get("early_exit_code") is not None:
++            continue   # named early failure (e.g. device busy), recorded
++        fin = tcell["file"]
++        if not (tcell["exit_code"] == exp["term_rc"]
++                and fin.get("data_finalized") is exp["term_final"]):
++            failures.append(
++                f"{consumer} TERM sever deviated (expected rc="
++                f"{exp['term_rc']} + finalized header)")
++        kfin = kcell["file"]
++        if kcell["exit_code"] != exp["kill_rc"]:
++            failures.append(f"{consumer} KILL sever deviated (expected "
++                            f"rc={exp['kill_rc']})")
++        if consumer == "ffmpeg":
++            # the pinned KILL class is UNFINALIZED: either no file, a
++            # 0-byte file, or a 0xFFFFFFFF-placeholder header over
++            # whatever prefix was already flushed — flush granularity is
++            # muxer-internal and was observed both aligned and not.
++            ok = kfin.get("exists") is False or \
++                kfin.get("file_zero_bytes") is True or (
++                    kfin.get("riff_size_field") == "placeholder_ff" and
++                    kfin.get("data_finalized") is False)
++            if not ok:
++                failures.append("ffmpeg KILL deviated (expected the "
++                                "unfinalized class: missing / 0-byte / "
++                                "placeholder_ff header)")
++        elif consumer == "arecord":
++            # arecord KILL: the data chunk keeps its 0x80000000
++            # placeholder and stdlib wave ACCEPTS it — inflated frame
++            # count (accept-and-lie). The riff size field measured
++            # `other` (a written-but-bogus value); the claim pins the
++            # data field + the parser lie, not that field.
++            if kfin.get("data_declared_field") != "placeholder_80000000":
++                failures.append("arecord KILL deviated (expected "
++                                "data_declared_field="
++                                "placeholder_80000000)")
++            pv = kcell.get("parsers") or {}
++            if pv.get("wave_frames_class") != "inflated":
++                failures.append("arecord KILL deviated (expected stdlib "
++                                "wave to accept-and-inflate the "
++                                "placeholder data size)")
++        elif kfin.get("riff_size_field") != exp["kill_riff"]:
++            failures.append(f"{consumer} KILL deviated (expected "
++                            f"riff_size_field={exp['kill_riff']})")
++    entry["failures"] = failures
++    return entry
++
++
++def capture_name_axis_r76_entry():
++    """(4) Output-name axis: is the container chosen by the filename
++    extension or by an explicit flag? pw-record/parecord select by
++    extension with a wav default for unknown suffixes (libsndfile
++    table); arecord is flag-driven name-blind (-t wins); ffmpeg is
++    extension-STRICT — an unknown suffix fails the muxer with EINVAL
++    before any capture (-f overrides)."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "capture output-name axis"}
++    src, mon, hw0 = _capture_leg_targets(inv)
++    legs = {}
++    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
++        tgt = src or "alsa_input.nonexistent-r76"
++        for name, extra in (("wav", ()), ("raw", ()), ("bin", ()),
++                            ("rawflag_on_bin", ("--raw",))):
++            legs["pwrecord_" + name] = _capture_file_leg(
++                ["pw-record", "--target", tgt, *extra,
++                 "-n", str(CAPTURE_R76_NAME_FRAMES),
++                 "--rate", "48000", "--channels", "2",
++                 "--format", "s16"],
++                {"wav": "nx_p.wav", "raw": "nx_p.raw",
++                 "bin": "nx_p.bin",
++                 "rawflag_on_bin": "nx_pf.bin"}[name], tmp,
++                exact_bytes=True)
++        if inv["sources"]:
++            for name, extra, fname in (
++                    ("wav", (), "nx_r.wav"), ("bin", (), "nx_r.bin"),
++                    ("raw", (), "nx_r.raw"),
++                    ("ffwav_on_raw", ("--file-format=wav",),
++                     "nx_rf.raw")):
++                # 2.5 s window: source resume + the first 64 KiB flush
++                # must both fit so the raw leg lands >0 bytes.
++                legs["parecord_" + name] = _capture_sever_cell(
++                    ["parecord", "-d", "@DEFAULT_SOURCE@", *extra], fname,
++                    signal.SIGTERM, wait_s=2.5)
++        else:
++            for name in ("wav", "bin", "raw", "ffwav_on_raw"):
++                legs["parecord_" + name] = {
++                    "blocked": "pactl enumerated no non-monitor source"}
++        for name, extra in (
++                ("t_wav_on_bin", ("-t", "wav")),
++                ("t_raw_on_wav", ("-t", "raw")),
++                ("default_on_bin", ())):
++            legs["arecord_" + name] = _capture_file_leg(
++                ["arecord", "-D", "null", "-d", "1", "-f", "S16_LE",
++                 "-r", "48000", "-c", "2", *extra],
++                {"t_wav_on_bin": "nx_a.bin", "t_raw_on_wav": "nx_a.wav",
++                 "default_on_bin": "nx_ad.bin"}[name], tmp,
++                exact_bytes=True)
++        if mon and inv["ffmpeg_demuxers"].get("pulse"):
++            for name, extra, fname in (
++                    ("wav", (), "nx_f.wav"), ("bin", (), "nx_f.bin"),
++                    ("f_s16le_on_bin", ("-f", "s16le"), "nx_ff.bin")):
++                legs["ffmpeg_" + name] = _capture_file_leg(
++                    ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
++                     "-f", "pulse", "-i", mon, "-t", "0.5", "-y",
++                     *extra], fname, tmp)
++        else:
++            for name in ("wav", "bin", "f_s16le_on_bin"):
++                legs["ffmpeg_" + name] = {
++                    "blocked": "no monitor source or no pulse demuxer"}
++    entry["legs"] = legs
++    for leg in legs.values():
++        if "file" in leg and leg["file"].get("exists") is not False:
++            leg["out_kind"] = _capture_out_kind(leg["file"])
++        elif leg.get("file"):
++            leg["out_kind"] = "missing"
++    expected_kind = {
++        "pwrecord_wav": "riff_wav", "pwrecord_raw": "raw_stream",
++        "pwrecord_bin": "riff_wav", "pwrecord_rawflag_on_bin":
++        "raw_stream", "parecord_wav": "riff_wav",
++        "parecord_bin": "riff_wav", "parecord_raw": "raw_stream",
++        "parecord_ffwav_on_raw": "riff_wav",
++        "arecord_t_wav_on_bin": "riff_wav",
++        "arecord_t_raw_on_wav": "raw_stream",
++        "arecord_default_on_bin": "riff_wav",
++        "ffmpeg_wav": "riff_wav", "ffmpeg_bin": "missing",
++        "ffmpeg_f_s16le_on_bin": "raw_stream"}
++    for name, kind in expected_kind.items():
++        leg = legs.get(name, {})
++        if "blocked" in leg or leg.get("early_exit_code") is not None:
++            continue
++        if leg.get("out_kind") != kind:
++            failures.append(f"name axis {name}: expected {kind} got "
++                            f"{leg.get('out_kind')} "
++                            f"(rc={leg.get('exit_code')})")
++    if legs.get("ffmpeg_bin", {}).get("error_class") not in (
++            None, "ffmpeg_muxer"):
++        failures.append("ffmpeg .bin leg deviated (expected the "
++                        "extension-strict muxer EINVAL or nothing)")
++    entry["failures"] = failures
++    return entry
++
++
++def capture_device_axis_r76_entry():
++    """(5) arecord -D device axis: the capture-side INVERSION of r75's
++    playback result — plugin routes {default, pipewire} that accepted
++    playback are blocked for capture (set_params:1462), kernel devices
++    take the format-coupled rejection class (-c 1 -> set_params:1404),
++    and the null device is an EXACT-but-UNPACED oracle (never run it
++    unbounded: it floods 2 GiB rotation files at CPU speed)."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "arecord -D device axis (capture)"}
++    _, _, hw0 = _capture_leg_targets(inv)
++    legs = {}
++    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
++        targets = [("null", "null"), ("default", "default"),
++                   ("pipewire", "pipewire"), ("sysdefault", "sysdefault")]
++        if hw0:
++            targets.append(("plughw_first", "plug" + hw0))
++            targets.append(("hw_first", hw0))
++        for name, dev in targets:
++            legs[name] = _capture_file_leg(
++                ["arecord", "-D", dev, "-d", "1", "-f", "S16_LE",
++                 "-r", "48000", "-c", "2", "-t", "wav"],
++                f"dev_{name}.wav", tmp, exact_bytes=True,
++                paced="unpaced" if name == "null" else "paced")
++        if hw0:
++            legs["hw_first_mono"] = _capture_file_leg(
++                ["arecord", "-D", hw0, "-d", "1", "-f", "S16_LE",
++                 "-r", "48000", "-c", "1", "-t", "wav"],
++                "dev_hw_mono.wav", tmp)
++        else:
++            legs["hw_first"] = {
++                "blocked": "arecord -l enumerated no capture device"}
++            legs["plughw_first"] = {
++                "blocked": "arecord -l enumerated no capture device"}
++            legs["hw_first_mono"] = {
++                "blocked": "arecord -l enumerated no capture device"}
++    entry["legs"] = legs
++    for name in ("default", "pipewire"):
++        if legs[name].get("error_class") != "alsa_hwparams":
++            failures.append(f"arecord -D {name}: expected the "
++                            "set_params:1462 capture block")
++    if legs["null"].get("exit_code") != 0 or \
++            legs["null"].get("file", {}).get("bytes") != 192044 or \
++            legs["null"].get("wall_lt_0.5s") is not True:
++        failures.append("arecord -D null -d 1 deviated from the unpaced "
++                        "exact-size oracle")
++    # hw-route legs (hw/plughw/sysdefault) record honestly: a held device
++    # lands the named alsa_busy class, never a retried or fabricated run.
++    mono = legs.get("hw_first_mono", {})
++    if "blocked" not in mono and mono.get("error_class") not in (
++            "alsa_channels", "alsa_busy"):
++        failures.append("arecord hw -c 1 deviated (expected the "
++                        "channels-count named failure or a busy)")
++    entry["failures"] = failures
++    return entry
++
++
++def capture_roundtrip_r76_entry():
++    """(6) Roundtrip (stretch): play the 4.0 s member into the default
++    sink while capturing its monitor; feed captured bytes back through
++    two EXISTING detect legs (sox -V6 stat detect + aplay -D null
++    content-magic) — do they land in the same verdict class as the
++    source member? A monitor-less host degrades to a named blocked."""
++    failures = []
++    inv = _capture_inventory()
++    entry = {"probe": "capture->playback roundtrip via sink monitor"}
++    sink = inv["default_sink"]
++    member = CAPTURE_R76_MEMBER
++    if not sink or not member.exists():
++        entry["blocked"] = ("no default sink" if not sink else
++                            "pacer member absent")
++        entry["failures"] = failures
++        return entry
++    # the captured file feeds aplay_leg("file"), whose label is
++    # path.relative_to(ROOT) — the scratch dir must live under ROOT (the
++    # r76-author live dir), removed after the leg like every tmp dir.
++    scratch = ROOT / "live" / "r76-author"
++    scratch.mkdir(parents=True, exist_ok=True)
++    with tempfile.TemporaryDirectory(prefix="capture-r76-",
++                                     dir=scratch) as tmp:
++        cap = Path(tmp) / "roundtrip_capture.wav"
++        frames = 240000  # 5.0 s at 48000 Hz stereo s16
++        rec = subprocess.Popen(
++            ["pw-record", "-P", "stream.capture.sink=true",
++             "--target", sink, "-n", str(frames), "--rate", "48000",
++             "--channels", "2", "--format", "s16", str(cap)],
++            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++            start_new_session=True)
++        time.sleep(0.7)
++        play = subprocess.run(
++            ["pw-cat", "-p", str(member)], capture_output=True,
++            timeout=CAPTURE_R76_TIMEOUT_S)
++        try:
++            rec.wait(timeout=CAPTURE_R76_TIMEOUT_S)
++        except subprocess.TimeoutExpired:
++            os.killpg(rec.pid, signal.SIGKILL)
++            rec.wait()
++        insp = _capture_wav_inspect(cap)
++        entry["capture_leg"] = {
++            "argv": "pw-record -P stream.capture.sink=true --target "
++                    "<default-sink> -n 240000",
++            "exit_code": rec.returncode,
++            "player_argv": "pw-cat -p <pacer>",
++            "player_exit_code": play.returncode,
++            "file": {"exists": insp.get("exists"),
++                     "bytes": insp.get("bytes"),
++                     "riff": insp.get("riff"),
++                     "data_finalized": insp.get("data_finalized"),
++                     "fmt": insp.get("fmt")}}
++        # content witness: the captured pcm must carry real signal, not
++        # a silent monitor — peak within 3 dB of the member's own peak.
++        data = cap.read_bytes() if cap.exists() else b""
++        off = next((c["offset"] + 8 for c in insp.get("chunks", [])
++                    if c["id"] == "data"), 44)
++        pcm = np.frombuffer(data[off:], dtype="<i2").astype(np.float64)
++        src_pcm = np.frombuffer(member.read_bytes()[44:],
++                                dtype="<i2").astype(np.float64)
++        cap_peak = float(np.max(np.abs(pcm))) if len(pcm) else 0.0
++        src_peak = float(np.max(np.abs(src_pcm)))
++        nonzero = float((np.abs(pcm) > 0).mean()) if len(pcm) else 0.0
++        entry["content_witness"] = {
++            "nonzero_fraction_gt_half": bool(nonzero > 0.5),
++            "peak_within_3db_of_member":
++                bool(abs(20 * np.log10(max(cap_peak, 1) / 32768)
++                         - 20 * np.log10(src_peak / 32768)) <= 3.0)}
++        # the existing detect legs on captured bytes vs the source member
++        # (argv paths are ABSOLUTE — the leg's cwd is the caller's; the
++        # receipt label stays the repo-relative form)
++        cap_rel = str(cap)
++        mem_rel = str(member.relative_to(ROOT))
++        sox_cap = transport_leg(["sox", "-V6", cap_rel, "-n", "stat"],
++                                "live/r76-author/<tmp>/"
++                                "roundtrip_capture.wav")
++        sox_mem = transport_leg(["sox", "-V6", str(member), "-n", "stat"],
++                                mem_rel)
++        aplay_cap = aplay_leg("file", cap, b"", 0.0)
++        aplay_mem = aplay_leg("file", member, b"", 0.0)
++        entry["detect_legs"] = {
++            "sox": {"member": sox_mem, "captured": sox_cap,
++                    "same_detect_class":
++                        sox_mem["sox_detected_format"] ==
++                        sox_cap["sox_detected_format"]},
++            "aplay": {"member": {"alsa_kind": aplay_mem["alsa_kind"],
++                                 "exit_code": aplay_mem["exit_code"],
++                                 "alsa_error": aplay_mem["alsa_error"]},
++                      "captured": {"alsa_kind": aplay_cap["alsa_kind"],
++                                   "exit_code": aplay_cap["exit_code"],
++                                   "alsa_error": aplay_cap["alsa_error"],
++                                   "stderr_tail":
++                                       aplay_cap.get("stderr_tail")},
++                      "same_detect_class":
++                          aplay_mem["alsa_kind"] ==
++                          aplay_cap["alsa_kind"]}}
++        if not (entry["capture_leg"]["file"].get("data_finalized")
++                and insp.get("bytes") == 44 + frames * 4):
++            failures.append("roundtrip capture leg deviated (expected a "
++                            "finalized exact-frame wav)")
++        for name, leg in entry["detect_legs"].items():
++            if leg["same_detect_class"] is not True:
++                failures.append(f"roundtrip {name} detect leg: captured "
++                                "bytes did not land in the member's "
++                                "verdict class")
++        if not (entry["content_witness"]["nonzero_fraction_gt_half"]
++                and entry["content_witness"]["peak_within_3db_of_member"]):
++            failures.append("roundtrip content witness deviated "
++                            "(captured pcm silent or level-far from the "
++                            "member)")
++    entry["failures"] = failures
++    return entry
++
++
+ def transport_entry(member, path):
+     """Receipt entry: transport axis matrix + verdict groups + fork pin."""
+     arms = transport_matrix(path)
+@@ -3058,8 +4181,9 @@ def main():
+     parser.add_argument("--probe-consumers-r73", action="store_true")
+     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
+     parser.add_argument("--probe-consumers2-r75", action="store_true")
++    parser.add_argument("--probe-capture-r76", action="store_true")
+     args = parser.parse_args()
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75]) > 1:
++    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76]) > 1:
+         parser.error("choose one probe mode")
+     if args.probe_invalid:
+         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+@@ -3350,6 +4474,26 @@ def main():
+             path = ROOT / "live" / directory / filename
+             measurements[f"consumer2_{member}_r75_probe"] = \
+                 consumer2_transport_entry(member, path)
++    if args.probe_capture_r76:
++        # r76: CAPTURE direction — bounded RECORD operations on four
++        # capture consumers (pw-record, parec/parecord, arecord, ffmpeg
++        # pulse+alsa). A NEW parallel ledger family, prior rows
++        # untouched. The gate entry enumerates sources/devices first —
++        # an absent source is a named `blocked`, never fabricated
++        # audio. Kill-class cells pin TERM-finalize vs KILL-wound per
++        # consumer; the name axis is extension-vs-flag per consumer;
++        # the roundtrip cell feeds monitor-captured member bytes back
++        # through the existing sox/aplay detect legs.
++        measurements["capture_gate_r76_probe"] = capture_gate_r76_entry()
++        measurements["capture_bounded_r76_probe"] = \
++            capture_bounded_r76_entry()
++        measurements["capture_sever_r76_probe"] = capture_sever_r76_entry()
++        measurements["capture_name_axis_r76_probe"] = \
++            capture_name_axis_r76_entry()
++        measurements["capture_device_axis_r76_probe"] = \
++            capture_device_axis_r76_entry()
++        measurements["capture_roundtrip_r76_probe"] = \
++            capture_roundtrip_r76_entry()
+     if args.probe_sndfile_transport_r72:
+         # r72: THIRD DECODER (libsndfile) on the same canonical members —
+         # the 3-decoder verdict lattice. Claim under test (critic-corrected):
+@@ -3816,7 +4960,7 @@ def main():
+             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+-    mode = "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    mode = "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     receipt = {"mode": mode,
+                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+@@ -3836,7 +4980,7 @@ def main():
+                "movement_family_comparisons": movement_family_comparisons,
+                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+-    suffix = "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    suffix = "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     out = ROOT / "live" / "runs" / (stamp + suffix)
+     out.mkdir(parents=True)
+     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

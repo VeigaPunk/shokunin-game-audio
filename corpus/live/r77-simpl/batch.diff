@@ -1,0 +1,309 @@
+--- measure_audio.py (HEAD 65790f1)
++++ measure_audio.py (r77 simplifier batch)
+@@ -4209,7 +4209,7 @@
+ CAPTURE_R77_LOSS_FRAMES = 96000
+ CAPTURE_R77_LOSS_UNLOAD_S = 0.6
+ CAPTURE_R77_LOSS_LINK_AT = (0.3, 0.9)   # pre-unload / post-unload
+-CAPTURE_R77_LOSS_BYTES = 44 + 96000 * 4   # -n is a FRAME bound
++CAPTURE_R77_LOSS_BYTES = 44 + CAPTURE_R77_LOSS_FRAMES * 4   # -n bound
+ CAPTURE_R77_LOSS_SAMPLE_AT = (0.4, 0.9, 1.6, 2.6)
+ CAPTURE_R77_LOSS_UNLOAD_WALL_S = 1.0
+ CAPTURE_R77_LOSS_SEVER_S = 3.0
+@@ -4218,8 +4218,12 @@
+ CAPTURE_R77_BYTES_PER_SECOND = 192000   # 48000 x 2ch x s16 — the -d oracle
+ CAPTURE_R77_SPLIT_DATA_LIMIT = 0x80000000
+ CAPTURE_R77_SPLIT_TOTAL_LIMIT = 0x80000000 + 44
+-CAPTURE_R77_SPLIT_UNDER_FRAMES = 536870912 - 240000
+-CAPTURE_R77_SPLIT_OVER_FRAMES = 536870912 + 240000
++CAPTURE_R77_SPLIT_LIMIT_FRAMES = CAPTURE_R77_SPLIT_DATA_LIMIT // 4
++CAPTURE_R77_SPLIT_MARGIN_FRAMES = 240000   # 0.5 s at the pinned frame size
++CAPTURE_R77_SPLIT_UNDER_FRAMES = \
++    CAPTURE_R77_SPLIT_LIMIT_FRAMES - CAPTURE_R77_SPLIT_MARGIN_FRAMES
++CAPTURE_R77_SPLIT_OVER_FRAMES = \
++    CAPTURE_R77_SPLIT_LIMIT_FRAMES + CAPTURE_R77_SPLIT_MARGIN_FRAMES
+ CAPTURE_R77_SPLIT_BYTE_CAP = 2400000000   # hard watchdog ceiling (2.4 GB)
+ CAPTURE_R77_SPLIT_WALL_CAP_S = 60.0
+ CAPTURE_R77_SPLIT_SCRATCH = ROOT / "live" / "capture-r77-split"
+@@ -4290,6 +4294,16 @@
+     return st
+ 
+ 
++def _capture_r77_reap(proc, timeout_s=CAPTURE_R77_TIMEOUT_S):
++    """Bounded wait, then KILL the whole process group — one escalation
++    policy for every r77 leg."""
++    try:
++        proc.wait(timeout=timeout_s)
++    except subprocess.TimeoutExpired:
++        os.killpg(proc.pid, signal.SIGKILL)
++        proc.wait()
++
++
+ def _capture_r77_link_producers():
+     """`pw-link -l` producer set for a live pw-record capture. This is the
+     only honest statement of *consumption*: the capture node's own
+@@ -4306,7 +4320,7 @@
+     except (subprocess.TimeoutExpired, OSError) as exc:
+         out["error"] = str(exc)[:120]
+         return out
+-    names, per_port, port = [], {}, None
++    per_port, port = {}, None
+     for ln in text.splitlines():
+         if not ln or not ln[0].isspace():
+             # a new top-level entry: a port name, or a foreign node's name
+@@ -4314,11 +4328,9 @@
+                 else None
+             continue
+         if port and "|<-" in ln:
+-            names.append(ln.split("|<-", 1)[1].strip())
+-            per_port.setdefault(port, []).append(
+-                ln.split("|<-", 1)[1].strip())
+-    out["producers"] = sorted(set(names))
++            per_port.setdefault(port, []).append(ln.split("|<-", 1)[1].strip())
+     out["per_port"] = {k: sorted(set(v)) for k, v in per_port.items()}
++    out["producers"] = sorted({p for v in out["per_port"].values() for p in v})
+     # A stale link from a previous cell's node can survive ~2 s, so the
+     # consumed node is the producer present on BOTH channels — the union
+     # would silently admit a ghost as consumption.
+@@ -4376,7 +4388,6 @@
+         out["nodes"].append({"target_object": props.get("target.object"),
+                              "stream_capture_sink":
+                                  props.get("stream.capture.sink")})
+-    out["count"] = len(out["nodes"])
+     return out
+ 
+ 
+@@ -4392,8 +4403,9 @@
+     return None
+ 
+ 
+-def _capture_r77_file_leg(argv, fname, tmp, exact_bytes=False):
+-    """One bounded file-writing leg under the r77 class set."""
++def _capture_r77_file_leg(argv, fname, tmp):
++    """One bounded file-writing leg under the r77 class set. Every leg here
++    is exactly bounded (`-n <frames>`), so the byte count is a pinned leaf."""
+     out = Path(tmp) / fname
+     t0 = time.monotonic()
+     text, rc, blocked = _capture_run(argv + [str(out)], CAPTURE_R77_TIMEOUT_S)
+@@ -4406,7 +4418,7 @@
+     if line or blocked:
+         leg["error"] = (line.replace(str(out), "<out>") if line else blocked)
+     fin = {"exists": insp["exists"]}
+-    if insp.get("bytes") is not None and (exact_bytes or insp["bytes"] == 0):
++    if insp.get("bytes") is not None:
+         fin["bytes"] = insp["bytes"]
+     if insp.get("riff"):
+         fin["riff_size_field"] = insp["riff_size_field"]
+@@ -4450,7 +4462,7 @@
+     `declared_echo` reader repeats."""
+     fmt = insp.get("fmt") or {}
+     frame_bytes = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
+-    rate = fmt.get("rate") or 48000
++    rate = fmt.get("rate") or CAPTURE_R77_FRAMES_PER_SECOND
+     honest = (insp.get("data_actual") or 0) // frame_bytes if frame_bytes else 0
+     declared = (insp.get("data_declared") or 0) // frame_bytes \
+         if frame_bytes else 0
+@@ -4529,11 +4541,7 @@
+     if early_rc is None:
+         if proc.poll() is None:
+             proc.send_signal(sig)
+-        try:
+-            proc.wait(timeout=CAPTURE_R77_KILL_WAIT_S)
+-        except subprocess.TimeoutExpired:
+-            os.killpg(proc.pid, signal.SIGKILL)
+-            proc.wait()
++        _capture_r77_reap(proc, CAPTURE_R77_KILL_WAIT_S)
+     err = proc.stderr.read().decode(errors="replace") \
+         if proc.stderr else ""
+     insp = _capture_wav_inspect(out)
+@@ -4613,7 +4621,7 @@
+         return None
+ 
+ 
+-def _capture_r77_lattice_cell(name, target, prop, tmp, member, sink):
++def _capture_r77_lattice_cell(name, target, prop, tmp, member):
+     """One tone-anchored source-selection cell. The caller serializes these:
+     two concurrent pw-record streams both appear in `pw-link -l` and would
+     destroy the topology witness. The tone is played to the CURRENT default
+@@ -4645,11 +4653,7 @@
+     link = _capture_r77_link_delta(link_before,
+                                    _capture_r77_link_producers())
+     dump = _capture_r77_node_props()
+-    try:
+-        proc.wait(timeout=CAPTURE_R77_TIMEOUT_S)
+-    except subprocess.TimeoutExpired:
+-        os.killpg(proc.pid, signal.SIGKILL)
+-        proc.wait()
++    _capture_r77_reap(proc)
+     if player.poll() is None:
+         player.terminate()
+     try:
+@@ -4663,8 +4667,6 @@
+     shown = " ".join(argv[:-1])
+     if target:
+         shown = shown.replace(target, "<target>")
+-    elif sink:
+-        pass
+     cell = {"target_arg": target, "capture_sink_prop": prop,
+             "argv": shown + " <out>",
+             "default_sink_at_cell": default_now,
+@@ -4794,8 +4796,8 @@
+                     "blocked": f"no {resolver} enumerated on this host"}
+                 continue
+             cleared = _capture_r77_wait_clear()
+-            legs[name] = _capture_r77_lattice_cell(
+-                name, target, prop, tmp, member, inv["default_sink"])
++            legs[name] = _capture_r77_lattice_cell(name, target, prop, tmp,
++                                                   member)
+             if cleared is None:
+                 legs[name]["stale_link_before_cell"] = True
+             time.sleep(CAPTURE_R77_SETTLE_S)
+@@ -4955,10 +4957,7 @@
+                        capture_output=True, timeout=15)
+     entry["sink_gone"] = CAPTURE_R77_NULL_SINK not in \
+         _capture_r77_sink_names()
+-    bounded = entry.get("bounded")
+-    if not bounded:
+-        entry["failures"] = failures
+-        return entry
++    bounded = entry["bounded"]
+     for key in ("baseline", "fallback_control", "after_loss"):
+         leaf = bounded[key]
+         if leaf.get("exit_code") != 1 or \
+@@ -5014,8 +5013,11 @@
+ 
+ 
+ def _capture_r77_sink_names():
++    """SINK names. A `module-null-sink` creates the sink `X` and the monitor
++    SOURCE `X.monitor`, so enumerating sources can never contain the bare sink
++    name and the caller's `sink_gone` test would be vacuously true."""
+     try:
+-        proc = subprocess.run(["pactl", "list", "sources", "short"],
++        proc = subprocess.run(["pactl", "list", "sinks", "short"],
+                               capture_output=True, timeout=10)
+         return [ln.split()[1] for ln in
+                 proc.stdout.decode(errors="replace").splitlines()
+@@ -5074,14 +5076,10 @@
+                 unloaded = {"exit_code": None, "error": str(exc)[:120]}
+         elif kind == "sever" and proc.poll() is None:
+             proc.send_signal(signal.SIGTERM)
+-    try:
+-        proc.wait(timeout=CAPTURE_R77_TIMEOUT_S)
+-    except subprocess.TimeoutExpired:
+-        os.killpg(proc.pid, signal.SIGKILL)
+-        proc.wait()
++    _capture_r77_reap(proc)
+     return {"exit_code": proc.returncode, "unloaded": unloaded,
+             "samples": samples, "wall_s": round(time.monotonic() - t0, 2),
+-            "link_baseline": link_baseline,
++            # drained (bounded pipe), not recorded
+             "stderr": proc.stderr.read().decode(errors="replace")}
+ 
+ 
+@@ -5104,7 +5102,9 @@
+     leaf = {"exit_code": run["exit_code"], "exists": insp.get("exists"),
+             "bytes": insp.get("bytes"),
+             "data_finalized": insp.get("data_finalized"),
+-            "data_actual_zero": insp.get("data_actual") == 0,
++            # a missing data chunk is UNKNOWN, not "non-zero payload".
++            "data_actual_zero": (None if insp.get("data_actual") is None
++                                 else insp.get("data_actual") == 0),
+             "data_declared_field": insp.get("data_declared_field"),
+             "sha256_16": _capture_r77_sha256(path),
+             "unloaded": run.get("unloaded")}
+@@ -5216,7 +5216,7 @@
+                         12 * CAPTURE_R77_FRAMES_PER_SECOND
+                 if name == "arecord_unbounded" and tag == "kill":
+                     cells[key]["declared_bound_frames"] = \
+-                        CAPTURE_R77_SPLIT_DATA_LIMIT // 4
++                        CAPTURE_R77_SPLIT_LIMIT_FRAMES
+         entry["wounds"] = cells
+         entry["reader_honesty"] = _capture_r77_reader_honesty(cells)
+     for key, cell in entry.get("wounds", {}).items():
+@@ -5325,6 +5325,8 @@
+         entry["failures"] = failures
+         return entry
+     entry["frames_per_second"] = CAPTURE_R77_FRAMES_PER_SECOND
++    plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
++    devices = tuple(d for d in (hw0, plug, "sysdefault") if d)
+     legs = {}
+     with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+         for label, extra, sig, wait_s in (
+@@ -5341,10 +5343,7 @@
+                 ("s300k_kill", ("-s", "300000"), signal.SIGKILL, 0.5)):
+             legs["bound_" + label] = _capture_r77_arecord_cell(
+                 label, extra, sig, wait_s, tmp, hw0)
+-        plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
+-        for dev in (hw0, plug, "sysdefault"):
+-            if not dev:
+-                continue
++        for dev in devices:
+             tag = re.sub(r"\W+", "_", dev)
+             for wait_s in (0.5, 1.0, 1.5, 2.5):
+                 # a released ALSA device is not immediately re-acquirable
+@@ -5368,10 +5367,11 @@
+     entry["legs"] = legs
+     # (a) the bound-derived declaration: `-d N` pre-declares N seconds of
+     # frames, `-s S` pre-declares S frames, unbounded pre-declares 2 GiB.
+-    for label, want in (("bound_d3_kill_early", 3 * 48000),
+-                        ("bound_d5_kill_early", 5 * 48000),
+-                        ("bound_d12_kill_early", 12 * 48000),
+-                        ("bound_d12_kill_late", 12 * 48000),
++    fps = CAPTURE_R77_FRAMES_PER_SECOND
++    for label, want in (("bound_d3_kill_early", 3 * fps),
++                        ("bound_d5_kill_early", 5 * fps),
++                        ("bound_d12_kill_early", 12 * fps),
++                        ("bound_d12_kill_late", 12 * fps),
+                         ("bound_s300k_kill", 300000)):
+         leg = legs.get(label)
+         if leg is None:
+@@ -5409,9 +5409,7 @@
+                             f"actual={fin.get('data_actual')})")
+     # (b) the device axis — every device, every wall time. The sweep is a
+     # table, so an absent cell is a coverage hole, not a silent skip.
+-    plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
+-    dev_tags = [re.sub(r"\W+", "_", d)
+-                for d in (hw0, plug, "sysdefault") if d]
++    dev_tags = [re.sub(r"\W+", "_", d) for d in devices]
+     device_legs = [f"term_{t}_w{w}" for t in dev_tags
+                    for w in ("0_5", "1_0", "1_5", "2_5")]
+     device_legs += [f"kill_{t}_w2_5" for t in dev_tags]
+@@ -5543,7 +5541,7 @@
+     if under.get("requested_path_exists") is not True:
+         failures.append("split undershoot: the requested path must exist "
+                         "below the limit")
+-    if under.get("siblings") and list(under["siblings"]) != ["rot.wav"]:
++    if list(under.get("siblings") or {}) != ["rot.wav"]:
+         failures.append(f"split undershoot: unexpected rotation siblings "
+                         f"{list(under['siblings'])}")
+     if cross.get("requested_path_exists") is not False:
+@@ -5622,7 +5620,7 @@
+                 ["pw-record", "--target", tgt, "-n",
+                  str(CAPTURE_R77_FORMAT_FRAMES), "--rate", "48000",
+                  "--channels", "2", "--format", "s16", *extra],
+-                f"fmt_{name}.wav", tmp, exact_bytes=True)
++                f"fmt_{name}.wav", tmp)
+             leg["requested"] = list(extra)
+             leg["expected_fmt"] = expect
+             legs[name] = leg
+@@ -5630,7 +5628,7 @@
+             leg = _capture_r77_file_leg(
+                 ["pw-record", "--target", tgt, "-n",
+                  str(CAPTURE_R77_FORMAT_FRAMES), *extra],
+-                f"ref_{name}.wav", tmp, exact_bytes=True)
++                f"ref_{name}.wav", tmp)
+             leg["requested"] = list(extra)
+             legs[name] = leg
+     entry["legs"] = legs
+@@ -5654,9 +5652,9 @@
+                                 f"got {got.get(key)}")
+         if fin.get("data_finalized") is not True:
+             failures.append(f"format {name}: expected a finalized header")
+-    if legs.get("baseline", {}).get("file", {}).get("bytes") != 19244:
+-        failures.append("format baseline: expected the exact 44 + 4800 x 4 "
+-                        f"= 19244 B, got "
++    baseline_bytes = 44 + CAPTURE_R77_FORMAT_FRAMES * 4   # 2ch x s16
++    if legs.get("baseline", {}).get("file", {}).get("bytes") != baseline_bytes:
++        failures.append(f"format baseline: expected {baseline_bytes} B, got "
+                         f"{legs.get('baseline', {}).get('file', {}).get('bytes')}")
+     for name, _extra in CAPTURE_R77_FORMAT_REFUSALS:
+         leg = legs.get(name)

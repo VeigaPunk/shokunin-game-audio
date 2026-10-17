@@ -1,0 +1,52 @@
+{
+ "sweep_iss_1pkt.iss": {
+  "bytes": 295,
+  "sha256": "e63fbcd658102fbc71f5752a3007644c6e840cd819bba9bad2e76872dc8d49cf",
+  "layout": "iss text header (10 tokens) + NUL + 1 pad byte; 1 packet(s) x (4B IMA header [pred=0, step=0] + 252 B LCG nibbles)",
+  "header_len": 39
+ },
+ "sweep_iss_4pkt.iss": {
+  "bytes": 1064,
+  "sha256": "4d7f6ecbcde5523ee3a814052860aa7a5d6d9a0316b15cbeadb35d8fb58946a5",
+  "layout": "iss text header (10 tokens) + NUL + 1 pad byte; 4 packet(s) x (4B IMA header [pred=0, step=0] + 252 B LCG nibbles)",
+  "header_len": 40
+ },
+ "sweep_iss_40pkt.iss": {
+  "bytes": 10281,
+  "sha256": "950f4fdf8072f152414ba44e8f99cd7bcca1c6b4ebf459abd699a410912060e8",
+  "layout": "iss text header (10 tokens) + NUL + 1 pad byte; 40 packet(s) x (4B IMA header [pred=0, step=0] + 252 B LCG nibbles)",
+  "header_len": 41
+ },
+ "sweep_apc_1pkt.apc": {
+  "bytes": 544,
+  "sha256": "a3228e8d4fbb6bcdbb046e860c139e6fbf48686b58aecab2760a843f24faf3d8",
+  "layout": "apc 32 B header (CRYO_APC 1.20 + nsamples + rate 8000 + 8B extradata + channels=0) + 512 B LCG payload",
+  "header_len": 32
+ },
+ "sweep_apc_multi.apc": {
+  "bytes": 8224,
+  "sha256": "02b578a1b829616959b6c294a4c78860a64c32280e1b47b320610cdf90f8a0d2",
+  "layout": "apc 32 B header (CRYO_APC 1.20 + nsamples + rate 8000 + 8B extradata + channels=0) + 8192 B LCG payload",
+  "header_len": 32
+ },
+ "sweep_apc_3pkt.apc": {
+  "bytes": 12320,
+  "sha256": "4d0fd018a3f8a7ea80a06aa9bc4083fa944ab3a610c852a7ab81a988f9b894d4",
+  "layout": "apc 32 B header (CRYO_APC 1.20 + nsamples + rate 8000 + 8B extradata + channels=0) + 12288 B LCG payload",
+  "header_len": 32
+ },
+ "sweep_acm_64blk.acm": {
+  "bytes": 406,
+  "sha256": "f349fcc51f5fc23a90eead8542c8e1d5a6f78412ef35f817c1c51a6c7065e36f",
+  "layout": "acm 14 B header (magic + nsamples + channels + rate + rows<<4|level) + 64 blocks x (4b pwr +16b val + cols*(5b filler + rows*3b)) level=0 rows=8 cols=1 sr=8000; block_len=8 B; bitstream=392 B",
+  "header_len": 14,
+  "block_bits": 49
+ },
+ "sweep_acm_2000blk.acm": {
+  "bytes": 12264,
+  "sha256": "c44dbc729c96497e65833f68f5d3e4fea932c04e10501989e8ee265d5c7165b3",
+  "layout": "acm 14 B header (magic + nsamples + channels + rate + rows<<4|level) + 2000 blocks x (4b pwr +16b val + cols*(5b filler + rows*3b)) level=0 rows=8 cols=1 sr=8000; block_len=8 B; bitstream=12250 B",
+  "header_len": 14,
+  "block_bits": 49
+ }
+}

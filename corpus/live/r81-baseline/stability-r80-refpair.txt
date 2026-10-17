@@ -1,0 +1,82 @@
+# receipts: 2
+#   corpus/live/runs/20261015T160033687459Z-module-r80/measurements.json
+#   corpus/live/runs/20261015T161018039047Z-module-r80/measurements.json
+# total leaf paths: 1789  normalized-key collisions: 0
+
+case                                             exact   volat    jit   sem  added   rem  total
+TOP:ambience_family_comparisons                     10       0      0     0      0     0     10
+TOP:distinctness                                    20       0      0     0      0     0     20
+TOP:impact_family_comparisons                       10       0      0     0      0     0     10
+TOP:mode                                             1       0      0     0      0     0      1
+TOP:movement_family_comparisons                     10       0      0     0      0     0     10
+TOP:sections                                        44       0      0     0      0     0     44
+TOP:thresholds                                      47       0      0     0      0     0     47
+TOP:ui_family_comparisons                           10       0      0     0      0     0     10
+ambience                                            13       0      0     0      0     0     13
+ambience_alt                                        13       0      0     0      0     0     13
+ambience_third                                      13       0      0     0      0     0     13
+impact                                              13       0      0     0      0     0     13
+impact_alt                                          13       0      0     0      0     0     13
+impact_third                                        13       0      0     0      0     0     13
+module_args_lattice_r80_probe                      206      22     26     0     12     4    270
+module_topology_r80_probe                          682      36    399     5     24     0   1146
+movement                                            13       0      0     0      0     0     13
+movement_alt                                        13       0      0     0      0     0     13
+movement_third                                      13       0      0     0      0     0     13
+stem                                                13       0      0     0      0     0     13
+stem_layer                                          13       0      0     0      0     0     13
+stem_layer_alt                                      13       0      0     0      0     0     13
+stem_layer_third                                    13       0      0     0      0     0     13
+stem_sections                                       13       0      0     0      0     0     13
+ui                                                  13       0      0     0      0     0     13
+ui_alt                                              13       0      0     0      0     0     13
+ui_third                                            13       0      0     0      0     0     13
+TOTAL                                             1261      58    425     5     36     4   1789
+
+## jitter detail (numeric, non-bool):
+  module_args_lattice_r80_probe: 26 jitter paths
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/load/module_id
+      536870930..536870939 (rel 1.676e-08)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_id
+      83..237 (rel 0.6498)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/object_serial
+      104824..105116 (rel 0.002778)
+    /measurements/module_args_lattice_r80_probe/legs/a1_desc_dropped/node/pulse_module_id
+      536870930..536870939 (rel 1.676e-08)
+    /measurements/module_args_lattice_r80_probe/legs/a2_desc_prop_wins/load/module_id
+      536870930..536870939 (rel 1.676e-08)
+    /measurements/module_args_lattice_r80_probe/legs/a2_desc_prop_wins/node/object_id
+      83..237 (rel 0.6498)
+    … 20 more
+  module_topology_r80_probe: 399 jitter paths
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/edge_a_waited_s
+      0.105..0.106 (rel 0.009434)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/index
+      104991..105283 (rel 0.002773)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/sink_input/sink
+      104918..105210 (rel 0.002775)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_spans[0][1]
+      5.1..5.2 (rel 0.01923)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/mine_windows
+      45..46 (rel 0.02174)
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/peak_l
+      7725..8189 (rel 0.05666)
+    … 393 more
+
+## semantic detail (reportable instability):
+  module_topology_r80_probe: 5 semantic paths
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/edges_while_running[0][0]   []
+      [0] 'r80md_1257780_lnk_a:monitor_FL'
+      [1] 'r80md_1351823_lnk_a:monitor_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/edges_while_running[0][1]   []
+      [0] 'r80md_1257780_lnk_b:playback_FL'
+      [1] 'r80md_1351823_lnk_b:playback_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/in   []
+      [0] 'r80md_1257780_lnk_b:playback_FL'
+      [1] 'r80md_1351823_lnk_b:playback_FR'
+    /measurements/module_topology_r80_probe/legs/t3_pwlink_m_dies/out   []
+      [0] 'r80md_1257780_lnk_a:monitor_FL'
+      [1] 'r80md_1351823_lnk_a:monitor_FR'
+    /measurements/module_topology_r80_probe/legs/t4_move_sticky/tap/windows[51]/mine   []
+      [0] False
+      [1] True

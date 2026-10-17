@@ -1,0 +1,243 @@
+{
+ "m_capture_long": {
+  "argv": [
+   "pw-cat",
+   "--capture",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/gen/tone.wav"
+  ],
+  "node_name": "m_capture_long",
+  "rc": 1,
+  "stderr": "ump\", (default none)\n  -n, --sample-count COUNT              Stop after COUNT samples\n\n  -p, --playback                        Playback mode\n  -r, --record                          Recording mode\n  -m, --midi                            Midi mode\n  -d, --dsd                             DSD mode\n  -s, --sysex                           SysEx mode\n  -c, --midi-clip                       MIDI clip mode",
+  "snaps": [
+   {
+    "at": 0.909,
+    "node_present": false,
+    "state": null,
+    "media_class": null,
+    "ports": [],
+    "links": {}
+   }
+  ]
+ },
+ "m_duplex_long": {
+  "argv": [
+   "pw-cat",
+   "--duplex",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/gen/tone.wav"
+  ],
+  "node_name": "m_duplex_long",
+  "rc": 1,
+  "stderr": "ump\", (default none)\n  -n, --sample-count COUNT              Stop after COUNT samples\n\n  -p, --playback                        Playback mode\n  -r, --record                          Recording mode\n  -m, --midi                            Midi mode\n  -d, --dsd                             DSD mode\n  -s, --sysex                           SysEx mode\n  -c, --midi-clip                       MIDI clip mode",
+  "snaps": [
+   {
+    "at": 0.91,
+    "node_present": false,
+    "state": null,
+    "media_class": null,
+    "ports": [],
+    "links": {}
+   }
+  ]
+ },
+ "m_record_long": {
+  "argv": [
+   "pw-cat",
+   "--record",
+   "-P",
+   "node.name=r87m_recl",
+   "-P",
+   "stream.capture.sink=true",
+   "--target",
+   "r87_ns",
+   "-n",
+   "48000",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_recl.wav"
+  ],
+  "node_name": "r87m_recl",
+  "rc": 1,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_recl.wav",
+  "snaps": [
+   {
+    "at": 0.91,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Input/Audio",
+    "ports": [],
+    "links": {
+     "r87m_recl:input_FL": [
+      "r87_ns:monitor_FL",
+      "r87_ns:monitor_FL"
+     ],
+     "r87m_recl:input_FR": [
+      "r87_ns:monitor_FR",
+      "r87_ns:monitor_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "m_p_then_r": {
+  "argv": [
+   "pw-cat",
+   "-p",
+   "-r",
+   "-P",
+   "node.name=r87m_pr",
+   "-P",
+   "stream.capture.sink=true",
+   "--target",
+   "r87_ns",
+   "-n",
+   "48000",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_pr.wav"
+  ],
+  "node_name": "r87m_pr",
+  "rc": 1,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_pr.wav",
+  "snaps": [
+   {
+    "at": 0.911,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Input/Audio",
+    "ports": [],
+    "links": {
+     "r87m_pr:input_FL": [
+      "r87_ns:monitor_FL",
+      "r87_ns:monitor_FL"
+     ],
+     "r87m_pr:input_FR": [
+      "r87_ns:monitor_FR",
+      "r87_ns:monitor_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "m_r_then_p": {
+  "argv": [
+   "pw-cat",
+   "-r",
+   "-p",
+   "-P",
+   "node.name=r87m_rp",
+   "--target",
+   "r87_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/gen/tone.wav"
+  ],
+  "node_name": "r87m_rp",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.911,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87m_rp:output_FL": [
+      "r87_ns:playback_FL",
+      "r87_ns:playback_FL"
+     ],
+     "r87m_rp:output_FR": [
+      "r87_ns:playback_FR",
+      "r87_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "m_play_argv0_r": {
+  "argv": [
+   "pw-play",
+   "-r",
+   "-P",
+   "node.name=r87m_playr",
+   "-P",
+   "stream.capture.sink=true",
+   "--target",
+   "r87_ns",
+   "-n",
+   "48000",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_playr.wav"
+  ],
+  "node_name": "r87m_playr",
+  "rc": 1,
+  "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/runs/m_playr.wav",
+  "snaps": [
+   {
+    "at": 0.911,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Input/Audio",
+    "ports": [],
+    "links": {
+     "r87m_playr:input_FL": [
+      "r87_ns:monitor_FL",
+      "r87_ns:monitor_FL"
+     ],
+     "r87m_playr:input_FR": [
+      "r87_ns:monitor_FR",
+      "r87_ns:monitor_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "m_record_argv0_p": {
+  "argv": [
+   "pw-record",
+   "-p",
+   "-P",
+   "node.name=r87m_recp",
+   "--target",
+   "r87_ns",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/gen/tone.wav"
+  ],
+  "node_name": "r87m_recp",
+  "rc": 1,
+  "stderr": "",
+  "snaps": [
+   {
+    "at": 0.909,
+    "node_present": true,
+    "state": "running",
+    "media_class": "Stream/Output/Audio",
+    "ports": [],
+    "links": {
+     "r87m_recp:output_FL": [
+      "r87_ns:playback_FL",
+      "r87_ns:playback_FL"
+     ],
+     "r87m_recp:output_FR": [
+      "r87_ns:playback_FR",
+      "r87_ns:playback_FR"
+     ]
+    }
+   }
+  ]
+ },
+ "m_cat_midi_flag": {
+  "argv": [
+   "pw-cat",
+   "-m",
+   "-P",
+   "node.name=r87m_midif",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r87-scout/gen/r87.mid"
+  ],
+  "node_name": "r87m_midif",
+  "rc": 1,
+  "stderr": "ump\", (default none)\n  -n, --sample-count COUNT              Stop after COUNT samples\n\n  -p, --playback                        Playback mode\n  -r, --record                          Recording mode\n  -m, --midi                            Midi mode\n  -d, --dsd                             DSD mode\n  -s, --sysex                           SysEx mode\n  -c, --midi-clip                       MIDI clip mode",
+  "snaps": [
+   {
+    "at": 0.909,
+    "node_present": false,
+    "state": null,
+    "media_class": null,
+    "ports": [],
+    "links": {}
+   }
+  ]
+ }
+}

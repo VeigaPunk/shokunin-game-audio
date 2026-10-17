@@ -1,0 +1,92 @@
+{
+ "pid": 139023,
+ "sink": "r79cr_ceil_139023",
+ "tone_l_hz": 1630.0,
+ "tone_r_hz": 2133.0,
+ "ceiling": 8601.6,
+ "variants": {
+  "A_8192": {
+   "amp": 8192,
+   "tap_peak_l": 8189,
+   "tap_peak_r": 7725,
+   "mine_windows": 16,
+   "carries_tone": true,
+   "tap_producers": [],
+   "tap_producer_ports": [],
+   "tone_played_by": "r79cr_feed_139023_A_8192",
+   "leg_outcome": null,
+   "leg_confound": null,
+   "foreign_tone_witness": null,
+   "failures": [
+    "forge3 A_8192: tag tone on r79cr_ceil_139023 \u2014 this leg was never fed our tone; a `mine` window is contamination, not coverage"
+   ],
+   "entry_named_outcomes": null,
+   "verdict": "FAILED"
+  },
+  "C_9000": {
+   "amp": 9000,
+   "tap_peak_l": 8997,
+   "tap_peak_r": 8487,
+   "mine_windows": 16,
+   "carries_tone": true,
+   "tap_producers": [],
+   "tap_producer_ports": [],
+   "tone_played_by": "r79cr_feed_139023_C_9000",
+   "leg_outcome": null,
+   "leg_confound": "foreign tag-shaped tone on r79cr_ceil_139023 (peaks 8997/8487 > our 8192 ceiling) \u2014 the leg was never fed; the capture side reads the SHARED default sink monitor, so a concurrent lane's tone is forwarded here",
+   "foreign_tone_witness": {
+    "peak_l": 8997,
+    "peak_r": 8487,
+    "tag_tone_amp_ceiling": 8192,
+    "fed_by_this_arm": false,
+    "capture_producers": [
+     "r79cr_ceil_139023"
+    ]
+   },
+   "failures": [],
+   "entry_named_outcomes": [
+    "forge3 C_9000: foreign_tone_on_shared_monitor \u2014 tap peaks 8997/8487 exceed this arm's 8192 tag ceiling and the leg was never fed"
+   ],
+   "verdict": "EXCUSED (no failure)"
+  },
+  "B_12000": {
+   "amp": 12000,
+   "tap_peak_l": 11996,
+   "tap_peak_r": 11316,
+   "mine_windows": 16,
+   "carries_tone": true,
+   "tap_producers": [],
+   "tap_producer_ports": [],
+   "tone_played_by": "r79cr_feed_139023_B_12000",
+   "leg_outcome": null,
+   "leg_confound": "foreign tag-shaped tone on r79cr_ceil_139023 (peaks 11996/11316 > our 8192 ceiling) \u2014 the leg was never fed; the capture side reads the SHARED default sink monitor, so a concurrent lane's tone is forwarded here",
+   "foreign_tone_witness": {
+    "peak_l": 11996,
+    "peak_r": 11316,
+    "tag_tone_amp_ceiling": 8192,
+    "fed_by_this_arm": false,
+    "capture_producers": [
+     "r79cr_ceil_139023"
+    ]
+   },
+   "failures": [],
+   "entry_named_outcomes": [
+    "forge3 B_12000: foreign_tone_on_shared_monitor \u2014 tap peaks 11996/11316 exceed this arm's 8192 tag ceiling and the leg was never fed"
+   ],
+   "verdict": "EXCUSED (no failure)"
+  }
+ },
+ "sink_module": {
+  "module_id": 536870923,
+  "rc": 0,
+  "error": null
+ },
+ "monitor_gate": {
+  "ready": true,
+  "waited_s": 0.005,
+  "pactl_listed": true,
+  "monitor_ports": true
+ },
+ "teardown_sink_gone": true,
+ "own_nodes_after": []
+}

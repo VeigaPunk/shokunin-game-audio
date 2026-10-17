@@ -1,0 +1,997 @@
+commit db46fba2a66723796bfaca078720d6c4dac807c1
+Author: ci <ci@local>
+Date:   Wed Oct 14 13:52:07 2026 -0300
+
+    r75: consumer-class breadth — paplay + aplay + ffplay on the member x transport matrix + per-consumer ops rows
+    
+    recovery wave-14 (seat 8c18a72d): +936/-3 measure_audio.py,
+    --probe-consumers2-r75; 27/27 verdict groups transport-invariant;
+    paplay .snd name axis dead (sf_open_fd name-blind); ffplay rc0-on-invalid,
+    no mpv-style refresh-seek fork; aplay invariant-accept + device axis;
+    ops pinned (paplay open-block TERM->-15, aplay TERM-stuck->-9,
+    ffplay open-block->123, -ss path-fork). Receipts sha-identical x3
+    (0829a598...).
+    
+    Generated with [Devin](https://devin.ai)
+    
+    Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+index e3ef52e..30eac68 100755
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -1956,6 +1956,917 @@ def pwcat_ops2_entry():
+     return entry
+ 
+ 
++# r75 CONSUMER-class breadth-2: three NEW playback consumers on the
++# canonical member x transport matrix (r73 shape; a new parallel ledger
++# family --probe-consumers2-r75, prior rows untouched).
++#   paplay (pacat, PulseAudio client over pipewire-pulse): decodes via
++#     libsndfile through sf_open_FD — an fd-based open is NAME-BLIND, so
++#     the r73 pw-cat .snd name-axis fork (path-based sf_open) cannot
++#     transfer (frontier: identical no-magic bytes reject under
++#     {.snd,.wav,.bin,.au} named files and fifos alike). Daemon-gated
++#     like pw-cat but with the opposite ORDER: paplay opens the input
++#     first, so a writerless fifo blocks in open() before the server —
++#     dead or alive — is ever contacted. The open block has no custom
++#     TERM disposition: SIGTERM kills it (rc -15), unlike pw-cat's
++#     SIGTERM-immune -9.
++#   aplay (ALSA in-process): NO daemon — kernel device coupling. The
++#     matrix runs `-D null` (an in-process plugin device that discards
++#     samples) so the input-parse verdict stays device-free; the ops
++#     entry censuses `aplay -l`/`-L` and records the device gates
++#     (default routes through the PipeWire plugin on this host —
++#     daemon-coupled; hw:<card> applies the kernel driver's format
++#     constraints — device-coupled). Header parse is forward-only
++#     content magic, so the name axis is dead AND the raw fallback
++#     accepts every unmatched buffer under every name.
++#   ffplay (SDL + libavformat pull-model): a SECOND lavf consumer —
++#     answers whether mpv's inverted-seek fork (r73 dec_hcom) is a lavf
++#     property or an mpv-ism. ffplay's read thread pulls packets with no
++#     post-probe refresh seek (avio `Statistics: ... seeks:0` on the
++#     seekable file arm), so the dec_hcom fork cannot transfer. The
++#     parse surface is ffplay's own stderr at -v debug (Input #0 detect
++#     + Statistics seeks); exit_code is NOT the verdict — ffplay returns
++#     0 even on "Invalid data found" input. SDL_AUDIODRIVER=dummy makes
++#     the sink deterministic; the ops entry axes {dummy,pulse,alsa}.
++CONSUMER_R75_MEMBERS = CONSUMER_R73_MEMBERS   # same canonical 9
++CONSUMER_R75_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
++CONSUMER_R75_NOWRITER_WAIT_S = CONSUMER_R73_NOWRITER_WAIT_S
++CONSUMER_R75_SIGTERM_WAIT_S = 1.0
++CONSUMER_R75_START_S = LAVF_R74_START_S       # -ss 2 position cell
++FFPLAY_R75_ENV = {"SDL_AUDIODRIVER": "dummy"}
++
++
++def _consumer2_tail(text, probe_arg):
++    """_consumer_tail plus determinism scrubbing for the r75 consumers:
++    single-quoted input names normalize wholesale (`Playing WAVE
++    '<abs-or-tmp-path>' -> '<input>') and any residual UNQUOTED
++    directory prefix before <input> (absolute member path, fifo
++    mkdtemp dir — aplay/ffplay echo paths verbatim where
++    _consumer_tail's relative probe_arg only covers the basename)
++    collapses, so a tail never leaks host paths or mkdtemp suffixes."""
++    tail = _consumer_tail(text, probe_arg)
++    if not tail:
++        return tail
++    tail = re.sub(r"'[^']*'", "'<input>'", tail)
++    tail = re.sub(r"\S+<input>", "<input>", tail)
++    return tail
++
++
++_PACAT_RACY_TAIL = re.compile(
++    r"^(Time:.*Latency:|Playback stream drained\.|"
++    r"Draining connection to server\.|Connected to device.*|"
++    r"Stream started\..*)$")
++
++
++def _paplay_fields(text):
++    """pacat -v surface: the negotiated sample spec on accept; the open/
++    connect error line on reject. `Connected to device ... (index: N)`
++    carries a per-run index and is never keyed on."""
++    spec = re.search(r"Using sample spec '([^']+)'", text)
++    err = None
++    for pat in (r"open\(\): [^\n]+", r"Connection failure: [^\n]+",
++                r"pa_context_connect\(\) failed: [^\n]+",
++                r"Failed to open audio file\.?"):
++        m = re.search(pat, text)
++        if m:
++            err = m.group(0).strip()
++            break
++    return (spec.group(1) if spec else None), err
++
++
++def paplay_leg(transport, path, data, hold_s):
++    """One bounded `paplay -v` playback leg -> stream-consume verdict.
++
++    pacat reads stdin only as its NO-ARG source ('-' is a literal
++    filename -> `open(): No such file or directory`), so the anonymous
++    arms are `paplay -v` with piped or redirected stdin; named arms take
++    the path. The decode front-end is libsndfile via sf_open_fd — an
++    fd-based open is name-blind on EVERY transport, so the r73 pw-cat
++    .snd name fork cannot transfer. Viability is daemon-gated like
++    pw-cat but in the opposite ORDER: input open precedes
++    pa_context_connect — a writerless fifo blocks before any server
++    contact (the ops entry pins the ordering cell). A fifo leg without
++    a writer blocks in open(); the subprocess timeout is the KILL
++    bound, though unlike pw-cat a bare SIGTERM already suffices."""
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S, **kw)
++            return proc.stderr.decode(errors="replace"), proc.returncode, None
++        except subprocess.TimeoutExpired as exc:
++            return ((exc.stderr or b"").decode(errors="replace"), None,
++                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
++
++    if transport == "file":
++        text, code, blocked = run(["paplay", "-v", str(path)])
++        label = str(path.relative_to(ROOT))
++    elif transport == "stdin_pipe":
++        text, code, blocked = run(["paplay", "-v"], input=data)
++        label = "-"
++    elif transport == "redirected_fd":
++        with path.open("rb") as fh:
++            text, code, blocked = run(["paplay", "-v"], stdin=fh)
++        label = "-"
++    else:
++        with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                text, code, blocked = run(["paplay", "-v", str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++        label = path.name
++    spec, pa_err = _paplay_fields(text)
++    leg = {"input": label, "exit_code": code,
++           "pa_sample_spec": spec, "pa_error": pa_err,
++           "error": blocked or pa_err}
++    # pacat's -v tail is racy: the `Time:...Latency:` progress carriage
++    # and the drain couplet compete for the last line. Filter them (plus
++    # the index-bearing `Connected to device` and `Stream started`) so
++    # the tail is deterministic — a successful leg ends on the
++    # negotiated `Using sample spec ...` line.
++    ftext = "\n".join(ln for ln in text.splitlines()
++                      if not _PACAT_RACY_TAIL.match(ln))
++    tail = _consumer2_tail(ftext, label)
++    if tail:
++        leg["stderr_tail"] = tail
++    return leg
++
++
++def _aplay_fields(text):
++    """aplay parse surface: `Playing <KIND> '<input>' : <spec>` names the
++    content-magic classification (WAVE|VOC|AU|raw data — the filename
++    only decorates the line, extension is never consulted); `aplay:
++    <func>:<line>: <msg>` is the parse/device error (func:line is
++    build-pinned, kept verbatim)."""
++    m = re.search(r"Playing (WAVE|VOC|AU|raw data) '[^']*' : ([^\n]*)", text)
++    err = re.search(r"^(aplay: [^\n]+)$", text, re.M)
++    return ((m.group(1), m.group(2).strip()) if m else (None, None),
++            err.group(1).strip() if err else None)
++
++
++def aplay_leg(transport, path, data, hold_s, device="null"):
++    """One bounded `aplay -D <device>` leg -> ALSA content-parse verdict.
++
++    aplay is daemon-free (in-process ALSA); the matrix fixes -D null so
++    the input-side verdict is device-independent — ops records the
++    device axis (default/pipewire/hw) separately. `-` means stdin
++    (`Playing ... 'stdin'`); the header parse is forward-only content
++    magic — seekability is never exercised. A member that matches no
++    container magic falls through to `Playing raw data` (u8/8000/mono
++    defaults) and ACCEPTS under every name, so aplay's verdict is
++    predicted invariant-accept where paplay's is invariant-reject. A
++    fifo leg without a writer blocks in open() like every other
++    consumer; aplay catches SIGTERM ('Aborted by signal Terminated')
++    yet stays blocked -> the ops cell lands the KILL escalation."""
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S, **kw)
++            return proc.stderr.decode(errors="replace"), proc.returncode, None
++        except subprocess.TimeoutExpired as exc:
++            return ((exc.stderr or b"").decode(errors="replace"), None,
++                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
++
++    argv0 = ["aplay", "-D", device]
++    if transport == "file":
++        text, code, blocked = run(argv0 + [str(path)])
++        label = str(path.relative_to(ROOT))
++    elif transport == "stdin_pipe":
++        text, code, blocked = run(argv0 + ["-"], input=data)
++        label = "-"
++    elif transport == "redirected_fd":
++        with path.open("rb") as fh:
++            text, code, blocked = run(argv0 + ["-"], stdin=fh)
++        label = "-"
++    else:
++        with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                text, code, blocked = run(argv0 + [str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++        label = path.name
++    (kind, spec), aerr = _aplay_fields(text)
++    leg = {"input": label, "exit_code": code, "device": device,
++           "alsa_kind": kind, "alsa_spec": spec, "alsa_error": aerr,
++           "error": blocked or aerr or (None if code == 0 else
++                                       f"exit {code}")}
++    tail = _consumer2_tail(text, label)
++    if tail:
++        leg["stderr_tail"] = tail
++    return leg
++
++
++# ffplay's periodic status line (`... fd= N aq= NKB vq= NKB sq= NB`,
++# `nan` before open resolves) races the verdict line for the last slot —
++# dropped before tail extraction so rejects land on the verdict line and
++# decodes on the closing `Statistics:` line.
++_FFPLAY_STATUS_TAIL = re.compile(r"fd=\s*\d+\s+aq=\s*\d+KB.*sq=")
++
++
++def _ffplay_fields(text):
++    """ffplay's own stderr surface (-v debug): `Input #0, <fmt>, from` is
++    the lavf detect, `Stream #0:0...: Audio: <codec>` the decoded codec,
++    `Format <fmt> probed ... score=N` the probe score, and the last
++    `Statistics: N bytes read, M seeks` the avio seek count — mpv's
++    refresh seek would land in M; the SDL pull model stays 0. Reject/
++    seek evidence: `Invalid data found when processing input`,
++    `could not seek`. `[ctx @ 0x...]` ASLR prefixes are never keyed
++    (the tail normalizer strips them)."""
++    detected = re.search(r"Input #0, ([^,\s]+), from", text)
++    codec = re.search(r"Stream #0:0[^:\n]*: Audio: ([^,\s]+)", text)
++    duration = re.search(r"Duration: ([^,\n]+)", text)
++    probed = re.search(r"Format (\S+) probed with size=(\d+) and score=(\d+)",
++                       text)
++    stats = re.findall(r"Statistics: (\d+) bytes read, (\d+) seeks", text)
++    return {
++        "ffplay_detected": detected.group(1) if detected else None,
++        "ffplay_codec": codec.group(1) if codec else None,
++        "ffplay_duration": (duration.group(1).strip() if duration else None),
++        "lavf_probe": probed.group(1) if probed else None,
++        "lavf_score": int(probed.group(3)) if probed else None,
++        "avio_bytes_read": int(stats[-1][0]) if stats else None,
++        "avio_seeks": int(stats[-1][1]) if stats else None,
++        "could_not_seek": "could not seek" in text,
++        "ffplay_invalid": ("Invalid data found when processing input"
++                           in text)}
++
++
++def ffplay_leg(transport, path, data, hold_s, extra_opts=(),
++               loglevel="debug"):
++    """One bounded `ffplay -nodisp -autoexit` leg -> lavf pull-model
++    verdict.
++
++    SDL_AUDIODRIVER=dummy fixes the sink (no daemon, no card) — the ops
++    entry axes the driver separately. stdin is `-i -` (the fd: protocol
++    — '-' alone is not an input alias); redirected_fd hands the same
++    flag a seekable regular-file fd. Verdict fields key on detection +
++    seek evidence, never bare rc: this build exits 0 even on 'Invalid
++    data found when processing input'. A fifo leg without a writer
++    never reaches the consumer's own bound — avformat's open blocks in
++    the read thread while the main loop polls (ops pins the class) —
++    the subprocess timeout is the KILL bound."""
++    env = {**os.environ, **FFPLAY_R75_ENV}
++
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S, env=env,
++                                  **kw)
++            return proc.stderr.decode(errors="replace"), proc.returncode, None
++        except subprocess.TimeoutExpired as exc:
++            return ((exc.stderr or b"").decode(errors="replace"), None,
++                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
++
++    argv0 = ["ffplay", "-nodisp", "-autoexit", "-v", loglevel, *extra_opts]
++    if transport == "file":
++        text, code, blocked = run(argv0 + [str(path)])
++        label = str(path.relative_to(ROOT))
++    elif transport == "stdin_pipe":
++        text, code, blocked = run(argv0 + ["-i", "-"], input=data)
++        label = "-"
++    elif transport == "redirected_fd":
++        with path.open("rb") as fh:
++            text, code, blocked = run(argv0 + ["-i", "-"], stdin=fh)
++        label = "-"
++    else:
++        with tempfile.TemporaryDirectory(prefix="ffplay-r75-") as tmp:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                text, code, blocked = run(argv0 + [str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++        label = path.name
++    leg = {"input": label, "exit_code": code}
++    leg.update(_ffplay_fields(text))
++    leg["error"] = blocked or (
++        "invalid_data" if leg["ffplay_invalid"] else
++        "could_not_seek" if leg["could_not_seek"] else
++        None if leg["ffplay_detected"] else f"exit {code}")
++    ftext = "\n".join(ln for ln in text.splitlines()
++                      if not _FFPLAY_STATUS_TAIL.search(ln))
++    tail = _consumer2_tail(ftext, label)
++    if tail:
++        leg["stderr_tail"] = tail
++    return leg
++
++
++def consumer2_transport_entry(member, path):
++    """r75 receipt entry: THREE playback consumers on the member's
++    transport matrix (same member set + verdict-group machinery as
++    consumer_transport_entry). Each consumer keys its own signature so
++    the receipt pins which polarity each exercises — paplay
++    (exit, spec, pa_error), aplay (exit, kind, aplay_error), ffplay
++    (exit, detected, seeks, invalid). A fork lands as a failure keyed
++    by consumer (r67 convention)."""
++    hold_s = fifo_writer_hold_s()
++    data = path.read_bytes()
++    consumers = {}
++    failures = []
++    for consumer, legs in (("paplay", paplay_leg), ("aplay", aplay_leg),
++                           ("ffplay", ffplay_leg)):
++        arms = {t: legs(t, path, data, hold_s)
++                for t in ("file", "stdin_pipe", "redirected_fd",
++                          "fifo_path")}
++        for t, named, seekable in TRANSPORT_R67_ARMS:
++            arms[t]["named"], arms[t]["seekable"] = named, seekable
++        groups = []
++        for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
++            a = arms[t]
++            if consumer == "paplay":
++                sig = (a["exit_code"], a["pa_sample_spec"], a["pa_error"])
++            elif consumer == "aplay":
++                sig = (a["exit_code"], a["alsa_kind"], a["alsa_error"])
++            else:
++                sig = (a["exit_code"], a["ffplay_detected"],
++                       a["avio_seeks"], a["ffplay_invalid"])
++            for g in groups:
++                if g[0] == sig:
++                    g[1].append(t)
++                    break
++            else:
++                groups.append((sig, [t]))
++        consumers[consumer] = {
++            "transport_axis": arms,
++            "transport_verdict_groups": [
++                {"transports": ts, "verdict": list(sig)}
++                for sig, ts in groups],
++            "transport_fork": len(groups) > 1}
++        if consumers[consumer]["transport_fork"]:
++            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
++                               for sig, ts in groups)
++            failures.append(f"transport: {consumer} verdict forks across "
++                            f"transports ({desc})")
++    return {"path": str(path.relative_to(ROOT)), "pair_member": member,
++            "consumers": consumers,
++            "consumer_protocol": {
++                "arm_timeout_s": CONSUMER_R75_TIMEOUT_S,
++                "fifo_writer_hold_s": hold_s,
++                "fifo_feed": "one-shot write then writer lingers",
++                "paplay": ("paplay -v [<path>] — pacat 17.0/libpulse 17.0 "
++                           "playback, libsndfile decode via sf_open_fd "
++                           "(name-blind); stdin = no-arg, '-' is a "
++                           "literal filename; daemon-gated AFTER input "
++                           "open"),
++                "aplay": ("aplay -D null [<path>|-> — in-process ALSA, "
++                          "forward-only content-magic parse, raw "
++                          "fallback accepts unmatched buffers"),
++                "ffplay": ("ffplay -nodisp -autoexit -v debug "
++                           "SDL_AUDIODRIVER=dummy [<path>|-i -] — lavf "
++                           "pull-model, verdict = detect+seek fields "
++                           "(rc is 0 even on invalid input)")},
++            "failures": failures}
++
++
++def _nowriter_cell(argv, extra_env=None):
++    """Spawn `argv` on a writerless fifo and pin the kill class: wait
++    NOWRITER_WAIT_S, sample wchan/state, send SIGTERM, allow
++    SIGTERM_WAIT_S, then SIGKILL the process group. The class is
++    per-consumer: paplay dies on TERM (rc -15), aplay catches TERM
++    ('Aborted by signal Terminated') yet stays blocked (-9), ffplay's
++    handler exits 123 while its read thread stays blocked in open()
++    (pw-cat ignores TERM -> -9, r74)."""
++    with tempfile.TemporaryDirectory(prefix="nowriter-r75-") as tmp:
++        fifo = Path(tmp) / "nowriter.wav"
++        os.mkfifo(fifo)
++        env = {**os.environ, **(extra_env or {})}
++        proc = subprocess.Popen(argv + [str(fifo)],
++                                stdout=subprocess.PIPE,
++                                stderr=subprocess.PIPE,
++                                env=env, start_new_session=True)
++        try:
++            proc.wait(timeout=CONSUMER_R75_NOWRITER_WAIT_S)
++            return {"argv": " ".join(argv + ["<fifo>"]),
++                    "blocked": False, "exit_code": proc.returncode,
++                    "waited_s": CONSUMER_R75_NOWRITER_WAIT_S}
++        except subprocess.TimeoutExpired:
++            try:
++                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
++            except OSError:
++                wchan = None
++            proc.send_signal(signal.SIGTERM)
++            try:
++                proc.wait(timeout=CONSUMER_R75_SIGTERM_WAIT_S)
++                term_immune = False
++            except subprocess.TimeoutExpired:
++                term_immune = True
++            if term_immune:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++            try:
++                err = proc.stderr.read().decode(errors="replace")
++            except Exception:
++                err = ""
++            rec = {"argv": " ".join(argv + ["<fifo>"]),
++                   "blocked": True, "wchan": wchan,
++                   "sigterm_wait_s": CONSUMER_R75_SIGTERM_WAIT_S,
++                   "sigterm_immune": term_immune,
++                   "exit_code": proc.returncode,
++                   "waited_s": CONSUMER_R75_NOWRITER_WAIT_S}
++            if err.strip():
++                rec["stderr_tail"] = _consumer2_tail(err, str(fifo))
++            return rec
++        finally:
++            if proc.poll() is None:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++            reap_fifo_orphans(fifo)
++
++
++def consumers2_paplay_ops_entry():
++    """r75 paplay ops surface — the pulse daemon gate plus the ORDERING
++    that distinguishes it from pw-cat:
++    (a) daemon liveness via pactl;
++    (b) dead-server gate on a VALID member — instant rc=1
++        'Connection failure' (input parses, connect fails);
++    (c) gate ordering — dead server + writerless fifo: paplay opens the
++        INPUT first, so it blocks in open() and never reaches the dead
++        server (no connection error in stderr, TERM -> -15);
++    (d) writerless fifo under a LIVE server — same open block class,
++        SIGTERM kills (rc -15; contrast pw-cat's TERM-immune -9);
++    (e) the .snd name-axis control on identical no-magic bytes —
++        named files {snd,wav,bin}, fifos {snd,wav,bin}, and an rfd —
++        predicted INVARIANT-REJECT everywhere because sf_open_fd is
++        name-blind (the r73 pw-cat fork cannot transfer);
++    (f) --raw bypass on the .snd fifo — skips the decode layer, rc=0;
++    (g) empty-writer fifo — immediate EOF under libsndfile."""
++    failures = []
++    entry = {"probe": "paplay consumer operational surface"}
++    try:
++        proc = subprocess.run(["pactl", "info"], capture_output=True,
++                              timeout=10)
++        out = proc.stdout.decode(errors="replace")
++        m = re.search(r"^Server Name:\s*(.*)$", out, re.M)
++        s = re.search(r"^Default Sink:\s*(.*)$", out, re.M)
++        entry["daemon_live"] = {
++            "pactl_exit": proc.returncode,
++            "server_name": m.group(1).strip() if m else None,
++            "default_sink": s.group(1).strip() if s else None,
++            "live": proc.returncode == 0}
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        entry["daemon_live"] = {"pactl_exit": None, "live": False,
++                                "error": str(exc)[:120]}
++    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
++    snd_path = ROOT / "live" / snd_dir / snd_name
++    snd_data = snd_path.read_bytes()
++    dead_env = {"PULSE_SERVER": "unix:/nonexistent-r75-paplay-gate"}
++    # (b) dead server + valid member: input parses, connect fails fast.
++    t0 = time.monotonic()
++    try:
++        proc = subprocess.run(
++            ["paplay", str(CONSUMER_R73_PACER)], capture_output=True,
++            env={**os.environ, **dead_env},
++            timeout=CONSUMER_R75_TIMEOUT_S)
++        entry["daemon_gate_dead"] = {
++            "env_override": "PULSE_SERVER=unix:<nonexistent>",
++            "exit_code": proc.returncode,
++            "wall_s": round(time.monotonic() - t0, 3),
++            "stderr_tail": _consumer2_tail(
++                proc.stderr.decode(errors="replace"),
++                str(CONSUMER_R73_PACER))}
++    except subprocess.TimeoutExpired:
++        entry["daemon_gate_dead"] = {
++            "env_override": "PULSE_SERVER=unix:<nonexistent>",
++            "exit_code": None, "blocked": True,
++            "wall_s": round(time.monotonic() - t0, 3)}
++    gate = entry["daemon_gate_dead"]
++    if not (gate.get("exit_code") == 1 and
++            "onnection" in (gate.get("stderr_tail") or "")):
++        failures.append("paplay: dead-server gate deviated from the "
++                        "measured signature (instant rc=1 Connection "
++                        "failure)")
++    # (c)+(d) ordering cell: the writerless-fifo open block is identical
++    # with a dead server and a live one — paplay never reaches connect.
++    entry["gate_ordering_dead_fifo"] = _nowriter_cell(["paplay"], dead_env)
++    go = entry["gate_ordering_dead_fifo"]
++    ordering_ok = (go.get("blocked") and
++                   "onnection" not in (go.get("stderr_tail") or ""))
++    if not ordering_ok:
++        failures.append("paplay: dead-server writerless fifo deviated "
++                        "from the input-first ordering (blocked in "
++                        "open(), no connection error reached)")
++    entry["fifo_no_writer"] = _nowriter_cell(["paplay"])
++    for cell in ("gate_ordering_dead_fifo", "fifo_no_writer"):
++        nw = entry[cell]
++        if not (nw.get("blocked") and nw.get("sigterm_immune") is False
++                and nw.get("exit_code") == -signal.SIGTERM):
++            failures.append(f"paplay: {cell} deviated from the measured "
++                            "kill class (blocked, SIGTERM kills -> rc "
++                            "-15)")
++    # (e) name axis on identical no-magic bytes: named files + fifos +
++    # rfd — sf_open_fd is name-blind so ALL reject 'Failed to open
++    # audio file.' (pw-cat's .snd accept does not transfer).
++    name_axis = {}
++    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
++        for fname in ("axis.snd", "axis.wav", "axis.bin"):
++            fpath = Path(tmp) / fname
++            fpath.write_bytes(snd_data)
++            try:
++                proc = subprocess.run(["paplay", str(fpath)],
++                                      capture_output=True,
++                                      timeout=CONSUMER_R75_TIMEOUT_S)
++                _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
++                name_axis["file:" + fname] = {
++                    "exit_code": proc.returncode, "pa_error": pe}
++            except subprocess.TimeoutExpired:
++                name_axis["file:" + fname] = {"exit_code": None,
++                                              "blocked": True}
++        name_hold_s = fifo_writer_hold_s()
++        fdir = Path(tmp) / "fifos"
++        fdir.mkdir()
++        for fname in ("axis.snd", "axis.wav", "axis.bin"):
++            fifo = fdir / fname
++            os.mkfifo(fifo)
++            writer = threading.Thread(
++                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
++                daemon=True)
++            writer.start()
++            try:
++                proc = subprocess.run(["paplay", str(fifo)],
++                                      capture_output=True,
++                                      timeout=CONSUMER_R75_TIMEOUT_S)
++                _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
++                name_axis["fifo:" + fname] = {
++                    "exit_code": proc.returncode, "pa_error": pe}
++            except subprocess.TimeoutExpired:
++                name_axis["fifo:" + fname] = {"exit_code": None,
++                                              "blocked": True}
++            finally:
++                writer.join(timeout=name_hold_s + 5)
++                reap_fifo_orphans(fifo)
++    with snd_path.open("rb") as fh:
++        try:
++            proc = subprocess.run(["paplay"], stdin=fh, capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S)
++            _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
++            name_axis["rfd:" + snd_name] = {
++                "exit_code": proc.returncode, "pa_error": pe}
++        except subprocess.TimeoutExpired:
++            name_axis["rfd:" + snd_name] = {"exit_code": None,
++                                            "blocked": True}
++    entry["paplay_name_axis"] = {
++        "member": str(snd_path.relative_to(ROOT)),
++        "claim": ("sf_open_fd is name-blind -> invariant-reject "
++                  "(pw-cat's .snd fork cannot transfer)"),
++        "legs": name_axis}
++    if not all(l.get("exit_code") == 1 for l in name_axis.values()):
++        failures.append("paplay: name axis deviated from invariant-"
++                        "reject (predicted rc=1 'Failed to open audio "
++                        "file' on every name + transport)")
++    # (f) --raw bypass on the identical .snd bytes.
++    name_hold_s = fifo_writer_hold_s()
++    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
++        fifo = Path(tmp) / "axis.snd"
++        os.mkfifo(fifo)
++        writer = threading.Thread(
++            target=fifo_feed, args=(fifo, snd_data, name_hold_s),
++            daemon=True)
++        writer.start()
++        try:
++            proc = subprocess.run(["paplay", "--raw", str(fifo)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S)
++            entry["raw_bypass"] = {
++                "mode": "paplay --raw (decode layer skipped)",
++                "fifo_name": "axis.snd",
++                "exit_code": proc.returncode}
++        except subprocess.TimeoutExpired:
++            entry["raw_bypass"] = {"exit_code": None, "blocked": True}
++        finally:
++            writer.join(timeout=name_hold_s + 5)
++            reap_fifo_orphans(fifo)
++    if entry["raw_bypass"].get("exit_code") != 0:
++        failures.append("paplay: --raw bypass deviated (predicted rc=0 "
++                        "on the identical .snd fifo bytes)")
++    # (g) empty-writer fifo.
++    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
++        fifo = Path(tmp) / "empty.wav"
++        os.mkfifo(fifo)
++
++        def empty_feed():
++            try:
++                open(fifo, "wb").close()
++            except OSError:
++                pass
++        t = threading.Thread(target=empty_feed, daemon=True)
++        t.start()
++        try:
++            proc = subprocess.run(["paplay", str(fifo)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S)
++            _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
++            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
++                                          "pa_error": pe}
++        except subprocess.TimeoutExpired:
++            entry["fifo_empty_writer"] = {"exit_code": None,
++                                          "blocked": True}
++        finally:
++            t.join(timeout=5)
++            reap_fifo_orphans(fifo)
++    entry["failures"] = failures
++    return entry
++
++
++def consumers2_aplay_ops_entry():
++    """r75 aplay ops surface — device coupling instead of a daemon gate:
++    (a) `aplay -l`/`-L` device census (the viability precondition — an
++        absent card list degrades the hw cell to a recorded blockage);
++    (b) device axis on one member: -D null (in-process, always), aplay
++        default + -D pipewire (plugin routing -> daemon-coupled on this
++        host), -D hw:<first card> (kernel device -> format-coupled
++        rejection measured);
++    (c) writerless fifo under -D null: blocked in open(); aplay catches
++        SIGTERM ('Aborted by signal Terminated') yet stays blocked ->
++        SIGKILL -> -9;
++    (d) name axis on identical no-magic bytes via fifos
++        {snd,wav,bin}: content-parse accepts EVERY name as 'raw data'
++        (invariant-accept);
++    (e) empty-writer fifo -> header read error rc=1."""
++    failures = []
++    entry = {"probe": "aplay consumer operational surface"}
++    cards = []
++    try:
++        proc = subprocess.run(["aplay", "-l"], capture_output=True,
++                              timeout=10)
++        for m in re.finditer(r"card (\d+): (\S+) \[(.*?)\], device (\d+):",
++                             proc.stdout.decode(errors="replace")):
++            cards.append({"card": int(m.group(1)), "card_id": m.group(2),
++                          "card_name": m.group(3),
++                          "device": int(m.group(4))})
++        entry["device_census"] = {
++            "aplay_dash_l_exit": proc.returncode,
++            "playback_devices": cards}
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        entry["device_census"] = {"aplay_dash_l_exit": None,
++                                  "playback_devices": [],
++                                  "error": str(exc)[:120]}
++    try:
++        proc = subprocess.run(["aplay", "-L"], capture_output=True,
++                              timeout=10)
++        names = [ln.strip() for ln in
++                 proc.stdout.decode(errors="replace").splitlines()
++                 if ln.strip() and not ln.startswith(" ")]
++        entry["plugin_census"] = {
++            "aplay_dash_L_exit": proc.returncode,
++            "has_null": "null" in names,
++            "has_pipewire": "pipewire" in names,
++            "has_default": "default" in names}
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        entry["plugin_census"] = {"aplay_dash_L_exit": None,
++                                  "error": str(exc)[:120]}
++    # (b) device axis on the dec_act member (8 kHz mono wav): -D null is
++    # the matrix sink; default + pipewire are daemon-coupled plugin
++    # routes on this host; hw:<first> exercises the kernel driver's
++    # format constraints (this USB device rejects 8 kHz mono).
++    directory, filename = TRANSPORT_R67_MEMBERS["dec_act"]
++    member_path = ROOT / "live" / directory / filename
++    device_legs = {}
++    targets = [("null", ["-D", "null"]), ("default", []),
++               ("pipewire", ["-D", "pipewire"])]
++    if cards:
++        targets.append(("hw_first",
++                        ["-D", f"hw:{cards[0]['card']},{cards[0]['device']}"]))
++    for name, dargv in targets:
++        try:
++            proc = subprocess.run(
++                ["aplay", *dargv, str(member_path)], capture_output=True,
++                timeout=CONSUMER_R75_TIMEOUT_S)
++            text = proc.stderr.decode(errors="replace")
++            (kind, spec), aerr = _aplay_fields(text)
++            device_legs[name] = {
++                "exit_code": proc.returncode, "alsa_kind": kind,
++                "alsa_spec": spec, "alsa_error": aerr,
++                "stderr_tail": _consumer2_tail(text, str(member_path))}
++        except subprocess.TimeoutExpired:
++            device_legs[name] = {"exit_code": None, "blocked": True}
++    if not cards:
++        device_legs["hw_first"] = {
++            "blockage": "no ALSA playback card enumerated by `aplay -l`"}
++    entry["device_axis"] = {"member": str(member_path.relative_to(ROOT)),
++                            "legs": device_legs}
++    if device_legs.get("null", {}).get("exit_code") != 0:
++        failures.append("aplay: -D null device deviated from rc=0 (the "
++                        "in-process sink must always accept)")
++    # (c) writerless fifo under -D null.
++    entry["fifo_no_writer"] = _nowriter_cell(["aplay", "-D", "null"])
++    nw = entry["fifo_no_writer"]
++    if not (nw.get("blocked") and nw.get("sigterm_immune")
++            and nw.get("exit_code") == -signal.SIGKILL):
++        failures.append("aplay: writerless fifo deviated from the "
++                        "measured kill class (blocked, TERM caught but "
++                        "stuck -> SIGKILL -9)")
++    # (d) name axis on identical no-magic bytes: content-parse accepts
++    # every fifo name as 'raw data' (u8/8000/mono) — invariant-accept.
++    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
++    snd_data = (ROOT / "live" / snd_dir / snd_name).read_bytes()
++    name_hold_s = fifo_writer_hold_s()
++    name_axis = {}
++    with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
++        for fname in ("axis.snd", "axis.wav", "axis.bin"):
++            fifo = Path(tmp) / fname
++            os.mkfifo(fifo)
++            writer = threading.Thread(
++                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
++                daemon=True)
++            writer.start()
++            try:
++                proc = subprocess.run(["aplay", "-D", "null", str(fifo)],
++                                      capture_output=True,
++                                      timeout=CONSUMER_R75_TIMEOUT_S)
++                text = proc.stderr.decode(errors="replace")
++                (kind, spec), aerr = _aplay_fields(text)
++                name_axis[fname] = {"exit_code": proc.returncode,
++                                    "alsa_kind": kind, "alsa_spec": spec,
++                                    "alsa_error": aerr}
++            except subprocess.TimeoutExpired:
++                name_axis[fname] = {"exit_code": None, "blocked": True}
++            finally:
++                writer.join(timeout=name_hold_s + 5)
++                reap_fifo_orphans(fifo)
++    entry["aplay_name_axis"] = {
++        "member": str((ROOT / "live" / snd_dir / snd_name
++                       ).relative_to(ROOT)),
++        "claim": ("content-parse only -> invariant-accept 'raw data' "
++                  "under every fifo name"),
++        "legs": name_axis}
++    if not all(l.get("exit_code") == 0 and l.get("alsa_kind") == "raw data"
++               for l in name_axis.values()):
++        failures.append("aplay: name axis deviated from invariant-accept "
++                        "('raw data' rc=0 under every fifo name)")
++    # (e) empty-writer fifo -> header read error.
++    with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
++        fifo = Path(tmp) / "empty.wav"
++        os.mkfifo(fifo)
++
++        def empty_feed():
++            try:
++                open(fifo, "wb").close()
++            except OSError:
++                pass
++        t = threading.Thread(target=empty_feed, daemon=True)
++        t.start()
++        try:
++            proc = subprocess.run(["aplay", "-D", "null", str(fifo)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R75_TIMEOUT_S)
++            text = proc.stderr.decode(errors="replace")
++            (kind, spec), aerr = _aplay_fields(text)
++            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
++                                          "alsa_kind": kind,
++                                          "alsa_error": aerr}
++        except subprocess.TimeoutExpired:
++            entry["fifo_empty_writer"] = {"exit_code": None,
++                                          "blocked": True}
++        finally:
++            t.join(timeout=5)
++            reap_fifo_orphans(fifo)
++    if entry["fifo_empty_writer"].get("exit_code") != 1:
++        failures.append("aplay: empty-writer fifo deviated from the "
++                        "measured signature (rc=1 header read error)")
++    entry["failures"] = failures
++    return entry
++
++
++def consumers2_ffplay_ops_entry():
++    """r75 ffplay ops surface — the SDL audio-driver gate + the lavf
++    pull-model cells:
++    (a) SDL_AUDIODRIVER axis on one member: {dummy,pulse,alsa} — dummy
++        is the deterministic sink, pulse is daemon-coupled, alsa is
++        card-coupled (each leg records its own gate);
++    (b) writerless fifo: avformat's open blocks in the READ THREAD while
++        the main loop polls (wchan hrtimer_nanosleep) — SIGTERM is
++        honored by the event loop -> graceful exit 123, a third kill
++        class beside paplay's -15 and aplay/pw-cat's -9;
++    (c) -ss 2 position cell on the 4.0 s wav: seekable file seeks;
++        non-seekable stdin logs 'could not seek' and rescues by
++        decode-discard — the fork is in the seek PATH, not the played
++        extent (~2 s wall both arms);
++    (d) empty-writer fifo -> 'Invalid data found' at rc=0 (rc is never
++        the verdict)."""
++    failures = []
++    entry = {"probe": "ffplay consumer operational surface"}
++    directory, filename = TRANSPORT_R67_MEMBERS["dec_act"]
++    member_path = ROOT / "live" / directory / filename
++    driver_legs = {}
++    for drv in ("dummy", "pulse", "alsa"):
++        env = {**os.environ, "SDL_AUDIODRIVER": drv}
++        try:
++            proc = subprocess.run(
++                ["ffplay", "-nodisp", "-autoexit", "-v", "info",
++                 str(member_path)], capture_output=True,
++                env=env, timeout=CONSUMER_R75_TIMEOUT_S)
++            text = proc.stderr.decode(errors="replace")
++            detected = re.search(r"Input #0, ([^,\s]+), from", text)
++            sdl_err = re.search(r"(SDL[^:\n]*:[^\n]*|could not (?:open|"
++                                r"initialize)[^\n]*)", text)
++            driver_legs[drv] = {
++                "exit_code": proc.returncode,
++                "ffplay_detected": detected.group(1) if detected else None,
++                "error": sdl_err.group(0).strip()[:120] if sdl_err else None,
++                # `ALSA lib ... underrun` diagnostics and the periodic
++                # status line are timing-dependent — dropped before the
++                # tail so the receipt stays deterministic.
++                "stderr_tail": _consumer2_tail(
++                    "\n".join(ln for ln in text.splitlines()
++                              if not ln.startswith("ALSA lib")
++                              and not _FFPLAY_STATUS_TAIL.search(ln)),
++                    str(member_path))}
++        except subprocess.TimeoutExpired:
++            driver_legs[drv] = {"exit_code": None, "blocked": True}
++    entry["sdl_driver_axis"] = {
++        "member": str(member_path.relative_to(ROOT)),
++        "legs": driver_legs}
++    if driver_legs.get("dummy", {}).get("exit_code") != 0:
++        failures.append("ffplay: SDL_AUDIODRIVER=dummy deviated from "
++                        "rc=0 (the deterministic sink must always work)")
++    # (b) writerless fifo — read-thread open block, main-loop TERM exit.
++    entry["fifo_no_writer"] = _nowriter_cell(
++        ["ffplay", "-nodisp", "-autoexit", "-v", "info"],
++        extra_env=FFPLAY_R75_ENV)
++    nw = entry["fifo_no_writer"]
++    if not (nw.get("blocked") and nw.get("sigterm_immune") is False
++            and nw.get("exit_code") == 123):
++        failures.append("ffplay: writerless fifo deviated from the "
++                        "measured kill class (blocked, SIGTERM -> "
++                        "graceful rc 123)")
++    # (c) -ss position cell: seekable arm seeks, non-seekable logs
++    # 'could not seek' + decode-discard rescue.
++    hold_s = fifo_writer_hold_s()
++    data = CONSUMER_R73_PACER.read_bytes()
++    pos = {}
++    pos["file"] = ffplay_leg("file", CONSUMER_R73_PACER, data, hold_s,
++                             extra_opts=("-ss", str(CONSUMER_R75_START_S)))
++    pos["stdin_pipe"] = ffplay_leg(
++        "stdin_pipe", CONSUMER_R73_PACER, data, hold_s,
++        extra_opts=("-ss", str(CONSUMER_R75_START_S)))
++    entry["ffplay_startpos"] = {
++        "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
++        "cell": f"ffplay -ss {CONSUMER_R75_START_S} on a seeking wav",
++        "predicted": ("file arm seeks (no 'could not seek'); stdin arm "
++                      "logs 'could not seek' and rescues by "
++                      "decode-discard — path fork, not extent fork"),
++        "legs": pos}
++    f_leg, s_leg = pos["file"], pos["stdin_pipe"]
++    if not (f_leg["could_not_seek"] is False
++            and s_leg["could_not_seek"] is True
++            and f_leg["exit_code"] == 0 and s_leg["exit_code"] == 0):
++        failures.append("ffplay: -ss position cell deviated from the "
++                        "measured shape (seek ok on file / could-not-"
++                        "seek + decode-discard on stdin, rc=0 both)")
++    # (d) empty-writer fifo.
++    with tempfile.TemporaryDirectory(prefix="ffplay-r75-") as tmp:
++        fifo = Path(tmp) / "empty.wav"
++        os.mkfifo(fifo)
++
++        def empty_feed():
++            try:
++                open(fifo, "wb").close()
++            except OSError:
++                pass
++        t = threading.Thread(target=empty_feed, daemon=True)
++        t.start()
++        try:
++            proc = subprocess.run(
++                ["ffplay", "-nodisp", "-autoexit", "-v", "info",
++                 str(fifo)], capture_output=True, env={**os.environ,
++                                                      **FFPLAY_R75_ENV},
++                timeout=CONSUMER_R75_TIMEOUT_S)
++            text = proc.stderr.decode(errors="replace")
++            entry["fifo_empty_writer"] = {
++                "exit_code": proc.returncode,
++                "ffplay_invalid": ("Invalid data found when processing "
++                                   "input" in text),
++                "stderr_tail": _consumer2_tail(
++                    "\n".join(ln for ln in text.splitlines()
++                              if not _FFPLAY_STATUS_TAIL.search(ln)),
++                    "empty.wav")}
++        except subprocess.TimeoutExpired:
++            entry["fifo_empty_writer"] = {"exit_code": None,
++                                          "blocked": True}
++        finally:
++            t.join(timeout=5)
++            reap_fifo_orphans(fifo)
++    if entry["fifo_empty_writer"].get("exit_code") != 0:
++        failures.append("ffplay: empty-writer fifo deviated from the "
++                        "measured signature (rc=0 'Invalid data found')")
++    entry["failures"] = failures
++    return entry
++
++
+ def transport_entry(member, path):
+     """Receipt entry: transport axis matrix + verdict groups + fork pin."""
+     arms = transport_matrix(path)
+@@ -2109,8 +3020,9 @@ def main():
+                         action="store_true")
+     parser.add_argument("--probe-consumers-r73", action="store_true")
+     parser.add_argument("--probe-lavfsweep-r74", action="store_true")
++    parser.add_argument("--probe-consumers2-r75", action="store_true")
+     args = parser.parse_args()
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74]) > 1:
++    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75]) > 1:
+         parser.error("choose one probe mode")
+     if args.probe_invalid:
+         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+@@ -2380,6 +3292,27 @@ def main():
+         measurements["lavf_startpos_wav_r74_probe"] = \
+             lavf_startpos_entry(LAVF_R74_PACER)
+         measurements["consumer_pwcat_ops2_r74_probe"] = pwcat_ops2_entry()
++    if args.probe_consumers2_r75:
++        # r75: consumer breadth-2 — paplay (pacat/pipewire-pulse, fd-open
++        # libsndfile = name-blind), aplay (in-process ALSA, device-coupled
++        # not daemon-coupled, raw-accept), ffplay (SDL pull-model — a
++        # second lavf consumer: no post-probe refresh seek, so mpv's
++        # dec_hcom seekable-bit fork cannot transfer; rc is never the
++        # verdict — invalid input still exits 0). A NEW parallel ledger
++        # family, prior rows untouched. Ops rows pin each consumer's
++        # gate (pulse server / ALSA card / SDL driver), the writerless-
++        # fifo kill classes (paplay -15, aplay -9, ffplay 123), and the
++        # paplay .snd name-axis control (predicted invariant-reject).
++        measurements["consumer2_paplay_ops_r75_probe"] = \
++            consumers2_paplay_ops_entry()
++        measurements["consumer2_aplay_ops_r75_probe"] = \
++            consumers2_aplay_ops_entry()
++        measurements["consumer2_ffplay_ops_r75_probe"] = \
++            consumers2_ffplay_ops_entry()
++        for member, (directory, filename) in CONSUMER_R75_MEMBERS.items():
++            path = ROOT / "live" / directory / filename
++            measurements[f"consumer2_{member}_r75_probe"] = \
++                consumer2_transport_entry(member, path)
+     if args.probe_sndfile_transport_r72:
+         # r72: THIRD DECODER (libsndfile) on the same canonical members —
+         # the 3-decoder verdict lattice. Claim under test (critic-corrected):
+@@ -2846,7 +3779,7 @@ def main():
+             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+-    mode = "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    mode = "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     receipt = {"mode": mode,
+                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+@@ -2866,7 +3799,7 @@ def main():
+                "movement_family_comparisons": movement_family_comparisons,
+                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+-    suffix = "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    suffix = "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     out = ROOT / "live" / "runs" / (stamp + suffix)
+     out.mkdir(parents=True)
+     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

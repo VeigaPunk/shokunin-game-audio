@@ -1,0 +1,83 @@
+{
+ "P2": {
+  "probe": "P2 transport-invariance vacuity (landed entry re-run)",
+  "member": "dec_act",
+  "arms": {
+   "live": {
+    "env": {
+     "PULSE_SERVER": null
+    },
+    "paplay_sigs": {
+     "file": [
+      0,
+      "s16le 1ch 8000Hz",
+      null
+     ],
+     "stdin_pipe": [
+      0,
+      "s16le 1ch 8000Hz",
+      null
+     ],
+     "redirected_fd": [
+      0,
+      "s16le 1ch 8000Hz",
+      null
+     ],
+     "fifo_path": [
+      0,
+      "s16le 1ch 8000Hz",
+      null
+     ]
+    },
+    "paplay_groups": 1,
+    "paplay_transport_fork": false,
+    "entry_failures": [],
+    "entry_all_failures": {
+     "paplay": false,
+     "aplay": false,
+     "ffplay": false
+    },
+    "distinct_paplay_sigs": 1,
+    "collapse_to_one_key": true
+   },
+   "dead_pulse_server": {
+    "env": {
+     "PULSE_SERVER": "unix:/nonexistent-r75-critic-gate"
+    },
+    "paplay_sigs": {
+     "file": [
+      1,
+      null,
+      "Connection failure: Connection refused"
+     ],
+     "stdin_pipe": [
+      1,
+      null,
+      "Connection failure: Connection refused"
+     ],
+     "redirected_fd": [
+      1,
+      null,
+      "Connection failure: Connection refused"
+     ],
+     "fifo_path": [
+      1,
+      null,
+      "Connection failure: Connection refused"
+     ]
+    },
+    "paplay_groups": 1,
+    "paplay_transport_fork": false,
+    "entry_failures": [],
+    "entry_all_failures": {
+     "paplay": false,
+     "aplay": false,
+     "ffplay": false
+    },
+    "distinct_paplay_sigs": 1,
+    "collapse_to_one_key": true
+   }
+  },
+  "verdict": "VACUOUS-INVARIANCE CONFIRMED: dead daemon collapses all four paplay transports to one connect-error key and the entry still reports transport_fork=False with failures=[]"
+ }
+}

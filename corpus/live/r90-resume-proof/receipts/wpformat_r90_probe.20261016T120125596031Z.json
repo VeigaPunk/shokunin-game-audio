@@ -1,0 +1,354 @@
+{
+  "probe": "r90a EnumFormat/Format lattice",
+  "daemon_gate": {
+    "argv": "pactl info",
+    "exit_code": 0,
+    "stdout_bytes": 510,
+    "stderr_bytes": 0,
+    "stdout_token": "Server",
+    "stdout": "Server String: /run/user/1000/pulse/native\nLibrary Protocol Version: 35\nServer Protocol Version: 35\nIs Local: yes\nClient Index: <seq>\nTile Size: 65472\nUser Name: vgpnk\nHost Name: plazir27\nServer Name: PulseAudio (on PipeWire 1.6.8)\nServer Version: 15.0.0\nDefault Sample Specification: float32le 2ch 48000Hz\nDefault Channel Map: front-left,front-right\nDefault Sink: alsa_output.usb-Generic_USB_Audio-0",
+    "stderr": "",
+    "error_class": null,
+    "error_hit": null,
+    "ok": true,
+    "block": null
+  },
+  "contention": {
+    "pw_play": 0,
+    "pw_record": 0,
+    "pw_cat": 0,
+    "pw_loopback": 0,
+    "paplay": 0,
+    "parec": 0,
+    "pacat": 0,
+    "aplay": 0,
+    "arecord": 0,
+    "ffmpeg": 0,
+    "fixture_runs": 0,
+    "own_pid": 1389991,
+    "host_is_quiet": true
+  },
+  "oracle_at_start": {
+    "sink_meta": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "source_meta": null,
+    "sink_pactl": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "source_pactl": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "pactl_exit": 0
+  },
+  "foreign_r90a_nodes": [],
+  "inventory": {
+    "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "sources_count": 2,
+    "monitors_count": 4,
+    "alsa_capture_devices": [
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 0
+      },
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 1
+      },
+      {
+        "card": 0,
+        "card_id": "Audio",
+        "device": 2
+      }
+    ]
+  },
+  "loadavg": [
+    "0.18",
+    "0.31",
+    "0.40"
+  ],
+  "seat": "r90-resume-proof",
+  "pid": 1389991,
+  "fixture_sha256": "91f42214780c573a9f86c7e12b4979dd06df1998c181179c9d834c2e4d98e297",
+  "run_id": "20261016T120042860577Z",
+  "tools": {
+    "pw-cli": "/usr/bin/pw-cli",
+    "pw-play": "/usr/bin/pw-play",
+    "pw-dump": "/usr/bin/pw-dump"
+  },
+  "legs": {
+    "f_rest": {
+      "node": 137,
+      "port": 246,
+      "enumformat": {
+        "argv": "pw-cli enum-params 137 EnumFormat",
+        "exit_code": 0,
+        "stdout_bytes": 1128,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "EnumFormat",
+        "object": 137,
+        "out_bytes": 1128,
+        "sha12": "1735b4739ef7"
+      },
+      "node_format": {
+        "argv": "pw-cli enum-params 137 Format",
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 109,
+        "stdout_token": "",
+        "stderr": "remote 0: error id:82 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "error_class": "wpstate_io_error",
+        "error_hit": "res:-5 (Input/output error)",
+        "stderr_raw": "remote 0: error id:82 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "param": "Format",
+        "object": 137,
+        "out_bytes": 0,
+        "sha12": "e3b0c44298fc"
+      },
+      "port_format": {
+        "argv": "pw-cli enum-params 246 Format",
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 109,
+        "stdout_token": "",
+        "stderr": "remote 0: error id:83 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "error_class": "wpstate_io_error",
+        "error_hit": "res:-5 (Input/output error)",
+        "stderr_raw": "remote 0: error id:83 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "param": "Format",
+        "object": 246,
+        "out_bytes": 0,
+        "sha12": "e3b0c44298fc"
+      }
+    },
+    "f_mid48": {
+      "argv": "pw-play -P node.name=r90a_1389991_pl48 -P media.role=r90arole1389991 --target r90a_ns_1389991 /tmp/r90a-fmt-a_orfglg/r90a_1389991_t48.wav",
+      "stream_node": 64,
+      "enumformat": {
+        "argv": "pw-cli enum-params 137 EnumFormat",
+        "exit_code": 0,
+        "stdout_bytes": 1128,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "EnumFormat",
+        "object": 137,
+        "out_bytes": 1128,
+        "sha12": "1735b4739ef7"
+      },
+      "node_format": {
+        "argv": "pw-cli enum-params 137 Format",
+        "exit_code": 0,
+        "stdout_bytes": 863,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 137,
+        "out_bytes": 863,
+        "sha12": "91f7342230f7"
+      },
+      "port_format": {
+        "argv": "pw-cli enum-params 246 Format",
+        "exit_code": 0,
+        "stdout_bytes": 456,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 246,
+        "out_bytes": 456,
+        "sha12": "5a828addfad7"
+      },
+      "stream_format": {
+        "argv": "pw-cli enum-params 64 Format",
+        "exit_code": 0,
+        "stdout_bytes": 1247,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 64,
+        "out_bytes": 1247,
+        "sha12": "e718690a7ce2"
+      }
+    },
+    "f_setparam_sink": {
+      "before_links": 2,
+      "cmd": {
+        "argv": "pw-cli set-param 137 Format { mediaType:1, mediaSubtype:1, format:259, rate:44100, channels:2 }",
+        "exit_code": 0,
+        "stdout_bytes": 622,
+        "stderr_bytes": 122,
+        "stdout_token": "Object:",
+        "stdout": "Object: size 128, type Spa:Pod:Object:Param:Format (<seq>), id Spa:Enum:ParamId:Format (4)\n  Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags <seq>\n    Id 1        (Spa:Enum:MediaType:audio)\n  Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags <seq>\n    Id 1        (Spa:Enum:MediaSubtype:raw)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags <seq>\n    Id 259      (Spa:Enum:AudioFormat:S16LE)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags <seq>\n    Int 44100\n  Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags <seq>\n    Int 2\n",
+        "stderr": "remote 0: error id:82 seq:186 res:-5 (Input/output error): set param id:4 (Spa:Enum:ParamId:Format) flags:<seq> failed\n",
+        "error_class": "wpstate_io_error",
+        "error_hit": "res:-5 (Input/output error)"
+      },
+      "after_links": 2,
+      "stream_alive": true
+    },
+    "f_setparam_stream": {
+      "cmd": {
+        "argv": "pw-cli set-param 64 Format { mediaType:1, mediaSubtype:1, format:259, rate:44100, channels:2 }",
+        "exit_code": 0,
+        "stdout_bytes": 622,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stdout": "Object: size 128, type Spa:Pod:Object:Param:Format (<seq>), id Spa:Enum:ParamId:Format (4)\n  Prop: key Spa:Pod:Object:Param:Format:mediaType (1), flags <seq>\n    Id 1        (Spa:Enum:MediaType:audio)\n  Prop: key Spa:Pod:Object:Param:Format:mediaSubtype (2), flags <seq>\n    Id 1        (Spa:Enum:MediaSubtype:raw)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:format (65537), flags <seq>\n    Id 259      (Spa:Enum:AudioFormat:S16LE)\n  Prop: key Spa:Pod:Object:Param:Format:Audio:rate (65539), flags <seq>\n    Int 44100\n  Prop: key Spa:Pod:Object:Param:Format:Audio:channels (65540), flags <seq>\n    Int 2\n",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null
+      },
+      "stderr_bytes": 0
+    },
+    "f_44k": {
+      "argv": "pw-play -P node.name=r90a_1389991_pl44 -P media.role=r90arole1389991 --target r90a_ns_1389991 /tmp/r90a-fmt-a_orfglg/r90a_1389991_t441.wav",
+      "stream_node": 64,
+      "stream_format": {
+        "argv": "pw-cli enum-params 64 Format",
+        "exit_code": 0,
+        "stdout_bytes": 1247,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 64,
+        "out_bytes": 1247,
+        "sha12": "684a7c8dad24"
+      },
+      "node_format": {
+        "argv": "pw-cli enum-params 137 Format",
+        "exit_code": 0,
+        "stdout_bytes": 863,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 137,
+        "out_bytes": 863,
+        "sha12": "91f7342230f7"
+      },
+      "enumformat": {
+        "argv": "pw-cli enum-params 137 EnumFormat",
+        "exit_code": 0,
+        "stdout_bytes": 1128,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "EnumFormat",
+        "object": 137,
+        "out_bytes": 1128,
+        "sha12": "1735b4739ef7"
+      }
+    },
+    "f_post": {
+      "node_format": {
+        "argv": "pw-cli enum-params 137 Format",
+        "exit_code": 0,
+        "stdout_bytes": 863,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "Format",
+        "object": 137,
+        "out_bytes": 863,
+        "sha12": "91f7342230f7"
+      },
+      "port_format": {
+        "argv": "pw-cli enum-params 246 Format",
+        "exit_code": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 109,
+        "stdout_token": "",
+        "stderr": "remote 0: error id:83 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "error_class": "wpstate_io_error",
+        "error_hit": "res:-5 (Input/output error)",
+        "stderr_raw": "remote 0: error id:83 seq:174 res:-5 (Input/output error): enum params id:4 (Spa:Enum:ParamId:Format) failed\n",
+        "param": "Format",
+        "object": 246,
+        "out_bytes": 0,
+        "sha12": "e3b0c44298fc"
+      },
+      "enumformat": {
+        "argv": "pw-cli enum-params 137 EnumFormat",
+        "exit_code": 0,
+        "stdout_bytes": 1128,
+        "stderr_bytes": 0,
+        "stdout_token": "Object:",
+        "stderr": "",
+        "error_class": null,
+        "error_hit": null,
+        "stderr_raw": "",
+        "param": "EnumFormat",
+        "object": 137,
+        "out_bytes": 1128,
+        "sha12": "1735b4739ef7"
+      }
+    }
+  },
+  "legs_measured": 6,
+  "measured": true,
+  "unloads": {
+    "r90a_ns_1389991": {
+      "verified_index": 536870916,
+      "captured": 536870916,
+      "field": "sink_name",
+      "value": "r90a_ns_1389991",
+      "recycled": false,
+      "exit_code": 0,
+      "stderr_tail": null
+    }
+  },
+  "own_modules_after": [],
+  "sinks_censused": [
+    "r90a_ns_1389991"
+  ],
+  "sinks_gone": {
+    "r90a_ns_1389991": true
+  },
+  "own_nodes_after": [],
+  "store_at_exit": {
+    "reader": "ok",
+    "rows": 9484,
+    "bytes": 1375962,
+    "own_keys": 5,
+    "family_rows": 384,
+    "family_rows_by_pid": 14
+  },
+  "store_residue": {
+    "family_rows": 384,
+    "family_rows_by_pid": 14,
+    "own_keys": 5,
+    "rows": 9484,
+    "ceiling": 1000
+  },
+  "failures": []
+}

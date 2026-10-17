@@ -1,0 +1,2487 @@
+{
+ "label": "tree-mutstim/corpus/live/runs/20261016T092638509558Z-jack-r95/measurements.json [forge=none]",
+ "summary": {
+  "PASS": 251,
+  "FAIL": 5
+ },
+ "rows": [
+  {
+   "law": "surface.jackd_absent",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.jackd",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.jack_lsp_absent",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.jack_lsp",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.jack_connect_absent",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.jack_connect",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.pw_jack_present",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.pw_jack",
+   "kind": "present",
+   "got": "/usr/bin/pw-jack",
+   "want": "non-null path",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.libjack_path",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.libjack_path",
+   "kind": "eq",
+   "got": "/usr/lib/libjack.so.0.3.1608",
+   "want": "/usr/lib/libjack.so.0.3.1608",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.libjack_sha_vs_own",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.libjack_sha256",
+   "kind": "prefix",
+   "got": "34bbb09aceb7de3a",
+   "want": "34bbb09aceb7de3a",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.pacman_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.pacman.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.pacman_version",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.pacman.stdout",
+   "kind": "contains",
+   "got": "pipewire-jack 1:1.6.8-1\n",
+   "want": "pipewire-jack 1:1.6.8",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.export_count",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.symbols.export_count",
+   "kind": "eq",
+   "got": 168,
+   "want": 168,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.absent_class",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.symbols.absent",
+   "kind": "eq",
+   "got": [
+    "jack_client_activate",
+    "jack_create_adapter",
+    "jack_error",
+    "jack_info",
+    "jack_log",
+    "jack_net_open",
+    "jack_uuid_to_string"
+   ],
+   "want": [
+    "jack_client_activate",
+    "jack_create_adapter",
+    "jack_error",
+    "jack_info",
+    "jack_log",
+    "jack_net_open",
+    "jack_uuid_to_string"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.present_class",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.symbols.present",
+   "kind": "eq",
+   "got": [
+    "jack_client_max_real_time_priority",
+    "jack_client_real_time_priority",
+    "jack_connect",
+    "jack_reserve_client_name",
+    "jack_session_notify",
+    "jack_set_buffer_size",
+    "jack_set_property",
+    "jack_transport_reposition"
+   ],
+   "want": [
+    "jack_client_max_real_time_priority",
+    "jack_client_real_time_priority",
+    "jack_connect",
+    "jack_reserve_client_name",
+    "jack_session_notify",
+    "jack_set_buffer_size",
+    "jack_set_property",
+    "jack_transport_reposition"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.version_ints",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.version_probe.json.version_ints",
+   "kind": "eq",
+   "got": [
+    3,
+    1,
+    6,
+    8
+   ],
+   "want": [
+    3,
+    1,
+    6,
+    8
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.version_str",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.version_probe.json.version",
+   "kind": "contains",
+   "got": "3.1.6.8 (using PipeWire 1.6.8)",
+   "want": "PipeWire 1.6.8",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.version_status",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.version_probe.json.status",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.version_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.a_avail.version_probe.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.fixture_src_sha",
+   "entry": "jack_surface_r95_probe",
+   "field": "build.src_sha256",
+   "kind": "eq",
+   "got": "abcfd3b1b2ae3dcc",
+   "want": "55d4d4111bd8d46b",
+   "status": "FAIL"
+  },
+  {
+   "law": "surface.build_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "build.rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.binary_sha_vs_own",
+   "entry": "jack_surface_r95_probe",
+   "field": "build.binary_sha256",
+   "kind": "eq",
+   "got": "e8aee9e4950951c9",
+   "want": "016a685372e6d8fa",
+   "status": "FAIL"
+  },
+  {
+   "law": "surface.port_name.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ports.out",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:out",
+   "want": "r95a_3605994_shape:out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_name.in",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ports.in",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:in",
+   "want": "r95a_3605994_shape:in",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_name.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ports.outp",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outp",
+   "want": "r95a_3605994_shape:outp",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_name.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ports.outt",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outt",
+   "want": "r95a_3605994_shape:outt",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_name.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ports.outm",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outm",
+   "want": "r95a_3605994_shape:outm",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_flags.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_out.flags",
+   "kind": "eq",
+   "got": 2,
+   "want": 2,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_flags.in",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_in.flags",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_flags.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_outp.flags",
+   "kind": "eq",
+   "got": 6,
+   "want": 6,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_flags.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_outt.flags",
+   "kind": "eq",
+   "got": 18,
+   "want": 18,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.port_flags.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_outm.flags",
+   "kind": "eq",
+   "got": 2,
+   "want": 2,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.lat_type",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.lat_out.type",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.out_connected",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.out_connected",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.out_connections",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.out_connections",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.request_monitor_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.request_monitor_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.monitoring_input",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.monitoring_input",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.ensure_monitor_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.ensure_monitor_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.monitoring_input_in",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.monitoring_input_in",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.census_pattern",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.census.pattern_r95a",
+   "kind": "band",
+   "got": 7,
+   "want": [
+    5,
+    100
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.census_own_ports",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.census.pattern_r95a_list",
+   "kind": "list",
+   "got": [
+    "r95a_3605994_shape:in",
+    "r95a_3605994_shape:out",
+    "r95a_3605994_shape:outm",
+    "r95a_3605994_shape:outp",
+    "r95a_3605994_shape:outt"
+   ],
+   "want": [
+    "r95a_3605994_shape:in",
+    "r95a_3605994_shape:out",
+    "r95a_3605994_shape:outm",
+    "r95a_3605994_shape:outp",
+    "r95a_3605994_shape:outt"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.resolve_all",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.json.resolve",
+   "kind": "list",
+   "got": "7 rows",
+   "want": "all found",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.client_api",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.client.api",
+   "kind": "eq",
+   "got": "jack",
+   "want": "jack",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.node_name",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.name",
+   "kind": "eq",
+   "got": "r95a_3605994_shape",
+   "want": "r95a_3605994_shape",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.node_description",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.description",
+   "kind": "eq",
+   "got": "r95a_3605994_shape",
+   "want": "r95a_3605994_shape",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.node_group",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.group",
+   "kind": "eq",
+   "got": "group.dsp.0",
+   "want": "group.dsp.0",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.media_category",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.media_category",
+   "kind": "eq",
+   "got": "Duplex",
+   "want": "Duplex",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.media_role",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.media_role",
+   "kind": "eq",
+   "got": "DSP",
+   "want": "DSP",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.always_process",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.always_process",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.media_class_absent",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.node.media_class",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.alias.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.out.alias",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:out",
+   "want": "r95a_3605994_shape:out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.object_path.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.out.object_path",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:output_0",
+   "want": "r95a_3605994_shape:output_0",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.direction.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.out.direction",
+   "kind": "eq",
+   "got": "out",
+   "want": "out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.format_dsp.out",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.out.format_dsp",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.alias.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outp.alias",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outp",
+   "want": "r95a_3605994_shape:outp",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.object_path.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outp.object_path",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:output_1",
+   "want": "r95a_3605994_shape:output_1",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.direction.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outp.direction",
+   "kind": "eq",
+   "got": "out",
+   "want": "out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.format_dsp.outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outp.format_dsp",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.alias.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outt.alias",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outt",
+   "want": "r95a_3605994_shape:outt",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.object_path.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outt.object_path",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:output_2",
+   "want": "r95a_3605994_shape:output_2",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.direction.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outt.direction",
+   "kind": "eq",
+   "got": "out",
+   "want": "out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.format_dsp.outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outt.format_dsp",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.alias.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.alias",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:outm",
+   "want": "r95a_3605994_shape:outm",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.object_path.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.object_path",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:output_3",
+   "want": "r95a_3605994_shape:output_3",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.direction.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.direction",
+   "kind": "eq",
+   "got": "out",
+   "want": "out",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.format_dsp.outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.format_dsp",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.alias.in",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.in.alias",
+   "kind": "eq",
+   "got": "r95a_3605994_shape:in",
+   "want": "r95a_3605994_shape:in",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.direction.in",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.in.direction",
+   "kind": "eq",
+   "got": "in",
+   "want": "in",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.physical_outp",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outp.physical",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.terminal_outt",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outt.terminal",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.physical_outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.physical",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.terminal_outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.terminal",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.extra_outm",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.ports.outm.extra",
+   "kind": "none",
+   "got": null,
+   "want": null,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.links_while_running",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.links",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.driver_name",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.driver.name",
+   "kind": "eq",
+   "got": "Dummy-Driver",
+   "want": "Dummy-Driver",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.driver_flag",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.driver.driver",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.driver_priority",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.mid.driver.priority_driver",
+   "kind": "eq",
+   "got": 200000,
+   "want": 200000,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.ns_port_alias",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.ns_port.alias",
+   "kind": "eq",
+   "got": "r95a_ds_3605994:playback_MONO",
+   "want": "r95a_ds_3605994:playback_MONO",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.ns_port_object_path",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_shape.ns_port.object_path",
+   "kind": "eq",
+   "got": "r95a_ns_3605994:playback_0",
+   "want": "r95a_ns_3605994:playback_0",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_client_name",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.json.client_name",
+   "kind": "eq",
+   "got": "r95a_3605994_live",
+   "want": "r95a_3605994_live",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_cb",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.json.cb",
+   "kind": "band",
+   "got": 85,
+   "want": [
+    30,
+    100000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_frames_advance",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.json.last_last_frame",
+   "kind": "gt",
+   "got": 2903838535,
+   "want": "> 2903752519",
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_links",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.mid.links",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "surface.live_driver",
+   "entry": "jack_surface_r95_probe",
+   "field": "legs.s_liveness.mid.driver.name",
+   "kind": "eq",
+   "got": "Dummy-Driver",
+   "want": "Dummy-Driver",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.dst",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.dst",
+   "kind": "eq",
+   "got": "r95a_ds_3605994:playback_MONO",
+   "want": "r95a_ds_3605994:playback_MONO",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.src_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.json.src_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.dst_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.json.dst_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.connect_rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.json.connect_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.connected",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.json.connected",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.conns",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.json.conns",
+   "kind": "eq",
+   "got": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_rendered.edges",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.edges",
+   "kind": "eq",
+   "got": [
+    "r95a_3605994_xc:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_3605994_xc:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.dst",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.dst",
+   "kind": "eq",
+   "got": "r95a_ns_3605994:playback_MONO",
+   "want": "r95a_ns_3605994:playback_MONO",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.src_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.json.src_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.dst_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.json.dst_found",
+   "kind": "eq",
+   "got": false,
+   "want": false,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.connect_rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.json.connect_rc",
+   "kind": "eq",
+   "got": 22,
+   "want": 22,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.connected",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.json.connected",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.conns",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.json.conns",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_native.edges",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_native.edges",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.dst",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.dst",
+   "kind": "eq",
+   "got": "r95a_ns_3605994:playback_0",
+   "want": "r95a_ns_3605994:playback_0",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.src_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.src_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.dst_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.dst_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.connect_rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.connect_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.connected",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.connected",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.conns",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.conns",
+   "kind": "eq",
+   "got": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_fillalias.edges",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.edges",
+   "kind": "eq",
+   "got": [
+    "r95a_3605994_xc:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_3605994_xc:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.dst",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.dst",
+   "kind": "eq",
+   "got": "r95a_t4_3605994:playback_MONO",
+   "want": "r95a_t4_3605994:playback_MONO",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.src_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.json.src_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.dst_found",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.json.dst_found",
+   "kind": "eq",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.connect_rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.json.connect_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.connected",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.json.connected",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.conns",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.json.conns",
+   "kind": "eq",
+   "got": [
+    "r95a_t4_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_t4_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.x_corner.edges",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.edges",
+   "kind": "eq",
+   "got": [
+    "r95a_3605994_xc:out|->r95a_t4_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_3605994_xc:out|->r95a_t4_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.fillalias.dst_type",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.json.dst_type",
+   "kind": "eq",
+   "got": "32 bit float mono audio",
+   "want": "32 bit float mono audio",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.fillalias.alias_addressed",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.alias_addressed",
+   "kind": "eq",
+   "got": "r95a_ns_3605994:playback_0",
+   "want": "r95a_ns_3605994:playback_0",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.fillalias.conns_canonical",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_fillalias.conns_canonical",
+   "kind": "eq",
+   "got": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_ds_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "addr.corner.description",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.corner_description",
+   "kind": "eq",
+   "got": "r95a_t4_3605994",
+   "want": "r95a_t4_3605994",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.corner.name",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_corner.corner_name",
+   "kind": "eq",
+   "got": "r95a_t4_3605994",
+   "want": "r95a_t4_3605994",
+   "status": "PASS"
+  },
+  {
+   "law": "addr.forms_distinct",
+   "entry": "jack_addr_r95_probe",
+   "field": "legs.x_rendered.ns_description",
+   "kind": "ne",
+   "got": "r95a_ds_3605994 vs r95a_ns_3605994",
+   "want": "differ (or named block)",
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.rc",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.conn_rc",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.json.conn_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.recorder_linked",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.recorder_linked",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.edges",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.edges",
+   "kind": "eq",
+   "got": [
+    "r95a_3605994_j2p:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "want": [
+    "r95a_3605994_j2p:out|->r95a_ns_3605994:playback_MONO"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.capture_peak",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.capture.peak",
+   "kind": "band",
+   "got": 0.5,
+   "want": [
+    0.4985,
+    0.5005
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.rms_ratio",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.capture.rms",
+   "kind": "band",
+   "got": 0.9258253635199726,
+   "want": "[0.80, 1.02]",
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.nonzero_frac",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.capture.nonzero",
+   "kind": "band",
+   "got": 0.8568738042091837,
+   "want": "[0.70, 1.0]",
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.frames",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.capture.frames",
+   "kind": "band",
+   "got": 100352,
+   "want": [
+    60000,
+    300000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.n_tone",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.n_tone",
+   "kind": "band",
+   "got": 88064,
+   "want": [
+    1,
+    1000000000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.ideal_mag2_law",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.ideal_mag2",
+   "kind": "eq",
+   "got": 484704256.0,
+   "want": 484704256.0,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.j2p.mag2_ratio",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_jack2pw.capture.goertzel_mag2",
+   "kind": "band",
+   "got": 0.012394434393961947,
+   "want": "[0.90, 1.03]",
+   "status": "FAIL"
+  },
+  {
+   "law": "bytes.p2j.rc",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.client_name",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.json.client_name",
+   "kind": "eq",
+   "got": "r95a_3605994_p2j",
+   "want": "r95a_3605994_p2j",
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.tone_peak_i16",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.tone_source.peak_i16",
+   "kind": "eq",
+   "got": 16383,
+   "want": 16383,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.linked",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.mid.linked",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.link_rc",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.mid.link_rc.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.expected_peak",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.expected_peak",
+   "kind": "eq",
+   "got": 0.499969482421875,
+   "want": 0.499969482421875,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.in_peak_exact",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.json.in_peak",
+   "kind": "approx",
+   "got": 0.499969482,
+   "want": "0.499969482421875+-1e-09",
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.in_nonzero",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.json.in_nonzero",
+   "kind": "band",
+   "got": 53245,
+   "want": [
+    30000,
+    75000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.cb_in_nonzero",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.json.cb_in_nonzero",
+   "kind": "band",
+   "got": 52,
+   "want": [
+    10,
+    100000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.ideal_mag2_law",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.ideal_mag2",
+   "kind": "eq",
+   "got": 177189376.5625,
+   "want": 177189376.5625,
+   "status": "PASS"
+  },
+  {
+   "law": "bytes.p2j.mag2_ratio",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.json.goertzel_mag2",
+   "kind": "band",
+   "got": 0.3195533592344106,
+   "want": "[0.985, 1.005]",
+   "status": "FAIL"
+  },
+  {
+   "law": "bytes.p2j.edges",
+   "entry": "jack_bytes_r95_probe",
+   "field": "legs.b_pw2jack.edges",
+   "kind": "eq",
+   "got": [
+    "r95a_3605994_play:output_MONO|->r95a_3605994_p2j:in"
+   ],
+   "want": [
+    "r95a_3605994_play:output_MONO|->r95a_3605994_p2j:in"
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.default.set_inactive_rc",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_default.json.set_inactive_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.default.inactive_unchanged",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_default.json.bufsize_after_set_inactive",
+   "kind": "eq",
+   "got": 1024,
+   "want": "== 1024",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.default.activated",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_default.json.bufsize_activated",
+   "kind": "eq",
+   "got": 2048,
+   "want": 2048,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.default.force_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_default.mid.q.force_quantum",
+   "kind": "eq",
+   "got": "2048",
+   "want": "2048",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.default.settings_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_default.mid.settings.clock.force-quantum",
+   "kind": "eq",
+   "got": "0",
+   "want": "0",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.live.set_active_rc",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_live.json.set_active_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.live.bufsize_after",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_live.json.bufsize_after_set_active",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.live.cb_fired",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_live.json.bufsize_cbs_after",
+   "kind": "gt",
+   "got": 2,
+   "want": "> 1",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.live.last_cb",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_live.json.last_bufsize_cb_after",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.live.force_quantum_after",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_live.mid.q2.force_quantum",
+   "kind": "eq",
+   "got": "512",
+   "want": "512",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.cross.a_activated",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_cross.json.bufsize_activated",
+   "kind": "eq",
+   "got": 2048,
+   "want": 2048,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.cross.a_force_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_cross.mid.a_force_quantum",
+   "kind": "eq",
+   "got": "2048",
+   "want": "2048",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.cross.b_rc",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_cross.mid.client_b_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.cross.b_bufsize",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_cross.mid.client_b.bufsize_active",
+   "kind": "eq",
+   "got": 2048,
+   "want": 2048,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.cross.settings",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_cross.mid.settings.clock.force-quantum",
+   "kind": "eq",
+   "got": "0",
+   "want": "0",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_env.set_skipped",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env.json.set_inactive_attempted",
+   "kind": "eq",
+   "got": false,
+   "want": false,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_env.force_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env.mid.q.force_quantum",
+   "kind": "eq",
+   "got": "512",
+   "want": "512",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_env.force_rate",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env.mid.q.force_rate",
+   "kind": "eq",
+   "got": "48000",
+   "want": "48000",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_env.bufsize_activated",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env.json.bufsize_activated",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_env.srate_live",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env.json.srate_live",
+   "kind": "eq",
+   "got": 48000,
+   "want": 48000,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_wrapper.set_skipped",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_wrapper.json.set_inactive_attempted",
+   "kind": "eq",
+   "got": false,
+   "want": false,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_wrapper.force_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_wrapper.mid.q.force_quantum",
+   "kind": "eq",
+   "got": "512",
+   "want": "512",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_wrapper.force_rate",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_wrapper.mid.q.force_rate",
+   "kind": "eq",
+   "got": "48000",
+   "want": "48000",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_wrapper.bufsize_activated",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_wrapper.json.bufsize_activated",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.q_wrapper.srate_live",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_wrapper.json.srate_live",
+   "kind": "eq",
+   "got": 48000,
+   "want": 48000,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.force_rate",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.mid.q.force_rate",
+   "kind": "eq",
+   "got": "44100",
+   "want": "44100",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.srate_active",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.json.srate_active",
+   "kind": "eq",
+   "got": 44100,
+   "want": 44100,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.srate_live",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.json.srate_live",
+   "kind": "eq",
+   "got": 44100,
+   "want": 44100,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.bufsize_live",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.json.bufsize_live",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.bufsize_activated",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.json.bufsize_activated",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.env_rate.rate_restored",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_env_rate.settings_after.clock.rate",
+   "kind": "eq",
+   "got": "48000",
+   "want": "== 48000",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.bufsize1.force_quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_bufsize1.mid.q.force_quantum",
+   "kind": "eq",
+   "got": "1",
+   "want": "1",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.bufsize1.effective",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_bufsize1.json.bufsize_activated",
+   "kind": "band",
+   "got": 4,
+   "want": [
+    1,
+    8
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.bufsize1.settings_untouched",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_bufsize1.mid.settings.clock.force-quantum",
+   "kind": "eq",
+   "got": "0",
+   "want": "0",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.global.metadata_during",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_global.mid.settings.clock.force-quantum",
+   "kind": "eq",
+   "got": "512",
+   "want": "512",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.global.metadata_after_exit",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_global.settings_after_exit.clock.force-quantum",
+   "kind": "eq",
+   "got": "512",
+   "want": "512",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.global.second_client",
+   "entry": "jack_quantum_r95_probe",
+   "field": "legs.q_global_second.json.bufsize_active",
+   "kind": "eq",
+   "got": 512,
+   "want": 512,
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.global.reset_restores",
+   "entry": "jack_quantum_r95_probe",
+   "field": "settings_final.clock.force-quantum",
+   "kind": "eq",
+   "got": "0",
+   "want": "0",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.global.settings_moved",
+   "entry": "jack_quantum_r95_probe",
+   "field": "settings_moved",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.final.rate",
+   "entry": "jack_quantum_r95_probe",
+   "field": "settings_final.clock.rate",
+   "kind": "eq",
+   "got": "48000",
+   "want": "48000",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.final.quantum",
+   "entry": "jack_quantum_r95_probe",
+   "field": "settings_final.clock.quantum",
+   "kind": "eq",
+   "got": "1024",
+   "want": "1024",
+   "status": "PASS"
+  },
+  {
+   "law": "quantum.final.allowed_rates",
+   "entry": "jack_quantum_r95_probe",
+   "field": "settings_final.clock.allowed-rates",
+   "kind": "eq",
+   "got": "[ 48000 ]",
+   "want": "[ 48000 ]",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.xrun.rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_xrun_stall.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.xrun.stall_cycles",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_xrun_stall.json.stall_cycles",
+   "kind": "band",
+   "got": 8,
+   "want": [
+    4,
+    100000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.xrun.cb",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_xrun_stall.json.cb",
+   "kind": "band",
+   "got": 36,
+   "want": [
+    10,
+    100000
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.xrun.xrun_cbs",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_xrun_stall.json.xrun_cbs",
+   "kind": "band",
+   "got": 1,
+   "want": [
+    0,
+    1
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.poison.rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_rtprio_poison.exit_code",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.poison.poison_aa",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_rtprio_poison.poison_aa_masked",
+   "kind": "list",
+   "got": "3 rows",
+   "want": ">=3 x 0xaaaaaaa0",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.poison.poison_bb",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_rtprio_poison.poison_bb_masked",
+   "kind": "list",
+   "got": "3 rows",
+   "want": ">=3 x 0xbbbbbbb0",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.out_before_cap",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_before.lat_cap",
+   "kind": "eq",
+   "got": [
+    0,
+    0
+   ],
+   "want": [
+    0,
+    0
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.out_before_play",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_before.lat_play",
+   "kind": "eq",
+   "got": [
+    0,
+    0
+   ],
+   "want": [
+    0,
+    0
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.out_after_set_cap",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_after_set.lat_cap",
+   "kind": "eq",
+   "got": [
+    0,
+    0
+   ],
+   "want": [
+    0,
+    0
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.out_after_set_play",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_after_set.lat_play",
+   "kind": "eq",
+   "got": [
+    0,
+    0
+   ],
+   "want": [
+    0,
+    0
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.active_cap",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_active.lat_cap",
+   "kind": "eq",
+   "got": [
+    100,
+    200
+   ],
+   "want": [
+    100,
+    200
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.active_play",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_active.lat_play",
+   "kind": "eq",
+   "got": [
+    10,
+    20
+   ],
+   "want": [
+    10,
+    20
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.active_total",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.out_active.total",
+   "kind": "eq",
+   "got": 150,
+   "want": 150,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.in_active_cap",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.in_active.lat_cap",
+   "kind": "eq",
+   "got": [
+    0,
+    0
+   ],
+   "want": [
+    0,
+    0
+   ],
+   "status": "PASS"
+  },
+  {
+   "law": "defects.latency.recompute_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_latency.json.recompute_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.state_before",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.state_before_activate",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.state_after_activate",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.state_after_activate",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.tconn_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.tconn_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.out_connected",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.out_connected",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.state_after_start",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.state_after_start",
+   "kind": "eq",
+   "got": 1,
+   "want": 1,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.frame_advances",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.frame_after_start",
+   "kind": "gt",
+   "got": 23552,
+   "want": "> 0",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.state_after_stop",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.state_after_stop",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.locate_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.locate_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.reposition_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.reposition_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.locate_inert",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.frame_after_locate",
+   "kind": "eq",
+   "got": 23552,
+   "want": "== 23552",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.transport.reposition_inert",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_transport.json.frame_after_reposition",
+   "kind": "eq",
+   "got": 23552,
+   "want": "== 23552",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.set_client_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.set_client_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.set_port_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.set_port_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.get_client_value",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.get_client_value",
+   "kind": "eq",
+   "got": "value1",
+   "want": "value1",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.get_client_type",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.get_client_type",
+   "kind": "eq",
+   "got": "text/plain",
+   "want": "text/plain",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.get_port_value",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.get_port_value",
+   "kind": "eq",
+   "got": "portval",
+   "want": "portval",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.get_missing_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.get_missing_rc",
+   "kind": "eq",
+   "got": -1,
+   "want": -1,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.own_desc_count",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.own_desc_count",
+   "kind": "eq",
+   "got": 2,
+   "want": 2,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.remove_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.remove_client_rc",
+   "kind": "eq",
+   "got": 0,
+   "want": 0,
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.stale_after_remove",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.json.get_after_remove_value",
+   "kind": "eq",
+   "got": "",
+   "want": "value1",
+   "status": "FAIL"
+  },
+  {
+   "law": "defects.metadata.live_row_value",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.mid.rows.r95a/key1.value",
+   "kind": "eq",
+   "got": "value1",
+   "want": "value1",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.row_subject_is_node_id",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.mid.rows.r95a/key1.subject",
+   "kind": "eq",
+   "got": 98,
+   "want": "== node id 98",
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.rows_after_exit",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.rows_after_exit",
+   "kind": "eq",
+   "got": {},
+   "want": {},
+   "status": "PASS"
+  },
+  {
+   "law": "defects.metadata.rows_after_exit_ok",
+   "entry": "jack_defects_r95_probe",
+   "field": "legs.d_metadata.rows_after_exit_ok",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.sinks_gone",
+   "entry": "jack_surface_r95_probe",
+   "field": "sinks_gone",
+   "kind": "dict",
+   "got": {},
+   "want": "{} (mid-entry unload)",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.stream_properties_own_rows",
+   "entry": "jack_surface_r95_probe",
+   "field": "stream_properties_own_rows",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.own_nodes_after",
+   "entry": "jack_surface_r95_probe",
+   "field": "own_nodes_after",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.unload_rc",
+   "entry": "jack_surface_r95_probe",
+   "field": "unloads",
+   "kind": "dict",
+   "got": "1 unloads",
+   "want": "all rc 0",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_nodes",
+   "entry": "jack_surface_r95_probe",
+   "field": "foreign_r95a_nodes",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_clients",
+   "entry": "jack_surface_r95_probe",
+   "field": "foreign_r95a_clients",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.ns_gone_after_unload",
+   "entry": "jack_surface_r95_probe",
+   "field": "ns_gone_after_unload",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.sinks_gone",
+   "entry": "jack_addr_r95_probe",
+   "field": "sinks_gone",
+   "kind": "dict",
+   "got": {
+    "r95a_ns_3605994": true,
+    "r95a_t4_3605994": true
+   },
+   "want": "all true",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.stream_properties_own_rows",
+   "entry": "jack_addr_r95_probe",
+   "field": "stream_properties_own_rows",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.own_nodes_after",
+   "entry": "jack_addr_r95_probe",
+   "field": "own_nodes_after",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.unload_rc",
+   "entry": "jack_addr_r95_probe",
+   "field": "unloads",
+   "kind": "dict",
+   "got": "2 unloads",
+   "want": "all rc 0",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_nodes",
+   "entry": "jack_addr_r95_probe",
+   "field": "foreign_r95a_nodes",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_clients",
+   "entry": "jack_addr_r95_probe",
+   "field": "foreign_r95a_clients",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.sinks_gone",
+   "entry": "jack_bytes_r95_probe",
+   "field": "sinks_gone",
+   "kind": "dict",
+   "got": {},
+   "want": "{} (mid-entry unload)",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.stream_properties_own_rows",
+   "entry": "jack_bytes_r95_probe",
+   "field": "stream_properties_own_rows",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.own_nodes_after",
+   "entry": "jack_bytes_r95_probe",
+   "field": "own_nodes_after",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.unload_rc",
+   "entry": "jack_bytes_r95_probe",
+   "field": "unloads",
+   "kind": "dict",
+   "got": "1 unloads",
+   "want": "all rc 0",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_nodes",
+   "entry": "jack_bytes_r95_probe",
+   "field": "foreign_r95a_nodes",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_clients",
+   "entry": "jack_bytes_r95_probe",
+   "field": "foreign_r95a_clients",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.bytes_ns_gone_after_unload",
+   "entry": "jack_bytes_r95_probe",
+   "field": "ns_gone_after_unload",
+   "kind": "true",
+   "got": true,
+   "want": true,
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.sinks_gone",
+   "entry": "jack_quantum_r95_probe",
+   "field": "sinks_gone",
+   "kind": "dict",
+   "got": {
+    "r95a_ns_3605994": true
+   },
+   "want": "all true",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.stream_properties_own_rows",
+   "entry": "jack_quantum_r95_probe",
+   "field": "stream_properties_own_rows",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.own_nodes_after",
+   "entry": "jack_quantum_r95_probe",
+   "field": "own_nodes_after",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.unload_rc",
+   "entry": "jack_quantum_r95_probe",
+   "field": "unloads",
+   "kind": "dict",
+   "got": "1 unloads",
+   "want": "all rc 0",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_nodes",
+   "entry": "jack_quantum_r95_probe",
+   "field": "foreign_r95a_nodes",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_clients",
+   "entry": "jack_quantum_r95_probe",
+   "field": "foreign_r95a_clients",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.sinks_gone",
+   "entry": "jack_defects_r95_probe",
+   "field": "sinks_gone",
+   "kind": "dict",
+   "got": {
+    "r95a_ns_3605994": true
+   },
+   "want": "all true",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.stream_properties_own_rows",
+   "entry": "jack_defects_r95_probe",
+   "field": "stream_properties_own_rows",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.own_nodes_after",
+   "entry": "jack_defects_r95_probe",
+   "field": "own_nodes_after",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.unload_rc",
+   "entry": "jack_defects_r95_probe",
+   "field": "unloads",
+   "kind": "dict",
+   "got": "1 unloads",
+   "want": "all rc 0",
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_nodes",
+   "entry": "jack_defects_r95_probe",
+   "field": "foreign_r95a_nodes",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  },
+  {
+   "law": "hygiene.foreign_clients",
+   "entry": "jack_defects_r95_probe",
+   "field": "foreign_r95a_clients",
+   "kind": "eq",
+   "got": [],
+   "want": [],
+   "status": "PASS"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+server_string=/run/user/1000/pulse/native
+A1 -s REAL after subcmd (control)              rc=0  Server String: /run/user/1000/pulse/native|Library Protocol Version: 35|
+A2 -s REFUSED after subcmd (discrim.)          rc=0  Server String: /run/user/1000/pulse/native|Library Protocol Version: 35|
+A3 -s REFUSED before subcmd (control)          rc=1  Connection failure: Connection refused|
+B1 PULSE_SERVER= (empty)                       rc=1  Connection failure: Invalid server|pa_context_connect() failed: Invalid server|
+B2 PULSE_SERVER=unix: (no path)                rc=1  Connection failure: Connection refused|pa_context_connect() failed: Connection refused|
+B3 PULSE_SERVER=tcp:localhost:4713             rc=1  Connection failure: Connection refused|
+B4 PULSE_SERVER=unix: (bare, no colon)         rc=1  Connection failure: Connection refused|
+B5 -s '' (CLI empty)                           rc=0  Server String: /run/user/1000/pulse/native|Library Protocol Version: 35|
+B6 -s unix: (CLI no path)                      rc=0  Server String: /run/user/1000/pulse/native|Library Protocol Version: 35|
+C1 PULSE_SERVER=' ' (space)                    rc=1  Connection failure: Connection refused|

@@ -1,0 +1,806 @@
+{
+ "probe": "r77-boundary/p1-fallback-law",
+ "t0": "2026-10-14T19:41:39Z",
+ "inventory": {
+  "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+ },
+ "controls": [
+  {
+   "tag": "ctl_default_sink",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "expect: honored",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "ctl_default_sink__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/ctl_default_sink__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/ctl_default_sink__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7334375,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/ctl_default_sink__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "ctl_default_monitor",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "expect: honored",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "ctl_default_monitor__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/ctl_default_monitor__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/ctl_default_monitor__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7538854166666666,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/ctl_default_monitor__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "ctl_other_sink",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "expect: honored",
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "ctl_other_sink__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/ctl_other_sink__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/ctl_other_sink__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 0.0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/ctl_other_sink__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "ctl_other_sink__toneSPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/ctl_other_sink__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/ctl_other_sink__toneSPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.72321875,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/ctl_other_sink__toneSPK.wav"
+   }
+  }
+ ],
+ "edge_monitor_names": [
+  {
+   "tag": "edge_speaker_monitor",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "scout's gap",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_speaker_monitor__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor -n 96000 /dev/shm/r77b/edge_speaker_monitor__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_speaker_monitor__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7436666666666667,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_speaker_monitor__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "edge_hdmi_monitor",
+   "target": "alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "scout's gap",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_hdmi_monitor__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor -n 96000 /dev/shm/r77b/edge_hdmi_monitor__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_hdmi_monitor__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7334375,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_hdmi_monitor__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "edge_spdif_monitor_bare",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "control",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_spdif_monitor_bare__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/edge_spdif_monitor_bare__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_spdif_monitor_bare__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7334375,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_spdif_monitor_bare__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "edge_monitor_dup",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "double suffix",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_monitor_dup__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor.monitor -n 96000 /dev/shm/r77b/edge_monitor_dup__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_monitor_dup__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7436666666666667,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_monitor_dup__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "edge_sink_dot_nothing",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "trailing dot",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_sink_dot_nothing__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink. -n 96000 /dev/shm/r77b/edge_sink_dot_nothing__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_sink_dot_nothing__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7538854166666666,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_sink_dot_nothing__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "edge_partial_name",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker_",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "truncated real name",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_partial_name__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker_ -n 96000 /dev/shm/r77b/edge_partial_name__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/edge_partial_name__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7538854166666666,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/edge_partial_name__toneSPDIF.wav"
+   },
+   "b": null
+  }
+ ],
+ "no_prop_monitor": [
+  {
+   "tag": "noprop_speaker_monitor",
+   "cmd": "pw-record --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor -n 96000 /dev/shm/r77b/noprop_speaker_monitor.wav",
+   "note": "r76 says only a real SOURCE node resolves without the prop",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/noprop_speaker_monitor.wav\nstream node 116 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "bytes": 44,
+   "riff": "finalized",
+   "data_declared": "zero",
+   "peak": 0,
+   "nz": 0.0,
+   "fft_hz": null,
+   "tone": false,
+   "out": "/dev/shm/r77b/noprop_speaker_monitor.wav"
+  },
+  {
+   "tag": "noprop_spdif_monitor",
+   "cmd": "pw-record --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/noprop_spdif_monitor.wav",
+   "note": null,
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/noprop_spdif_monitor.wav\nstream node 119 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "bytes": 44,
+   "riff": "finalized",
+   "data_declared": "zero",
+   "peak": 0,
+   "nz": 0.0,
+   "fft_hz": null,
+   "tone": false,
+   "out": "/dev/shm/r77b/noprop_spdif_monitor.wav"
+  }
+ ],
+ "moved_default": {
+  "set_default_speaker_rc": 0,
+  "default_now": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "legs": [
+   {
+    "tag": "moved_garbage",
+    "target": "no_such_node_xyz",
+    "props": [
+     "-P",
+     "stream.capture.sink=true"
+    ],
+    "note": "does the fallback move with the default?",
+    "consumed": "default/SPDIF monitor",
+    "a": {
+     "tag": "moved_garbage__toneSPDIF",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true --target no_such_node_xyz -n 96000 /dev/shm/r77b/moved_garbage__toneSPDIF.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_garbage__toneSPDIF.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 20474.0,
+     "nz": 0.7608854166666666,
+     "fft_hz": 1000.0,
+     "tone": true,
+     "out": "/dev/shm/r77b/moved_garbage__toneSPDIF.wav"
+    },
+    "b": null
+   },
+   {
+    "tag": "moved_default_monitor_alias",
+    "target": "@DEFAULT_MONITOR@",
+    "props": [
+     "-P",
+     "stream.capture.sink=true"
+    ],
+    "note": "alias after the move",
+    "consumed": "default/SPDIF monitor",
+    "a": {
+     "tag": "moved_default_monitor_alias__toneSPDIF",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true --target @DEFAULT_MONITOR@ -n 96000 /dev/shm/r77b/moved_default_monitor_alias__toneSPDIF.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_default_monitor_alias__toneSPDIF.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 23364.0,
+     "nz": 0.9782916666666667,
+     "fft_hz": 1000.0,
+     "tone": true,
+     "out": "/dev/shm/r77b/moved_default_monitor_alias__toneSPDIF.wav"
+    },
+    "b": null
+   },
+   {
+    "tag": "moved_speaker_named",
+    "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "props": [
+     "-P",
+     "stream.capture.sink=true"
+    ],
+    "note": "control: named sink still honored",
+    "consumed": "SPEAKER monitor",
+    "a": {
+     "tag": "moved_speaker_named__toneSPDIF",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/moved_speaker_named__toneSPDIF.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_speaker_named__toneSPDIF.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 0.0,
+     "nz": 0.0,
+     "fft_hz": null,
+     "tone": false,
+     "out": "/dev/shm/r77b/moved_speaker_named__toneSPDIF.wav"
+    },
+    "b": {
+     "tag": "moved_speaker_named__toneSPK",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/moved_speaker_named__toneSPK.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_speaker_named__toneSPK.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 16384.0,
+     "nz": 0.72321875,
+     "fft_hz": 1000.0,
+     "tone": true,
+     "out": "/dev/shm/r77b/moved_speaker_named__toneSPK.wav"
+    }
+   },
+   {
+    "tag": "moved_spdif_named",
+    "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "props": [
+     "-P",
+     "stream.capture.sink=true"
+    ],
+    "note": "control: other named sink honored",
+    "consumed": "default/SPDIF monitor",
+    "a": {
+     "tag": "moved_spdif_named__toneSPDIF",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/moved_spdif_named__toneSPDIF.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_spdif_named__toneSPDIF.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 20379.0,
+     "nz": 0.8825,
+     "fft_hz": 1000.0,
+     "tone": true,
+     "out": "/dev/shm/r77b/moved_spdif_named__toneSPDIF.wav"
+    },
+    "b": null
+   },
+   {
+    "tag": "moved_auto_no_target",
+    "target": null,
+    "props": [
+     "-P",
+     "stream.capture.sink=true"
+    ],
+    "note": "auto with prop after the move",
+    "consumed": "default/SPDIF monitor",
+    "a": {
+     "tag": "moved_auto_no_target__toneSPDIF",
+     "cmd": "pw-record -P -P -P stream.capture.sink=true -n 96000 /dev/shm/r77b/moved_auto_no_target__toneSPDIF.wav",
+     "note": null,
+     "rc": 1,
+     "killed_by_us": false,
+     "err": "/dev/shm/r77b/moved_auto_no_target__toneSPDIF.wav",
+     "bytes": 384044,
+     "riff": "finalized",
+     "data_declared": "finalized",
+     "peak": 20474.0,
+     "nz": 0.9698020833333333,
+     "fft_hz": 1000.0,
+     "tone": true,
+     "out": "/dev/shm/r77b/moved_auto_no_target__toneSPDIF.wav"
+    },
+    "b": null
+   }
+  ],
+  "restore_rc": 0,
+  "default_restored": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+ },
+ "multi_prop": [
+  {
+   "tag": "prop_node_target",
+   "target": null,
+   "props": [
+    "node.target=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "stream.capture.sink=true"
+   ],
+   "note": "prop-based target instead of --target",
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "prop_node_target__toneSPDIF",
+    "cmd": "pw-record -P node.target=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_node_target__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_node_target__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 0.0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_node_target__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "prop_node_target__toneSPK",
+    "cmd": "pw-record -P node.target=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_node_target__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_node_target__toneSPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7334375,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_node_target__toneSPK.wav"
+   }
+  },
+  {
+   "tag": "prop_node_target_spdif",
+   "target": null,
+   "props": [
+    "node.target=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "stream.capture.sink=true"
+   ],
+   "note": "prop-based target = default sink",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "prop_node_target_spdif__toneSPDIF",
+    "cmd": "pw-record -P node.target=alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_node_target_spdif__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_node_target_spdif__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 32768.0,
+    "nz": 0.7667708333333333,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_node_target_spdif__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "prop_target_object",
+   "target": null,
+   "props": [
+    "stream.capture.sink=true",
+    "target.object=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "note": "the prop pw-dump advertises",
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "prop_target_object__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true -P target.object=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/prop_target_object__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_target_object__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 0.0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_target_object__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "prop_target_object__toneSPK",
+    "cmd": "pw-record -P stream.capture.sink=true -P target.object=alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/prop_target_object__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_target_object__toneSPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7334375,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_target_object__toneSPK.wav"
+   }
+  },
+  {
+   "tag": "prop_dup_last_false",
+   "target": null,
+   "props": [
+    "stream.capture.sink=true",
+    "stream.capture.sink=false"
+   ],
+   "note": "duplicate key: last wins?",
+   "consumed": "neither (silent node)",
+   "a": {
+    "tag": "prop_dup_last_false__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=true -P stream.capture.sink=false -n 96000 /dev/shm/r77b/prop_dup_last_false__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_dup_last_false__toneSPDIF.wav\nstream node 99 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_dup_last_false__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "prop_dup_last_false__toneSPK",
+    "cmd": "pw-record -P stream.capture.sink=true -P stream.capture.sink=false -n 96000 /dev/shm/r77b/prop_dup_last_false__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_dup_last_false__toneSPK.wav\nstream node 99 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_dup_last_false__toneSPK.wav"
+   }
+  },
+  {
+   "tag": "prop_dup_last_true",
+   "target": null,
+   "props": [
+    "stream.capture.sink=false",
+    "stream.capture.sink=true"
+   ],
+   "note": "duplicate key: last wins? (reversed)",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "prop_dup_last_true__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=false -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_dup_last_true__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_dup_last_true__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 21991.0,
+    "nz": 0.9785729166666667,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_dup_last_true__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "prop_only_capture_sink",
+   "target": null,
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "auto target under the prop",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "prop_only_capture_sink__toneSPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_only_capture_sink__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_only_capture_sink__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 20474.0,
+    "nz": 0.9341354166666667,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_only_capture_sink__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "prop_capture_sink_0",
+   "target": null,
+   "props": [
+    "stream.capture.sink=0"
+   ],
+   "note": "numeric false",
+   "consumed": "neither (silent node)",
+   "a": {
+    "tag": "prop_capture_sink_0__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=0 -n 96000 /dev/shm/r77b/prop_capture_sink_0__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_capture_sink_0__toneSPDIF.wav\nstream node 119 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_capture_sink_0__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "prop_capture_sink_0__toneSPK",
+    "cmd": "pw-record -P stream.capture.sink=0 -n 96000 /dev/shm/r77b/prop_capture_sink_0__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_capture_sink_0__toneSPK.wav\nstream node 119 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_capture_sink_0__toneSPK.wav"
+   }
+  },
+  {
+   "tag": "prop_capture_sink_caps",
+   "target": null,
+   "props": [
+    "stream.capture.sink=TRUE"
+   ],
+   "note": "caps true",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "prop_capture_sink_caps__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=TRUE -n 96000 /dev/shm/r77b/prop_capture_sink_caps__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_capture_sink_caps__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 20379.0,
+    "nz": 0.9616458333333333,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_capture_sink_caps__toneSPDIF.wav"
+   },
+   "b": null
+  },
+  {
+   "tag": "prop_capture_sink_garbage",
+   "target": null,
+   "props": [
+    "stream.capture.sink=yes_please"
+   ],
+   "note": "non-bool value",
+   "consumed": "neither (silent node)",
+   "a": {
+    "tag": "prop_capture_sink_garbage__toneSPDIF",
+    "cmd": "pw-record -P stream.capture.sink=yes_please -n 96000 /dev/shm/r77b/prop_capture_sink_garbage__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_capture_sink_garbage__toneSPDIF.wav\nstream node 82 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_capture_sink_garbage__toneSPDIF.wav"
+   },
+   "b": {
+    "tag": "prop_capture_sink_garbage__toneSPK",
+    "cmd": "pw-record -P stream.capture.sink=yes_please -n 96000 /dev/shm/r77b/prop_capture_sink_garbage__toneSPK.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_capture_sink_garbage__toneSPK.wav\nstream node 135 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+    "bytes": 44,
+    "riff": "finalized",
+    "data_declared": "zero",
+    "peak": 0,
+    "nz": 0.0,
+    "fft_hz": null,
+    "tone": false,
+    "out": "/dev/shm/r77b/prop_capture_sink_garbage__toneSPK.wav"
+   }
+  },
+  {
+   "tag": "prop_bogus",
+   "target": null,
+   "props": [
+    "r77b.bogus=1",
+    "stream.capture.sink=true"
+   ],
+   "note": "unknown prop alongside",
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "prop_bogus__toneSPDIF",
+    "cmd": "pw-record -P r77b.bogus=1 -P stream.capture.sink=true -n 96000 /dev/shm/r77b/prop_bogus__toneSPDIF.wav",
+    "note": null,
+    "rc": 1,
+    "killed_by_us": false,
+    "err": "/dev/shm/r77b/prop_bogus__toneSPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data_declared": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7436666666666667,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "out": "/dev/shm/r77b/prop_bogus__toneSPDIF.wav"
+   },
+   "b": null
+  }
+ ]
+}

@@ -1,0 +1,119 @@
+{
+  "nowriter": {
+    "paplay": {
+      "fifo": "corpus/live/r75-scout/scratch/nowriter-paplay.fifo",
+      "cmd": "paplay",
+      "wchan": "wait_for_partner",
+      "state": "S",
+      "sigterm_immune": false,
+      "exit_code": -15,
+      "blocked": true,
+      "stderr": ""
+    },
+    "aplay": {
+      "fifo": "corpus/live/r75-scout/scratch/nowriter-aplay.fifo",
+      "cmd": "aplay -D null",
+      "wchan": "wait_for_partner",
+      "state": "S",
+      "sigterm_immune": true,
+      "exit_code": -9,
+      "blocked": true,
+      "stderr": "Aborted by signal Terminated...\n"
+    },
+    "ffplay": {
+      "fifo": "corpus/live/r75-scout/scratch/nowriter-ffplay.fifo",
+      "cmd": "ffplay -nodisp -autoexit -loglevel info",
+      "wchan": "hrtimer_nanosleep",
+      "state": "S",
+      "sigterm_immune": false,
+      "exit_code": 123,
+      "blocked": true,
+      "stderr": "an    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r"
+    },
+    "paplay_badserver": {
+      "fifo": "corpus/live/r75-scout/scratch/nowriter-paplay.fifo",
+      "cmd": "paplay",
+      "wchan": "wait_for_partner",
+      "state": "S",
+      "sigterm_immune": false,
+      "exit_code": -15,
+      "blocked": true,
+      "stderr": ""
+    }
+  },
+  "writer": {
+    "paplay_dec_act": {
+      "fifo_name": "leg.wav",
+      "exit_code": 0,
+      "wall_s": 0.607,
+      "blocked": null,
+      "stderr_tail": ""
+    },
+    "aplay_dec_act": {
+      "fifo_name": "leg.wav",
+      "exit_code": 0,
+      "wall_s": 0.001,
+      "blocked": null,
+      "stderr_tail": "Playing WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r75-scout/scratch/r75-aplay-nekw7fgt/leg.wav' : Signed 16 bit Little Endian, Rate 8000 Hz, Mono\n"
+    },
+    "ffplay_dec_act": {
+      "fifo_name": "leg.wav",
+      "exit_code": 0,
+      "wall_s": 0.569,
+      "blocked": null,
+      "stderr_tail": "=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r\u001b[2K\rInput #0, wav, from '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r75-scout/scratch/r75-ffplay-oz3axsu4/leg.wav':\n  Duration: N/A, bitrate: 128 kb/s\n  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 8000 Hz, 1 channels, s16, 128 kb/s\n    nan M-A:    nan fd=   0 aq=    0KB vq=    0KB sq=    0B \r"
+    },
+    "aplay_empty": {
+      "fifo_name": "empty.wav",
+      "exit_code": 1,
+      "wall_s": 0.501,
+      "blocked": null,
+      "stderr_tail": "aplay: read_header:2973: read error\n"
+    },
+    "ffplay_dec_hcom": {
+      "fifo_name": "leg.wav",
+      "exit_code": 0,
+      "wall_s": 0.597,
+      "blocked": null,
+      "stderr_tail": " \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r\u001b[2K\rInput #0, hcom, from '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r75-scout/scratch/r75-ffplay-14ofqy1b/leg.wav':\n  Duration: N/A, bitrate: N/A\n  Stream #0:0: Audio: hcom, 22050 Hz, 1 channels, u8\n    nan M-A:    nan fd=   0 aq=    0KB vq=    0KB sq=    0B \r"
+    },
+    "paplay_axis.snd": {
+      "fifo_name": "axis.snd",
+      "exit_code": 1,
+      "wall_s": 0.001,
+      "blocked": null,
+      "stderr_tail": "Failed to open audio file.\n"
+    },
+    "paplay_axis.wav": {
+      "fifo_name": "axis.wav",
+      "exit_code": 1,
+      "wall_s": 0.002,
+      "blocked": null,
+      "stderr_tail": "Failed to open audio file.\n"
+    },
+    "paplay_axis.bin": {
+      "fifo_name": "axis.bin",
+      "exit_code": 1,
+      "wall_s": 0.002,
+      "blocked": null,
+      "stderr_tail": "Failed to open audio file.\n"
+    },
+    "paplay_raw_axis_snd": {
+      "fifo_name": "axis.snd",
+      "exit_code": 0,
+      "wall_s": 0.589,
+      "blocked": null,
+      "stderr_tail": ""
+    }
+  },
+  "ffplay_ss2_file": {
+    "exit_code": 0,
+    "wall_s": 2.111,
+    "stderr_tail": " aq=    0KB vq=    0KB sq=    0B \r   3.78 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r   3.81 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r   3.84 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r   3.87 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r   3.90 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r   3.93 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \r"
+  },
+  "ffplay_ss2_stdin": {
+    "exit_code": 0,
+    "wall_s": 0.161,
+    "stderr_tail": ".101 / 63.  1.101\n  libavfilter    12.  1.101 / 12.  1.101\n  libswscale     10.  1.101 / 10.  1.101\n  libswresample   7.  1.101 /  7.  1.101\n    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B \rfd:: could not seek to position 2.000\n\u001b[2K\rInput #0, wav, from 'fd:':\n  Duration: N/A, bitrate: 768 kb/s\n  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, 1 channels, s16, 768 kb/s\n"
+  }
+}

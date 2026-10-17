@@ -1,0 +1,165 @@
+{
+ "name": "e_direct_return",
+ "stage": "p1",
+ "rep": 1,
+ "argv": [
+  "gst-launch-1.0",
+  "-q",
+  "pipewiresrc",
+  "client-name=gst_r81_bnd_cap",
+  "target-object=gst_r81_bnd_prod",
+  "stream-properties=props,stream.capture.sink=false",
+  "on-disconnect=error",
+  "num-buffers=1000",
+  "!",
+  "audio/x-raw,format=S16LE,rate=48000,channels=2",
+  "!",
+  "wavenc",
+  "!",
+  "filesink",
+  "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r81-boundary/tmp/p1_cap.wav"
+ ],
+ "env_extra": null,
+ "rc": 255,
+ "signal": null,
+ "killed": null,
+ "elapsed_s": 5.014,
+ "stderr_head": [
+  "ERROR: from element /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0: stream error: target not found",
+  "Additional debug info:",
+  "../pipewire/src/gst/gstpipewiresrc.c(929): on_state_changed (): /GstPipeline:pipeline0/GstPipeWireSrc:pipewiresrc0",
+  "ERROR: pipeline doesn't want to preroll."
+ ],
+ "err_class": "target_not_found",
+ "err_hit": "stream error: target not found",
+ "wall_cap": 5.0,
+ "byte_cap": 4194304,
+ "producers": [
+  {
+   "name": "prod",
+   "argv": [
+    "gst-launch-1.0",
+    "-q",
+    "audiotestsrc",
+    "wave=sine",
+    "freq=1000",
+    "num-buffers=200000",
+    "!",
+    "audio/x-raw,format=S16LE,rate=48000,channels=2",
+    "!",
+    "pipewiresink",
+    "client-name=gst_r81_bnd_prod",
+    "target-object=gst_r81_bndns"
+   ],
+   "at": 0.0,
+   "kill_at": 1.2,
+   "started": 0.001,
+   "ended": null,
+   "killed": null,
+   "rc": -9,
+   "stderr_head": []
+  },
+  {}
+ ],
+ "actions": [],
+ "sizes": [
+  [
+   0.0,
+   null
+  ]
+ ],
+ "samples": [],
+ "post": {
+  "links": [
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> gst_r81_1291125_pwrec:input_FL",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> gst_r81_1291125_pwrec:input_FR",
+   "output.r79lb_1287380_c01_sink:output_FL -> r79lb_ns_b_1287380:playback_FL",
+   "output.r79lb_1287380_c01_sink:output_FR -> r79lb_ns_b_1287380:playback_FR",
+   "r79lb_1287380_c01_sink_feed:output_FL -> r79lb_ns_a_1287380:playback_FL",
+   "r79lb_1287380_c01_sink_feed:output_FR -> r79lb_ns_a_1287380:playback_FR",
+   "r79lb_ns_a_1287380:monitor_FL -> input.r79lb_1287380_c01_sink:input_FL",
+   "r79lb_ns_a_1287380:monitor_FR -> input.r79lb_1287380_c01_sink:input_FR",
+   "r79lb_ns_b_1287380:monitor_FL -> r79lb_1287380_c01_sink_tap:input_FL",
+   "r79lb_ns_b_1287380:monitor_FR -> r79lb_1287380_c01_sink_tap:input_FR"
+  ],
+  "mine": {
+   "gst_r81_bndns": {
+    "class": "Audio/Sink",
+    "serial": 14639,
+    "state": "idle",
+    "props": {
+     "client.id": 96,
+     "media.class": "Audio/Sink",
+     "monitor.channel-volumes": true,
+     "monitor.passthrough": true,
+     "node.description": "gst_r81_bndns",
+     "node.driver": true,
+     "node.loop.name": "data-loop.0",
+     "node.name": "gst_r81_bndns",
+     "object.id": 112,
+     "object.serial": 14639,
+     "pulse.module.id": 536870920
+    }
+   },
+   "gst_r81_1291125_pwrec": {
+    "class": "Stream/Input/Audio",
+    "serial": 14766,
+    "state": "running",
+    "props": {
+     "application.name": "pw-record",
+     "client.id": 154,
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/tmp/gst-r81-loss-oh6nnsd2/t7.wav",
+     "media.name": "/tmp/gst-r81-loss-oh6nnsd2/t7.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.driver-id": 61,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "gst_r81_1291125_pwrec",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 146,
+     "object.register": false,
+     "object.serial": 14766,
+     "stream.capture.sink": true,
+     "stream.is-live": true,
+     "target.object": "gst_r81_auth_1291125"
+    }
+   }
+  },
+  "seat": [
+   [
+    "gst_r81_bndns#14639",
+    "Audio/Sink",
+    "idle"
+   ]
+  ],
+  "phys": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+  ],
+  "node_count": 19,
+  "clients": 16
+ },
+ "out": {
+  "exists": true,
+  "bytes": 0,
+  "riff": "short",
+  "data": null,
+  "frames": null,
+  "ch": null,
+  "rate": null,
+  "bits": null
+ },
+ "out_peak": null,
+ "kept": null,
+ "note": "producer killed at 1.2s, a NEW same-name producer appears at 2.4s"
+}

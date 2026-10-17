@@ -1,0 +1,1 @@
+../../../fixtures/build_artifacts.py

@@ -1,0 +1,123 @@
+# r79 block lines 8825..11529 (2705 lines)
+
+## 1 constants
+  LOOPBACK_R79_TIMEOUT_S           refs_outside_def=0
+  LOOPBACK_R79_SETTLE_S            refs_outside_def=8
+  LOOPBACK_R79_NODE_WAIT_S         refs_outside_def=2
+  LOOPBACK_R79_LEG_BOUND_S         refs_outside_def=12
+  LOOPBACK_R79_HP_BOUND_S          refs_outside_def=9
+  LOOPBACK_R79_TONE_S              refs_outside_def=6
+  LOOPBACK_R79_FC_SETTLE_S         refs_outside_def=1
+  LOOPBACK_R79_FC_KILL_S           refs_outside_def=1
+  LOOPBACK_R79_PID                 refs_outside_def=8
+  LOOPBACK_R79_NS_A                refs_outside_def=6
+  LOOPBACK_R79_NS_B                refs_outside_def=7
+  LOOPBACK_R79_NS_B2               refs_outside_def=1
+  LOOPBACK_R79_HP                  refs_outside_def=1
+  LOOPBACK_R79_HP2                 refs_outside_def=1
+  LOOPBACK_R79_FC_SINK             refs_outside_def=1
+  LOOPBACK_R79_PREFIX              refs_outside_def=17
+  LOOPBACK_R79_FC_PREFIX           refs_outside_def=2
+  LOOPBACK_R79_DSOURCE_CACHE       refs_outside_def=3
+
+## 2 r79 functions (37)
+  _loopback_r79_metadata_default               def_line= 8905 refs=2
+  _loopback_r79_pactl_defaults                 def_line= 8927 refs=1
+  _loopback_r79_oracle                         def_line= 8946 refs=16
+  _loopback_r79_nodes                          def_line= 8961 refs=1
+  _loopback_r79_own_nodes                      def_line= 9003 refs=1
+  _loopback_r79_wait_ports                     def_line= 9014 refs=2
+  _loopback_r79_guard_playback                 def_line= 9029 refs=1
+  _loopback_r79_feed                           def_line= 9049 refs=2
+  _loopback_r79_write_silence                  def_line= 9060 refs=1
+  _loopback_r79_watch_sample                   def_line= 9077 refs=3
+  _loopback_r79_run                            def_line= 9104 refs=5
+  _loopback_r79_leg                            def_line= 9198 refs=10
+  _loopback_r79_union                          def_line= 9266 refs=8
+  _loopback_r79_check_side                     def_line= 9272 refs=10
+  _loopback_r79_check_tap                      def_line= 9359 refs=9
+  _loopback_r79_two_tone                       def_line= 9425 refs=3
+  _loopback_r79_wait_monitor                   def_line= 9482 refs=1
+  _loopback_r79_default_source_probe           def_line= 9514 refs=4
+  _loopback_r79_unnegotiated                   def_line= 9567 refs=1
+  _loopback_r79_sinks_load                     def_line= 9589 refs=8
+  _loopback_r79_sinks_unload                   def_line= 9608 refs=17
+  _loopback_r79_teardown                       def_line= 9615 refs=8
+  loopback_shape_r79_entry                     def_line= 9634 refs=1
+  loopback_capture_lattice_r79_entry           def_line= 9856 refs=1
+  loopback_playback_lattice_r79_entry          def_line=10074 refs=1
+  loopback_matrix_r79_entry                    def_line=10274 refs=1
+  loopback_record_target_r79_entry             def_line=10405 refs=1
+  loopback_hotplug_r79_entry                   def_line=10672 refs=1
+  pwcat_latency_r79_entry                      def_line=10887 refs=1
+  _loopback_r79_fc_args                        def_line=11089 refs=3
+  _loopback_r79_fc_fragment                    def_line=11105 refs=5
+  _loopback_r79_fc_reply_lines                 def_line=11114 refs=4
+  filterchain_module_r79_entry                 def_line=11124 refs=1
+  main                                         def_line=11529 refs=4
+  mkcfg                                        def_line=11179 refs=7
+  confd_leg                                    def_line=11187 refs=1
+  cli_cmd                                      def_line=11311 refs=4
+
+## 3 parameter use counts (params never loaded in body)
+
+## 4 dead local bindings (store, no load in the same function)
+  _loopback_r79_run: local 'line' stored at [9186] — 0 loads
+  _loopback_r79_default_source_probe: local '_' stored at [9551] — 0 loads
+  _loopback_r79_sinks_unload: local 'nm' stored at [9611] — 0 loads
+  loopback_playback_lattice_r79_entry: local 'extra_tw' stored at [10170, 10172] — 0 loads
+  loopback_matrix_r79_entry: local '_' stored at [10383, 10383, 10383] — 0 loads
+  loopback_matrix_r79_entry: local 'inv' stored at [10283] — 0 loads
+  loopback_hotplug_r79_entry: local 'ltag' stored at [10788] — 0 loads
+  filterchain_module_r79_entry: local '_' stored at [11320, 11320] — 0 loads
+  filterchain_module_r79_entry: local 'ctx' stored at [11171] — 0 loads
+  filterchain_module_r79_entry: local 'inv' stored at [11138] — 0 loads
+  filterchain_module_r79_entry: local 'want_node' stored at [11463] — 0 loads
+  cli_cmd: local '_' stored at [11320, 11320] — 0 loads
+
+## 5 named guard probes
+
+  [capture-lattice tap_t ternary (both arms ns_b)]  (1 hits)
+    9975: tap_t = ns_b if kind != "none" else ns_b
+
+  [capture-lattice @SRC@ guard's s0 conjunct]  (1 hits)
+    9962: if "@SRC@" in tail and nondef is None and s0 is None:
+
+  [playback-lattice extra_tw]  (2 hits)
+    10170: extra_tw = []
+    10172: extra_tw = [("c07_flag_sink_tap", ns_b)]
+
+  [check_tap require= at any call site]  (1 hits)
+    9360: want_tone=None, require=True):
+
+  [check_side want-is-None arm]  (4 hits)
+    9291: leg["expected_" + side_key] = [] if want is None else [want]
+    9292: if want is None:
+    9985: [] if want is None else [want]
+    10206: [] if want is None else [want]
+
+  [union helper call sites]  (9 hits)
+    9266: def _loopback_r79_union(samples, node, key):
+    9289: union = _loopback_r79_union(leg["samples"], node_suffix, side_key)
+    10020: pports = set(_loopback_r79_union(
+    10574: if _loopback_r79_union(lb.get("samples", []), in_n, "producers") \
+    10575: != [ns_a] or _loopback_r79_union(
+    10590: prods = _loopback_r79_union(leg.get("samples", []),
+    10643: pports = _loopback_r79_union(
+    10656: d17_prods = _loopback_r79_union(d17.get("samples", []),
+    11053: cons = _loopback_r79_union(samples, ctag, "consumers")
+
+  [check_tap empty-tap arm]  (1 hits)
+    9367: if not tap:
+
+  [tone frequency constants (pid-derived)]  (10 hits)
+    5970: PLAYBACK_R78_TONE_L_HZ = 997.0 + (os.getpid() % 4) * 211.0
+    5971: PLAYBACK_R78_TONE_R_HZ = PLAYBACK_R78_TONE_L_HZ + 503.0
+    6030: np.sin(2 * np.pi * PLAYBACK_R78_TONE_L_HZ * t)).astype("<i2")
+    6032: np.sin(2 * np.pi * PLAYBACK_R78_TONE_R_HZ * t)).astype("<i2")
+    6400: tol_l = PLAYBACK_R78_TONE_L_HZ * PLAYBACK_R78_TONE_TOL
+    6401: tol_r = PLAYBACK_R78_TONE_R_HZ * PLAYBACK_R78_TONE_TOL
+    6408: mine = (abs(fl - PLAYBACK_R78_TONE_L_HZ) <= tol_l and
+    6409: abs(fr - PLAYBACK_R78_TONE_R_HZ) <= tol_r and
+    9462: for f, key in ((PLAYBACK_R78_TONE_L_HZ, "at_l"),
+    9463: (PLAYBACK_R78_TONE_R_HZ, "at_r")):

@@ -1,0 +1,37 @@
+--- a/corpus/fixtures/r95jack.c
++++ b/corpus/fixtures/r95jack.c
+@@ -15,7 +15,7 @@
+  * families (xrun accounting, RT-priority accessors, latency, transport,
+  * metadata). Volatile values are printed and judged (or not) in Python.
+  *
+- * modes: info shape rtprio rtprio_poison tone stall bufsize latency
++ * modes: info shape rtprio_poison tone stall bufsize latency
+  *        transport metadata xconnect
+  *
+  * bufsize argv: bufsize <set_inactive_nframes|0=skip> <set_active_nframes|0=skip>
+@@ -407,25 +407,6 @@
+ 		jack_client_close(c);
+ 		return 0;
+ 	}
+-
+-	if (!strcmp(mode, "rtprio")) {
+-		jack_client_t *c = open_client(cn("r95a_rtp"), &status);
+-		g_client = c;
+-		printf("R95AJSON {\"mode\":\"rtprio\",\"status\":%d,", (int)status);
+-		print_common(c);
+-		jack_activate(c);
+-		printf(",\"samples\":[");
+-		for (int i = 0; i < 6; i++) {
+-			printf("%s[%d,%d]", i ? "," : "",
+-			       jack_client_real_time_priority(c),
+-			       jack_client_max_real_time_priority(c));
+-			usleep(120000);
+-		}
+-		printf("],\"is_realtime_live\":%d,\"cpu_load_live\":%.6f}\n",
+-		       jack_is_realtime(c), jack_cpu_load(c));
+-		jack_client_close(c);
+-		return 0;
+-	}
+ 
+ 	if (!strcmp(mode, "rtprio_poison")) {
+ 		/* Sample baseline, then after poisoning the stack with 0xAA and

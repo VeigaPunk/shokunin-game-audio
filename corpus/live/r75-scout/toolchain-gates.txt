@@ -1,0 +1,136 @@
+=== paplay --version ===
+pacat 17.0-98-gb096
+Compiled with libpulse 17.0.0
+Linked with libpulse 17.0.0
+=== aplay --version ===
+aplay: version 1.2.16 by Jaroslav Kysela <perex@perex.cz>
+=== ffplay -version (head 8) ===
+ffplay version n9.0.1 Copyright (c) 2003-2026 the FFmpeg developers
+built with gcc 16 (GCC)
+configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-lcms2 --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan --disable-decoder=magicyuv
+libavutil      61.  1.101 / 61.  1.101
+libavcodec     63.  1.101 / 63.  1.101
+libavformat    63.  1.101 / 63.  1.101
+libavdevice    63.  1.101 / 63.  1.101
+libavfilter    12.  1.101 / 12.  1.101
+=== pactl info ===
+Server String: /run/user/1000/pulse/native
+Library Protocol Version: 35
+Server Protocol Version: 35
+Is Local: yes
+Client Index: 5578
+Tile Size: 65472
+User Name: vgpnk
+Host Name: plazir27
+Server Name: PulseAudio (on PipeWire 1.6.8)
+Server Version: 15.0.0
+Default Sample Specification: float32le 2ch 48000Hz
+Default Channel Map: front-left,front-right
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.2
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source.2
+Cookie: 2a06:5f75
+=== aplay -l ===
+**** List of PLAYBACK Hardware Devices ****
+card 0: Audio [USB Audio], device 0: USB Audio [USB Audio]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Audio [USB Audio], device 1: USB Audio [USB Audio #1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Audio [USB Audio], device 2: USB Audio [USB Audio #2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 0: Audio [USB Audio], device 3: USB Audio [USB Audio #3]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: NVidia [HDA NVidia], device 3: HDMI 0 [LG ULTRAWIDE]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: NVidia [HDA NVidia], device 7: HDMI 1 [HDMI 1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: NVidia [HDA NVidia], device 8: HDMI 2 [HDMI 2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: NVidia [HDA NVidia], device 9: HDMI 3 [HDMI 3]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: Generic [HD-Audio Generic], device 3: HDMI 0 [HDMI 0]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: Generic [HD-Audio Generic], device 7: HDMI 1 [HDMI 1]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: Generic [HD-Audio Generic], device 8: HDMI 2 [HDMI 2]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 2: Generic [HD-Audio Generic], device 9: HDMI 3 [HDMI 3]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+rc=0
+=== aplay -L (head 30) ===
+null
+    Discard all samples (playback) or generate zero samples (capture)
+sysdefault
+    Default Audio Device
+pipewire
+    PipeWire Sound Server
+default
+    Default ALSA Output (currently PipeWire Media Server)
+sysdefault:CARD=Audio
+    USB Audio, USB Audio
+    Default Audio Device
+front:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    Front output / input
+surround21:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    2.1 Surround output to Front and Subwoofer speakers
+surround40:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    4.0 Surround output to Front and Rear speakers
+surround41:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    4.1 Surround output to Front, Rear and Subwoofer speakers
+surround50:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    5.0 Surround output to Front, Center and Rear speakers
+surround51:CARD=Audio,DEV=0
+    USB Audio, USB Audio
+    5.1 Surround output to Front, Center, Rear and Subwoofer speakers
+surround71:CARD=Audio,DEV=0
+=== ls /dev/snd ===
+total 0
+drwxr-xr-x   4 root root      520 Oct 13 11:02 .
+drwxr-xr-x  21 root root     4420 Oct 14 09:53 ..
+drwxr-xr-x   2 root root       60 Oct 13 11:02 by-id
+drwxr-xr-x   2 root root      120 Oct 13 11:02 by-path
+crw-rw----+  1 root audio 116, 21 Oct 13 11:02 controlC0
+crw-rw----+  1 root audio 116, 13 Oct 13 11:02 controlC1
+crw-rw----+  1 root audio 116,  7 Oct 13 11:02 controlC2
+crw-rw----+  1 root audio 116, 12 Oct 13 11:02 hwC1D0
+crw-rw----+  1 root audio 116,  6 Oct 13 11:02 hwC2D0
+crw-rw----+  1 root audio 116, 15 Oct 14 12:31 pcmC0D0c
+crw-rw----+  1 root audio 116, 14 Oct 13 11:02 pcmC0D0p
+crw-rw----+  1 root audio 116, 17 Oct 14 12:31 pcmC0D1c
+crw-rw----+  1 root audio 116, 16 Oct 13 11:02 pcmC0D1p
+crw-rw----+  1 root audio 116, 19 Oct 14 12:31 pcmC0D2c
+crw-rw----+  1 root audio 116, 18 Oct 13 11:02 pcmC0D2p
+crw-rw----+  1 root audio 116, 20 Oct 14 12:45 pcmC0D3p
+crw-rw----+  1 root audio 116,  8 Oct 14 12:31 pcmC1D3p
+crw-rw----+  1 root audio 116,  9 Oct 14 12:31 pcmC1D7p
+crw-rw----+  1 root audio 116, 10 Oct 14 12:31 pcmC1D8p
+crw-rw----+  1 root audio 116, 11 Oct 14 12:31 pcmC1D9p
+crw-rw----+  1 root audio 116,  2 Oct 14 12:31 pcmC2D3p
+crw-rw----+  1 root audio 116,  3 Oct 14 12:31 pcmC2D7p
+crw-rw----+  1 root audio 116,  4 Oct 14 12:31 pcmC2D8p
+crw-rw----+  1 root audio 116,  5 Oct 14 12:31 pcmC2D9p
+crw-rw----+  1 root audio 116,  1 Oct 13 11:02 seq
+crw-rw----+  1 root audio 116, 33 Oct 13 11:02 timer
+=== /proc/asound/cards ===
+ 0 [Audio          ]: USB-Audio - USB Audio
+                      Generic USB Audio at usb-0000:11:00.0-12, high speed
+ 1 [NVidia         ]: HDA-Intel - HDA NVidia
+                      HDA NVidia at 0xdc080000 irq 168
+ 2 [Generic        ]: HDA-Intel - HD-Audio Generic
+                      HD-Audio Generic at 0xdcf80000 irq 170

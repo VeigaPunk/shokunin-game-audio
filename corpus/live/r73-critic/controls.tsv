@@ -1,0 +1,19 @@
+pwcat-seek-named	pw-cat	file	0	119	.snd bytes, regular file named m.snd
+pwcat-seek-unnamed	pw-cat	file	1	2	sndfile: failed to open audio file "/tmp/r73c-ctl-SYgHuF/m.dat": Format not recognised.
+pwcat-pipe-named	pw-cat	fifo	0	122	.snd bytes, fifo named f.snd
+pwcat-pipe-unnamed	pw-cat	fifo	1	3	sndfile: failed to open audio file "/tmp/r73c-ctl-SYgHuF/f.dat": Format not recognised.
+pwcat-pipe-f.wav	pw-cat	fifo	1	2	sndfile: failed to open audio file "/tmp/r73c-ctl-SYgHuF/f.wav": Format not recognised.
+pwcat-pipe-f.SND	pw-cat	fifo	0	117	case-insensitive extension fallback
+pwcat-pipe-f.fifo	pw-cat	fifo	1	2	sndfile: failed to open audio file "/tmp/r73c-ctl-SYgHuF/f.fifo": Format not recognised.
+mpv-seek-unnamed	mpv	file	2	-	hcom bytes, regular file named h.dat (1 x refresh-seek-EPERM)
+mpv-pipe-named	mpv	fifo	0	-	hcom bytes, fifo named h.wav (1 x non-seekable)
+mpv-fd0	mpv	fd://0	2	-	stdin redirect from regular file is seekable (1 x refresh-seek-EPERM)
+mpv-pipe-named-snd	mpv	fifo	2	-	snd bytes, fifo named s2.snd (mpv has no extension fallback)
+nodaemon-file	pw-cat	file	1	-	error: pw_context_connect() failed: Host is down
+nodaemon-nowriterfifo	pw-cat	fifo	1	-	daemon gate precedes open() (no writer attached; returns instantly)
+pace-file-tone4s	pw-cat	file	0	4046	4.0s tone; wall ~= duration
+pace-fifo-instant	pw-cat	fifo	0	4021	instant dump; wall ~= duration => playback-paced
+pace-fifo-trickle	pw-cat	fifo	0	8044	8s delivery of 4s audio; streams, no underrun abort
+nowriter-SIGTERM	pw-cat	fifo	137	6001	TERM@3s ignored; KILL@+3s -> rc137, wall 6s
+emptywriter	pw-cat	fifo	1	3	sndfile: failed to open audio file "/tmp/r73c-ctl-SYgHuF/p4": Format not recognised.
+target0-hang	pw-cat	file	137	5001	unlinked stream hangs; KILL required

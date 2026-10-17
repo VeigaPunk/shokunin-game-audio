@@ -1,0 +1,17363 @@
+#!/usr/bin/env python3
+"""Headless checks of deterministic WAV fixtures; JSON receipt even on failure."""
+import argparse
+import ctypes
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import select
+import shutil
+import signal
+import struct
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import wave
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+ARTIFACTS = ROOT / "artifacts"
+SPECS = {
+    "ui": (.12, 250, 4000, False),
+    "ui_alt": (.16, 250, 4000, False),
+    "ui_third": (.20, 250, 4000, False),
+    "impact": (.32, 50, 15000, False),
+    "impact_alt": (.32, 50, 15000, False),
+    "impact_third": (.40, 50, 15000, False),
+    "movement": (.24, 100, 16000, False),
+    "movement_alt": (.36, 100, 16000, False),
+    "movement_third": (.30, 100, 16000, False),
+    "ambience": (2.0, 5, 200, True),
+    "ambience_alt": (2.0, 5, 200, True),
+    "ambience_third": (2.0, 5, 200, True),
+    "stem": (2.0, 100, 2000, True),
+    "stem_sections": (4.0, 100, 2000, True),
+    "stem_layer": (4.0, 100, 2000, True),
+    "stem_layer_alt": (4.0, 100, 2000, True),
+    "stem_layer_third": (4.0, 100, 2000, True),
+}
+
+
+def command(*args):
+    return subprocess.run(args, check=True, capture_output=True)
+
+
+def format_failures(stream):
+    failures = []
+    if int(stream["sample_rate"]) != 48000 or int(stream["channels"]) != 1:
+        failures.append("format: expected 48kHz mono")
+    if stream.get("codec_name") != "pcm_s16le" or stream.get("bits_per_sample") != 16:
+        failures.append("format: expected PCM16")
+    return failures
+
+
+def measure(name, spec, path=None):
+    path = path or ARTIFACTS / (name + ".wav")
+    probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
+                               "stream=sample_rate,channels,codec_name,bits_per_sample:format=duration", "-of", "json", str(path)).stdout)
+    stream = probe["streams"][0]
+    rate = int(stream["sample_rate"])
+    pcm = command("sox", str(path), "-t", "f32", "-e", "floating-point", "-").stdout
+    samples = np.frombuffer(pcm, dtype="<f4").astype(np.float64)
+    duration = float(probe["format"]["duration"])
+    # Weighted positive-frequency centroid on the entire waveform; no claim of timbre.
+    spectrum = np.abs(np.fft.rfft(samples))
+    freqs = np.fft.rfftfreq(len(samples), 1/rate)
+    centroid = float(np.dot(freqs, spectrum) / spectrum.sum())
+    bandwidth = float(np.sqrt(np.dot((freqs-centroid)**2, spectrum) / spectrum.sum()))
+    rms = float(np.sqrt(np.mean(samples**2)))
+    peak = float(np.max(np.abs(samples)))
+    # ebur128 integrated loudness is undefined on quiet/low-frequency signals;
+    # report both the measured LUFS (if finite) and RMS dBFS, never conflate them.
+    loud = command("ffmpeg", "-hide_banner", "-nostats", "-i", str(path),
+                   "-filter_complex", "ebur128=peak=true", "-f", "null", "-").stderr.decode()
+    matches = re.findall(r"Integrated loudness:\s*I:\s*([+\-]?(?:\d+(?:\.\d+)?|inf)) LUFS", loud)
+    lufs = float(matches[-1]) if matches else None
+    # -70 LUFS is ebur128's gated floor, not a useful short-SFX level.
+    if lufs is not None and (not np.isfinite(lufs) or lufs <= -70):
+        lufs = None
+    seam_delta = float(abs(samples[0] - samples[-1])) if spec[3] else None
+    slope_delta = float(abs((samples[-1] - samples[-2]) - (samples[1] - samples[0]))) if spec[3] else None
+    failures = []
+    failures.extend(format_failures(stream))
+    if abs(duration-spec[0]) > .001:
+        failures.append("duration: outside ±1 ms")
+    if peak >= .95 or rms < .001:
+        failures.append("level: clipping headroom or near silence")
+    if not spec[1] <= centroid <= spec[2]:
+        failures.append("spectrum: centroid outside fixture band")
+    if spec[3] and seam_delta > .03:
+        failures.append("loop seam: endpoint jump > .03 full scale")
+    if spec[3] and slope_delta > .001:
+        failures.append("loop seam: slope mismatch > .001 full scale per sample")
+    return {"path": str(path.relative_to(ROOT)), "duration_s": duration,
+            "sample_rate_hz": rate, "channels": int(stream["channels"]),
+            "codec_name": stream.get("codec_name"), "bits_per_sample": stream.get("bits_per_sample"),
+            "peak_full_scale": peak, "rms_dbfs": float(20*np.log10(rms)),
+            "integrated_lufs": lufs if np.isfinite(lufs if lufs is not None else float("nan")) else None,
+            "spectral_centroid_hz": centroid, "spectral_bandwidth_hz": bandwidth,
+            "seam_endpoint_delta_full_scale": seam_delta,
+            "seam_slope_delta_full_scale_per_sample": slope_delta, "failures": failures}
+
+
+def section_contrast(path, component_hz=30):
+    raw = command("sox", str(path), "-t", "f32", "-e", "floating-point", "-").stdout
+    samples = np.frombuffer(raw, dtype="<f4").astype(np.float64)
+    if len(samples) != 192000:
+        return {"component_hz": component_hz, "section_samples": 96000,
+                "actual_samples": len(samples), "component_amplitudes_full_scale": [],
+                "section_rms_full_scale": [], "component_amplitude_contrast_db": None,
+                "internal_join_adjacent_delta_full_scale": None,
+                "internal_join_side_slope_mismatch_full_scale_per_sample": None,
+                "valid": False, "passed": False, "failure_kind": "section count"}
+    halves = np.split(samples, 2)
+    component_bin = component_hz * len(halves[0]) // 48000
+    amps = [float(2 * abs(np.fft.rfft(half)[component_bin]) / len(half)) for half in halves]
+    rms = [float(np.sqrt(np.mean(half**2))) for half in halves]
+    valid = all(np.isfinite(amps)) and all(a >= .01 for a in amps) and all(r >= .001 for r in rms)
+    delta_db = float(20*np.log10(amps[1]/amps[0])) if valid else None
+    join_delta = float(abs(samples[96000] - samples[95999]))
+    join_slope = float(abs((samples[96001] - samples[96000]) - (samples[95999] - samples[95998])))
+    return {"component_hz": component_hz, "section_samples": 96000, "component_amplitudes_full_scale": amps,
+            "section_rms_full_scale": rms, "component_amplitude_contrast_db": delta_db,
+            "internal_join_adjacent_delta_full_scale": join_delta,
+            "internal_join_side_slope_mismatch_full_scale_per_sample": join_slope,
+            "valid": valid, "passed": bool(valid and delta_db >= 6.0)}
+
+
+def invalid_probes():
+    probes = ROOT / "live" / "round-6"
+    results = []
+    for name, expected in (("short_sections", "section count"),
+                           ("corrupt", "decode"), ("wrong_format", "format"),
+                           ("odd_sections", "section count"),
+                           ("native16_probe", None), ("native24_probe", "format"),
+                           ("stereo48_probe", "format"), ("mono441_probe", "format")):
+        directory = (ROOT / "live" / "round-25" if name in ("stereo48_probe", "mono441_probe") else
+                     ROOT / "live" / "round-22" if name.startswith("native") else
+                     ROOT / "live" / "round-7" if name == "odd_sections" else probes)
+        path = directory / (name + ".wav")
+        result = {"probe": name, "path": str(path.relative_to(ROOT)),
+                  "expected_failure": expected, "observed_failure": None}
+        if name == "corrupt":
+            try:
+                command("ffprobe", "-v", "error", "-show_entries",
+                        "stream=sample_rate,channels:format=duration", "-of", "json", str(path))
+            except subprocess.CalledProcessError as exc:
+                result["observed_failure"] = "decode"
+                result["detail"] = {"tool": "ffprobe", "exit_code": exc.returncode,
+                                    "stderr": exc.stderr.decode(errors="replace").strip()}
+        elif name in ("wrong_format", "native16_probe", "native24_probe", "stereo48_probe", "mono441_probe"):
+            probe = json.loads(command("ffprobe", "-v", "error", "-show_entries",
+                                       "stream=sample_rate,channels,codec_name,bits_per_sample:format=duration",
+                                       "-of", "json", str(path)).stdout)
+            stream = probe["streams"][0]
+            result["sample_rate_hz"] = int(stream["sample_rate"])
+            result["channels"] = int(stream["channels"])
+            result["codec_name"] = stream.get("codec_name")
+            result["bits_per_sample"] = stream.get("bits_per_sample")
+            if format_failures(stream):
+                result["observed_failure"] = "format"
+        else:
+            section = section_contrast(path)
+            result["section"] = section
+            if section.get("failure_kind") == "section count":
+                result["observed_failure"] = "section count"
+        result["status"] = ("expected_pass" if expected is None and result["observed_failure"] is None else
+                            "expected_failure" if expected is not None and result["observed_failure"] == expected else
+                            "unexpected_result")
+        results.append(result)
+    return results
+
+
+# r67 transport axis: the 2x2 transport space {named x seekable}. Every prior
+# ledger row ran the `file` arm implicitly; this arm records transport
+# explicitly per member. The member set is the complete tracked autodetect
+# family (r65 preempt + r66 dec/lengate members) — every member whose route
+# is a detection decision.
+TRANSPORT_R67_ARMS = (("file", True, True), ("stdin_pipe", False, False),
+                      ("redirected_fd", False, True), ("fifo_path", True, False))
+TRANSPORT_R67_MEMBERS = {
+    "preempt_act": ("round-65", "pair_preempt_act.wav"),
+    "preempt_gsrt": ("round-65", "pair_preempt_gsrt.wav"),
+    "preempt_hcom": ("round-65", "pair_preempt_hcom.wav"),
+    "preempt_both": ("round-65", "pair_preempt_both.wav"),
+    "dec_hcom": ("round-66", "pair_dec_hcom.wav"),
+    "dec_act": ("round-66", "pair_dec_act.wav"),
+    "lengate_gsrt_24": ("round-66", "pair_lengate_gsrt_24.wav"),
+    "lengate_gsrt_25": ("round-66", "pair_lengate_gsrt_25.wav"),
+    "lengate_hcom_131": ("round-66", "pair_lengate_hcom_131.wav"),
+    "lengate_hcom_132": ("round-66", "pair_lengate_hcom_132.wav"),
+}
+TRANSPORT_R67_ARM_TIMEOUT_S = 10
+# The ffmpeg bridge re-opens the input by name (open #2); on a fifo that open
+# blocks unless a writer is still attached. The feed below writes the member
+# once then lingers this long holding the fifo open, so the bridge's second
+# open resolves deterministically to the truncated-stream verdict instead of
+# racing the writer's exit. Native readers see EOF when the writer closes.
+# r70: the hold is a MEASURED bound, not a chosen point — parameterized via
+# MEASURE_FIFO_WRITER_HOLD_S (ad-hoc legs; the receipt records the effective
+# value so an override is never silent) and swept by
+# --probe-fifo-hold-ladder-r70. The default stays 1.0 s so every prior
+# member/receipt is byte-stable.
+TRANSPORT_R67_FIFO_WRITER_HOLD_S = 1.0
+FIFO_WRITER_HOLD_ENV = "MEASURE_FIFO_WRITER_HOLD_S"
+# r70 ladder grid + the chunked-feed variant shape. chunked keeps the writer
+# continuously attached during delivery (~CHUNKS*GAP s of attach window
+# before the post-write hold) — the 'correctly blocking writer' arm of the
+# r70 claim: if the verdict is binary on writer-attached-at-open-#2, chunked
+# is stable at hold 0 whenever the feed window alone covers open #2.
+TRANSPORT_R70_HOLDS = (0.0, 0.05, 0.2, 0.5, 1.0, 2.0)
+TRANSPORT_R70_REPS = 10
+TRANSPORT_R70_FEEDS = ("oneshot", "chunked")
+TRANSPORT_R70_CHUNK_BYTES = 100
+TRANSPORT_R70_CHUNK_GAP_S = 0.05
+TRANSPORT_R70_MEMBER = "dec_act"
+# r68 post-table fallback axis: members whose verdict exercises the path
+# AFTER the CHECK table returns NULL (posttable_nomatch) or a reader-level
+# !seekable gate downstream of a real detection (txw_piperefuse). The .wav
+# extension on posttable_nomatch is part of the member contract — the
+# post-table fallback is lsx_find_file_extension(path), so named arms route
+# to the wav reader while anonymous '-' arms can't determine a type.
+TRANSPORT_R68_MEMBERS = {
+    "posttable_nomatch": ("round-68", "posttable_nomatch.wav"),
+    "txw_piperefuse": ("round-68", "txw_piperefuse.wav"),
+}
+# r69 extension-suffix axis: ONE no-match byte buffer under five names.
+# Inside the named arm the extension alone selects the post-table handler
+# (wav reader / no-handler / txw reader / f32 raw decode); the .snd name is
+# the only member whose DETECTION fires — the ext-gated sndr CHECK row
+# (formats.c:247-248) matches \0\0@0 ^ \0@7 — so detection itself, not just
+# the decode verdict, forks on transport name. All five files carry
+# identical bytes (sha256 f073e70a…); anonymous '-' arms have no extension
+# and stay can't-determine on every member.
+TRANSPORT_R69_MEMBERS = {
+    "extsuffix_wav": ("round-69", "extsuffix_nomatch.wav"),
+    "extsuffix_bin": ("round-69", "extsuffix_nomatch.bin"),
+    "extsuffix_txw": ("round-69", "extsuffix_nomatch.txw"),
+    "extsuffix_f32": ("round-69", "extsuffix_nomatch.f32"),
+    "extsuffix_snd": ("round-69", "extsuffix_nomatch.snd"),
+}
+
+
+def transport_error(text):
+    """Normalized verdict: message after the input-name close-quote on the last
+    `sox FAIL` line; None when no FAIL line (decode produced samples)."""
+    fails = [line for line in text.strip().splitlines() if "sox FAIL" in line]
+    if not fails:
+        return None
+    match = re.search(r"':\s*(.*)$", fails[-1])
+    return match.group(1) if match else fails[-1]
+
+
+def transport_leg(args, label, data=None, stdin=None):
+    """One bounded `sox -V6 <input> -n stat` leg -> detection+decode verdict."""
+    kw = {"input": data} if data is not None else ({"stdin": stdin} if stdin else {})
+    try:
+        proc = subprocess.run(args, capture_output=True,
+                              timeout=TRANSPORT_R67_ARM_TIMEOUT_S, **kw)
+        text = proc.stderr.decode(errors="replace")
+        code = proc.returncode
+        error = transport_error(text)
+    except subprocess.TimeoutExpired as exc:
+        text = (exc.stderr or b"").decode(errors="replace")
+        code = None
+        error = f"blocked: no verdict within {TRANSPORT_R67_ARM_TIMEOUT_S} s"
+    detected = re.search(r"detected file format type `(\S+?)'", text)
+    read = re.search(r"Samples read:\s*(\d+)", text)
+    leg = {"input": label,
+           "sox_detected_format": detected.group(1) if detected else None,
+           "sox_route": ("ffmpeg" if (detected and detected.group(1) == "act")
+                         or "(ffmpeg)" in text else "native" if detected else "none"),
+           "exit_code": code,
+           "samples_read": int(read.group(1)) if read else None,
+           "error": error}
+    tail = text.strip().splitlines()
+    if tail:
+        # ASLR context addresses and the concrete input path are stripped so
+        # the receipt stays byte-deterministic across transports and runs.
+        leg["stderr_tail"] = re.sub(r"`[^']*'", "`<input>'",
+                                    re.sub(r" @ 0x[0-9a-f]+\]", "]", tail[-1]))[-160:]
+    return leg
+
+
+def fifo_writer_hold_s():
+    """Effective fifo writer hold for the standard arm: the pinned 1.0 s
+    default unless MEASURE_FIFO_WRITER_HOLD_S overrides (ad-hoc legs only —
+    transport_protocol records the effective value, so an override is never
+    silent)."""
+    return float(os.environ.get(FIFO_WRITER_HOLD_ENV,
+                                TRANSPORT_R67_FIFO_WRITER_HOLD_S))
+
+
+def fifo_feed(fifo, data, hold_s, feed="oneshot"):
+    """Writer protocol of the fifo arm: open for write (blocks until the
+    reader attaches), deliver the member bytes per `feed`, then linger
+    hold_s holding the fifo open so the ffmpeg bridge's open #2 resolves.
+    "oneshot" is the r67 protocol verbatim; "chunked" writes CHUNK_BYTES
+    chunks separated by CHUNK_GAP_S — a continuously-attached feed window
+    before the same linger. OSError is swallowed so a reader that exits
+    early never crashes the writer thread."""
+    try:
+        with fifo.open("wb") as fh:
+            if feed == "chunked":
+                for i in range(0, len(data), TRANSPORT_R70_CHUNK_BYTES):
+                    fh.write(data[i:i + TRANSPORT_R70_CHUNK_BYTES])
+                    fh.flush()
+                    time.sleep(TRANSPORT_R70_CHUNK_GAP_S)
+            else:
+                fh.write(data)
+                fh.flush()
+            time.sleep(hold_s)
+    except OSError:
+        pass
+
+
+def fifo_feed_span_s(data_len, feed):
+    """Delivery window of the chunked feed (attach time before the hold)."""
+    if feed != "chunked":
+        return 0.0
+    return -(-data_len // TRANSPORT_R70_CHUNK_BYTES) * TRANSPORT_R70_CHUNK_GAP_S
+
+
+def reap_fifo_orphans(fifo):
+    """SIGKILL any survivor still carrying this fifo's path on its cmdline.
+
+    The sox ffmpeg bridge grandchild can escape the child's process group
+    (r70-critic observed one alive 5+ min after a blocked ladder leg —
+    killpg is necessary but not sufficient); a cmdline sweep is the
+    verdict-neutral backstop for both fifo legs."""
+    needle = str(fifo).encode()
+    for pid_dir in Path("/proc").iterdir():
+        if not pid_dir.name.isdigit():
+            continue
+        try:
+            cmd = (pid_dir / "cmdline").read_bytes()
+        except OSError:
+            continue
+        if needle in cmd:
+            try:
+                os.kill(int(pid_dir.name), signal.SIGKILL)
+            except OSError:
+                pass
+
+
+def transport_matrix(path, hold_s=None, feed="oneshot"):
+    """The member's detection+decode verdict on each of the four transports.
+    hold_s/feed parameterize only the fifo arm; defaults reproduce the r67
+    protocol (env-resolved 1.0 s oneshot) so prior receipts stay byte-stable."""
+    hold_s = fifo_writer_hold_s() if hold_s is None else hold_s
+    arms = {}
+    arms["file"] = transport_leg(["sox", "-V6", str(path), "-n", "stat"],
+                                 str(path.relative_to(ROOT)))
+    arms["stdin_pipe"] = transport_leg(["sox", "-V6", "-", "-n", "stat"], "-",
+                                       data=path.read_bytes())
+    with path.open("rb") as fh:
+        arms["redirected_fd"] = transport_leg(["sox", "-V6", "-", "-n", "stat"],
+                                              "-", stdin=fh)
+    with tempfile.TemporaryDirectory(prefix="transport-r67-") as tmp:
+        fifo = Path(tmp) / path.name
+        os.mkfifo(fifo)
+        data = path.read_bytes()
+
+        writer = threading.Thread(target=fifo_feed, args=(fifo, data, hold_s, feed),
+                                  daemon=True)
+        writer.start()
+        try:
+            arms["fifo_path"] = transport_leg(["sox", "-V6", str(fifo), "-n", "stat"],
+                                              path.name)
+        finally:
+            writer.join(timeout=hold_s + fifo_feed_span_s(len(data), feed) + 5)
+            reap_fifo_orphans(fifo)
+    for transport, named, seekable in TRANSPORT_R67_ARMS:
+        arms[transport]["named"] = named
+        arms[transport]["seekable"] = seekable
+    return arms
+
+
+def fifo_hold_leg(path, hold_s, feed):
+    """One fifo_path leg at an explicit writer hold + feed shape, for the r70
+    ladder. Verdict fields are identical to transport_leg; the
+    runner differs deliberately: the child runs in its own session and a
+    timeout kills the process GROUP, because a blocked leg means the ffmpeg
+    bridge grandchild is dead-locked in openat(fifo, O_RDONLY) (open #2 with
+    no writer attached) and a parent-only kill would orphan one sleeper per
+    rep."""
+    with tempfile.TemporaryDirectory(prefix="fifo-hold-r70-") as tmp:
+        fifo = Path(tmp) / path.name
+        os.mkfifo(fifo)
+        data = path.read_bytes()
+        writer = threading.Thread(target=fifo_feed, args=(fifo, data, hold_s, feed),
+                                  daemon=True)
+        writer.start()
+        try:
+            proc = subprocess.Popen(["sox", "-V6", str(fifo), "-n", "stat"],
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    start_new_session=True)
+            try:
+                _, err = proc.communicate(timeout=TRANSPORT_R67_ARM_TIMEOUT_S)
+                text = err.decode(errors="replace")
+                code = proc.returncode
+                emitted = transport_error(text)
+                error = emitted
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid, signal.SIGKILL)
+                _, err = proc.communicate()
+                text = err.decode(errors="replace")
+                code = None
+                # `error` stays the leg-level outcome (transport_leg's blocked
+                # convention); `verdict_emitted` records the FAIL line when the
+                # sox parent already emitted it — a blocked leg means the
+                # ffmpeg grandchild still holds the stderr pipe open while
+                # dead-blocked in openat, not that the verdict differed.
+                emitted = transport_error(text)
+                error = f"blocked: no verdict within {TRANSPORT_R67_ARM_TIMEOUT_S} s"
+            leg = {"input": path.name,
+                   "sox_detected_format": (m.group(1) if (m := re.search(
+                       r"detected file format type `(\S+?)'", text)) else None),
+                   "sox_route": None,
+                   "exit_code": code,
+                   "samples_read": (int(m.group(1)) if (m := re.search(
+                       r"Samples read:\s*(\d+)", text)) else None),
+                   "error": error, "verdict_emitted": emitted}
+            leg["sox_route"] = ("ffmpeg" if (leg["sox_detected_format"] == "act")
+                                or "(ffmpeg)" in text else
+                                "native" if leg["sox_detected_format"] else "none")
+            tail = text.strip().splitlines()
+            if tail:
+                leg["stderr_tail"] = re.sub(r"`[^']*'", "`<input>'",
+                                            re.sub(r" @ 0x[0-9a-f]+\]", "]",
+                                                   tail[-1]))[-160:]
+        finally:
+            writer.join(timeout=hold_s + fifo_feed_span_s(len(data), feed) + 5)
+            reap_fifo_orphans(fifo)
+    leg["named"], leg["seekable"] = True, False
+    return leg
+
+
+def fifo_hold_ladder_entry(member, path):
+    """r70 receipt entry: the fifo writer-hold LADDER on the dec_act member —
+    per-{feed, hold} cell verdict distributions, not a point pin. h* per feed
+    is the smallest hold whose entire distribution equals the pinned arm's
+    signature; None when no hold in the ladder is rep-stable."""
+    cells = []
+    for feed in TRANSPORT_R70_FEEDS:
+        for hold in TRANSPORT_R70_HOLDS:
+            reps = []
+            for rep in range(TRANSPORT_R70_REPS):
+                leg = fifo_hold_leg(path, hold, feed)
+                leg["rep"] = rep
+                reps.append(leg)
+            dist = {}
+            for leg in reps:
+                sig = json.dumps([leg["sox_detected_format"], leg["sox_route"],
+                                  leg["exit_code"], leg["samples_read"],
+                                  leg["error"]])
+                dist[sig] = dist.get(sig, 0) + 1
+            cells.append({"fifo_feed": feed, "fifo_writer_hold_s": hold,
+                          "reps_planned": TRANSPORT_R70_REPS, "reps": reps,
+                          "verdict_distribution": [
+                              {"signature": dict(zip(
+                                  ("sox_detected_format", "sox_route", "exit_code",
+                                   "samples_read", "error"), json.loads(sig))),
+                               "count": count}
+                              for sig, count in sorted(dist.items(),
+                                                       key=lambda kv: -kv[1])]})
+    # The reference verdict is the pinned arm's signature (oneshot @1.0 s —
+    # the value every committed receipt carries).
+    pinned = next(c for c in cells
+                  if c["fifo_feed"] == "oneshot" and
+                  c["fifo_writer_hold_s"] == TRANSPORT_R67_FIFO_WRITER_HOLD_S)
+    pinned_dist = pinned["verdict_distribution"]
+    reference = (pinned_dist[0]["signature"]
+                 if len(pinned_dist) == 1 and
+                 pinned_dist[0]["count"] == TRANSPORT_R70_REPS else None)
+    divergent = {}
+    bands = {}
+    for feed in TRANSPORT_R70_FEEDS:
+        feed_cells = [c for c in cells if c["fifo_feed"] == feed]
+        stable = [c["fifo_writer_hold_s"] for c in feed_cells
+                  if len(c["verdict_distribution"]) == 1 and
+                  c["verdict_distribution"][0]["signature"] == reference]
+        # The honest bound shape (r70-critic): not a point h* but the
+        # transition zone — the highest hold still diverging from the
+        # pinned signature vs the lowest all-stable hold, per feed, on
+        # THIS run's host load. A ms-scale fifo race makes h* a
+        # load-dependent zone, never a host constant.
+        div_holds = [c["fifo_writer_hold_s"] for c in feed_cells
+                     if not (len(c["verdict_distribution"]) == 1 and
+                             c["verdict_distribution"][0]["signature"]
+                             == reference)]
+        bands[feed] = {
+            "max_divergent_hold_s": max(div_holds) if div_holds else None,
+            "min_stable_hold_s": min(stable) if stable else None}
+        divergent[feed] = [
+            {"fifo_writer_hold_s": c["fifo_writer_hold_s"],
+             "verdict_distribution": c["verdict_distribution"]}
+            for c in feed_cells
+            if not (len(c["verdict_distribution"]) == 1 and
+                    c["verdict_distribution"][0]["signature"] == reference)]
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "probe": "fifo_writer_hold_s determinism ladder — 1.0 s as a measured bound",
+             "transport_protocol": {
+                 "arm_timeout_s": TRANSPORT_R67_ARM_TIMEOUT_S,
+                 "fifo_writer_hold_s_ladder": list(TRANSPORT_R70_HOLDS),
+                 "fifo_feeds": {
+                     "oneshot": "one-shot write then writer lingers",
+                     "chunked": (f"{TRANSPORT_R70_CHUNK_BYTES}-B chunked write "
+                                 f"({TRANSPORT_R70_CHUNK_GAP_S} s inter-chunk) "
+                                 f"then writer lingers")},
+                 "reps_per_cell": TRANSPORT_R70_REPS,
+                 "timeout_kill": ("process-group SIGKILL (start_new_session + "
+                                  "killpg) + a /proc cmdline reap sweep — the "
+                                  "bridge grandchild can escape the child's "
+                                  "group (r70-critic falsified killpg-only "
+                                  "via a 5+-min survivor)")},
+             "hold_ladder": cells,
+             "reference_signature": reference,
+             # Critic-corrected shape: a transition zone per feed, not a
+             # point h*. chunked@h*=0 is the binary-arm control (feed
+             # duration itself spans open-#2), not a hold bound.
+             "hold_transition_band_s": bands,
+             "hstar_semantics": ("load-dependent transition zone on this "
+                                 "host/run — {max divergent, min all-stable} "
+                                 "per feed — never a host constant; the "
+                                 "outcome space is attach x "
+                                 "close-before-deadline, not "
+                                 "binary-on-attach"),
+             "failures": []}
+    if reference is None:
+        entry["failures"].append(
+            "transport: fifo arm non-deterministic at the pinned hold "
+            f"{TRANSPORT_R67_FIFO_WRITER_HOLD_S} s: {pinned_dist}")
+    for feed in TRANSPORT_R70_FEEDS:
+        if divergent[feed]:
+            desc = ", ".join(
+                f"h={d['fifo_writer_hold_s']} -> " +
+                "/".join(f"{s['count']}x(exit {s['signature']['exit_code']}, "
+                         f"{s['signature']['error']})"
+                         for s in d["verdict_distribution"])
+                for d in divergent[feed])
+            entry["failures"].append(
+                f"transport: {feed} fifo verdict diverges from the pinned "
+                f"signature below/around the measured bound ({desc}); "
+                f"transition band {bands[feed]}")
+    return entry
+
+
+# r71 second-decoder runtime: ffmpeg n9.0.1 / ffprobe on the same members and
+# the same 4-transport matrix. Declared falsifiable claim: ffmpeg tracks
+# CONTENT probing, not the suffix axis -- it accepts members SoX
+# extension-rejects when content is parseable, and rejects by content where
+# SoX accepts by suffix. The member set reuses the tracked transport corpus:
+# r69's five identical-byte extension members isolate the suffix axis; the
+# r68 pair isolates post-table/no-match content; dec_act/dec_hcom are the
+# ffmpeg-bridge members whose SoX verdicts already route through ffmpeg.
+TRANSPORT_R71_MEMBERS = {
+    "posttable_nomatch": TRANSPORT_R68_MEMBERS["posttable_nomatch"],
+    "txw_piperefuse": TRANSPORT_R68_MEMBERS["txw_piperefuse"],
+    "dec_act": TRANSPORT_R67_MEMBERS["dec_act"],
+    "dec_hcom": TRANSPORT_R67_MEMBERS["dec_hcom"],
+    "extsuffix_wav": TRANSPORT_R69_MEMBERS["extsuffix_wav"],
+    "extsuffix_bin": TRANSPORT_R69_MEMBERS["extsuffix_bin"],
+    "extsuffix_txw": TRANSPORT_R69_MEMBERS["extsuffix_txw"],
+    "extsuffix_f32": TRANSPORT_R69_MEMBERS["extsuffix_f32"],
+    "extsuffix_snd": TRANSPORT_R69_MEMBERS["extsuffix_snd"],
+}
+TRANSPORT_R71_ARM_TIMEOUT_S = 15
+
+
+def ffprobe_leg(path_arg, label, data=None, stdin_path=None, feed=None):
+    """One bounded ffmpeg leg -> detection + decode verdict.
+
+    ffprobe reports the detection verdict (format_name + probe_score);
+    `ffmpeg -v error -i <in> -f null -` reports the decode verdict.
+    <in> is a path for named transports or `pipe:` for the anonymous
+    stdin transports. stderr tails keep ASLR/path normalization.
+
+    `feed` = (fifo_dir, filename, data, hold_s): when given, EACH of the
+    two subprocesses gets its own fifo + writer — the r71 fix for the
+    r67-analog defect where the second process opened the (already
+    writer-dead) fifo and blocked forever. transport_protocol records the
+    effective hold so an env override is never silent."""
+    kw = {"input": data} if data is not None else {}
+    # stdin_path: a SEEKABLE backing fd for the `pipe:` protocol — each
+    # subprocess must get a FRESH fd at offset 0 (an fh consumed by the
+    # ffprobe leg would leave ffmpeg reading EOF; measured r71 artifact).
+    if stdin_path is not None:
+        data = None
+
+    def run(argv, fifodata=None):
+        fh = open(stdin_path, "rb") if stdin_path is not None else None
+        if fifodata is None:
+            try:
+                proc = subprocess.run(argv, capture_output=True,
+                                      timeout=TRANSPORT_R71_ARM_TIMEOUT_S,
+                                      stdin=fh, **kw)
+                return (proc.stdout.decode(errors="replace"),
+                        proc.stderr.decode(errors="replace"),
+                        proc.returncode, None)
+            except subprocess.TimeoutExpired as exc:
+                err = exc.stderr or b""
+                return ((exc.stdout or b"").decode(errors="replace"),
+                        err.decode(errors="replace"), None,
+                        f"blocked: no verdict within {TRANSPORT_R71_ARM_TIMEOUT_S} s")
+            finally:
+                if fh is not None:
+                    fh.close()
+        tmp, fname, bytes_, hold = fifodata
+        fifo = Path(tmp) / fname
+        os.mkfifo(fifo)
+        writer = threading.Thread(target=fifo_feed, args=(fifo, bytes_, hold),
+                                  daemon=True)
+        writer.start()
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=TRANSPORT_R71_ARM_TIMEOUT_S)
+            return (proc.stdout.decode(errors="replace"),
+                    proc.stderr.decode(errors="replace"),
+                    proc.returncode, None)
+        except subprocess.TimeoutExpired as exc:
+            err = exc.stderr or b""
+            return ((exc.stdout or b"").decode(errors="replace"),
+                    err.decode(errors="replace"), None,
+                    f"blocked: no verdict within {TRANSPORT_R71_ARM_TIMEOUT_S} s")
+        finally:
+            writer.join(timeout=hold + 5)
+            reap_fifo_orphans(fifo)
+            fifo.unlink(missing_ok=True)
+
+    if feed is None:
+        probe_arg, fifodata = path_arg, None
+    else:
+        probe_arg, fifodata = str(Path(feed[0]) / feed[1]), feed
+    pout, perr, pcode, perr_msg = run(
+        ["ffprobe", "-v", "error", "-show_entries",
+         "format=format_name,probe_score", "-of", "json", probe_arg],
+        fifodata)
+    fmt, score = None, None
+    if pout.strip():
+        try:
+            j = json.loads(pout)
+            fmt = j.get("format", {}).get("format_name")
+            score = j.get("format", {}).get("probe_score")
+        except json.JSONDecodeError:
+            fmt = "json-parse-error"
+    def _tail(err):
+        lines = err.strip().splitlines()
+        if not lines:
+            return None
+        t = re.sub(r"`[^']*'", "`<input>'", lines[-1])
+        t = re.sub(r" @ 0x[0-9a-fA-F]+", "", t)   # ASLR module tags
+        return t.replace(probe_arg, "<input>")[-160:]
+
+    ptail = _tail(perr)
+
+    dout, derr, dcode, derr_msg = run(
+        ["ffmpeg", "-v", "error", "-i", probe_arg, "-f", "null", "-"],
+        fifodata)
+    dtail = _tail(derr)
+
+    return {"input": label,
+            "ffprobe_format": fmt, "probe_score": score,
+            "ffprobe_exit": pcode, "ffprobe_error": perr_msg or ptail,
+            "ffmpeg_exit": dcode, "ffmpeg_error": derr_msg or dtail}
+
+
+def ffmpeg_transport_matrix(path, hold_s=None):
+    """The member's ffmpeg verdict on each of the four transports. The fifo
+    arm reuses the r67/r70 writer protocol (same fifo_feed + hold + reap) —
+    a fifo reader with no attached writer blocks at open() just like sox's
+    ffmpeg bridge."""
+    hold_s = fifo_writer_hold_s() if hold_s is None else hold_s
+    rel = str(path.relative_to(ROOT))
+    arms = {}
+    arms["file"] = ffprobe_leg(str(path), rel)
+    data = path.read_bytes()
+    arms["stdin_pipe"] = ffprobe_leg("pipe:", "pipe:", data=data)
+    arms["redirected_fd"] = ffprobe_leg("pipe:", "pipe:", stdin_path=str(path))
+    with tempfile.TemporaryDirectory(prefix="transport-r71-") as tmp:
+        arms["fifo_path"] = ffprobe_leg(None, path.name,
+                                        feed=(tmp, path.name, data, hold_s))
+    for transport, named, seekable in TRANSPORT_R67_ARMS:
+        arms[transport]["named"] = named
+        arms[transport]["seekable"] = seekable
+    return arms
+
+
+def ffprobe_transport_entry(member, path):
+    """r71 receipt entry: ffmpeg's per-transport verdict groups for one
+    member -- the cross-decoder partition. Groups key on the ffmpeg
+    detection+decode signature so a transport fork lands in the receipt,
+    and ffprobe_groups key on the detection signature alone (ffmpeg can
+    decode-diverge where ffprobe detection agrees)."""
+    arms = ffmpeg_transport_matrix(path)
+    groups, pgroups = [], []
+    for transport in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+        arm = arms[transport]
+        sig = (arm["ffprobe_format"], arm["ffmpeg_exit"], arm["ffmpeg_error"])
+        psig = (arm["ffprobe_format"], arm["ffprobe_exit"], arm["ffprobe_error"])
+        for group in groups:
+            if group[0] == sig:
+                group[1].append(transport); break
+        else:
+            groups.append((sig, [transport]))
+        for group in pgroups:
+            if group[0] == psig:
+                group[1].append(transport); break
+        else:
+            pgroups.append((psig, [transport]))
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "decoder": "ffmpeg/ffprobe",
+             "transport_axis": arms,
+             "transport_protocol": {"arm_timeout_s": TRANSPORT_R71_ARM_TIMEOUT_S,
+                                    "fifo_writer_hold_s": fifo_writer_hold_s(),
+                                    "fifo_feed": "one-shot write then writer lingers"},
+             "transport_verdict_groups": [
+                 {"transports": ts, "ffprobe_format": sig[0],
+                  "ffmpeg_exit": sig[1], "ffmpeg_error": sig[2]}
+                 for sig, ts in groups],
+             "ffprobe_verdict_groups": [
+                 {"transports": ts, "ffprobe_format": sig[0],
+                  "ffprobe_exit": sig[1], "ffprobe_error": sig[2]}
+                 for sig, ts in pgroups],
+             "transport_fork": len(groups) > 1,
+             "failures": []}
+    if entry["transport_fork"]:
+        desc = " vs ".join("/".join(ts) + "=" + (sig[2] or str(sig[0]))
+                           for sig, ts in groups)
+        entry["failures"].append(
+            f"transport: ffmpeg verdict forks across transports ({desc})")
+    return entry
+
+
+TRANSPORT_R72_MEMBERS = TRANSPORT_R71_MEMBERS   # same canonical 9
+
+
+class _SF_INFO(ctypes.Structure):
+    _fields_ = [("frames", ctypes.c_int64), ("samplerate", ctypes.c_int),
+                ("channels", ctypes.c_int), ("format", ctypes.c_int),
+                ("sections", ctypes.c_int), ("seekable", ctypes.c_int)]
+
+
+class _SF_FORMAT_INFO(ctypes.Structure):
+    _fields_ = [("format", ctypes.c_int), ("name", ctypes.c_char_p),
+                ("extension", ctypes.c_char_p)]
+
+
+try:
+    _SNDFILE = ctypes.CDLL("libsndfile.so.1")
+except OSError:
+    # Host without libsndfile: the r72 legs record a blocked verdict and
+    # every other fixture mode still imports + runs.
+    _SNDFILE = None
+if _SNDFILE is not None:
+    _SNDFILE.sf_version_string.restype = ctypes.c_char_p
+    _SNDFILE.sf_open.restype = ctypes.c_void_p
+    _SNDFILE.sf_open.argtypes = [ctypes.c_char_p, ctypes.c_int,
+                                 ctypes.POINTER(_SF_INFO)]
+    _SNDFILE.sf_open_fd.restype = ctypes.c_void_p
+    _SNDFILE.sf_open_fd.argtypes = [ctypes.c_int, ctypes.c_int,
+                                    ctypes.POINTER(_SF_INFO), ctypes.c_int]
+    _SNDFILE.sf_close.argtypes = [ctypes.c_void_p]
+    _SNDFILE.sf_strerror.restype = ctypes.c_char_p
+    _SNDFILE.sf_strerror.argtypes = [ctypes.c_void_p]
+    _SNDFILE.sf_error_str.restype = ctypes.c_char_p
+    _SNDFILE.sf_error_str.argtypes = [ctypes.c_void_p, ctypes.c_char_p,
+                                      ctypes.c_size_t]
+    _SNDFILE.sf_format_check.argtypes = [ctypes.POINTER(_SF_INFO)]
+    _SNDFILE.sf_command.restype = ctypes.c_int
+    _SNDFILE.sf_command.argtypes = [ctypes.c_void_p, ctypes.c_int,
+                                   ctypes.c_void_p, ctypes.c_int]
+    _SNDFILE.sf_readf_short.restype = ctypes.c_int64
+    _SNDFILE.sf_readf_short.argtypes = [ctypes.c_void_p,
+                                        ctypes.POINTER(ctypes.c_short),
+                                        ctypes.c_int64]
+_SFM_READ = 0x10
+_SFC_GET_FORMAT_MAJOR_COUNT = 0x1030
+_SFC_GET_FORMAT_MAJOR = 0x1031
+_SFC_GET_FORMAT_SUBTYPE_COUNT = 0x1032
+_SFC_GET_FORMAT_SUBTYPE = 0x1033
+
+
+def _sndfile_format_names():
+    def enum(count_cmd, item_cmd):
+        n = ctypes.c_int(0)
+        _SNDFILE.sf_command(None, count_cmd, ctypes.byref(n), ctypes.sizeof(n))
+        out = {}
+        for i in range(n.value):
+            fi = _SF_FORMAT_INFO()
+            fi.format = i
+            _SNDFILE.sf_command(None, item_cmd, ctypes.byref(fi),
+                                ctypes.sizeof(fi))
+            out[fi.format] = (fi.name.decode(),
+                              (fi.extension or b"").decode())
+        return out
+    return {"majors": enum(_SFC_GET_FORMAT_MAJOR_COUNT, _SFC_GET_FORMAT_MAJOR),
+            "subs": enum(_SFC_GET_FORMAT_SUBTYPE_COUNT, _SFC_GET_FORMAT_SUBTYPE)}
+
+
+_SNDFILE_NAMES = (_sndfile_format_names() if _SNDFILE is not None
+                  else {"majors": {}, "subs": {}})
+
+
+def _sndfile_verdict(snd, info):
+    """Detection + decode verdict for one opened handle. Decode is a
+    single sf_readf_short drain with a 65536-frame cap — equal to a full
+    drain on this corpus (largest member = 500 frames), not a proof of
+    drain semantics past the cap."""
+    if not snd:
+        return {"format_hex": None, "format_name": None, "format_check": None,
+                "frames": None, "samplerate": None, "channels": None,
+                "sf_seekable": None, "read_frames": None,
+                "error": _SNDFILE.sf_strerror(None).decode(errors="replace"),
+                "error_str": None}
+    names = _SNDFILE_NAMES
+    mj = names["majors"].get(info.format & 0x0FFF0000, (None, None))
+    st = names["subs"].get(info.format & 0x0000FFFF, (None, None))
+    buf = (ctypes.c_short * 65536)()
+    got = _SNDFILE.sf_readf_short(snd, buf, 65536)
+    errbuf = ctypes.create_string_buffer(256)
+    _SNDFILE.sf_error_str(snd, errbuf, 256)
+    raw = errbuf.value.decode(errors="replace")
+    _SNDFILE.sf_close(snd)
+    return {"format_hex": hex(info.format),
+            "format_name": f"{mj[0]}/{st[0]}" if mj[0] else None,
+            "format_check": bool(_SNDFILE.sf_format_check(ctypes.byref(info))),
+            "frames": info.frames, "samplerate": info.samplerate,
+            "channels": info.channels, "sf_seekable": bool(info.seekable),
+            "read_frames": got, "error": None,
+            "error_str": None if raw in ("", "No Error.") else raw}
+
+
+def _sndfile_leg(transport, path, data, hold_s):
+    """One libsndfile leg, in-process (ctypes) so the anonymous arms use
+    sf_open_fd honestly (a /dev/stdin path would be a NAMED open)."""
+    if _SNDFILE is None:
+        return {"format_hex": None, "format_name": None,
+                "format_check": None, "frames": None, "samplerate": None,
+                "channels": None, "sf_seekable": None, "read_frames": None,
+                "error": "blocked: libsndfile unavailable on host",
+                "error_str": None}
+    class _Timeout(Exception):
+        pass
+    def _alarm(signum, frame):
+        raise _Timeout()
+    prev = signal.signal(signal.SIGALRM, _alarm)
+    signal.setitimer(signal.ITIMER_REAL, TRANSPORT_R71_ARM_TIMEOUT_S)
+    try:
+        if transport == "file":
+            info = _SF_INFO()
+            return _sndfile_verdict(
+                _SNDFILE.sf_open(os.fsencode(str(path)), _SFM_READ,
+                                 ctypes.byref(info)), info)
+        if transport == "stdin_pipe":
+            r, w = os.pipe()
+            try:
+                os.write(w, data)
+                os.close(w)
+                info = _SF_INFO()
+                return _sndfile_verdict(
+                    _SNDFILE.sf_open_fd(r, _SFM_READ, ctypes.byref(info), 0),
+                    info)
+            finally:
+                os.close(r)
+        if transport == "redirected_fd":
+            fd = os.open(str(path), os.O_RDONLY)
+            try:
+                info = _SF_INFO()
+                return _sndfile_verdict(
+                    _SNDFILE.sf_open_fd(fd, _SFM_READ, ctypes.byref(info), 0),
+                    info)
+            finally:
+                os.close(fd)
+        # fifo_path: named open of a real fifo; per-process writer (r71
+        # convention: a consumer chain needs a fresh fifo+writer each)
+        with tempfile.TemporaryDirectory(prefix="sndfile-r72-") as tmp:
+            fifo = os.path.join(tmp, os.path.basename(str(path)))
+            os.mkfifo(fifo)
+            def feed():
+                try:
+                    with open(fifo, "wb") as w:
+                        w.write(data)
+                except OSError:
+                    pass
+                time.sleep(hold_s)
+            t = threading.Thread(target=feed, daemon=True)
+            t.start()
+            try:
+                info = _SF_INFO()
+                return _sndfile_verdict(
+                    _SNDFILE.sf_open(os.fsencode(fifo), _SFM_READ,
+                                     ctypes.byref(info)), info)
+            finally:
+                t.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+    except _Timeout:
+        return {"format_hex": None, "format_name": None, "format_check": None,
+                "frames": None, "samplerate": None, "channels": None,
+                "sf_seekable": None, "read_frames": None,
+                "error": f"blocked: no verdict within {TRANSPORT_R71_ARM_TIMEOUT_S} s",
+                "error_str": None}
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, prev)
+
+
+def sndfile_transport_entry(member, path):
+    """r72 receipt entry: THIRD DECODER (libsndfile) on the canonical
+    member x transport matrix. Decode verdict = one sf_readf_short drain
+    (65536-frame cap, equal to full drain on this corpus); detection =
+    the sf_open'ed SF_INFO format + name table. The receipt records the
+    measured decoder partition; a transport fork lands as a failure per
+    the r67 convention."""
+    if _SNDFILE is None:
+        return {"path": str(path.relative_to(ROOT)), "pair_member": member,
+                "decoder": "libsndfile unavailable",
+                "transport_axis": {},
+                "transport_protocol": {"runtime": "blocked: libsndfile "
+                                                  "unavailable on host"},
+                "sndfile_info_cli": None,
+                "transport_verdict_groups": [],
+                "transport_fork": False,
+                "failures": ["runtime: libsndfile unavailable on host"]}
+    hold_s = fifo_writer_hold_s()
+    data = path.read_bytes()
+    arms = {t: _sndfile_leg(t, path, data, hold_s)
+            for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
+    for t, named, seekable in (("file", True, True), ("stdin_pipe", False, False),
+                               ("redirected_fd", False, True),
+                               ("fifo_path", True, False)):
+        arms[t]["named"], arms[t]["seekable"] = named, seekable
+    # sndfile-info CLI leg on the file arm only — exits 0 even on reject;
+    # its Frames line is the container field, not a decode count (critic:
+    # never key a verdict on it). Anonymous arms have no honest CLI arm.
+    cli = None
+    try:
+        proc = subprocess.run(["sndfile-info", str(path)],
+                              capture_output=True, timeout=15)
+        out = proc.stdout.decode(errors="replace")
+        def _find(rx):
+            m = re.search(rx, out, re.M)
+            return m.group(1).strip() if m else None
+        lines = [ln.strip() for ln in out.strip().splitlines() if ln.strip()]
+        cli = {"exit": proc.returncode,
+               "format_hex": _find(r"^Format\s*:\s*(0x[0-9A-Fa-f]+)"),
+               "frames_field": _find(r"^Frames\s*:\s*(\S+)"),
+               "reason": (lines[-1] if lines and "Error" in out else None)}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        cli = {"exit": None, "error": str(exc)[:120]}
+    groups = []
+    for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+        sig = (arms[t]["format_name"], arms[t]["read_frames"], arms[t]["error"])
+        for g in groups:
+            if g[0] == sig:
+                g[1].append(t); break
+        else:
+            groups.append((sig, [t]))
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "decoder": "libsndfile " +
+                        _SNDFILE.sf_version_string().decode(errors="replace"),
+             "transport_axis": arms,
+             "transport_protocol": {"arm_timeout_s": TRANSPORT_R71_ARM_TIMEOUT_S,
+                                    "fifo_writer_hold_s": hold_s,
+                                    "fifo_feed": "one-shot write then writer lingers"},
+             "sndfile_info_cli": cli,
+             "transport_verdict_groups": [
+                 {"transports": ts, "sndfile_format": sig[0],
+                  "read_frames": sig[1], "error": sig[2]}
+                 for sig, ts in groups],
+             "transport_fork": len(groups) > 1,
+             "failures": []}
+    if entry["transport_fork"]:
+        desc = " vs ".join("/".join(ts) + "=" + (sig[2] or str(sig[0]))
+                           for sig, ts in groups)
+        entry["failures"].append(
+            f"transport: libsndfile verdict forks across transports ({desc})")
+    return entry
+
+
+# r73 CONSUMER-class expansion: playback consumers (not decoder runtimes) on
+# the canonical member x transport matrix.
+#   pw-cat (PipeWire realtime playback) decodes via libsndfile — `sndfile:`
+#   error lines — and paces consumption at playback rate. Viability is
+#   conditional on a reachable daemon: the pw_context_connect gate fires
+#   BEFORE the input is opened (ops entry records both sides; frontier
+#   measured instant rc=1 "Host is down" with an empty runtime dir).
+#   mpv detects by content via libavformat on every transport and, on
+#   exactly one tracked member, forks at the demux/seek layer: a seekable
+#   hcom stream gets lavf's "refresh seek to 0" which fails with a
+#   SYNTHETIC EPERM (hcom has no .read_seek; EPERM = strerror(-1) — strace
+#   shows zero failing syscalls) after stream probing drained the whole
+#   member (zero data -> rc=2), while the same bytes on a non-seekable
+#   stream skip the refresh and decode (rc=0). r73 adjudicated: the
+#   briefed class-polarity partition was FALSIFIED corpus-wide — two
+#   member-local forks only (mpv x dec_hcom seekable-bit wound; pw-cat x
+#   .snd name-axis via its libsndfile decode layer); the other 7 members
+#   are transport-invariant on both consumers.
+CONSUMER_R73_MEMBERS = TRANSPORT_R72_MEMBERS   # same canonical 9
+CONSUMER_R73_TIMEOUT_S = 15
+# Pacing member: a base SPEC artifact (4.0 s programme) — long enough for
+# playback-paced consumption to be measurable against instant delivery.
+CONSUMER_R73_PACER = ARTIFACTS / "stem_sections.wav"
+CONSUMER_R73_PACER_DURATION_S = 4.0
+CONSUMER_R73_NOWRITER_WAIT_S = 3.0
+CONSUMER_R73_TRICKLE_CHUNKS = 8
+CONSUMER_R73_TRICKLE_GAP_S = 0.75
+
+
+def _consumer_tail(text, probe_arg):
+    """Normalized last-line tail: mpv `[t][lvl][mod]` log tags, quoted input
+    paths, backtick names and ASLR tags stripped so the receipt is
+    byte-deterministic across transports and runs."""
+    lines = text.strip().splitlines()
+    if not lines:
+        return None
+    t = re.sub(r"^\s*(\[[^\]]*\])+\s*", "", lines[-1])
+    t = re.sub(r"`[^']*'", "`<input>'", t)
+    t = re.sub(r'"[^"]*"', '"<input>"', t)
+    t = re.sub(r" @ 0x[0-9a-fA-F]+", "", t)
+    return t.replace(str(probe_arg), "<input>")[-160:]
+
+
+def _pwcat_fields(text):
+    """pw-cat's decode layer is libsndfile: the `sndfile:` line carries the
+    format verdict, the trailing `error:` line the stream/open verdict."""
+    m = re.search(r'sndfile: failed to open audio file "[^"]*":\s*(.*)', text)
+    sndfile_err = m.group(1).strip() if m else None
+    errs = [ln for ln in text.strip().splitlines() if ln.startswith("error:")]
+    pw_err = errs[-1].split(":", 1)[1].strip() if errs else None
+    return sndfile_err, pw_err
+
+
+def pwcat_leg(transport, path, data, hold_s):
+    """One bounded `pw-cat -p <in>` playback leg -> stream-consume verdict.
+
+    <in> is a path for the named transports or `-` (stdin) for the
+    anonymous arms — a pipe for stdin_pipe, a fresh O_RDONLY fd (anonymous
+    but SEEKABLE) for redirected_fd. The fifo arm reuses the r67 writer
+    protocol; pw-cat single-opens its input (no re-open bridge — the hold
+    only keeps parity with sibling arms) and exits rc=0 at writer EOF.
+    A timeout means open()/read() waits on a writer; subprocess's
+    timeout-kill is SIGKILL — the only signal a fifo-blocked pw-cat honors
+    (frontier measured >30 s SIGTERM survival in open())."""
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=CONSUMER_R73_TIMEOUT_S, **kw)
+            return proc.stderr.decode(errors="replace"), proc.returncode, None
+        except subprocess.TimeoutExpired as exc:
+            return ((exc.stderr or b"").decode(errors="replace"), None,
+                    f"blocked: no verdict within {CONSUMER_R73_TIMEOUT_S} s")
+
+    if transport == "file":
+        text, code, blocked = run(["pw-cat", "-p", str(path)])
+        label = str(path.relative_to(ROOT))
+    elif transport == "stdin_pipe":
+        text, code, blocked = run(["pw-cat", "-p", "-"], input=data)
+        label = "-"
+    elif transport == "redirected_fd":
+        with path.open("rb") as fh:
+            text, code, blocked = run(["pw-cat", "-p", "-"], stdin=fh)
+        label = "-"
+    else:
+        with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                text, code, blocked = run(["pw-cat", "-p", str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+        label = path.name
+    sndfile_err, pw_err = _pwcat_fields(text)
+    leg = {"input": label, "exit_code": code,
+           "sndfile_error": sndfile_err, "pw_error": pw_err,
+           "error": blocked or sndfile_err or pw_err}
+    tail = _consumer_tail(text, label)
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+def mpv_leg(transport, path, data, hold_s):
+    """One bounded mpv playback leg -> mandatory-seek consumer verdict.
+
+    mpv sniffs content via libavformat on every transport; `--log-file` is
+    the parse surface (--really-quiet leaves the console empty), decoded
+    with ao/vo null so no device is needed. <in> is a path for the named
+    transports or `-` (stdin) for the anonymous arms — a pipe for
+    stdin_pipe, a fresh O_RDONLY fd for redirected_fd (anonymous but
+    SEEKABLE: lavf treats the fd as seekable and attempts the refresh
+    seek, grouping it with the file arm). The fifo arm reuses the r67
+    writer protocol; mpv exits at writer EOF."""
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=CONSUMER_R73_TIMEOUT_S, **kw)
+            return proc.returncode, None
+        except subprocess.TimeoutExpired:
+            return None, f"blocked: no verdict within {CONSUMER_R73_TIMEOUT_S} s"
+
+    with tempfile.TemporaryDirectory(prefix="mpv-r73-") as tmp:
+        log = Path(tmp) / "mpv.log"
+        argv = ["mpv", "--no-config", "--vo=null", "--ao=null",
+                "--audio-display=no", "--really-quiet", f"--log-file={log}"]
+        if transport == "file":
+            code, blocked = run(argv + [str(path)])
+            label = str(path.relative_to(ROOT))
+        elif transport == "stdin_pipe":
+            code, blocked = run(argv + ["-"], input=data)
+            label = "-"
+        elif transport == "redirected_fd":
+            with path.open("rb") as fh:
+                code, blocked = run(argv + ["-"], stdin=fh)
+            label = "-"
+        else:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                code, blocked = run(argv + [str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+            label = path.name
+        text = log.read_text(errors="replace") if log.exists() else ""
+    detected = re.search(r"Detected file format: (\S+) \(libavformat\)", text)
+    probe = re.search(r"Found '([^']+)' at score=(\d+)", text)
+    seekfail = re.search(r"Seek failed \(([^)]*)\)", text)
+    track = re.search(r"Audio\s+--aid=1\s+\(([^)]*)\)", text)
+    verdict = re.search(r"finished playback, (.*)$", text, re.M)
+    reason = (verdict.group(1).strip() if verdict else
+              "Failed to recognize file format."
+              if "Failed to recognize file format" in text else None)
+    leg = {"input": label, "exit_code": code,
+           "lavf_detected": detected.group(1) if detected else None,
+           "lavf_probe": probe.group(1) if probe else None,
+           "lavf_score": int(probe.group(2)) if probe else None,
+           "stream_not_seekable": "Stream is not seekable" in text,
+           "refresh_seek": "refresh seek to" in text,
+           "seek_failed": seekfail.group(1) if seekfail else None,
+           "audio_track": track.group(1) if track else None,
+           "mpv_verdict": reason,
+           "error": blocked or (None if code == 0 else
+                                reason or f"exit {code}")}
+    return leg
+
+
+def consumer_transport_entry(member, path):
+    """r73 receipt entry: BOTH playback consumers on the member's transport
+    matrix. Each consumer gets its own verdict groups keyed on its verdict
+    signature; a fork lands as a failure per the r67 convention, keyed by
+    consumer so the receipt pins which polarity axis each one exercises."""
+    hold_s = fifo_writer_hold_s()
+    data = path.read_bytes()
+    consumers = {}
+    failures = []
+    for consumer in ("pw-cat", "mpv"):
+        legs = pwcat_leg if consumer == "pw-cat" else mpv_leg
+        arms = {t: legs(t, path, data, hold_s)
+                for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
+        for t, named, seekable in TRANSPORT_R67_ARMS:
+            arms[t]["named"], arms[t]["seekable"] = named, seekable
+        groups = []
+        for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+            a = arms[t]
+            sig = ((a["exit_code"], a["sndfile_error"]) if consumer == "pw-cat"
+                   else (a["exit_code"], a["lavf_detected"], a["seek_failed"]))
+            for g in groups:
+                if g[0] == sig:
+                    g[1].append(t)
+                    break
+            else:
+                groups.append((sig, [t]))
+        consumers[consumer] = {
+            "transport_axis": arms,
+            "transport_verdict_groups": [
+                {"transports": ts, "verdict": list(sig)}
+                for sig, ts in groups],
+            "transport_fork": len(groups) > 1}
+        if consumers[consumer]["transport_fork"]:
+            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
+                               for sig, ts in groups)
+            failures.append(f"transport: {consumer} verdict forks across "
+                            f"transports ({desc})")
+    return {"path": str(path.relative_to(ROOT)), "pair_member": member,
+            "consumers": consumers,
+            "consumer_protocol": {
+                "arm_timeout_s": CONSUMER_R73_TIMEOUT_S,
+                "fifo_writer_hold_s": hold_s,
+                "fifo_feed": "one-shot write then writer lingers",
+                "pwcat": ("pw-cat -p <in|-> — PipeWire realtime playback, "
+                          "libsndfile decode layer (sndfile: errors); "
+                          "SIGKILL-bound (survives SIGTERM fifo-blocked)"),
+                "mpv": ("mpv --no-config --vo=null --ao=null "
+                        "--audio-display=no --really-quiet "
+                        "--log-file=<tmp> <in|->")},
+            "failures": failures}
+
+
+def consumer_ops_entry():
+    """r73 ops entry — the member-independent pw-cat operational surface:
+    (a) daemon liveness + the pw_context_connect gate's precedence over
+    input open, (b) fifo writer-attach semantics (no-writer open block,
+    empty-writer verdict), (c) playback-paced consumption on a 4.0 s
+    member (instant dump + starved trickle)."""
+    failures = []
+    entry = {"probe": "pw-cat realtime consumer operational surface"}
+    # (a) daemon liveness via the PulseAudio-on-PipeWire protocol, then the
+    # gate leg: PIPEWIRE_RUNTIME_DIR=<empty> severs the socket without
+    # touching the real session daemon — frontier measured instant rc=1
+    # "Host is down" BEFORE the input is opened (no fifo block).
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        out = proc.stdout.decode(errors="replace")
+        m = re.search(r"^Server Name:\s*(.*)$", out, re.M)
+        s = re.search(r"^Default Sink:\s*(.*)$", out, re.M)
+        entry["daemon_live"] = {
+            "pactl_exit": proc.returncode,
+            "server_name": m.group(1).strip() if m else None,
+            "default_sink": s.group(1).strip() if s else None,
+            "live": proc.returncode == 0}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        entry["daemon_live"] = {"pactl_exit": None, "live": False,
+                                "error": str(exc)[:120]}
+    directory, filename = TRANSPORT_R67_MEMBERS["dec_hcom"]
+    dec = ROOT / "live" / directory / filename
+    with tempfile.TemporaryDirectory(prefix="pwrt-r73-") as emptyrt:
+        t0 = time.monotonic()
+        try:
+            proc = subprocess.run(
+                ["pw-cat", "-p", str(dec)], capture_output=True,
+                env={**os.environ, "PIPEWIRE_RUNTIME_DIR": emptyrt},
+                timeout=CONSUMER_R73_TIMEOUT_S)
+            entry["daemon_gate"] = {
+                "env_override": "PIPEWIRE_RUNTIME_DIR=<empty dir>",
+                "exit_code": proc.returncode,
+                "wall_s": round(time.monotonic() - t0, 3),
+                "stderr_tail": _consumer_tail(
+                    proc.stderr.decode(errors="replace"), str(dec))}
+        except subprocess.TimeoutExpired:
+            entry["daemon_gate"] = {
+                "env_override": "PIPEWIRE_RUNTIME_DIR=<empty dir>",
+                "exit_code": None, "blocked": True,
+                "wall_s": round(time.monotonic() - t0, 3)}
+    gate = entry["daemon_gate"]
+    if gate.get("exit_code") != 1 or "pw_context_connect" not in (
+            gate.get("stderr_tail") or ""):
+        failures.append("consumer: daemon gate deviated from the frontier "
+                        "signature (instant rc=1 pw_context_connect failure)")
+    # (b) writer-attach semantics on a fifo.
+    with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
+        fifo = Path(tmp) / "nowriter.wav"
+        os.mkfifo(fifo)
+        proc = subprocess.Popen(["pw-cat", "-p", str(fifo)],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                start_new_session=True)
+        try:
+            proc.wait(timeout=CONSUMER_R73_NOWRITER_WAIT_S)
+            entry["fifo_no_writer"] = {
+                "blocked": False, "exit_code": proc.returncode,
+                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
+        except subprocess.TimeoutExpired:
+            try:
+                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
+            except OSError:
+                wchan = None
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            entry["fifo_no_writer"] = {
+                "blocked": True, "wchan": wchan,
+                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S,
+                "exit_code": proc.returncode}
+        finally:
+            reap_fifo_orphans(fifo)
+        fifo2 = Path(tmp) / "empty.wav"
+        os.mkfifo(fifo2)
+
+        def empty_feed():
+            try:
+                open(fifo2, "wb").close()
+            except OSError:
+                pass
+        t = threading.Thread(target=empty_feed, daemon=True)
+        t.start()
+        try:
+            proc = subprocess.run(["pw-cat", "-p", str(fifo2)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R73_TIMEOUT_S)
+            se, pe = _pwcat_fields(proc.stderr.decode(errors="replace"))
+            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
+                                          "sndfile_error": se,
+                                          "pw_error": pe}
+        except subprocess.TimeoutExpired:
+            entry["fifo_empty_writer"] = {"exit_code": None, "blocked": True}
+        finally:
+            t.join(timeout=5)
+            reap_fifo_orphans(fifo2)
+    if not entry["fifo_no_writer"].get("blocked"):
+        failures.append("consumer: fifo open without a writer did not block")
+    ew = entry["fifo_empty_writer"]
+    if ew.get("exit_code") != 1 or ew.get("sndfile_error") != "Format not recognised.":
+        failures.append("consumer: empty-writer fifo deviated from the "
+                        "frontier signature (rc=1 'Format not recognised.')")
+    # (c) playback-paced consumption: instant dump of a 4.0 s member must
+    # still take ~4.0 s of wall (drain is realtime), and a slower-than-
+    # realtime trickle must stream as bytes arrive (block when starved,
+    # no underrun abort) with wall >= the delivery window.
+    data = CONSUMER_R73_PACER.read_bytes()
+    with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
+        fifo = Path(tmp) / CONSUMER_R73_PACER.name
+        os.mkfifo(fifo)
+        writer = threading.Thread(target=fifo_feed, args=(fifo, data, 0.0),
+                                  daemon=True)
+        t0 = time.monotonic()
+        writer.start()
+        try:
+            proc = subprocess.run(["pw-cat", "-p", str(fifo)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R73_TIMEOUT_S)
+            wall = time.monotonic() - t0
+            entry["pacing_instant"] = {
+                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
+                "bytes": len(data),
+                "content_duration_s": CONSUMER_R73_PACER_DURATION_S,
+                "exit_code": proc.returncode, "wall_s": round(wall, 3),
+                "playback_paced": bool(wall >= CONSUMER_R73_PACER_DURATION_S * .75)}
+        except subprocess.TimeoutExpired:
+            entry["pacing_instant"] = {
+                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
+                "exit_code": None, "blocked": True}
+        finally:
+            writer.join(timeout=5)
+            reap_fifo_orphans(fifo)
+        fifo2 = Path(tmp) / ("trickle-" + CONSUMER_R73_PACER.name)
+        os.mkfifo(fifo2)
+        chunk = -(-len(data) // CONSUMER_R73_TRICKLE_CHUNKS)
+
+        def trickle_feed():
+            try:
+                with open(fifo2, "wb") as fh:
+                    for i in range(0, len(data), chunk):
+                        fh.write(data[i:i + chunk])
+                        fh.flush()
+                        time.sleep(CONSUMER_R73_TRICKLE_GAP_S)
+            except OSError:
+                pass
+        writer = threading.Thread(target=trickle_feed, daemon=True)
+        t0 = time.monotonic()
+        writer.start()
+        try:
+            proc = subprocess.run(["pw-cat", "-p", str(fifo2)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R73_TIMEOUT_S + 10)
+            wall = time.monotonic() - t0
+            entry["pacing_trickle"] = {
+                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
+                "chunks": CONSUMER_R73_TRICKLE_CHUNKS,
+                "chunk_gap_s": CONSUMER_R73_TRICKLE_GAP_S,
+                "delivery_window_s": round(
+                    CONSUMER_R73_TRICKLE_CHUNKS * CONSUMER_R73_TRICKLE_GAP_S, 3),
+                "exit_code": proc.returncode,
+                "wall_s": round(wall, 3),
+                "starved_ok": proc.returncode == 0}
+        except subprocess.TimeoutExpired:
+            entry["pacing_trickle"] = {"exit_code": None, "blocked": True}
+        finally:
+            writer.join(timeout=5)
+            reap_fifo_orphans(fifo2)
+    # (d) pw-cat name axis on the .snd member (critic's 2x2 control): the
+    # identical no-magic bytes through fifos carrying DIFFERENT names —
+    # .snd accepts via libsndfile's name fallback; a non-raw-family name
+    # rejects. Isolates name-vs-transport decisively (same fifo arm, same
+    # bytes, only the path's extension moves).
+    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
+    snd_data = (ROOT / "live" / snd_dir / snd_name).read_bytes()
+    name_hold_s = fifo_writer_hold_s()
+    with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
+        name_axis = {}
+        for fname in ("axis.snd", "axis.wav", "axis.bin"):
+            fifo = Path(tmp) / fname
+            os.mkfifo(fifo)
+            writer = threading.Thread(
+                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
+                daemon=True)
+            writer.start()
+            try:
+                proc = subprocess.run(["pw-cat", "-p", str(fifo)],
+                                      capture_output=True,
+                                      timeout=CONSUMER_R73_TIMEOUT_S)
+                se, pe = _pwcat_fields(
+                    proc.stderr.decode(errors="replace"))
+                name_axis[fname] = {"exit_code": proc.returncode,
+                                    "sndfile_error": se, "pw_error": pe}
+            except subprocess.TimeoutExpired:
+                name_axis[fname] = {"exit_code": None, "blocked": True}
+            finally:
+                writer.join(timeout=name_hold_s + 5)
+                reap_fifo_orphans(fifo)
+        entry["pwcat_name_axis"] = {
+            "member": str((ROOT / "live" / snd_dir / snd_name
+                           ).relative_to(ROOT)),
+            "legs": name_axis}
+    na = entry["pwcat_name_axis"]["legs"]
+    if not (na.get("axis.snd", {}).get("exit_code") == 0
+            and na.get("axis.wav", {}).get("exit_code") == 1
+            and na.get("axis.bin", {}).get("exit_code") == 1):
+        failures.append("consumer: pw-cat name axis deviated from the "
+                        "measured fork (.snd=rc0, .wav/.bin=rc1 on "
+                        "identical fifo-fed bytes)")
+    pi = entry["pacing_instant"]
+    if pi.get("exit_code") != 0 or not pi.get("playback_paced"):
+        failures.append("consumer: instant-dump consumption was not "
+                        "playback-paced")
+    pt = entry["pacing_trickle"]
+    if pt.get("exit_code") != 0:
+        failures.append("consumer: starved trickle aborted instead of "
+                        "blocking to EOF")
+    entry["failures"] = failures
+    return entry
+
+
+# r74 lavf NO-SEEK demuxer sweep (xconnector X2): mpv's inverted
+# seekability fork as a function of the demuxer's seek capability.
+# Source-derived rule under test (measured member-locally on hcom in r73):
+# a lavf demuxer forks mpv on the seekable bit IFF (1) the content probe
+# detects it, (2) the demuxer carries no .read_seek/.read_timestamp,
+# (3) no AVFMT_GENERIC_INDEX, and (4) the codec is not pcm_*+block_align
+# (mpv's PCM seek hack rescues wav-family streams). Member family:
+#   predicted FORK (all 4 clauses): iss (IMA_ADPCM_Sound), apc (CRYO_APC),
+#     acm (Interplay ACM; AVFMT_NO_BYTE_SEEK|NOTIMESTAMPS flags)
+#   predicted INVARIANT: adx (GENERIC_INDEX index-seek rescue), aifc
+#     (aiff's own read_seek), dec_act (wav: read_seek + the pcm seek hack
+#     — already tracked under round-66)
+# Two wound shapes are measured, not asserted: a member small enough that
+# stream probing drains it shows the hcom shape ({file,redirected_fd}=rc2
+# EPERM vs {stdin_pipe,fifo}=rc0); a MULTI-PACKET member keeps unread
+# packets behind the probe window, so the seekable arm survives the
+# failed refresh seek and plays a truncated head (rc=0 + EPERM) — the
+# acm row shows the same ENOSYS-class wound at small size. Members are
+# byte-deterministic under corpus/live/round-74 (hand-built headers for
+# the demuxer-only formats; ffmpeg lavfi synth where a muxer exists) so
+# the arm is self-sufficient on a fresh tree.
+LAVF_R74_DIR = "round-74"
+LAVF_R74_EXTENT_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S  # one bound, declared in the protocol block
+LAVF_R74_START_S = 2.0
+# Position-fork cell pacer: the r73 4.0 s wav (seekable demuxer + pcm
+# seek hack) — `mpv --start=2` predicts {file,redirected_fd} -> ~2.0 s of
+# decoded output vs {stdin_pipe,fifo} -> ~4.0 s.
+LAVF_R74_PACER = CONSUMER_R73_PACER
+LAVF_R74_ZERO_SINK_WAIT_S = 6.0
+LAVF_R74_MEMBERS = {
+    "lavf_iss":       (LAVF_R74_DIR, "lavf_iss.iss", "fork"),
+    "lavf_apc":       (LAVF_R74_DIR, "lavf_apc.apc", "fork"),
+    "lavf_acm":       (LAVF_R74_DIR, "lavf_acm.acm", "fork"),
+    "lavf_iss_multi": (LAVF_R74_DIR, "lavf_iss_multi.iss", "fork"),
+    "lavf_adx":       (LAVF_R74_DIR, "lavf_adx.adx", "invariant"),
+    "lavf_aifc":      (LAVF_R74_DIR, "lavf_aifc.aifc", "invariant"),
+    "dec_act":        (*TRANSPORT_R67_MEMBERS["dec_act"], "invariant"),
+}
+
+
+def build_lavf_r74_members():
+    """Byte-deterministic member generation for the r74 sweep.
+
+    Header layouts are taken from the n9.0.1 demuxer sources
+    (libavformat/iss.c, apc.c, acm.c — all probe-detected, no
+    read_seek/read_timestamp, no AVFMT_GENERIC_INDEX, non-pcm codecs):
+      iss "IMA_ADPCM_Sound" + 9 space-separated ASCII tokens, then
+          packets of exactly packet_size bytes (iss_read_packet fails on
+          a short read, so the payload is always whole packets);
+      apc "CRYO_APC"+"1.20" | u32LE samples | u32LE rate | 8B extradata |
+          u32LE stereo flag | payload (demuxer reads <=4096 B/packet);
+      acm BE magic 0x97280301 inside the demuxer's 14-B extradata |
+          u32LE samples | u16LE channels | u16LE rate | u16LE subformat
+          (0x7700 -> level 0, rows 0x77 -> 119-byte all-zero frames that
+          interplayacm decodes to silence — payload is 20 frames).
+    adx/aifc come from `ffmpeg -f lavfi` synth (muxers exist for both);
+    generation is idempotent — every run rewrites identical bytes. A
+    missing ffmpeg or a failed synth is recorded as a per-member blockage
+    (the hand-built members still run); a fabricated member is never
+    substituted."""
+    out = ROOT / "live" / LAVF_R74_DIR
+    out.mkdir(parents=True, exist_ok=True)
+    made, blocked = {}, {}
+
+    def _iss(packet_size, n_packets, name):
+        tokens = ["IMA_ADPCM_Sound", str(packet_size), "0",
+                  str(packet_size * n_packets), "0", "0", "1", "0", "1",
+                  str(packet_size * n_packets)]
+        path = out / name
+        path.write_bytes(" ".join(tokens).encode()
+                         + b" " + b"\x00" * (packet_size * n_packets))
+
+    _iss(256, 2, "lavf_iss.iss")            # drains during probe -> rc2 wound
+    _iss(512, 256, "lavf_iss_multi.iss")    # > probe window -> truncated head
+    made["lavf_iss"] = "iss"
+    made["lavf_iss_multi"] = "iss"
+
+    # apc: 32-byte header then adpcm_ima_apc payload.
+    apc = (b"CRYO_APC" + b"1.20"
+           + (5120).to_bytes(4, "little") + (44100).to_bytes(4, "little")
+           + b"\x00" * 8 + (0).to_bytes(4, "little") + b"\x00" * 5120)
+    (out / "lavf_apc.apc").write_bytes(apc)
+    made["lavf_apc"] = "apc"
+
+    # acm: 14-byte header (extradata INCLUDES the BE magic) + 20x119B
+    # zero frames that interplayacm decodes to silence.
+    acm = (bytes((0x97, 0x28, 0x03, 0x01))
+           + (400).to_bytes(4, "little")
+           + (1).to_bytes(2, "little") + (44100).to_bytes(2, "little")
+           + (0x7700).to_bytes(2, "little") + b"\x00" * 2380)
+    (out / "lavf_acm.acm").write_bytes(acm)
+    made["lavf_acm"] = "acm"
+
+    for member, name, codec in (
+            ("lavf_adx", "lavf_adx.adx", "adpcm_adx"),
+            ("lavf_aifc", "lavf_aifc.aifc", "pcm_s16be")):
+        try:
+            subprocess.run(
+                ["ffmpeg", "-hide_banner", "-y", "-f", "lavfi", "-i",
+                 "sine=frequency=440:sample_rate=44100:duration=0.5",
+                 "-ac", "1", "-c:a", codec, str(out / name)],
+                check=True, capture_output=True, timeout=30)
+            made[member] = name.rsplit(".", 1)[1]
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired,
+                OSError) as exc:
+            blocked[member] = f"ffmpeg lavfi synth -> {name} failed: {exc}"
+    made["dec_act"] = "preexisting tracked member (round-66 wav)"
+    return {"directory": f"live/{LAVF_R74_DIR}", "generated": made,
+            "blocked": blocked}
+
+
+def mpv_extent_leg(transport, path, data, hold_s, extra_opts=()):
+    """mpv leg whose AO is `pcm` instead of `null`: the decoded stream
+    lands in a scratch wav and its byte length is the PCM-extent pin —
+    the observable for the head-truncation (lavf_iss_multi) and position
+    (--start=N on a seeking wav) wound shapes, where the fork is in HOW
+    MUCH audio plays, not the verdict signature. ao=pcm needs no device
+    (the r73 ao=null pin guards the pipewire/dead-runtime class only);
+    log parsing mirrors mpv_leg's field set."""
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=LAVF_R74_EXTENT_TIMEOUT_S, **kw)
+            return proc.returncode, None
+        except subprocess.TimeoutExpired:
+            return None, (f"blocked: no verdict within "
+                          f"{LAVF_R74_EXTENT_TIMEOUT_S} s")
+
+    with tempfile.TemporaryDirectory(prefix="mpv-r74-") as tmp:
+        log = Path(tmp) / "mpv.log"
+        pcm = Path(tmp) / "out.wav"
+        argv = ["mpv", "--no-config", "--vo=null", "--ao=pcm",
+                f"--ao-pcm-file={pcm}", "--audio-display=no",
+                "--really-quiet", f"--log-file={log}", *extra_opts]
+        if transport == "file":
+            code, blocked = run(argv + [str(path)])
+            label = str(path.relative_to(ROOT))
+        elif transport == "stdin_pipe":
+            code, blocked = run(argv + ["-"], input=data)
+            label = "-"
+        elif transport == "redirected_fd":
+            with path.open("rb") as fh:
+                code, blocked = run(argv + ["-"], stdin=fh)
+            label = "-"
+        else:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                code, blocked = run(argv + [str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+            label = path.name
+        text = log.read_text(errors="replace") if log.exists() else ""
+        pcm_bytes = pcm.stat().st_size if pcm.exists() else None
+        duration = None
+        if pcm.exists():
+            try:
+                probe = subprocess.run(
+                    ["ffprobe", "-v", "error", "-show_entries",
+                     "format=duration", "-of", "default=nw=1:nk=1",
+                     str(pcm)], capture_output=True, timeout=10)
+                duration = float(probe.stdout.decode().strip())
+            except (subprocess.TimeoutExpired, ValueError, OSError):
+                duration = None
+    detected = re.search(r"Detected file format: (\S+) \(libavformat\)", text)
+    probe_tag = re.search(r"Found '([^']+)' at score=(\d+)", text)
+    seekfail = re.search(r"Seek failed \(([^)]*)\)", text)
+    verdict = re.search(r"finished playback, (.*)$", text, re.M)
+    reason = (verdict.group(1).strip() if verdict else
+              "Failed to recognize file format."
+              if "Failed to recognize file format" in text else None)
+    leg = {"input": label, "exit_code": code,
+           "lavf_detected": detected.group(1) if detected else None,
+           "lavf_probe": probe_tag.group(1) if probe_tag else None,
+           "lavf_score": int(probe_tag.group(2)) if probe_tag else None,
+           "stream_not_seekable": "Stream is not seekable" in text,
+           "refresh_seek": "refresh seek to" in text,
+           "seek_failed": seekfail.group(1) if seekfail else None,
+           "mpv_verdict": reason,
+           "pcm_out_bytes": pcm_bytes,
+           "pcm_out_duration_s": duration,
+           "error": blocked or (None if code == 0 else
+                                reason or f"exit {code}")}
+    return leg
+
+
+def lavf_transport_entry(member, path):
+    """r74 receipt entry: mpv's seekable-bit verdict matrix on one member —
+    the mpv consumer half of consumer_transport_entry (same leg + group
+    machinery). `predicted` names the claim cell the member exercises:
+    "fork" members must split the matrix on the seekable bit, "invariant"
+    members must not. Failures pin deviations from the declared cell, so
+    an absent predicted fork and an invariant-member fork are both
+    measured falsifications."""
+    prediction = LAVF_R74_MEMBERS[member][2]
+    hold_s = fifo_writer_hold_s()
+    data = path.read_bytes()
+    arms = {t: mpv_leg(t, path, data, hold_s)
+            for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
+    for t, named, seekable in TRANSPORT_R67_ARMS:
+        arms[t]["named"], arms[t]["seekable"] = named, seekable
+    groups = []
+    for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+        a = arms[t]
+        sig = (a["exit_code"], a["lavf_detected"], a["seek_failed"])
+        for g in groups:
+            if g[0] == sig:
+                g[1].append(t)
+                break
+        else:
+            groups.append((sig, [t]))
+    # Critic r74-F: fork kind annotation — a partition on seek_failed
+    # alone (same exit_code, same decoded output) is a WOUND-level fork
+    # (the lavf refresh-seek fires but the demuxer survives it: acm's
+    # AVFMT_NOGENSEARCH early-return), NOT an output-level fork. The
+    # output fork is the rc partition (iss/apc small members, hcom);
+    # truncation is carried by the extent legs for multi-packet members.
+    rcs = {g[0][0] for g in groups}
+    if len(groups) <= 1:
+        fork_kind = None
+    elif len(rcs) > 1:
+        fork_kind = "output_rc"
+    else:
+        fork_kind = "wound"
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "predicted": prediction,
+             "fork_kind": fork_kind,
+             "transport_axis": arms,
+             "transport_protocol": {
+                 "arm_timeout_s": CONSUMER_R73_TIMEOUT_S,
+                 "fifo_writer_hold_s": hold_s,
+                 "fifo_feed": "one-shot write then writer lingers",
+                 "mpv": ("mpv --no-config --vo=null --ao=null "
+                         "--audio-display=no --really-quiet "
+                         "--log-file=<tmp> <in|->")},
+             "transport_verdict_groups": [
+                 {"transports": ts, "verdict": list(sig)}
+                 for sig, ts in groups],
+             "transport_fork": len(groups) > 1,
+             "failures": []}
+    if entry["transport_fork"] != (prediction == "fork"):
+        if prediction == "fork":
+            entry["failures"].append(
+                "lavf: predicted seekable-bit fork absent "
+                f"({len(groups)} verdict group(s))")
+        else:
+            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
+                               for sig, ts in groups)
+            entry["failures"].append(
+                "lavf: predicted-invariant member forked across "
+                f"transports ({desc})")
+    if member == "lavf_iss_multi":
+        # Wound-shape corollary cell: a multi-packet member on a no-seek
+        # demuxer predicts head-truncation (seekable arm plays fewer PCM
+        # bytes than the stream arm) rather than the rc2 wound.
+        entry["extent_legs"] = {
+            t: mpv_extent_leg(t, path, data, hold_s)
+            for t in ("file", "fifo_path")}
+        f_leg, p_leg = (entry["extent_legs"]["file"],
+                        entry["extent_legs"]["fifo_path"])
+        f_b, p_b = f_leg.get("pcm_out_bytes"), p_leg.get("pcm_out_bytes")
+        entry["head_truncation"] = {
+            "file_pcm_out_bytes": f_b,
+            "file_pcm_out_duration_s": f_leg.get("pcm_out_duration_s"),
+            "fifo_pcm_out_bytes": p_b,
+            "fifo_pcm_out_duration_s": p_leg.get("pcm_out_duration_s"),
+            "delta_bytes": (p_b - f_b) if None not in (f_b, p_b) else None,
+            "truncated": (p_b > f_b) if None not in (f_b, p_b) else None}
+        if entry["head_truncation"]["truncated"] is not True:
+            entry["failures"].append(
+                "lavf: multi-packet no-seek member did not show "
+                "head-truncation on the seekable arm")
+        elif entry["fork_kind"] == "wound":
+            # Reviewer r74-F1: a measured head-truncation outranks the
+            # verdict-group wound label — the real wound shape here is
+            # lost PCM bytes at rc=0, not just a failed refresh seek.
+            entry["fork_kind"] = "truncation"
+    return entry
+
+
+def lavf_startpos_entry(path):
+    """r74 --start=N position-fork cell: on a SEEKING member (wav — own
+    read_seek + the pcm seek hack), `mpv --start=2` seeks the seekable
+    arms to 2.0 s while the non-seekable arms cannot seek and play from
+    0 — the fork is positional, so the pin is decoded extent (ao=pcm
+    output duration), never bare rc."""
+    hold_s = fifo_writer_hold_s()
+    data = path.read_bytes()
+    legs = {t: mpv_extent_leg(t, path, data, hold_s,
+                              extra_opts=(f"--start={LAVF_R74_START_S}",))
+            for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
+    for t, named, seekable in TRANSPORT_R67_ARMS:
+        legs[t]["named"], legs[t]["seekable"] = named, seekable
+    durations = {t: legs[t].get("pcm_out_duration_s")
+                 for t in ("file", "stdin_pipe", "redirected_fd",
+                           "fifo_path")}
+    seekable = [durations[t] for t in ("file", "redirected_fd")]
+    streaming = [durations[t] for t in ("stdin_pipe", "fifo_path")]
+    complete = None not in (*seekable, *streaming)
+    entry = {"path": str(path.relative_to(ROOT)),
+             "cell": f"mpv --start={LAVF_R74_START_S} on a seeking wav member",
+             "predicted": ("seekable arms play from --start (extent ~= "
+                           "duration - start); non-seekable arms play "
+                           "from 0 (extent ~= duration)"),
+             "extent_legs": legs,
+             "pcm_out_duration_s": durations,
+             "position_fork": (bool(complete) and
+                               max(seekable) < min(streaming) - 1.0
+                               if complete else None),
+             "failures": []}
+    if entry["position_fork"] is not True:
+        entry["failures"].append(
+            "lavf: --start position fork absent (seekable arms did not "
+            "start at the seek point vs the streaming arms)")
+    return entry
+
+
+def pwcat_ops2_entry():
+    """r74 ops-2 — the pw-cat hang taxonomy pinned as SEPARATE classes plus
+    the raw-bypass name-axis kill:
+    (a) writerless-fifo open-block: SIGTERM-IMMUNE in wait_for_partner;
+        r73 pinned the block itself — this cell adds the measured
+        kill-escalation (TERM ignored for a beat, KILL -> rc -9).
+    (b) `--target 0` unlinked-stream hang: TERM-TERMINABLE — a bounded
+        NEGATIVE ops case (GNU `timeout -s TERM` -> rc 124 at the bound;
+        r73-boundary measured the same class).
+    (c) `-a/--raw` bypass: no libsndfile decode layer -> the r73 name
+        axis dies — identical .snd-family bytes through raw mode accept
+        under EVERY fifo name (.wav/.bin included).
+    (d) zero-sink private daemon: socket reachable but no Audio/Sink —
+        pw-cat hangs on stream link, KILL-bounded (cheap: a private
+        PIPEWIRE_RUNTIME_DIR; recorded as a blockage when the private
+        daemon cannot be spawned or its socket never appears)."""
+    failures = []
+    entry = {"probe": "pw-cat ops-2 — hang taxonomy + raw name-axis kill"}
+    directory, filename = TRANSPORT_R67_MEMBERS["dec_hcom"]
+    member_path = ROOT / "live" / directory / filename
+    # (a) writerless fifo: SIGTERM is ignored inside the open block (the
+    # r73 cell); the escalation to SIGKILL lands the measured rc -9.
+    with tempfile.TemporaryDirectory(prefix="pwcat-r74-") as tmp:
+        fifo = Path(tmp) / "nowriter.wav"
+        os.mkfifo(fifo)
+        proc = subprocess.Popen(["pw-cat", "-p", str(fifo)],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                start_new_session=True)
+        try:
+            proc.wait(timeout=CONSUMER_R73_NOWRITER_WAIT_S)
+            entry["fifo_no_writer_escalation"] = {
+                "blocked": False, "exit_code": proc.returncode,
+                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
+        except subprocess.TimeoutExpired:
+            try:
+                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
+            except OSError:
+                wchan = None
+            proc.send_signal(signal.SIGTERM)
+            try:
+                proc.wait(timeout=1.0)
+                term_immune = False
+            except subprocess.TimeoutExpired:
+                term_immune = True
+            if term_immune:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+            entry["fifo_no_writer_escalation"] = {
+                "blocked": True, "wchan": wchan,
+                "sigterm_wait_s": 1.0, "sigterm_immune": term_immune,
+                "exit_code": proc.returncode,
+                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
+        finally:
+            if proc.poll() is None:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+            reap_fifo_orphans(fifo)
+    esc = entry["fifo_no_writer_escalation"]
+    if not (esc.get("blocked") and esc.get("sigterm_immune")
+            and esc.get("exit_code") == -signal.SIGKILL):
+        failures.append("consumer: writerless-fifo block deviated from "
+                        "the measured escalation (blocked, SIGTERM-immune, "
+                        "SIGKILL -> rc -9)")
+    # (b) --target 0: the stream object exists but nothing links it — the
+    # hang is real yet TERM-TERMINABLE (contrast (a)'s TERM immunity).
+    # GNU `timeout -s TERM` converts the kill to rc 124 at the bound;
+    # the subprocess timeout is only the backstop for a TERM-immune
+    # surprise.
+    t0 = time.monotonic()
+    try:
+        proc = subprocess.run(
+            ["timeout", "-s", "TERM", "4", "pw-cat", "-p", "--target", "0",
+             str(member_path)], capture_output=True,
+            timeout=CONSUMER_R73_TIMEOUT_S)
+        entry["target0_unlinked_stream"] = {
+            "argv": "timeout -s TERM 4 pw-cat -p --target 0 <member>",
+            "bound_s": 4, "signal": "TERM",
+            "exit_code": proc.returncode,
+            "wall_s": round(time.monotonic() - t0, 3),
+            "term_terminable": proc.returncode == 124,
+            "stderr_tail": _consumer_tail(
+                proc.stderr.decode(errors="replace"), str(member_path))}
+    except subprocess.TimeoutExpired:
+        entry["target0_unlinked_stream"] = {
+            "argv": "timeout -s TERM 4 pw-cat -p --target 0 <member>",
+            "bound_s": 4, "signal": "TERM", "exit_code": None,
+            "wall_s": round(time.monotonic() - t0, 3),
+            "term_terminable": False, "blocked_past_wrapper": True}
+    t0e = entry["target0_unlinked_stream"]
+    if not (t0e.get("exit_code") == 124 and t0e.get("term_terminable")):
+        failures.append("consumer: --target 0 hang deviated from the "
+                        "TERM-terminable class (timeout -s TERM -> rc 124)")
+    # (c) --raw bypass kills the name axis: pw-cat -a/--raw skips the
+    # libsndfile decode layer entirely, so identical no-magic bytes accept
+    # under EVERY fifo name — the .snd/.wav/.bin fork of ops-1's
+    # pwcat_name_axis collapses to rc=0 without the decode layer.
+    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
+    snd_data = (ROOT / "live" / snd_dir / snd_name).read_bytes()
+    name_hold_s = fifo_writer_hold_s()
+    with tempfile.TemporaryDirectory(prefix="pwcat-r74-") as tmp:
+        raw_axis = {}
+        for fname in ("axis.snd", "axis.wav", "axis.bin"):
+            fifo = Path(tmp) / fname
+            os.mkfifo(fifo)
+            writer = threading.Thread(
+                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
+                daemon=True)
+            writer.start()
+            try:
+                proc = subprocess.run(["pw-cat", "-p", "--raw", str(fifo)],
+                                      capture_output=True,
+                                      timeout=CONSUMER_R73_TIMEOUT_S)
+                se, pe = _pwcat_fields(proc.stderr.decode(errors="replace"))
+                raw_axis[fname] = {"exit_code": proc.returncode,
+                                   "sndfile_error": se, "pw_error": pe}
+            except subprocess.TimeoutExpired:
+                raw_axis[fname] = {"exit_code": None, "blocked": True}
+            finally:
+                writer.join(timeout=name_hold_s + 5)
+                reap_fifo_orphans(fifo)
+        entry["pwcat_raw_name_axis"] = {
+            "member": str((ROOT / "live" / snd_dir / snd_name
+                           ).relative_to(ROOT)),
+            "mode": "pw-cat -p --raw (libsndfile decode layer bypassed)",
+            "legs": raw_axis}
+    ra = entry["pwcat_raw_name_axis"]["legs"]
+    if not all(ra.get(f, {}).get("exit_code") == 0
+               for f in ("axis.snd", "axis.wav", "axis.bin")):
+        failures.append("consumer: raw-bypass name-axis kill deviated "
+                        "(predicted rc=0 under every fifo name)")
+    # (d) zero-sink private daemon: a private pipewire in a scratch
+    # PIPEWIRE_RUNTIME_DIR exposes a socket but no Audio/Sink — pw-cat
+    # hangs on the stream link rather than erroring (r73-boundary
+    # measured the same class; teardown restores nothing — the private
+    # daemon is killed, the live daemon is never touched).
+    with tempfile.TemporaryDirectory(prefix="pwrt-r74-") as rt_dir:
+        env = {**os.environ, "PIPEWIRE_RUNTIME_DIR": rt_dir,
+               "XDG_RUNTIME_DIR": rt_dir}
+        daemon = None
+        try:
+            daemon = subprocess.Popen(
+                ["pipewire"], env=env,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            sock = Path(rt_dir) / "pipewire-0"
+            for _ in range(50):
+                if sock.exists():
+                    break
+                time.sleep(0.2)
+            if not sock.exists():
+                entry["zero_sink_daemon"] = {
+                    "attempted": True, "socket_up": False,
+                    "blockage": "private pipewire socket never appeared"}
+            else:
+                sinks = None
+                try:
+                    dump = subprocess.run(
+                        ["timeout", "-s", "KILL", "5", "pw-dump"], env=env,
+                        capture_output=True, timeout=10)
+                    if dump.returncode == 0:
+                        sinks = sum(
+                            1 for o in json.loads(
+                                dump.stdout.decode("utf-8", "replace"))
+                            if ((o.get("info") or {}).get("props") or {})
+                            .get("media.class") == "Audio/Sink")
+                except (subprocess.TimeoutExpired, OSError, ValueError):
+                    sinks = None
+                proc = subprocess.Popen(
+                    ["pw-cat", "-p", str(member_path)], env=env,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    start_new_session=True)
+                try:
+                    proc.wait(timeout=LAVF_R74_ZERO_SINK_WAIT_S)
+                    zs_leg = {"exit_code": proc.returncode,
+                              "blocked": False}
+                except subprocess.TimeoutExpired:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                    proc.wait()
+                    zs_leg = {"exit_code": proc.returncode,
+                              "blocked": True}
+                finally:
+                    if proc.poll() is None:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                        proc.wait()
+                entry["zero_sink_daemon"] = {
+                    "attempted": True, "socket_up": True,
+                    "audio_sink_count": sinks,
+                    "pwcat_wait_s": LAVF_R74_ZERO_SINK_WAIT_S,
+                    "pwcat": zs_leg}
+                if not zs_leg["blocked"]:
+                    failures.append("consumer: zero-sink daemon pw-cat "
+                                    "exited instead of hanging on stream "
+                                    "link")
+        except OSError as exc:
+            entry["zero_sink_daemon"] = {
+                "attempted": False,
+                "blockage": f"private pipewire spawn failed: {exc}"}
+        finally:
+            if daemon is not None:
+                daemon.terminate()
+                try:
+                    daemon.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    daemon.kill()
+                    daemon.wait()
+    entry["failures"] = failures
+    return entry
+
+
+# r75 CONSUMER-class breadth-2: three NEW playback consumers on the
+# canonical member x transport matrix (r73 shape; a new parallel ledger
+# family --probe-consumers2-r75, prior rows untouched).
+#   paplay (pacat, PulseAudio client over pipewire-pulse): decodes via
+#     libsndfile through sf_open_FD — an fd-based open is NAME-BLIND, so
+#     the r73 pw-cat .snd name-axis fork (path-based sf_open) cannot
+#     transfer (frontier: identical no-magic bytes reject under
+#     {.snd,.wav,.bin,.au} named files and fifos alike). Daemon-gated
+#     like pw-cat but with the opposite ORDER: paplay opens the input
+#     first, so a writerless fifo blocks in open() before the server —
+#     dead or alive — is ever contacted. The open block has no custom
+#     TERM disposition: SIGTERM kills it (rc -15), unlike pw-cat's
+#     SIGTERM-immune -9.
+#   aplay (ALSA in-process): NO daemon — kernel device coupling. The
+#     matrix runs `-D null` (an in-process plugin device that discards
+#     samples) so the input-parse verdict stays device-free; the ops
+#     entry censuses `aplay -l`/`-L` and records the device gates
+#     (default routes through the PipeWire plugin on this host —
+#     daemon-coupled; hw:<card> applies the kernel driver's format
+#     constraints — device-coupled). Header parse is forward-only
+#     content magic, so the name axis is dead AND the raw fallback
+#     accepts every unmatched buffer under every name.
+#   ffplay (SDL + libavformat pull-model): a SECOND lavf consumer —
+#     answers whether mpv's inverted-seek fork (r73 dec_hcom) is a lavf
+#     property or an mpv-ism. ffplay's read thread pulls packets with no
+#     post-probe refresh seek (avio `Statistics: ... seeks:0` on the
+#     seekable file arm), so the dec_hcom fork cannot transfer. The
+#     parse surface is ffplay's own stderr at -v debug (Input #0 detect
+#     + Statistics seeks); exit_code is NOT the verdict — ffplay returns
+#     0 even on "Invalid data found" input. SDL_AUDIODRIVER=dummy makes
+#     the sink deterministic; the ops entry axes {dummy,pulse,alsa}.
+CONSUMER_R75_MEMBERS = CONSUMER_R73_MEMBERS   # same canonical 9
+CONSUMER_R75_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
+CONSUMER_R75_NOWRITER_WAIT_S = CONSUMER_R73_NOWRITER_WAIT_S
+CONSUMER_R75_SIGTERM_WAIT_S = 1.0
+CONSUMER_R75_START_S = LAVF_R74_START_S       # -ss 2 position cell
+FFPLAY_R75_ENV = {"SDL_AUDIODRIVER": "dummy"}
+
+
+def _consumer2_tail(text, probe_arg):
+    """_consumer_tail plus determinism scrubbing for the r75 consumers:
+    single-quoted PATHS normalize wholesale (`Playing WAVE
+    '<abs-or-tmp-path>' -> '<input>') while non-path quotes (a sample
+    spec) stay verbatim, and any residual UNQUOTED
+    directory prefix before <input> (absolute member path, fifo
+    mkdtemp dir — aplay/ffplay echo paths verbatim where
+    _consumer_tail's relative probe_arg only covers the basename)
+    collapses, so a tail never leaks host paths or mkdtemp suffixes."""
+    tail = _consumer_tail(text, probe_arg)
+    if not tail:
+        return tail
+    # Only quotes carrying a path separator collapse — `Using sample
+    # spec 's16le 2ch 44100Hz'` is a witness, not a host path
+    # (paired fix for the re-anchored Time: filter, critic C4c).
+    tail = re.sub(r"'[^']*[/\\][^']*'", "'<input>'", tail)
+    tail = re.sub(r"\S+<input>", "<input>", tail)
+    return tail
+
+
+_PACAT_RACY_TAIL = re.compile(
+    # The `Time:.*Latency:` alternative must consume the trailing usec
+    # field to EOL — un-anchored it matched nothing (critic C4a).
+    r"^(Time:.*Latency:[^\n]*|Playback stream drained\.|"
+    r"Draining connection to server\.|Connected to device.*|"
+    r"Stream started\..*)$")
+
+
+def _paplay_fields(text):
+    """pacat -v surface: the negotiated sample spec on accept; the open/
+    connect error line on reject. `Connected to device ... (index: N)`
+    carries a per-run index and is never keyed on."""
+    spec = re.search(r"Using sample spec '([^']+)'", text)
+    err = None
+    for pat in (r"open\(\): [^\n]+", r"Connection failure: [^\n]+",
+                r"Failed to open audio file\.?"):
+        m = re.search(pat, text)
+        if m:
+            err = m.group(0).strip()
+            break
+    return (spec.group(1) if spec else None), err
+
+
+def paplay_leg(transport, path, data, hold_s):
+    """One bounded `paplay -v` playback leg -> stream-consume verdict.
+
+    pacat reads stdin only as its NO-ARG source ('-' is a literal
+    filename -> `open(): No such file or directory`), so the anonymous
+    arms are `paplay -v` with piped or redirected stdin; named arms take
+    the path. The decode front-end is libsndfile via sf_open_fd — an
+    fd-based open is name-blind on EVERY transport, so the r73 pw-cat
+    .snd name fork cannot transfer. Viability is daemon-gated like
+    pw-cat but in the opposite ORDER: input open precedes
+    pa_context_connect — a writerless fifo blocks before any server
+    contact (the ops entry pins the ordering cell). A fifo leg without
+    a writer blocks in open(); the subprocess timeout is the KILL
+    bound, though unlike pw-cat a bare SIGTERM already suffices."""
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S, **kw)
+            return proc.stderr.decode(errors="replace"), proc.returncode, None
+        except subprocess.TimeoutExpired as exc:
+            return ((exc.stderr or b"").decode(errors="replace"), None,
+                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
+
+    if transport == "file":
+        text, code, blocked = run(["paplay", "-v", str(path)])
+        label = str(path.relative_to(ROOT))
+    elif transport == "stdin_pipe":
+        text, code, blocked = run(["paplay", "-v"], input=data)
+        label = "-"
+    elif transport == "redirected_fd":
+        with path.open("rb") as fh:
+            text, code, blocked = run(["paplay", "-v"], stdin=fh)
+        label = "-"
+    else:
+        with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                text, code, blocked = run(["paplay", "-v", str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+        label = path.name
+    spec, pa_err = _paplay_fields(text)
+    leg = {"input": label, "exit_code": code,
+           "pa_sample_spec": spec, "pa_error": pa_err,
+           "error": blocked or pa_err}
+    # pacat's -v tail is racy: the `Time:...Latency:` progress carriage
+    # and the drain couplet compete for the last line. Filter them (plus
+    # the index-bearing `Connected to device` and `Stream started`) so
+    # the tail is deterministic — a successful leg ends on the
+    # negotiated `Using sample spec ...` line.
+    ftext = "\n".join(ln for ln in text.splitlines()
+                      if not _PACAT_RACY_TAIL.match(ln))
+    tail = _consumer2_tail(ftext, label)
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+def _aplay_fields(text):
+    """aplay parse surface: `Playing <KIND> '<input>' : <spec>` names the
+    content-magic classification (WAVE|VOC|AU|raw data — the filename
+    only decorates the line, extension is never consulted); `aplay:
+    <func>:<line>: <msg>` is the parse/device error (func:line is
+    build-pinned, kept verbatim)."""
+    m = re.search(r"Playing (WAVE|VOC|AU|raw data) '[^']*' : ([^\n]*)", text)
+    err = re.search(r"^(aplay: [^\n]+)$", text, re.M)
+    return ((m.group(1), m.group(2).strip()) if m else (None, None),
+            err.group(1).strip() if err else None)
+
+
+def aplay_leg(transport, path, data, hold_s, device="null"):
+    """One bounded `aplay -D <device>` leg -> ALSA content-parse verdict.
+
+    aplay is daemon-free (in-process ALSA); the matrix fixes -D null so
+    the input-side verdict is device-independent — ops records the
+    device axis (default/pipewire/hw) separately. `-` means stdin
+    (`Playing ... 'stdin'`); the header parse is forward-only content
+    magic — seekability is never exercised. A member that matches no
+    container magic falls through to `Playing raw data` (u8/8000/mono
+    defaults) and ACCEPTS under every name, so aplay's verdict is
+    predicted invariant-accept where paplay's is invariant-reject. A
+    fifo leg without a writer blocks in open() like every other
+    consumer; aplay catches SIGTERM ('Aborted by signal Terminated')
+    yet stays blocked -> the ops cell lands the KILL escalation."""
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S, **kw)
+            return proc.stderr.decode(errors="replace"), proc.returncode, None
+        except subprocess.TimeoutExpired as exc:
+            return ((exc.stderr or b"").decode(errors="replace"), None,
+                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
+
+    argv0 = ["aplay", "-D", device]
+    if transport == "file":
+        text, code, blocked = run(argv0 + [str(path)])
+        label = str(path.relative_to(ROOT))
+    elif transport == "stdin_pipe":
+        text, code, blocked = run(argv0 + ["-"], input=data)
+        label = "-"
+    elif transport == "redirected_fd":
+        with path.open("rb") as fh:
+            text, code, blocked = run(argv0 + ["-"], stdin=fh)
+        label = "-"
+    else:
+        with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                text, code, blocked = run(argv0 + [str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+        label = path.name
+    (kind, spec), aerr = _aplay_fields(text)
+    leg = {"input": label, "exit_code": code, "device": device,
+           "alsa_kind": kind, "alsa_spec": spec, "alsa_error": aerr,
+           "error": blocked or aerr or (None if code == 0 else
+                                       f"exit {code}")}
+    tail = _consumer2_tail(text, label)
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+# ffplay's periodic status line (`... fd= N aq= NKB vq= NKB sq= NB`,
+# `nan` before open resolves) races the verdict line for the last slot —
+# dropped before tail extraction so rejects land on the verdict line and
+# decodes on the closing `Statistics:` line.
+_FFPLAY_STATUS_TAIL = re.compile(r"fd=\s*\d+\s+aq=\s*\d+KB.*sq=")
+
+
+def _ffplay_fields(text):
+    """ffplay's own stderr surface (-v debug): `Input #0, <fmt>, from` is
+    the lavf detect, `Stream #0:0...: Audio: <codec>` the decoded codec,
+    `Format <fmt> probed ... score=N` the probe score, and the last
+    `Statistics: N bytes read, M seeks` the avio seek count — mpv's
+    refresh seek would land in M; the SDL pull model stays 0. Reject/
+    seek evidence: `Invalid data found when processing input`,
+    `could not seek`. `[ctx @ 0x...]` ASLR prefixes are never keyed
+    (the tail normalizer strips them)."""
+    detected = re.search(r"Input #0, ([^,\s]+), from", text)
+    codec = re.search(r"Stream #0:0[^:\n]*: Audio: ([^,\s]+)", text)
+    duration = re.search(r"Duration: ([^,\n]+)", text)
+    probed = re.search(r"Format (\S+) probed with size=(\d+) and score=(\d+)",
+                       text)
+    stats = re.findall(r"Statistics: (\d+) bytes read, (\d+) seeks", text)
+    return {
+        "ffplay_detected": detected.group(1) if detected else None,
+        "ffplay_codec": codec.group(1) if codec else None,
+        "ffplay_duration": (duration.group(1).strip() if duration else None),
+        "lavf_probe": probed.group(1) if probed else None,
+        "lavf_score": int(probed.group(3)) if probed else None,
+        "avio_bytes_read": int(stats[-1][0]) if stats else None,
+        "avio_seeks": int(stats[-1][1]) if stats else None,
+        "could_not_seek": "could not seek" in text,
+        "ffplay_invalid": ("Invalid data found when processing input"
+                           in text)}
+
+
+def ffplay_leg(transport, path, data, hold_s, extra_opts=(),
+               loglevel="debug"):
+    """One bounded `ffplay -nodisp -autoexit` leg -> lavf pull-model
+    verdict.
+
+    SDL_AUDIODRIVER=dummy fixes the sink (no daemon, no card) — the ops
+    entry axes the driver separately. stdin is `-i -` (the fd: protocol
+    — '-' alone is not an input alias); redirected_fd hands the same
+    flag a seekable regular-file fd. Verdict fields key on detection +
+    seek evidence, never bare rc: this build exits 0 even on 'Invalid
+    data found when processing input'. A fifo leg without a writer
+    never reaches the consumer's own bound — avformat's open blocks in
+    the read thread while the main loop polls (ops pins the class) —
+    the subprocess timeout is the KILL bound."""
+    env = {**os.environ, **FFPLAY_R75_ENV}
+
+    def run(argv, **kw):
+        try:
+            proc = subprocess.run(argv, capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S, env=env,
+                                  **kw)
+            return proc.stderr.decode(errors="replace"), proc.returncode, None
+        except subprocess.TimeoutExpired as exc:
+            return ((exc.stderr or b"").decode(errors="replace"), None,
+                    f"blocked: no verdict within {CONSUMER_R75_TIMEOUT_S} s")
+
+    argv0 = ["ffplay", "-nodisp", "-autoexit", "-v", loglevel, *extra_opts]
+    if transport == "file":
+        text, code, blocked = run(argv0 + [str(path)])
+        label = str(path.relative_to(ROOT))
+    elif transport == "stdin_pipe":
+        text, code, blocked = run(argv0 + ["-i", "-"], input=data)
+        label = "-"
+    elif transport == "redirected_fd":
+        with path.open("rb") as fh:
+            text, code, blocked = run(argv0 + ["-i", "-"], stdin=fh)
+        label = "-"
+    else:
+        with tempfile.TemporaryDirectory(prefix="ffplay-r75-") as tmp:
+            fifo = Path(tmp) / path.name
+            os.mkfifo(fifo)
+            writer = threading.Thread(target=fifo_feed,
+                                      args=(fifo, data, hold_s), daemon=True)
+            writer.start()
+            try:
+                text, code, blocked = run(argv0 + [str(fifo)])
+            finally:
+                writer.join(timeout=hold_s + 5)
+                reap_fifo_orphans(fifo)
+        label = path.name
+    leg = {"input": label, "exit_code": code}
+    leg.update(_ffplay_fields(text))
+    # mpv-leg convention: `error` names block/nonzero-rc only; the
+    # invalid/seek detail lives in the dedicated `ffplay_invalid` /
+    # `could_not_seek` fields (rc is 0 even on invalid input —
+    # reviewer R3).
+    leg["error"] = blocked or (None if code == 0 else f"exit {code}")
+    ftext = "\n".join(ln for ln in text.splitlines()
+                      if not _FFPLAY_STATUS_TAIL.search(ln))
+    tail = _consumer2_tail(ftext, label)
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+def consumer2_transport_entry(member, path):
+    """r75 receipt entry: THREE playback consumers on the member's
+    transport matrix (same member set + verdict-group machinery as
+    consumer_transport_entry). Each consumer keys its own signature so
+    the receipt pins which polarity each exercises — paplay
+    (exit, spec, pa_error), aplay (exit, kind, aplay_error), ffplay
+    (exit, detected, seeks, invalid). A fork lands as a failure keyed
+    by consumer (r67 convention)."""
+    hold_s = fifo_writer_hold_s()
+    data = path.read_bytes()
+    consumers = {}
+    failures = []
+    for consumer, legs in (("paplay", paplay_leg), ("aplay", aplay_leg),
+                           ("ffplay", ffplay_leg)):
+        arms = {t: legs(t, path, data, hold_s)
+                for t in ("file", "stdin_pipe", "redirected_fd",
+                          "fifo_path")}
+        for t, named, seekable in TRANSPORT_R67_ARMS:
+            arms[t]["named"], arms[t]["seekable"] = named, seekable
+        groups = []
+        for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+            a = arms[t]
+            if consumer == "paplay":
+                sig = (a["exit_code"], a["pa_sample_spec"], a["pa_error"])
+            elif consumer == "aplay":
+                sig = (a["exit_code"], a["alsa_kind"], a["alsa_error"])
+            else:
+                sig = (a["exit_code"], a["ffplay_detected"],
+                       a["avio_seeks"], a["ffplay_invalid"])
+            for g in groups:
+                if g[0] == sig:
+                    g[1].append(t)
+                    break
+            else:
+                groups.append((sig, [t]))
+        consumers[consumer] = {
+            "transport_axis": arms,
+            "transport_verdict_groups": [
+                {"transports": ts, "verdict": list(sig)}
+                for sig, ts in groups],
+            "transport_fork": len(groups) > 1}
+        # Vacuity guard (critic C2): fork=0 is vacuous invariance only
+        # when every arm died on the SAME infrastructure wall —
+        # paplay's daemon `Connection failure`, an aplay device error,
+        # or an ffplay abort with no lavf verdict. Uniform CONTENT
+        # rejection (reject members score identical failures on all
+        # transports) is a real verdict, not a collapse.
+        def _infra_leg(a):
+            if consumer == "paplay":
+                return (a["pa_error"] or "").startswith(
+                    "Connection failure")
+            if consumer == "aplay":
+                return (a["alsa_error"] is not None
+                        and a["alsa_kind"] is None)
+            return (a["ffplay_detected"] is None
+                    and not a["ffplay_invalid"]
+                    and a["exit_code"] != 0)
+        consumers[consumer]["viable_legs"] = sum(
+            not _infra_leg(a) for a in arms.values())
+        if not consumers[consumer]["viable_legs"]:
+            failures.append(f"transport: {consumer} collapsed — all "
+                            "four arms hit the same infrastructure wall; "
+                            "the invariance verdict is vacuous "
+                            "(dead server/device)")
+        if consumers[consumer]["transport_fork"]:
+            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
+                               for sig, ts in groups)
+            failures.append(f"transport: {consumer} verdict forks across "
+                            f"transports ({desc})")
+    return {"path": str(path.relative_to(ROOT)), "pair_member": member,
+            "consumers": consumers,
+            "consumer_protocol": {
+                "arm_timeout_s": CONSUMER_R75_TIMEOUT_S,
+                "fifo_writer_hold_s": hold_s,
+                "fifo_feed": "one-shot write then writer lingers",
+                "paplay": ("paplay -v [<path>] — pacat 17.0/libpulse 17.0 "
+                           "playback, libsndfile decode via sf_open_fd "
+                           "(name-blind); stdin = no-arg, '-' is a "
+                           "literal filename; daemon-gated AFTER input "
+                           "open"),
+                "aplay": ("aplay -D null [<path>|-> — in-process ALSA, "
+                          "forward-only content-magic parse, raw "
+                          "fallback accepts unmatched buffers"),
+                "ffplay": ("ffplay -nodisp -autoexit -v debug "
+                           "SDL_AUDIODRIVER=dummy [<path>|-i -] — lavf "
+                           "pull-model, verdict = detect+seek fields "
+                           "(rc is 0 even on invalid input)")},
+            "failures": failures}
+
+
+def _nowriter_cell(argv, extra_env=None):
+    """Spawn `argv` on a writerless fifo and pin the kill class: wait
+    NOWRITER_WAIT_S, sample wchan/state, send SIGTERM, allow
+    SIGTERM_WAIT_S, then SIGKILL the process group. The class is
+    per-consumer: paplay dies on TERM (rc -15), aplay catches TERM
+    ('Aborted by signal Terminated') yet stays blocked (-9), ffplay's
+    handler exits 123 while its read thread stays blocked in open()
+    (pw-cat ignores TERM -> -9, r74). `alive_after_term1` is exactly
+    that — survival of ONE TERM; aplay dies to a second TERM (critic
+    C1), so the key is not a general TERM-immunity claim."""
+    with tempfile.TemporaryDirectory(prefix="nowriter-r75-") as tmp:
+        fifo = Path(tmp) / "nowriter.wav"
+        os.mkfifo(fifo)
+        env = {**os.environ, **(extra_env or {})}
+        proc = subprocess.Popen(argv + [str(fifo)],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                env=env, start_new_session=True)
+        try:
+            proc.wait(timeout=CONSUMER_R75_NOWRITER_WAIT_S)
+            return {"argv": " ".join(argv + ["<fifo>"]),
+                    "blocked": False, "exit_code": proc.returncode,
+                    "waited_s": CONSUMER_R75_NOWRITER_WAIT_S}
+        except subprocess.TimeoutExpired:
+            try:
+                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
+            except OSError:
+                wchan = None
+            proc.send_signal(signal.SIGTERM)
+            try:
+                proc.wait(timeout=CONSUMER_R75_SIGTERM_WAIT_S)
+                term_immune = False
+            except subprocess.TimeoutExpired:
+                term_immune = True
+            if term_immune:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+            try:
+                err = proc.stderr.read().decode(errors="replace")
+            except Exception:
+                err = ""
+            rec = {"argv": " ".join(argv + ["<fifo>"]),
+                   "blocked": True, "wchan": wchan,
+                   "sigterm_wait_s": CONSUMER_R75_SIGTERM_WAIT_S,
+                   "alive_after_term1": term_immune,
+                   "exit_code": proc.returncode,
+                   "waited_s": CONSUMER_R75_NOWRITER_WAIT_S}
+            # ffplay's periodic status line races the verdict for the
+            # tail slot — filter it here too (reviewer R2).
+            if "ffplay" in Path(argv[0]).name:
+                err = "\n".join(ln for ln in err.splitlines()
+                                if not _FFPLAY_STATUS_TAIL.search(ln))
+            if err.strip():
+                rec["stderr_tail"] = _consumer2_tail(err, str(fifo))
+            return rec
+        finally:
+            if proc.poll() is None:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+            reap_fifo_orphans(fifo)
+
+
+def consumers2_paplay_ops_entry():
+    """r75 paplay ops surface — the pulse daemon gate plus the ORDERING
+    that distinguishes it from pw-cat:
+    (a) daemon liveness via pactl;
+    (b) dead-server gate on a VALID member — instant rc=1
+        'Connection failure' (input parses, connect fails);
+    (c) gate ordering — dead server + writerless fifo: paplay opens the
+        INPUT first, so it blocks in open() and never reaches the dead
+        server (no connection error in stderr, TERM -> -15);
+    (d) writerless fifo under a LIVE server — same open block class,
+        SIGTERM kills (rc -15; contrast pw-cat's TERM-immune -9);
+    (e) the .snd name-axis control on identical no-magic bytes —
+        named files {snd,wav,bin}, fifos {snd,wav,bin}, and an rfd —
+        predicted INVARIANT-REJECT everywhere because sf_open_fd is
+        name-blind (the r73 pw-cat fork cannot transfer);
+    (f) --raw bypass on the .snd fifo — skips the decode layer, rc=0;
+    (g) empty-writer fifo — immediate EOF under libsndfile."""
+    failures = []
+    entry = {"probe": "paplay consumer operational surface"}
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        out = proc.stdout.decode(errors="replace")
+        m = re.search(r"^Server Name:\s*(.*)$", out, re.M)
+        s = re.search(r"^Default Sink:\s*(.*)$", out, re.M)
+        entry["daemon_live"] = {
+            "pactl_exit": proc.returncode,
+            "server_name": m.group(1).strip() if m else None,
+            "default_sink": s.group(1).strip() if s else None,
+            "live": proc.returncode == 0}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        entry["daemon_live"] = {"pactl_exit": None, "live": False,
+                                "error": str(exc)[:120]}
+    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
+    snd_path = ROOT / "live" / snd_dir / snd_name
+    snd_data = snd_path.read_bytes()
+    dead_env = {"PULSE_SERVER": "unix:/nonexistent-r75-paplay-gate"}
+    # (b) dead server + valid member: input parses, connect fails fast.
+    t0 = time.monotonic()
+    try:
+        proc = subprocess.run(
+            ["paplay", str(CONSUMER_R73_PACER)], capture_output=True,
+            env={**os.environ, **dead_env},
+            timeout=CONSUMER_R75_TIMEOUT_S)
+        entry["daemon_gate_dead"] = {
+            "env_override": "PULSE_SERVER=unix:<nonexistent>",
+            "exit_code": proc.returncode,
+            "wall_s": round(time.monotonic() - t0, 3),
+            "stderr_tail": _consumer2_tail(
+                proc.stderr.decode(errors="replace"),
+                str(CONSUMER_R73_PACER))}
+    except subprocess.TimeoutExpired:
+        entry["daemon_gate_dead"] = {
+            "env_override": "PULSE_SERVER=unix:<nonexistent>",
+            "exit_code": None, "blocked": True,
+            "wall_s": round(time.monotonic() - t0, 3)}
+    gate = entry["daemon_gate_dead"]
+    if not (gate.get("exit_code") == 1 and
+            "onnection" in (gate.get("stderr_tail") or "")):
+        failures.append("paplay: dead-server gate deviated from the "
+                        "measured signature (instant rc=1 Connection "
+                        "failure)")
+    # (c)+(d) ordering cell: the writerless-fifo open block is identical
+    # with a dead server and a live one — paplay never reaches connect.
+    entry["gate_ordering_dead_fifo"] = _nowriter_cell(["paplay"], dead_env)
+    go = entry["gate_ordering_dead_fifo"]
+    ordering_ok = (go.get("blocked") and
+                   "onnection" not in (go.get("stderr_tail") or ""))
+    if not ordering_ok:
+        failures.append("paplay: dead-server writerless fifo deviated "
+                        "from the input-first ordering (blocked in "
+                        "open(), no connection error reached)")
+    entry["fifo_no_writer"] = _nowriter_cell(["paplay"])
+    for cell in ("gate_ordering_dead_fifo", "fifo_no_writer"):
+        nw = entry[cell]
+        if not (nw.get("blocked") and nw.get("alive_after_term1") is False
+                and nw.get("exit_code") == -signal.SIGTERM):
+            failures.append(f"paplay: {cell} deviated from the measured "
+                            "kill class (blocked, SIGTERM kills -> rc "
+                            "-15)")
+    # (e) name axis on identical no-magic bytes: named files + fifos +
+    # rfd — sf_open_fd is name-blind so ALL reject 'Failed to open
+    # audio file.' (pw-cat's .snd accept does not transfer).
+    name_axis = {}
+    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
+        for fname in ("axis.snd", "axis.wav", "axis.bin"):
+            fpath = Path(tmp) / fname
+            fpath.write_bytes(snd_data)
+            try:
+                proc = subprocess.run(["paplay", str(fpath)],
+                                      capture_output=True,
+                                      timeout=CONSUMER_R75_TIMEOUT_S)
+                _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
+                name_axis["file:" + fname] = {
+                    "exit_code": proc.returncode, "pa_error": pe}
+            except subprocess.TimeoutExpired:
+                name_axis["file:" + fname] = {"exit_code": None,
+                                              "blocked": True}
+        name_hold_s = fifo_writer_hold_s()
+        fdir = Path(tmp) / "fifos"
+        fdir.mkdir()
+        for fname in ("axis.snd", "axis.wav", "axis.bin"):
+            fifo = fdir / fname
+            os.mkfifo(fifo)
+            writer = threading.Thread(
+                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
+                daemon=True)
+            writer.start()
+            try:
+                proc = subprocess.run(["paplay", str(fifo)],
+                                      capture_output=True,
+                                      timeout=CONSUMER_R75_TIMEOUT_S)
+                _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
+                name_axis["fifo:" + fname] = {
+                    "exit_code": proc.returncode, "pa_error": pe}
+            except subprocess.TimeoutExpired:
+                name_axis["fifo:" + fname] = {"exit_code": None,
+                                              "blocked": True}
+            finally:
+                writer.join(timeout=name_hold_s + 5)
+                reap_fifo_orphans(fifo)
+    with snd_path.open("rb") as fh:
+        try:
+            proc = subprocess.run(["paplay"], stdin=fh, capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S)
+            _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
+            name_axis["rfd:" + snd_name] = {
+                "exit_code": proc.returncode, "pa_error": pe}
+        except subprocess.TimeoutExpired:
+            name_axis["rfd:" + snd_name] = {"exit_code": None,
+                                            "blocked": True}
+    entry["paplay_name_axis"] = {
+        "member": str(snd_path.relative_to(ROOT)),
+        "claim": ("sf_open_fd is name-blind -> invariant-reject "
+                  "(pw-cat's .snd fork cannot transfer)"),
+        "legs": name_axis}
+    if not all(l.get("exit_code") == 1 for l in name_axis.values()):
+        failures.append("paplay: name axis deviated from invariant-"
+                        "reject (predicted rc=1 'Failed to open audio "
+                        "file' on every name + transport)")
+    # (f) --raw bypass on the identical .snd bytes.
+    name_hold_s = fifo_writer_hold_s()
+    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
+        fifo = Path(tmp) / "axis.snd"
+        os.mkfifo(fifo)
+        writer = threading.Thread(
+            target=fifo_feed, args=(fifo, snd_data, name_hold_s),
+            daemon=True)
+        writer.start()
+        try:
+            proc = subprocess.run(["paplay", "--raw", str(fifo)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S)
+            entry["raw_bypass"] = {
+                "mode": "paplay --raw (decode layer skipped)",
+                "fifo_name": "axis.snd",
+                "exit_code": proc.returncode}
+        except subprocess.TimeoutExpired:
+            entry["raw_bypass"] = {"exit_code": None, "blocked": True}
+        finally:
+            writer.join(timeout=name_hold_s + 5)
+            reap_fifo_orphans(fifo)
+    if entry["raw_bypass"].get("exit_code") != 0:
+        failures.append("paplay: --raw bypass deviated (predicted rc=0 "
+                        "on the identical .snd fifo bytes)")
+    # (g) empty-writer fifo.
+    with tempfile.TemporaryDirectory(prefix="paplay-r75-") as tmp:
+        fifo = Path(tmp) / "empty.wav"
+        os.mkfifo(fifo)
+
+        def empty_feed():
+            try:
+                open(fifo, "wb").close()
+            except OSError:
+                pass
+        t = threading.Thread(target=empty_feed, daemon=True)
+        t.start()
+        try:
+            proc = subprocess.run(["paplay", str(fifo)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S)
+            _, pe = _paplay_fields(proc.stderr.decode(errors="replace"))
+            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
+                                          "pa_error": pe}
+        except subprocess.TimeoutExpired:
+            entry["fifo_empty_writer"] = {"exit_code": None,
+                                          "blocked": True}
+        finally:
+            t.join(timeout=5)
+            reap_fifo_orphans(fifo)
+    entry["failures"] = failures
+    return entry
+
+
+def consumers2_aplay_ops_entry():
+    """r75 aplay ops surface — device coupling instead of a daemon gate:
+    (a) `aplay -l`/`-L` device census (the viability precondition — an
+        absent card list degrades the hw cell to a recorded blockage);
+    (b) device axis on one member: -D null (in-process, always), aplay
+        default + -D pipewire (plugin routing -> daemon-coupled on this
+        host), -D hw:<first card> (kernel device -> format-coupled
+        rejection measured);
+    (c) writerless fifo under -D null: blocked in open(); aplay catches
+        SIGTERM ('Aborted by signal Terminated') yet stays blocked ->
+        SIGKILL -> -9;
+    (d) name axis on identical no-magic bytes via fifos
+        {snd,wav,bin}: content-parse accepts EVERY name as 'raw data'
+        (invariant-accept);
+    (e) empty-writer fifo -> header read error rc=1."""
+    failures = []
+    entry = {"probe": "aplay consumer operational surface"}
+    cards = []
+    try:
+        proc = subprocess.run(["aplay", "-l"], capture_output=True,
+                              timeout=10)
+        for m in re.finditer(r"card (\d+): (\S+) \[(.*?)\], device (\d+):",
+                             proc.stdout.decode(errors="replace")):
+            cards.append({"card": int(m.group(1)), "card_id": m.group(2),
+                          "card_name": m.group(3),
+                          "device": int(m.group(4))})
+        entry["device_census"] = {
+            "aplay_dash_l_exit": proc.returncode,
+            "playback_devices": cards}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        entry["device_census"] = {"aplay_dash_l_exit": None,
+                                  "playback_devices": [],
+                                  "error": str(exc)[:120]}
+    try:
+        proc = subprocess.run(["aplay", "-L"], capture_output=True,
+                              timeout=10)
+        names = [ln.strip() for ln in
+                 proc.stdout.decode(errors="replace").splitlines()
+                 if ln.strip() and not ln.startswith(" ")]
+        entry["plugin_census"] = {
+            "aplay_dash_L_exit": proc.returncode,
+            "has_null": "null" in names,
+            "has_pipewire": "pipewire" in names,
+            "has_default": "default" in names}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        entry["plugin_census"] = {"aplay_dash_L_exit": None,
+                                  "error": str(exc)[:120]}
+    # (b) device axis on the dec_act member (8 kHz mono wav): -D null is
+    # the matrix sink; default + pipewire are daemon-coupled plugin
+    # routes on this host; hw:<first> exercises the kernel driver's
+    # format constraints (this USB device rejects 8 kHz mono).
+    directory, filename = TRANSPORT_R67_MEMBERS["dec_act"]
+    member_path = ROOT / "live" / directory / filename
+    device_legs = {}
+    targets = [("null", ["-D", "null"]), ("default", []),
+               ("pipewire", ["-D", "pipewire"])]
+    if cards:
+        targets.append(("hw_first",
+                        ["-D", f"hw:{cards[0]['card']},{cards[0]['device']}"]))
+    for name, dargv in targets:
+        try:
+            proc = subprocess.run(
+                ["aplay", *dargv, str(member_path)], capture_output=True,
+                timeout=CONSUMER_R75_TIMEOUT_S)
+            text = proc.stderr.decode(errors="replace")
+            (kind, spec), aerr = _aplay_fields(text)
+            device_legs[name] = {
+                "exit_code": proc.returncode, "alsa_kind": kind,
+                "alsa_spec": spec, "alsa_error": aerr,
+                "stderr_tail": _consumer2_tail(text, str(member_path))}
+        except subprocess.TimeoutExpired:
+            device_legs[name] = {"exit_code": None, "blocked": True}
+    if not cards:
+        device_legs["hw_first"] = {
+            "blockage": "no ALSA playback card enumerated by `aplay -l`"}
+    entry["device_axis"] = {"member": str(member_path.relative_to(ROOT)),
+                            "legs": device_legs}
+    if device_legs.get("null", {}).get("exit_code") != 0:
+        failures.append("aplay: -D null device deviated from rc=0 (the "
+                        "in-process sink must always accept)")
+    # (c) writerless fifo under -D null.
+    entry["fifo_no_writer"] = _nowriter_cell(["aplay", "-D", "null"])
+    nw = entry["fifo_no_writer"]
+    if not (nw.get("blocked") and nw.get("alive_after_term1")
+            and nw.get("exit_code") == -signal.SIGKILL):
+        failures.append("aplay: writerless fifo deviated from the "
+                        "measured kill class (blocked, TERM caught but "
+                        "stuck -> SIGKILL -9)")
+    # (d) name axis on identical no-magic bytes: content-parse accepts
+    # every fifo name as 'raw data' (u8/8000/mono) — invariant-accept.
+    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
+    snd_data = (ROOT / "live" / snd_dir / snd_name).read_bytes()
+    name_hold_s = fifo_writer_hold_s()
+    name_axis = {}
+    with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
+        for fname in ("axis.snd", "axis.wav", "axis.bin"):
+            fifo = Path(tmp) / fname
+            os.mkfifo(fifo)
+            writer = threading.Thread(
+                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
+                daemon=True)
+            writer.start()
+            try:
+                proc = subprocess.run(["aplay", "-D", "null", str(fifo)],
+                                      capture_output=True,
+                                      timeout=CONSUMER_R75_TIMEOUT_S)
+                text = proc.stderr.decode(errors="replace")
+                (kind, spec), aerr = _aplay_fields(text)
+                name_axis[fname] = {"exit_code": proc.returncode,
+                                    "alsa_kind": kind, "alsa_spec": spec,
+                                    "alsa_error": aerr}
+            except subprocess.TimeoutExpired:
+                name_axis[fname] = {"exit_code": None, "blocked": True}
+            finally:
+                writer.join(timeout=name_hold_s + 5)
+                reap_fifo_orphans(fifo)
+    entry["aplay_name_axis"] = {
+        "member": str((ROOT / "live" / snd_dir / snd_name
+                       ).relative_to(ROOT)),
+        "claim": ("content-parse only -> invariant-accept 'raw data' "
+                  "under every fifo name"),
+        "legs": name_axis}
+    if not all(l.get("exit_code") == 0 and l.get("alsa_kind") == "raw data"
+               for l in name_axis.values()):
+        failures.append("aplay: name axis deviated from invariant-accept "
+                        "('raw data' rc=0 under every fifo name)")
+    # (e) empty-writer fifo -> header read error.
+    with tempfile.TemporaryDirectory(prefix="aplay-r75-") as tmp:
+        fifo = Path(tmp) / "empty.wav"
+        os.mkfifo(fifo)
+
+        def empty_feed():
+            try:
+                open(fifo, "wb").close()
+            except OSError:
+                pass
+        t = threading.Thread(target=empty_feed, daemon=True)
+        t.start()
+        try:
+            proc = subprocess.run(["aplay", "-D", "null", str(fifo)],
+                                  capture_output=True,
+                                  timeout=CONSUMER_R75_TIMEOUT_S)
+            text = proc.stderr.decode(errors="replace")
+            (kind, spec), aerr = _aplay_fields(text)
+            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
+                                          "alsa_kind": kind,
+                                          "alsa_error": aerr}
+        except subprocess.TimeoutExpired:
+            entry["fifo_empty_writer"] = {"exit_code": None,
+                                          "blocked": True}
+        finally:
+            t.join(timeout=5)
+            reap_fifo_orphans(fifo)
+    if entry["fifo_empty_writer"].get("exit_code") != 1:
+        failures.append("aplay: empty-writer fifo deviated from the "
+                        "measured signature (rc=1 header read error)")
+    entry["failures"] = failures
+    return entry
+
+
+def consumers2_ffplay_ops_entry():
+    """r75 ffplay ops surface — the SDL audio-driver gate + the lavf
+    pull-model cells:
+    (a) SDL_AUDIODRIVER axis on one member: {dummy,pulse,alsa} — dummy
+        is the deterministic sink, pulse is daemon-coupled, alsa is
+        card-coupled (each leg records its own gate);
+    (b) writerless fifo: avformat's open blocks in the READ THREAD while
+        the main loop polls (wchan hrtimer_nanosleep) — SIGTERM is
+        honored by the event loop -> graceful exit 123, a third kill
+        class beside paplay's -15 and aplay/pw-cat's -9;
+    (c) -ss 2 position cell on the 4.0 s wav: seekable file seeks;
+        non-seekable stdin logs 'could not seek' and rescues by
+        decode-discard — the fork is in the seek PATH, not the played
+        extent (~2 s wall both arms);
+    (d) empty-writer fifo -> 'Invalid data found' at rc=0 (rc is never
+        the verdict)."""
+    failures = []
+    entry = {"probe": "ffplay consumer operational surface"}
+    directory, filename = TRANSPORT_R67_MEMBERS["dec_act"]
+    member_path = ROOT / "live" / directory / filename
+    driver_legs = {}
+    for drv in ("dummy", "pulse", "alsa"):
+        env = {**os.environ, "SDL_AUDIODRIVER": drv}
+        try:
+            proc = subprocess.run(
+                ["ffplay", "-nodisp", "-autoexit", "-v", "info",
+                 str(member_path)], capture_output=True,
+                env=env, timeout=CONSUMER_R75_TIMEOUT_S)
+            text = proc.stderr.decode(errors="replace")
+            ff = _ffplay_fields(text)
+            sdl_err = re.search(r"(SDL[^:\n]*:[^\n]*|could not (?:open|"
+                                r"initialize)[^\n]*)", text)
+            driver_legs[drv] = {
+                "exit_code": proc.returncode,
+                "ffplay_detected": ff["ffplay_detected"],
+                "error": sdl_err.group(0).strip()[:120] if sdl_err else None,
+                # `ALSA lib ... underrun` diagnostics and the periodic
+                # status line are timing-dependent — dropped before the
+                # tail so the receipt stays deterministic.
+                "stderr_tail": _consumer2_tail(
+                    "\n".join(ln for ln in text.splitlines()
+                              if not ln.startswith("ALSA lib")
+                              and not _FFPLAY_STATUS_TAIL.search(ln)),
+                    str(member_path))}
+        except subprocess.TimeoutExpired:
+            driver_legs[drv] = {"exit_code": None, "blocked": True}
+    entry["sdl_driver_axis"] = {
+        "member": str(member_path.relative_to(ROOT)),
+        "legs": driver_legs}
+    if driver_legs.get("dummy", {}).get("exit_code") != 0:
+        failures.append("ffplay: SDL_AUDIODRIVER=dummy deviated from "
+                        "rc=0 (the deterministic sink must always work)")
+    # (b) writerless fifo — read-thread open block, main-loop TERM exit.
+    entry["fifo_no_writer"] = _nowriter_cell(
+        ["ffplay", "-nodisp", "-autoexit", "-v", "info"],
+        extra_env=FFPLAY_R75_ENV)
+    nw = entry["fifo_no_writer"]
+    if not (nw.get("blocked") and nw.get("alive_after_term1") is False
+            and nw.get("exit_code") == 123):
+        failures.append("ffplay: writerless fifo deviated from the "
+                        "measured kill class (blocked, SIGTERM -> "
+                        "graceful rc 123)")
+    # (c) -ss position cell: seekable arm seeks, non-seekable logs
+    # 'could not seek' + decode-discard rescue.
+    hold_s = fifo_writer_hold_s()
+    data = CONSUMER_R73_PACER.read_bytes()
+    pos = {}
+    pos["file"] = ffplay_leg("file", CONSUMER_R73_PACER, data, hold_s,
+                             extra_opts=("-ss", str(CONSUMER_R75_START_S)))
+    pos["stdin_pipe"] = ffplay_leg(
+        "stdin_pipe", CONSUMER_R73_PACER, data, hold_s,
+        extra_opts=("-ss", str(CONSUMER_R75_START_S)))
+    entry["ffplay_startpos"] = {
+        "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
+        "cell": f"ffplay -ss {CONSUMER_R75_START_S} on a seeking wav",
+        "predicted": ("file arm seeks (no 'could not seek'); stdin arm "
+                      "logs 'could not seek' then ends silently — zero "
+                      "status samples, ~0.16 s wall (the decode-discard "
+                      "rescue was predicted but measured false — a "
+                      "silent abort, r75 critic C3)"),
+        "legs": pos}
+    f_leg, s_leg = pos["file"], pos["stdin_pipe"]
+    if not (f_leg["could_not_seek"] is False
+            and s_leg["could_not_seek"] is True
+            and f_leg["exit_code"] == 0 and s_leg["exit_code"] == 0):
+        failures.append("ffplay: -ss position cell deviated from the "
+                        "measured shape (seek ok on file / could-not-"
+                        "seek + silent abort on stdin, rc=0 both)")
+    # (d) empty-writer fifo.
+    with tempfile.TemporaryDirectory(prefix="ffplay-r75-") as tmp:
+        fifo = Path(tmp) / "empty.wav"
+        os.mkfifo(fifo)
+
+        def empty_feed():
+            try:
+                open(fifo, "wb").close()
+            except OSError:
+                pass
+        t = threading.Thread(target=empty_feed, daemon=True)
+        t.start()
+        try:
+            proc = subprocess.run(
+                ["ffplay", "-nodisp", "-autoexit", "-v", "info",
+                 str(fifo)], capture_output=True, env={**os.environ,
+                                                      **FFPLAY_R75_ENV},
+                timeout=CONSUMER_R75_TIMEOUT_S)
+            text = proc.stderr.decode(errors="replace")
+            entry["fifo_empty_writer"] = {
+                "exit_code": proc.returncode,
+                "ffplay_invalid": _ffplay_fields(text)["ffplay_invalid"],
+                "stderr_tail": _consumer2_tail(
+                    "\n".join(ln for ln in text.splitlines()
+                              if not _FFPLAY_STATUS_TAIL.search(ln)),
+                    "empty.wav")}
+        except subprocess.TimeoutExpired:
+            entry["fifo_empty_writer"] = {"exit_code": None,
+                                          "blocked": True}
+        finally:
+            t.join(timeout=5)
+            reap_fifo_orphans(fifo)
+    if entry["fifo_empty_writer"].get("exit_code") != 0:
+        failures.append("ffplay: empty-writer fifo deviated from the "
+                        "measured signature (rc=0 'Invalid data found')")
+    entry["failures"] = failures
+    return entry
+
+
+# r76 CAPTURE direction: the corpus carried only PLAYBACK consumers; this
+# arm adds the RECORD side — four capture consumers on bounded record
+# operations (a new ledger family, --probe-capture-r76; prior rows
+# untouched). Surface facts below are THIS-HOST measurements (PipeWire
+# 1.6.8, pacat 17.0-98, alsa-utils 1.2.16, ffmpeg n9.0.1/lavf 63.1.101);
+# counts and byte shapes are the pinned claims, names are the inventory:
+#   pw-record (PipeWire native): --target is REQUIRED — the auto-link
+#     fails 'no target node available' (rc=1, 44-byte empty header); a
+#     monitor is reached by '--target <sink node> -P
+#     stream.capture.sink=true' ('<x>.monitor' is a pactl alias, not a
+#     node). -n/--sample-count is an EXACT frame bound; a complete
+#     bounded capture still exits rc=1 — rc is never the verdict. SIGTERM
+#     finalizes the header (rc=1); SIGKILL leaves riff_size=8/data=0 —
+#     the open-time header, never patched.
+#   parec/parecord (pacat record): -d is REQUIRED — bare parec/parecord
+#     fail 'Stream error: No such entity'; -d accepts @DEFAULT_SOURCE@ /
+#     @DEFAULT_MONITOR@ / literal source names. There is NO native
+#     duration or byte bound — the process bound is SIGTERM (then the
+#     outer KILL). Captured bytes land in 64 KiB flush granules: TERM
+#     exits rc=0 with a FINALIZED header carrying only the flushed
+#     granules (the buffered remainder is lost); KILL leaves the
+#     open-time header unpatched.
+#   arecord (in-process ALSA): -d/-s is an exact sample-domain bound —
+#     even on the UNPACED null device ('-d 1' returns in ~0.01 s with
+#     exactly 192044 B); an unbounded '-D null' run floods ~2 GiB
+#     rotation files at CPU speed — never run null without -d/-s. The
+#     device axis INVERTS r75's playback result: -D default/-D pipewire
+#     are BLOCKED for capture (set_params:1462) though they accepted
+#     playback. TERM -> 'Aborted by signal Terminated' rc=1 with a
+#     FINALIZED file; KILL leaves the 0x80000000 placeholder that stdlib
+#     wave ACCEPTS and inflates (~3.1 h on a ~216 KB file —
+#     accept-and-lie, distinct from the pw-record/parec reject shape).
+#   ffmpeg (lavf capture — the second lavf leg in the record direction):
+#     -f pulse wants a LITERAL source name ('default' is not one ->
+#     rc=251 EIO); -f alsa the same idiom. -t is a wall-domain bound that
+#     overshoots ~0.6 % on paced sources. File output is 256 KiB
+#     buffered: TERM flushes + finalizes (rc=255); KILL leaves the
+#     unfinalized class — no file, a 0-byte file, or an 0xFFFFFFFF
+#     placeholder header over whatever prefix was already flushed
+#     (observed both 256-KiB-aligned and not; alignment is muxer-internal).
+#     Output format is EXTENSION-driven — an unknown suffix fails the
+#     muxer (rc=234 EINVAL) before any capture; -f overrides.
+CAPTURE_R76_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
+CAPTURE_R76_SEVER_WAIT_S = 1.5
+CAPTURE_R76_KILL_WAIT_S = 5.0
+CAPTURE_R76_PAREC_CAP_BYTES = 262144       # 4 x the 64 KiB flush granule
+CAPTURE_R76_PWR_FRAMES = 48000             # 1.0 s @ 48000 Hz x 2ch x s16
+CAPTURE_R76_NAME_FRAMES = 4800             # 0.1 s — name-axis legs
+CAPTURE_R76_FLUSH_GRANULE = 65536          # pacat stdout/sndfile flush
+CAPTURE_R76_FFMPEG_GRANULE = 262144        # ffmpeg file-output flush
+CAPTURE_R76_MEMBER = CONSUMER_R73_PACER    # 4.0 s wav for the roundtrip
+
+
+def _capture_tail(text, label):
+    """_consumer2_tail plus the capture-side nondeterminism: pacat record
+    progress lines ride _PACAT_RACY_TAIL, and PipeWire stream errors
+    carry per-run node/id/seq counters that must be normalized."""
+    ftext = "\n".join(ln for ln in text.splitlines()
+                      if not _PACAT_RACY_TAIL.match(ln))
+    tail = _consumer2_tail(ftext, label)
+    if not tail:
+        return tail
+    tail = re.sub(r"node \d+", "node <n>", tail)
+    # r76 critic: the observed separator is 'seq:7', not 'seq=7' —
+    # the =-only pattern never fired; accept both.
+    tail = re.sub(r"id=\d+ seq[:=]\d+", "id=<n> seq=<n>", tail)
+    return tail
+
+
+# Named failure classes, most-specific first — a leg's stderr maps to at
+# most one class so "absent source" is a NAMED verdict, never inferred.
+_CAPTURE_ERR_CLASSES = (
+    ("no_target_node", r"no target node available"),
+    ("pw_connect_failed", r"pw_context_connect\(\) failed[^\n]*"),
+    ("pa_no_such_entity", r"No such entity"),
+    ("pa_connect_failed",
+     r"(?:Connection failure|pa_context_connect\(\) failed)[^\n]*"),
+    ("alsa_channels", r"Channels count non available"),
+    ("alsa_hwparams", r"Unable to install hw params"),
+    ("alsa_unknown_pcm", r"Unknown PCM \S+"),
+    ("alsa_busy", r"Device or resource busy"),
+    ("ffmpeg_muxer", r"(?:Unable to find a suitable output format|"
+                     r"Error initializing the muxer|"
+                     r"Error opening output files)[^\n]*"),
+    ("ffmpeg_alsa", r"cannot (?:set parameters|open audio device)[^\n]*"),
+    ("ffmpeg_esrch", r"No such process"),
+    ("ffmpeg_io", r"Input/output error"),
+    ("aborted_by_signal", r"Aborted by signal [A-Za-z]+[^\n]*"),
+)
+
+
+def _capture_errclass(text):
+    """First matching named failure class on a consumer's stderr."""
+    for name, pat in _CAPTURE_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _capture_run(argv, timeout_s=CAPTURE_R76_TIMEOUT_S, env=None):
+    """One bounded consumer run -> (stderr_text, rc, blocked)."""
+    try:
+        proc = subprocess.run(argv, capture_output=True,
+                              timeout=timeout_s, env=env)
+        return proc.stderr.decode(errors="replace"), proc.returncode, None
+    except subprocess.TimeoutExpired as exc:
+        return ((exc.stderr or b"").decode(errors="replace"), None,
+                f"blocked: no verdict within {timeout_s} s")
+    except OSError as exc:
+        return "", None, f"spawn failed: {exc}"
+
+
+def _capture_wav_inspect(path):
+    """Structural walk of a just-written output file (wav or raw).
+
+    `riff_size_field`/`data_declared_field` classify the header SIZE
+    fields — {finalized, placeholder_8, placeholder_ff,
+    placeholder_80000000, zero, other} — so a severed write lands in a
+    named class instead of leaking a volatile byte count. `chunks` stops
+    at the data chunk (its declared size can be a bogus placeholder that
+    would walk the table into payload bytes)."""
+    insp = {"exists": path.exists()}
+    if not insp["exists"]:
+        return insp
+    # r77 reviewer F5: the split-sentinel leg hands this a 2.1 GiB file —
+    # read the header region only; sizes come from stat, never payload.
+    size = path.stat().st_size
+    with path.open("rb") as fh:
+        data = fh.read(min(size, 65536))
+    insp["bytes"] = size
+    insp["riff"] = data[:4] == b"RIFF" and data[8:12] == b"WAVE"
+    if not insp["riff"]:
+        # never record raw head bytes — a raw stream's first bytes are
+        # captured CONTENT (host-audio dependent, volatile); the kind
+        # field is the verdict.
+        return insp
+    riff_sz = struct.unpack("<I", data[4:8])[0]
+    insp["riff_size_field"] = (
+        "finalized" if riff_sz == size - 8 else
+        "placeholder_8" if riff_sz == 8 else
+        "placeholder_ff" if riff_sz == 0xFFFFFFFF else
+        "placeholder_80000000" if riff_sz == 0x80000000 else "other")
+    off, chunks = 12, []
+    while off + 8 <= len(data) and len(chunks) < 8:
+        cid = data[off:off + 4].decode("latin1")
+        csz = struct.unpack("<I", data[off + 4:off + 8])[0]
+        chunks.append({"id": cid, "declared": csz, "offset": off})
+        if cid == "data":
+            break
+        off += 8 + csz + (csz & 1)
+    insp["chunks"] = chunks
+    if chunks and chunks[0]["id"] == "fmt " and chunks[0]["declared"] >= 16:
+        try:
+            tag, ch, rate, _br, _ba, bits = struct.unpack(
+                "<HHIIHH", data[20:36])
+            insp["fmt"] = {"tag": tag, "channels": ch, "rate": rate,
+                           "bits": bits}
+        except struct.error:
+            pass
+    for c in chunks:
+        if c["id"] == "data":
+            actual = size - (c["offset"] + 8)
+            insp["data_declared"] = c["declared"]
+            insp["data_actual"] = actual
+            insp["data_finalized"] = c["declared"] == actual
+            insp["data_declared_field"] = (
+                "finalized" if c["declared"] == actual else
+                "zero" if c["declared"] == 0 else
+                "placeholder_ff" if c["declared"] == 0xFFFFFFFF else
+                "placeholder_80000000" if c["declared"] == 0x80000000
+                else "other")
+            insp["data_64k_aligned"] = (
+                actual % CAPTURE_R76_FLUSH_GRANULE == 0)
+            insp["data_256k_aligned"] = (
+                actual % CAPTURE_R76_FFMPEG_GRANULE == 0)
+    return insp
+
+
+def _capture_out_kind(insp):
+    """Container class of a produced output: what the name axis selects.
+    Works on both the full inspect dict and the reduced sever-cell `file`
+    leaf (which carries file_zero_bytes / riff_size_field instead)."""
+    if not insp.get("exists"):
+        return "missing"
+    if insp.get("bytes") == 0 or insp.get("file_zero_bytes"):
+        return "empty"
+    if insp.get("riff") or insp.get("riff_size_field"):
+        return "riff_wav"
+    return "raw_stream"
+
+
+def _capture_parser_verdict(path, insp):
+    """stdlib wave + ffprobe usability on a possibly-unfinalized wav —
+    the `wave_frames_class` comparison to the honest frame count exposes
+    arecord-KILL's accept-and-lie (0x80000000 declared on ~54 K frames of
+    real data -> wave reports 536870912)."""
+    v = {"wave_opens": False, "wave_error": None,
+         "wave_frames_class": None, "ffprobe_parses": None}
+    try:
+        with wave.open(str(path), "rb") as w:
+            n = w.getnframes()
+        v["wave_opens"] = True
+        fmt = insp.get("fmt") or {}
+        frame_bytes = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
+        honest = insp.get("data_actual", 0) // frame_bytes \
+            if frame_bytes else 0
+        if n == 0:
+            cls = "honest_empty" if honest == 0 else "underreports"
+        elif not frame_bytes:
+            # fmt leaf absent -> honest frame count unknowable; a real
+            # frame count must not read "inflated" (r76 critic/reviewer)
+            cls = "fmt_absent"
+        elif n == honest:
+            cls = "honest"
+        elif n > honest * 4:
+            cls = "inflated"
+        else:
+            cls = "short"
+        v["wave_frames_class"] = cls
+    except Exception as exc:
+        v["wave_error"] = type(exc).__name__
+    try:
+        proc = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "json", str(path)],
+            capture_output=True, timeout=10)
+        meta = json.loads(proc.stdout or b"{}")
+        v["ffprobe_parses"] = (proc.returncode == 0 and
+                               meta.get("format", {}).get("duration")
+                               is not None)
+    except (subprocess.TimeoutExpired, OSError, ValueError):
+        v["ffprobe_parses"] = False
+    return v
+
+
+def _capture_inventory():
+    """Source/device enumeration shared by the capture entries — the
+    gate of record: when an enumeration is empty the dependent leg is a
+    named `blocked`, never a fabricated capture."""
+    inv = {"sources": [], "monitors": [], "default_source": None,
+           "default_sink": None, "server_name": None,
+           "pw_capture_ports": [], "alsa_capture_devices": [],
+           "alsa_plugins": [], "ffmpeg_demuxers": {}}
+    try:
+        proc = subprocess.run(["pactl", "list", "sources", "short"],
+                              capture_output=True, timeout=10)
+        for ln in proc.stdout.decode(errors="replace").splitlines():
+            parts = ln.split()
+            if len(parts) >= 2:
+                name = parts[1]
+                (inv["monitors"] if name.endswith(".monitor")
+                 else inv["sources"]).append(name)
+        inv["pactl_sources_exit"] = proc.returncode
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        inv["pactl_sources_exit"] = None
+        inv["pactl_sources_error"] = str(exc)[:120]
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        out = proc.stdout.decode(errors="replace")
+        for key, pat in (("default_source", r"^Default Source:\s*(.*)$"),
+                         ("default_sink", r"^Default Sink:\s*(.*)$"),
+                         ("server_name", r"^Server Name:\s*(.*)$")):
+            m = re.search(pat, out, re.M)
+            inv[key] = m.group(1).strip() if m else None
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        inv["pactl_error"] = str(exc)[:120]
+    try:
+        proc = subprocess.run(["pw-link", "-o"], capture_output=True,
+                              timeout=10)
+        inv["pw_capture_ports"] = [
+            ln.strip() for ln in
+            proc.stdout.decode(errors="replace").splitlines()
+            if ":capture_" in ln or ":monitor_" in ln]
+        inv["pw_link_exit"] = proc.returncode
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        inv["pw_link_exit"] = None
+        inv["pw_link_error"] = str(exc)[:120]
+    try:
+        proc = subprocess.run(["arecord", "-l"], capture_output=True,
+                              timeout=10)
+        inv["alsa_capture_devices"] = [
+            {"card": int(m.group(1)), "card_id": m.group(2),
+             "device": int(m.group(3))}
+            for m in re.finditer(
+                r"card (\d+): (\S+) \[[^\]]*\], device (\d+):",
+                proc.stdout.decode(errors="replace"))]
+        inv["arecord_l_exit"] = proc.returncode
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        inv["arecord_l_exit"] = None
+        inv["arecord_l_error"] = str(exc)[:120]
+    try:
+        proc = subprocess.run(["arecord", "-L"], capture_output=True,
+                              timeout=10)
+        inv["alsa_plugins"] = [
+            ln.strip() for ln in
+            proc.stdout.decode(errors="replace").splitlines()
+            if ln.strip() and not ln.startswith(" ")]
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+    for dem in ("pulse", "alsa"):
+        try:
+            proc = subprocess.run(
+                ["ffmpeg", "-hide_banner", "-h", f"demuxer={dem}"],
+                capture_output=True, timeout=10)
+            inv["ffmpeg_demuxers"][dem] = proc.returncode == 0
+        except (subprocess.TimeoutExpired, OSError):
+            inv["ffmpeg_demuxers"][dem] = False
+    return inv
+
+
+def _capture_leg_targets(inv):
+    """Resolve the per-entry leg targets from the inventory: the pulse
+    source (default preferred), the monitor alias of the default sink,
+    and the first enumerated ALSA capture device."""
+    src = inv["default_source"] if inv["default_source"] in inv["sources"] \
+        else (inv["sources"][0] if inv["sources"] else None)
+    mon = (inv["default_sink"] + ".monitor") \
+        if (inv["default_sink"] and inv["default_sink"] + ".monitor"
+            in inv["monitors"]) \
+        else (inv["monitors"][0] if inv["monitors"] else None)
+    dev = inv["alsa_capture_devices"]
+    hw0 = f"hw:{dev[0]['card']},{dev[0]['device']}" if dev else None
+    return src, mon, hw0
+
+
+def _capture_file_leg(argv, fname, tmp, timeout_s=CAPTURE_R76_TIMEOUT_S,
+                      env=None, exact_bytes=False, paced=None):
+    """One bounded file-writing capture leg: argv + the output path
+    inside tmp; the receipt leaf carries rc + error class + the
+    header inspect. `exact_bytes` keeps raw byte counts (deterministic
+    legs only — sample/duration bounds on paced or unpaced ALSA);
+    non-exact legs carry duration_bucket_s + structural classes so
+    timing-dependent sizes never destabilize the receipt."""
+    out = Path(tmp) / fname
+    t0 = time.monotonic()
+    text, rc, blocked = _capture_run(argv + [str(out)], timeout_s, env)
+    wall = time.monotonic() - t0
+    insp = _capture_wav_inspect(out)
+    cls, line = _capture_errclass(text)
+    leg = {"argv": " ".join(argv) + " <out>", "exit_code": rc,
+           "error_class": cls, "blocked": blocked is not None}
+    if line or blocked:
+        # the tmp output path is per-run — normalize it out of the
+        # recorded line the same way argv already does.
+        leg["error"] = (line.replace(str(out), "<out>") if line
+                        else blocked)
+    fin = {"exists": insp["exists"]}
+    if insp.get("bytes") is not None and (exact_bytes or
+                                          insp["bytes"] == 0):
+        fin["bytes"] = insp["bytes"]
+    if insp.get("riff"):
+        fin["riff_size_field"] = insp["riff_size_field"]
+        fin["fmt"] = insp.get("fmt")
+        fin["data_declared_field"] = insp.get("data_declared_field")
+        fin["data_finalized"] = insp.get("data_finalized")
+        if exact_bytes:
+            fin["data_declared"] = insp.get("data_declared")
+            fin["data_actual"] = insp.get("data_actual")
+        else:
+            fmt = insp.get("fmt") or {}
+            fr = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
+            if fr and fmt.get("rate") and insp.get("data_actual") is not None:
+                dur = insp["data_actual"] / fr / fmt["rate"]
+                fin["duration_bucket_s"] = round(dur * 4) / 4
+    else:
+        fin["kind"] = _capture_out_kind(insp)
+    leg["file"] = fin
+    if paced is not None:
+        # pacing evidence is a wall-clock CLASS: a paced -d N leg cannot
+        # beat its own duration, an unpaced device can.
+        leg["wall_lt_0.5s"] = wall < 0.5
+        leg["paced_expectation"] = paced
+    tail = _capture_tail(text, str(out))
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+def _capture_sever_cell(argv, fname, sig,
+                        wait_s=CAPTURE_R76_SEVER_WAIT_S,
+                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S):
+    """Spawn a file-writing capture, sever it mid-record, classify the
+    wound: exit code, header-finalize class, and parser usability. A leg
+    that exits BEFORE the sever (e.g. arecord hitting a held device)
+    records `early_exit_code` — an honest named failure, not a wound
+    verdict. The outer bound after the signal is KILL on the process
+    group."""
+    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+        out = Path(tmp) / fname
+        proc = subprocess.Popen(argv + [str(out)],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                start_new_session=True)
+        early_rc = None
+        try:
+            proc.wait(timeout=wait_s)
+            early_rc = proc.returncode
+        except subprocess.TimeoutExpired:
+            pass
+        if early_rc is None:
+            if proc.poll() is None:
+                proc.send_signal(sig)
+            try:
+                proc.wait(timeout=kill_wait_s)
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+        err = proc.stderr.read().decode(errors="replace") \
+            if proc.stderr else ""
+        insp = _capture_wav_inspect(out)
+        cell = {"argv": " ".join(argv) + " <out>",
+                "signal": "SIGTERM" if sig == signal.SIGTERM else "SIGKILL",
+                "sever_after_s": wait_s,
+                "early_exit_code": early_rc,
+                "exit_code": proc.returncode}
+        cls, line = _capture_errclass(err)
+        if cls:
+            cell["error_class"], cell["error"] = \
+                cls, line.replace(str(out), "<out>")
+        fin = {"exists": insp["exists"]}
+        if insp.get("bytes") is not None:
+            fin["file_zero_bytes"] = insp["bytes"] == 0
+        if insp.get("riff"):
+            fin["riff_size_field"] = insp["riff_size_field"]
+            fin["data_declared_field"] = insp.get("data_declared_field")
+            fin["data_finalized"] = insp.get("data_finalized")
+            fin["data_actual_zero"] = insp.get("data_actual") == 0
+            fin["data_64k_aligned"] = insp.get("data_64k_aligned")
+            fin["data_256k_aligned"] = insp.get("data_256k_aligned")
+            fin["fmt"] = insp.get("fmt")
+        cell["file"] = fin
+        if insp.get("exists") and insp.get("bytes"):
+            cell["parsers"] = _capture_parser_verdict(out, insp)
+        tail = _capture_tail(err, str(out))
+        if tail:
+            cell["stderr_tail"] = tail
+        return cell
+
+
+def capture_gate_r76_entry():
+    """(1) Source-presence gate per consumer: the enumeration of record
+    (pactl sources / pw-link ports / arecord -l / ffmpeg demuxers) plus
+    the named-failure legs that PROVE each consumer's gate is a named
+    verdict, not an inference — a leg whose gate fails still lands a
+    classified row."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture consumer gate + enumeration surface",
+             "inventory": inv}
+    src, mon, _ = _capture_leg_targets(inv)
+    entry["viability"] = {
+        "pulse_source": bool(inv["sources"]),
+        "pw_target": bool(inv["sources"]),
+        "alsa_capture_device": bool(inv["alsa_capture_devices"]),
+        "monitor": bool(inv["monitors"]),
+        "ffmpeg_pulse": bool(inv["sources"]) and
+        inv["ffmpeg_demuxers"].get("pulse") is True,
+        "ffmpeg_alsa": bool(inv["alsa_capture_devices"]) and
+        inv["ffmpeg_demuxers"].get("alsa") is True}
+    gate = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+        # pw-record auto-link — the implicit default is NOT reachable
+        gate["pwrecord_auto_target"] = _capture_file_leg(
+            ["pw-record", "-n", str(CAPTURE_R76_NAME_FRAMES)],
+            "gate_auto.wav", tmp)
+        # pw-record daemon gate — dead runtime dir is a named failure
+        tgt = src or "alsa_input.nonexistent-r76"
+        gate["pwrecord_dead_daemon"] = _capture_file_leg(
+            ["pw-record", "--target", tgt, "-n",
+             str(CAPTURE_R76_NAME_FRAMES)], "gate_dead.wav", tmp,
+            env={**os.environ,
+                 "PIPEWIRE_RUNTIME_DIR": "/nonexistent-r76-gate"})
+        # '<x>.monitor' is a pactl alias, not a node — must fail
+        if mon:
+            gate["pwrecord_monitor_alias"] = _capture_file_leg(
+                ["pw-record", "--target", mon, "-n",
+                 str(CAPTURE_R76_NAME_FRAMES)], "gate_mon.wav", tmp)
+        else:
+            # r76 reviewer LOW-8: a conditional leg records an explicit
+            # blocked row — a dropped leg must never pass silently.
+            gate["pwrecord_monitor_alias"] = {
+                "blocked": "no monitor enumerated (no default_sink)"}
+        # pacat record without -d — default source does NOT resolve
+        text, rc, blocked = _capture_run(["parec", "--raw"], 10)
+        cls, line = _capture_errclass(text)
+        gate["parec_no_device"] = {
+            "argv": "parec --raw (no -d)", "exit_code": rc,
+            "error_class": cls, "error": line or blocked}
+        gate["parecord_no_device"] = _capture_file_leg(
+            ["parecord"], "gate_prd.wav", tmp)
+        # dead pulse server on a VALID device token
+        text, rc, blocked = _capture_run(
+            ["parec", "--raw", "-d", "@DEFAULT_SOURCE@"], 10,
+            env={**os.environ,
+                 "PULSE_SERVER": "unix:/nonexistent-r76-gate"})
+        cls, line = _capture_errclass(text)
+        gate["parec_dead_server"] = {
+            "argv": "parec --raw -d @DEFAULT_SOURCE@",
+            "env_override": "PULSE_SERVER=unix:<nonexistent>",
+            "exit_code": rc, "error_class": cls,
+            "error": line or blocked}
+        # ffmpeg name gates: literal 'default' is not a source/device
+        gate["ffmpeg_pulse_default"] = _capture_file_leg(
+            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+             "-f", "pulse", "-i", "default", "-t", "1", "-y"],
+            "gate_ffp.wav", tmp)
+        gate["ffmpeg_alsa_default"] = _capture_file_leg(
+            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+             "-f", "alsa", "-i", "default", "-t", "1", "-y"],
+            "gate_ffa.wav", tmp)
+        text, rc, blocked = _capture_run(
+            ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+             "-f", "pulse", "-i", "@DEFAULT_SOURCE@", "-t", "1", "-y",
+             str(Path(tmp) / "gate_ffd.wav")], 15,
+            env={**os.environ,
+                 "PULSE_SERVER": "unix:/nonexistent-r76-gate"})
+        cls, line = _capture_errclass(text)
+        gate["ffmpeg_pulse_dead_server"] = {
+            "argv": "ffmpeg -f pulse -i @DEFAULT_SOURCE@ -t 1",
+            "env_override": "PULSE_SERVER=unix:<nonexistent>",
+            "exit_code": rc, "error_class": cls,
+            "error": line or blocked}
+        # arecord plugin routes — viable for playback (r75), blocked for
+        # capture on this host
+        gate["arecord_default"] = _capture_file_leg(
+            ["arecord", "-D", "default", "-d", "1", "-f", "S16_LE",
+             "-r", "48000", "-c", "2", "-t", "wav"], "gate_adef.wav", tmp)
+        gate["arecord_pipewire"] = _capture_file_leg(
+            ["arecord", "-D", "pipewire", "-d", "1", "-f", "S16_LE",
+             "-r", "48000", "-c", "2", "-t", "wav"], "gate_apw.wav", tmp)
+        gate["arecord_unknown_pcm"] = _capture_file_leg(
+            ["arecord", "-D", "does_not_exist", "-d", "1", "-t", "wav"],
+            "gate_ax.wav", tmp)
+    entry["gate"] = gate
+    expected = {
+        "pwrecord_auto_target": (1, "no_target_node"),
+        "pwrecord_dead_daemon": (1, "pw_connect_failed"),
+        "pwrecord_monitor_alias": (1, "no_target_node"),
+        "parec_no_device": (1, "pa_no_such_entity"),
+        "parecord_no_device": (1, "pa_no_such_entity"),
+        "parec_dead_server": (1, "pa_connect_failed"),
+        "ffmpeg_pulse_default": (251, "ffmpeg_io"),
+        "ffmpeg_alsa_default": (251, "ffmpeg_alsa"),
+        "ffmpeg_pulse_dead_server": (253, "ffmpeg_esrch"),
+        "arecord_default": (1, "alsa_hwparams"),
+        "arecord_pipewire": (1, "alsa_hwparams"),
+        "arecord_unknown_pcm": (1, "alsa_unknown_pcm")}
+    for name, (rc, cls) in expected.items():
+        leg = gate.get(name)
+        if leg is None:
+            # r76 critic: a leg the gate never ran must fail loudly —
+            # the gate's verdict coverage is itself pinned.
+            failures.append(f"gate {name}: leg absent — the expected "
+                            "map is the coverage contract")
+            continue
+        if "blocked" in leg:
+            continue   # named blockage row (e.g. no monitor on host)
+        if leg.get("exit_code") != rc or leg.get("error_class") != cls:
+            failures.append(f"gate {name}: expected ({rc},{cls}) got "
+                            f"({leg.get('exit_code')},"
+                            f"{leg.get('error_class')})")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_bounded_r76_entry():
+    """(2) Bounded capture per consumer: each consumer's own bound —
+    pw-record -n (exact frame count), parec byte-cap on stdout (the
+    parent reads exactly N), parecord's only bound is the SIGTERM
+    sever, arecord -d (exact sample domain, paced on hw / unpaced on
+    null), ffmpeg -t (wall domain, ~0.6 % overshoot on paced)."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture consumers — bounded record operations"}
+    legs = {}
+    src, mon, hw0 = _capture_leg_targets(inv)
+    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+        # arecord's hw leg FIRST — nothing in this arm has held the card
+        # yet, and a held device is a named failure, never retried blind.
+        if hw0:
+            legs["arecord_duration_hw"] = _capture_file_leg(
+                ["arecord", "-D", hw0, "-d", "1", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-t", "wav"],
+                "arec_hw.wav", tmp, exact_bytes=True, paced="hw")
+        else:
+            legs["arecord_duration_hw"] = {
+                "blocked": "arecord -l enumerated no capture device"}
+        legs["arecord_duration_null_unpaced"] = _capture_file_leg(
+            ["arecord", "-D", "null", "-d", "1", "-f", "S16_LE",
+             "-r", "48000", "-c", "2", "-t", "wav"],
+            "arec_null.wav", tmp, exact_bytes=True, paced="unpaced")
+        if src:
+            legs["pwrecord_sample_bound"] = _capture_file_leg(
+                ["pw-record", "--target", src,
+                 "-n", str(CAPTURE_R76_PWR_FRAMES),
+                 "--rate", "48000", "--channels", "2",
+                 "--format", "s16"], "pwr_n.wav", tmp,
+                exact_bytes=True)
+        else:
+            legs["pwrecord_sample_bound"] = {
+                "blocked": "pactl enumerated no non-monitor source"}
+        if inv["default_sink"]:
+            legs["pwrecord_monitor_bound"] = _capture_file_leg(
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "--target", inv["default_sink"],
+                 "-n", str(CAPTURE_R76_PWR_FRAMES),
+                 "--rate", "48000", "--channels", "2",
+                 "--format", "s16"], "pwr_mon.wav", tmp,
+                exact_bytes=True)
+        else:
+            legs["pwrecord_monitor_bound"] = {
+                "blocked": "pactl enumerated no default sink"}
+        if inv["sources"] or inv["monitors"]:
+            # parec byte cap: the consumer has NO bound — the parent
+            # reads exactly cap bytes of its --raw stdout, then SIGTERM.
+            argv = ["parec", "-v", "--raw", "--rate=48000",
+                    "--channels=2", "--format=s16le",
+                    "-d", "@DEFAULT_SOURCE@"]
+            proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    start_new_session=True)
+            buf = bytearray()
+            deadline = time.monotonic() + CAPTURE_R76_TIMEOUT_S
+            while len(buf) < CAPTURE_R76_PAREC_CAP_BYTES:
+                left = deadline - time.monotonic()
+                if left <= 0:
+                    break
+                ready, _, _ = select.select([proc.stdout], [], [],
+                                            min(0.5, left))
+                if not ready:
+                    if proc.poll() is not None:
+                        break
+                    continue
+                chunk = os.read(proc.stdout.fileno(),
+                                min(65536, CAPTURE_R76_PAREC_CAP_BYTES
+                                    - len(buf)))
+                if not chunk:
+                    break
+                buf += chunk
+            if proc.poll() is None:
+                proc.send_signal(signal.SIGTERM)
+            try:
+                proc.wait(timeout=CAPTURE_R76_KILL_WAIT_S)
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
+            err = proc.stderr.read().decode(errors="replace")
+            cls, _ = _capture_errclass(err)
+            spec = re.search(r"sample spec(?:ification)? '([^']+)'",
+                             err)
+            legs["parec_byte_cap"] = {
+                "argv": "parec -v --raw --rate=48000 --channels=2 "
+                        "--format=s16le -d @DEFAULT_SOURCE@ > stdout",
+                "bound": "parent reads exactly cap_bytes, then SIGTERM",
+                "cap_bytes": CAPTURE_R76_PAREC_CAP_BYTES,
+                "bytes_read": len(buf),
+                "cap_honored": len(buf) == CAPTURE_R76_PAREC_CAP_BYTES,
+                "exit_code": proc.returncode,
+                "pa_sample_spec": spec.group(1) if spec else None,
+                "error_class": cls}
+            tail = _capture_tail(err, "-")
+            if tail:
+                legs["parec_byte_cap"]["stderr_tail"] = tail
+        else:
+            legs["parec_byte_cap"] = {
+                "blocked": "pactl enumerated no pulse source"}
+        if inv["sources"]:
+            # parecord's only bound is the sever — the TERM leg IS its
+            # bounded cell (and doubles as its sever-class evidence).
+            legs["parecord_term_bound"] = _capture_sever_cell(
+                ["parecord", "-d", "@DEFAULT_SOURCE@"],
+                "prd_bound.wav", signal.SIGTERM, wait_s=2.5)
+        else:
+            legs["parecord_term_bound"] = {
+                "blocked": "pactl enumerated no non-monitor source"}
+        if mon and inv["ffmpeg_demuxers"].get("pulse"):
+            legs["ffmpeg_pulse_t"] = _capture_file_leg(
+                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+                 "-f", "pulse", "-i", mon, "-t", "1", "-y"],
+                "ffm_p.wav", tmp)
+        else:
+            legs["ffmpeg_pulse_t"] = {
+                "blocked": "no monitor source or no pulse demuxer"}
+        if hw0 and inv["ffmpeg_demuxers"].get("alsa"):
+            legs["ffmpeg_alsa_t"] = _capture_file_leg(
+                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+                 "-f", "alsa", "-i", "plug" + hw0, "-t", "1", "-y"],
+                "ffm_a.wav", tmp)
+        else:
+            legs["ffmpeg_alsa_t"] = {
+                "blocked": "no ALSA capture device or no alsa demuxer"}
+    entry["legs"] = legs
+    exp44 = 44 + CAPTURE_R76_PWR_FRAMES * 4
+    for name in ("pwrecord_sample_bound", "pwrecord_monitor_bound"):
+        leg = legs[name]
+        if "blocked" in leg:
+            continue
+        fin = leg.get("file", {})
+        if not (leg.get("exit_code") == 1 and fin.get("bytes") == exp44
+                and fin.get("data_finalized")):
+            failures.append(
+                f"pwrecord {name}: expected exact-bounded finalized wav "
+                f"(rc=1 — rc is not the verdict — bytes={exp44})")
+    leg = legs["parec_byte_cap"]
+    if "blocked" not in leg and not (
+            leg["cap_honored"] and leg["exit_code"] == 0):
+        failures.append("parec byte cap deviated (expected exactly "
+                        f"{CAPTURE_R76_PAREC_CAP_BYTES} B read then rc=0 "
+                        "on SIGTERM)")
+    leg = legs["parecord_term_bound"]
+    if "blocked" not in leg:
+        fin = leg.get("file", {})
+        # r76 critic D1: finalized+aligned is true on a zero-audio wav
+        # (parecord's ~1.9 s dead start inside a 2.5 s TERM window) —
+        # require a payload witness, not just a well-formed header.
+        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
+                and fin.get("data_64k_aligned")
+                and fin.get("data_actual_zero") is False):
+            failures.append("parecord TERM-bound deviated (expected rc=0 "
+                            "with a finalized 64-KiB-aligned header "
+                            "carrying audio)")
+    leg = legs["arecord_duration_null_unpaced"]
+    if not (leg.get("exit_code") == 0
+            and leg.get("file", {}).get("bytes") == 192044
+            and leg.get("wall_lt_0.5s") is True):
+        failures.append("arecord -D null -d 1 deviated (expected exact "
+                        "192044 B in <0.5 s — the unpaced oracle)")
+    leg = legs["arecord_duration_hw"]
+    if "blocked" not in leg and leg.get("error_class") != "alsa_busy":
+        if not (leg.get("exit_code") == 0
+                and leg.get("file", {}).get("bytes") == 192044
+                and leg.get("wall_lt_0.5s") is False):
+            failures.append("arecord hw -d 1 deviated (expected paced "
+                            "exact 192044 B, wall >= 0.5 s)")
+    leg = legs["ffmpeg_pulse_t"]
+    if "blocked" not in leg:
+        fin = leg.get("file", {})
+        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
+                and fin.get("duration_bucket_s") in (0.75, 1.0, 1.25)):
+            failures.append("ffmpeg -f pulse -t 1 deviated (expected "
+                            "rc=0 finalized wav ~1.0 s)")
+    leg = legs["ffmpeg_alsa_t"]
+    # r76 verifier N1: the alsa bounded leg had NO check — a rc=251
+    # missing-file outcome passed silently. Expect the canonical
+    # capture (rc=0 finalized ~1.0 s) or a NAMED device failure —
+    # contention (alsa_busy) and a hard-open refusal are honest rows.
+    if "blocked" not in leg and leg.get("error_class") not in (
+            "alsa_busy", "ffmpeg_alsa", "ffmpeg_io"):
+        fin = leg.get("file", {})
+        if not (leg.get("exit_code") == 0 and fin.get("data_finalized")
+                and fin.get("duration_bucket_s") in (0.75, 1.0, 1.25)):
+            failures.append("ffmpeg -f alsa -t 1 deviated (expected "
+                            "rc=0 finalized wav ~1.0 s or a named "
+                            "device failure)")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_sever_r76_entry():
+    """(3) Sever classes: SIGTERM/SIGKILL mid-capture — does the
+    consumer finalize the header (usable partial wav) or leave a wound?
+    Per-consumer class pinned; parser usability (stdlib wave vs
+    ffprobe) distinguishes the reject shape from accept-and-lie.
+    Consumer order puts every pulse/pipewire consumer BEFORE the
+    arecord hw legs so the suspend-release window has elapsed."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture sever classes — TERM/KILL mid-record"}
+    src, _, _ = _capture_leg_targets(inv)
+    cells = {}
+    tgt = src or "alsa_input.nonexistent-r76"
+    for sig, tag in ((signal.SIGTERM, "term"), (signal.SIGKILL, "kill")):
+        cells[f"pwrecord_{tag}"] = _capture_sever_cell(
+            ["pw-record", "--target", tgt, "--rate", "48000",
+             "--channels", "2", "--format", "s16"],
+            f"sev_pwr_{tag}.wav", sig)
+        # the sever CLASS is source-independent; the legs use the direct
+        # default source (not a monitor) so resume latency is short and
+        # the flushed-granule shape is deterministic run-over-run.
+        cells[f"parecord_{tag}"] = _capture_sever_cell(
+            ["parecord", "-d", "@DEFAULT_SOURCE@"],
+            f"sev_prd_{tag}.wav", sig, wait_s=2.5)
+        # ffmpeg takes only literal device names — blocked, not
+        # token-mangled, when no source was enumerated.
+        if src:
+            cells[f"ffmpeg_{tag}"] = _capture_sever_cell(
+                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+                 "-f", "pulse", "-i", src, "-y"],
+                f"sev_ffm_{tag}.wav", sig, wait_s=2.5)
+        else:
+            cells[f"ffmpeg_{tag}"] = {
+                "blocked": "pactl enumerated no non-monitor source"}
+    # arecord hw legs LAST: the pulse/pipewire cells above have held and
+    # released the card by now, and a still-held device lands as a named
+    # early-exit. Iterate the enumerated devices until one captures.
+    arec = {"attempts": []}
+    for d in inv["alsa_capture_devices"]:
+        dev = f"hw:{d['card']},{d['device']}"
+        for sig, tag in ((signal.SIGTERM, "term"),
+                         (signal.SIGKILL, "kill")):
+            key = f"arecord_{tag}"
+            if key in cells:
+                continue
+            cell = _capture_sever_cell(
+                ["arecord", "-D", dev, "-f", "S16_LE", "-r", "48000",
+                 "-c", "2", "-t", "wav"], f"sev_arc_{tag}.wav", sig)
+            if cell["early_exit_code"] == 1 and \
+                    cell.get("error_class") == "alsa_busy":
+                arec["attempts"].append(
+                    {"device": dev, "signal": cell["signal"],
+                     "named_failure": "alsa_busy"})
+                continue
+            cell["device"] = dev
+            cells[key] = cell
+    for tag in ("term", "kill"):
+        if f"arecord_{tag}" not in cells:
+            entry[f"arecord_{tag}_blockage"] = (
+                "every enumerated ALSA capture device hit the named busy "
+                "failure" if arec["attempts"] else
+                "no ALSA capture device enumerated")
+    if arec["attempts"]:
+        entry["arecord_contention"] = arec["attempts"]
+    entry["cells"] = cells
+    expected = {
+        # (rc, finalized-after-TERM, KILL placeholder classes)
+        "pwrecord": {"term_rc": 1, "term_final": True,
+                     "kill_rc": -signal.SIGKILL,
+                     "kill_riff": "placeholder_8"},
+        "parecord": {"term_rc": 0, "term_final": True,
+                     "kill_rc": -signal.SIGKILL,
+                     "kill_riff": "placeholder_8"},
+        "ffmpeg": {"term_rc": 255, "term_final": True,
+                   "kill_rc": -signal.SIGKILL},
+        "arecord": {"term_rc": 1, "term_final": True,
+                    "kill_rc": -signal.SIGKILL,
+                    "kill_riff": "placeholder_80000000"}}
+    for consumer, exp in expected.items():
+        tcell = cells.get(f"{consumer}_term")
+        kcell = cells.get(f"{consumer}_kill")
+        if not tcell or not kcell:
+            # arecord absence is honest ONLY when a *_blockage entry
+            # recorded why (contention/no enumeration); absent without
+            # a recorded cause, or any other consumer missing a leg,
+            # voids the verification.
+            covered = consumer == "arecord" and (
+                entry.get(f"{consumer}_term_blockage") or
+                entry.get(f"{consumer}_kill_blockage"))
+            if not covered:
+                failures.append(f"{consumer} sever legs absent — the "
+                                "wound classes went unmeasured")
+            continue
+        if "blocked" in tcell or "blocked" in kcell:
+            continue   # named blockage (e.g. no source enumerated)
+        if "file" not in tcell or "file" not in kcell:
+            failures.append(f"{consumer} sever legs unmeasured (no file "
+                            "inspection — verification voided)")
+            continue
+        if tcell.get("early_exit_code") is not None or \
+                kcell.get("early_exit_code") is not None:
+            # arecord busy legs are filtered before reaching `cells`; a
+            # surviving early-exit is a dead start, not a wound class.
+            failures.append(
+                f"{consumer} sever leg exited before the signal "
+                f"(term={tcell.get('early_exit_code')} "
+                f"kill={kcell.get('early_exit_code')}) — a dead start, "
+                "not a wound class")
+            continue
+        fin = tcell["file"]
+        # r76 critic D1 / reviewer MEDIUM-1: finalized+aligned is TRUE on
+        # a zero-audio wav — a dead-start TERM must not satisfy the
+        # wound verdict. data_actual_zero is recorded per-cell.
+        if not (tcell["exit_code"] == exp["term_rc"]
+                and fin.get("data_finalized") is exp["term_final"]
+                and fin.get("data_actual_zero") is False):
+            failures.append(
+                f"{consumer} TERM sever deviated (expected rc="
+                f"{exp['term_rc']} + finalized header carrying audio; "
+                f"got finalized={fin.get('data_finalized')} "
+                f"data_actual_zero={fin.get('data_actual_zero')})")
+        kfin = kcell["file"]
+        if kcell["exit_code"] != exp["kill_rc"]:
+            failures.append(f"{consumer} KILL sever deviated (expected "
+                            f"rc={exp['kill_rc']})")
+        if consumer == "ffmpeg":
+            # the pinned KILL class is UNFINALIZED: either no file, a
+            # 0-byte file, or a 0xFFFFFFFF-placeholder header over
+            # whatever prefix was already flushed — flush granularity is
+            # muxer-internal and was observed both aligned and not.
+            ok = kfin.get("exists") is False or \
+                kfin.get("file_zero_bytes") is True or (
+                    kfin.get("riff_size_field") == "placeholder_ff" and
+                    kfin.get("data_finalized") is False)
+            if not ok:
+                failures.append("ffmpeg KILL deviated (expected the "
+                                "unfinalized class: missing / 0-byte / "
+                                "placeholder_ff header)")
+        elif consumer == "arecord":
+            # arecord KILL: the data chunk keeps its 0x80000000
+            # placeholder and stdlib wave ACCEPTS it — inflated frame
+            # count (accept-and-lie). The riff size field measured
+            # `other` (a written-but-bogus value); the claim pins the
+            # data field + the parser lie, not that field.
+            if kfin.get("data_declared_field") != "placeholder_80000000":
+                failures.append("arecord KILL deviated (expected "
+                                "data_declared_field="
+                                "placeholder_80000000)")
+            pv = kcell.get("parsers") or {}
+            if pv.get("wave_frames_class") != "inflated":
+                failures.append("arecord KILL deviated (expected stdlib "
+                                "wave to accept-and-inflate the "
+                                "placeholder data size)")
+        elif kfin.get("riff_size_field") != exp["kill_riff"]:
+            failures.append(f"{consumer} KILL deviated (expected "
+                            f"riff_size_field={exp['kill_riff']})")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_name_axis_r76_entry():
+    """(4) Output-name axis: is the container chosen by the filename
+    extension or by an explicit flag? pw-record/parecord select by
+    extension with a wav default for unknown suffixes (libsndfile
+    table); arecord is flag-driven name-blind (-t wins); ffmpeg is
+    extension-STRICT — an unknown suffix fails the muxer with EINVAL
+    before any capture (-f overrides)."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture output-name axis"}
+    src, mon, _ = _capture_leg_targets(inv)
+    legs = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+        tgt = src or "alsa_input.nonexistent-r76"
+        for name, extra in (("wav", ()), ("raw", ()), ("bin", ()),
+                            ("rawflag_on_bin", ("--raw",))):
+            legs["pwrecord_" + name] = _capture_file_leg(
+                ["pw-record", "--target", tgt, *extra,
+                 "-n", str(CAPTURE_R76_NAME_FRAMES),
+                 "--rate", "48000", "--channels", "2",
+                 "--format", "s16"],
+                {"wav": "nx_p.wav", "raw": "nx_p.raw",
+                 "bin": "nx_p.bin",
+                 "rawflag_on_bin": "nx_pf.bin"}[name], tmp,
+                exact_bytes=True)
+        if inv["sources"]:
+            for name, extra, fname in (
+                    ("wav", (), "nx_r.wav"), ("bin", (), "nx_r.bin"),
+                    ("raw", (), "nx_r.raw"),
+                    ("ffwav_on_raw", ("--file-format=wav",),
+                     "nx_rf.raw")):
+                # 2.5 s window: source resume + the first 64 KiB flush
+                # must both fit so the raw leg lands >0 bytes.
+                legs["parecord_" + name] = _capture_sever_cell(
+                    ["parecord", "-d", "@DEFAULT_SOURCE@", *extra], fname,
+                    signal.SIGTERM, wait_s=2.5)
+        else:
+            for name in ("wav", "bin", "raw", "ffwav_on_raw"):
+                legs["parecord_" + name] = {
+                    "blocked": "pactl enumerated no non-monitor source"}
+        for name, extra in (
+                ("t_wav_on_bin", ("-t", "wav")),
+                ("t_raw_on_wav", ("-t", "raw")),
+                ("default_on_bin", ())):
+            legs["arecord_" + name] = _capture_file_leg(
+                ["arecord", "-D", "null", "-d", "1", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", *extra],
+                {"t_wav_on_bin": "nx_a.bin", "t_raw_on_wav": "nx_a.wav",
+                 "default_on_bin": "nx_ad.bin"}[name], tmp,
+                exact_bytes=True)
+        if mon and inv["ffmpeg_demuxers"].get("pulse"):
+            for name, extra, fname in (
+                    ("wav", (), "nx_f.wav"), ("bin", (), "nx_f.bin"),
+                    ("f_s16le_on_bin", ("-f", "s16le"), "nx_ff.bin")):
+                legs["ffmpeg_" + name] = _capture_file_leg(
+                    ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+                     "-f", "pulse", "-i", mon, "-t", "0.5", "-y",
+                     *extra], fname, tmp)
+        else:
+            for name in ("wav", "bin", "f_s16le_on_bin"):
+                legs["ffmpeg_" + name] = {
+                    "blocked": "no monitor source or no pulse demuxer"}
+    entry["legs"] = legs
+    for leg in legs.values():
+        # r76 simplifier D7: _capture_out_kind already returns "missing"
+        # for an exists=False file leaf — the elif was unreachable.
+        if "file" in leg:
+            leg["out_kind"] = _capture_out_kind(leg["file"])
+    expected_kind = {
+        "pwrecord_wav": "riff_wav", "pwrecord_raw": "raw_stream",
+        "pwrecord_bin": "riff_wav", "pwrecord_rawflag_on_bin":
+        "raw_stream", "parecord_wav": "riff_wav",
+        "parecord_bin": "riff_wav", "parecord_raw": "raw_stream",
+        "parecord_ffwav_on_raw": "riff_wav",
+        "arecord_t_wav_on_bin": "riff_wav",
+        "arecord_t_raw_on_wav": "raw_stream",
+        "arecord_default_on_bin": "riff_wav",
+        "ffmpeg_wav": "riff_wav", "ffmpeg_bin": "missing",
+        "ffmpeg_f_s16le_on_bin": "raw_stream"}
+    for name, kind in expected_kind.items():
+        leg = legs.get(name, {})
+        if "blocked" in leg or leg.get("early_exit_code") is not None:
+            continue
+        if leg.get("out_kind") != kind:
+            failures.append(f"name axis {name}: expected {kind} got "
+                            f"{leg.get('out_kind')} "
+                            f"(rc={leg.get('exit_code')})")
+    if legs.get("ffmpeg_bin", {}).get("error_class") not in (
+            None, "ffmpeg_muxer"):
+        failures.append("ffmpeg .bin leg deviated (expected the "
+                        "extension-strict muxer EINVAL or nothing)")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_device_axis_r76_entry():
+    """(5) arecord -D device axis: the capture-side INVERSION of r75's
+    playback result — plugin routes {default, pipewire} that accepted
+    playback are blocked for capture (set_params:1462), kernel devices
+    take the format-coupled rejection class (-c 1 -> set_params:1404),
+    and the null device is an EXACT-but-UNPACED oracle (never run it
+    unbounded: it floods 2 GiB rotation files at CPU speed)."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "arecord -D device axis (capture)"}
+    _, _, hw0 = _capture_leg_targets(inv)
+    legs = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+        targets = [("null", "null"), ("default", "default"),
+                   ("pipewire", "pipewire"), ("sysdefault", "sysdefault")]
+        if hw0:
+            targets.append(("plughw_first", "plug" + hw0))
+            targets.append(("hw_first", hw0))
+        for name, dev in targets:
+            legs[name] = _capture_file_leg(
+                ["arecord", "-D", dev, "-d", "1", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-t", "wav"],
+                f"dev_{name}.wav", tmp, exact_bytes=True,
+                paced="unpaced" if name == "null" else "paced")
+        if hw0:
+            legs["hw_first_mono"] = _capture_file_leg(
+                ["arecord", "-D", hw0, "-d", "1", "-f", "S16_LE",
+                 "-r", "48000", "-c", "1", "-t", "wav"],
+                "dev_hw_mono.wav", tmp)
+        else:
+            legs["hw_first"] = {
+                "blocked": "arecord -l enumerated no capture device"}
+            legs["plughw_first"] = {
+                "blocked": "arecord -l enumerated no capture device"}
+            legs["hw_first_mono"] = {
+                "blocked": "arecord -l enumerated no capture device"}
+    entry["legs"] = legs
+    for name in ("default", "pipewire"):
+        # r76 reviewer LOW-7: same contention carve-out as the bounded
+        # entry — a held device records alsa_busy, not a failure.
+        if legs[name].get("error_class") not in (
+                "alsa_hwparams", "alsa_busy"):
+            failures.append(f"arecord -D {name}: expected the "
+                            "set_params:1462 capture block or a busy")
+    if legs["null"].get("exit_code") != 0 or \
+            legs["null"].get("file", {}).get("bytes") != 192044 or \
+            legs["null"].get("wall_lt_0.5s") is not True:
+        failures.append("arecord -D null -d 1 deviated from the unpaced "
+                        "exact-size oracle")
+    # hw-route legs (hw/plughw/sysdefault) record honestly: a held device
+    # lands the named alsa_busy class, never a retried or fabricated run.
+    mono = legs.get("hw_first_mono", {})
+    if "blocked" not in mono and mono.get("error_class") not in (
+            "alsa_channels", "alsa_busy"):
+        failures.append("arecord hw -c 1 deviated (expected the "
+                        "channels-count named failure or a busy)")
+    # r76 verifier N2: sysdefault/plughw/hw are WORKING capture routes
+    # (rc=0, exact paced 192044 B) — they were emitted but never
+    # checked, so a blocked-or-busy leg passed silently. Named
+    # contention (alsa_busy) stays an honest row.
+    for name in ("sysdefault", "plughw_first", "hw_first"):
+        leg = legs.get(name, {})
+        if "blocked" in leg or leg.get("error_class") == "alsa_busy":
+            continue
+        if not (leg.get("exit_code") == 0
+                and leg.get("file", {}).get("bytes") == 192044
+                and leg.get("wall_lt_0.5s") is False):
+            failures.append(f"arecord -D {name} deviated (expected "
+                            "paced exact 192044 B or a named busy)")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_roundtrip_r76_entry():
+    """(6) Roundtrip (stretch): play the 4.0 s member into the default
+    sink while capturing its monitor; feed captured bytes back through
+    two EXISTING detect legs (sox -V6 stat detect + aplay -D null
+    content-magic) — do they land in the same verdict class as the
+    source member? A sink-less host or absent pacer member degrades to
+    a named blocked (r76 reviewer LOW-6 — the guard is sink+member,
+    not monitor enumeration)."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture->playback roundtrip via sink monitor"}
+    sink = inv["default_sink"]
+    member = CAPTURE_R76_MEMBER
+    if not sink or not member.exists():
+        entry["blocked"] = ("no default sink" if not sink else
+                            "pacer member absent")
+        entry["failures"] = failures
+        return entry
+    # the captured file feeds aplay_leg("file"), whose label is
+    # path.relative_to(ROOT) — the scratch dir must live under ROOT,
+    # removed after the leg like every tmp dir. r76 reviewer MEDIUM-2:
+    # the dir is seat-NEUTRAL (a replay from another seat's scope wrote
+    # into live/r76-author and labelled its evidence as such).
+    scratch = ROOT / "live" / "capture-r76-roundtrip"
+    scratch.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="capture-r76-",
+                                     dir=scratch) as tmp:
+        cap = Path(tmp) / "roundtrip_capture.wav"
+        frames = 240000  # 5.0 s at 48000 Hz stereo s16
+        rec_argv = ["pw-record", "-P", "stream.capture.sink=true",
+                    "--target", sink, "-n", str(frames),
+                    "--rate", "48000", "--channels", "2",
+                    "--format", "s16", str(cap)]
+        rec = subprocess.Popen(
+            rec_argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True)
+        time.sleep(0.7)
+        play = subprocess.run(
+            ["pw-cat", "-p", str(member)], capture_output=True,
+            timeout=CAPTURE_R76_TIMEOUT_S)
+        try:
+            rec.wait(timeout=CAPTURE_R76_TIMEOUT_S)
+        except subprocess.TimeoutExpired:
+            os.killpg(rec.pid, signal.SIGKILL)
+            rec.wait()
+        insp = _capture_wav_inspect(cap)
+        # r76 reviewer LOW-9: record the REAL argv with only the volatile
+        # values masked — a hand-paraphrased argv hides actual flags.
+        entry["capture_leg"] = {
+            "argv": " ".join(rec_argv[:-1])
+                    .replace(sink, "<default-sink>") + " <out>",
+            "exit_code": rec.returncode,
+            "player_argv": "pw-cat -p " + member.name,
+            "player_exit_code": play.returncode,
+            "file": {"exists": insp.get("exists"),
+                     "bytes": insp.get("bytes"),
+                     "riff": insp.get("riff"),
+                     "data_finalized": insp.get("data_finalized"),
+                     "fmt": insp.get("fmt")}}
+        # content witness: the captured pcm must carry real signal, not
+        # a silent monitor — peak within 3 dB of the member's own peak.
+        data = cap.read_bytes() if cap.exists() else b""
+        off = next((c["offset"] + 8 for c in insp.get("chunks", [])
+                    if c["id"] == "data"), 44)
+        pcm = np.frombuffer(data[off:], dtype="<i2").astype(np.float64)
+        src_pcm = np.frombuffer(member.read_bytes()[44:],
+                                dtype="<i2").astype(np.float64)
+        cap_peak = float(np.max(np.abs(pcm))) if len(pcm) else 0.0
+        src_peak = float(np.max(np.abs(src_pcm)))
+        nonzero = float((np.abs(pcm) > 0).mean()) if len(pcm) else 0.0
+        entry["content_witness"] = {
+            "nonzero_fraction_gt_half": bool(nonzero > 0.5),
+            "peak_within_3db_of_member":
+                bool(abs(20 * np.log10(max(cap_peak, 1) / 32768)
+                         - 20 * np.log10(src_peak / 32768)) <= 3.0)}
+        # the existing detect legs on captured bytes vs the source member
+        # (argv paths are ABSOLUTE — the leg's cwd is the caller's; the
+        # receipt label stays the repo-relative form)
+        mem_rel = str(member.relative_to(ROOT))
+        sox_cap = transport_leg(["sox", "-V6", str(cap), "-n", "stat"],
+                                "live/capture-r76-roundtrip/<tmp>/"
+                                "roundtrip_capture.wav")
+        sox_mem = transport_leg(["sox", "-V6", str(member), "-n", "stat"],
+                                mem_rel)
+        aplay_cap = aplay_leg("file", cap, b"", 0.0)
+        aplay_mem = aplay_leg("file", member, b"", 0.0)
+        entry["detect_legs"] = {
+            "sox": {"member": sox_mem, "captured": sox_cap,
+                    "same_detect_class":
+                        sox_mem["sox_detected_format"] ==
+                        sox_cap["sox_detected_format"]},
+            "aplay": {"member": {"alsa_kind": aplay_mem["alsa_kind"],
+                                 "exit_code": aplay_mem["exit_code"],
+                                 "alsa_error": aplay_mem["alsa_error"]},
+                      "captured": {"alsa_kind": aplay_cap["alsa_kind"],
+                                   "exit_code": aplay_cap["exit_code"],
+                                   "alsa_error": aplay_cap["alsa_error"],
+                                   "stderr_tail":
+                                       aplay_cap.get("stderr_tail")},
+                      "same_detect_class":
+                          aplay_mem["alsa_kind"] ==
+                          aplay_cap["alsa_kind"]}}
+        if not (entry["capture_leg"]["file"].get("data_finalized")
+                and insp.get("bytes") == 44 + frames * 4):
+            failures.append("roundtrip capture leg deviated (expected a "
+                            "finalized exact-frame wav)")
+        for name, leg in entry["detect_legs"].items():
+            if leg["same_detect_class"] is not True:
+                failures.append(f"roundtrip {name} detect leg: captured "
+                                "bytes did not land in the member's "
+                                "verdict class")
+        if not (entry["content_witness"]["nonzero_fraction_gt_half"]
+                and entry["content_witness"]["peak_within_3db_of_member"]):
+            failures.append("roundtrip content witness deviated "
+                            "(captured pcm silent or level-far from the "
+                            "member)")
+    entry["failures"] = failures
+    return entry
+
+
+def transport_entry(member, path):
+    """Receipt entry: transport axis matrix + verdict groups + fork pin."""
+    arms = transport_matrix(path)
+    groups = []
+    for transport in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
+        arm = arms[transport]
+        signature = (arm["sox_detected_format"], arm["sox_route"], arm["exit_code"],
+                     arm["samples_read"], arm["error"])
+        for group in groups:
+            if group[0] == signature:
+                group[1].append(transport)
+                break
+        else:
+            groups.append((signature, [transport]))
+    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
+             "transport_axis": arms,
+             "transport_protocol": {"arm_timeout_s": TRANSPORT_R67_ARM_TIMEOUT_S,
+                                    "fifo_writer_hold_s": fifo_writer_hold_s(),
+                                    "fifo_feed": "one-shot write then writer lingers"},
+             "transport_verdict_groups": [
+                 {"transports": ts, "sox_detected_format": sig[0], "sox_route": sig[1],
+                  "exit_code": sig[2], "samples_read": sig[3], "error": sig[4]}
+                 for sig, ts in groups],
+             "transport_fork": len(groups) > 1,
+             "failures": []}
+    if entry["transport_fork"]:
+        desc = " vs ".join("/".join(ts) + "=" + (sig[4] or f"decode {sig[3]} samples")
+                           for sig, ts in groups)
+        entry["failures"].append(f"transport: detection+decode verdict forks across transports ({desc})")
+    return entry
+
+
+# ---------------------------------------------------------------------------
+# r77 CAPTURE-SOURCE frontier: *which node did we actually capture*, what a
+# dead target does to a live capture, how far each reader can be trusted, and
+# the header arecord writes at open.
+#
+# A NEW parallel ledger family, --probe-capture-r77; prior rows untouched and
+# the r76 folds' guards (data_actual_zero, leg totality, alsa_busy carve-out)
+# are inherited, not relaxed. Surface facts below are THIS-HOST measurements
+# (PipeWire 1.6.8, pacat 17.0-98, alsa-utils 1.2.16, ffmpeg n9.0.1, SoX_ng
+# 14.8.0.1, libsndfile/sndfile-info); counts and shapes are the pinned
+# claims, names are the inventory:
+#   SOURCE SELECTION. `-P stream.capture.sink=true` makes a *sink* target
+#     resolve, but a *source* name, `default`, `pulse` or garbage does NOT
+#     fail — it silently falls back to the DEFAULT sink's monitor at the
+#     same rc, the same byte count and the same finalized header. Without
+#     the prop, sink targets produce a 44-byte empty wav. The capture node's
+#     own `target.object` prop LIES (it names the requested node while the
+#     stream consumes the default monitor); `pw-link -l`'s producer list is
+#     the only honest statement of consumption, and content (a tone anchor)
+#     is the only in-artifact one. The default *source* on this host is
+#     digital silence, so byte identity between two source captures is NOT
+#     evidence — every cell here is tone-anchored.
+#   TARGET LOSS. Destroying the captured node mid-run is invisible: the
+#     capture keeps delivering frames at the nominal rate, rc is unchanged,
+#     the header still finalizes, stderr is empty, and the bounded artifact
+#     is byte-identical to its no-event baseline. Named class
+#     `sustained_after_target_loss`.
+#   READER TRUST. stdlib wave fails safe (rejects the unwritten-header
+#     family) but accepts-and-inflates an over-declared one; sndfile-info is
+#     honest on every wound measured; ffprobe abstains on the 44-byte files.
+#     `soxi -s`/`soxi -D` echo the header's DECLARED size field, so on a
+#     severed arecord leg they report the leg's own bound back to the caller
+#     (`-d 12` KILL -> soxi -D 12.000000 s on 0.375 s of audio; unbounded
+#     KILL -> 11184.810667 s). Named class `declared_echo`.
+#   ARECORD OPEN HEADER. arecord writes a size field at OPEN, derived from
+#     the leg's own bound: `-d N` -> data_declared == N * rate * ch * bps;
+#     unbounded -> 0x80000000 (2 GiB). A KILL therefore leaves the
+#     *predicted* size, whose inflation is sever-wall-time dependent; a TERM
+#     finalizes and patches it. The r76 row "arecord KILL => 0x80000000
+#     placeholder" is the UNBOUNDED case of this law, not a consumer shape.
+#   SPLIT SENTINEL. A bounded `-D null` leg that crosses 0x80000000 data
+#     bytes (0x80000000 + 44 total) is RENAMED to `<name>-01.wav`, then
+#     `-02`, ...; the requested path never exists and the caller's own
+#     existence check reports "no file" for a capture that wrote 2 GiB. The
+#     finalized split member declares 0x7FFFFFFF (the RIFF clamp), NOT the
+#     0x80000000 open-time placeholder. Every leg here is hard byte-capped
+#     and its scratch dir is bounded and removed.
+#   FORMAT AXIS. pw-record converts or refuses: every legal
+#     --format/--rate/--channels is honored (the source's own format never
+#     constrains the output) and an illegal request is a pre-capture
+#     `usage_refusal` at rc=1 that leaves NO FILE AT ALL (structurally
+#     different from the 44-byte no-target empty wav).
+CAPTURE_R77_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
+CAPTURE_R77_KILL_WAIT_S = 5.0
+CAPTURE_R77_LATTICE_FRAMES = 96000      # 2.0 s @ 48000 x 2ch x s16
+CAPTURE_R77_TONE_LEAD_S = 0.3
+CAPTURE_R77_LINK_SAMPLE_S = 0.5
+CAPTURE_R77_SETTLE_S = 0.8
+CAPTURE_R77_DEVICE_SETTLE_S = 1.0   # ALSA release lag between legs
+CAPTURE_R77_READER_WAIT_S = 2.5
+CAPTURE_R77_FORMAT_FRAMES = 4800        # 0.1 s — legality is the claim
+CAPTURE_R77_LOSS_FRAMES = 96000
+CAPTURE_R77_LOSS_UNLOAD_S = 0.6
+CAPTURE_R77_LOSS_LINK_AT = (0.3, 0.9)   # pre-unload / post-unload
+CAPTURE_R77_LOSS_BYTES = 44 + CAPTURE_R77_LOSS_FRAMES * 4   # -n bound
+CAPTURE_R77_LOSS_SAMPLE_AT = (0.4, 0.9, 1.6, 2.6)
+CAPTURE_R77_LOSS_UNLOAD_WALL_S = 1.0
+CAPTURE_R77_LOSS_SEVER_S = 3.0
+# Per-run sink name — a fixed name lets a concurrent seat's unload kill
+# this probe's sink mid-leg (measured on this host: contended run unloads
+# another seat's identically-named sink). The pid keeps it unique.
+CAPTURE_R77_NULL_SINK = f"r77_loss_sink_{os.getpid()}"
+CAPTURE_R77_FRAMES_PER_SECOND = 48000   # frames/s at the pinned rate
+CAPTURE_R77_BYTES_PER_SECOND = 192000   # 48000 x 2ch x s16 — the -d oracle
+CAPTURE_R77_SPLIT_DATA_LIMIT = 0x80000000
+CAPTURE_R77_SPLIT_TOTAL_LIMIT = 0x80000000 + 44
+CAPTURE_R77_SPLIT_LIMIT_FRAMES = CAPTURE_R77_SPLIT_DATA_LIMIT // 4
+CAPTURE_R77_SPLIT_MARGIN_FRAMES = 240000   # 0.5 s at the pinned frame size
+CAPTURE_R77_SPLIT_UNDER_FRAMES = \
+    CAPTURE_R77_SPLIT_LIMIT_FRAMES - CAPTURE_R77_SPLIT_MARGIN_FRAMES
+CAPTURE_R77_SPLIT_OVER_FRAMES = \
+    CAPTURE_R77_SPLIT_LIMIT_FRAMES + CAPTURE_R77_SPLIT_MARGIN_FRAMES
+CAPTURE_R77_SPLIT_BYTE_CAP = 2400000000   # hard watchdog ceiling (2.4 GB)
+CAPTURE_R77_SPLIT_WALL_CAP_S = 60.0
+CAPTURE_R77_SPLIT_SCRATCH = ROOT / "live" / "capture-r77-split"
+CAPTURE_R77_READERS = ("wave", "ffprobe", "soxi_s", "soxi_D", "sndfile")
+CAPTURE_R77_ARECORD_BASE = ("arecord", "-f", "S16_LE", "-r", "48000",
+                            "-c", "2", "-t", "wav")
+CAPTURE_R77_TONE_MEMBER = CONSUMER_R73_PACER   # 4.0 s nonzero wav
+
+
+# r77-local named classes, most-specific first. Deliberately NOT appended to
+# the shared _CAPTURE_ERR_CLASSES: inserting an earlier-matching pattern
+# there could reclassify an r76 leg's stderr under contention and perturb a
+# committed prior row. Additive here, hoistable later as a deliberate diff.
+_CAPTURE_R77_ERR_CLASSES = (
+    ("alsa_read_eintr", r"read error: Interrupted system call"),
+    ("usage_refusal", r"pw-record \[options\]"),
+) + _CAPTURE_ERR_CLASSES
+
+
+def _capture_r77_errclass(text):
+    """First matching named class on a consumer's stderr (r77 tuple)."""
+    for name, pat in _CAPTURE_R77_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _capture_r77_sha256(path):
+    if not path.exists():
+        return None
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+def _capture_r77_sha_pair(a, b):
+    """Byte-identity check that fails CLOSED on absence — None==None is
+    not a match (r77 critic)."""
+    if a is None or b is None:
+        return None
+    return a == b
+
+
+def _capture_r77_pcm_stats(path, insp):
+    """The content witness — the only discriminator a silent fallback
+    leaves inside the artifact. `nonzero_frac` is bucketed to 0.05 because
+    the raw fraction is host-load dependent; `carries_tone` is the pinned
+    boolean (this host's default source is DIGITAL SILENCE, so any nonzero
+    audio on a capture is evidence of a monitor, never of a source)."""
+    st = {"peak": None, "nonzero_frac": None, "carries_tone": None}
+    if not insp.get("exists") or not insp.get("bytes"):
+        return st
+    off = next((c["offset"] + 8 for c in insp.get("chunks", [])
+                if c["id"] == "data"), None)
+    fmt = insp.get("fmt") or {}
+    if off is None or not fmt.get("bits"):
+        st["unsupported"] = "no data chunk or no fmt leaf"
+        return st
+    if fmt.get("tag") not in (1, 65534) or fmt.get("bits") != 16:
+        st["unsupported"] = f"tag{fmt.get('tag')}/{fmt.get('bits')}b"
+        return st
+    payload = insp["bytes"] - off
+    if payload % 2:
+        st["unsupported"] = "odd trailing byte"
+        return st
+    if not payload:
+        return st
+    # memmap, not read_bytes: the split-sentinel payload is 2.1 GiB.
+    pcm = np.memmap(path, dtype="<i2", mode="r", offset=off,
+                    shape=payload // 2)
+    mag = np.abs(pcm.astype(np.float64))
+    st["peak"] = int(mag.max())
+    raw_frac = float((mag > 0).mean())
+    st["nonzero_frac"] = round(raw_frac / 0.05) * 0.05
+    # compare the RAW fraction — the bucketed leaf has a dead zone at
+    # exactly 0.05 (r77 critic: nonzero_frac>=0.075 >raw>0.05 region).
+    st["carries_tone"] = raw_frac > 0.05
+    return st
+
+
+def _capture_r77_reap(proc, timeout_s=CAPTURE_R77_TIMEOUT_S):
+    """Bounded wait, then KILL the whole process group — one escalation
+    policy for every r77 leg."""
+    try:
+        proc.wait(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+
+
+def _capture_r77_link_producers():
+    """`pw-link -l` producer set for a live pw-record capture. This is the
+    only honest statement of *consumption*: the capture node's own
+    `target.object` prop is a statement of INTENT. The consumer section of
+    `pw-link -l` lists each port on its own top-level line followed by
+    indented `|<- <producer>` lines — the producer is NEVER on the port's
+    own line, so a same-line parse silently returns the empty set."""
+    out = {"producers": [], "nodes": [], "exit": None}
+    try:
+        proc = subprocess.run(["pw-link", "-l"], capture_output=True,
+                              timeout=10)
+        out["exit"] = proc.returncode
+        text = proc.stdout.decode(errors="replace")
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        out["error"] = str(exc)[:120]
+        return out
+    per_port, port = {}, None
+    for ln in text.splitlines():
+        if not ln or not ln[0].isspace():
+            # a new top-level entry: a port name, or a foreign node's name
+            port = ln.strip() if ln.strip().startswith("pw-record:input_") \
+                else None
+            continue
+        if port and "|<-" in ln:
+            per_port.setdefault(port, []).append(ln.split("|<-", 1)[1].strip())
+    out["per_port"] = {k: sorted(set(v)) for k, v in per_port.items()}
+    out["producers"] = sorted({p for v in out["per_port"].values() for p in v})
+    # A stale link from a previous cell's node can survive ~2 s, so the
+    # consumed node is the producer present on BOTH channels — the union
+    # would silently admit a ghost as consumption.
+    out["nodes"] = _capture_r77_link_nodes(out["per_port"])
+    out["ambiguous"] = len(out["nodes"]) > 1
+    return out
+
+
+def _capture_r77_link_nodes(per_port):
+    """Consumed node set from a per-port producer map: the producer on BOTH
+    channels, falling back to the union only when a channel is missing."""
+    fl = set(per_port.get("pw-record:input_FL", []))
+    fr = set(per_port.get("pw-record:input_FR", []))
+    both = fl & fr
+    return sorted({p.rsplit(":", 1)[0] for p in (both or (fl | fr))})
+
+
+def _capture_r77_link_delta(before, during):
+    """This cell's own links, isolated by DIFFERENCING the link table.
+
+    `pw-link -l` lists ports by NAME, so a concurrent pw-record client on a
+    shared host is indistinguishable from this one and its link merges into
+    the same port entries — reading consumption straight off the table
+    silently attributes a foreign link to this capture. A foreign client's
+    link is present in both samples and cancels; only a client that starts
+    or stops *inside* the cell survives the difference, and that residual
+    is exactly what `ambiguous` names."""
+    out = {"producers": [], "nodes": [], "ambiguous": False}
+    b, d = before.get("per_port", {}), during.get("per_port", {})
+    merged = {}
+    for port in set(b) | set(d):
+        merged[port] = sorted(set(d.get(port, [])) - set(b.get(port, [])))
+    out["producers"] = sorted({p for v in merged.values() for p in v})
+    out["nodes"] = _capture_r77_link_nodes(merged)
+    out["ambiguous"] = len(out["nodes"]) > 1
+    out["foreign_links_ignored"] = bool(
+        set(during.get("producers", [])) - set(out["producers"]))
+    return out
+
+
+def _capture_r77_node_props(owner_pid=None):
+    """The live pw-record node's own advertised target — recorded to
+    demonstrate the provenance trap, never used as a verdict. Matched by
+    owning pid, not by name alone — a concurrent seat's pw-record node has
+    the same application.name (r77 critic). `application.process.id` lives
+    on the CLIENT object, not the node (and pw-record's client announces
+    itself as pw-cat); resolve node.props.client.id -> client.props."""
+    out = {"nodes": []}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        out["error"] = type(exc).__name__
+        return out
+    client_pid = {}
+    for obj in dump:
+        if not str(obj.get("type", "")).endswith("Client"):
+            continue
+        cprops = ((obj.get("info") or {}).get("props") or {})
+        cpid = cprops.get("application.process.id")
+        if cpid is not None:
+            client_pid[str(obj.get("id"))] = str(cpid)
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        props = ((node.get("info") or {}).get("props") or {})
+        if props.get("application.name") != "pw-record":
+            continue
+        if owner_pid is not None and \
+                client_pid.get(str(props.get("client.id"))) != str(owner_pid):
+            continue
+        out["nodes"].append({"target_object": props.get("target.object"),
+                             "stream_capture_sink":
+                                 props.get("stream.capture.sink")})
+    return out
+
+
+def _capture_r77_wait_clear(deadline_s=2.0):
+    """A previous cell's pw-record node survives teardown for ~1 s (r76
+    measured the contention) and would pollute the topology witness. Wait
+    for the link table to clear, and say so when it does not."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < deadline_s:
+        if not _capture_r77_link_producers().get("producers"):
+            return round(time.monotonic() - t0, 2)
+        time.sleep(0.2)
+    return None
+
+
+def _capture_r77_file_leg(argv, fname, tmp):
+    """One bounded file-writing leg under the r77 class set. Every leg here
+    is exactly bounded (`-n <frames>`), so the byte count is a pinned leaf."""
+    out = Path(tmp) / fname
+    t0 = time.monotonic()
+    text, rc, blocked = _capture_run(argv + [str(out)], CAPTURE_R77_TIMEOUT_S)
+    wall = time.monotonic() - t0
+    insp = _capture_wav_inspect(out)
+    cls, line = _capture_r77_errclass(text)
+    leg = {"argv": " ".join(argv) + " <out>", "exit_code": rc,
+           "error_class": cls, "blocked": blocked is not None,
+           "wall_lt_0.5s": wall < 0.5}
+    if line or blocked:
+        leg["error"] = (line.replace(str(out), "<out>") if line else blocked)
+    fin = {"exists": insp["exists"]}
+    if insp.get("bytes") is not None:
+        fin["bytes"] = insp["bytes"]
+    if insp.get("riff"):
+        fin["riff_size_field"] = insp["riff_size_field"]
+        fin["fmt"] = insp.get("fmt")
+        fin["data_declared"] = insp.get("data_declared")
+        fin["data_actual"] = insp.get("data_actual")
+        fin["data_declared_field"] = insp.get("data_declared_field")
+        fin["data_finalized"] = insp.get("data_finalized")
+        fin["data_actual_zero"] = insp.get("data_actual") == 0
+    else:
+        fin["kind"] = _capture_out_kind(insp)
+    leg["file"] = fin
+    tail = _capture_tail(text, str(out))
+    if tail:
+        leg["stderr_tail"] = tail
+    return leg
+
+
+def _capture_r77_frame_class(value, honest, declared):
+    """Frame-domain verdict for one reader answer. `declared_echo` is the
+    r77 class the reader matrix needed: the answer equals the header's
+    DECLARED frame count rather than the audio's — a reader that repeats the
+    caller's request (or the unwritten placeholder) back as a measurement."""
+    if value is None:
+        return "absent"
+    if honest == 0:
+        return "honest_empty" if value == 0 else "inflated"
+    if value == honest:
+        return "honest"
+    if declared != honest and value == declared:
+        return "declared_echo"
+    if value > honest:
+        return "inflated"
+    return "underreports"
+
+
+def _capture_r77_readers(path, insp):
+    """Five independent readers on one wound, in the frame domain.
+    `honest` is derived from the artifact's own data chunk, never from a
+    reader; `declared` is the header's size field, which is what a
+    `declared_echo` reader repeats."""
+    fmt = insp.get("fmt") or {}
+    frame_bytes = fmt.get("channels", 0) * (fmt.get("bits", 0) // 8)
+    rate = fmt.get("rate") or CAPTURE_R77_FRAMES_PER_SECOND
+    honest = (insp.get("data_actual") or 0) // frame_bytes if frame_bytes else 0
+    declared = (insp.get("data_declared") or 0) // frame_bytes \
+        if frame_bytes else 0
+    out = {"honest_frames": honest, "declared_frames": declared,
+           "frame_bytes": frame_bytes, "rate": rate}
+    try:
+        with wave.open(str(path), "rb") as w:
+            n = w.getnframes()
+        out["wave"] = {"value": n, "verdict":
+                       _capture_r77_frame_class(n, honest, declared)}
+    except Exception as exc:
+        out["wave"] = {"value": None, "verdict": "rejects",
+                       "error": type(exc).__name__}
+    try:
+        proc = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "json", str(path)], capture_output=True, timeout=10)
+        dur = json.loads(proc.stdout or b"{}").get("format", {}).get("duration")
+        if dur is None:
+            out["ffprobe"] = {"value": None, "verdict": "abstain"}
+        else:
+            n = round(float(dur) * rate)
+            out["ffprobe"] = {
+                "duration_s": round(float(dur), 6), "value": n,
+                "verdict": _capture_r77_frame_class(n, honest, declared)}
+    except (subprocess.TimeoutExpired, OSError, ValueError, TypeError):
+        out["ffprobe"] = {"value": None, "verdict": "absent"}
+    for key, flag in (("soxi_s", "-s"), ("soxi_D", "-D")):
+        try:
+            proc = subprocess.run(["soxi", flag, str(path)],
+                                  capture_output=True, timeout=10)
+            raw = proc.stdout.decode(errors="replace").strip()
+            if not raw:
+                out[key] = {"value": None, "verdict": "absent"}
+                continue
+            if flag == "-s":
+                n = int(float(raw))
+            else:
+                n = round(float(raw) * rate)
+            out[key] = {"raw": raw, "value": n,
+                        "verdict": _capture_r77_frame_class(n, honest,
+                                                            declared)}
+        except (subprocess.TimeoutExpired, OSError, ValueError):
+            out[key] = {"value": None, "verdict": "absent"}
+    try:
+        proc = subprocess.run(["sndfile-info", str(path)],
+                              capture_output=True, timeout=10)
+        m = re.search(r"^Frames\s*:\s*(\d+)",
+                      proc.stdout.decode(errors="replace"), re.M)
+        if m:
+            n = int(m.group(1))
+            out["sndfile"] = {"value": n, "verdict":
+                              _capture_r77_frame_class(n, honest, declared)}
+        else:
+            out["sndfile"] = {"value": None, "verdict": "reject_or_absent",
+                              "exit_code": proc.returncode}
+    except (subprocess.TimeoutExpired, OSError):
+        out["sndfile"] = {"value": None, "verdict": "absent"}
+    return out
+
+
+def _capture_r77_sever_cell(argv, fname, sig, tmp,
+                            wait_s=CAPTURE_R77_READER_WAIT_S):
+    """Spawn a file-writing capture, sever it mid-record, and read the
+    wound with all five readers. A leg that exits BEFORE the sever records
+    `early_exit_code` — a named dead-start, never a wound verdict."""
+    out = Path(tmp) / fname
+    proc = subprocess.Popen(argv + [str(out)], stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, start_new_session=True)
+    early_rc = None
+    try:
+        proc.wait(timeout=wait_s)
+        early_rc = proc.returncode
+    except subprocess.TimeoutExpired:
+        pass
+    if early_rc is None:
+        if proc.poll() is None:
+            proc.send_signal(sig)
+        _capture_r77_reap(proc, CAPTURE_R77_KILL_WAIT_S)
+    err = proc.stderr.read().decode(errors="replace") \
+        if proc.stderr else ""
+    insp = _capture_wav_inspect(out)
+    cls, line = _capture_r77_errclass(err)
+    cell = {"argv": " ".join(argv) + " <out>",
+            "signal": "SIGTERM" if sig == signal.SIGTERM else "SIGKILL",
+            "sever_after_s": wait_s, "early_exit_code": early_rc,
+            "exit_code": proc.returncode}
+    if cls:
+        cell["error_class"], cell["error"] = \
+            cls, line.replace(str(out), "<out>")
+    fin = {"exists": insp["exists"]}
+    if insp.get("bytes") is not None:
+        fin["bytes"] = insp["bytes"]
+        fin["file_zero_bytes"] = insp["bytes"] == 0
+    if insp.get("riff"):
+        fin["riff_size_field"] = insp["riff_size_field"]
+        fin["data_declared_field"] = insp.get("data_declared_field")
+        fin["data_declared"] = insp.get("data_declared")
+        fin["data_actual"] = insp.get("data_actual")
+        fin["data_finalized"] = insp.get("data_finalized")
+        fin["data_actual_zero"] = insp.get("data_actual") == 0
+        fin["data_64k_aligned"] = insp.get("data_64k_aligned")
+        fin["fmt"] = insp.get("fmt")
+    cell["file"] = fin
+    if insp.get("exists") and insp.get("bytes"):
+        cell["readers"] = _capture_r77_readers(out, insp)
+    tail = _capture_tail(err, str(out))
+    if tail:
+        cell["stderr_tail"] = tail
+    return cell
+
+
+# --------------------------------------------------------------------------
+# (1) SOURCE SELECTION — the stream.capture.sink fallback lattice.
+# --------------------------------------------------------------------------
+# leg name -> (target resolver, capture_sink prop, expected consumed node,
+#              expected tone)
+CAPTURE_R77_LATTICE = (
+    ("prop_default_sink", "default_sink", True, "default_sink", True),
+    ("prop_default_sink_monitor", "default_sink_monitor", True,
+     "default_sink", True),
+    ("prop_other_sink", "other_sink", True, "other_sink", False),
+    # a sink THIS probe owns — discriminates "honor any real target" from
+    # "always consume the current default sink's monitor" even on a
+    # single-sink host where `prop_other_sink` is blocked (r77 critic).
+    ("prop_probe_sink", "probe_sink", True, "probe_sink", False),
+    ("prop_source", "source", True, "default_sink", True),
+    ("prop_default_token", "literal:default", True, "default_sink", True),
+    ("prop_pulse_token", "literal:pulse", True, "default_sink", True),
+    ("prop_garbage", "literal:no_such_node_r77", True, "default_sink", True),
+    ("prop_auto", None, True, "default_sink", True),
+    ("noprop_default_sink", "default_sink", False, "empty_wav", False),
+    ("noprop_default_sink_monitor", "default_sink_monitor", False,
+     "empty_wav", False),
+    # source identity is the law; its SILENCE is host state — the fold
+    # run measured the DualSense mic live (peak 5998). exp_tone=None =
+    # "recorded, not asserted" and feeds default_source_is_silent.
+    ("noprop_source", "source", False, "source", None),
+)
+
+
+def _capture_r77_lattice_targets(inv):
+    src, mon, _ = _capture_leg_targets(inv)
+    other = next((s for s in inv["sinks"] if s != inv["default_sink"]), None)
+    return {"default_sink": inv["default_sink"],
+            "default_sink_monitor": mon,
+            "other_sink": other, "source": src,
+            "probe_sink": CAPTURE_R77_NULL_SINK}
+
+
+def _capture_r77_default_sink():
+    """The default sink AS OF NOW. Measured: it is not stable across a
+    probe run — a stream that targets an unresolvable node moves it — so a
+    "which node did we capture" claim resolved once at entry start is not
+    the same claim as one resolved per cell. Resolve per cell and record
+    the trajectory; the law is relational, and the receipt must show it."""
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        m = re.search(r"^Default Sink:\s*(.*)$",
+                      proc.stdout.decode(errors="replace"), re.M)
+        return m.group(1).strip() if m else None
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _capture_r77_lattice_cell(name, target, prop, tmp, member):
+    """One tone-anchored source-selection cell. The caller serializes these:
+    two concurrent pw-record streams both appear in `pw-link -l` and would
+    destroy the topology witness. The tone is played to the CURRENT default
+    sink explicitly, so the content witness does not silently ride a moving
+    default."""
+    default_now = _capture_r77_default_sink()
+    safe = re.sub(r"\W+", "_", target or "auto")[:40]
+    out = Path(tmp) / f"lattice_{name}_{safe}.wav"
+    argv = ["pw-record"]
+    if prop:
+        argv += ["-P", "stream.capture.sink=true"]
+    if target:
+        argv += ["--target", target]
+    argv += ["-n", str(CAPTURE_R77_LATTICE_FRAMES), "--rate", "48000",
+             "--channels", "2", "--format", "s16", str(out)]
+    link_before = _capture_r77_link_producers()
+    proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, start_new_session=True)
+    time.sleep(CAPTURE_R77_TONE_LEAD_S)
+    play_argv = ["pw-cat", "-p"]
+    if default_now:
+        play_argv += ["--target", default_now]
+    player = subprocess.Popen(play_argv + [str(member)],
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL,
+                              start_new_session=True)
+    time.sleep(CAPTURE_R77_LINK_SAMPLE_S)
+    live = proc.poll() is None
+    link = _capture_r77_link_delta(link_before,
+                                   _capture_r77_link_producers())
+    dump = _capture_r77_node_props(owner_pid=proc.pid)
+    _capture_r77_reap(proc)
+    if player.poll() is None:
+        player.terminate()
+    try:
+        player.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        os.killpg(player.pid, signal.SIGKILL)
+        player.wait()
+    err = proc.stderr.read().decode(errors="replace")
+    insp = _capture_wav_inspect(out)
+    cls, line = _capture_r77_errclass(err)
+    shown = " ".join(argv[:-1])
+    if target:
+        shown = shown.replace(target, "<target>")
+    cell = {"target_arg": target, "capture_sink_prop": prop,
+            "argv": shown + " <out>",
+            "default_sink_at_cell": default_now,
+            "tone_target": default_now,
+            "exit_code": proc.returncode, "error_class": cls,
+            "live_at_link_sample": live,
+            "link_producers": link.get("producers"),
+            "consumed_nodes": link.get("nodes"),
+            "foreign_links_ignored": link.get("foreign_links_ignored"),
+            "ambiguous_topology": link.get("ambiguous"),
+            "target_object_prop": [n["target_object"] for n in dump["nodes"]],
+            "target_object_is_request": (
+                bool(dump["nodes"]) and
+                dump["nodes"][0]["target_object"] == target)}
+    if line:
+        cell["error"] = line.replace(str(out), "<out>")
+    fin = {"exists": insp["exists"]}
+    if insp.get("bytes") is not None:
+        fin["bytes"] = insp["bytes"]
+    if insp.get("riff"):
+        fin["riff_size_field"] = insp["riff_size_field"]
+        fin["fmt"] = insp.get("fmt")
+        fin["data_declared"] = insp.get("data_declared")
+        fin["data_actual"] = insp.get("data_actual")
+        fin["data_finalized"] = insp.get("data_finalized")
+        fin["data_actual_zero"] = insp.get("data_actual") == 0
+    cell["file"] = fin
+    cell["content"] = _capture_r77_pcm_stats(out, insp)
+    # A pw-record node outlives its process by ~1-2 s (measured), so a link
+    # table read AFTER a failed capture can still show that capture's link.
+    # Record the ghost explicitly: a topology witness sampled late is not
+    # evidence that this cell ever consumed anything.
+    time.sleep(0.2)
+    cell["link_after_exit"] = _capture_r77_link_producers().get("nodes")
+    cell["topology_witness"] = (
+        "live" if live else
+        "unavailable (process already exited before the sample)")
+    return cell
+
+
+def _capture_r77_foreign_clients():
+    """Live pw-record / fixture clients NOT spawned by this run. The
+    topology witness and the device axis are both invalid while another
+    seat's capture is attached, so the receipt names the contention rather
+    than leaving a contended number looking like a clean one. Counted via
+    /proc comm + cmdline — `pgrep -f` also matches the shell WRAPPERS and
+    zombies that carry the string in argv (r77 verifier N4)."""
+    out = {"pw_record": 0, "fixture_runs": 0, "own_pid": os.getpid()}
+    own = str(out["own_pid"])
+    try:
+        for pid_dir in Path("/proc").iterdir():
+            if not pid_dir.name.isdigit() or pid_dir.name == own:
+                continue
+            try:
+                comm = (pid_dir / "comm").read_text().strip()
+                if comm == "pw-record":
+                    out["pw_record"] += 1
+                elif comm.startswith("python") and \
+                        "measure_audio.py" in \
+                        (pid_dir / "cmdline").read_bytes() \
+                        .replace(b"\0", b" ").decode(errors="replace"):
+                    out["fixture_runs"] += 1
+            except (OSError, ValueError):
+                continue
+    except OSError:
+        out["proc_error"] = True
+    out["host_is_quiet"] = (out["pw_record"] <= 1 and
+                            out["fixture_runs"] == 0)
+    return out
+
+
+def capture_source_lattice_r77_entry():
+    """(1) The `stream.capture.sink` fallback law: with the prop, a sink
+    target is honored but a source/default/pulse/garbage target silently
+    falls back to the DEFAULT sink's monitor; without the prop, sink targets
+    produce a 44-byte empty wav. Two witnesses are recorded per cell —
+    `pw-link -l` topology (the only honest statement of consumption) and
+    tone content (the only in-artifact one) — plus the node's own
+    `target.object` prop to show that it is intent, not consumption."""
+    failures = []
+    inv = _capture_inventory()
+    inv["sinks"] = []
+    try:
+        proc = subprocess.run(["pactl", "list", "sinks", "short"],
+                              capture_output=True, timeout=10)
+        for ln in proc.stdout.decode(errors="replace").splitlines():
+            parts = ln.split()
+            if len(parts) >= 2:
+                inv["sinks"].append(parts[1])
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        inv["pactl_sinks_error"] = str(exc)[:120]
+    entry = {"probe": "capture source selection — the "
+                      "stream.capture.sink fallback lattice",
+             "contention": _capture_r77_foreign_clients(),
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"],
+                           "sinks": inv["sinks"], "sources": inv["sources"],
+                           "monitors": inv["monitors"]},
+             "default_source_is_silent_on_this_host": None}
+    member = CAPTURE_R77_TONE_MEMBER
+    if not inv["default_sink"] or not member.exists():
+        entry["blocked"] = ("no default sink" if not inv["default_sink"]
+                            else "tone member absent")
+        entry["failures"] = failures
+        return entry
+    tg = _capture_r77_lattice_targets(inv)
+    legs = {}
+    mid_lat, rc_lat, err_lat = _capture_r77_null_sink_load()
+    entry["probe_sink_load"] = {"module_id": mid_lat, "rc": rc_lat,
+                                "error": err_lat}
+    if mid_lat is None:
+        # the prop_probe_sink cell cannot run; mark it blocked, do not
+        # silently drop it.
+        legs["prop_probe_sink"] = {
+            "blocked": "pactl could not load a probe-owned null sink"}
+    with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+        # warm-up: the default sink is SUSPENDED until something plays to
+        # it, and the first cell would otherwise measure the wake latency
+        # as silence.
+        warm_argv = ["pw-cat", "-p"]
+        warm_sink = _capture_r77_default_sink()
+        if warm_sink:
+            warm_argv += ["--target", warm_sink]
+        warm = subprocess.run(warm_argv + [str(member)], capture_output=True,
+                              timeout=CAPTURE_R77_TIMEOUT_S)
+        entry["warmup"] = {"argv": "pw-cat -p --target <default-sink> "
+                                   + member.name,
+                           "exit_code": warm.returncode}
+        for name, resolver, prop, _exp, _tone in CAPTURE_R77_LATTICE:
+            if name in legs:
+                continue   # already a named-blockage row (probe_sink load)
+            if resolver is None:
+                target = None
+            elif resolver.startswith("literal:"):
+                target = resolver.split(":", 1)[1]
+            else:
+                target = tg.get(resolver)
+            if resolver not in (None,) and not str(resolver).startswith(
+                    "literal:") and not target:
+                legs[name] = {
+                    "blocked": f"no {resolver} enumerated on this host"}
+                continue
+            cleared = _capture_r77_wait_clear()
+            legs[name] = _capture_r77_lattice_cell(name, target, prop, tmp,
+                                                   member)
+            if cleared is None:
+                legs[name]["stale_link_before_cell"] = True
+            time.sleep(CAPTURE_R77_SETTLE_S)
+    if mid_lat is not None:
+        subprocess.run(["pactl", "unload-module", str(mid_lat)],
+                       capture_output=True, timeout=15)
+    entry["legs"] = legs
+    entry["probe_sink_gone"] = CAPTURE_R77_NULL_SINK not in \
+        _capture_r77_sink_names()
+    for name, resolver, _prop, exp_node, exp_tone in CAPTURE_R77_LATTICE:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"lattice {name}: leg absent — the table is "
+                            "the coverage contract")
+            continue
+        if "blocked" in leg:
+            continue   # named blockage row (no other sink / no source)
+        if leg.get("live_at_link_sample") and \
+                not leg.get("target_object_prop"):
+            # scribe r78-5.2: an empty dump on a live leg means the
+            # provenance witness read nothing — the fold's client->pid
+            # resolution must be exercised, not just recorded.
+            failures.append(
+                f"lattice {name}: live pw-record node absent from the "
+                "pid-matched pw-dump — provenance witness empty")
+            continue
+        got = leg.get("consumed_nodes") or []
+        # A concurrent seat's sink can appear on a shared host mid-run and
+        # be consumed by a no-target capture. That is a CONFOUND, not this
+        # probe's verdict: name the foreign node and re-run, never assert
+        # it away and never accept it as a cell result.
+        if leg.get("ambiguous_topology"):
+            leg["confound"] = (
+                "contended link table — a concurrent pw-record client on "
+                "this host merges into the same port names, so consumption "
+                "cannot be read from `pw-link -l` here")
+            entry["confound_observed"] = True
+            entry["contended_cells"] = sorted(
+                set(entry.get("contended_cells", [])) | {name})
+            continue
+        known = set(inv["sinks"]) | set(inv["sources"]) | set(inv["monitors"])
+        # the probe's own sink is loaded mid-entry — after the inventory —
+        # so it is expected-but-unlisted, not foreign.
+        foreign = [n for n in got
+                   if n not in known and n != CAPTURE_R77_NULL_SINK]
+        if foreign:
+            leg["confound"] = (f"foreign node(s) {foreign} consumed — a "
+                               "concurrent seat's artifact is live on this "
+                               "host; this cell is not a verdict")
+            entry["confound_observed"] = True
+            continue
+        if exp_node == "empty_wav":
+            # the pinned safety law: a sink target WITHOUT the prop must
+            # never consume the named sink. Two measured classes:
+            #  - `no_target_node`: resolution fails outright -> the
+            #    44-byte empty wav (author/canonical class).
+            #  - `fallback_default_source` (fold-run measured): when the
+            #    host's default SOURCE can serve, resolution failure
+            #    falls back to it — rc=1, a full bound of real audio,
+            #    consumed_nodes == [default_source]. The sink is still
+            #    never captured; what changed is the fallback's fate.
+            # Both keep the law; any third shape fails.
+            leg_bytes = leg.get("file", {}).get("bytes")
+            if leg.get("error_class") == "no_target_node":
+                if leg_bytes != 44:
+                    failures.append(
+                        f"lattice {name}: refusal class but got "
+                        f"{leg_bytes} bytes (rc={leg.get('exit_code')})")
+            elif got == [inv["default_source"]] and leg_bytes == \
+                    44 + CAPTURE_R77_LATTICE_FRAMES * 4:
+                leg["cell_class"] = "fallback_default_source"
+                entry["confound_observed"] = True
+                entry["fallback_source_cells"] = sorted(
+                    set(entry.get("fallback_source_cells", [])) | {name})
+            else:
+                failures.append(
+                    f"lattice {name}: sink target without the prop must "
+                    f"refuse (44 B / no_target_node) or fall back to the "
+                    f"default SOURCE — got cls={leg.get('error_class')} "
+                    f"bytes={leg_bytes} nodes={got} "
+                    f"(rc={leg.get('exit_code')})")
+            continue
+        want = leg.get("default_sink_at_cell") if exp_node == "default_sink" \
+            else tg.get(exp_node)
+        if leg.get("stale_link_before_cell") and got != [want]:
+            # A foreign link present at cell start can cancel this cell's
+            # own link in the differencing — an empty/wrong `got` under a
+            # polluted baseline is a confound, not a verdict.
+            leg["confound"] = (
+                "stale foreign link in the cell baseline — differencing "
+                "can cancel this cell's own link on a contended host")
+            entry["confound_observed"] = True
+            entry["contended_cells"] = sorted(
+                set(entry.get("contended_cells", [])) | {name})
+            continue
+        if got != [want]:
+            failures.append(f"lattice {name}: expected consumption of "
+                            f"{exp_node} ({want}), got {got} "
+                            f"(target_arg={leg.get('target_arg')!r})")
+        tone = leg.get("content", {}).get("carries_tone")
+        if exp_tone is not None and tone is not exp_tone:
+            failures.append(f"lattice {name}: tone witness expected "
+                            f"{exp_tone}, got {tone} "
+                            f"(peak={leg.get('content', {}).get('peak')})")
+    entry["default_sink_trace"] = [
+        {"leg": name, "default_sink_at_cell": legs[name].get(
+            "default_sink_at_cell")}
+        for name, _r, _p, _n, _t in CAPTURE_R77_LATTICE if name in legs]
+    entry["default_sink_is_stable"] = len({t["default_sink_at_cell"]
+                                          for t in entry["default_sink_trace"]}
+                                         ) == 1
+    # measured, not asserted: `noprop_source` reads the real source — its
+    # carries_tone leaf is the silence witness. None when the leg blocked.
+    noprop = legs.get("noprop_source") or {}
+    if "blocked" not in noprop:
+        entry["default_source_is_silent_on_this_host"] = (
+            noprop.get("content", {}).get("carries_tone") is False)
+    if mid_lat is not None and entry.get("probe_sink_gone") is not True:
+        failures.append("lattice teardown: the probe-owned sink survived "
+                        "the unload — prop_probe_sink's consumption claim "
+                        "is unaudited")
+    entry["failures"] = failures
+    return entry
+
+
+def capture_target_loss_r77_entry():
+    """(2) `sustained_after_target_loss`: a probe-owned null sink is
+    captured, then destroyed mid-run. The bounded leg keeps its exact
+    frame count, rc and finalized header, and the stream RE-LINKS to the
+    default sink's monitor — so byte identity is measured against that
+    fallback node's own same-bound control, never against the dead sink's
+    silence (which would assume the fallback is silent). The wall-clock leg
+    samples the delivered rate either side of the loss."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "capture target loss — sustained_after_target_loss",
+             "class": "sustained_after_target_loss",
+             "sink_name": CAPTURE_R77_NULL_SINK}
+    if not inv["default_sink"]:
+        entry["blocked"] = "no default sink to fall back to"
+        entry["failures"] = failures
+        return entry
+    mid, rc, err = _capture_r77_null_sink_load()
+    mid2 = None
+    entry["sink_load"] = {"module_id": mid, "exit_code": rc, "error": err}
+    if mid is None:
+        entry["blocked"] = "pactl could not load a probe-owned null sink"
+        entry["failures"] = failures
+        return entry
+    base_argv = ["pw-record", "-P", "stream.capture.sink=true",
+                 "--target", CAPTURE_R77_NULL_SINK,
+                 "-n", str(CAPTURE_R77_LOSS_FRAMES), "--rate", "48000",
+                 "--channels", "2", "--format", "s16"]
+    try:
+        with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+            bpath = Path(tmp) / "loss_baseline.wav"
+            b = _capture_r77_run(base_argv + [str(bpath)],
+                                 sample_at=CAPTURE_R77_LOSS_LINK_AT)
+            # the CONTROL: the same bound on the node the capture re-links
+            # to once its target dies. Byte identity must be measured
+            # against the fallback node's own baseline — comparing to the
+            # dead sink's silence would silently assume the fallback is
+            # silent, which is a host-state condition, not a law.
+            cpath = Path(tmp) / "loss_fallback_control.wav"
+            c = _capture_r77_run(
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "--target", inv["default_sink"],
+                 "-n", str(CAPTURE_R77_LOSS_FRAMES), "--rate", "48000",
+                 "--channels", "2", "--format", "s16", str(cpath)],
+                sample_at=CAPTURE_R77_LOSS_LINK_AT)
+            lpath = Path(tmp) / "loss_after.wav"
+            l = _capture_r77_run(base_argv + [str(lpath)],
+                                 unload_after_s=CAPTURE_R77_LOSS_UNLOAD_S,
+                                 unload_module_id=mid,
+                                 sample_at=CAPTURE_R77_LOSS_LINK_AT)
+            entry["bounded"] = {
+                "argv": " ".join(base_argv[:-1]).replace(
+                    CAPTURE_R77_NULL_SINK, "<probe-sink>") + " <out>",
+                "baseline": _capture_r77_loss_leaf(bpath, b),
+                "fallback_control": _capture_r77_loss_leaf(cpath, c),
+                "after_loss": _capture_r77_loss_leaf(lpath, l),
+                "fallback_node": inv["default_sink"],
+                "nodes_before": _capture_r77_nodes_delta(b, 0.3),
+                "nodes_after": _capture_r77_nodes_delta(l, 0.9),
+                "contended": any(s.get("ambiguous") for s in
+                                 (b.get("samples", []) +
+                                  c.get("samples", []) +
+                                  l.get("samples", []))),
+                "sha_match_control": _capture_r77_sha_pair(
+                    _capture_r77_sha256(cpath), _capture_r77_sha256(lpath)),
+                "sha_match_dead_sink": _capture_r77_sha_pair(
+                    _capture_r77_sha256(bpath), _capture_r77_sha256(lpath))}
+            # The bounded leg's unload already killed `mid` — the wall
+            # leg needs its OWN live sink or every sample reads the
+            # post-fallback state and the rate buckets measure nothing
+            # (r77 verifier N2: unloaded-empty-id rc-0 no-op).
+            mid2, rc2, err2 = _capture_r77_null_sink_load()
+            entry["sink_load_wall"] = {"module_id": mid2, "rc": rc2,
+                                       "error": err2}
+            wpath = Path(tmp) / "loss_wall.wav"
+            w = _capture_r77_run(
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "--target", CAPTURE_R77_NULL_SINK, "--rate", "48000",
+                 "--channels", "2", "--format", "s16", str(wpath)],
+                unload_after_s=CAPTURE_R77_LOSS_UNLOAD_WALL_S,
+                unload_module_id=mid2,
+                sever_after_s=CAPTURE_R77_LOSS_SEVER_S,
+                sample_at=CAPTURE_R77_LOSS_SAMPLE_AT)
+            entry["wall_clock"] = {
+                "argv": "pw-record -P stream.capture.sink=true --target "
+                        "<probe-sink> --rate 48000 --channels 2 --format "
+                        "s16 <out> (no bound; SIGTERM at "
+                        f"{CAPTURE_R77_LOSS_SEVER_S} s)",
+                "unload_after_s": CAPTURE_R77_LOSS_UNLOAD_WALL_S,
+                "samples": w["samples"],
+                "rates": _capture_r77_rate_buckets(w["samples"]),
+                "exit_code": w["exit_code"], "wall_s": w["wall_s"],
+                "file": _capture_r77_loss_leaf(wpath, w)}
+    finally:
+        for m in (mid, mid2):
+            if m is not None:
+                subprocess.run(["pactl", "unload-module", str(m)],
+                               capture_output=True, timeout=15)
+    entry["sink_gone"] = CAPTURE_R77_NULL_SINK not in \
+        _capture_r77_sink_names()
+    bounded = entry["bounded"]
+    for key in ("baseline", "fallback_control", "after_loss"):
+        leaf = bounded[key]
+        if leaf.get("exit_code") != 1 or \
+                leaf.get("bytes") != CAPTURE_R77_LOSS_BYTES or \
+                leaf.get("data_finalized") is not True:
+            failures.append(
+                f"target loss {key}: expected rc=1 / "
+                f"{CAPTURE_R77_LOSS_BYTES} B / finalized, "
+                f"got rc={leaf.get('exit_code')} bytes={leaf.get('bytes')} "
+                f"finalized={leaf.get('data_finalized')}")
+    if bounded["nodes_before"] != [CAPTURE_R77_NULL_SINK] or \
+            bounded["nodes_after"] != [bounded["fallback_node"]]:
+        # a concurrent pw-record client merges into the same port names, so
+        # the topology witness is only valid while this probe is the sole
+        # client. An EMPTY delta is the same artifact class: a stale
+        # baseline link cancels this run's own link in the differencing —
+        # `carries_tone` and exact bytes still prove delivery. Name the
+        # confound instead of reading it as consumption (r77 reviewer F1).
+        if bounded.get("contended") or not bounded["nodes_before"] or \
+                not bounded["nodes_after"]:
+            entry["confound_observed"] = True
+            entry["confound"] = (
+                "contended or stale-baseline link table during the loss "
+                "leg — node identity and fallback byte-identity are not "
+                "readable on a shared host; the artifact-level law (rc / "
+                "exact frames / finalized) still holds")
+        else:
+            failures.append(
+                f"target loss: expected the capture to consume the probe "
+                f"sink before the unload and {bounded['fallback_node']} "
+                f"after, got {bounded['nodes_before']} -> "
+                f"{bounded['nodes_after']}")
+    # The byte-identity pin is only meaningful when the fallback node's own
+    # control is verified silence: two windows of REAL audio never match,
+    # so a live fallback is a confound, not a refutation (reviewer F1).
+    if not bounded.get("contended"):
+        fc = bounded["fallback_control"]
+        if fc.get("all_zero_payload") is not True:
+            entry["confound_observed"] = True
+            entry["fallback_content_confound"] = (
+                "fallback node's control capture is not verified silence "
+                "(all_zero_payload="
+                f"{fc.get('all_zero_payload')}) — byte-identity across "
+                "capture windows is unverifiable")
+        elif bounded["sha_match_control"] is not True:
+            failures.append("target loss: the post-loss artifact is NOT "
+                            "byte-identical to the FALLBACK node's own "
+                            "same-bound control — the re-link is not total")
+    if not entry["sink_gone"]:
+        failures.append("target loss: the probe sink survived the unload — "
+                        "the leg measured nothing")
+    after = (entry["wall_clock"]["rates"].get("after_loss_pct") or 0)
+    if after < 95:
+        failures.append(f"target loss: post-loss delivery rate "
+                        f"{after}% of nominal — expected a sustained 100%")
+    # r77 verifier N2 fail-closed pins: the wall leg must have REALLY
+    # consumed the probe sink and the unload must have REALLY fired —
+    # `unload-module ""` is an rc-0 no-op that silently measured the
+    # post-fallback steady state instead of a loss transition.
+    wall = entry["wall_clock"]
+    unl = (wall.get("file") or {}).get("unloaded") or {}
+    if unl.get("exit_code") != 0:
+        failures.append(f"target loss wall leg: unload rc="
+                        f"{unl.get('exit_code')} — no real loss event "
+                        "(the leg measured the post-fallback state)")
+    w_contended = any(s.get("ambiguous") for s in wall.get("samples", []))
+    w_pre = _capture_r77_nodes_delta(wall, CAPTURE_R77_LOSS_SAMPLE_AT[0])
+    w_post = _capture_r77_nodes_delta(wall,
+                                      CAPTURE_R77_LOSS_SAMPLE_AT[-1])
+    entry["wall_clock"]["nodes_before"] = w_pre
+    entry["wall_clock"]["nodes_after"] = w_post
+    if not w_contended and w_pre:
+        if w_pre != [CAPTURE_R77_NULL_SINK]:
+            failures.append(f"target loss wall leg: pre-loss link "
+                            f"{w_pre} — expected the probe sink")
+        if w_post != [bounded["fallback_node"]]:
+            failures.append(f"target loss wall leg: post-loss link "
+                            f"{w_post} — expected the fallback node "
+                            f"{bounded['fallback_node']}")
+    elif not w_contended and not w_pre:
+        entry["confound_observed"] = True
+        entry["wall_confound"] = (
+            "empty wall-leg link delta — the differencing was blinded by "
+            "a stale baseline; the rate buckets still carry the law")
+    entry["failures"] = failures
+    return entry
+
+
+def _capture_r77_nodes_delta(run, at_s):
+    """This run's own consumed nodes at one sampling offset. Each sample is
+    already baseline-differenced (`_capture_r77_link_delta`), so a steady
+    foreign client's link cancels instead of being read as this capture's
+    consumption."""
+    for s in run.get("samples", []):
+        if s["at_s"] == at_s:
+            return s.get("nodes")
+    return None
+
+
+def _capture_r77_sink_names():
+    """SINK names. A `module-null-sink` creates the sink `X` and the monitor
+    SOURCE `X.monitor`, so enumerating sources can never contain the bare sink
+    name and the caller's `sink_gone` test would be vacuously true."""
+    try:
+        proc = subprocess.run(["pactl", "list", "sinks", "short"],
+                              capture_output=True, timeout=10)
+        return [ln.split()[1] for ln in
+                proc.stdout.decode(errors="replace").splitlines()
+                if len(ln.split()) >= 2]
+    except (subprocess.TimeoutExpired, OSError):
+        return []
+
+
+def _capture_r77_null_sink_load():
+    try:
+        proc = subprocess.run(
+            ["pactl", "load-module", "module-null-sink",
+             "sink_name=" + CAPTURE_R77_NULL_SINK],
+            capture_output=True, timeout=15)
+        mid = proc.stdout.decode(errors="replace").strip()
+        return (int(mid) if mid.isdigit() else None, proc.returncode,
+                proc.stderr.decode(errors="replace")[:120] or None)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return None, None, str(exc)[:120]
+
+
+def _capture_r77_run(argv, unload_after_s=None, sever_after_s=None,
+                     sample_at=(), unload_module_id=None):
+    """One pw-record run with optional mid-run module unload, byte sampling
+    and a wall-clock sever. Every sample is a monotonic-clock offset from
+    spawn, so the rate buckets are derived, not asserted. The unload uses
+    the module id captured at load time — a name re-lookup could return ""
+    (rc-0 no-op, the leg silently measures nothing) or a foreign module."""
+    out = Path(argv[-1])
+    link_baseline = _capture_r77_link_producers()
+    t0 = time.monotonic()
+    proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, start_new_session=True)
+    events = sorted([(s, "sample") for s in sample_at] +
+                    ([(unload_after_s, "unload")] if unload_after_s else []) +
+                    ([(sever_after_s, "sever")] if sever_after_s else []))
+    samples, unloaded = [], None
+    for at, kind in events:
+        left = at - (time.monotonic() - t0)
+        if left > 0:
+            time.sleep(left)
+        if kind == "sample":
+            lk = _capture_r77_link_delta(link_baseline,
+                                         _capture_r77_link_producers())
+            samples.append({"at_s": at, "bytes":
+                            out.stat().st_size if out.exists() else 0,
+                            "nodes": lk["nodes"],
+                            "ambiguous": lk["ambiguous"]})
+        elif kind == "unload":
+            try:
+                p = subprocess.run(
+                    ["pactl", "unload-module",
+                     str(unload_module_id if unload_module_id is not None
+                         else _capture_r77_null_sink_id())],
+                    capture_output=True, timeout=15)
+                unloaded = {"exit_code": p.returncode,
+                            "error": p.stderr.decode(errors="replace")[:120]
+                            or None}
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                unloaded = {"exit_code": None, "error": str(exc)[:120]}
+        elif kind == "sever" and proc.poll() is None:
+            proc.send_signal(signal.SIGTERM)
+    _capture_r77_reap(proc)
+    return {"exit_code": proc.returncode, "unloaded": unloaded,
+            "samples": samples, "wall_s": round(time.monotonic() - t0, 2),
+            # drained (bounded pipe), not recorded
+            "stderr": proc.stderr.read().decode(errors="replace")}
+
+
+def _capture_r77_null_sink_id():
+    """The module id of the probe-owned null sink, re-read at unload time —
+    a stale id from load time would unload a foreign module."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+        for ln in proc.stdout.decode(errors="replace").splitlines():
+            if CAPTURE_R77_NULL_SINK in ln:
+                return ln.split()[0]
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+    return ""
+
+
+def _capture_r77_loss_leaf(path, run):
+    insp = _capture_wav_inspect(path)
+    leaf = {"exit_code": run["exit_code"], "exists": insp.get("exists"),
+            "bytes": insp.get("bytes"),
+            "data_finalized": insp.get("data_finalized"),
+            # a missing data chunk is UNKNOWN, not "non-zero payload".
+            "data_actual_zero": (None if insp.get("data_actual") is None
+                                 else insp.get("data_actual") == 0),
+            "data_declared_field": insp.get("data_declared_field"),
+            "sha256_16": _capture_r77_sha256(path),
+            "unloaded": run.get("unloaded")}
+    if insp.get("bytes") is not None:
+        leaf["all_zero_payload"] = _capture_r77_all_zero(path, insp)
+    return leaf
+
+
+def _capture_r77_all_zero(path, insp):
+    off = next((c["offset"] + 8 for c in insp.get("chunks", [])
+                if c["id"] == "data"), None)
+    if off is None:
+        return None
+    with path.open("rb") as fh:
+        fh.seek(off)
+        while True:
+            block = fh.read(1 << 22)
+            if not block:
+                return True
+            if any(block):
+                return False
+
+
+def _capture_r77_rate_buckets(samples):
+    """Delivery rate either side of the loss, as a percentage of the
+    nominal 48000x2chxs16 rate, bucketed to 1 % (the raw bps is a declared
+    host-drift leaf)."""
+    nominal = CAPTURE_R77_BYTES_PER_SECOND
+    out = {"nominal_bps": nominal, "segments": []}
+    for a, b in zip(samples, samples[1:]):
+        dt = b["at_s"] - a["at_s"]
+        if dt <= 0:
+            continue
+        bps = (b["bytes"] - a["bytes"]) / dt
+        out["segments"].append(
+            {"from_s": a["at_s"], "to_s": b["at_s"],
+             "pct_of_nominal": int(round(bps / nominal * 100))})
+    pre = [s for s in out["segments"] if s["to_s"] <=
+           CAPTURE_R77_LOSS_UNLOAD_WALL_S]
+    post = [s for s in out["segments"] if s["from_s"] >=
+            CAPTURE_R77_LOSS_UNLOAD_WALL_S]
+    if pre:
+        out["before_loss_pct"] = max(s["pct_of_nominal"] for s in pre)
+    if post:
+        out["after_loss_pct"] = min(s["pct_of_nominal"] for s in post)
+    return out
+
+
+def capture_readers_r77_entry():
+    """(3) The five-witness reader matrix on severed wounds, in the frame
+    domain, with a unit calibration first (soxi's `-s` is FRAMES, not
+    interleaved samples — an uncalibrated reader comparison is worthless).
+    Every wound is read by stdlib wave, ffprobe, soxi -s, soxi -D and
+    sndfile-info; each answer is classified honest / declared_echo /
+    inflated / underreports / rejects / abstain."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "severed-capture reader matrix (5 witnesses)"}
+    src, mon, hw0 = _capture_leg_targets(inv)
+    with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+        cal = Path(tmp) / "calibration.wav"
+        _capture_r77_write_synthetic(cal)
+        insp = _capture_wav_inspect(cal)
+        entry["unit_calibration"] = {
+            "synthetic": "96000 frames, 2ch, 48000 Hz, s16",
+            "expected_frames": 96000,
+            "readers": _capture_r77_readers(cal, insp)}
+        # a miscalibrated reader matrix silently poisons every wound
+        # comparison below — assert the calibration legs, don't just
+        # record them (r77 critic: a 2x-wrong soxi reported "wrong 12/12").
+        for rd, rdv in entry["unit_calibration"]["readers"].items():
+            if not isinstance(rdv, dict):
+                continue
+            if rdv.get("value") != 96000 or rdv.get("verdict") != "honest":
+                failures.append(f"unit calibration {rd}: expected "
+                                f"96000 frames / honest, got {rdv}")
+        wounds = {}
+        if mon:
+            wounds["pw_record_monitor"] = (
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "--target", inv["default_sink"]], "w_pwr.wav")
+            wounds["pw_cat_record"] = (
+                ["pw-cat", "-r", "-P", "stream.capture.sink=true",
+                 "--target", inv["default_sink"]], "w_pwc.wav")
+            wounds["parecord_monitor"] = (
+                ["parecord", "-d", mon], "w_prd.wav")
+        else:
+            for name in ("pw_record_monitor", "pw_cat_record",
+                         "parecord_monitor"):
+                wounds[name] = None
+        if hw0:
+            wounds["arecord_bounded"] = (
+                ["arecord", "-D", hw0, "-d", "12", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-t", "wav"], "w_arb.wav")
+            wounds["arecord_unbounded"] = (
+                ["arecord", "-D", hw0, "-f", "S16_LE", "-r", "48000",
+                 "-c", "2", "-t", "wav"], "w_aru.wav")
+        else:
+            wounds["arecord_bounded"] = None
+            wounds["arecord_unbounded"] = None
+        if mon and inv["ffmpeg_demuxers"].get("pulse"):
+            wounds["ffmpeg_pulse"] = (
+                ["ffmpeg", "-nostdin", "-nostats", "-v", "error",
+                 "-f", "pulse", "-i", mon, "-t", "12", "-y"], "w_ffp.wav")
+        else:
+            wounds["ffmpeg_pulse"] = None
+        cells = {}
+        for name, spec in wounds.items():
+            if spec is None:
+                cells[name] = {"blocked": "target or demuxer not "
+                                          "enumerated on this host"}
+                continue
+            argv, fname = spec
+            for sig, tag in ((signal.SIGTERM, "term"),
+                             (signal.SIGKILL, "kill")):
+                key = f"{name}_{tag}"
+                if name.startswith("arecord_"):
+                    time.sleep(CAPTURE_R77_DEVICE_SETTLE_S)
+                cells[key] = _capture_r77_sever_cell(
+                    argv, fname, sig, tmp)
+                if name == "arecord_bounded" and tag == "kill":
+                    # the bound-derived header is the r77 law: `-d 12`
+                    # must declare 12 s of data, not the audio's length.
+                    cells[key]["declared_bound_frames"] = \
+                        12 * CAPTURE_R77_FRAMES_PER_SECOND
+                if name == "arecord_unbounded" and tag == "kill":
+                    cells[key]["declared_bound_frames"] = \
+                        CAPTURE_R77_SPLIT_LIMIT_FRAMES
+        entry["wounds"] = cells
+        entry["reader_honesty"] = _capture_r77_reader_honesty(cells)
+    for key, cell in entry.get("wounds", {}).items():
+        if "blocked" in cell:
+            continue
+        if cell.get("error_class") == "alsa_busy":
+            continue   # named carve-out, consistent with r76 LOW-7
+        if cell.get("early_exit_code") is not None:
+            failures.append(f"reader wound {key}: early exit "
+                            f"{cell['early_exit_code']} — a dead start is "
+                            "not a wound verdict")
+        if not cell.get("readers"):
+            failures.append(f"reader wound {key}: no readers ran on a "
+                            "non-empty file")
+    # the pinned law: a TERM finalizes, a KILL leaves the open-time header.
+    for name in ("pw_record_monitor", "arecord_bounded",
+                 "arecord_unbounded"):
+        term = entry["wounds"].get(f"{name}_term", {})
+        kill = entry["wounds"].get(f"{name}_kill", {})
+        if "blocked" in term or "blocked" in kill:
+            continue
+        if term.get("error_class") == "alsa_busy" or \
+                kill.get("error_class") == "alsa_busy":
+            continue   # named carve-out
+        if term.get("file", {}).get("data_finalized") is not True or \
+                term.get("file", {}).get("data_actual_zero"):
+            failures.append(f"reader wound {name}_term: expected a "
+                            "finalized NON-empty capture")
+        if kill.get("file", {}).get("data_finalized") is not False:
+            failures.append(f"reader wound {name}_kill: expected the "
+                            "unfinalized open-time header")
+    bounded_kill = entry["wounds"].get("arecord_bounded_kill", {})
+    if "blocked" not in bounded_kill and bounded_kill.get("file"):
+        want = bounded_kill.get("declared_bound_frames")
+        got = (bounded_kill["file"].get("data_declared") or 0) // 4
+        if want is not None and got != want:
+            failures.append(f"arecord -d 12 KILL: expected the "
+                            f"bound-derived declaration {want} frames, "
+                            f"got {got}")
+    unb_kill = entry["wounds"].get("arecord_unbounded_kill", {})
+    if "blocked" not in unb_kill and unb_kill.get("file", {}).get(
+            "data_declared_field") != "placeholder_80000000":
+        failures.append("arecord unbounded KILL: expected the "
+                        "0x80000000 open-time declaration")
+    entry["failures"] = failures
+    return entry
+
+
+def _capture_r77_write_synthetic(path, frames=96000, rate=48000):
+    with wave.open(str(path), "wb") as f:
+        f.setnchannels(2)
+        f.setsampwidth(2)
+        f.setframerate(rate)
+        f.writeframes(b"\x11\x22" * 2 * frames)
+
+
+def _capture_r77_reader_honesty(cells):
+    """Per-reader tally over the wounds that answered, plus the pinned
+    ordering this host's measurements support."""
+    tally = {r: {} for r in CAPTURE_R77_READERS}
+    for key, cell in cells.items():
+        rd = cell.get("readers")
+        if not rd:
+            continue
+        for reader in CAPTURE_R77_READERS:
+            verdict = (rd.get(reader) or {}).get("verdict")
+            if verdict is None:
+                continue
+            tally[reader][verdict] = tally[reader].get(verdict, 0) + 1
+    for reader, counts in tally.items():
+        wrong = sum(n for v, n in counts.items()
+                    if v in ("declared_echo", "inflated", "underreports"))
+        counts["_wrong"] = wrong
+        counts["_answered"] = sum(n for v, n in counts.items()
+                                  if not v.startswith("_"))
+    return tally
+
+
+# --------------------------------------------------------------------------
+# (4) ARECORD SEVER — the bound-derived open header, and the device axis.
+# --------------------------------------------------------------------------
+def _capture_r77_arecord_cell(label, extra, sig, wait_s, tmp, hw0):
+    argv = ["arecord", "-D", hw0, *CAPTURE_R77_ARECORD_BASE[1:], *extra]
+    cell = _capture_r77_sever_cell(argv, f"sev_{label}.wav", sig, tmp,
+                                   wait_s=wait_s)
+    cell["device"] = hw0
+    cell["bound_flags"] = list(extra)
+    return cell
+
+
+def capture_arecord_sever_r77_entry():
+    """(4) arecord's sever semantics. `bound_header`: the size field is
+    written at OPEN from the leg's own bound, so a KILL leaves the
+    *predicted* size (inflation grows with the bound and shrinks with the
+    sever wall time) while the r76 `0x80000000` row is the unbounded case of
+    the same law. `device_term`: the r77 scout's per-route TERM partition is
+    swept across devices AND sever wall times — a shape that does not
+    reproduce is recorded as not reproduced, never inferred away."""
+    failures = []
+    inv = _capture_inventory()
+    _, _, hw0 = _capture_leg_targets(inv)
+    entry = {"probe": "arecord sever semantics — bound-derived header + "
+                      "device axis"}
+    if not hw0:
+        entry["blocked"] = "arecord -l enumerated no capture device"
+        entry["failures"] = failures
+        return entry
+    entry["frames_per_second"] = CAPTURE_R77_FRAMES_PER_SECOND
+    plug = "plughw:" + hw0.split(":", 1)[1] if ":" in hw0 else None
+    devices = tuple(d for d in (hw0, plug, "sysdefault") if d)
+    legs = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+        for label, extra, sig, wait_s in (
+                ("d3_term", ("-d", "3"), signal.SIGTERM, 0.5),
+                ("d5_term", ("-d", "5"), signal.SIGTERM, 0.5),
+                ("d12_term", ("-d", "12"), signal.SIGTERM, 0.5),
+                ("s300k_term", ("-s", "300000"), signal.SIGTERM, 0.5),
+                ("unbounded_term", (), signal.SIGTERM, 1.0),
+                ("unbounded_kill", (), signal.SIGKILL, 1.0),
+                ("d3_kill_early", ("-d", "3"), signal.SIGKILL, 0.5),
+                ("d5_kill_early", ("-d", "5"), signal.SIGKILL, 0.5),
+                ("d12_kill_early", ("-d", "12"), signal.SIGKILL, 0.5),
+                ("d12_kill_late", ("-d", "12"), signal.SIGKILL, 2.5),
+                ("s300k_kill", ("-s", "300000"), signal.SIGKILL, 0.5)):
+            legs["bound_" + label] = _capture_r77_arecord_cell(
+                label, extra, sig, wait_s, tmp, hw0)
+        for dev in devices:
+            tag = re.sub(r"\W+", "_", dev)
+            for wait_s in (0.5, 1.0, 1.5, 2.5):
+                # a released ALSA device is not immediately re-acquirable
+                # (the r76 LOW-7 contention): settle between legs so the
+                # axis measures the DEVICE, not the previous cell.
+                time.sleep(CAPTURE_R77_DEVICE_SETTLE_S)
+                legs[f"term_{tag}_w{str(wait_s).replace('.', '_')}"] = \
+                    _capture_r77_sever_cell(
+                        ["arecord", "-D", dev, "-d", "12",
+                         *CAPTURE_R77_ARECORD_BASE[1:]],
+                        f"dev_{tag}_{wait_s}.wav", signal.SIGTERM, tmp,
+                        wait_s=wait_s)
+                legs[f"term_{tag}_w{str(wait_s).replace('.', '_')}"][
+                    "device"] = dev
+            time.sleep(CAPTURE_R77_DEVICE_SETTLE_S)
+            legs[f"kill_{tag}_w2_5"] = _capture_r77_sever_cell(
+                ["arecord", "-D", dev, "-d", "12",
+                 *CAPTURE_R77_ARECORD_BASE[1:]],
+                f"devk_{tag}.wav", signal.SIGKILL, tmp, wait_s=2.5)
+            legs[f"kill_{tag}_w2_5"]["device"] = dev
+    entry["legs"] = legs
+    # (a) the bound-derived declaration: `-d N` pre-declares N seconds of
+    # frames, `-s S` pre-declares S frames, unbounded pre-declares 2 GiB.
+    fps = CAPTURE_R77_FRAMES_PER_SECOND
+    for label, want in (("bound_d3_kill_early", 3 * fps),
+                        ("bound_d5_kill_early", 5 * fps),
+                        ("bound_d12_kill_early", 12 * fps),
+                        ("bound_d12_kill_late", 12 * fps),
+                        ("bound_s300k_kill", 300000)):
+        leg = legs.get(label)
+        if leg is None:
+            failures.append(f"arecord {label}: leg absent — the bound "
+                            "table is the coverage contract")
+            continue
+        if leg.get("error_class") == "alsa_busy":
+            continue   # named carve-out (r76 LOW-7), not a failure
+        if leg.get("early_exit_code") is not None:
+            failures.append(f"arecord {label}: early exit "
+                            f"{leg['early_exit_code']} — a dead start is not "
+                            "a wound verdict")
+            continue
+        got = (leg.get("file", {}).get("data_declared") or 0) // 4
+        if got != want:
+            failures.append(f"arecord {label}: expected the bound-derived "
+                            f"declaration {want} frames, got {got}")
+    if legs.get("bound_unbounded_kill", {}).get("file", {}).get(
+            "data_declared_field") != "placeholder_80000000":
+        failures.append("arecord unbounded KILL: expected the 0x80000000 "
+                        "open-time declaration (the r76 row)")
+    for label in ("bound_d3_term", "bound_d5_term", "bound_d12_term",
+                  "bound_s300k_term", "bound_unbounded_term"):
+        leg = legs.get(label)
+        if leg is None:
+            failures.append(f"arecord {label}: leg absent")
+            continue
+        fin = leg.get("file", {})
+        if fin.get("data_finalized") is not True or \
+                fin.get("data_declared") != fin.get("data_actual"):
+            failures.append(f"arecord {label}: TERM must finalize and patch "
+                            f"the size field (got "
+                            f"{fin.get('riff_size_field')}, "
+                            f"declared={fin.get('data_declared')}, "
+                            f"actual={fin.get('data_actual')})")
+    # (b) the device axis — every device, every wall time. The sweep is a
+    # table, so an absent cell is a coverage hole, not a silent skip.
+    dev_tags = [re.sub(r"\W+", "_", d) for d in devices]
+    device_legs = [f"term_{t}_w{w}" for t in dev_tags
+                   for w in ("0_5", "1_0", "1_5", "2_5")]
+    device_legs += [f"kill_{t}_w2_5" for t in dev_tags]
+    for key in device_legs:
+        if key not in legs:
+            failures.append(f"arecord device axis {key}: leg absent")
+    # r77 critic: a PRESENT device leg is not yet a verdict — the sweep
+    # must assert the artifact exists and lands in a named header class,
+    # or a zero-file leg silently passes (this is r76's D1 class).
+    for key in device_legs:
+        leg = legs.get(key)
+        if leg is None or leg.get("error_class") in (
+                "alsa_busy", "alsa_read_eintr"):
+            continue   # named carve-out classes
+        if leg.get("early_exit_code") is not None:
+            failures.append(f"arecord device axis {key}: early exit "
+                            f"{leg['early_exit_code']} — a dead start is "
+                            "not a wound verdict")
+            continue
+        fin = leg.get("file", {})
+        if fin.get("exists") is not True:
+            failures.append(f"arecord device axis {key}: no output file — "
+                            "a sever cell without a file is not a verdict")
+        elif key.startswith("term_") and \
+                fin.get("data_finalized") is not True and \
+                fin.get("riff_size_field") != "placeholder_80000000":
+            failures.append(f"arecord device axis {key}: TERM neither "
+                            f"finalized nor eintr-class, riff="
+                            f"{fin.get('riff_size_field')}")
+    eintr_cells = []
+    for key, leg in legs.items():
+        if not key.startswith("term_") or "device" not in leg:
+            continue
+        if leg.get("error_class") == "alsa_read_eintr" or \
+                leg.get("file", {}).get("riff_size_field") == \
+                "placeholder_80000000":
+            eintr_cells.append(key)
+    entry["eintr_cells"] = eintr_cells
+    entry["scout_alsa_read_eintr_reproduced"] = bool(eintr_cells)
+    entry["scout_alsa_read_eintr_note"] = (
+        "the r77 scout recorded `alsa_read_eintr` + placeholder_80000000 "
+        "for arecord TERM on sysdefault; this sweep does not reproduce it "
+        "on any device x wall-time cell, so it is recorded as a "
+        "contended-host event, NOT a per-route partition")
+    busy_cells = []
+    for key, leg in legs.items():
+        if leg.get("error_class") == "alsa_busy":
+            busy_cells.append(key)
+            continue   # named carve-out, consistent with r76 LOW-7
+        if not key.startswith("kill_"):
+            continue
+        if leg.get("early_exit_code") is not None:
+            failures.append(f"arecord {key}: early exit "
+                            f"{leg['early_exit_code']} "
+                            f"({leg.get('error_class')}) — a dead start is "
+                            "not a wound verdict")
+        elif leg.get("file", {}).get("data_finalized") is not False:
+            failures.append(f"arecord {key}: expected the unfinalized "
+                            "open-time header")
+    entry["alsa_busy_cells"] = busy_cells
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) THE 2 GiB SPLIT SENTINEL — byte-capped, bounded scratch.
+# --------------------------------------------------------------------------
+def _capture_r77_split_leg(frames, tag):
+    """One bounded `-D null` leg under a HARD byte watchdog: the scratch
+    dir is summed every 20 ms and the process group is killed the moment it
+    crosses the cap. An unbounded `-D null` leg is a filename-integrity
+    hazard, not merely a fast one — it writes 2 GiB rotation siblings the
+    caller never asked for."""
+    d = CAPTURE_R77_SPLIT_SCRATCH / tag
+    if d.exists():
+        shutil.rmtree(d, ignore_errors=True)
+    d.mkdir(parents=True)
+    out = d / "rot.wav"
+    argv = ["arecord", "-D", "null", *CAPTURE_R77_ARECORD_BASE[1:],
+            "-s", str(frames), str(out)]
+    t0 = time.monotonic()
+    proc = subprocess.Popen(argv, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, start_new_session=True)
+    peak, capped = 0, False
+    while proc.poll() is None:
+        time.sleep(0.02)
+        try:
+            total = sum(f.stat().st_size for f in d.iterdir())
+        except FileNotFoundError:
+            continue   # a split renames a sibling mid-walk
+        peak = max(peak, total)
+        if total > CAPTURE_R77_SPLIT_BYTE_CAP or \
+                time.monotonic() - t0 > CAPTURE_R77_SPLIT_WALL_CAP_S:
+            capped = True
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            break
+    wall = time.monotonic() - t0
+    err = proc.stderr.read().decode(errors="replace")
+    siblings = {}
+    for f in sorted(d.iterdir()):
+        insp = _capture_wav_inspect(f)
+        siblings[f.name] = {
+            "bytes": insp.get("bytes"),
+            "riff_size_field": insp.get("riff_size_field"),
+            "data_declared": insp.get("data_declared"),
+            "data_actual": insp.get("data_actual"),
+            "data_finalized": insp.get("data_finalized")}
+    cls, line = _capture_r77_errclass(err)
+    leg = {"argv": "arecord -D null -f S16_LE -r 48000 -c 2 -t wav -s "
+                   f"{frames} <out>",
+           "frames_requested": frames,
+           "frames_worth_of_data": frames * 4,
+           "exit_code": proc.returncode, "wall_s": round(wall, 2),
+           "byte_capped": capped, "peak_dir_bytes": peak,
+           "byte_cap": CAPTURE_R77_SPLIT_BYTE_CAP,
+           "requested_path": str(out.relative_to(ROOT)),
+           "requested_path_exists": out.exists(),
+           "siblings": siblings, "error_class": cls}
+    if line:
+        leg["error"] = line.replace(str(d), "<scratch>")
+    shutil.rmtree(d, ignore_errors=True)
+    return leg
+
+
+def capture_split_sentinel_r77_entry():
+    """(5) arecord's 2 GiB wav split. A bounded crossing leg proves the
+    threshold is exactly 0x80000000 data bytes (0x80000000 + 44 total) and
+    that the split RENAMES the file: the requested path never exists and the
+    caller's own existence check reports "no file" for a capture that wrote
+    two gigabytes. The finalized split member declares 0x7FFFFFFF (the RIFF
+    clamp), not the 0x80000000 open-time placeholder — so the field value
+    alone never identifies a split."""
+    failures = []
+    entry = {"probe": "arecord 2 GiB split sentinel — silent rename",
+             "data_limit": CAPTURE_R77_SPLIT_DATA_LIMIT,
+             "total_limit": CAPTURE_R77_SPLIT_TOTAL_LIMIT,
+             "byte_cap": CAPTURE_R77_SPLIT_BYTE_CAP,
+             "scratch": str(CAPTURE_R77_SPLIT_SCRATCH.relative_to(ROOT))}
+    CAPTURE_R77_SPLIT_SCRATCH.mkdir(parents=True, exist_ok=True)
+    try:
+        entry["undershoot"] = _capture_r77_split_leg(
+            CAPTURE_R77_SPLIT_UNDER_FRAMES, "undershoot")
+        entry["crossing"] = _capture_r77_split_leg(
+            CAPTURE_R77_SPLIT_OVER_FRAMES, "crossing")
+    finally:
+        shutil.rmtree(CAPTURE_R77_SPLIT_SCRATCH, ignore_errors=True)
+    under, cross = entry["undershoot"], entry["crossing"]
+    if under.get("byte_capped") or cross.get("byte_capped"):
+        failures.append("split leg tripped its own byte watchdog — the "
+                        "bounds are wrong, the result is void")
+    if under.get("requested_path_exists") is not True:
+        failures.append("split undershoot: the requested path must exist "
+                        "below the limit")
+    if list(under.get("siblings") or {}) != ["rot.wav"]:
+        failures.append(f"split undershoot: unexpected rotation siblings "
+                        f"{list(under['siblings'])}")
+    if cross.get("requested_path_exists") is not False:
+        failures.append("split crossing: the requested path must NOT exist "
+                        "after the split")
+    sib = cross.get("siblings") or {}
+    first = sib.get("rot-01.wav")
+    if not first:
+        failures.append("split crossing: no rot-01.wav sibling — the split "
+                        "did not happen at the expected boundary")
+    else:
+        if first.get("bytes") != CAPTURE_R77_SPLIT_TOTAL_LIMIT:
+            failures.append(
+                f"split crossing: expected rot-01.wav at exactly "
+                f"{CAPTURE_R77_SPLIT_TOTAL_LIMIT} B, got "
+                f"{first.get('bytes')}")
+        if first.get("riff_size_field") != "other" or \
+                first.get("data_declared") != 0x7FFFFFFF:
+            failures.append(
+                "split crossing: the finalized split member must declare "
+                f"0x7FFFFFFF (got riff="
+                f"{first.get('riff_size_field')} data="
+                f"{first.get('data_declared')})")
+    entry["rename_is_silent"] = (
+        cross.get("exit_code") == 0 and
+        cross.get("requested_path_exists") is False and bool(sib))
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) PW-RECORD FORMAT AXIS — convert or refuse, never a half-file.
+# --------------------------------------------------------------------------
+CAPTURE_R77_FORMAT_LEGAL = (
+    ("baseline", (), {"tag": 1, "channels": 2, "rate": 48000, "bits": 16}),
+    ("s24", ("--format", "s24"), {"tag": 1, "bits": 24}),
+    ("s32", ("--format", "s32"), {"tag": 1, "bits": 32}),
+    ("f32", ("--format", "f32"), {"tag": 3, "bits": 32}),
+    ("f64", ("--format", "f64"), {"tag": 3, "bits": 64}),
+    ("u8", ("--format", "u8"), {"tag": 1, "bits": 8}),
+    ("rate_8000", ("--rate", "8000"), {"rate": 8000}),
+    ("rate_44100", ("--rate", "44100"), {"rate": 44100}),
+    ("rate_96000", ("--rate", "96000"), {"rate": 96000}),
+    ("rate_192000", ("--rate", "192000"), {"rate": 192000}),
+    ("channels_1", ("--channels", "1"), {"channels": 1}),
+    ("channels_6", ("--channels", "6"), {"channels": 6, "tag": 65534}),
+)
+CAPTURE_R77_FORMAT_REFUSALS = (
+    ("format_bogus", ("--format", "bogus")),
+    ("rate_0", ("--rate", "0")),
+    ("channels_0", ("--channels", "0")),
+    ("channel_map_mismatch", ("--channels", "1", "--channel-map", "FL,FR")),
+)
+
+
+def capture_format_axis_r77_entry():
+    """(6) pw-record's format axis is total-convert-or-refuse: every legal
+    --format/--rate/--channels is honored and reported back verbatim (the
+    source's own format never constrains the output), and an illegal request
+    is a pre-capture `usage_refusal` at rc=1 that never touches the device
+    and leaves NO FILE AT ALL — structurally different from the 44-byte
+    no-target empty wav."""
+    failures = []
+    inv = _capture_inventory()
+    entry = {"probe": "pw-record format axis — convert or usage refusal"}
+    src, mon, _ = _capture_leg_targets(inv)
+    tgt = src or (inv["default_sink"] if inv["default_sink"] else None)
+    if not tgt:
+        entry["blocked"] = "no pw-record target enumerated"
+        entry["failures"] = failures
+        return entry
+    legs = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r77-") as tmp:
+        for name, extra, expect in CAPTURE_R77_FORMAT_LEGAL:
+            leg = _capture_r77_file_leg(
+                ["pw-record", "--target", tgt, "-n",
+                 str(CAPTURE_R77_FORMAT_FRAMES), "--rate", "48000",
+                 "--channels", "2", "--format", "s16", *extra],
+                f"fmt_{name}.wav", tmp)
+            leg["requested"] = list(extra)
+            leg["expected_fmt"] = expect
+            legs[name] = leg
+        for name, extra in CAPTURE_R77_FORMAT_REFUSALS:
+            leg = _capture_r77_file_leg(
+                ["pw-record", "--target", tgt, "-n",
+                 str(CAPTURE_R77_FORMAT_FRAMES), *extra],
+                f"ref_{name}.wav", tmp)
+            leg["requested"] = list(extra)
+            legs[name] = leg
+    entry["legs"] = legs
+    for name, _extra, expect in CAPTURE_R77_FORMAT_LEGAL:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"format {name}: leg absent")
+            continue
+        if leg.get("exit_code") != 1:
+            failures.append(f"format {name}: expected the bounded-capture "
+                            f"rc=1, got {leg.get('exit_code')}")
+        fin = leg.get("file", {})
+        if not fin.get("exists") or not fin.get("bytes"):
+            failures.append(f"format {name}: expected a written file, got "
+                            f"{fin}")
+            continue
+        got = fin.get("fmt") or {}
+        for key, want in expect.items():
+            if got.get(key) != want:
+                failures.append(f"format {name}: fmt.{key} expected {want}, "
+                                f"got {got.get(key)}")
+        if fin.get("data_finalized") is not True:
+            failures.append(f"format {name}: expected a finalized header")
+        # the -n bound is FRAME-denominated: the DATA payload scales with
+        # channels x bits, NOT with rate (rate only changes wall
+        # duration). Compare data_actual, not file bytes — non-PCM and
+        # extensible headers add fact/fmt-tail chunks (measured +44 on
+        # float tags, +36 on 6ch extensible), which is header shape, not
+        # payload. The expect dicts carry only CHANGED fields — merge the
+        # documented defaults (2ch / s16 / 48k).
+        want_data = CAPTURE_R77_FORMAT_FRAMES * \
+            expect.get("channels", 2) * expect.get("bits", 16) // 8
+        if fin.get("data_actual") != want_data:
+            failures.append(f"format {name}: expected {want_data} B of "
+                            f"frame payload (frame-bound x fmt), got "
+                            f"data_actual={fin.get('data_actual')}")
+    baseline_bytes = 44 + CAPTURE_R77_FORMAT_FRAMES * 4   # 2ch x s16
+    if legs.get("baseline", {}).get("file", {}).get("bytes") != baseline_bytes:
+        failures.append(f"format baseline: expected {baseline_bytes} B, got "
+                        f"{legs.get('baseline', {}).get('file', {}).get('bytes')}")
+    for name, _extra in CAPTURE_R77_FORMAT_REFUSALS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"format refusal {name}: leg absent")
+            continue
+        if leg.get("error_class") != "usage_refusal":
+            failures.append(f"format refusal {name}: expected usage_refusal, "
+                            f"got {leg.get('error_class')}")
+        # usage refusal shares rc=1 with the bounded-capture success — the
+        # discriminating pair is (usage_refusal, no file); pin rc anyway
+        # so an upstream exit-code change is a declared diff, not silent.
+        if leg.get("exit_code") != 1:
+            failures.append(f"format refusal {name}: expected rc=1, got "
+                            f"{leg.get('exit_code')}")
+        if leg.get("file", {}).get("exists") is not False:
+            failures.append(f"format refusal {name}: a refused argument "
+                            "must leave NO file at all")
+    entry["failures"] = failures
+    return entry
+
+
+# ---------------------------------------------------------------------------
+# r78 PLAYBACK frontier: *which node did the stream actually PLAY to*, what a
+# dead target does to live playout, which verb moves the fallback, the prop
+# precedence law on the write side, the media.class crash, aplay's device
+# axis vs arecord's — plus the two capture-side gaps the r78 scout ranked.
+#
+# A NEW parallel ledger family, --probe-capture-r78; prior rows untouched and
+# the r76/r77 folds' guards are inherited, not relaxed. Surface facts below
+# are THIS-HOST measurements (PipeWire 1.6.8, pw-cat/pactl 17.0-98-gb096,
+# alsa-utils 1.2.16); counts and shapes are the pinned claims:
+#   FALLBACK LATTICE. Every unresolvable or inapplicable --target — garbage,
+#     `default`, `pulse`, the `@DEFAULT_*@` pulse aliases, a SOURCE name, a
+#     `.monitor` name, the empty string, and the absent flag — lands the
+#     CURRENT session-manager default sink: rc=0, empty stderr, real-time
+#     playout, consumers = <default>:playback_FL/FR. The write side's
+#     fallback is UNGATED (capture's needed stream.capture.sink=true) and
+#     invisible in rc/stderr/wall — only `pw-link -l`'s consumers and a
+#     frequency-strict monitor tap separate honored from fallback. The
+#     node's own target.object names the REQUEST on fallback legs: intent,
+#     never consumption. Named class `playback_default_fallback`.
+#   LIVE-DEFAULT FOLLOW. The fallback tracks `default.audio.sink` metadata,
+#     not a fixed node: switching it mid-probe moves the next fallback leg.
+#     `pactl set-default-sink` is a SILENT NO-OP here — rc=0 with
+#     `pactl get-default-sink` AND the metadata both unchanged — named
+#     class `pactl_stale_default`. An ACTIVE stream does not follow a
+#     default move.
+#   TARGET LOSS. Unloading the consumed sink mid-play silently re-links the
+#     stream to the default sink and playout runs to EOF at rc=0
+#     (`playback_relink_on_target_loss`); a manual `pw-link -d` instead
+#     leaves it unlinked yet the file is still consumed to EOF at real-time
+#     rate — `unlinked_sustained_playout`, the write twin of r78's
+#     unlinked_sustained_zeros.
+#   PROP PRECEDENCE. `-P target.object=` beats `--target` in BOTH
+#     directions; `-P node.target=` routes identically; PIPEWIRE_PROPS is a
+#     second prop vector at the same precedence; media.role and the
+#     capture-side props are write-side decoration; node.autoconnect=false
+#     is honored (publishes, never links, stalls).
+#   CLASS-OVERRIDE CRASH. `-P media.class=` in {Audio/Sink,
+#     Stream/Input/Audio, Audio/Duplex, Audio/Bogus} SIGSEGVs pw-play —
+#     rc=-11, empty stderr, ~1.5 s wall, no node published.
+#     `class_override_segv`. Only Stream/Output/Audio behaves.
+#   APLAY AXIS. `default`/`pipewire` are the PipeWire ALSA plugin and follow
+#     the default sink; `hw:` bypasses the graph entirely; a monitor
+#     WITNESS on the PCM makes direct `aplay -D hw:` fail EBUSY and the
+#     lock outlives the stream ~1-7 s (`alsa_lock_retention`); aplay
+#     CONVERTS the file (`format is changed`) where arecord CONSTRAINS the
+#     device; hw:0,0's envelope differs per direction (playback 2-8 ch +
+#     S32_LE, capture stereo-only).
+#   CAPTURE GAPS. `unlinked_sustained_zeros`: `pw-link -d` mid-capture keeps
+#     the artifact growing at exactly the negotiated rate filled with
+#     zeros — invisible except in content. `header_prefix_mismatch`: parec
+#     --fix-* adopts the SOURCE spec into the payload while the emitted wav
+#     header still records the REQUEST.
+PLAYBACK_R78_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
+PLAYBACK_R78_SETTLE_S = 0.6
+PLAYBACK_R78_TAP_LEAD_S = 0.4
+PLAYBACK_R78_TONE_RATE = 48000
+PLAYBACK_R78_TONE_AMP = 8192
+# Per-run frequency pair (r78 reviewer F2): a fixed 1000/1500 pair is
+# forgeable — a foreign seat's identical tag on the shared default sink
+# launders `mine` windows (measured: this fleet's own r79 scout uses the
+# same pair). pid-offset pairs keep `mine` per-run while staying
+# band-disjoint under the ±6 % tolerance: L in {997,1208,1419,1630},
+# R = L+503; no band touches another.
+PLAYBACK_R78_TONE_L_HZ = 997.0 + (os.getpid() % 4) * 211.0
+PLAYBACK_R78_TONE_R_HZ = PLAYBACK_R78_TONE_L_HZ + 503.0
+PLAYBACK_R78_TONE_TOL = 0.06          # ±6 %, the scout's frequency bound
+PLAYBACK_R78_TONE_AMP_MIN = 3000      # corrected-peak floor for "mine"
+PLAYBACK_R78_TONE_AUDIO_MIN = 300     # corrected-peak floor for "any audio"
+PLAYBACK_R78_TONE_WINDOW_S = 0.1
+PLAYBACK_R78_LATTICE_TONE_S = 2.6
+PLAYBACK_R78_FOLLOW_TONE_S = 2.6
+PLAYBACK_R78_NOFOLLOW_TONE_S = 5.0
+PLAYBACK_R78_LOSS_TONE_S = 6.0
+PLAYBACK_R78_LOSS_EVENT_S = 2.0       # unload/unlink at +2.0 s of play
+PLAYBACK_R78_PROP_TONE_S = 1.6
+PLAYBACK_R78_STALL_BOUND_S = 6.0
+PLAYBACK_R78_BOUND_SLACK_S = 6.0
+PLAYBACK_R78_LINK_SAMPLE_AT = (0.8, 1.8)
+PLAYBACK_R78_METADATA_APPLY_S = 2.5
+PLAYBACK_R78_CARRIES_TONE_WINDOWS = 8  # 0.8 s of tag = content witness
+PLAYBACK_R78_PAREC_POLL_S = 0.55
+PLAYBACK_R78_PAREC_TONE_S = 70.0
+PLAYBACK_R78_LOCK_POLL_S = 12.0
+# Per-run sink names — a fixed name lets a concurrent seat's unload kill
+# this probe's sink mid-leg (the r77 fold's measured contention); the pid
+# keeps every name unique on a shared host (r79 lanes are live).
+PLAYBACK_R78_NULL_SINK = f"r78_play_sink_{os.getpid()}"
+PLAYBACK_R78_DEF_SINK = f"r78_def_sink_{os.getpid()}"
+PLAYBACK_R78_LOSS_SINK = f"r78_loss_sink_{os.getpid()}"
+PLAYBACK_R78_PROP_SINK_A = f"r78_prop_a_{os.getpid()}"
+PLAYBACK_R78_PROP_SINK_B = f"r78_prop_b_{os.getpid()}"
+PLAYBACK_R78_CAP_SINK = f"r78_cap_sink_{os.getpid()}"
+PLAYBACK_R78_FIX_SINK = f"r78_fix_sink_{os.getpid()}"
+
+
+# r78-local named classes, most-specific first; NOT appended to the shared
+# _CAPTURE_ERR_CLASSES (inserting an earlier-matching pattern there could
+# reclassify a prior leg's stderr and perturb a committed row — same rule
+# as r77).
+_PLAYBACK_R78_ERR_CLASSES = (
+    ("alsa_sample_format", r"Sample format non available"),
+    ("aplay_bad_format", r"wrong extended format"),
+    ("usage_refusal", r"pw-(?:play|cat|record) \[options\]"),
+    ("pwlink_enoent", r"failed to (?:dis)?link ports[^\n]*"),
+) + _CAPTURE_ERR_CLASSES
+
+
+def _playback_r78_errclass(text):
+    """First matching named class on a consumer's stderr (r78 tuple)."""
+    for name, pat in _PLAYBACK_R78_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _playback_r78_write_tone(path, seconds):
+    """The r78 frequency-strict tag tone: L 1 kHz / R 1.5 kHz at amp 8192 —
+    the scout's proven discriminator on this host (a foreign 1 kHz STEREO
+    tone on the shared default sink fails the R-channel test)."""
+    n = int(PLAYBACK_R78_TONE_RATE * seconds)
+    t = np.arange(n) / PLAYBACK_R78_TONE_RATE
+    left = (PLAYBACK_R78_TONE_AMP *
+            np.sin(2 * np.pi * PLAYBACK_R78_TONE_L_HZ * t)).astype("<i2")
+    right = (PLAYBACK_R78_TONE_AMP *
+             np.sin(2 * np.pi * PLAYBACK_R78_TONE_R_HZ * t)).astype("<i2")
+    pcm = np.empty(n * 2, dtype="<i2")
+    pcm[0::2], pcm[1::2] = left, right
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(PLAYBACK_R78_TONE_RATE)
+        w.writeframes(pcm.tobytes())
+
+
+def _playback_r78_links():
+    """`pw-link -l` as an edge set [(out_port, in_port)]. The `|->` line
+    under a producer's port and the `|<-` line under a consumer's port
+    encode the SAME direction (producer -> consumer), so both forms fold
+    into one directed edge set. An unreadable table is the empty set —
+    every caller consumes edges only."""
+    try:
+        proc = subprocess.run(["pw-link", "-l"], capture_output=True,
+                              timeout=10)
+        text = proc.stdout.decode(errors="replace")
+    except (subprocess.TimeoutExpired, OSError):
+        return []
+    port, links = None, []
+    for ln in text.splitlines():
+        if not ln or not ln[0].isspace():
+            port = ln.strip() or None
+            continue
+        if port is None:
+            continue
+        if "|->" in ln:
+            links.append((port, ln.split("|->", 1)[1].strip()))
+        elif "|<-" in ln:
+            links.append((ln.split("|<-", 1)[1].strip(), port))
+    return sorted(set(links))
+
+
+def _playback_r78_consumers(tag, links):
+    """The nodes THIS playback stream's output ports feed — the write-side
+    twin of r77's consumed-nodes witness. Ports are `<node.name>:output_*`,
+    so the unique per-leg tag isolates this stream on a contended host
+    with NO baseline differencing."""
+    fl = {dst for src, dst in links if src == f"{tag}:output_FL"}
+    fr = {dst for src, dst in links if src == f"{tag}:output_FR"}
+    both = fl & fr
+    return {"consumer_ports": sorted(fl | fr),
+            "nodes": sorted({p.rsplit(":", 1)[0]
+                             for p in (both or (fl | fr))}),
+            "ambiguous": len({p.rsplit(":", 1)[0]
+                              for p in (fl | fr)}) > 1}
+
+
+def _playback_r78_producers(tag, links):
+    """The nodes feeding THIS capture stream's input ports — same tag
+    isolation for the capture-side cells."""
+    fl = {src for src, dst in links if dst == f"{tag}:input_FL"}
+    fr = {src for src, dst in links if dst == f"{tag}:input_FR"}
+    both = fl & fr
+    return {"producer_ports": sorted(fl | fr),
+            "nodes": sorted({p.rsplit(":", 1)[0]
+                             for p in (both or (fl | fr))}),
+            "ambiguous": len({p.rsplit(":", 1)[0]
+                              for p in (fl | fr)}) > 1}
+
+
+def _playback_r78_output_ports(tag):
+    """`pw-link -o` output ports for this tag — the published-port witness
+    for the published-but-unlinked stall shapes."""
+    try:
+        proc = subprocess.run(["pw-link", "-o"], capture_output=True,
+                              timeout=10)
+        return sorted(ln.strip() for ln in
+                      proc.stdout.decode(errors="replace").splitlines()
+                      if ln.strip().startswith(f"{tag}:"))
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _playback_r78_input_ports(tag):
+    """`pw-link -i` input ports for this tag — the published-port witness
+    for source-class (capture-port) nodes; the stall boundary publishes
+    inputs, not outputs."""
+    try:
+        proc = subprocess.run(["pw-link", "-i"], capture_output=True,
+                              timeout=10)
+        return sorted(ln.strip() for ln in
+                      proc.stdout.decode(errors="replace").splitlines()
+                      if ln.strip().startswith(f"{tag}:"))
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _playback_r78_node_state(tag):
+    """The live node's own advertised target + state — INTENT, never the
+    verdict (the write side's provenance trap is the r77 one, unchanged).
+    Matched by the unique node.name tag: pw-play's node does NOT carry
+    application.process.id (measured this host)."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        info = node.get("info") or {}
+        props = info.get("props") or {}
+        if props.get("node.name") == tag:
+            return {"found": True, "state": info.get("state"),
+                    "target_object": props.get("target.object"),
+                    "node_target": props.get("node.target"),
+                    "media_class": props.get("media.class")}
+    return {"found": False}
+
+
+def _playback_r78_node_names():
+    """All live node names — the before/after diff proves a direct-ALSA
+    leg bypassed the graph."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+        return sorted({(n.get("info") or {}).get("props", {})
+                       .get("node.name") for n in dump
+                       if str(n.get("type", "")).endswith("Node")
+                       } - {None})
+    except (subprocess.TimeoutExpired, OSError, ValueError):
+        return None
+
+
+def _playback_r78_null_sink_load(name):
+    """Load a probe-owned module-null-sink; returns (module_id, rc, err).
+    The module id is captured at load time — a name re-lookup can return
+    "" (rc-0 no-op) or a foreign module (r77 verifier N2)."""
+    try:
+        proc = subprocess.run(
+            ["pactl", "load-module", "module-null-sink",
+             "sink_name=" + name],
+            capture_output=True, timeout=15)
+        mid = proc.stdout.decode(errors="replace").strip()
+        mid = int(mid) if mid.isdigit() else None
+        if mid is not None:
+            # pactl returns at PA-accept time; the node reaches sink
+            # listings later — a `--target` spawned in the gap binds the
+            # live default and masquerades as an honored-target failure.
+            seen, waited = _playback_r78_wait_sink(name)
+            if not seen:
+                _playback_r78_unload(mid)
+                return None, proc.returncode, \
+                    f"loaded but never enumerated in {waited}s"
+        return mid, proc.returncode, \
+            proc.stderr.decode(errors="replace")[:120] or None
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return None, None, str(exc)[:120]
+
+
+def _playback_r78_source_names():
+    try:
+        proc = subprocess.run(["pactl", "list", "sources", "short"],
+                              capture_output=True, timeout=10)
+        return [ln.split()[1] for ln in
+                proc.stdout.decode(errors="replace").splitlines()
+                if len(ln.split()) >= 2]
+    except (subprocess.TimeoutExpired, OSError):
+        return []
+
+
+def _playback_r78_wait_source(name, timeout_s=4.0):
+    """Same enumeration gap as `_playback_r78_wait_sink`, for the monitor
+    SOURCE node (`<sink>.monitor`) — a parec/pw-record spawned in the gap
+    blocks forever and dies at its bound with 0 bytes (r78 fold, live)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < timeout_s:
+        if name in _playback_r78_source_names() and \
+                _playback_r78_output_ports(name):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _playback_r78_wait_sink(name, timeout_s=4.0):
+    """Poll until the freshly-loaded null sink is enumerable. `pactl
+    load-module` returns at PA-accept time; the node and its ports reach
+    `pw-link`/sink listings up to a few hundred ms later, and the session
+    manager needs the node visible before a `--target` can bind to it —
+    a leg spawned in the gap lands on the live default and masquerades
+    as an honored-target failure (r78 fold). Returns (seen, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < timeout_s:
+        # r78 fold-3: pactl listing is necessary but NOT sufficient —
+        # the session manager keeps routing to the default until the
+        # sink's playback PORTS are linkable (probe6: every leg aimed at
+        # a pactl-listed prop_b still fell back to SPDIF). Require the
+        # port witness too.
+        if name in _capture_r77_sink_names() and \
+                _playback_r78_input_ports(name):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _playback_r78_unload(module_id):
+    if module_id is None:
+        return None
+    try:
+        proc = subprocess.run(["pactl", "unload-module", str(module_id)],
+                              capture_output=True, timeout=15)
+        return proc.returncode
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _playback_r78_metadata_default_sink():
+    """`default.audio.sink` as {name, raw} — the session-manager default
+    the write-side fallback FOLLOWS. The raw JSON is kept verbatim so the
+    entry can restore exactly what it found."""
+    try:
+        proc = subprocess.run(["pw-metadata", "-n", "default", "0",
+                               "default.audio.sink"],
+                              capture_output=True, timeout=10)
+        m = re.search(r"value:'(.*?)'(?:\s*type|\s*$)",
+                      proc.stdout.decode(errors="replace"))
+        raw = m.group(1) if m else None
+        name = None
+        if raw:
+            # `{"name":"x"}` from a proper write, but also SPA-JSON
+            # `{"name":r78b_ns}` as a concurrent lane leaves it —
+            # quoted OR bare value.
+            mm = re.search(r'"?name"?\s*[:=]\s*"?([^",}\s]+)"?', raw)
+            name = mm.group(1) if mm else None
+        return {"name": name, "raw": raw, "exit": proc.returncode}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"name": None, "raw": None, "error": str(exc)[:120]}
+
+
+def _playback_r78_metadata_set_default(raw_json):
+    """The WORKING default-switch verb on this host (pactl is the stale
+    one). Returns {exit, error}."""
+    try:
+        proc = subprocess.run(
+            ["pw-metadata", "-n", "default", "0", "default.audio.sink",
+             raw_json],
+            capture_output=True, timeout=10)
+        return {"exit": proc.returncode,
+                "error": proc.stderr.decode(errors="replace")[:120] or None}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"exit": None, "error": str(exc)[:120]}
+
+
+def _playback_r78_metadata_wait(name, deadline_s=PLAYBACK_R78_METADATA_APPLY_S):
+    """Wait until default.audio.sink's name == `name` (or the deadline) —
+    the switch is the event, and the receipt must show when it landed."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < deadline_s:
+        cur = _playback_r78_metadata_default_sink()
+        if cur.get("name") == name:
+            return {"applied": True, "applied_in_s":
+                    round(time.monotonic() - t0, 2), "read": cur}
+        time.sleep(0.2)
+    return {"applied": False, "read": _playback_r78_metadata_default_sink()}
+
+
+def _playback_r78_pcm_map():
+    """PipeWire Audio/Sink+Source nodes -> api.alsa.path -> an aplay-able
+    device string, with the card-id -> card-index resolution read from
+    `aplay -l` (never a hardcoded card number)."""
+    out = {"map": {}, "card_ids": {}}
+    cards = {}
+    try:
+        proc = subprocess.run(["aplay", "-l"], capture_output=True,
+                              timeout=10)
+        for m in re.finditer(r"card (\d+): (\S+) \[",
+                             proc.stdout.decode(errors="replace")):
+            cards[m.group(2)] = int(m.group(1))
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        out["aplay_l_error"] = str(exc)[:120]
+    out["card_ids"] = cards
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        out["pw_dump_error"] = type(exc).__name__
+        return out
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        props = (node.get("info") or {}).get("props") or {}
+        if props.get("media.class") not in ("Audio/Sink", "Audio/Source"):
+            continue
+        path = props.get("api.alsa.path")
+        name = props.get("node.name")
+        if not path or not name:
+            continue
+        m = re.match(r"^(?:hw|plughw):([^,]+),(\d+)$", path)
+        dev = None
+        if m and m.group(1) in cards:
+            dev = f"hw:{cards[m.group(1)]},{m.group(2)}"
+        elif path.startswith("hdmi:"):
+            dev = path
+        out["map"][name] = {"alsa_path": path, "aplay_device": dev,
+                            "media_class": props.get("media.class")}
+    return out
+
+
+def _playback_r78_hw_params(text):
+    """`--dump-hw-params` FORMAT/CHANNELS/RATE lines -> parsed leaf."""
+    out = {}
+    m = re.search(r"^FORMAT:\s*(.*)$", text, re.M)
+    if m:
+        out["formats"] = m.group(1).split()
+    for key, pat in (("channels", r"^CHANNELS:\s*(.*)$"),
+                     ("rate", r"^RATE:\s*(.*)$")):
+        m = re.search(pat, text, re.M)
+        if not m:
+            continue
+        nums = [int(x) for x in re.findall(r"\d+", m.group(1))]
+        out[key] = nums[0] if len(nums) == 1 else nums
+        out[key + "_max"] = max(nums) if nums else None
+        out[key + "_min"] = min(nums) if nums else None
+    m = re.search(r'HW Params of device "([^"]+)"', text)
+    if m:
+        out["device_name"] = m.group(1)
+    return out
+
+
+def _playback_r78_pcm_array(path, insp):
+    """s16 stereo payload as an int16 Nx2 memmap — handles any header
+    variant (the r77 approach; the split sentinel taught why read_bytes
+    is wrong here)."""
+    if not insp.get("exists") or not insp.get("bytes"):
+        return None
+    off = next((c["offset"] + 8 for c in insp.get("chunks", [])
+                if c["id"] == "data"), None)
+    fmt = insp.get("fmt") or {}
+    if off is None or fmt.get("bits") != 16 or fmt.get("channels") != 2:
+        return None
+    payload = insp["bytes"] - off
+    payload -= payload % 4     # drop a trailing partial frame
+    if payload <= 0:
+        return None
+    return np.memmap(path, dtype="<i2", mode="r", offset=off,
+                     shape=payload // 2).reshape(-1, 2)
+
+
+def _playback_r78_domfreq(seg_windowed, freq_axis):
+    """Dominant FFT bin + corrected amplitude (the Hann coherent gain is
+    0.5, so amplitude ~= 4*|X[k]|/N)."""
+    mag = np.abs(np.fft.rfft(seg_windowed))
+    i = int(np.argmax(mag))
+    return float(freq_axis[i]), float(4.0 * mag[i] / len(seg_windowed))
+
+
+def _playback_r78_tone_windows(path):
+    """Frequency-strict tag classifier over a monitor-tap wav, window by
+    window — the content witness. A window is `mine` only if the L channel
+    peaks at 1 kHz AND the R channel at 1.5 kHz within 6 %, both at a real
+    amplitude; `audio` flags any signal at all. This is the only
+    discriminator that survives a shared default sink (a foreign 1 kHz
+    stereo tone reads as `audio`, never as `mine`)."""
+    insp = _capture_wav_inspect(path)
+    pcm = _playback_r78_pcm_array(path, insp)
+    out = {"exists": insp.get("exists"), "bytes": insp.get("bytes"),
+           "windows": [], "mine_spans": []}
+    if pcm is None:
+        out["unsupported"] = "no s16 stereo data chunk"
+        return out
+    rate = (insp.get("fmt") or {}).get("rate") or PLAYBACK_R78_TONE_RATE
+    win = max(64, int(rate * PLAYBACK_R78_TONE_WINDOW_S))
+    han = np.hanning(win)
+    freq_axis = np.fft.rfftfreq(win, 1.0 / rate)
+    tol_l = PLAYBACK_R78_TONE_L_HZ * PLAYBACK_R78_TONE_TOL
+    tol_r = PLAYBACK_R78_TONE_R_HZ * PLAYBACK_R78_TONE_TOL
+    spans, cur = [], None
+    for i in range(len(pcm) // win):
+        seg = pcm[i * win:(i + 1) * win].astype(np.float64) * han[:, None]
+        fl, al = _playback_r78_domfreq(seg[:, 0], freq_axis)
+        fr, ar = _playback_r78_domfreq(seg[:, 1], freq_axis)
+        at = round(i * PLAYBACK_R78_TONE_WINDOW_S, 2)
+        mine = (abs(fl - PLAYBACK_R78_TONE_L_HZ) <= tol_l and
+                abs(fr - PLAYBACK_R78_TONE_R_HZ) <= tol_r and
+                al >= PLAYBACK_R78_TONE_AMP_MIN and
+                ar >= PLAYBACK_R78_TONE_AMP_MIN)
+        audio = max(al, ar) >= PLAYBACK_R78_TONE_AUDIO_MIN
+        out["windows"].append({"at_s": at, "f_l": int(fl), "a_l": int(al),
+                               "f_r": int(fr), "a_r": int(ar),
+                               "mine": bool(mine), "audio": bool(audio)})
+        if mine:
+            cur = [at, at + PLAYBACK_R78_TONE_WINDOW_S] if cur is None \
+                else [cur[0], at + PLAYBACK_R78_TONE_WINDOW_S]
+        elif cur is not None:
+            spans.append([round(x, 2) for x in cur])
+            cur = None
+    if cur is not None:
+        spans.append([round(x, 2) for x in cur])
+    out["mine_spans"] = spans
+    out["mine_windows"] = sum(1 for w in out["windows"] if w["mine"])
+    out["audio_windows"] = sum(1 for w in out["windows"] if w["audio"])
+    out["zero_windows"] = sum(1 for w in out["windows"] if not w["audio"])
+    out["peak_l"] = max((w["a_l"] for w in out["windows"]), default=0)
+    out["peak_r"] = max((w["a_r"] for w in out["windows"]), default=0)
+    out["carries_tone"] = (out["mine_windows"] >=
+                           PLAYBACK_R78_CARRIES_TONE_WINDOWS)
+    return out
+
+
+def _playback_r78_tap(target, path, frames, tag):
+    """Spawn a bounded monitor capture of `target` (a SINK name — the prop
+    authorizes sink-side matching; its monitor ports are the tap). rc=1 at
+    the -n bound is its success shape."""
+    argv = ["pw-record", "-P", "stream.capture.sink=true",
+            "-P", f"node.name={tag}", "--target", str(target),
+            "-n", str(frames), "--rate", "48000", "--channels", "2",
+            "--format", "s16", str(path)]
+    return subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE, start_new_session=True)
+
+
+def _playback_r78_foreign_clients():
+    """Live PipeWire/ALSA consumer processes NOT spawned by this run — the
+    write-side counterpart of the r77 contention ledger. argv[0] is read
+    for the pw-cat symlinks (pw-play/pw-record share comm `pw-cat`), and
+    this process's own children are excluded via ppid."""
+    out = {"pw_play": 0, "pw_record": 0, "pw_cat": 0, "pw_loopback": 0,
+           "paplay": 0, "parec": 0, "pacat": 0, "aplay": 0, "arecord": 0,
+           "ffmpeg": 0, "fixture_runs": 0, "own_pid": os.getpid()}
+    own = str(out["own_pid"])
+    try:
+        for pid_dir in Path("/proc").iterdir():
+            if not pid_dir.name.isdigit() or pid_dir.name == own:
+                continue
+            try:
+                stat = (pid_dir / "stat").read_text()
+                ppid = int(stat.rsplit(")", 1)[1].split()[1])
+                if ppid == out["own_pid"]:
+                    continue   # this probe's own live child
+                comm = (pid_dir / "comm").read_text().strip()
+                argv0 = (pid_dir / "cmdline").read_bytes() \
+                    .replace(b"\0", b" ").decode(errors="replace")
+            except (OSError, ValueError, IndexError):
+                continue
+            if comm == "pw-cat":
+                base = Path(argv0.split(" ", 1)[0]).name if argv0 else ""
+                key = {"pw-play": "pw_play",
+                       "pw-record": "pw_record"}.get(base, "pw_cat")
+                out[key] += 1
+            elif comm == "pw-loopback":
+                out["pw_loopback"] += 1
+            elif comm in ("paplay", "parec", "parecord", "pacat", "aplay",
+                          "arecord", "ffmpeg"):
+                key = "parec" if comm in ("parec", "parecord") else comm
+                out[key] += 1
+            elif comm.startswith("python") and "measure_audio.py" in argv0:
+                out["fixture_runs"] += 1
+    except OSError:
+        out["proc_error"] = True
+    out["host_is_quiet"] = (sum(out[k] for k in (
+        "pw_play", "pw_record", "pw_cat", "pw_loopback", "paplay", "parec",
+        "pacat", "aplay", "arecord", "ffmpeg", "fixture_runs")) == 0)
+    return out
+
+
+def _playback_r78_run(tail, ctx, tag, events=(), wait_bound_s=None,
+                      env=None):
+    """Spawn a tagged pw-play and fire timed events: "sample" (consumers +
+    the node's own intent props), "unload_module", "pwlink_d", "pwlink",
+    "metadata_default". The wait bound is wall-clock from spawn; a process
+    still alive at it is SIGKILLed — `killed_at_bound` separates the stall
+    shapes from clean exits."""
+    argv = ["pw-play", "-P", f"node.name={tag}", *tail, str(ctx["tone"])]
+    t0 = time.monotonic()
+    proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True, env=env)
+    samples, fired = [], []
+    for at, kind, arg in sorted(events, key=lambda e: e[0]):
+        left = at - (time.monotonic() - t0)
+        if left > 0:
+            time.sleep(left)
+        when = round(time.monotonic() - t0, 3)
+        if kind == "sample":
+            links = _playback_r78_links()
+            tap_wit = {}
+            for ttag, ttarget in ctx.get("tap_witnesses", ()):
+                prods = _playback_r78_producers(ttag, links)
+                tap_wit[ttag] = {
+                    "producers": prods["nodes"],
+                    "bound_to_target": prods["nodes"] == [ttarget]}
+            samples.append({
+                "at_s": at, "when_s": when, "live": proc.poll() is None,
+                "output_ports": _playback_r78_output_ports(tag),
+                "input_ports": _playback_r78_input_ports(tag),
+                **_playback_r78_consumers(tag, links),
+                "tap_witnesses": tap_wit,
+                "node": _playback_r78_node_state(tag)})
+        elif kind == "unload_module":
+            rc = _playback_r78_unload(arg)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "module_id": arg, "exit_code": rc})
+        elif kind in ("pwlink_d", "pwlink"):
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "links": _playback_r78_pwlink_batch(
+                              arg, kind == "pwlink_d")})
+        elif kind == "metadata_default":
+            res = _playback_r78_metadata_set_default(arg)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          **res})
+    bound = wait_bound_s if wait_bound_s is not None else ctx["bound_s"]
+    left = bound - (time.monotonic() - t0)
+    killed = False
+    try:
+        proc.wait(timeout=max(0.05, left))
+    except subprocess.TimeoutExpired:
+        killed = True
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    wall = round(time.monotonic() - t0, 2)
+    err = proc.stderr.read().decode(errors="replace")
+    cls, line = _playback_r78_errclass(err)
+    shown = "pw-play -P node.name=<tag> " + " ".join(tail) + " <tone>"
+    for name in ctx.get("redact", ()):
+        shown = shown.replace(name, "<sink>")
+    return {"tag": tag, "argv": shown.strip(), "samples": samples,
+            "fired": fired, "exit_code": proc.returncode,
+            "killed_at_bound": killed, "wall_s": wall,
+            "error_class": cls,
+            "error": line.replace(str(ctx["tone"]), "<tone>") if line
+            else None,
+            "stderr_tail": _capture_tail(err, str(ctx["tone"]))}
+
+
+def _playback_r78_leg(name, tail, ctx, tap_target=None, tap_seconds=0.0,
+                      sample_at=PLAYBACK_R78_LINK_SAMPLE_AT, bound_s=None,
+                      env_extra=None):
+    """One tagged pw-play leg plus an optional concurrent monitor tap.
+    The tap is spawned FIRST (lead time) so the capture covers the whole
+    playout; it is frequency-strict, so foreign audio on a shared sink
+    reads as `audio`, never as `mine`."""
+    tag = f"{ctx['tag_prefix']}_{name}"
+    tap = tapf = None
+    if tap_target is not None:
+        tapf = Path(ctx["tmp"]) / f"tap_{name}.wav"
+        tap = _playback_r78_tap(tap_target, tapf,
+                                int(PLAYBACK_R78_TONE_RATE * tap_seconds),
+                                f"{tag}_tap")
+        # r78 critic CEX: a tap wav is not provenance-bound to its
+        # `target` — a migrated-on tap launders positive pins, a
+        # migrated-off tap forges negatives. Bind it: every sample must
+        # record the tap's producers so `mine` only counts when the tap
+        # actually listened to the claimed node's monitor.
+        ctx = dict(ctx, tap_witnesses=list(ctx.get("tap_witnesses", ())) +
+                   [(f"{tag}_tap", tap_target)])
+        time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        env.update(env_extra)
+    run = _playback_r78_run(
+        tail, ctx, tag,
+        events=[(a, "sample", None) for a in sample_at],
+        wait_bound_s=bound_s, env=env)
+    cell = {"name": name, "default_sink_at_leg": ctx["default_at_start"],
+            **run,
+            "consumers_union": sorted(
+                {n for s in run["samples"] for n in s["nodes"]})}
+    if tap is not None:
+        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+        twit = [s.get("tap_witnesses", {}).get(f"{tag}_tap")
+                for s in run["samples"]]
+        bound = [t["bound_to_target"] for t in twit if t]
+        cell["tap"] = {
+            "target": tap_target, "exit_code": tap.returncode,
+            # a bound tap listens to the claimed node's monitor at least
+            # once during the run; `ran` = the tap produced windows at all
+            # (a dead tap makes every content pin vacuous);
+            # `bound_producers` = every node the tap actually listened to
+            # — `mine` is attributed when it intersects consumers_union.
+            "bound_to_target": any(bound),
+            "bound_producers": sorted(
+                {p for t in twit if t for p in t.get("producers", [])}),
+            "never_bound": bool(twit) and not any(bound),
+            "stderr_tail": _capture_tail(
+                tap.stderr.read().decode(errors="replace"), str(tapf)),
+            **_playback_r78_tone_windows(tapf)}
+        cell["tap"]["ran"] = bool(cell["tap"].get("windows"))
+    cell["carries_tone"] = (cell.get("tap") or {}).get("carries_tone")
+    return cell
+
+
+# --------------------------------------------------------------------------
+# (1) TARGET LATTICE — the ungated default-sink fallback.
+# --------------------------------------------------------------------------
+# leg name -> (target resolver, expected outcome)
+PLAYBACK_R78_LATTICE = (
+    ("probe_sink", "probe_sink", "honored"),
+    ("other_sink", "other_sink", "honored"),
+    ("garbage", "literal:no_such_sink_r78", "fallback"),
+    ("absent_sink", "literal:r78_absent_sink", "fallback"),
+    ("default_token", "literal:default", "fallback"),
+    ("pulse_token", "literal:pulse", "fallback"),
+    ("at_default_sink", "literal:@DEFAULT_SINK@", "fallback"),
+    ("at_default_monitor", "literal:@DEFAULT_MONITOR@", "fallback"),
+    ("at_default_source", "literal:@DEFAULT_SOURCE@", "fallback"),
+    ("source_name", "source", "fallback"),
+    # a `.monitor` name resolves through the SOURCE domain — it does NOT
+    # land the session default: it lands the sink that SHARES the default
+    # source's api.alsa.path, then the session manager re-links it to the
+    # default ~1 s later (measured this host, r78).
+    ("monitor_name", "probe_monitor", "source_peer"),
+    ("empty_target", "literal:", "fallback"),
+    ("no_target", None, "fallback"),
+    ("target_0", "literal:0", "unlinked_stall"),
+)
+
+
+def playback_target_lattice_r78_entry():
+    """(1) The write-side selection lattice: a resolvable target is
+    honored, and EVERY unresolvable/inapplicable target — garbage,
+    `default`, `pulse`, the `@DEFAULT_*@` aliases, a source name, a
+    `.monitor` name, `""`, the absent flag — lands the CURRENT default
+    sink at rc=0 with empty stderr and real-time playout. `--target 0` is
+    the pin law's playback half: ports published, zero links, file never
+    consumed. Two witnesses per leg: `pw-link -l` consumers (the only
+    honest statement of consumption) and a frequency-strict monitor tap
+    (the only in-artifact one); the node's own target.object is recorded
+    to show intent-vs-consumption."""
+    failures = []
+    inv = _capture_inventory()
+    sinks = _capture_r77_sink_names()
+    other = next((s for s in sinks if s != inv["default_sink"] and
+                  s.startswith("alsa_output")), None) or \
+        next((s for s in sinks if s != inv["default_sink"]), None)
+    entry = {"probe": "playback target lattice — the ungated "
+                      "default-sink fallback",
+             "class": "playback_default_fallback",
+             "contention": _playback_r78_foreign_clients(),
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"],
+                           "sinks": sinks},
+             "classes_extra": ["monitor_target_source_peer",
+                               "target_0_unlinked"]}
+    if not inv["default_sink"]:
+        entry["blocked"] = "no default sink"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    pcm = _playback_r78_pcm_map()["map"]
+    src_path = (pcm.get(inv["default_source"]) or {}).get("alsa_path")
+    source_peer = next(
+        (s for s in sinks
+         if (pcm.get(s) or {}).get("alsa_path") == src_path
+         and s != inv["default_source"]), None) if src_path else None
+    entry["source_peer"] = {"default_source": inv["default_source"],
+                            "source_alsa_path": src_path,
+                            "peer_sink": source_peer}
+    tg = {"probe_sink": PLAYBACK_R78_NULL_SINK, "other_sink": other,
+          "source": inv["default_source"],
+          "probe_monitor": PLAYBACK_R78_NULL_SINK + ".monitor"}
+    mid, lrc, lerr = _playback_r78_null_sink_load(PLAYBACK_R78_NULL_SINK)
+    seen, waited = _playback_r78_wait_sink(
+        PLAYBACK_R78_NULL_SINK) if mid is not None else (False, 0.0)
+    entry["probe_sink_load"] = {"module_id": mid, "rc": lrc,
+                                "error": lerr, "enumerated": seen,
+                                "waited_s": waited}
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-play-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_LATTICE_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78lat",
+                   "bound_s": PLAYBACK_R78_LATTICE_TONE_S +
+                              PLAYBACK_R78_BOUND_SLACK_S,
+                   "redact": [s for s in
+                              (PLAYBACK_R78_NULL_SINK, inv["default_sink"],
+                               other, inv["default_source"]) if s]}
+            # warm the default sink once so the first fallback cell does
+            # not measure resume latency as missing content (r77 fold).
+            ctx["default_at_start"] = inv["default_sink"]
+            warm = _playback_r78_run(
+                ["--target", inv["default_sink"]], ctx, "r78lat_warm",
+                wait_bound_s=PLAYBACK_R78_TIMEOUT_S)
+            entry["warmup"] = {"exit_code": warm["exit_code"],
+                               "target": inv["default_sink"]}
+            for name, resolver, expect in PLAYBACK_R78_LATTICE:
+                if resolver is None:
+                    target = None
+                elif resolver.startswith("literal:"):
+                    target = resolver.split(":", 1)[1]
+                else:
+                    target = tg.get(resolver)
+                    if not target:
+                        legs[name] = {"blocked": f"no {resolver} "
+                                                 "enumerated on this "
+                                                 "host"}
+                        continue
+                if resolver in ("probe_sink", "probe_monitor") and \
+                        (mid is None or not seen):
+                    legs[name] = {"blocked": "probe-owned null sink did "
+                                             "not enumerate"}
+                    continue
+                tail = [] if target is None else ["--target", target]
+                ctx["default_at_start"] = _capture_r77_default_sink()
+                if expect == "unlinked_stall":
+                    legs[name] = _playback_r78_leg(
+                        name, tail, ctx,
+                        tap_target=inv["default_sink"],
+                        tap_seconds=PLAYBACK_R78_STALL_BOUND_S - 0.4,
+                        sample_at=(1.0, 2.5, 4.5),
+                        bound_s=PLAYBACK_R78_STALL_BOUND_S)
+                elif expect == "source_peer":
+                    # denser samples: the early source-peer link and the
+                    # late re-link to the default must both be caught.
+                    # r78 critic M3: a peer-only landing skips the default
+                    # tap's content pin — give the leg a SECOND tap on the
+                    # peer so either landing is content-witnessed.
+                    peer_tapf = Path(tmp) / "tap_monitor_peer.wav"
+                    peer_tap = _playback_r78_tap(
+                        source_peer, peer_tapf,
+                        int(PLAYBACK_R78_TONE_RATE *
+                            (PLAYBACK_R78_TAP_LEAD_S +
+                             PLAYBACK_R78_LATTICE_TONE_S + 0.8)),
+                        "r78lat_monitor_peer_tap") \
+                        if source_peer else None
+                    legs[name] = _playback_r78_leg(
+                        name, tail,
+                        dict(ctx, tap_witnesses=(
+                            list(ctx.get("tap_witnesses", ())) +
+                            ([("r78lat_monitor_peer_tap", source_peer)]
+                             if source_peer else []))),
+                        tap_target=inv["default_sink"],
+                        tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                                     PLAYBACK_R78_LATTICE_TONE_S + 0.8),
+                        sample_at=(0.5, 1.2, 2.2),
+                        bound_s=ctx["bound_s"])
+                    if peer_tap is not None:
+                        _capture_r77_reap(peer_tap, PLAYBACK_R78_TIMEOUT_S)
+                        ptw = [s.get("tap_witnesses", {}).get(
+                                   "r78lat_monitor_peer_tap")
+                               for s in legs[name]["samples"]]
+                        pbound = [t["bound_to_target"]
+                                  for t in ptw if t]
+                        legs[name]["tap_peer"] = {
+                            "target": source_peer,
+                            "exit_code": peer_tap.returncode,
+                            "bound_to_target": any(pbound),
+                            **_playback_r78_tone_windows(peer_tapf)}
+                else:
+                    legs[name] = _playback_r78_leg(
+                        name, tail, ctx,
+                        tap_target=(target if expect == "honored"
+                                    else inv["default_sink"]),
+                        tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                                     PLAYBACK_R78_LATTICE_TONE_S + 0.6),
+                        bound_s=ctx["bound_s"])
+                legs[name]["expected"] = expect
+                legs[name]["target_arg"] = target
+                time.sleep(PLAYBACK_R78_SETTLE_S)
+    finally:
+        _playback_r78_unload(mid)
+    entry["legs"] = legs
+    entry["probe_sink_gone"] = PLAYBACK_R78_NULL_SINK not in \
+        _capture_r77_sink_names()
+    entry["default_sink_trace"] = [
+        {"leg": n, "default_sink_at_leg": leg.get("default_sink_at_leg")}
+        for n, leg in legs.items()]
+    for name, resolver, expect in PLAYBACK_R78_LATTICE:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"lattice {name}: leg absent — the table is "
+                            "the coverage contract")
+            continue
+        if "blocked" in leg:
+            # r78 critic M8: a blocked leg is named coverage, never a
+            # silent pass. Probe-owned blockage (our own null sink did
+            # not load) is a failure — the host handed us nothing; env
+            # blockage (no second sink / no source) is a named coverage
+            # miss, recorded as such.
+            if resolver in ("probe_sink", "probe_monitor"):
+                failures.append(f"lattice {name}: probe-owned resource "
+                                f"blocked — {leg['blocked']}")
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    f"{name}: {leg['blocked']}")
+                entry["confound_observed"] = True
+            continue
+        if expect == "unlinked_stall":
+            # a stall is killed_at_bound (the -9 reap code is expected)
+            if not leg["killed_at_bound"]:
+                failures.append(
+                    f"lattice {name}: --target 0 must STALL (no exit "
+                    f"inside {PLAYBACK_R78_STALL_BOUND_S} s), got "
+                    f"rc={leg['exit_code']} at {leg['wall_s']} s")
+            if leg["consumers_union"]:
+                failures.append(
+                    f"lattice {name}: --target 0 fed consumers "
+                    f"{leg['consumers_union']} — expected published-but-"
+                    "unlinked")
+            ports = {p for s in leg["samples"]
+                     for p in (s.get("output_ports") or [])}
+            if len(ports) < 2:
+                failures.append(
+                    f"lattice {name}: --target 0 published ports "
+                    f"{sorted(ports)} — expected output_FL/FR present")
+            states = [s.get("node", {}).get("state")
+                      for s in leg["samples"]
+                      if s.get("node", {}).get("found")]
+            if states and "suspended" not in states:
+                failures.append(
+                    f"lattice {name}: pinned node states {states} — "
+                    "the pin leg never showed suspended")
+            tap0 = leg.get("tap") or {}
+            if not tap0.get("ran"):
+                failures.append(
+                    f"lattice {name}: the default-sink tap produced no "
+                    "windows — the no-tone pin is vacuous")
+            elif not tap0.get("bound_to_target"):
+                failures.append(
+                    f"lattice {name}: the tap never bound to "
+                    f"{tap0.get('target')} — its silence is unattributed")
+            elif tap0.get("mine_windows"):
+                failures.append(
+                    f"lattice {name}: tag tone reached the default sink "
+                    "— a stall is not a fallback")
+            continue
+        if expect == "source_peer":
+            # `.monitor` is a RACY target — it resolves through the
+            # source domain and lands EITHER the session default OR the
+            # default source's peer sink (both observed across runs on
+            # this host), with a possible mid-leg re-link. Anything
+            # outside that set — a stall, a third node — is a failure.
+            if leg["exit_code"] != 0 or leg["error_class"] is not None:
+                failures.append(
+                    f"lattice {name}: expected rc=0/empty stderr, got "
+                    f"rc={leg['exit_code']} cls={leg['error_class']}")
+            d0l = leg["default_sink_at_leg"]
+            early = leg["samples"][0]["nodes"] if leg["samples"] else []
+            leg["early_consumers"] = early
+            leg["late_consumers"] = \
+                leg["samples"][-1]["nodes"] if leg["samples"] else []
+            allowed = {d0l, source_peer} - {None}
+            if source_peer is None:
+                leg["peer_unresolved"] = (
+                    "no sink shares the default source's api.alsa.path")
+            if not leg["consumers_union"] or \
+                    set(leg["consumers_union"]) - allowed:
+                failures.append(
+                    f"lattice {name}: `.monitor` consumers "
+                    f"{leg['consumers_union']} outside "
+                    f"{{default, source-peer}} = {sorted(allowed)}")
+            leg["landed_peer"] = \
+                source_peer in leg["consumers_union"] if source_peer \
+                else None
+            # r78 critic M3: the landing is content-witnessed at the node
+            # it actually consumed — the default via `tap`, the peer via
+            # `tap_peer`. A landing with no tone anywhere is a stall, not
+            # a playback.
+            wit_default = d0l in leg["consumers_union"]
+            wit_peer = leg["landed_peer"]
+            tapd = leg.get("tap") or {}
+            if wit_default and not tapd.get("ran"):
+                failures.append(
+                    f"lattice {name}: default in consumers but the tap "
+                    "produced no windows — the content pin is vacuous")
+            elif wit_default and not tapd.get("bound_to_target"):
+                failures.append(
+                    f"lattice {name}: default in consumers but the tap "
+                    f"never bound to {tapd.get('target')} — `mine` is "
+                    "unattributed")
+            if wit_default and not leg.get("carries_tone"):
+                failures.append(
+                    f"lattice {name}: consumers include the default "
+                    "but its tap carried no tag tone")
+            if wit_peer:
+                tp = leg.get("tap_peer") or {}
+                if not tp.get("windows"):
+                    failures.append(
+                        f"lattice {name}: landed on the peer but the "
+                        "peer tap produced no windows — the landing is "
+                        "content-unwitnessed")
+                elif tp.get("bound_to_target") is not True:
+                    failures.append(
+                        f"lattice {name}: landed on the peer but the "
+                        f"peer tap never bound to {tp.get('target')} — "
+                        "`mine` would be unattributed")
+                elif not tp.get("mine_windows"):
+                    failures.append(
+                        f"lattice {name}: landed on the peer but its "
+                        "monitor heard no tag tone — consumption "
+                        "without content is not a playout verdict")
+            continue
+        d0 = leg["default_sink_at_leg"]
+        want = tg.get(resolver) if expect == "honored" else d0
+        if leg["exit_code"] != 0 or leg["error_class"] is not None:
+            failures.append(f"lattice {name}: expected rc=0 with empty "
+                            f"stderr, got rc={leg['exit_code']} "
+                            f"cls={leg['error_class']}")
+        if leg["consumers_union"] != [want]:
+            foreign = [n for n in leg["consumers_union"]
+                       if n not in ({want, d0} | set(sinks))]
+            if want not in leg["consumers_union"]:
+                # r78 critic M9: the expected node missing entirely is a
+                # real failure even when foreign nodes are also present —
+                # a foreign-only consumer set can never launder the pin.
+                failures.append(f"lattice {name}: expected consumers "
+                                f"[{want}], got {leg['consumers_union']} "
+                                f"(target={leg.get('target_arg')!r})")
+            elif foreign:
+                leg["confound"] = (
+                    f"foreign node(s) {foreign} ALSO consumed this "
+                    "stream — a concurrent seat linked onto these ports; "
+                    "the landing on <want> is kept, the extras are not a "
+                    "verdict")
+                entry["confound_observed"] = True
+            else:
+                failures.append(f"lattice {name}: expected consumers "
+                                f"[{want}], got {leg['consumers_union']} "
+                                f"(target={leg.get('target_arg')!r})")
+        tap = leg.get("tap") or {}
+        if tap and not tap.get("ran"):
+            failures.append(f"lattice {name}: the monitor tap produced "
+                            "no windows — the content pin is vacuous")
+        elif tap and not (
+                tap.get("bound_to_target") or
+                set(tap.get("bound_producers", [])) &
+                set(leg.get("consumers_union", []))):
+            # bound to the stream's actual consumer still attributes
+            # `mine` — a tap that followed the stream's real landing is
+            # honest evidence (default churn makes targets move).
+            failures.append(f"lattice {name}: the tap never bound to "
+                            f"{tap.get('target')} or any consumer "
+                            f"(producers {tap.get('bound_producers')}) "
+                            "— `mine` would be unattributed content")
+        if not leg.get("carries_tone"):
+            failures.append(f"lattice {name}: the monitor tap on {want} "
+                            "carried no tag-tone windows — consumption "
+                            "without content is not a playout verdict")
+        # the intent-vs-consumption leaf: on a fallback leg the node's
+        # own target.object names the REQUEST, not the consumed node.
+        node = next((s.get("node") for s in reversed(leg["samples"])
+                     if s.get("node", {}).get("found")), {})
+        if node:
+            leg["target_object_advertised"] = node.get("target_object")
+            if expect == "fallback" and leg.get("target_arg") and \
+                    node.get("target_object") == leg["target_arg"] and \
+                    leg["target_arg"] != want:
+                leg["target_object_lies"] = True
+        if expect == "fallback" and \
+                leg["wall_s"] < PLAYBACK_R78_LATTICE_TONE_S - 0.6:
+            failures.append(f"lattice {name}: wall {leg['wall_s']} s — "
+                            "fallback must still consume the file at "
+                            "real-time rate")
+    if not any(l.get("target_object_lies") for l in legs.values()):
+        failures.append("lattice: no fallback leg advertised the "
+                        "requested target while consuming the default — "
+                        "the provenance trap did not reproduce")
+    if mid is not None and entry["probe_sink_gone"] is not True:
+        failures.append("lattice teardown: the probe-owned sink survived "
+                        "the unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) LIVE-DEFAULT FOLLOW — the fallback tracks default.audio.sink; the
+# pactl write is rc=0 + async (delayed landing OR never, named per run).
+# --------------------------------------------------------------------------
+def playback_default_follow_r78_entry():
+    """(2) The fallback follows the LIVE session-manager default: switch
+    `default.audio.sink` via pw-metadata mid-probe and the next
+    garbage-target leg lands the NEW default; `pactl set-default-sink`
+    returns rc=0 while the write lands asynchronously seconds later
+    (`pactl_delayed_default`) or never (`pactl_stale_default` — both
+    named classes; the reviewer's durability probe also showed a LANDED
+    pactl default wins over a subsequent pw-metadata write — the pulse
+    verb is authoritative once it lands); an already-running stream does
+    NOT follow the switch."""
+    failures = []
+    inv = _capture_inventory()
+    d0 = inv["default_sink"]
+    meta0 = _playback_r78_metadata_default_sink()
+    entry = {"probe": "live-default follow + pactl delayed/stale "
+                      "default",
+             "classes": ["live_default_follow", "pactl_delayed_default",
+                         "pactl_stale_default", "active_stream_pinned"],
+             "contention": _playback_r78_foreign_clients(),
+             "default_sink_initial": d0, "metadata_initial": meta0}
+    if not d0 or not meta0.get("name"):
+        entry["blocked"] = "no default sink metadata to follow"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    s_new = PLAYBACK_R78_DEF_SINK
+    mid, lrc, lerr = _playback_r78_null_sink_load(s_new)
+    entry["def_sink_load"] = {"module_id": mid, "rc": lrc, "error": lerr}
+    if mid is None:
+        entry["blocked"] = "pactl could not load the probe default sink"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    restore_raw = meta0.get("raw") or f'{{"name": "{d0}"}}'
+    legs, switches = {}, {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-follow-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_FOLLOW_TONE_S)
+            long_tone = Path(tmp) / "tag_tone_long.wav"
+            _playback_r78_write_tone(long_tone,
+                                     PLAYBACK_R78_NOFOLLOW_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78fol",
+                   "bound_s": PLAYBACK_R78_FOLLOW_TONE_S +
+                              PLAYBACK_R78_BOUND_SLACK_S,
+                   "redact": [s_new, d0],
+                   "default_at_start": meta0["name"]}
+            legs["before"] = _playback_r78_leg(
+                "before", ["--target", "no_such_sink_r78"], ctx,
+                tap_target=meta0["name"],
+                tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                             PLAYBACK_R78_FOLLOW_TONE_S + 0.6))
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+            # the working verb: metadata switch, verified by re-read.
+            switches["to_probe"] = _playback_r78_metadata_set_default(
+                f'{{"name": "{s_new}"}}')
+            switches["to_probe"]["applied"] = \
+                _playback_r78_metadata_wait(s_new)
+            # r78 fold-2: the follow oracle is the METADATA authority —
+            # probe5 measured the stream landing on `default.audio.sink`
+            # (s_new) while pactl's stored default still read SPDIF. The
+            # ctx default was stamped at creation (pre-switch meta0);
+            # refresh it at THIS leg's spawn or the gate pins a stale
+            # authority and fails honest live-default landings.
+            meta_at_moved = _playback_r78_metadata_default_sink()
+            pactl_at_moved = _capture_r77_default_sink()
+            ctx["default_at_start"] = meta_at_moved.get("name")
+            legs["moved"] = _playback_r78_leg(
+                "moved", ["--target", "no_such_sink_r78"], ctx,
+                tap_target=s_new,
+                tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                             PLAYBACK_R78_FOLLOW_TONE_S + 0.6))
+            legs["moved"]["pactl_default_at_spawn"] = pactl_at_moved
+            legs["moved"]["authority_divergence"] = \
+                pactl_at_moved is not None and \
+                pactl_at_moved != meta_at_moved.get("name")
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+            # the pactl verb: rc=0, and the write lands ASYNC — the
+            # session manager mirrors the pulse-protocol default into
+            # default.audio.sink seconds later (`pactl_delayed_default`;
+            # a never-arriving write is `pactl_stale_default`).
+            # r78 reviewer F1: the class partition is meaningless unless
+            # the metadata demonstrably sat at s_new BEFORE the pactl
+            # write — sample it here so a silently-dropped earlier write
+            # cannot be read as a stale pactl.
+            meta_before_pactl = _playback_r78_metadata_default_sink()
+            pactl_rc = None
+            try:
+                p = subprocess.run(
+                    ["pactl", "set-default-sink", d0],
+                    capture_output=True, timeout=10)
+                pactl_rc = p.returncode
+            except (subprocess.TimeoutExpired, OSError):
+                pass
+            t_pa = time.monotonic()
+            moved_at = None
+            trace = []
+            while time.monotonic() - t_pa < 5.5:
+                time.sleep(0.5)
+                mn = _playback_r78_metadata_default_sink()
+                pn = _capture_r77_default_sink()
+                trace.append({"at_s": round(time.monotonic() - t_pa, 1),
+                              "metadata": mn.get("name"),
+                              "pactl": pn})
+                if mn.get("name") == d0:
+                    moved_at = round(time.monotonic() - t_pa, 1)
+                    break
+            switches["pactl"] = {
+                "verb": f"pactl set-default-sink {d0[:24]}…",
+                "exit_code": pactl_rc,
+                "moved_at_s": moved_at,
+                "metadata_before": meta_before_pactl.get("name"),
+                "poll_trace": trace,
+                "pactl_stale_default": (pactl_rc == 0 and
+                                        moved_at is None),
+                "pactl_delayed_default": (pactl_rc == 0 and
+                                          moved_at is not None)}
+            # the transitional leg is topology-only: its consumers may
+            # straddle the old metadata default and the pactl target, so
+            # no single tap target is correct — no content pin here.
+            ctx["default_at_start"] = \
+                (_playback_r78_metadata_default_sink() or {}).get("name")
+            legs["still_probe"] = _playback_r78_leg(
+                "still_probe", ["--target", "no_such_sink_r78"], ctx)
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+            # an ACTIVE stream is pinned to the default it resolved at
+            # spawn — the follow is a creation-time decision.
+            ctx_long = dict(ctx, tone=long_tone,
+                            bound_s=PLAYBACK_R78_NOFOLLOW_TONE_S +
+                                    PLAYBACK_R78_BOUND_SLACK_S,
+                            # r78 critic CEX: this tap once reported
+                            # `mine` through 5.5 s while the stream was
+                            # consuming ONLY SPDIF — a migrated-on tap.
+                            # Register it as a witness so its producers
+                            # are sampled per event.
+                            tap_witnesses=[("r78fol_nofollow_tap",
+                                            s_new)])
+            tapf = Path(tmp) / "tap_nofollow.wav"
+            tap = _playback_r78_tap(
+                s_new, tapf,
+                int(PLAYBACK_R78_TONE_RATE *
+                    (PLAYBACK_R78_NOFOLLOW_TONE_S +
+                     PLAYBACK_R78_TAP_LEAD_S + 0.8)),
+                "r78fol_nofollow_tap")
+            time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+            run = _playback_r78_run(
+                ["--target", "no_such_sink_r78"], ctx_long,
+                "r78fol_nofollow",
+                events=[(1.0, "sample", None),
+                        (1.6, "metadata_default", restore_raw),
+                        (2.6, "sample", None),
+                        (4.0, "sample", None)],
+                wait_bound_s=ctx_long["bound_s"])
+            _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+            nf_tw = [s.get("tap_witnesses", {}).get("r78fol_nofollow_tap")
+                     for s in run["samples"]]
+            nf_bound = [t["bound_to_target"] for t in nf_tw if t]
+            legs["nofollow"] = {
+                **run, "tap_target": s_new,
+                "tap": {"exit_code": tap.returncode,
+                        "bound_to_target": any(nf_bound),
+                        "bound_trace": [t.get("producers") if t else None
+                                        for t in nf_tw],
+                        **_playback_r78_tone_windows(tapf)}}
+            # the mid-play restore fired at +1.6 s — wait for it to apply
+            # before the restored leg, or the leg measures propagation
+            # lag as a wrong-consumer verdict.
+            switches["restore_wait"] = _playback_r78_metadata_wait(
+                meta0["name"], 3.0)
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+            ctx["default_at_start"] = \
+                (_playback_r78_metadata_default_sink() or {}).get("name")
+            legs["restored"] = _playback_r78_leg(
+                "restored", ["--target", "no_such_sink_r78"], ctx,
+                tap_target=meta0["name"],
+                tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                             PLAYBACK_R78_FOLLOW_TONE_S + 0.6))
+    finally:
+        # restoration is unconditional: the session default belongs to
+        # the host, not to this probe.
+        _playback_r78_metadata_set_default(restore_raw)
+        _playback_r78_unload(mid)
+    entry["switches"] = switches
+    entry["legs"] = legs
+    entry["metadata_final"] = _playback_r78_metadata_default_sink()
+    entry["default_sink_final"] = _capture_r77_default_sink()
+    entry["def_sink_gone"] = s_new not in _capture_r77_sink_names()
+    pa = switches.get("pactl") or {}
+    exp = {"before": meta0["name"], "moved": s_new,
+           "restored": meta0["name"]}
+    for name, want in exp.items():
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"follow {name}: leg absent")
+            continue
+        if leg["exit_code"] != 0 or leg["error_class"] is not None:
+            failures.append(f"follow {name}: expected rc=0/empty stderr, "
+                            f"got rc={leg['exit_code']} "
+                            f"cls={leg['error_class']}")
+        if name == "moved":
+            # r78 reviewer F1 + live F4: the fallback lands whatever the
+            # LIVE default is at this leg's own spawn — which may be
+            # s_new (the write held) or meta0 again (the session manager
+            # re-asserted a landed pactl default over the metadata write,
+            # the reviewer's durability observation). Consumers must
+            # equal the spawn-time default; the transition claim needs
+            # spawn_d == s_new — a reverted spawn is named coverage, not
+            # a verdict.
+            spawn_d = leg.get("default_sink_at_leg")
+            allowed_mv = {meta0["name"], s_new}
+            for s in leg.get("samples", []):
+                if s.get("live") and set(s["nodes"]) - allowed_mv:
+                    failures.append(
+                        f"follow moved: sample consumers {s['nodes']} "
+                        f"outside the transitional set "
+                        f"{sorted(allowed_mv)}")
+                    break
+            last_live = next((s for s in reversed(leg.get("samples", []))
+                              if s.get("live")), None)
+            if last_live and spawn_d and \
+                    last_live["nodes"] != [spawn_d]:
+                failures.append(
+                    f"follow moved: last live consumers "
+                    f"{last_live['nodes']} — the stream never settled "
+                    f"on the live default at ITS spawn ({spawn_d})")
+            leg["transition_demonstrated"] = (spawn_d == s_new)
+            if spawn_d is not None and spawn_d != s_new:
+                entry["confound_observed"] = True
+                leg["confound"] = (
+                    f"metadata re-asserted to {spawn_d} before this leg "
+                    "spawned — the live-default landing is measured but "
+                    "the s_new transition is not demonstrated here")
+            if leg.get("authority_divergence"):
+                entry["confound_observed"] = True
+                leg["authority_note"] = (
+                    f"pactl default {leg.get('pactl_default_at_spawn')} "
+                    f"disagreed with metadata {spawn_d} at spawn — the "
+                    "stream followed the metadata authority")
+        elif leg["consumers_union"] != [want]:
+            failures.append(f"follow {name}: expected consumers "
+                            f"[{want}], got {leg['consumers_union']}")
+        ftap = leg.get("tap") or {}
+        if ftap and not ftap.get("ran"):
+            failures.append(f"follow {name}: the monitor tap produced "
+                            "no windows — the content pin is vacuous")
+        elif ftap and not (
+                ftap.get("bound_to_target") or
+                set(ftap.get("bound_producers", [])) &
+                set(leg.get("consumers_union", []))):
+            # tap bound to the stream's ACTUAL consumer (e.g. after a
+            # metadata re-assertion) still attributes `mine` correctly.
+            failures.append(f"follow {name}: the tap never bound to "
+                            f"{ftap.get('target')} or any consumer "
+                            f"(producers {ftap.get('bound_producers')}) "
+                            "— `mine` is unattributed")
+        if not leg.get("carries_tone"):
+            failures.append(f"follow {name}: the monitor tap on {want} "
+                            "carried no tag tone")
+    # the transitional leg sits INSIDE the pactl write's async landing —
+    # its consumers may be the old metadata default, the pactl target,
+    # or (briefly) both; anything outside that set is a real failure.
+    sp = legs.get("still_probe") or {}
+    allowed = {s_new, meta0["name"]}
+    if sp:
+        if sp["exit_code"] != 0 or sp["error_class"] is not None:
+            failures.append(f"follow still_probe: expected rc=0/empty "
+                            f"stderr, got rc={sp['exit_code']} "
+                            f"cls={sp['error_class']}")
+        saw_live = False
+        for s in sp.get("samples", []):
+            if not s["live"] or set(s["nodes"]) - allowed:
+                failures.append(
+                    f"follow still_probe: consumers {s['nodes']} outside "
+                    f"the transitional set {sorted(allowed)}")
+                break
+            if s["nodes"]:
+                saw_live = True
+        else:
+            # r78 critic M7: an all-[] transitional run proves nothing —
+            # the leg must be SEEN consuming inside the allowed set.
+            if not saw_live:
+                failures.append("follow still_probe: every sample had "
+                                "empty consumers — the transitional "
+                                "window was never witnessed")
+    if switches.get("to_probe", {}).get("applied", {}).get("applied") \
+            is not True:
+        failures.append("follow: the pw-metadata switch never applied — "
+                        "the moved leg measured nothing")
+    if not (pa.get("pactl_stale_default") or
+            pa.get("pactl_delayed_default")):
+        failures.append(
+            f"follow pactl: rc={pa.get('exit_code')} must be 0 with the "
+            "write either delayed or stale, got "
+            f"moved_at={pa.get('moved_at_s')} "
+            f"trace={pa.get('poll_trace')}")
+    elif pa.get("metadata_before") != s_new:
+        # r78 reviewer F1-corollary + live F4: if the session manager
+        # re-asserted the pactl-configured default before our write, the
+        # landing check is tautological (metadata already at the target)
+        # and the delayed/stale verdict is unmeasurable — NAMED coverage,
+        # not a failure and not a pass.
+        pa["pactl_unmeasured"] = True
+        entry["confound_observed"] = True
+        entry.setdefault("coverage_blocked", []).append(
+            f"pactl: metadata was {pa.get('metadata_before')} at write "
+            f"time, not {s_new} — the stale/delayed class is "
+            "unattributable this run")
+    nf = legs.get("nofollow") or {}
+    nf_samples = nf.get("samples", [])
+    nf_pre = nf_samples[0]["nodes"] if nf_samples else None
+    nf_post = [s["nodes"] for s in nf_samples[1:]]
+    # an ACTIVE fallback stream across a mid-play metadata write is
+    # EITHER pinned to its spawn-time default OR re-linked to the new
+    # default (the session manager's move-on-default-change policy —
+    # observed on this host: the restore re-linked the stream within
+    # ~1 s). Post-switch consumers must all sit inside {spawn, restore}.
+    restore_target = meta0["name"]
+    allowed_nf = {tuple(nf_pre or []), (restore_target,)}
+    nf["followed_move"] = bool(nf_post) and all(
+        p == [restore_target] for p in nf_post)
+    nf["pinned"] = bool(nf_post) and all(p == nf_pre for p in nf_post)
+    if not nf_pre or any(tuple(p) not in allowed_nf for p in nf_post):
+        failures.append(
+            f"follow nofollow: post-switch consumers {nf_post} outside "
+            f"{{spawn={nf_pre}, restore=[{restore_target}]}}")
+    elif not (nf["followed_move"] or nf["pinned"]):
+        failures.append(
+            f"follow nofollow: post-switch consumers {nf_post} are "
+            "neither all-spawn nor all-restore — a third node ate the "
+            "stream")
+    meta_evs = [f for f in nf.get("fired", [])
+                if f["kind"] == "metadata_default"]
+    if not meta_evs or meta_evs[0].get("exit") != 0:
+        failures.append("follow nofollow: the mid-play metadata restore "
+                        "did not fire (the pin is unmeasured)")
+    if nf.get("exit_code") != 0:
+        failures.append(f"follow nofollow: expected rc=0 playout, got "
+                        f"{nf.get('exit_code')}")
+    ntap = nf.get("tap") or {}
+    if ntap.get("mine") and not ntap.get("bound_to_target"):
+        # r78 critic CEX: a migrated-on tap once recorded `mine` through
+        # 5.5 s while consumers sat on SPDIF — unattributed content is a
+        # provenance event, never a follow verdict.
+        nf["confound"] = (
+            f"tap heard the tag while NOT bound to {s_new} "
+            f"(producers {ntap.get('bound_trace')}) — the tap migrated "
+            "onto moved content; the topology pin is the verdict")
+        entry["confound_observed"] = True
+    if entry["metadata_final"].get("name") != meta0.get("name"):
+        failures.append(f"follow restore: default.audio.sink left at "
+                        f"{entry['metadata_final'].get('name')}, expected "
+                        f"{meta0.get('name')} — the probe dirtied the host")
+    if entry["def_sink_gone"] is not True:
+        failures.append("follow teardown: the probe default sink "
+                        "survived the unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) TARGET LOSS — silent re-link to default vs unlinked sustained playout.
+# --------------------------------------------------------------------------
+def playback_target_loss_r78_entry():
+    """(3) Mid-play target loss: unloading the consumed sink re-links the
+    stream to the current default and the file plays to EOF at rc=0
+    (`playback_relink_on_target_loss` — the re-link is silent in every
+    channel except topology and content); a manual `pw-link -d` gives NO
+    re-link, no stall, rc=0 at the full file duration — the stream
+    consumes into nowhere (`unlinked_sustained_playout`)."""
+    failures = []
+    inv = _capture_inventory()
+    d0 = inv["default_sink"]
+    entry = {"probe": "playback target loss — relink vs unlinked "
+                      "sustained playout",
+             "classes": ["playback_relink_on_target_loss",
+                         "unlinked_sustained_playout"],
+             "contention": _playback_r78_foreign_clients(),
+             "sink_name": PLAYBACK_R78_LOSS_SINK,
+             "fallback_node": d0}
+    if not d0:
+        entry["blocked"] = "no default sink to fall back to"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    mid, lrc, lerr = _playback_r78_null_sink_load(PLAYBACK_R78_LOSS_SINK)
+    entry["sink_load"] = {"module_id": mid, "rc": lrc, "error": lerr}
+    if mid is None:
+        entry["blocked"] = "pactl could not load the probe loss sink"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    mid2 = None
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-loss-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_LOSS_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78loss",
+                   "bound_s": PLAYBACK_R78_LOSS_TONE_S +
+                              PLAYBACK_R78_BOUND_SLACK_S,
+                   "redact": [PLAYBACK_R78_LOSS_SINK, d0],
+                   "default_at_start": d0}
+            loss = PLAYBACK_R78_LOSS_SINK
+            # leg 1: unload mid-play -> silent re-link to the default.
+            tapf = Path(tmp) / "tap_unload_default.wav"
+            tap = _playback_r78_tap(
+                d0, tapf,
+                int(PLAYBACK_R78_TONE_RATE *
+                    (PLAYBACK_R78_LOSS_TONE_S +
+                     PLAYBACK_R78_TAP_LEAD_S + 1.0)),
+                "r78loss_unload_tap")
+            ctx = dict(ctx, tap_witnesses=[("r78loss_unload_tap", d0)])
+            time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+            run = _playback_r78_run(
+                ["--target", loss], ctx, "r78loss_unload",
+                events=[(1.0, "sample", None),
+                        (PLAYBACK_R78_LOSS_EVENT_S, "unload_module", mid),
+                        (3.0, "sample", None),
+                        (5.0, "sample", None)],
+                wait_bound_s=ctx["bound_s"])
+            _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+            ul_tw = [s.get("tap_witnesses", {}).get("r78loss_unload_tap")
+                     for s in run["samples"]]
+            ul_bound = [t["bound_to_target"] for t in ul_tw if t]
+            ul_wins = _playback_r78_tone_windows(tapf)
+            legs["unload_relink"] = {
+                **run, "tap": {"target": d0, "exit_code": tap.returncode,
+                               "bound_to_target": any(ul_bound),
+                               "ran": bool(ul_wins.get("windows")),
+                               **ul_wins}}
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+            # leg 2: a manual pw-link -d -> NO re-link, sustained playout.
+            mid2, rc2, err2 = _playback_r78_null_sink_load(loss)
+            entry["sink_load_2"] = {"module_id": mid2, "rc": rc2,
+                                    "error": err2}
+            if mid2 is None:
+                legs["manual_unlink"] = {
+                    "blocked": "probe loss sink did not reload"}
+            else:
+                tapf_d = Path(tmp) / "tap_unlink_default.wav"
+                tap_d = _playback_r78_tap(
+                    d0, tapf_d,
+                    int(PLAYBACK_R78_TONE_RATE *
+                        (PLAYBACK_R78_LOSS_TONE_S +
+                         PLAYBACK_R78_TAP_LEAD_S + 1.0)),
+                    "r78loss_ul_dtap")
+                tapf_s = Path(tmp) / "tap_unlink_self.wav"
+                tap_s = _playback_r78_tap(
+                    loss, tapf_s,
+                    int(PLAYBACK_R78_TONE_RATE *
+                        (PLAYBACK_R78_LOSS_TONE_S +
+                         PLAYBACK_R78_TAP_LEAD_S + 1.0)),
+                    "r78loss_ul_stap")
+                time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+                tag = "r78loss_unlink"
+                ctx = dict(ctx, tap_witnesses=[
+                    ("r78loss_ul_dtap", d0),
+                    ("r78loss_ul_stap", loss)])
+                run = _playback_r78_run(
+                    ["--target", loss], ctx, tag,
+                    events=[(1.0, "sample", None),
+                            (PLAYBACK_R78_LOSS_EVENT_S, "pwlink_d",
+                             [(f"{tag}:output_FL", f"{loss}:playback_FL"),
+                              (f"{tag}:output_FR", f"{loss}:playback_FR")]),
+                            (3.0, "sample", None),
+                            (5.0, "sample", None)],
+                    wait_bound_s=ctx["bound_s"])
+                _capture_r77_reap(tap_d, PLAYBACK_R78_TIMEOUT_S)
+                _capture_r77_reap(tap_s, PLAYBACK_R78_TIMEOUT_S)
+                tw_d = [s.get("tap_witnesses", {}).get("r78loss_ul_dtap")
+                        for s in run["samples"]]
+                tw_s = [s.get("tap_witnesses", {}).get("r78loss_ul_stap")
+                        for s in run["samples"]]
+                wins_d = _playback_r78_tone_windows(tapf_d)
+                wins_s = _playback_r78_tone_windows(tapf_s)
+                legs["manual_unlink"] = {
+                    **run,
+                    "tap_default": {
+                        "target": d0, "exit_code": tap_d.returncode,
+                        "bound_to_target": any(t["bound_to_target"]
+                                               for t in tw_d if t),
+                        "ran": bool(wins_d.get("windows")), **wins_d},
+                    "tap_self": {
+                        "target": loss, "exit_code": tap_s.returncode,
+                        "bound_to_target": any(t["bound_to_target"]
+                                               for t in tw_s if t),
+                        "ran": bool(wins_s.get("windows")), **wins_s}}
+    finally:
+        for m in (mid, mid2):
+            if m is not None:
+                _playback_r78_unload(m)
+    entry["legs"] = legs
+    entry["sink_gone"] = PLAYBACK_R78_LOSS_SINK not in \
+        _capture_r77_sink_names()
+    u = legs.get("unload_relink") or {}
+    us = u.get("samples", [])
+    if (us[0]["nodes"] if us else None) != [PLAYBACK_R78_LOSS_SINK]:
+        failures.append(f"loss unload: pre-loss consumers "
+                        f"{us[0]['nodes'] if us else None} — expected the "
+                        "probe sink")
+    if any(s["nodes"] != [d0] for s in us[1:]):
+        failures.append(f"loss unload: post-loss consumers "
+                        f"{[s['nodes'] for s in us[1:]]} — expected the "
+                        f"default sink {d0}")
+    unfired = [f for f in u.get("fired", [])
+               if f["kind"] == "unload_module" and f.get("exit_code") != 0]
+    if unfired or not any(f["kind"] == "unload_module"
+                          for f in u.get("fired", [])):
+        failures.append("loss unload: the module unload did not fire "
+                        "cleanly — no real loss event")
+    if u.get("exit_code") != 0 or u.get("error_class") is not None:
+        failures.append(f"loss unload: expected rc=0/empty stderr, got "
+                        f"rc={u.get('exit_code')} cls={u.get('error_class')}")
+    if u.get("wall_s", 0) < PLAYBACK_R78_LOSS_TONE_S - 0.6:
+        failures.append(f"loss unload: wall {u.get('wall_s')} s — "
+                        "re-linked playout must run to EOF")
+    tu = u.get("tap") or {}
+    if not tu.get("ran"):
+        failures.append("loss unload: the default-sink tap produced no "
+                        "windows — the re-link content pin is vacuous")
+    elif not tu.get("bound_to_target"):
+        failures.append("loss unload: the tap never bound to the "
+                        f"default {tu.get('target')} — `mine` would be "
+                        "unattributed")
+    else:
+        pre = [w for w in tu.get("windows", [])
+               if w["at_s"] < PLAYBACK_R78_LOSS_EVENT_S +
+                  PLAYBACK_R78_TAP_LEAD_S - 0.3]
+        if any(w["mine"] for w in pre):
+            failures.append("loss unload: tag tone on the default "
+                            "BEFORE the loss — the pre-loss play "
+                            "honored nothing")
+        post_spans = [s for s in tu.get("mine_spans", [])
+                      if s[0] >= PLAYBACK_R78_LOSS_EVENT_S - 0.4]
+        if not tu.get("carries_tone") or not post_spans:
+            failures.append("loss unload: the default-sink tap never "
+                            "carried the tag tone after the loss — the "
+                            "re-link is unproven")
+    m = legs.get("manual_unlink") or {}
+    if "blocked" not in m:
+        ms = m.get("samples", [])
+        if (ms[0]["nodes"] if ms else None) != [PLAYBACK_R78_LOSS_SINK]:
+            failures.append(f"loss unlink: pre-unlink consumers "
+                            f"{ms[0]['nodes'] if ms else None}")
+        if any(s["nodes"] for s in ms[1:]):
+            failures.append(f"loss unlink: post-unlink consumers "
+                            f"{[s['nodes'] for s in ms[1:]]} — a re-link "
+                            "happened, this is not the class")
+        links_rc = [l["exit"] for f in m.get("fired", [])
+                    if f["kind"] == "pwlink_d"
+                    for l in f.get("links", [])]
+        if not links_rc or any(rc != 0 for rc in links_rc):
+            failures.append(f"loss unlink: the pw-link -d did not fire "
+                            f"cleanly ({links_rc})")
+        if m.get("exit_code") != 0 or m.get("error_class") is not None:
+            failures.append(f"loss unlink: expected rc=0/empty stderr, "
+                            f"got rc={m.get('exit_code')} "
+                            f"cls={m.get('error_class')}")
+        if m.get("wall_s", 0) < PLAYBACK_R78_LOSS_TONE_S - 0.6:
+            failures.append(f"loss unlink: wall {m.get('wall_s')} s — "
+                            "unlinked playout must still consume the "
+                            "whole file at real-time rate")
+        td = m.get("tap_default") or {}
+        if not td.get("ran"):
+            failures.append("loss unlink: the default-sink tap produced "
+                            "no windows — the no-fallback pin is "
+                            "vacuous")
+        elif td.get("bound_to_target") is not True:
+            failures.append("loss unlink: the default-sink tap never "
+                            f"bound to {td.get('target')} — silence "
+                            "there is unattributed")
+        elif td.get("mine_windows"):
+            failures.append("loss unlink: tag tone on the default "
+                            "sink — an unlink is not a fallback")
+        ts = m.get("tap_self") or {}
+        late = [w for w in ts.get("windows", [])
+                if w["at_s"] > PLAYBACK_R78_LOSS_EVENT_S +
+                   PLAYBACK_R78_TAP_LEAD_S + 0.8]
+        early = [w for w in ts.get("windows", [])
+                 if w["at_s"] < PLAYBACK_R78_LOSS_EVENT_S +
+                    PLAYBACK_R78_TAP_LEAD_S]
+        if ts.get("bound_to_target") is not True:
+            failures.append("loss unlink: the loss-sink tap never "
+                            f"bound to {ts.get('target')} — the "
+                            "pre-unlink content baseline is "
+                            "unattributed")
+        elif not any(w["mine"] for w in early):
+            failures.append("loss unlink: the loss-sink tap never saw "
+                            "the tag tone BEFORE the unlink — the "
+                            "consumed half is unproven")
+        if any(w["mine"] for w in late):
+            failures.append("loss unlink: tag tone still on the dead "
+                            "sink's monitor after the unlink")
+    if entry["sink_gone"] is not True:
+        failures.append("loss teardown: the probe loss sink survived "
+                        "the unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) PROP PRECEDENCE — target.object beats --target; PIPEWIRE_PROPS is a
+# second vector; decoration vs degenerate props.
+# --------------------------------------------------------------------------
+def playback_props_r78_entry():
+    """(4) The write-side prop lattice: `target.object` as a stream prop
+    overrides the `--target` flag in BOTH directions, `node.target` routes
+    identically, PIPEWIRE_PROPS is a second prop vector at the same
+    precedence, media.role / stream.monitor / stream.capture.sink are
+    write-side decoration, node.autoconnect=false is honored (publishes,
+    never links, stalls), and media.class=Audio/Source stalls rather than
+    crashing (the boundary before the segv entry)."""
+    failures = []
+    inv = _capture_inventory()
+    d0 = inv["default_sink"]
+    entry = {"probe": "playback prop precedence — target.object > "
+                      "--target, PIPEWIRE_PROPS second vector",
+             "contention": _playback_r78_foreign_clients(),
+             "default_sink": d0}
+    if not d0:
+        entry["blocked"] = "no default sink for the fallback rows"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    a, b = PLAYBACK_R78_PROP_SINK_A, PLAYBACK_R78_PROP_SINK_B
+    mid_a, rca, erra = _playback_r78_null_sink_load(a)
+    mid_b, rcb, errb = _playback_r78_null_sink_load(b)
+    entry["sink_loads"] = {"a": {"module_id": mid_a, "rc": rca,
+                                 "error": erra},
+                           "b": {"module_id": mid_b, "rc": rcb,
+                                 "error": errb}}
+    if mid_a is None or mid_b is None:
+        entry["blocked"] = "a probe prop sink did not load"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        for m in (mid_a, mid_b):
+            _playback_r78_unload(m)
+        entry["failures"] = failures
+        return entry
+    garb = "no_such_sink_r78"
+    legs_spec = (
+        # (name, argv tail, expected consumers, env, is_stall)
+        ("flag_a_prop_b", ["--target", a, "-P", f"target.object={b}"],
+         [b], None, False),
+        ("flag_b_prop_a", ["--target", b, "-P", f"target.object={a}"],
+         [a], None, False),
+        ("prop_only", ["-P", f"target.object={a}"], [a], None, False),
+        ("node_target", ["-P", f"node.target={a}"], [a], None, False),
+        ("flag_garbage_prop_b",
+         ["--target", garb, "-P", f"target.object={b}"], [b], None, False),
+        ("prop_garbage", ["-P", f"target.object={garb}"],
+         "default", None, False),
+        ("node_target_garbage", ["-P", f"node.target={garb}"],
+         "default", None, False),
+        ("env_props_flag_a", ["--target", a],
+         [b], {"PIPEWIRE_PROPS": '{ "target.object": "' + b + '" }'},
+         False),
+        ("env_props_flag_garbage", ["--target", garb],
+         [b], {"PIPEWIRE_PROPS": '{ "target.object": "' + b + '" }'},
+         False),
+        ("role_decoration",
+         ["--target", a, "-P", "media.role=Communication"], [a],
+         None, False),
+        ("capture_prop_decoration",
+         ["--target", a, "-P", "stream.capture.sink=true"], [a],
+         None, False),
+        ("monitor_prop_decoration",
+         ["--target", a, "-P", "stream.monitor=true"], [a],
+         None, False),
+        ("autoconnect_false",
+         ["--target", a, "-P", "node.autoconnect=false"], [],
+         None, True),
+        ("class_source_stall",
+         ["--target", a, "-P", "media.class=Audio/Source"], [],
+         None, True),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-props-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_PROP_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78prop",
+                   "bound_s": PLAYBACK_R78_PROP_TONE_S +
+                              PLAYBACK_R78_BOUND_SLACK_S,
+                   "redact": [a, b, d0, garb],
+                   "default_at_start": d0}
+            for name, tail, exp, env, stall in legs_spec:
+                ctx["default_at_start"] = _capture_r77_default_sink()
+                if stall:
+                    legs[name] = _playback_r78_leg(
+                        name, tail, ctx,
+                        sample_at=(1.0, 2.5, 4.5),
+                        bound_s=PLAYBACK_R78_STALL_BOUND_S,
+                        env_extra=env)
+                else:
+                    want = d0 if exp == "default" else exp[0]
+                    legs[name] = _playback_r78_leg(
+                        name, tail, ctx, tap_target=want,
+                        tap_seconds=(PLAYBACK_R78_TAP_LEAD_S +
+                                     PLAYBACK_R78_PROP_TONE_S + 0.5),
+                        bound_s=ctx["bound_s"], env_extra=env)
+                legs[name]["expected_nodes"] = \
+                    [ctx["default_at_start"]] if exp == "default" else exp
+                legs[name]["tail"] = tail
+                time.sleep(PLAYBACK_R78_SETTLE_S)
+    finally:
+        for m in (mid_a, mid_b):
+            _playback_r78_unload(m)
+    entry["legs"] = legs
+    gone = _capture_r77_sink_names()
+    entry["sinks_gone"] = a not in gone and b not in gone
+    for name, tail, exp, env, stall in legs_spec:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"props {name}: leg absent")
+            continue
+        want = [leg["default_sink_at_leg"]] if exp == "default" else exp
+        if stall:
+            # bimodal: a mis-classed Source/autoconnect-false node either
+            # never schedules (suspended forever -> killed at bound) or
+            # gets scheduled running, consumes the file, exits rc=0 —
+            # both realizations never bind a consumer.
+            ran_through = (
+                leg["exit_code"] == 0 and not leg["killed_at_bound"]
+                and any(s.get("node", {}).get("state") == "running"
+                        for s in leg["samples"]))
+            leg["stall_realization"] = (
+                "stalled" if leg["killed_at_bound"]
+                else "runthrough" if ran_through else "other")
+            if leg["stall_realization"] == "other":
+                failures.append(f"props {name}: stall-class leg neither "
+                                f"stalled nor ran through (rc="
+                                f"{leg['exit_code']} at {leg['wall_s']} s, "
+                                "never reached running)")
+            if leg["consumers_union"]:
+                failures.append(f"props {name}: stall leg fed consumers "
+                                f"{leg['consumers_union']}")
+            ports = {p for s in leg["samples"]
+                     for p in (s.get("output_ports") or [])}
+            if len(ports) < 2:
+                failures.append(f"props {name}: expected published "
+                                "output_FL/FR ports, got "
+                                f"{sorted(ports)}")
+            continue
+        if leg["exit_code"] != 0 or leg["error_class"] is not None:
+            failures.append(f"props {name}: expected rc=0/empty stderr, "
+                            f"got rc={leg['exit_code']} "
+                            f"cls={leg['error_class']}")
+        if leg["consumers_union"] != want:
+            failures.append(f"props {name}: expected consumers {want}, "
+                            f"got {leg['consumers_union']} "
+                            f"(tail={tail})")
+        if not leg.get("carries_tone"):
+            failures.append(f"props {name}: monitor tap on {want} "
+                            "carried no tag tone")
+        node = next((s.get("node") for s in reversed(leg["samples"])
+                     if s.get("node", {}).get("found")), {})
+        if node:
+            leg["target_object_advertised"] = node.get("target_object")
+            leg["node_target_advertised"] = node.get("node_target")
+    if entry["sinks_gone"] is not True:
+        failures.append("props teardown: a probe prop sink survived the "
+                        "unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) CLASS-OVERRIDE CRASH — the media.class SIGSEGV row.
+# --------------------------------------------------------------------------
+def playback_class_segv_r78_entry():
+    """(5) `class_override_segv`: `-P media.class=` set to a non-output
+    class kills pw-play — rc=-11, empty stderr, no node published; the
+    INPUT-class leg (`Stream/Input/Audio`) rejects EARLIER on hosts where
+    the sink target is inapplicable — rc=1 `no target node`
+    (`class_override_target_refused`, the second named variant). 4 legs
+    plus the explicit correct-class control and the Audio/Source
+    boundary (stall, not crash). A rejection is a function of the class
+    VALUE, not of the target."""
+    failures = []
+    entry = {"probe": "media.class override — class_override_segv",
+             "class": "class_override_segv",
+             "classes_extra": ["class_override_target_refused"],
+             "contention": _playback_r78_foreign_clients()}
+    a = PLAYBACK_R78_PROP_SINK_A
+    mid, lrc, lerr = _playback_r78_null_sink_load(a)
+    entry["sink_load"] = {"module_id": mid, "rc": lrc, "error": lerr}
+    if mid is None:
+        entry["blocked"] = "probe sink did not load"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-segv-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_PROP_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78segv",
+                   "bound_s": PLAYBACK_R78_TIMEOUT_S,
+                   "redact": [a], "default_at_start": None}
+            for cls in ("Audio/Sink", "Stream/Input/Audio", "Audio/Duplex",
+                        "Audio/Bogus"):
+                legs["segv_" + cls.split("/")[-1].lower()] = \
+                    _playback_r78_run(
+                        ["--target", a, "-P", f"media.class={cls}"],
+                        ctx, f"r78segv_{cls.split('/')[-1].lower()}",
+                        events=[(0.7, "sample", None),
+                                (2.0, "sample", None)],
+                        wait_bound_s=PLAYBACK_R78_TIMEOUT_S)
+            legs["control_output"] = _playback_r78_run(
+                ["--target", a, "-P", "media.class=Stream/Output/Audio"],
+                ctx, "r78segv_control",
+                events=[(0.8, "sample", None)],
+                wait_bound_s=ctx["bound_s"])
+            legs["boundary_source"] = _playback_r78_run(
+                ["--target", a, "-P", "media.class=Audio/Source"],
+                ctx, "r78segv_source",
+                events=[(1.0, "sample", None), (2.5, "sample", None),
+                        (4.5, "sample", None)],
+                wait_bound_s=PLAYBACK_R78_STALL_BOUND_S)
+    finally:
+        _playback_r78_unload(mid)
+    entry["legs"] = legs
+    entry["sink_gone"] = a not in _capture_r77_sink_names()
+    for name, leg in legs.items():
+        if not name.startswith("segv_"):
+            continue
+        if name == "segv_audio":
+            # r78 simplifier 5.2: Stream/Input/Audio is the only
+            # INPUT-class leg — its --target names a SINK, which is
+            # inapplicable to an input stream. Host state decides which
+            # rejection wins: publish-then-SIGSEGV (rc=-11, empty stderr)
+            # or the earlier no-target refusal (rc=1). Both are named;
+            # neither may consume.
+            et = leg.get("stderr_tail") or ""
+            refused = leg["exit_code"] == 1 and "no target node" in et
+            crashed = leg["exit_code"] == -11 and not et
+            leg["class_variant"] = "class_override_target_refused" \
+                if refused else "class_override_segv" if crashed \
+                else None
+            if leg["class_variant"] is None:
+                failures.append(
+                    f"segv {name}: expected crash (-11/empty) or "
+                    f"no-target refusal (rc=1), got rc="
+                    f"{leg['exit_code']} stderr={et!r}")
+            for s in leg.get("samples", []):
+                if s.get("nodes"):
+                    failures.append(f"segv {name}: consumers "
+                                    f"{s['nodes']} — a rejected stream "
+                                    "publishes no consumption")
+            continue
+        if leg["exit_code"] != -11:
+            failures.append(f"segv {name}: expected rc=-11 (SIGSEGV), "
+                            f"got {leg['exit_code']}")
+        if leg["stderr_tail"]:
+            failures.append(f"segv {name}: expected EMPTY stderr, got "
+                            f"{leg['stderr_tail']!r}")
+        if leg["wall_s"] >= 4.0:
+            failures.append(f"segv {name}: wall {leg['wall_s']} s — the "
+                            "crash class is a ~1.5 s death, not a stall")
+        # r78 critic (prose delta): the wall figure is the event-schedule
+        # bound, not the crash time — pin the first dead sample instead.
+        dead_at = [s["at_s"] for s in leg.get("samples", [])
+                   if s.get("live") is False]
+        leg["died_before_s"] = min(dead_at) if dead_at else None
+        if leg["died_before_s"] is None or leg["died_before_s"] > 2.0:
+            failures.append(f"segv {name}: first dead sample at "
+                            f"{leg['died_before_s']} s — the crash class "
+                            "dies in the first sub-second")
+        for s in leg.get("samples", []):
+            if s.get("nodes"):
+                failures.append(f"segv {name}: consumers {s['nodes']} — "
+                                "a crash publishes no consumption")
+    ctl = legs.get("control_output") or {}
+    if ctl.get("exit_code") != 0 or \
+            ctl.get("samples", [{}])[0].get("nodes") != [a]:
+        failures.append("segv control: Stream/Output/Audio must play "
+                        f"normally to the target, got rc="
+                        f"{ctl.get('exit_code')} consumers="
+                        f"{ctl.get('samples', [{}])[0].get('nodes')}")
+    bnd = legs.get("boundary_source") or {}
+    if not bnd.get("killed_at_bound") or \
+            any(s.get("nodes") for s in bnd.get("samples", [])):
+        failures.append("segv boundary: Audio/Source must STALL unlinked "
+                        "(not crash, not play), got rc="
+                        f"{bnd.get('exit_code')} consumers="
+                        f"{[s.get('nodes') for s in bnd.get('samples', [])]}")
+    # r78 critic M6: "published but unlinked" needs the port witness —
+    # a source-class node emits capture_* ports directionally as
+    # OUTPUTS (measured: pw-link -o lists <tag>:capture_FL/FR while -i
+    # shows nothing), so the output-ports leaf is the witness.
+    bnd_ports = {p for s in bnd.get("samples", [])
+                 for p in (s.get("output_ports") or [])}
+    if len(bnd_ports) < 2:
+        failures.append(f"segv boundary: published capture ports "
+                        f"{sorted(bnd_ports)} — expected capture_FL/FR "
+                        "present (a stall publishes, then waits)")
+    bnd_states = [s.get("node", {}).get("state") for s in
+                  bnd.get("samples", [])
+                  if s.get("node", {}).get("found")]
+    if bnd_states and "suspended" not in bnd_states:
+        failures.append(f"segv boundary: pinned node states "
+                        f"{bnd_states} — the stall never showed "
+                        "suspended")
+    if entry["sink_gone"] is not True:
+        failures.append("segv teardown: probe sink survived the unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) APLAY DEVICE AXIS — direct ALSA vs the PipeWire plugin.
+# --------------------------------------------------------------------------
+def _playback_r78_aplay(argv, timeout_s=PLAYBACK_R78_TIMEOUT_S):
+    """One bounded aplay/arecord run -> {exit, wall, err, cls, stdout}."""
+    t0 = time.monotonic()
+    try:
+        p = subprocess.run(argv, capture_output=True,
+                           timeout=timeout_s)
+        return {"argv": " ".join(argv), "exit_code": p.returncode,
+                "wall_s": round(time.monotonic() - t0, 2),
+                "stdout": p.stdout.decode(errors="replace")[:600],
+                "stderr": p.stderr.decode(errors="replace")[:600]}
+    except subprocess.TimeoutExpired:
+        return {"argv": " ".join(argv), "exit_code": None,
+                "wall_s": round(time.monotonic() - t0, 2),
+                "blocked": True}
+    except OSError as exc:
+        return {"argv": " ".join(argv), "exit_code": None,
+                "wall_s": round(time.monotonic() - t0, 2),
+                "error": str(exc)[:120]}
+
+
+def playback_aplay_axis_r78_entry():
+    """(6) aplay's device axis: `hw:` bypasses the graph entirely, a
+    monitor witness on the same PCM makes the direct path fail EBUSY and
+    the lock outlives the stream ~1-7 s (`alsa_lock_retention`, bracketed
+    at +1 s busy / +7 s free); aplay CONVERTS the file where arecord
+    CONSTRAINS the device; hw:0,0's capability envelope differs per
+    direction (playback 2-8 ch + S32_LE, capture stereo-only); `default`/
+    `pipewire` are the PipeWire plugin and follow the current default
+    sink."""
+    failures = []
+    inv = _capture_inventory()
+    d0 = inv["default_sink"]
+    pcm = _playback_r78_pcm_map()
+    entry = {"probe": "aplay device axis — EBUSY under witness, lock "
+                      "retention, convert vs constrain, per-direction "
+                      "envelope",
+             "classes": ["alsa_busy", "alsa_lock_retention",
+                         "aplay_converts_arecord_constrains"],
+             "contention": _playback_r78_foreign_clients(),
+             "default_sink": d0, "pcm_map": pcm}
+    subject = None
+    for name, info in sorted(pcm["map"].items()):
+        dev = info.get("aplay_device")
+        if dev == "hw:0,0" and info["media_class"] == "Audio/Sink":
+            subject = {"sink": name, "device": dev}
+            break
+        if subject is None and dev and dev.startswith("hw:") and \
+                info["media_class"] == "Audio/Sink":
+            subject = {"sink": name, "device": dev}
+    entry["subject"] = subject
+    if not subject or not d0:
+        entry["blocked"] = ("no hw: playback device mapped"
+                            if subject is None else "no default sink")
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    dev, sink = subject["device"], subject["sink"]
+    legs = {}
+    with tempfile.TemporaryDirectory(prefix="capture-r78-aplay-") as tmp:
+        tone = Path(tmp) / "tag_tone.wav"
+        _playback_r78_write_tone(tone, 1.2)
+        tiny = Path(tmp) / "tag_tiny.wav"
+        _playback_r78_write_tone(tiny, 0.3)
+        # (a) the per-direction capability envelope.
+        play = _playback_r78_aplay(
+            ["aplay", "-D", dev, "--dump-hw-params", str(tiny)])
+        cap = _playback_r78_aplay(
+            ["arecord", "-D", dev, "--dump-hw-params", "-d", "1",
+             "/dev/null"])
+        legs["params_play"] = {**play,
+                               "params": _playback_r78_hw_params(
+                                   play.get("stdout", "") +
+                                   play.get("stderr", ""))}
+        legs["params_cap"] = {**cap,
+                              "params": _playback_r78_hw_params(
+                                  cap.get("stdout", "") +
+                                  cap.get("stderr", ""))}
+        pp, cp = legs["params_play"]["params"], \
+            legs["params_cap"]["params"]
+        if pp.get("channels_max") is not None and \
+                cp.get("channels_max") is not None:
+            if not (pp["channels_max"] > cp["channels_max"] and
+                    pp["channels_min"] == 2):
+                failures.append(f"aplay envelope: playback channels "
+                                f"{pp.get('channels')} vs capture "
+                                f"{cp.get('channels')} — expected the "
+                                "wider playback envelope")
+        if "S32_LE" in (pp.get("formats") or []) and \
+                "S32_LE" in (cp.get("formats") or []):
+            failures.append("aplay envelope: S32_LE in BOTH directions "
+                            "— the asymmetric playback format set did "
+                            "not reproduce")
+        # (b) unperturbed direct path: bypasses the graph entirely.
+        before = _playback_r78_node_names()
+        legs["hw_baseline"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, str(tone)])
+        after = _playback_r78_node_names()
+        legs["hw_baseline"]["new_nodes"] = (
+            sorted(set(after or []) - set(before or []))
+            if before is not None and after is not None else None)
+        if legs["hw_baseline"]["exit_code"] != 0:
+            failures.append(f"aplay baseline: expected rc=0 on a free "
+                            f"{dev}, got {legs['hw_baseline']}")
+        nn = legs["hw_baseline"]["new_nodes"]
+        if nn:
+            # r78 fold: a concurrent seat's PipeWire client (gst_r81_*,
+            # foreign pw-*) can land nodes inside the aplay window — the
+            # direct-path claim only fails on OUR tagged nodes; foreign
+            # ones make the leg unmeasurable, never a pass or a fail.
+            own_nn = [n for n in nn if n.startswith("r78")]
+            if own_nn:
+                failures.append(f"aplay baseline: PipeWire nodes "
+                                f"{own_nn} appeared — the direct path "
+                                "must bypass the graph")
+            else:
+                entry["confound_observed"] = True
+                legs["hw_baseline"]["confound"] = (
+                    f"foreign PipeWire nodes {nn} in-window — the "
+                    "direct-path graph claim is unmeasured here")
+                entry.setdefault("coverage_blocked", []).append(
+                    "hw_baseline: foreign PipeWire nodes in-window — "
+                    "direct-path attribution unmeasured")
+        # (c) EBUSY under a monitor witness — the observer effect.
+        tapf = Path(tmp) / "tap_witness.wav"
+        tap = _playback_r78_tap(
+            sink, tapf, int(PLAYBACK_R78_TONE_RATE * 4.0),
+            "r78aplay_wit_tap")
+        time.sleep(0.8)
+        # r78 critic F4: the EBUSY attribution is only as good as the
+        # witness — sample the tap's producers during the busy window so
+        # "our tap held the PCM" is evidenced, not assumed (a foreign or
+        # stale holder produces alsa_busy identically).
+        wit_prods = _playback_r78_producers("r78aplay_wit_tap",
+                                            _playback_r78_links())
+        legs["busy_under_witness"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, str(tiny)])
+        legs["busy_under_witness"]["witness_producers"] = \
+            wit_prods["nodes"]
+        legs["busy_under_witness"]["witness_bound_to_sink"] = \
+            wit_prods["nodes"] == [sink]
+        tap_end = time.monotonic()
+        tap.terminate()
+        _capture_r77_reap(tap, 8)
+        bcls = _playback_r78_errclass(
+            legs["busy_under_witness"].get("stderr", ""))[0]
+        legs["busy_under_witness"]["error_class"] = bcls
+        if bcls != "alsa_busy":
+            failures.append(f"aplay witness: expected EBUSY while a "
+                            f"monitor taps {dev}'s sink, got "
+                            f"{legs['busy_under_witness']}")
+        elif wit_prods["nodes"] != [sink]:
+            entry["confound_observed"] = True
+            legs["busy_under_witness"]["confound"] = (
+                f"witness producers {wit_prods['nodes']} — the tap never "
+                f"bound to {sink}; the EBUSY attribution is "
+                "unattributed")
+        # the witness's own lock release point — a free measurement of
+        # the same retention law.
+        released_in = None
+        t0 = time.monotonic()
+        while time.monotonic() - t0 < PLAYBACK_R78_LOCK_POLL_S:
+            time.sleep(0.6)
+            probe = _playback_r78_aplay(
+                ["aplay", "-D", dev, str(tiny)], timeout_s=8)
+            if probe["exit_code"] == 0:
+                released_in = round(time.monotonic() - tap_end, 1)
+                break
+        legs["witness_lock_release_s"] = released_in
+        # (d) the lock retention bracket: a fresh PipeWire playback on
+        # the same sink, then aplay at +1 s (busy) and +7 s (free).
+        ctx = {"tmp": tmp, "tone": tone, "tag_prefix": "r78aplay",
+               "bound_s": PLAYBACK_R78_TIMEOUT_S, "redact": [sink],
+               "default_at_start": d0}
+        play = _playback_r78_run(["--target", sink], ctx,
+                                 "r78aplay_hold",
+                                 events=[(0.6, "sample", None)],
+                                 wait_bound_s=PLAYBACK_R78_TIMEOUT_S)
+        legs["pipewire_hold"] = {"exit_code": play["exit_code"],
+                                 "wall_s": play["wall_s"],
+                                 "consumers": sorted(
+                                     {n for s in play["samples"]
+                                      for n in s["nodes"]})}
+        t_end = time.monotonic()
+        time.sleep(max(0.0, 1.0 - (time.monotonic() - t_end)))
+        legs["retention_1s"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, str(tiny)], timeout_s=8)
+        legs["retention_1s"]["error_class"] = \
+            _playback_r78_errclass(
+                legs["retention_1s"].get("stderr", ""))[0]
+        left = 7.0 - (time.monotonic() - t_end)
+        if left > 0:
+            time.sleep(left)
+        legs["retention_7s"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, str(tiny)], timeout_s=8)
+        legs["retention_7s"]["error_class"] = \
+            _playback_r78_errclass(
+                legs["retention_7s"].get("stderr", ""))[0]
+        if play["exit_code"] != 0 and \
+                not legs["pipewire_hold"]["consumers"]:
+            # r78 fold: a hold stream that never bound a consumer (node
+            # churned under foreign PipeWire traffic) never armed the
+            # lock — the retention bracket is unmeasured, not violated.
+            entry["confound_observed"] = True
+            legs["pipewire_hold"]["confound"] = (
+                "hold stream bound no consumer — the lock was never "
+                "armed under foreign traffic")
+            entry.setdefault("coverage_blocked", []).append(
+                "retention: hold stream never bound — lock timeline "
+                "unmeasured")
+        elif play["exit_code"] != 0:
+            failures.append("aplay retention: the PipeWire hold leg "
+                            f"failed rc={play['exit_code']} — the lock "
+                            "timeline is unmeasured")
+        hold_armed = bool(legs["pipewire_hold"]["consumers"])
+        if not hold_armed and play["exit_code"] == 0:
+            entry["confound_observed"] = True
+            legs["pipewire_hold"]["confound"] = (
+                "hold stream exited clean but bound no consumer — the "
+                "lock window was never armed")
+            entry.setdefault("coverage_blocked", []).append(
+                "retention: hold bound no consumer — lock timeline "
+                "unmeasured")
+        if hold_armed:
+            if legs["retention_1s"].get("error_class") != "alsa_busy":
+                failures.append(f"aplay retention: expected EBUSY at "
+                                f"+1 s, got {legs['retention_1s']}")
+            if legs["retention_7s"].get("exit_code") != 0:
+                failures.append(f"aplay retention: expected rc=0 at "
+                                f"+7 s, got {legs['retention_7s']}")
+        legs["alsa_lock_retention"] = {
+            "plus_1s": legs["retention_1s"].get("error_class"),
+            "plus_7s_exit": legs["retention_7s"].get("exit_code")}
+        # (e) conversion vs constraint — the device must be free now.
+        legs["convert_float"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, "-f", "FLOAT_LE", str(tone)])
+        conv = re.search(r"format is changed to (\S+)",
+                         legs["convert_float"].get("stderr", "") +
+                         legs["convert_float"].get("stdout", ""))
+        legs["convert_float"]["converted_to"] = \
+            conv.group(1) if conv else None
+        if legs["convert_float"]["exit_code"] != 0 or not conv:
+            failures.append(f"aplay convert: expected rc=0 + a "
+                            "format-is-changed warning, got "
+                            f"{legs['convert_float']}")
+        legs["refuse_bogus"] = _playback_r78_aplay(
+            ["aplay", "-D", dev, "-f", "BOGUS", str(tiny)])
+        rcls = _playback_r78_errclass(
+            legs["refuse_bogus"].get("stderr", ""))[0]
+        legs["refuse_bogus"]["error_class"] = rcls
+        if legs["refuse_bogus"]["exit_code"] != 1 or \
+                rcls != "aplay_bad_format" or \
+                legs["refuse_bogus"]["wall_s"] > 1.0:
+            failures.append(f"aplay refuse: expected a pre-open rc=1 "
+                            "wrong-format refusal in <1 s, got "
+                            f"{legs['refuse_bogus']}")
+        legs["arecord_constrain"] = _playback_r78_aplay(
+            ["arecord", "-D", dev, "-d", "1", "/dev/null"])
+        acls = _playback_r78_errclass(
+            legs["arecord_constrain"].get("stderr", ""))[0]
+        legs["arecord_constrain"]["error_class"] = acls
+        if legs["arecord_constrain"]["exit_code"] == 0:
+            failures.append("arecord constrain: the device refused "
+                            "nothing — arecord's constraint law did not "
+                            "reproduce")
+        elif acls == "alsa_busy":
+            # r78 critic F2: a nonzero exit that is NOT the constraint
+            # class is a contended pair, never a pass — a foreign holder
+            # of the PCM produces `alsa_busy` identically, leaving the
+            # constraint half-verdict vacuous.
+            entry["confound_observed"] = True
+            legs["arecord_constrain"]["confound"] = \
+                ("alsa_busy — a foreign holder owns the PCM; the "
+                 "constraint pair measured contention, not the class")
+        elif acls != "alsa_sample_format":
+            failures.append(f"arecord constrain: expected the "
+                            f"alsa_sample_format class, got {acls!r}")
+        legs["arecord_honored"] = _playback_r78_aplay(
+            ["arecord", "-D", dev, "-f", "cd", "-d", "1", "/dev/null"])
+        if legs["arecord_honored"]["exit_code"] != 0 and \
+                acls != "alsa_busy":
+            failures.append(f"arecord honored: -f cd must be accepted "
+                            f"on {dev}, got {legs['arecord_honored']}")
+        # (f) the plugin axis — follows the CURRENT default sink.
+        legs["plugin_params"] = _playback_r78_aplay(
+            ["aplay", "-D", "default", "--dump-hw-params", str(tiny)])
+        legs["plugin_params"]["device_name"] = \
+            _playback_r78_hw_params(
+                legs["plugin_params"].get("stdout", "") +
+                legs["plugin_params"].get("stderr", "")).get("device_name")
+        for plug in ("default", "pipewire"):
+            tapf = Path(tmp) / f"tap_{plug}.wav"
+            tap = _playback_r78_tap(
+                d0, tapf, int(PLAYBACK_R78_TONE_RATE * 3.2),
+                f"r78aplay_{plug}_tap")
+            time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+            legs["plugin_" + plug] = _playback_r78_aplay(
+                ["aplay", "-D", plug, str(tone)])
+            _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+            legs["plugin_" + plug]["tap"] = {
+                "target": d0, **_playback_r78_tone_windows(tapf)}
+            if legs["plugin_" + plug]["exit_code"] != 0 or \
+                    not legs["plugin_" + plug]["tap"].get("carries_tone"):
+                failures.append(f"aplay plugin: -D {plug} must land the "
+                                "tag tone on the current default sink")
+        legs["pulse_refuse"] = _playback_r78_aplay(
+            ["aplay", "-D", "pulse", str(tiny)])
+        pcls = _playback_r78_errclass(
+            legs["pulse_refuse"].get("stderr", ""))[0]
+        legs["pulse_refuse"]["error_class"] = pcls
+        if pcls != "alsa_unknown_pcm":
+            failures.append(f"aplay pulse: expected Unknown PCM, got "
+                            f"{legs['pulse_refuse']}")
+        legs["null_unpaced"] = _playback_r78_aplay(
+            ["aplay", "-D", "null", str(tiny)])
+        if legs["null_unpaced"]["exit_code"] != 0 or \
+                legs["null_unpaced"]["wall_s"] > 0.6:
+            failures.append(f"aplay null: expected unpaced rc=0 ~0 s, "
+                            f"got {legs['null_unpaced']}")
+    entry["legs"] = legs
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) CAPTURE GAP — unlinked_sustained_zeros: pw-link -d mid-capture.
+# --------------------------------------------------------------------------
+def _playback_r78_pwlink_batch(pairs, disconnect):
+    """Fire a batch of pw-link connects/disconnects -> per-pair rcs.
+    The one adapter for both the event-fired links and the zeros legs; the
+    stderr echo is bounded at 100 chars."""
+    rcs = []
+    for a, b in pairs:
+        cmd = ["pw-link", "-d", a, b] if disconnect else ["pw-link", a, b]
+        try:
+            p = subprocess.run(cmd, capture_output=True, timeout=10)
+            rcs.append({"out": a, "in": b, "exit": p.returncode,
+                        "err": p.stderr.decode(
+                            errors="replace")[:100] or None})
+        except (subprocess.TimeoutExpired, OSError) as exc:
+            rcs.append({"out": a, "in": b, "exit": None,
+                        "err": str(exc)[:100]})
+    return rcs
+
+
+def capture_unlinked_zeros_r78_entry():
+    """(7) `pw-link -d` mid-capture splits by WHICH link is cut
+    (measured this host):
+      * the CAPTURE's own input link (`<sink>:monitor_* ->
+        <cap>:input_*`) STARVES the stream — the file stops growing at
+        once, the `-n` frame bound is never reached while unlinked, and
+        a later relink resumes delivery at real-time rate with the lost
+        wall time simply compacted out of the artifact
+        (`unlinked_stall`, the capture-side twin of the write side's
+        `class_override_unlinked_stall` shape);
+      * the PRODUCER's link (`<feed>:output_* -> <sink>:playback_*`)
+        leaves the capture stream RUNNING at the full negotiated rate —
+        the monitor delivers digital silence and the artifact keeps
+        growing filled with zeros, invisible in rc, rate and header
+        (`unlinked_sustained_zeros`)."""
+    failures = []
+    entry = {"probe": "capture link-loss — stall vs sustained zeros "
+                      "by disconnect direction",
+             "classes": ["unlinked_stall", "unlinked_sustained_zeros"],
+             "contention": _playback_r78_foreign_clients(),
+             "sink_name": PLAYBACK_R78_CAP_SINK}
+    mid, lrc, lerr = _playback_r78_null_sink_load(PLAYBACK_R78_CAP_SINK)
+    entry["sink_load"] = {"module_id": mid, "rc": lrc, "error": lerr}
+    if mid is None:
+        entry["blocked"] = "pactl could not load the capture sink"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    c = PLAYBACK_R78_CAP_SINK
+    cmon_seen, cmon_waited = _playback_r78_wait_source(c + ".monitor")
+    entry["monitor_source"] = {"name": c + ".monitor",
+                               "enumerated": cmon_seen,
+                               "waited_s": cmon_waited}
+    if not cmon_seen:
+        entry["blocked"] = "capture sink's monitor source never " \
+                           "enumerated"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        _playback_r78_unload(mid)
+        entry["failures"] = failures
+        return entry
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-zeros-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, 12.0)
+
+            def spawn_feed(name):
+                return subprocess.Popen(
+                    ["pw-cat", "-p", "-P", f"node.name={name}",
+                     "--target", c, str(tone)],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    start_new_session=True)
+
+            def spawn_cap(name, out, seconds):
+                return subprocess.Popen(
+                    ["pw-record", "-P", "stream.capture.sink=true",
+                     "-P", f"node.name={name}", "--target", c,
+                     "-n", str(int(seconds * PLAYBACK_R78_TONE_RATE)),
+                     "--rate", "48000", "--channels", "2",
+                     "--format", "s16", str(out)],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                    start_new_session=True)
+
+            # -- leg A: CAPTURE-side unlink -> the stream STARVES.
+            out_a = Path(tmp) / "cap_a.wav"
+            feed_a = spawn_feed("r78zeros_a_feed")
+            time.sleep(0.5)
+            ctag_a = "r78zeros_a_cap"
+            out_a_frames = int(7.0 * PLAYBACK_R78_TONE_RATE)
+            t0 = time.monotonic()
+            cap_a = spawn_cap(ctag_a, out_a, 7.0)
+            sizes_a, prods_a, rcs_a, rcs_a_re = [], [], [], []
+            for at, kind in [(0.8, "prod"), (0.8, "size"), (1.3, "size"),
+                             (1.6, "unlink"),
+                             (2.1, "size"), (2.6, "size"), (3.1, "prod"),
+                             (3.4, "size"), (3.9, "relink"),
+                             (4.4, "size"), (4.9, "size"),
+                             (5.4, "prod")]:
+                left = at - (time.monotonic() - t0)
+                if left > 0:
+                    time.sleep(left)
+                if kind == "prod":
+                    prods_a.append({
+                        "at_s": at,
+                        **_playback_r78_producers(
+                            ctag_a, _playback_r78_links())})
+                elif kind == "size":
+                    sizes_a.append({"at_s": at, "bytes":
+                                    out_a.stat().st_size
+                                    if out_a.exists() else 0})
+                elif kind == "unlink":
+                    rcs_a = _playback_r78_pwlink_batch(
+                        [(f"{c}:monitor_FL", f"{ctag_a}:input_FL"),
+                         (f"{c}:monitor_FR", f"{ctag_a}:input_FR")],
+                        True)
+                else:
+                    rcs_a_re = _playback_r78_pwlink_batch(
+                        [(f"{c}:monitor_FL", f"{ctag_a}:input_FL"),
+                         (f"{c}:monitor_FR", f"{ctag_a}:input_FR")],
+                        False)
+            _capture_r77_reap(cap_a, PLAYBACK_R78_TIMEOUT_S * 2)
+            cap_a_err = cap_a.stderr.read().decode(errors="replace")
+            if feed_a.poll() is None:
+                os.killpg(feed_a.pid, signal.SIGKILL)
+            feed_a.wait()
+            insp_a = _capture_wav_inspect(out_a)
+            legs["consumer_unlink"] = {
+                "exit_code": cap_a.returncode,
+                "stderr_tail": _capture_tail(cap_a_err, str(out_a)),
+                "size_trace": sizes_a,
+                "producer_samples": prods_a,
+                "unlink_rc": rcs_a, "relink_rc": rcs_a_re,
+                "bytes": insp_a.get("bytes"),
+                "expected_bytes": 44 + out_a_frames * 4,
+                "data_finalized": insp_a.get("data_finalized"),
+                "file_windows": _playback_r78_tone_windows(out_a)}
+            time.sleep(PLAYBACK_R78_SETTLE_S)
+
+            # -- leg B: PRODUCER-side unlink -> sustained zeros.
+            out_b = Path(tmp) / "cap_b.wav"
+            feed_b = spawn_feed("r78zeros_b_feed")
+            time.sleep(0.5)
+            ctag_b = "r78zeros_b_cap"
+            out_b_frames = int(5.0 * PLAYBACK_R78_TONE_RATE)
+            t0 = time.monotonic()
+            cap_b = spawn_cap(ctag_b, out_b, 5.0)
+            sizes_b, prods_b = [], []
+            rcs_b = None
+            feed_linked_b = None
+            for at, kind in [(0.8, "prod"), (1.6, "unlink"),
+                             (2.1, "size"), (2.6, "size"), (3.1, "size"),
+                             (3.6, "prod"), (4.1, "size"), (4.6, "size")]:
+                left = at - (time.monotonic() - t0)
+                if left > 0:
+                    time.sleep(left)
+                if kind == "prod":
+                    prods_b.append({
+                        "at_s": at,
+                        **_playback_r78_producers(
+                            ctag_b, _playback_r78_links())})
+                elif kind == "size":
+                    sizes_b.append({"at_s": at, "bytes":
+                                    out_b.stat().st_size
+                                    if out_b.exists() else 0})
+                else:
+                    # r78 fold: the unlink's "No such file" rc=255 is
+                    # ambiguous — the feed may never have linked (setup
+                    # misroute under host churn) or the cut may have
+                    # failed on a live edge. Snapshot the edges FIRST so
+                    # the gate can name which.
+                    pre_edges = set(_playback_r78_links())
+                    feed_linked_b = all(
+                        (o, i) in pre_edges for o, i in
+                        ((f"r78zeros_b_feed:output_FL",
+                          f"{c}:playback_FL"),
+                         (f"r78zeros_b_feed:output_FR",
+                          f"{c}:playback_FR")))
+                    rcs_b = _playback_r78_pwlink_batch(
+                        [(f"r78zeros_b_feed:output_FL",
+                          f"{c}:playback_FL"),
+                         (f"r78zeros_b_feed:output_FR",
+                          f"{c}:playback_FR")], True)
+            _capture_r77_reap(cap_b, PLAYBACK_R78_TIMEOUT_S)
+            cap_b_err = cap_b.stderr.read().decode(errors="replace")
+            if feed_b.poll() is None:
+                os.killpg(feed_b.pid, signal.SIGKILL)
+            feed_b.wait()
+            insp_b = _capture_wav_inspect(out_b)
+            legs["producer_unlink"] = {
+                "exit_code": cap_b.returncode,
+                "stderr_tail": _capture_tail(cap_b_err, str(out_b)),
+                "size_trace": sizes_b,
+                "producer_samples": prods_b,
+                "unlink_rc": rcs_b,
+                "feed_linked_at_unlink": feed_linked_b,
+                "bytes": insp_b.get("bytes"),
+                "expected_bytes": 44 + out_b_frames * 4,
+                "data_finalized": insp_b.get("data_finalized"),
+                "file_windows": _playback_r78_tone_windows(out_b)}
+    finally:
+        _playback_r78_unload(mid)
+    entry["legs"] = legs
+    entry["sink_gone"] = c not in _capture_r77_sink_names()
+    a = legs.get("consumer_unlink") or {}
+    # r78 critic M4: `if a:`/`if b:` let an absent leg skip every check —
+    # leg-absent is a failure, matching the lattice's coverage contract.
+    if not a:
+        failures.append("zeros consumer_unlink: leg absent — the "
+                        "unlink family is the coverage contract")
+    elif (a.get("producer_samples") or [{}])[0].get("nodes") != [c]:
+        # setup-level misroute: the capture bound to a different monitor
+        # (host churn re-asserted the default mid-probe) — every class
+        # check below measured the WRONG stream. Named confound, not a
+        # verdict.
+        entry["confound_observed"] = True
+        entry.setdefault("coverage_blocked", []).append(
+            "consumer_unlink: capture bound to "
+            f"{a['producer_samples'][0].get('nodes')}, not {c} — "
+            "setup misroute")
+        a["confound"] = "capture_misrouted at spawn"
+    else:
+        # the stall: post-unlink sizes frozen, pre-unlink growing, and a
+        # relink resumes growth — all while producers read [].
+        if a.get("exit_code") != 1 or \
+                a.get("bytes") != a.get("expected_bytes") or \
+                a.get("data_finalized") is not True:
+            failures.append(f"zeros consumer_unlink: expected rc=1 / "
+                            f"{a.get('expected_bytes')} B / finalized "
+                            f"after relink, got {a}")
+        if any(r["exit"] != 0 for r in a.get("unlink_rc", [])):
+            failures.append(f"zeros consumer_unlink: pw-link -d failed "
+                            f"{a['unlink_rc']}")
+        if any(r["exit"] != 0 for r in a.get("relink_rc", [])):
+            failures.append(f"zeros consumer_unlink: relink failed "
+                            f"{a['relink_rc']}")
+        seq = a.get("size_trace", [])
+        # seq = [0.8, 1.3 | unlink@1.6 | 2.1, 2.6, 3.4 | relink@3.9 | 4.4,
+        #        4.9] — pre-growth, frozen window, post-relink growth.
+        pre_grew = seq[1]["bytes"] > seq[0]["bytes"] + 80000
+        froze = seq[4]["bytes"] - seq[2]["bytes"] < 8192
+        resumed = seq[6]["bytes"] > seq[4]["bytes"] + 150000
+        if not pre_grew:
+            failures.append(f"zeros consumer_unlink: file was not "
+                            f"growing before the unlink {seq}")
+        if not froze:
+            failures.append(f"zeros consumer_unlink: file kept "
+                            f"growing during the unlink {seq} — "
+                            "the class is a STARVING stream, not a "
+                            "zero fill")
+        if not resumed:
+            failures.append(f"zeros consumer_unlink: file did not "
+                            f"resume after the relink {seq}")
+        prods = [s.get("nodes") for s in a.get("producer_samples", [])]
+        if prods and (prods[0] != [c] or prods[1] != [] or
+                      prods[2] != [c]):
+            failures.append(f"zeros consumer_unlink: producers "
+                            f"{prods} — expected [{c}] -> [] -> [{c}]")
+        wl_a = (a.get("file_windows") or {}).get("windows", [])
+        if wl_a and not any(w["mine"] for w in wl_a[:14]):
+            failures.append("zeros consumer_unlink: no tag tone in the "
+                            "file — the baseline is unproven")
+    b = legs.get("producer_unlink") or {}
+    if not b:
+        failures.append("zeros producer_unlink: leg absent — the "
+                        "unlink family is the coverage contract")
+    elif (b.get("producer_samples") or [{}])[0].get("nodes") != [c] or \
+            b.get("feed_linked_at_unlink") is False:
+        # setup-level misroute (host churn): the capture bound to a
+        # foreign monitor and/or the feed never linked — the class was
+        # never armed. Named confound, not a class failure.
+        entry["confound_observed"] = True
+        entry.setdefault("coverage_blocked", []).append(
+            f"producer_unlink: capture bound "
+            f"{(b.get('producer_samples') or [{}])[0].get('nodes')}, "
+            f"feed_linked={b.get('feed_linked_at_unlink')} — "
+            "setup misroute")
+        b["confound"] = "setup misroute — class never armed"
+    else:
+        if b.get("exit_code") != 1 or \
+                b.get("bytes") != b.get("expected_bytes") or \
+                b.get("data_finalized") is not True:
+            failures.append(f"zeros producer_unlink: expected rc=1 / "
+                            f"{b.get('expected_bytes')} B / finalized, "
+                            f"got {b}")
+        if rcs_b and any(r["exit"] != 0 for r in rcs_b):
+            failures.append(f"zeros producer_unlink: feed -d failed "
+                            f"{rcs_b}")
+        seq_b = b.get("size_trace", [])
+        if not all(
+                s2["bytes"] > s1["bytes"] + 50000
+                for s1, s2 in zip(seq_b, seq_b[1:])):
+            failures.append(f"zeros producer_unlink: file did not keep "
+                            f"growing at rate through the unlink "
+                            f"{seq_b} — sustained growth is the class")
+        wl_b = (b.get("file_windows") or {}).get("windows", [])
+        pre_b = [w for w in wl_b if w["at_s"] < 1.4]
+        mid_b = [w for w in wl_b if w["at_s"] > 2.2]
+        if not any(w["mine"] for w in pre_b):
+            failures.append("zeros producer_unlink: no tag tone before "
+                            "the unlink — the baseline is unproven")
+        if mid_b and any(w["audio"] for w in mid_b):
+            failures.append("zeros producer_unlink: the producer-gap "
+                            "window carried AUDIO — expected pure zeros")
+        if len(mid_b) < 3:
+            failures.append(f"zeros producer_unlink: only "
+                            f"{len(mid_b)} zero windows measured")
+    if entry["sink_gone"] is not True:
+        failures.append("zeros teardown: the capture sink survived the "
+                        "unload")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (8) CAPTURE GAP — parec --fix-* adopts the source spec; the wav header
+# keeps the request (header_prefix_mismatch).
+# --------------------------------------------------------------------------
+def _playback_r78_nearest(value, candidates, tolerance):
+    """Bucket a measured rate/bpf/channels to its nearest candidate
+    within a fractional tolerance — granule-quantized byte counts need
+    ratio buckets, not exact integers."""
+    if not value:
+        return None
+    best = min(candidates, key=lambda c: abs(c - value) / c)
+    return best if abs(best - value) / best <= tolerance else None
+
+
+def capture_parec_fix_r78_entry():
+    """(8) parec's --fix-* law: each fix flag discards the matching
+    request knob and adopts the SOURCE spec into the payload — while the
+    emitted wav header still records the REQUEST (`header_prefix_mismatch`,
+    the only cell family where a container provably lies about its own
+    spec). Byte-rate is measured off the raw stream over a bounded wall
+    window; the wav legs' fmt chunks are the header half."""
+    failures = []
+    entry = {"probe": "parec --fix-* — source spec adopted, header lies",
+             "class": "header_prefix_mismatch",
+             "contention": _playback_r78_foreign_clients(),
+             "sink_name": PLAYBACK_R78_FIX_SINK}
+    mid, lrc, lerr = _playback_r78_null_sink_load(PLAYBACK_R78_FIX_SINK)
+    entry["sink_load"] = {"module_id": mid, "rc": lrc, "error": lerr}
+    if mid is None:
+        entry["blocked"] = "pactl could not load the parec sink"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        entry["failures"] = failures
+        return entry
+    f = PLAYBACK_R78_FIX_SINK
+    mon = f + ".monitor"
+    # the sink node enumerating does NOT imply its monitor source has —
+    # parec spawned in the gap hangs to its bound with 0 bytes (r78 fold).
+    mon_seen, mon_waited = _playback_r78_wait_source(mon)
+    entry["monitor_source"] = {"name": mon, "enumerated": mon_seen,
+                               "waited_s": mon_waited}
+    if not mon_seen:
+        entry["blocked"] = "parec sink's monitor source never enumerated"
+        entry["coverage_blocked"] = [entry["blocked"]]
+        _playback_r78_unload(mid)
+        entry["failures"] = failures
+        return entry
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r78-fix-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, PLAYBACK_R78_PAREC_TONE_S)
+            feed = subprocess.Popen(
+                ["pw-cat", "-p", "-P", "node.name=r78fix_feed",
+                 "--target", f, str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+
+            def parec_leg(name, args, outname, fmt_request,
+                          seekable=False):
+                # parec has no -n bound, buffers ~64 KiB internally
+                # (signalling leaves exact powers of two), and its
+                # PipeWire stream connect costs ~1.5 s before the first
+                # byte — so a wall-time/N single-shot is startup-
+                # corrupted. `dd` flushes every 8 KiB block: the payload
+                # rate is the SLOPE of the output file's growth across
+                # the steady-state window. WAV legs need a SEEKABLE fd —
+                # libsndfile seeks back to finalize the header and
+                # fails closed with "Failed to open audio file." on a
+                # pipe — so they write the file directly.
+                op = Path(tmp) / outname
+                dd = None
+                fh = open(op, "wb") if seekable else None
+                try:
+                    src = subprocess.Popen(
+                        ["parec", "-d", mon, *args],
+                        stdout=fh or subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        start_new_session=True)
+                    if not seekable:
+                        dd = subprocess.Popen(
+                            ["dd", f"of={op}", "bs=8192", "status=none"],
+                            stdin=src.stdout, stderr=subprocess.DEVNULL,
+                            start_new_session=True)
+                        src.stdout.close()
+                except Exception:
+                    if fh:
+                        fh.close()
+                    raise
+                sizes = []
+                t0 = time.monotonic()
+                for i in range(10):
+                    time.sleep(PLAYBACK_R78_PAREC_POLL_S)
+                    sizes.append({
+                        "at_s": round(time.monotonic() - t0, 2),
+                        "bytes": op.stat().st_size
+                        if op.exists() else 0})
+                if src.poll() is None:
+                    os.killpg(src.pid, signal.SIGKILL)
+                src.wait()
+                if fh:
+                    fh.close()
+                if dd is not None:
+                    try:
+                        dd.wait(timeout=6)
+                    except subprocess.TimeoutExpired:
+                        os.killpg(dd.pid, signal.SIGKILL)
+                        dd.wait()
+                src_err = src.stderr.read().decode(errors="replace")
+                # steady-state rate: least-squares over payload samples.
+                # A wav leg parks a ~44 B header at open — the
+                # header-only plateau sits at bytes<=1024 and must not
+                # enter the fit. Endpoint slopes jitter by a 64 KiB
+                # flush quantum per window (44100/48000 sit 8.8 %
+                # apart); regression averages the staircase.
+                nonzero = [s for s in sizes if s["bytes"] > 1024]
+                if len(nonzero) >= 3:
+                    n = len(nonzero)
+                    mt = sum(s["at_s"] for s in nonzero) / n
+                    mb = sum(s["bytes"] for s in nonzero) / n
+                    cov = sum((s["at_s"] - mt) * (s["bytes"] - mb)
+                              for s in nonzero)
+                    var = sum((s["at_s"] - mt) ** 2 for s in nonzero)
+                    bps = cov / var if var > 0 else 0
+                else:
+                    bps = 0
+                nbytes = op.stat().st_size if op.exists() else 0
+                insp = _capture_wav_inspect(op)
+                leg = {"argv": "parec -d <mon> " + " ".join(args) +
+                       (" > <out>" if seekable else " | dd of=<out>"),
+                       "seekable": seekable,
+                       "exit_code": src.returncode,
+                       "dd_exit": dd.returncode if dd is not None else None,
+                       "stderr_tail": _capture_tail(src_err, str(op)),
+                       "size_trace": sizes,
+                       "bytes": nbytes,
+                       "bytes_per_s": int(bps),
+                       "request": fmt_request,
+                       "implied_rate": _playback_r78_nearest(
+                           bps / 4, (22050, 44100, 48000, 96000), 0.25),
+                       "implied_bpf": _playback_r78_nearest(
+                           bps / (48000 * 2), (1, 2, 3, 4), 0.22),
+                       "implied_ch": _playback_r78_nearest(
+                           bps / (48000 * 2), (1, 2), 0.22),
+                       "fmt": insp.get("fmt"), "riff": insp.get("riff")}
+                legs[name] = leg
+
+            legs_req = [
+                # raw legs: implied spec from byte-rate alone. The
+                # monitor source on this host is float32le 2ch 48000
+                # (module-null-sink) — 384000 B/s fixated, 192000 for
+                # s16 2ch requests.
+                ("rate_req", ["--raw", "--rate=22050"], "rate_req.raw",
+                 {"rate": 22050, "bits": 16, "channels": 2}),
+                ("rate_fix", ["--raw", "--rate=22050", "--fix-rate"],
+                 "rate_fix.raw",
+                 {"rate": 22050, "bits": 16, "channels": 2}),
+                ("fmt_req", ["--raw", "--rate=48000", "--format=s32le"],
+                 "fmt_req.raw",
+                 {"rate": 48000, "bits": 32, "channels": 2}),
+                ("fmt_fix", ["--raw", "--rate=48000", "--format=s16le",
+                             "--fix-format"], "fmt_fix.raw",
+                 {"rate": 48000, "bits": 16, "channels": 2}),
+                ("ch_req", ["--raw", "--rate=48000", "--channels=1"],
+                 "ch_req.raw",
+                 {"rate": 48000, "bits": 16, "channels": 1}),
+                ("ch_fix", ["--raw", "--rate=48000", "--channels=1",
+                            "--fix-channels"], "ch_fix.raw",
+                 {"rate": 48000, "bits": 16, "channels": 1}),
+                # wav legs: the header half of the mismatch — every
+                # OTHER knob is pinned to the source spec so the only
+                # divergence is the fixed knob. `--file-format=wav`
+                # refuses a pipe ("Failed to open audio file." —
+                # libsndfile needs a seekable fd), so these run
+                # direct-to-file.
+                ("hdr_rate_fix",
+                 ["--file-format=wav", "--rate=22050", "--channels=2",
+                  "--format=s16le", "--fix-rate"],
+                 "hdr_rate.wav",
+                 {"rate": 22050, "bits": 16, "channels": 2}, True),
+                ("hdr_fmt_fix",
+                 ["--file-format=wav", "--rate=48000", "--channels=2",
+                  "--format=s16le", "--fix-format"],
+                 "hdr_fmt.wav",
+                 {"rate": 48000, "bits": 16, "channels": 2}, True),
+                ("hdr_ch_fix",
+                 ["--file-format=wav", "--rate=48000", "--channels=1",
+                  "--format=s16le", "--fix-channels"],
+                 "hdr_ch.wav",
+                 {"rate": 48000, "bits": 16, "channels": 1}, True),
+                ("hdr_rate_plain",
+                 ["--file-format=wav", "--rate=22050", "--channels=2",
+                  "--format=s16le"],
+                 "hdr_plain.wav",
+                 {"rate": 22050, "bits": 16, "channels": 2}, True),
+            ]
+            for name, args, outname, req, *tail in legs_req:
+                parec_leg(name, args, outname, req,
+                          seekable=tail[0] if tail else False)
+            _capture_r77_reap(feed, 8)
+    finally:
+        _playback_r78_unload(mid)
+    entry["legs"] = legs
+    entry["sink_gone"] = f not in _capture_r77_sink_names()
+    # payload-spec assertions (source = s16 2ch 48000 monitor)
+    def _imp(leg, key):
+        return (legs.get(leg) or {}).get(key)
+    if _imp("rate_req", "implied_rate") != 22050:
+        failures.append(f"parec rate_req: --rate=22050 must be honored, "
+                        f"implied={_imp('rate_req', 'implied_rate')} "
+                        f"bps={_imp('rate_req', 'bytes_per_s')}")
+    if _imp("rate_fix", "implied_rate") != 48000:
+        failures.append(f"parec rate_fix: --fix-rate must adopt the "
+                        f"source 48000, implied="
+                        f"{_imp('rate_fix', 'implied_rate')} "
+                        f"bps={_imp('rate_fix', 'bytes_per_s')}")
+    if _imp("fmt_req", "implied_bpf") != 4:
+        failures.append(f"parec fmt_req: s32le request must be honored "
+                        f"(4 B/smp), implied="
+                        f"{_imp('fmt_req', 'implied_bpf')}")
+    if _imp("fmt_fix", "implied_bpf") != 4:
+        failures.append(f"parec fmt_fix: --fix-format must adopt the "
+                        f"source float32le (4 B/smp), implied="
+                        f"{_imp('fmt_fix', 'implied_bpf')}")
+    if _imp("ch_req", "implied_ch") != 1:
+        failures.append(f"parec ch_req: --channels=1 must be honored, "
+                        f"implied={_imp('ch_req', 'implied_ch')}")
+    if _imp("ch_fix", "implied_ch") != 2:
+        failures.append(f"parec ch_fix: --fix-channels must adopt the "
+                        f"source 2ch, implied="
+                        f"{_imp('ch_fix', 'implied_ch')}")
+    # the header half — the lie is header==request while payload==source.
+    hdr_checks = (
+        ("hdr_rate_fix", "rate", 22050, "implied_rate", 48000),
+        ("hdr_fmt_fix", "bits", 16, "implied_bpf", 4),
+        ("hdr_ch_fix", "channels", 1, "implied_ch", 2),
+    )
+    entry["mismatches"] = {}
+    for name, field, want_hdr, implied_key, want_imp in hdr_checks:
+        leg = legs.get(name) or {}
+        fmt = leg.get("fmt") or {}
+        mismatch = (fmt.get(field) == want_hdr and
+                    leg.get(implied_key) == want_imp)
+        entry["mismatches"][name] = {
+            "header_field": field, "header_value": fmt.get(field),
+            "payload_implied": leg.get(implied_key),
+            "header_prefix_mismatch": bool(mismatch)}
+        if not fmt:
+            failures.append(f"parec {name}: no fmt chunk — the wav leg "
+                            "is not a header verdict")
+        elif not mismatch:
+            failures.append(f"parec {name}: expected header {field}="
+                            f"{want_hdr} with payload {want_imp}, got "
+                            f"{fmt.get(field)}/{leg.get(implied_key)}")
+    plain = entry["mismatches"].get("hdr_rate_plain") or {}
+    plain_leg = legs.get("hdr_rate_plain") or {}
+    plain_fmt = plain_leg.get("fmt") or {}
+    if plain_fmt.get("rate") == 22050 and \
+            plain_leg.get("implied_rate") == 22050:
+        plain["header_honest"] = True
+        entry["mismatches"]["hdr_rate_plain"] = plain
+    else:
+        failures.append("parec hdr_rate_plain: the no-fix control must "
+                        "be header-honest (header==payload==22050), got "
+                        f"{plain_fmt.get('rate')}/"
+                        f"{plain_leg.get('implied_rate')}")
+    if entry["sink_gone"] is not True:
+        failures.append("parec teardown: the parec sink survived the "
+                        "unload")
+    entry["failures"] = failures
+    return entry
+
+
+# ---------------------------------------------------------------------------
+# r79 LOOPBACK frontier: what pw-loopback's -C/-P streams actually BIND.
+# A NEW parallel ledger family, --probe-capture-r79; prior rows untouched
+# and the r76/r77/r78 folds' guards are inherited, not relaxed. Surface
+# facts below are the r79 scout's THIS-HOST measurements (PipeWire 1.6.8,
+# pactl 17.0-98-gb096), re-armed through the r78 conventions (tap-witness
+# bound/ran provenance, spawn-time metadata oracle, named confounds,
+# pw-link port-readiness gates, stall envelopes, coverage_blocked):
+#   SHAPE. `pw-loopback -n <n>` publishes TWO nodes on ONE client —
+#     input.<n> (Stream/Input/Audio; input_FL/FR in, monitor_FL/FR out)
+#     and output.<n> (Stream/Output/Audio; output_FL/FR out, NO inputs).
+#     The capture->playback copy is IN-CLIENT: zero graph links have both
+#     endpoints inside the pair (node.link-group is the session-manager
+#     hint, not a link). -i/-o take space- OR comma-separated props and
+#     write only their own node; target.object is stored VERBATIM
+#     (a `.monitor` suffix included — it never resolves).
+#   CAPTURE LATTICE (-C). Two independent switches:
+#     stream.capture.sink=true + resolvable sink -> that sink's MONITOR;
+#     prop set + unresolvable/inapplicable target -> DEFAULT SINK MONITOR
+#     (the r78 fallback law, on the capture side); prop absent/false +
+#     unresolvable/absent target -> DEFAULT SOURCE (the live input) via
+#     plain autoconnect — the arm pw-record does NOT have (pw-record's
+#     unresolvable target is unlinked). "did -C resolve?" is invisible in
+#     rc/stderr/wall: only the link graph separates honored from mic.
+#     Named class `loopback_capture_default_source_fallback`; the
+#     prop-driven monitor arms are `capture_sink_prop_monitor` /
+#     `capture_sink_prop_default_monitor`.
+#   PLAYBACK LATTICE (-P). The r78 write-side law verbatim: ungated,
+#     target.object prop > -P flag > absent, everything unresolvable or
+#     inapplicable -> CURRENT default sink; node.autoconnect=false never
+#     links. `-P 0` is NOT the pw-cat don't-link idiom — it falls back.
+#   MATRIX. audio.position drives the mix, not -c: '-m [ MONO ]'
+#     downmixes 0.5*(L+R) even at audio.channels=2; '-c 1' with a
+#     2-entry position is inert. Port names stay *_FL/*_FR regardless —
+#     the channel count is only visible in props and content.
+#   RECORD TARGETS. pw-record --target output.<lb> links its output_*
+#     ports (the copied stream); --target input.<lb> needs
+#     stream.capture.sink=true to reach the node's monitor_* ports (else
+#     the default source answers); the prop on output.<lb> demotes the
+#     lookup to the sink domain -> default sink monitor.
+#   HOT-PLUG. Target loss -> silent re-link to the default sink (write
+#     side) or default sink monitor (capture side, prop on); target
+#     APPEARANCE re-links to the named node. The client never exits and
+#     never logs — only topology and content move.
+#   PWCAT LATENCY. --latency/-P node.latency store the prop VERBATIM
+#     (prop beats flag); the reported Latency param is RECORDED as a
+#     named verdict, never asserted (r78 measured one value, r79 run 2
+#     measured three that track the request) — the prop is the hard
+#     pin. stream.capture.sink on a playback stream is decoration.
+#   FILTER-CHAIN. libpipewire-module-filter-chain is a CLIENT of the
+#     running session — the documented conf.d recipe and pw-cli
+#     load-module both publish into the live daemon and the nodes die
+#     with the client. A fragment SYNTAX error is a warning and later
+#     fragments still load; an unknown filter label without `nofail`
+#     exits the loader rc=254; `unload-module @module:<n>` is refused
+#     'unknown module' — teardown is client exit, and a scraped reply id
+#     is NEVER fed to `destroy` (the reply interleaves the async global
+#     dump; a wrong id can name a daemon-owned module).
+LOOPBACK_R79_SETTLE_S = 0.6
+LOOPBACK_R79_NODE_WAIT_S = 5.0
+LOOPBACK_R79_LEG_BOUND_S = 4.6
+LOOPBACK_R79_HP_BOUND_S = 7.2
+LOOPBACK_R79_TONE_S = 9.0          # feed file outlives every leg bound
+LOOPBACK_R79_FC_SETTLE_S = 2.2     # loader publish window
+LOOPBACK_R79_FC_KILL_S = 1.0       # nodes-gone check delay after kill
+# Per-run resource names — the r77/r78 contention lesson: every name is
+# pid-stamped so a concurrent seat can neither collide nor be unloaded
+# by-name (module unload goes by the id captured at OUR load, never by
+# name; the r79lb_ prefix additionally satisfies the round's node-tag
+# rule for pw-loopback legs).
+LOOPBACK_R79_PID = os.getpid()
+LOOPBACK_R79_NS_A = f"r79lb_ns_a_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_NS_B = f"r79lb_ns_b_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_NS_B2 = f"r79lb_ns_b2_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_HP = f"r79lb_hp_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_HP2 = f"r79lb_hp2_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_FC_SINK = f"r79lb_fc_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_PREFIX = f"r79lb_{LOOPBACK_R79_PID}"
+LOOPBACK_R79_FC_PREFIX = f"r79fc_{LOOPBACK_R79_PID}"
+
+
+def _loopback_r79_metadata_default(key):
+    """`pw-metadata -n default 0 <key>` — the session-manager authority a
+    stream's fallback FOLLOWS (default.audio.sink for the write side,
+    default.audio.source for the capture side). Same verbatim-raw
+    contract as the r78 reader; an absent key yields name=None — this
+    host carries NO default.audio.source key, so pactl's Default Source
+    is the source authority then."""
+    try:
+        proc = subprocess.run(["pw-metadata", "-n", "default", "0", key],
+                              capture_output=True, timeout=10)
+        m = re.search(r"value:'(.*?)'(?:\s*type|\s*$)",
+                      proc.stdout.decode(errors="replace"))
+        raw = m.group(1) if m else None
+        name = None
+        if raw:
+            mm = re.search(r'"?name"?\s*[:=]\s*"?([^",}\s]+)"?', raw)
+            name = mm.group(1) if mm else None
+        return {"name": name, "raw": raw, "exit": proc.returncode}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"name": None, "raw": None, "error": str(exc)[:120]}
+
+
+def _loopback_r79_pactl_defaults():
+    """pactl info's Default Sink/Source pair — the SECOND authority.
+    Divergence from the metadata names is a named confound
+    (`authority_divergence`), never silently averaged."""
+    out = {"sink": None, "source": None}
+    try:
+        proc = subprocess.run(["pactl", "info"], capture_output=True,
+                              timeout=10)
+        text = proc.stdout.decode(errors="replace")
+        for key, pat in (("sink", r"^Default Sink:\s*(.*)$"),
+                         ("source", r"^Default Source:\s*(.*)$")):
+            m = re.search(pat, text, re.M)
+            out[key] = m.group(1).strip() if m else None
+        out["exit"] = proc.returncode
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        out["error"] = str(exc)[:120]
+    return out
+
+
+def _loopback_r79_oracle():
+    """The spawn-time authorities for one leg — metadata first (the r78
+    live-default lesson: pactl's stored default can lag the metadata
+    write), pactl second. Legs record the whole snapshot so a mid-leg
+    re-assert is readable as data (`default_reasserted`)."""
+    pa = _loopback_r79_pactl_defaults()
+    return {"sink_meta": _loopback_r79_metadata_default(
+                "default.audio.sink").get("name"),
+            "source_meta": _loopback_r79_metadata_default(
+                "default.audio.source").get("name"),
+            "sink_pactl": pa.get("sink"),
+            "source_pactl": pa.get("source"),
+            "pactl_exit": pa.get("exit")}
+
+
+def _loopback_r79_nodes(names):
+    """One pw-dump -> {name: props/state leaf} for every name in `names` —
+    a single snapshot covering all watched nodes (cheaper than the r78
+    per-node reader and consistent within one instant)."""
+    want = set(names)
+    out = {n: {"found": False} for n in want}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        for n in want:
+            out[n] = {"found": False, "error": type(exc).__name__}
+        return out
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        info = node.get("info") or {}
+        props = info.get("props") or {}
+        nm = props.get("node.name")
+        if nm not in want:
+            continue
+        params = info.get("params") or {}
+        out[nm] = {
+            "found": True, "state": info.get("state"),
+            "media_class": props.get("media.class"),
+            "media_name": props.get("media.name"),
+            "media_role": props.get("media.role"),
+            "target_object": props.get("target.object"),
+            "node_autoconnect": props.get("node.autoconnect"),
+            "stream_capture_sink": props.get("stream.capture.sink"),
+            "audio_channels": props.get("audio.channels"),
+            "audio_position": props.get("audio.position"),
+            "node_latency": props.get("node.latency"),
+            "node_force_latency": props.get("node.force-latency"),
+            "client_id": props.get("client.id"),
+            "node_link_group": props.get("node.link-group"),
+            "node_group": props.get("node.group"),
+            "node_virtual": props.get("node.virtual"),
+            "latency_param": params.get("Latency")}
+    return out
+
+
+def _loopback_r79_own_nodes():
+    """Live node names still carrying this run's tags — the teardown
+    witness (nothing r79lb_/r79fc_ may survive an entry)."""
+    names = _playback_r78_node_names()
+    if names is None:
+        return None
+    return sorted(n for n in names
+                  if LOOPBACK_R79_PREFIX in n or
+                  LOOPBACK_R79_FC_PREFIX in n)
+
+
+def _loopback_r79_wait_ports(name, timeout_s=LOOPBACK_R79_NODE_WAIT_S):
+    """Port-readiness gate (the r78 rule applied to stream nodes): a node
+    is READY when pw-link lists at least one of its ports in either
+    direction. A listed node whose ports are absent binds nothing, and a
+    leg spawned in the gap measures a phantom fallback. Returns
+    (ready, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < timeout_s:
+        if _playback_r78_output_ports(name) or \
+                _playback_r78_input_ports(name):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _loopback_r79_guard_playback(tail, own):
+    """FAIL-CLOSED contamination guard — the r79 scout's harness defect
+    armed permanently: a tone-fed leg's EFFECTIVE playback target must be
+    a probe-owned sink. `-o target.object=` beats `-P`; a missing pin or
+    a name outside `own` refuses the leg rather than leaking the tag tone
+    into the shared default sink."""
+    eff = None
+    if "-o" in tail:
+        otxt = tail[tail.index("-o") + 1]
+        m = re.search(r"target\.object\s*=\s*([^\s,\]]+)", otxt)
+        if m:
+            eff = m.group(1)
+    if eff is None and "-P" in tail:
+        eff = tail[tail.index("-P") + 1]
+    if eff not in own:
+        raise ValueError(
+            f"tone-fed leg's playback resolves to {eff!r} — outside the "
+            f"probe-owned set {sorted(own)}; refusing to feed")
+
+
+def _loopback_r79_feed(target, tag, ctx):
+    """Spawn the tag-tone feed — pw-cat playing ctx['tone'] into a
+    probe-owned sink. `-P node.name=` tags the stream r79lb_* so it is
+    distinguishable from a foreign player on every link listing."""
+    return subprocess.Popen(
+        ["pw-cat", "-p", "-P", f"node.name={tag}",
+         "--target", target, str(ctx["tone"])],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        start_new_session=True)
+
+
+def _loopback_r79_write_silence(path, seconds):
+    """Digital silence in the tag tone's exact shape (48 kHz stereo s16).
+
+    The fallback legs of the pw-cat vector must still PLAY and LINK — the
+    landing node is the verdict — but their destination is the shared
+    default sink, and the r79 scout's fail-closed rule is that the tag
+    tone never leaves a probe-owned sink. A silent feed keeps the leg
+    topology-complete with zero shared-sink content; the receipt declares
+    `content_witness = declined_shared_default` for those legs."""
+    n = int(PLAYBACK_R78_TONE_RATE * seconds)
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(PLAYBACK_R78_TONE_RATE)
+        w.writeframes(b"\x00\x00\x00\x00" * n)
+
+
+def _loopback_r79_watch_sample(watch, ctx):
+    """One sample of `watch` — the exact leaf `_loopback_r79_run`
+    records, reusable by an entry whose watched client must stay alive
+    across several bounded sub-legs (the record-target entry: a client
+    run through the blocking runner is already dead when the sub-legs
+    spawn, which is the scout's own recorded harness defect)."""
+    links = _playback_r78_links()
+    tap_wit = {}
+    for ttag, ttarget in ctx.get("tap_witnesses", ()):
+        prods = _playback_r78_producers(ttag, links)
+        tap_wit[ttag] = {
+            "producers": prods["nodes"],
+            "bound_to_target": prods["nodes"] == [ttarget]}
+    w = {}
+    for wn in watch:
+        prods = _playback_r78_producers(wn, links)
+        cons = _playback_r78_consumers(wn, links)
+        w[wn] = {"input_ports": _playback_r78_input_ports(wn),
+                 "output_ports": _playback_r78_output_ports(wn),
+                 "producers": prods["nodes"],
+                 "producer_ports": prods["producer_ports"],
+                 "consumers": cons["nodes"],
+                 "consumer_ports": cons["consumer_ports"]}
+    return {"watch": w, "nodes": _loopback_r79_nodes(watch),
+            "tap_witnesses": tap_wit}
+
+
+def _loopback_r79_run(argv, ctx, watch=(), events=(), bound_s=None,
+                      wait_nodes=(), env=None):
+    """Spawn a watched command and fire timed events — the loopback-family
+    runner. pw-loopback is a persistent client: killed_at_bound (rc=-9)
+    is its NORMAL exit shape, not a stall; stalls are proven by topology
+    (ports published, zero links). Event kinds: sample / feed_start /
+    feed_stop / unload_module / load_sink / pwlink / pwlink_d /
+    metadata_default. `wait_nodes` gates the event clock on port
+    readiness; `watch` names get per-sample port lists plus producer and
+    consumer node sets; ctx['tap_witnesses'] binds monitor taps (the r78
+    provenance rule — `mine` only counts while the tap listens to the
+    claimed node)."""
+    proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True, env=env)
+    waits = {}
+    for wn in wait_nodes:
+        waits[wn] = dict(zip(("ready", "waited_s"),
+                             _loopback_r79_wait_ports(wn)))
+    feeds, loaded = {}, []
+    samples, fired = [], []
+    t0 = time.monotonic()          # the event clock starts post-gate
+    for at, kind, arg in sorted(events, key=lambda e: e[0]):
+        left = at - (time.monotonic() - t0)
+        if left > 0:
+            time.sleep(left)
+        when = round(time.monotonic() - t0, 3)
+        if kind == "sample":
+            leaf = _loopback_r79_watch_sample(watch, ctx)
+            samples.append({"at_s": at, "when_s": when,
+                            "live": proc.poll() is None, **leaf})
+        elif kind == "feed_start":
+            target, ftag = arg
+            feeds[ftag] = _loopback_r79_feed(target, ftag, ctx)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "target": target, "tag": ftag})
+        elif kind == "feed_stop":
+            f = feeds.pop(arg, None)
+            rc = None
+            if f is not None:
+                if f.poll() is None:
+                    os.killpg(f.pid, signal.SIGKILL)
+                f.wait()
+                rc = f.returncode
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "tag": arg, "feed_exit": rc})
+        elif kind == "unload_module":
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "module_id": arg,
+                          "exit_code": _playback_r78_unload(arg)})
+        elif kind == "load_sink":
+            mid, rc, err = _playback_r78_null_sink_load(arg)
+            if mid is not None:
+                loaded.append(mid)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "name": arg, "module_id": mid, "exit_code": rc,
+                          "error": err})
+        elif kind in ("pwlink", "pwlink_d"):
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          "links": _playback_r78_pwlink_batch(
+                              arg, kind == "pwlink_d")})
+        elif kind == "metadata_default":
+            res = _playback_r78_metadata_set_default(arg)
+            fired.append({"at_s": at, "when_s": when, "kind": kind,
+                          **res})
+    bound = bound_s if bound_s is not None else ctx["bound_s"]
+    left = bound - (time.monotonic() - t0)
+    killed = False
+    try:
+        proc.wait(timeout=max(0.05, left))
+    except subprocess.TimeoutExpired:
+        killed = True
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    wall = round(time.monotonic() - t0, 2)
+    for ftag, f in feeds.items():
+        if f.poll() is None:
+            os.killpg(f.pid, signal.SIGKILL)
+        f.wait()
+        fired.append({"kind": "feed_reap", "tag": ftag,
+                      "exit_code": f.returncode})
+    err = proc.stderr.read().decode(errors="replace")
+    cls, _ = _playback_r78_errclass(err)
+    shown = " ".join(argv)
+    for name in ctx.get("redact", ()):
+        if name:
+            shown = shown.replace(name, "<n>")
+    return {"argv": shown, "wait_nodes": waits, "samples": samples,
+            "fired": fired, "loaded": loaded,
+            "exit_code": proc.returncode, "killed_at_bound": killed,
+            "wall_s": wall, "error_class": cls,
+            "stderr_tail": _capture_tail(err, LOOPBACK_R79_PREFIX)}
+
+
+def _loopback_r79_leg(name, tail, ctx, *, tap_target=None, tap_seconds=0.0,
+                      feed_sink=None, feed_at=0.5, events_extra=(),
+                      sample_at=(1.3, 2.7),
+                      bound_s=LOOPBACK_R79_LEG_BOUND_S):
+    """One tagged pw-loopback leg — `-n r79lb_<pid>_<name>` — plus an
+    optional monitor tap and an optional tone feed. The tap spawns FIRST
+    (r78 lead convention); the feed is an in-run event so a leg can stop
+    the tone before an unload (the scout's silence-before-loss
+    discipline) and a fed leg's playback side is refused unless it
+    resolves probe-owned."""
+    ltag = f"{LOOPBACK_R79_PREFIX}_{name}"
+    if feed_sink is not None:
+        _loopback_r79_guard_playback(tail, ctx["own_sinks"])
+        if feed_sink not in ctx["own_sinks"]:
+            raise ValueError(f"feed sink {feed_sink!r} is not probe-owned")
+    tap = tapf = None
+    if tap_target is not None:
+        tapf = Path(ctx["tmp"]) / f"tap_{name}.wav"
+        tap = _playback_r78_tap(tap_target, tapf,
+                                int(PLAYBACK_R78_TONE_RATE * tap_seconds),
+                                f"{ltag}_tap")
+        # the r78 provenance rule, unchanged: every sample records the
+        # tap's own producers so `mine` counts only while it listens to
+        # the claimed node's monitor.
+        ctx = dict(ctx, tap_witnesses=list(ctx.get("tap_witnesses", ())) +
+                   [(f"{ltag}_tap", tap_target)])
+        time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+    ev = list(events_extra)
+    if feed_sink is not None:
+        ev.append((feed_at, "feed_start", (feed_sink, f"{ltag}_feed")))
+    for a in sample_at:
+        ev.append((a, "sample", None))
+    run = _loopback_r79_run(
+        ["pw-loopback", "-n", ltag, *tail], ctx,
+        watch=(f"input.{ltag}", f"output.{ltag}"),
+        wait_nodes=(f"input.{ltag}", f"output.{ltag}"),
+        events=ev, bound_s=bound_s)
+    cell = {"name": name, "ltag": ltag, "tail": tail,
+            "default_sink_at_leg": ctx["default_at_start"],
+            "default_source_at_leg": ctx.get("source_at_start"),
+            **run,
+            "input_producers_union": _loopback_r79_union(
+                run["samples"], f"input.{ltag}", "producers"),
+            "output_consumers_union": _loopback_r79_union(
+                run["samples"], f"output.{ltag}", "consumers")}
+    if tap is not None:
+        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+        twit = [s.get("tap_witnesses", {}).get(f"{ltag}_tap")
+                for s in run["samples"]]
+        bound = [t["bound_to_target"] for t in twit if t]
+        cell["tap"] = {
+            "target": tap_target, "exit_code": tap.returncode,
+            "bound_to_target": any(bound),
+            "bound_producers": sorted(
+                {p for t in twit if t for p in t.get("producers", [])}),
+            "never_bound": bool(twit) and not any(bound),
+            "stderr_tail": _capture_tail(
+                tap.stderr.read().decode(errors="replace"), str(tapf)),
+            **_playback_r78_tone_windows(tapf)}
+        cell["tap"]["ran"] = bool(cell["tap"].get("windows"))
+    cell["carries_tone"] = (cell.get("tap") or {}).get("carries_tone")
+    return cell
+
+
+def _loopback_r79_union(samples, node, key):
+    """Union of a watch leaf's `key` set across samples."""
+    return sorted({n for s in samples
+                   for n in (s["watch"].get(node) or {}).get(key) or []})
+
+
+def _loopback_r79_check_side(entry, failures, lname, leg, side_key,
+                             node_suffix, want, ora_at_leg,
+                             dsource_probe=None):
+    """The shared leg verdict: the watched set equals the expected
+    singleton (or is empty for `none`). Churn handling is the r78
+    convention — the expected node missing is a FAILURE; extras inside
+    the live default set are the `default_reasserted` confound; foreign
+    extras are the `foreign-node` confound. side_key is 'producers' for
+    the capture node, 'consumers' for the playback node.
+
+    `dsource_probe` marks the capture-side default-source legs: when the
+    session has NO default source to hand out (probe unavailable), the
+    expected default-source producer can never appear — the leg then
+    records the named outcome `capture_default_source_unnegotiated`
+    instead of failing, and ONLY when the watched node really published
+    unnegotiated (zero ports, zero links). With a live default source the
+    old strictness is unchanged."""
+    union = _loopback_r79_union(leg["samples"], node_suffix, side_key)
+    leg[side_key + "_union"] = union
+    leg["expected_" + side_key] = [] if want is None else [want]
+    if want is None:
+        if union:
+            failures.append(
+                f"{lname}: expected NO {side_key}, got {union}")
+        return
+    if union == [want]:
+        return
+    # The capture-side fallback is CONDITIONAL on the session actually
+    # having a default source. That authority flaps under multi-seat
+    # load (measured 07:04Z: a concurrent lane's `r86ctl_src` was the
+    # live default source for legs b01-b04 — where the fallback DID
+    # link — and gone by b05, which then published unnegotiated), so the
+    # correlate is read PER LEG from the leg's own oracle; the run-level
+    # probe is the secondary witness.
+    # C1 (r79 critic): both conjuncts are required — the leg's own oracle
+    # must show no metadata source AND the run-level probe must agree. The
+    # earlier `or` let the once-per-run probe constant excuse a leg whose
+    # per-leg oracle actually saw a live default source.
+    if not union and _loopback_r79_unnegotiated(leg, node_suffix) and \
+            ora_at_leg.get("source_meta") is None and \
+            dsource_probe is not None and \
+            not dsource_probe.get("available"):
+        leg["outcome"] = "capture_default_source_unnegotiated"
+        leg["outcome_correlate"] = {
+            "default_source_probe_class":
+                (dsource_probe or {}).get("error_class"),
+            "default_source_probe_available":
+                (dsource_probe or {}).get("available"),
+            "source_meta_at_leg": ora_at_leg.get("source_meta"),
+            "pactl_default_source": ora_at_leg.get("source_pactl")}
+        entry.setdefault("named_outcomes", []).append(
+            f"{lname}: capture_default_source_unnegotiated — no session "
+            "default source at this leg "
+            f"(source_meta={ora_at_leg.get('source_meta')!r}); the "
+            "capture stream published with zero ports and never linked")
+        entry["confound_observed"] = True
+        return
+    live_now = {ora_at_leg.get("sink_meta") or ora_at_leg.get("sink_pactl"),
+                ora_at_leg.get("source_meta") or
+                ora_at_leg.get("source_pactl")} - {None}
+    if want not in union and union and set(union) <= live_now and \
+            want not in live_now:
+        # the authority moved between oracle read and the samples — the
+        # leg measured the CURRENT default, not a wrong node.
+        leg["confound"] = (
+            f"default re-asserted: expected {want}, authority now "
+            f"{sorted(live_now)} — consumers track the live default")
+        entry["confound_observed"] = True
+        entry.setdefault("coverage_blocked", []).append(
+            f"{lname}: default_reasserted mid-leg")
+        return
+    if want in union:
+        extras = [n for n in union if n != want]
+        foreign = [n for n in extras if n not in live_now]
+        if foreign:
+            leg["confound"] = (
+                f"foreign node(s) {foreign} ALSO {side_key} — a "
+                "concurrent seat linked onto this stream; the landing "
+                "is kept, the extras are not a verdict")
+            entry["confound_observed"] = True
+            return
+        if set(extras) <= live_now:
+            leg["confound"] = (
+                f"default re-asserted mid-leg: {side_key} {union} "
+                "straddle the old and live authority")
+            entry["confound_observed"] = True
+            return
+    failures.append(
+        f"{lname}: expected {side_key} [{want}], got {union}")
+
+
+def _loopback_r79_check_tap(entry, failures, lname, leg, *,
+                            want_tone=None):
+    """The content-witness contract (r78): a tap that produced no windows
+    is vacuous; a tap that never bound to its target attributes `mine`
+    to nothing. want_tone=True requires carries_tone; False forbids ANY
+    `mine` window (our tag may never appear on this path); None records
+    only."""
+    tap = leg.get("tap") or {}
+    if not tap:
+        failures.append(f"{lname}: no tap recorded — the content "
+                        "pin is absent")
+        return
+    if not tap.get("ran"):
+        failures.append(f"{lname}: the monitor tap produced no windows "
+                        "— the content pin is vacuous")
+        return
+    # C2 (r79 critic): `&` binds tighter than `|` — the old expression was
+    # `(B & O) | I`, so ANY non-empty input-producer set made the clause
+    # truthy and the unattributed confound could never fire on a linked
+    # leg. The peer test must be `B & (O | I)`.
+    if not (tap.get("bound_to_target") or
+            set(tap.get("bound_producers", [])) &
+            (set(leg.get("output_consumers_union") or []) |
+             set(leg.get("input_producers_union") or []))):
+        leg["confound"] = (
+            f"tap bound to {tap.get('bound_producers')} — never to "
+            f"{tap.get('target')} or the stream's own peers; `mine` is "
+            "unattributed")
+        entry["confound_observed"] = True
+        if want_tone is False:
+            # A2 (r79 verifier): on a never-fed leg an unattributed tap
+            # makes the `mine`-absence pin vacuous — it asserts nothing
+            # measured. Name the vacuity instead of crediting it.
+            entry.setdefault("named_outcomes", []).append(
+                f"{lname}: content_pin_unmeasured — tap bound to "
+                f"{tap.get('bound_producers')}, not the target; the "
+                "no-mine verdict asserts an unmeasured surface")
+    if want_tone is True and not tap.get("carries_tone"):
+        failures.append(f"{lname}: the tap on {tap.get('target')} "
+                        "carried no tag-tone windows — consumption "
+                        "without content is not a playout verdict")
+    if want_tone is False and tap.get("mine_windows"):
+        # A `mine` window on a never-fed leg is contamination — but WHO
+        # fed it is decidable: our tag tone is written at
+        # PLAYBACK_R78_TONE_AMP (8192) and no stage of the arm amplifies
+        # it, so a tag-shaped tone LOUDER than that ceiling cannot be
+        # ours. Measured 07:16Z: the b09 leg (capture side = the SHARED
+        # default sink monitor) tapped 1 kHz/1.5 kHz at peaks
+        # 11997/8997 — a concurrent lane's tone on the shared sink,
+        # forwarded into our probe sink by the very fallback this leg
+        # measures. The class is named and the peaks recorded; a
+        # tag-shaped tone at or below our own ceiling still FAILS.
+        peak = max(tap.get("peak_l") or 0, tap.get("peak_r") or 0)
+        # C3 (r79 critic): amplitude alone cannot prove origin — our own
+        # tone summed with a foreign tone at the same frequency can read
+        # above the ceiling and be excused as "foreign". The excuse needs
+        # an ORIGIN witness: a producer on this leg's capture path that
+        # carries none of this run's probe tags. No foreign producer, no
+        # excuse — the tone is unexplained contamination and FAILS.
+        foreign_producers = sorted(
+            n for n in (leg.get("input_producers_union") or [])
+            if LOOPBACK_R79_PREFIX not in n
+            and LOOPBACK_R79_FC_PREFIX not in n)
+        if foreign_producers:
+            leg["foreign_tone_witness_producers"] = foreign_producers
+        if not leg.get("fed") and foreign_producers and \
+                peak > PLAYBACK_R78_TONE_AMP * 1.05:
+            leg["foreign_tone_witness"] = {
+                "peak_l": tap.get("peak_l"), "peak_r": tap.get("peak_r"),
+                "tag_tone_amp_ceiling": PLAYBACK_R78_TONE_AMP,
+                "fed_by_this_arm": False,
+                "capture_producers": leg.get("input_producers_union")}
+            leg["confound"] = (
+                f"foreign tag-shaped tone on {tap.get('target')} (peaks "
+                f"{tap.get('peak_l')}/{tap.get('peak_r')} > our "
+                f"{PLAYBACK_R78_TONE_AMP} ceiling) — the leg was never "
+                "fed; the capture side reads the SHARED default sink "
+                "monitor, so a concurrent lane's tone is forwarded here")
+            entry["confound_observed"] = True
+            entry.setdefault("named_outcomes", []).append(
+                f"{lname}: foreign_tone_on_shared_monitor — tap peaks "
+                f"{tap.get('peak_l')}/{tap.get('peak_r')} exceed this "
+                f"arm's {PLAYBACK_R78_TONE_AMP} tag ceiling and the leg "
+                "was never fed")
+            return
+        failures.append(f"{lname}: tag tone on {tap.get('target')} — "
+                        "this leg was never fed our tone; a `mine` "
+                        "window is contamination, not coverage")
+
+
+def _loopback_r79_two_tone(path):
+    """Per-channel amplitude AT the two tag frequencies — the matrix
+    classifier. The mono-mix signature is both channels carrying BOTH
+    components at ~0.5 amplitude (0.5*(L+R) summed, duplicated by the
+    sink's upmix); stereo passthrough is L-component on ch0 / R-component
+    on ch1 only. Uses the r78 Hann coherent-gain correction (4|X|/N) via
+    a windowed DTFT at the exact frequencies — bin alignment never
+    decides.
+
+    Bands are MEASURED, not guessed: on this host a full-amplitude (8192)
+    single-frequency component reads 4538.6 and its half-gain mono mix
+    reads 2269.3 (run 2, cm2 vs cm1). The bands below admit the r79
+    scout's own classifier values (4095.3 / 2047.6) too; the absolute
+    half-gain relation is additionally asserted cross-leg by the matrix
+    entry, so a band that is merely wide cannot pass a wrong mix."""
+    insp = _capture_wav_inspect(path)
+    pcm = _playback_r78_pcm_array(path, insp)
+    out = {"exists": insp.get("exists"), "bytes": insp.get("bytes")}
+    if pcm is None:
+        out["unsupported"] = "no s16 stereo data chunk"
+        return out
+    rate = (insp.get("fmt") or {}).get("rate") or PLAYBACK_R78_TONE_RATE
+    # a stable mid-file segment: skip the first 0.4 s of connect/setup
+    # slop, take up to 1.5 s.
+    start = min(len(pcm), int(rate * 0.4))
+    n = min(len(pcm) - start, int(rate * 1.5))
+    if n < 2048:
+        out["unsupported"] = f"only {n} frames"
+        return out
+    n -= n % 2
+    seg = pcm[start:start + n].astype(np.float64)
+    t = np.arange(n) / rate
+    han = np.hanning(n)
+    res = []
+    for ch in range(2):
+        xs = seg[:, ch] * han
+        amps = {}
+        for f, key in ((PLAYBACK_R78_TONE_L_HZ, "at_l"),
+                       (PLAYBACK_R78_TONE_R_HZ, "at_r")):
+            amps[key] = round(float(
+                4.0 * abs(np.sum(xs * np.exp(-2j * np.pi * f * t)))
+                / n), 1)
+        res.append({**amps,
+                    "peak": int(np.abs(seg[:, ch]).max())})
+    out["channels"] = res
+    mix_lo, mix_hi = 1400.0, 3200.0
+    out["mix_signature"] = all(
+        mix_lo <= c["at_l"] <= mix_hi and mix_lo <= c["at_r"] <= mix_hi
+        and abs(c["at_l"] - c["at_r"]) <= 0.25 * max(c["at_l"],
+                                                     c["at_r"])
+        for c in res) and all(5500 <= c["peak"] <= 9800 for c in res)
+    out["stereo_signature"] = (
+        res[0]["at_l"] >= 3200 and res[0]["at_r"] <= 900 and
+        res[1]["at_r"] >= 3200 and res[1]["at_l"] <= 900)
+    return out
+
+
+def _loopback_r79_wait_monitor(name, timeout_s=LOOPBACK_R79_NODE_WAIT_S):
+    """Port-readiness gate for a probe null sink's MONITOR.
+
+    MEASURED this host (PipeWire 1.6.8): `pactl list sources` exposes the
+    monitor as `<sink>.monitor`, but the graph's monitor ports are owned
+    by the SINK node and are named `<sink>:monitor_FL/FR` — no `.monitor`
+    node exists in `pw-link -o` at any point (checked idle, suspended and
+    actively recorded; polled for 6 s). The r78 helper
+    `_playback_r78_wait_source` requires the port tag to EQUAL the source
+    name, so it can never confirm a null-sink monitor here: its two r78
+    arms are consequently `coverage_blocked` (the 05:37:41Z receipt shows
+    `enumerated: True` from the pre-fold variant, every receipt from
+    05:50:13Z on shows `False`). The r79 arm must not inherit that, so the
+    gate is local and both halves are still required: the pactl source
+    listing AND the real port owner's monitor ports. Returns
+    (ready, waited_s, diag)."""
+    t0 = time.monotonic()
+    listed = ports = False
+    while time.monotonic() - t0 < timeout_s:
+        listed = f"{name}.monitor" in _playback_r78_source_names()
+        ports = bool(_playback_r78_output_ports(name))
+        if listed and ports:
+            return True, round(time.monotonic() - t0, 3), {
+                "pactl_listed": listed, "monitor_ports": ports}
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3), {
+        "pactl_listed": listed, "monitor_ports": ports}
+
+
+LOOPBACK_R79_DSOURCE_CACHE = {}
+
+
+def _loopback_r79_default_source_probe(tmpdir):
+    """Is there a DEFAULT SOURCE the session manager can hand a capture
+    stream?
+
+    Measured directly, because `pactl info`'s `Default Source:` line is
+    NOT evidence: on 2026-10-15 this host reports
+    `alsa_input.…HiFi__Line__source` while WirePlumber resolves nothing —
+    a plain `pw-record` with NO --target dies `no target node available`
+    (res:-2), `wpctl status` marks no source with `*`, and
+    `pw-metadata -n default 0 default.audio.source` has no key at all
+    (writing one is dropped again by the session manager mid-leg, and
+    keeping the source RUNNING changes nothing). The probe is the same
+    shape the loopback's capture stream needs, so it is the correlate the
+    fallback legs are gated on. Cached per process (one bounded
+    pw-record, ~1 s)."""
+    if "v" in LOOPBACK_R79_DSOURCE_CACHE:
+        return LOOPBACK_R79_DSOURCE_CACHE["v"]
+    tag = f"{LOOPBACK_R79_PREFIX}_dsprobe"
+    path = Path(tmpdir) / "dsprobe.wav"
+    res = {"tag": tag, "available": False}
+    try:
+        proc = subprocess.Popen(
+            ["pw-record", "-P", f"node.name={tag}", "-n", "4800",
+             "--rate", "48000", "--channels", "2", "--format", "s16",
+             str(path)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+            start_new_session=True)
+        time.sleep(0.6)
+        res["node_published"] = tag in (_playback_r78_node_names() or [])
+        try:
+            proc.wait(timeout=5)
+            res["timed_out"] = False
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            res["timed_out"] = True
+        err = proc.stderr.read().decode(errors="replace")
+        cls, _ = _playback_r78_errclass(err)
+        res["exit_code"] = proc.returncode
+        res["error_class"] = cls
+        res["stderr_tail"] = _capture_tail(err, str(path))
+        # availability is the ABSENCE of the failure class: a successful
+        # bounded capture exits rc=1 by convention and its node is gone
+        # by the time the process is reaped, so a post-exit node check
+        # would report every healthy session as unavailable.
+        res["available"] = (cls is None and not res["timed_out"] and
+                            res["exit_code"] in (0, 1))
+    except OSError as exc:
+        res["error"] = str(exc)[:120]
+    LOOPBACK_R79_DSOURCE_CACHE["v"] = res
+    return res
+
+
+def _loopback_r79_unnegotiated(leg, node):
+    """True when a watched stream node published but NEVER negotiated:
+    found at every sample with ZERO ports in both directions and zero
+    links either way. This is the shape the `-C` default-source fallback
+    collapses into when the session has no default source to hand out
+    (measured 2026-10-15; the r79 scout's mic-fallback arm needs a live
+    default source — see `_loopback_r79_default_source_probe`)."""
+    samples = leg.get("samples") or []
+    if not samples:
+        return False
+    for s in samples:
+        w = (s.get("watch") or {}).get(node)
+        if not w:
+            return False
+        if w.get("input_ports") or w.get("output_ports") or \
+                w.get("producers") or w.get("consumers"):
+            return False
+        if not ((s.get("nodes") or {}).get(node) or {}).get("found"):
+            return False
+    return True
+
+
+def _loopback_r79_sinks_load(names):
+    """Load each probe null sink with the port-readiness gate (r78); the
+    monitor SOURCE of each is also gated — a record spawned in the gap
+    hangs to its bound. Returns {name: {module_id, rc, error, sink_seen,
+    monitor_seen}}."""
+    out = {}
+    for nm in names:
+        mid, rc, err = _playback_r78_null_sink_load(nm)
+        leaf = {"module_id": mid, "rc": rc, "error": err,
+                "sink_seen": mid is not None}
+        if mid is not None:
+            mseen, mwait, mdiag = _loopback_r79_wait_monitor(nm)
+            leaf["monitor_seen"] = mseen
+            leaf["monitor_waited_s"] = mwait
+            leaf["monitor_gate"] = mdiag
+        out[nm] = leaf
+    return out
+
+
+def _loopback_r79_sinks_unload(loads):
+    """Unload ONLY the module ids captured at our loads — never a name
+    lookup, never a foreign module (the round's by-name ban)."""
+    for leaf in loads.values():
+        _playback_r78_unload(leaf.get("module_id"))
+
+
+def _loopback_r79_teardown(entry, failures, loads):
+    """Shared post-checks: owned sinks gone from the listing, no r79-tagged
+    node survives."""
+    sinks_now = _capture_r77_sink_names()
+    gone = {nm: nm not in sinks_now for nm in loads}
+    entry["sinks_gone"] = gone
+    if not all(gone.values()):
+        failures.append(f"teardown: probe sinks survived unload: "
+                        f"{[n for n, g in gone.items() if not g]}")
+    rest = _loopback_r79_own_nodes()
+    entry["own_nodes_after"] = rest
+    if rest:
+        failures.append(f"teardown: r79-tagged nodes survived: {rest}")
+
+
+def _loopback_r79_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares: record it, unload
+    anything this entry loaded, and return the entry — a blocked leg is
+    named coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry["coverage_blocked"] = [msg]
+    if loads is not None:
+        _loopback_r79_sinks_unload(loads)
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (1) SHAPE — one client, two nodes, the copy is in-client; -i/-o prop
+#     syntax and the verbatim target.object.
+# --------------------------------------------------------------------------
+def loopback_shape_r79_entry():
+    """(1) The pw-loopback object shape: `input.<n>`+`output.<n>` share one
+    client.id, the port inventories are asymmetric (the output node has
+    NO input ports — the copy cannot be a graph link), zero links join
+    the pair, target.object is stored verbatim, and -i/-o accept BOTH
+    space- and comma-separated prop lists (writing only their own side).
+    A5/A6 pin the two autoconnect defaults one-sided (the no-argument
+    shape is DECLINED — it would route the live default source into the
+    shared default sink; the scout's contamination class)."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback shape — one client, two nodes, "
+                      "in-client copy",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-shape-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0],
+                   "default_at_start": d0, "source_at_start": s0}
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            # A1: full shape + content path (tone ns_a -> lb -> ns_b tap).
+            legs["a1_shape"] = _loopback_r79_leg(
+                "a1", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", ns_b], ctx,
+                feed_sink=ns_a, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                PLAYBACK_R78_TAP_LEAD_S + 0.5,
+                sample_at=(1.6, 2.9))
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A2: prop syntax — space-separated vs comma-separated.
+            for sid, propstr in (("a2_space",
+                                  "stream.capture.sink=true "
+                                  "media.role=DSP"),
+                                 ("a2_comma",
+                                  "stream.capture.sink=true,"
+                                  "media.role=DSP")):
+                legs[sid] = _loopback_r79_leg(
+                    sid, ["-C", ns_a, "-i", propstr, "-P", ns_b], ctx,
+                    sample_at=(1.4,),
+                    bound_s=2.6)
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A5: -P only -> capture autoconnects to the DEFAULT SOURCE.
+            ora = _loopback_r79_oracle()
+            ctx["source_at_start"] = ora["source_meta"] or \
+                ora["source_pactl"]
+            legs["a5_capture_default"] = _loopback_r79_leg(
+                "a5", ["-P", ns_b], ctx, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S + 0.9)
+            legs["a5_capture_default"]["expected_source"] = \
+                ctx["source_at_start"]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # A6: -C only (silent probe monitor) -> playback autoconnects
+            # to the DEFAULT SINK. No feed: a fed A6 would pump tone into
+            # the shared default (the scout's contamination window).
+            ora = _loopback_r79_oracle()
+            ctx["default_at_start"] = ora["sink_meta"] or \
+                ora["sink_pactl"]
+            legs["a6_playback_default"] = _loopback_r79_leg(
+                "a6", ["-C", ns_a, "-i", "stream.capture.sink=true"],
+                ctx, tap_target=d0,
+                tap_seconds=LOOPBACK_R79_LEG_BOUND_S + 0.9)
+            legs["a6_playback_default"]["expected_sink"] = \
+                ctx["default_at_start"]
+            legs["a7_noargs_declined"] = {
+                "verdict": "declined",
+                "reason": "no -C/-P routes the live default source into "
+                          "the shared default sink — the scout's "
+                          "measured contamination window; A5+A6 cover "
+                          "both autoconnect defaults one-sided."}
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    a1 = legs.get("a1_shape") or {}
+    a1s = a1.get("samples") or []
+    last = a1s[-1] if a1s else {}
+    in_n = f"input.{a1.get('ltag', '')}"
+    out_n = f"output.{a1.get('ltag', '')}"
+    inode = (last.get("nodes") or {}).get(in_n) or {}
+    onode = (last.get("nodes") or {}).get(out_n) or {}
+    iw = (last.get("watch") or {}).get(in_n) or {}
+    ow = (last.get("watch") or {}).get(out_n) or {}
+    if not (inode.get("found") and onode.get("found")):
+        failures.append(f"shape a1: both nodes must publish — got "
+                        f"input={inode.get('found')} "
+                        f"output={onode.get('found')}")
+    if inode.get("media_class") != "Stream/Input/Audio" or \
+            onode.get("media_class") != "Stream/Output/Audio":
+        failures.append(f"shape a1: media classes "
+                        f"{inode.get('media_class')}/"
+                        f"{onode.get('media_class')}")
+    if sorted(iw.get("input_ports") or []) != \
+            [f"{in_n}:input_FL", f"{in_n}:input_FR"] or \
+            sorted(iw.get("output_ports") or []) != \
+            [f"{in_n}:monitor_FL", f"{in_n}:monitor_FR"]:
+        failures.append(f"shape a1: input-node port inventory "
+                        f"in={iw.get('input_ports')} "
+                        f"out={iw.get('output_ports')}")
+    if ow.get("input_ports") not in ([], None) or \
+            sorted(ow.get("output_ports") or []) != \
+            [f"{out_n}:output_FL", f"{out_n}:output_FR"]:
+        failures.append(f"shape a1: output-node port inventory "
+                        f"in={ow.get('input_ports')} "
+                        f"out={ow.get('output_ports')} — the output "
+                        "node must have NO input ports")
+    if not inode.get("client_id") or \
+            inode.get("client_id") != onode.get("client_id"):
+        failures.append("shape a1: both nodes must share one client.id "
+                        f"— got {inode.get('client_id')}/"
+                        f"{onode.get('client_id')}")
+    # no link may have both endpoints inside the pair — the copy is
+    # in-client. Check every sample's port-level sets for a self-edge.
+    for s in a1s:
+        for edge in (s.get("watch") or {}).get(in_n, {}).get(
+                "producer_ports") or []:
+            if edge.startswith(f"{out_n}:"):
+                failures.append("shape a1: a link joins output->input "
+                                "— the copy would be a graph link")
+    for s in a1s:
+        for edge in (s.get("watch") or {}).get(out_n, {}).get(
+                "consumer_ports") or []:
+            if edge.startswith(f"{in_n}:"):
+                failures.append("shape a1: a link joins output->input "
+                                "— the copy would be a graph link")
+    if not (inode.get("node_link_group") and
+            inode.get("node_link_group") == onode.get("node_link_group")):
+        failures.append("shape a1: node.link-group missing/mismatched — "
+                        "the link-group is the session-manager hint")
+    if inode.get("target_object") != ns_a or \
+            onode.get("target_object") != ns_b:
+        failures.append("shape a1: target.object not stored verbatim "
+                        f"({inode.get('target_object')}/"
+                        f"{onode.get('target_object')})")
+    if a1.get("input_producers_union") != [ns_a] or \
+            a1.get("output_consumers_union") != [ns_b]:
+        failures.append(f"shape a1: expected "
+                        f"{ns_a}->lb->{ns_b}, got "
+                        f"{a1.get('input_producers_union')} -> "
+                        f"{a1.get('output_consumers_union')}")
+    _loopback_r79_check_tap(entry, failures, "shape a1", a1,
+                            want_tone=True)
+    if not a1.get("killed_at_bound"):
+        failures.append(f"shape a1: loopback exited rc="
+                        f"{a1.get('exit_code')} inside the bound — a "
+                        "persistent client must be killed at bound")
+    for sid in ("a2_space", "a2_comma"):
+        leg = legs.get(sid) or {}
+        sn = (leg.get("samples") or [{}])[-1].get("nodes") or {}
+        il = sn.get(f"input.{leg.get('ltag', '')}") or {}
+        ol = sn.get(f"output.{leg.get('ltag', '')}") or {}
+        if not (il.get("stream_capture_sink") in (True, "true") and
+                il.get("media_role") == "DSP" and
+                il.get("target_object") == ns_a):
+            failures.append(f"shape {sid}: -i props did not all land on "
+                            f"the capture node: {il}")
+        if ol.get("media_role") is not None or \
+                ol.get("stream_capture_sink") is not None:
+            failures.append(f"shape {sid}: -i props leaked onto the "
+                            f"playback node: {ol}")
+    a5 = legs.get("a5_capture_default") or {}
+    _loopback_r79_check_side(entry, failures, "shape a5 (input)",
+                            a5, "producers", in_n.replace(
+                                a1.get('ltag', ''),
+                                a5.get('ltag', '')),
+                            a5.get("expected_source"),
+                            ora0,
+                            dsource_probe=entry.get(
+                                "default_source_probe")) if a5 else \
+        failures.append("shape a5: leg absent")
+    if a5:
+        _loopback_r79_check_side(
+            entry, failures, "shape a5 (output)", a5, "consumers",
+            f"output.{a5['ltag']}", ns_b, ora0)
+        _loopback_r79_check_tap(entry, failures, "shape a5", a5,
+                                want_tone=False)
+    a6 = legs.get("a6_playback_default") or {}
+    if a6:
+        _loopback_r79_check_side(
+            entry, failures, "shape a6 (input)", a6, "producers",
+            f"input.{a6['ltag']}", ns_a, ora0)
+        _loopback_r79_check_side(
+            entry, failures, "shape a6 (output)", a6, "consumers",
+            f"output.{a6['ltag']}", a6.get("expected_sink"), ora0)
+        _loopback_r79_check_tap(entry, failures, "shape a6", a6,
+                                want_tone=False)
+    else:
+        failures.append("shape a6: leg absent")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) CAPTURE LATTICE — the -C arm that differs from pw-record: absent the
+#     sink prop the fallback is the DEFAULT SOURCE, never unlinked.
+# --------------------------------------------------------------------------
+def loopback_capture_lattice_r79_entry():
+    """(2) The -C lattice, the scout's B01-B12 armed: with
+    `stream.capture.sink=true` a resolvable sink yields its MONITOR and
+    anything else yields the DEFAULT sink monitor; without it (absent,
+    false, or an unresolvable/inapplicable name — garbage, `.monitor`,
+    `0`, a source name) the capture stream autoconnects to the DEFAULT
+    SOURCE. `target.object` in -i beats the -C flag. `-C 0` is NOT the
+    pw-cat don't-link idiom. node.autoconnect=false holds the input
+    unlinked while the playback side still routes. Every leg's playback
+    side is pinned to a probe-owned sink — the fail-closed rule."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback -C capture lattice — ungated "
+                      "default-source fallback vs the sink-prop monitor "
+                      "arm",
+             "class": "loopback_capture_default_source_fallback",
+             "classes_extra": ["capture_sink_prop_monitor",
+                               "capture_sink_prop_default_monitor",
+                               "node_autoconnect_unlinked",
+                               "target_0_not_unlinked"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"],
+                           "sources": inv["sources"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    # a REAL non-monitor, non-default source for the honored-source arms —
+    # a monitor name resolves only through the sink domain, and foreign
+    # probe monitors (r84alsa_ns.monitor etc.) never qualify.
+    real_sources = [s for s in inv["sources"]
+                    if not s.endswith(".monitor")]
+    nondef = next((s for s in real_sources if s != s0), None)
+    entry["sources"] = {"default": s0, "non_default": nondef,
+                        "all_real": real_sources}
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    SRC = nondef or s0
+    # (name, extra tail, expected producers of input.<n>, feed, want_tone)
+    # -P ns_b pins playback on EVERY leg (fail-closed). Expected kinds:
+    #   "node"   -> [name]            (the named node's own ports)
+    #   "dsource"-> [default source]  (loopback_capture_default_source_fallback)
+    #   "dsink"  -> [default sink]    (capture_sink_prop_default_monitor)
+    #   "none"   -> []                (node_autoconnect_unlinked)
+    LEGS = (
+        ("b01_sink_prop",
+         ["-C", ns_a, "-i", "stream.capture.sink=true"],
+         ("node", ns_a), True, True),
+        ("b02_sink_noprop", ["-C", ns_a], ("dsource", None), False, False),
+        ("b03_dotmonitor", ["-C", ns_a + ".monitor"],
+         ("dsource", None), False, False),
+        ("b04_real_source", ["-C", "@SRC@"], ("node", "@SRC@"),
+         False, False),
+        ("b05_garbage", ["-C", "no_such_node_r79"],
+         ("dsource", None), False, False),
+        ("b06_zero", ["-C", "0"], ("dsource", None), False, False),
+        ("b07_prop_false",
+         ["-C", ns_a, "-i", "stream.capture.sink=false"],
+         ("dsource", None), False, False),
+        ("b08_prop_beats_flag",
+         ["-C", "@SRC@",
+          "-i", f"target.object={ns_a} stream.capture.sink=true"],
+         ("node", ns_a), True, True),
+        ("b09_prop_garbage_sinkprop",
+         ["-i", "target.object=no_such_node_r79 stream.capture.sink=true"],
+         ("dsink", None), False, False),
+        ("b10_autoconnect_off",
+         ["-C", ns_a,
+          "-i", "stream.capture.sink=true node.autoconnect=false"],
+         ("none", None), True, False),
+        ("b11_autoconnect_off_notarget",
+         ["-i", "node.autoconnect=false"], ("none", None), False, False),
+        ("b12_source_sinkprop",
+         ["-C", "@SRC@", "-i", "stream.capture.sink=true"],
+         ("dsink", None), False, False),
+        # b13 (r79 critic C7): the fallback law as a POSITIVE two-branch
+        # assertion, not an excuse path. An unresolvable -C either links
+        # to the live default source (branch `linked`) or publishes
+        # unnegotiated when no source exists (branch `unnegotiated`).
+        # Both outcomes are asserted classes with their correlates —
+        # whichever the host realizes, the leg measured the law.
+        ("b13_nullsource_law", ["-C", "no_such_node_r79_b13"],
+         ("unneg", None), False, False),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-lat-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0, nondef, SRC],
+                   "default_at_start": d0, "source_at_start": s0}
+            # the capture-side fallback legs are gated on the session
+            # actually having a default source to hand out (measured,
+            # never assumed from pactl).
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            for name, tail, (kind, arg), feed, want_tone in LEGS:
+                if "@SRC@" in tail and nondef is None:
+                    legs[name] = {"blocked": "no real source enumerated"}
+                    continue
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctx["source_at_start"] = ora["source_meta"] or \
+                    ora["source_pactl"]
+                tail = [t.replace("@SRC@", SRC) for t in tail]
+                want = (arg.replace("@SRC@", SRC) if kind == "node" else
+                        ctx["source_at_start"] if kind == "dsource" else
+                        ctx["default_at_start"] if kind == "dsink" else
+                        None)
+                legs[name] = _loopback_r79_leg(
+                    name, tail + ["-P", ns_b] if "-P" not in tail
+                    else tail, ctx,
+                    feed_sink=ns_a if feed else None,
+                    tap_target=ns_b,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5)
+                legs[name]["expected_kind"] = kind
+                legs[name]["expected_producers"] = \
+                    [] if want is None else [want]
+                legs[name]["oracle_at_leg"] = ora
+                legs[name]["fed"] = feed
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, tail, (kind, arg), feed, want_tone in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"capture {name}: leg absent — the lattice "
+                            "is the coverage contract")
+            continue
+        if "blocked" in leg:
+            entry.setdefault("coverage_blocked", []).append(
+                f"{name}: {leg['blocked']}")
+            entry["confound_observed"] = True
+            continue
+        ltag = leg["ltag"]
+        in_n = f"input.{ltag}"
+        out_n = f"output.{ltag}"
+        ora = leg.get("oracle_at_leg") or ora0
+        want = leg["expected_producers"][0] \
+            if leg["expected_producers"] else None
+        if kind == "unneg":
+            # C7: two asserted branches — `linked` (a live default source
+            # answered) or `unnegotiated` (no source existed: zero ports,
+            # zero links, and BOTH per-leg oracle and run probe agree the
+            # default source was absent). Anything else fails.
+            union = _loopback_r79_union(leg["samples"], in_n, "producers")
+            leg["producers_union"] = union
+            leg["expected_producers"] = []
+            live_src = ora.get("source_meta") or ora.get("source_pactl")
+            ds = entry.get("default_source_probe") or {}
+            if union == [] and \
+                    _loopback_r79_unnegotiated(leg, in_n) and \
+                    ora.get("source_meta") is None and \
+                    not ds.get("available"):
+                leg["outcome"] = "capture_default_source_unnegotiated"
+                entry.setdefault("named_outcomes", []).append(
+                    f"capture {name}: unnegotiated branch measured — "
+                    "no default source at this leg "
+                    f"(source_meta={ora.get('source_meta')!r})")
+            elif union == [live_src] and live_src is not None:
+                leg["outcome"] = "capture_fallback_linked"
+                entry.setdefault("named_outcomes", []).append(
+                    f"capture {name}: linked branch measured — "
+                    f"garbage -C resolved to default source {live_src}")
+            else:
+                failures.append(
+                    f"capture {name}: null-source law drift — "
+                    f"producers={union} source={live_src!r} "
+                    f"unneg={_loopback_r79_unnegotiated(leg, in_n)} "
+                    f"probe_avail={ds.get('available')}")
+        else:
+            _loopback_r79_check_side(entry, failures, f"capture {name}",
+                                    leg, "producers", in_n, want, ora,
+                                    dsource_probe=entry.get(
+                                        "default_source_probe")
+                                    if kind == "dsource" else None)
+        _loopback_r79_check_side(entry, failures,
+                                f"capture {name} (output)", leg,
+                                "consumers", out_n, ns_b, ora)
+        # the port-level pin: a sink-prop arm reads monitor_* ports, a
+        # default-source arm reads the source's capture_* ports.
+        pports = set(_loopback_r79_union(
+            leg["samples"], in_n, "producer_ports"))
+        if leg["producers_union"] == leg["expected_producers"] and pports:
+            if kind == "node" and want == ns_a and not all(
+                    ":monitor_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the sink prop must "
+                                "read monitor_*")
+            if kind == "dsource" and not all(
+                    ":capture_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the default-source "
+                                "arm reads capture_*")
+            if kind == "dsink" and not all(
+                    ":monitor_" in p for p in pports):
+                failures.append(f"capture {name}: producer ports "
+                                f"{sorted(pports)} — the fallback reads "
+                                "the default sink's monitor_*")
+        if not leg.get("killed_at_bound") and \
+                leg.get("exit_code") not in (0,):
+            failures.append(f"capture {name}: loopback exited rc="
+                            f"{leg.get('exit_code')} inside the bound")
+        _loopback_r79_check_tap(entry, failures, f"capture {name}",
+                                leg, want_tone=want_tone)
+        # intent-vs-consumption leaf: on a fallback leg the node still
+        # advertises the REQUEST (a `.monitor` suffix included).
+        node = (leg["samples"][-1]["nodes"].get(in_n)
+                if leg["samples"] else {}) or {}
+        if node.get("found"):
+            leg["target_object_advertised"] = node.get("target_object")
+            req = None
+            if "-C" in tail:
+                req = tail[tail.index("-C") + 1]
+            else:
+                itxt = tail[tail.index("-i") + 1] if "-i" in tail else ""
+                m = re.search(r"target\.object\s*=\s*([^\s,]+)", itxt)
+                req = m.group(1) if m else None
+            leg["target_requested"] = req
+            if req and node.get("target_object") == req and \
+                    want is not None and req != want:
+                leg["target_object_lies"] = True
+    # the lattice must contain at least one intent-vs-consumption lie —
+    # the r78 provenance trap on the capture side.
+    if not any(l.get("target_object_lies") for l in legs.values()):
+        failures.append("capture lattice: no leg advertised the request "
+                        "while producing from a different node — the "
+                        "intent/consumption split did not reproduce")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) PLAYBACK LATTICE — -P reproduces the r78 write-side law verbatim.
+# --------------------------------------------------------------------------
+def loopback_playback_lattice_r79_entry():
+    """(3) The -P lattice, the scout's C01-C10 armed: ungated write side —
+    a resolvable sink is honored (two distinct probe sinks), EVERY
+    unresolvable/inapplicable form (garbage, a source name, `0`, the
+    absent flag, a garbage -o target.object) lands the CURRENT default
+    sink; -o target.object beats the -P flag with a silent-sink content
+    control; -o node.autoconnect=false publishes unlinked; -o
+    stream.capture.sink=true is decoration on a playback stream. The
+    capture side is pinned to a probe-owned monitor on every leg, and
+    tone only flows when the destination is probe-owned (fallback legs
+    forward digital silence — topology is their witness)."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback -P playback lattice — the ungated "
+                      "default-sink fallback on the write side",
+             "class": "loopback_playback_default_fallback",
+             "classes_extra": ["loopback_prop_beats_flag",
+                               "node_autoconnect_unlinked",
+                               "capsink_prop_decoration"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    real_sources = [s for s in inv["sources"]
+                    if not s.endswith(".monitor")]
+    nondef = next((s for s in real_sources
+                   if s != s0), None) or (real_sources or [None])[0]
+    ns_a, ns_b, ns_b2 = (LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B,
+                         LOOPBACK_R79_NS_B2)
+    loads = _loopback_r79_sinks_load((ns_a, ns_b, ns_b2))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    CAP = ["-C", ns_a, "-i", "stream.capture.sink=true"]
+    # (name, playback tail, expected consumers, feed+tone)
+    #   "node" -> [name]; "dsink" -> [default sink]; "none" -> []
+    LEGS = (
+        ("c01_sink", ["-P", ns_b], ("node", ns_b), True),
+        ("c02_second_sink", ["-P", ns_b2], ("node", ns_b2), True),
+        ("c03_garbage", ["-P", "no_such_sink_r79"], ("dsink", None),
+         False),
+        ("c04_source_name", ["-P", "@SRC@"], ("dsink", None), False),
+        ("c05_zero", ["-P", "0"], ("dsink", None), False),
+        ("c06_absent", [], ("dsink", None), False),
+        ("c07_prop_beats_flag",
+         ["-P", ns_b, "-o", f"target.object={ns_b2}"],
+         ("node", ns_b2), True),
+        ("c08_autoconnect_off",
+         ["-P", ns_b, "-o", "node.autoconnect=false"], ("none", None),
+         False),
+        ("c09_capsink_decoration",
+         ["-P", ns_b, "-o", "stream.capture.sink=true"],
+         ("node", ns_b), True),
+        ("c10_prop_garbage",
+         ["-P", ns_b, "-o", "target.object=no_such_sink_r79"],
+         ("dsink", None), False),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-play-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b, ns_b2},
+                   "redact": [ns_a, ns_b, ns_b2, d0, nondef],
+                   "default_at_start": d0, "source_at_start": s0}
+            for name, tail, (kind, arg), feed in LEGS:
+                if "@SRC@" in tail and nondef is None:
+                    legs[name] = {"blocked": "no real source enumerated"}
+                    continue
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctx["source_at_start"] = ora["source_meta"] or \
+                    ora["source_pactl"]
+                tail = [t.replace("@SRC@", nondef) for t in tail]
+                want = (arg if kind == "node" else
+                        ctx["default_at_start"] if kind == "dsink" else
+                        None)
+                tap_t = want if want is not None else ns_b
+                # c07's content control needs a second tap on the flag
+                # sink — bound+ran in the witness list, silent on `mine`.
+                ctx_l = dict(ctx, tap_witnesses=list(
+                    ctx.get("tap_witnesses", ())) + [
+                        (f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap", ns_b)]
+                    if name == "c07_prop_beats_flag" else
+                    ctx.get("tap_witnesses", ()))
+                if name == "c07_prop_beats_flag":
+                    tapc_f = Path(tmp) / "tap_c07_ctrl.wav"
+                    tapc = _playback_r78_tap(
+                        ns_b, tapc_f,
+                        int(PLAYBACK_R78_TONE_RATE *
+                            (LOOPBACK_R79_LEG_BOUND_S +
+                             PLAYBACK_R78_TAP_LEAD_S + 0.5)),
+                        f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap")
+                legs[name] = _loopback_r79_leg(
+                    name, CAP + tail, ctx_l,
+                    feed_sink=ns_a if feed else None,
+                    tap_target=tap_t,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5)
+                if name == "c07_prop_beats_flag":
+                    _capture_r77_reap(tapc, PLAYBACK_R78_TIMEOUT_S)
+                    ctrl_tw = [s.get("tap_witnesses", {}).get(
+                        f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap")
+                        for s in legs[name]["samples"]]
+                    legs[name]["tap_flag_sink"] = {
+                        "target": ns_b, "exit_code": tapc.returncode,
+                        "bound_to_target": any(
+                            t["bound_to_target"] for t in ctrl_tw if t),
+                        **_playback_r78_tone_windows(tapc_f)}
+                    legs[name]["tap_flag_sink"]["ran"] = bool(
+                        legs[name]["tap_flag_sink"].get("windows"))
+                legs[name]["expected_kind"] = kind
+                legs[name]["expected_consumers"] = \
+                    [] if want is None else [want]
+                legs[name]["oracle_at_leg"] = ora
+                legs[name]["fed"] = feed
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, tail, (kind, arg), feed in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"playback {name}: leg absent — the lattice "
+                            "is the coverage contract")
+            continue
+        if "blocked" in leg:
+            entry.setdefault("coverage_blocked", []).append(
+                f"{name}: {leg['blocked']}")
+            entry["confound_observed"] = True
+            continue
+        ltag = leg["ltag"]
+        in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+        ora = leg.get("oracle_at_leg") or ora0
+        want = leg["expected_consumers"][0] \
+            if leg["expected_consumers"] else None
+        _loopback_r79_check_side(entry, failures, f"playback {name}",
+                                leg, "consumers", out_n, want, ora)
+        _loopback_r79_check_side(entry, failures,
+                                f"playback {name} (input)", leg,
+                                "producers", in_n, ns_a, ora)
+        if not leg.get("killed_at_bound") and \
+                leg.get("exit_code") not in (0,):
+            failures.append(f"playback {name}: loopback exited rc="
+                            f"{leg.get('exit_code')} inside the bound")
+        _loopback_r79_check_tap(entry, failures, f"playback {name}",
+                                leg, want_tone=True if feed else False)
+        if name == "c07_prop_beats_flag":
+            ctl = leg.get("tap_flag_sink") or {}
+            if not ctl.get("ran"):
+                failures.append("playback c07: the flag-sink control "
+                                "tap produced no windows — the silent "
+                                "half is unproven")
+            elif ctl.get("bound_to_target") is not True:
+                failures.append("playback c07: the control tap never "
+                                "bound to the flag sink")
+            elif ctl.get("mine_windows"):
+                failures.append("playback c07: tag tone on the FLAG "
+                                "sink — target.object did not beat -P")
+        # intent-vs-consumption on the write side, too: the playback
+        # node advertises the verbatim request.
+        node = (leg["samples"][-1]["nodes"].get(out_n)
+                if leg["samples"] else {}) or {}
+        if node.get("found"):
+            leg["target_object_advertised"] = node.get("target_object")
+            req = None
+            if "-o" in tail:
+                m = re.search(r"target\.object\s*=\s*([^\s,]+)",
+                              tail[tail.index("-o") + 1])
+                req = m.group(1) if m else None
+            if req is None and "-P" in tail:
+                req = tail[tail.index("-P") + 1]
+            leg["target_requested"] = req
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) MATRIX — audio.position drives the mix; -c alone is inert.
+# --------------------------------------------------------------------------
+def loopback_matrix_r79_entry():
+    """(4) The channel-map matrix, the scout's CM1-CM4 armed: `-m
+    '[ MONO ]'` (bracketed or bare) downmixes 0.5*(L+R) even at
+    audio.channels=2, while `-c 1` alone with the default 2-entry
+    position is INERT — stereo passthrough. Port names stay *_FL/*_FR in
+    every case; the matrix is only visible in props + content. The
+    content pin is the per-channel two-tone signature on the playback
+    sink's monitor."""
+    failures = []
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback channel matrix — audio.position "
+                      "drives the mix",
+             "class": "loopback_channel_matrix",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    # (name, extra tail, expected audio.channels, expected
+    #  audio.position, expected signature)
+    LEGS = (
+        ("cm1_mono_c1_m", ["-c", "1", "-m", "[ MONO ]"], 1, "[ MONO ]",
+         "mix"),
+        ("cm2_c1_only", ["-c", "1"], 1, "[ FL, FR ]", "stereo"),
+        ("cm3_m_only", ["-m", "[ MONO ]"], 2, "[ MONO ]", "mix"),
+        ("cm4_m_bare", ["-m", "MONO"], 2, "MONO", "mix"),
+    )
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-cm-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_LEG_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b],
+                   "default_at_start": ora0["sink_meta"] or
+                   ora0["sink_pactl"],
+                   "source_at_start": ora0["source_meta"] or
+                   ora0["source_pactl"]}
+            for name, extra, ch, pos, sig in LEGS:
+                legs[name] = _loopback_r79_leg(
+                    name, ["-C", ns_a, "-i", "stream.capture.sink=true",
+                           "-P", ns_b] + extra, ctx,
+                    feed_sink=ns_a, tap_target=ns_b,
+                    tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                    PLAYBACK_R78_TAP_LEAD_S + 0.5,
+                    sample_at=(2.0,))
+                legs[name]["expected"] = {"channels": ch, "position": pos,
+                                          "signature": sig}
+                tf = Path(tmp) / f"tap_{name}.wav"
+                legs[name]["two_tone"] = _loopback_r79_two_tone(tf)
+                time.sleep(LOOPBACK_R79_SETTLE_S)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    for name, extra, ch, pos, sig in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"matrix {name}: leg absent")
+            continue
+        ltag = leg["ltag"]
+        in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+        _loopback_r79_check_side(entry, failures, f"matrix {name}",
+                                leg, "producers", in_n, ns_a, ora0)
+        _loopback_r79_check_side(entry, failures,
+                                f"matrix {name} (output)", leg,
+                                "consumers", out_n, ns_b, ora0)
+        s0n = (leg["samples"][-1]["nodes"] if leg["samples"] else {})
+        for nn in (in_n, out_n):
+            nd = s0n.get(nn) or {}
+            if nd.get("audio_channels") != ch or \
+                    nd.get("audio_position") != pos:
+                failures.append(f"matrix {name}: {nn} props "
+                                f"ch={nd.get('audio_channels')} pos="
+                                f"{nd.get('audio_position')!r} — "
+                                f"expected {ch}/{pos!r}")
+        tt = leg.get("two_tone") or {}
+        if tt.get("unsupported") or not tt.get("channels"):
+            failures.append(f"matrix {name}: no two-tone content — "
+                            f"{tt.get('unsupported')}")
+        elif sig == "mix" and not tt.get("mix_signature"):
+            failures.append(f"matrix {name}: expected the 0.5*(L+R) "
+                            f"mix signature, got {tt['channels']}")
+        elif sig == "stereo" and not tt.get("stereo_signature"):
+            failures.append(f"matrix {name}: expected stereo "
+                            f"passthrough, got {tt['channels']}")
+        # the tap's strict tone classifier cannot see a MONO mix (both
+        # channels carry both components) — mix legs are content-pinned
+        # by the two-tone signature instead, so only `mine` windows are
+        # forbidden there, never required.
+        _loopback_r79_check_tap(entry, failures, f"matrix {name}",
+                                leg, want_tone=True if sig == "stereo"
+                                else None)
+    # cross-leg, self-calibrating: the mono mix must be the stereo
+    # passthrough at HALF gain (the analytic 0.5*(L+R)), so no absolute
+    # band can pass a merely-loud wrong result.
+    st = (legs.get("cm2_c1_only") or {}).get("two_tone") or {}
+    ref = ((st.get("channels") or [{}])[0] or {}).get("at_l")
+    if ref:
+        for name, _, _, _, sig in LEGS:
+            if sig != "mix":
+                continue
+            chs = ((legs.get(name) or {}).get("two_tone") or {}).get(
+                "channels") or []
+            if not chs:
+                continue
+            half = (chs[0]["at_l"] + chs[0]["at_r"]) / 2.0
+            ratio = half / ref
+            legs[name]["mix_half_gain_ratio"] = round(ratio, 3)
+            if not 0.35 <= ratio <= 0.65:
+                failures.append(
+                    f"matrix {name}: mix/stereo amplitude ratio {ratio:.3f} "
+                    f"— 0.5*(L+R) must read half the passthrough's "
+                    f"component ({half} vs {ref})")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) RECORD TARGETS — pw-record --target against loopback-created nodes.
+# --------------------------------------------------------------------------
+def loopback_record_target_r79_entry():
+    """(5) pw-record --target against the loopback pair, the scout's
+    D2a-D2d + D17 armed: the playback node's output_* ports record by
+    name (the copied stream); the capture node's monitor_* ports need
+    stream.capture.sink=true — without the prop the record autoconnects
+    to the DEFAULT SOURCE (the same ungated arm); the prop on
+    output.<lb> demotes the lookup to the sink domain -> default sink
+    monitor. D17 pins input.<lb>:monitor_* onto a `--target 0` record
+    stream manually."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-record --target vs loopback nodes — three "
+                      "distinct arms",
+             "class": "loopback_record_target_lattice",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    s0 = ora0["source_meta"] or inv["default_source"]
+    if not d0 or not s0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink/source authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_a, ns_b))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    legs = {}
+    frames = int(1.4 * PLAYBACK_R78_TONE_RATE)
+    lb_proc = None
+    feed = None
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-rect-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            # longer than the shared 9 s tag tone: the feed must outlive
+            # four bounded record legs plus the D17 pin leg.
+            _playback_r78_write_tone(tone, 26.0)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_HP_BOUND_S,
+                   "own_sinks": {ns_a, ns_b},
+                   "redact": [ns_a, ns_b, d0, s0],
+                   "default_at_start": d0, "source_at_start": s0}
+            # the loopback under test: tone ns_a -> lb -> ns_b, pinned.
+            # It must stay ALIVE across every record sub-leg, so it is
+            # spawned directly instead of through the blocking runner —
+            # the blocking runner reaps it at its bound and every record
+            # leg below then resolves a target that no longer exists
+            # (measured: `no target node available` on d2a/d2b, ENOENT on
+            # the D17 pin). The scout recorded the same defect class.
+            ltag = f"{LOOPBACK_R79_PREFIX}_rect_lb"
+            in_n, out_n = f"input.{ltag}", f"output.{ltag}"
+            entry["default_source_probe"] = \
+                _loopback_r79_default_source_probe(tmp)
+            lb_proc = subprocess.Popen(
+                ["pw-loopback", "-n", ltag,
+                 "-C", ns_a, "-i", "stream.capture.sink=true",
+                 "-P", ns_b],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                start_new_session=True)
+            lb = {"name": "loopback", "ltag": ltag,
+                  "argv": f"pw-loopback -n {ltag} -C <ns_a> -i "
+                          "stream.capture.sink=true -P <ns_b>",
+                  "wait_nodes": {n: dict(zip(("ready", "waited_s"),
+                                             _loopback_r79_wait_ports(n)))
+                                 for n in (in_n, out_n)},
+                  "samples": [], "fired": []}
+            lb_t0 = time.monotonic()
+            for at in (1.2, 2.6):
+                left = at - (time.monotonic() - lb_t0)
+                if left > 0:
+                    time.sleep(left)
+                leaf = _loopback_r79_watch_sample((in_n, out_n), ctx)
+                lb["samples"].append(
+                    {"at_s": at, "live": lb_proc.poll() is None, **leaf})
+            legs["loopback"] = lb
+            # four record legs DURING the live loopback — the scout's
+            # first pass sampled after exit and was vacuous; the arm
+            # samples mid-record.
+            RECS = (
+                ("d2a_input_node", in_n, False, ("source",)),
+                ("d2b_output_node", out_n, False, ("node", out_n)),
+                ("d2c_input_capsink", in_n, True, ("node", in_n)),
+                ("d2d_output_capsink", out_n, True, ("dsink",)),
+            )
+            # the tone feed outlives every record sub-leg (the entry's
+            # own file, longer than the shared 9 s tag tone).
+            feed = _loopback_r79_feed(ns_a, f"{ltag}_feed", ctx)
+            lb["fired"].append({"kind": "feed_start", "target": ns_a,
+                                "tag": f"{ltag}_feed"})
+            for name, target, capprop, (kind, *karg) in RECS:
+                ora = _loopback_r79_oracle()
+                rtag = f"{LOOPBACK_R79_PREFIX}_{name}"
+                out = Path(tmp) / f"rec_{name}.wav"
+                prop = (["-P", "stream.capture.sink=true"]
+                        if capprop else [])
+                run = _loopback_r79_run(
+                    ["pw-record", *prop, "-P", f"node.name={rtag}",
+                     "--target", target, "-n", str(frames),
+                     "--rate", "48000", "--channels", "2",
+                     "--format", "s16", str(out)],
+                    ctx, watch=(rtag,), wait_nodes=(rtag,),
+                    events=[(0.7, "sample", None)],
+                    bound_s=frames / PLAYBACK_R78_TONE_RATE + 4.0)
+                wins = _playback_r78_tone_windows(out)
+                want = {"source": ora["source_meta"] or
+                        ora["source_pactl"],
+                        "node": karg[0] if karg else None,
+                        "dsink": ora["sink_meta"] or
+                        ora["sink_pactl"]}[kind]
+                legs[name] = {**run, "target": target,
+                              "capture_sink_prop": capprop,
+                              "expected_producers": [want],
+                              "oracle_at_leg": ora, "content": wins,
+                              "carries_tone": wins.get("carries_tone")}
+                time.sleep(0.4)
+            # D17: manual pins onto input.<lb>:monitor_* on a --target 0
+            # record stream.
+            rtag = f"{LOOPBACK_R79_PREFIX}_d17"
+            out17 = Path(tmp) / "rec_d17.wav"
+            run = _loopback_r79_run(
+                ["pw-record", "-P", f"node.name={rtag}",
+                 "--target", "0", "-n", str(frames), "--rate", "48000",
+                 "--channels", "2", "--format", "s16", str(out17)],
+                ctx, watch=(rtag,), wait_nodes=(rtag,),
+                events=[(0.5, "sample", None),
+                        (0.9, "pwlink",
+                         [(f"{in_n}:monitor_FL", f"{rtag}:input_FL"),
+                          (f"{in_n}:monitor_FR", f"{rtag}:input_FR")]),
+                        (1.4, "sample", None)],
+                bound_s=frames / PLAYBACK_R78_TONE_RATE + 4.0)
+            legs["d17_manual_pin"] = {**run, "content":
+                                      _playback_r78_tone_windows(out17)}
+            # reap the feed and the loopback LAST: every sub-leg above
+            # resolved a target that was still alive.
+            if feed.poll() is None:
+                os.killpg(feed.pid, signal.SIGKILL)
+            feed.wait()
+            leaf = _loopback_r79_watch_sample((in_n, out_n), ctx)
+            lb["samples"].append({"at_s": round(time.monotonic() - lb_t0, 2),
+                                  "live": lb_proc.poll() is None, **leaf})
+            lb["killed_at_bound"] = True
+            lb["feed_exit"] = feed.returncode
+            if lb_proc.poll() is None:
+                os.killpg(lb_proc.pid, signal.SIGKILL)
+            lb_proc.wait()
+            lb["exit_code"] = lb_proc.returncode
+            lb["wall_s"] = round(time.monotonic() - lb_t0, 2)
+            lb["stderr_tail"] = _capture_tail(
+                lb_proc.stderr.read().decode(errors="replace"), ltag)
+    finally:
+        if feed is not None and feed.poll() is None:
+            os.killpg(feed.pid, signal.SIGKILL)
+            feed.wait()
+        if lb_proc is not None and lb_proc.poll() is None:
+            os.killpg(lb_proc.pid, signal.SIGKILL)
+            lb_proc.wait()
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    lb = legs.get("loopback") or {}
+    if _loopback_r79_union(lb.get("samples", []), in_n, "producers") \
+            != [ns_a] or _loopback_r79_union(
+                lb.get("samples", []), out_n, "consumers") != [ns_b]:
+        failures.append("record lattice: the loopback under test never "
+                        "showed the pinned ns_a->lb->ns_b route — every "
+                        "record verdict below is unanchored")
+    for name, target, capprop, (kind, *karg) in RECS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"record {name}: leg absent")
+            continue
+        want = leg["expected_producers"][0]
+        prods = _loopback_r79_union(leg.get("samples", []),
+                                    f"{LOOPBACK_R79_PREFIX}_{name}",
+                                    "producers")
+        dsrc = entry.get("default_source_probe") or {}
+        if prods != [want]:
+            # d2a is a capture-side DEFAULT-SOURCE arm: the scout's law
+            # is that an unresolvable target falls back to the session
+            # default source. With NO default source to hand out, the
+            # stream cannot be created at all — measured class
+            # `no_target_node` (res:-2), zero producers, no ports. The
+            # correlate is the LEG's own oracle (the authority flaps
+            # under multi-seat load); the run-level probe is secondary.
+            if name == "d2a_input_node" and not prods and \
+                    leg.get("error_class") == "no_target_node" and \
+                    (leg["oracle_at_leg"].get("source_meta") is None or
+                     not dsrc.get("available")):
+                leg["outcome"] = "capture_default_source_unnegotiated"
+                leg["outcome_correlate"] = {
+                    "default_source_probe_class":
+                        dsrc.get("error_class"),
+                    "stderr_tail": leg.get("stderr_tail")}
+                entry.setdefault("named_outcomes", []).append(
+                    "record d2a: capture_default_source_unnegotiated — "
+                    "no default source exists, so `--target input.<lb>` "
+                    "without the sink prop cannot fall back; the record "
+                    "stream dies `no target node available`")
+                entry["confound_observed"] = True
+                continue
+            live_now = {ora0.get("sink_meta"), ora0.get("sink_pactl"),
+                        ora0.get("source_meta"),
+                        ora0.get("source_pactl")} - {None}
+            if want in live_now and prods and \
+                    set(prods) <= live_now:
+                leg["confound"] = ("default re-asserted mid-leg — "
+                                   f"producers {prods}")
+                entry["confound_observed"] = True
+            else:
+                failures.append(f"record {name}: expected producers "
+                                f"[{want}], got {prods}")
+        if leg.get("exit_code") not in (0, 1) and \
+                not leg.get("killed_at_bound"):
+            failures.append(f"record {name}: pw-record rc="
+                            f"{leg.get('exit_code')} — expected the "
+                            "-n bound exit (1) or clean")
+        ct = leg.get("content") or {}
+        expect_tone = name in ("d2b_output_node", "d2c_input_capsink")
+        if expect_tone and not ct.get("mine_windows"):
+            failures.append(f"record {name}: the record carried no tag "
+                            "tone — the copied stream is unproven")
+        if not expect_tone and ct.get("mine_windows"):
+            failures.append(f"record {name}: tag tone recorded — this "
+                            "arm never touches our tone path")
+        if name == "d2c_input_capsink":
+            pports = _loopback_r79_union(
+                leg.get("samples", []),
+                f"{LOOPBACK_R79_PREFIX}_{name}", "producer_ports")
+            if not any(":monitor_" in p for p in pports):
+                failures.append("record d2c: the capture node's "
+                                "monitor_* ports must be the producers, "
+                                f"got {pports}")
+    d17 = legs.get("d17_manual_pin") or {}
+    pins = [l for f in d17.get("fired", []) if f["kind"] == "pwlink"
+            for l in f.get("links", [])]
+    if not pins or any(l["exit"] != 0 for l in pins):
+        failures.append(f"record d17: the manual monitor_* pins failed "
+                        f"{pins}")
+    d17_prods = _loopback_r79_union(d17.get("samples", []),
+                                    f"{LOOPBACK_R79_PREFIX}_d17",
+                                    "producers")
+    if in_n not in d17_prods:
+        failures.append(f"record d17: producers {d17_prods} — expected "
+                        f"{in_n} after the manual pins")
+    if not (d17.get("content") or {}).get("mine_windows"):
+        failures.append("record d17: no tag tone — the monitor ports "
+                        "carried nothing")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) HOT-PLUG — the route follows its named target BOTH ways.
+# --------------------------------------------------------------------------
+def loopback_hotplug_r79_entry():
+    """(6) The scout's E1-E3 armed: unloading the playback target
+    re-links output.<n> to the CURRENT default sink in <=0.5 s; loading
+    the named target re-links output.<n> to it (the return direction);
+    unloading the capture target re-links input.<n> to the default sink
+    MONITOR (the sink-prop fallback — the capture side has no unlinked
+    state). Tone stops before every unload (silence-before-loss); the
+    client stays alive throughout, rc=-9 at the bound."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-loopback hot-plug — target loss and target "
+                      "appearance re-link both ways",
+             "class": "loopback_target_follow",
+             "classes_extra": ["playback_relink_on_target_loss",
+                               "capture_prop_monitor_fallback"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+    hp, hp2 = LOOPBACK_R79_HP, LOOPBACK_R79_HP2
+    loads = _loopback_r79_sinks_load((ns_a, ns_b, hp))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "a probe null sink/monitor did not enumerate", loads)
+    hp_mid = loads[hp]["module_id"]
+    nsa_mid = loads[ns_a]["module_id"]
+    legs = {}
+    loaded_late = []
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-hp-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s":
+                   LOOPBACK_R79_HP_BOUND_S,
+                   "own_sinks": {ns_a, ns_b, hp, hp2},
+                   "redact": [ns_a, ns_b, hp, hp2, d0],
+                   "default_at_start": d0, "source_at_start":
+                   ora0["source_meta"] or ora0["source_pactl"]}
+            # E1: unload the PLAYBACK target mid-route.
+            ora = _loopback_r79_oracle()
+            legs["e1_unload_playback"] = _loopback_r79_leg(
+                "e1", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", hp], dict(
+                           ctx, default_at_start=ora["sink_meta"]
+                           or ora["sink_pactl"]),
+                feed_sink=ns_a, tap_target=hp,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(2.2, "feed_stop",
+                               f"{LOOPBACK_R79_PREFIX}_e1_feed"),
+                              (3.0, "unload_module", hp_mid)],
+                sample_at=(1.4, 2.0, 3.6, 4.6, 6.2),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            legs["e1_unload_playback"]["expected_pre"] = [hp]
+            legs["e1_unload_playback"]["expected_post"] = [
+                legs["e1_unload_playback"]["default_sink_at_leg"]]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # E2: -P names a sink that does not exist yet; load it
+            # mid-route -> the stream re-links to it (the return leg).
+            legs["e2_load_playback"] = _loopback_r79_leg(
+                "e2", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", hp2],
+                dict(ctx, own_sinks={ns_a, ns_b, hp, hp2}),
+                feed_sink=ns_a, feed_at=3.4, tap_target=hp2,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(1.6, "load_sink", hp2)],
+                sample_at=(1.0, 2.4, 3.2, 4.2, 5.6),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            loaded_late.extend(
+                legs["e2_load_playback"].get("loaded") or [])
+            ora = legs["e2_load_playback"].get("oracle_at_leg") or ora0
+            legs["e2_load_playback"]["expected_pre"] = [
+                ctx["default_at_start"]]
+            legs["e2_load_playback"]["expected_post"] = [hp2]
+            time.sleep(LOOPBACK_R79_SETTLE_S)
+            # E3: unload the CAPTURE target mid-route — the sink prop's
+            # fallback is the default sink MONITOR, not silence.
+            ora = _loopback_r79_oracle()
+            legs["e3_unload_capture"] = _loopback_r79_leg(
+                "e3", ["-C", ns_a, "-i", "stream.capture.sink=true",
+                       "-P", ns_b], dict(
+                           ctx, default_at_start=ora["sink_meta"]
+                           or ora["sink_pactl"],
+                           own_sinks={ns_a, ns_b, hp, hp2}),
+                feed_sink=ns_a, tap_target=ns_b,
+                tap_seconds=LOOPBACK_R79_HP_BOUND_S + 1.0,
+                events_extra=[(2.2, "feed_stop",
+                               f"{LOOPBACK_R79_PREFIX}_e3_feed"),
+                              (3.0, "unload_module", nsa_mid)],
+                sample_at=(1.4, 2.0, 3.6, 4.6, 6.2),
+                bound_s=LOOPBACK_R79_HP_BOUND_S)
+            legs["e3_unload_capture"]["expected_pre"] = [ns_a]
+            legs["e3_unload_capture"]["expected_post"] = [
+                legs["e3_unload_capture"]["default_sink_at_leg"]]
+    finally:
+        _loopback_r79_sinks_unload(loads)
+        for m in loaded_late:
+            _playback_r78_unload(m)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures,
+                           dict(loads, **{hp2: {"module_id": m}
+                                          for m in loaded_late}))
+    e1 = legs.get("e1_unload_playback") or {}
+    if not e1:
+        failures.append("hotplug e1: leg absent")
+    else:
+        out_n = f"output.{e1['ltag']}"
+        pre = e1["samples"][0] if e1["samples"] else {}
+        post = e1["samples"][2:] if len(e1["samples"]) > 2 else []
+        if (pre.get("watch") or {}).get(out_n, {}).get("consumers") \
+                != [hp]:
+            failures.append(f"hotplug e1: pre-unload consumers "
+                            f"{(pre.get('watch') or {}).get(out_n)}")
+        d0e = e1["expected_post"][0]
+        for s in post:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [d0e]:
+                failures.append(f"hotplug e1: post-unload consumers "
+                                f"{cs} at +{s['at_s']} — the write side "
+                                f"must re-link to the default {d0e}")
+                break
+        if not e1.get("killed_at_bound"):
+            failures.append("hotplug e1: the loopback client did not "
+                            "survive its target's loss")
+        unfired = [f for f in e1.get("fired", [])
+                   if f["kind"] == "unload_module"
+                   and f.get("exit_code") != 0]
+        if unfired or not any(f["kind"] == "unload_module"
+                              for f in e1.get("fired", [])):
+            failures.append("hotplug e1: the module unload did not "
+                            "fire cleanly — no real loss event")
+        _loopback_r79_check_tap(entry, failures, "hotplug e1", e1,
+                                want_tone=True)
+    e2 = legs.get("e2_load_playback") or {}
+    if not e2:
+        failures.append("hotplug e2: leg absent")
+    else:
+        out_n = f"output.{e2['ltag']}"
+        pre = e2["samples"][0] if e2["samples"] else {}
+        pre_want = e2["expected_pre"][0]
+        if (pre.get("watch") or {}).get(out_n, {}).get("consumers") \
+                != [pre_want]:
+            failures.append(f"hotplug e2: pre-load consumers "
+                            f"{(pre.get('watch') or {}).get(out_n)} — "
+                            f"expected the fallback {pre_want}")
+        post = e2["samples"][1:]
+        for s in post:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [hp2]:
+                failures.append(f"hotplug e2: post-load consumers {cs} "
+                                f"at +{s['at_s']} — the named target "
+                                "never re-acquired the stream")
+                break
+        loaded = [f for f in e2.get("fired", [])
+                  if f["kind"] == "load_sink" and f.get("module_id")]
+        if not loaded:
+            failures.append("hotplug e2: the mid-route module load "
+                            "never returned an id")
+        if not e2.get("killed_at_bound"):
+            failures.append("hotplug e2: the loopback client did not "
+                            "survive the hot-plug")
+        _loopback_r79_check_tap(entry, failures, "hotplug e2", e2,
+                                want_tone=True)
+    e3 = legs.get("e3_unload_capture") or {}
+    if not e3:
+        failures.append("hotplug e3: leg absent")
+    else:
+        in_n, out_n = f"input.{e3['ltag']}", f"output.{e3['ltag']}"
+        pre = e3["samples"][0] if e3["samples"] else {}
+        if (pre.get("watch") or {}).get(in_n, {}).get("producers") \
+                != [ns_a]:
+            failures.append(f"hotplug e3: pre-unload producers "
+                            f"{(pre.get('watch') or {}).get(in_n)}")
+        d0e = e3["expected_post"][0]
+        for s in e3["samples"][2:]:
+            pr = (s.get("watch") or {}).get(in_n, {}).get("producers")
+            if pr != [d0e]:
+                failures.append(f"hotplug e3: post-unload producers "
+                                f"{pr} at +{s['at_s']} — the sink-prop "
+                                f"fallback must land {d0e}'s monitor")
+                break
+            pports = (s.get("watch") or {}).get(in_n, {}).get(
+                "producer_ports") or []
+            if pports and not all(":monitor_" in p for p in pports):
+                failures.append(f"hotplug e3: producer ports {pports} "
+                                "— the fallback reads monitor_*")
+        for s in e3["samples"]:
+            cs = (s.get("watch") or {}).get(out_n, {}).get("consumers")
+            if cs != [ns_b]:
+                failures.append(f"hotplug e3: playback side moved to "
+                                f"{cs} — a capture-target loss must "
+                                "not touch the write side")
+                break
+        if not e3.get("killed_at_bound"):
+            failures.append("hotplug e3: the loopback client did not "
+                            "survive its target's loss")
+        _loopback_r79_check_tap(entry, failures, "hotplug e3", e3,
+                                want_tone=True)
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) PWCAT LATENCY — the -P node.latency vector on the playback side.
+# --------------------------------------------------------------------------
+def pwcat_latency_r79_entry():
+    """(7) pw-cat's playback latency vector, the scout's D01-D13 armed:
+    --latency and -P node.latency store the prop VERBATIM (prop beats
+    flag; --latency 0 is a non-fatal argv error while -P node.latency=0
+    is stored unvalidated); the reported Latency param is RECORDED as
+    a named verdict, never asserted — the prop is the hard pin; and
+    stream.capture.sink on a PLAYBACK stream is decoration."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pw-cat playback -P latency vector — prop "
+                      "verbatim, param inert",
+             "class": "pwcat_latency_prop_only",
+             "classes_extra": ["capsink_prop_decoration",
+                               "latency_argv_nonfatal"],
+             "contention": _playback_r78_foreign_clients(),
+             "contamination": {
+                 "shared_default_tone": False,
+                 "note": "every leg whose destination is not a "
+                         "probe-owned sink (the garbage-target fallback) "
+                         "is fed digital silence; its verdict is "
+                         "topology-only and declares "
+                         "content_witness=declined_shared_default"},
+             "oracle_at_start": ora0}
+    d0 = ora0["sink_meta"] or inv["default_sink"]
+    if not d0:
+        return _loopback_r79_block(
+            entry, failures, "no default sink authority readable")
+    ns_b = LOOPBACK_R79_NS_B
+    loads = _loopback_r79_sinks_load((ns_b,))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "the probe null sink/monitor did not enumerate", loads)
+    # (name, extra tail, target, expected node.latency (as string —
+    #   pw-dump JSON types vary), expected node.force-latency)
+    LEGS = (
+        ("d01_default", [], ns_b, "4800/48000", None),
+        ("d02_flag_10ms", ["--latency", "10ms"], ns_b, "480/48000", None),
+        ("d03_flag_256", ["--latency", "256"], ns_b, "256/48000", None),
+        ("d04_prop_480", ["-P", "node.latency=480"], ns_b, "480", None),
+        ("d05_prop_fraction", ["-P", "node.latency=1024/48000"], ns_b,
+         "1024/48000", None),
+        ("d06_prop_beats_flag",
+         ["--latency", "5ms", "-P", "node.latency=2048/48000"], ns_b,
+         "2048/48000", None),
+        ("d07_flag_zero", ["--latency", "0"], ns_b, None, None),
+        ("d08_prop_zero", ["-P", "node.latency=0"], ns_b, "0", None),
+        ("d09_flag_500ms", ["--latency", "500ms"], ns_b,
+         "24000/48000", None),
+        ("d10_force_latency",
+         ["--latency", "10ms", "-P", "node.force-latency=true"], ns_b,
+         "480/48000", True),
+        ("d11_capsink_valid", ["-P", "stream.capture.sink=true"], ns_b,
+         "4800/48000", None),
+        ("d12_capsink_garbage", ["-P", "stream.capture.sink=true"],
+         "no_such_sink_r79", "4800/48000", None),
+        ("d13_autoconnect_off", ["-P", "node.autoconnect=false"], ns_b,
+         "4800/48000", None),
+    )
+    legs = {}
+    frames = 48000
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="capture-r79-pwcat-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, 2.0)
+            silence = Path(tmp) / "tag_silence.wav"
+            _loopback_r79_write_silence(silence, 2.0)
+            ctx = {"tmp": tmp, "tone": tone, "bound_s": 4.0,
+                   "own_sinks": {ns_b}, "redact": [ns_b, d0],
+                   "default_at_start": ora0["sink_meta"] or
+                   ora0["sink_pactl"],
+                   "source_at_start": ora0["source_meta"] or
+                   ora0["source_pactl"]}
+            for name, extra, target, want_lat, want_fl in LEGS:
+                ora = _loopback_r79_oracle()
+                ctx["default_at_start"] = ora["sink_meta"] or \
+                    ora["sink_pactl"]
+                ctag = f"{LOOPBACK_R79_PREFIX}_{name}"
+                stall = name == "d13_autoconnect_off"
+                # a leg whose destination is NOT probe-owned feeds
+                # digital silence — the landing is still measured by
+                # topology, but the shared default sink never receives
+                # the tag tone (the r79 scout's fail-closed rule).
+                shared_default = target != ns_b
+                run = _loopback_r79_run(
+                    ["pw-cat", "-p", "-P", f"node.name={ctag}", *extra,
+                     "--target", target, "-n", str(frames),
+                     str(silence if shared_default else tone)],
+                    ctx, watch=(ctag,), wait_nodes=() if stall else
+                    (ctag,),
+                    events=[(0.8, "sample", None),
+                            (1.5, "sample", None)] if not stall else
+                    [(1.0, "sample", None), (2.5, "sample", None)],
+                    bound_s=3.5 if not stall else 4.5)
+                legs[name] = {**run, "target": target,
+                              "expected_latency": want_lat,
+                              "expected_force_latency": want_fl,
+                              "oracle_at_leg": ora,
+                              "feed_content": "silence" if
+                              shared_default else "tone",
+                              "content_witness":
+                              "declined_shared_default"
+                              if shared_default else
+                              "tag_tone_on_probe_sink"}
+                time.sleep(0.3)
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    params_seen = set()
+    for name, extra, target, want_lat, want_fl in LEGS:
+        leg = legs.get(name)
+        if leg is None:
+            failures.append(f"pwcat {name}: leg absent")
+            continue
+        ctag = f"{LOOPBACK_R79_PREFIX}_{name}"
+        samples = leg.get("samples") or []
+        node = next((s["nodes"][ctag] for s in reversed(samples)
+                     if (s.get("nodes") or {}).get(ctag, {}).get("found")),
+                    None)
+        leg["node_seen"] = node is not None
+        if node is not None:
+            lat = node.get("node_latency")
+            leg["measured_latency"] = lat
+            if want_lat is None:
+                if lat is not None:
+                    failures.append(f"pwcat {name}: node.latency must "
+                                    f"be ABSENT, got {lat!r}")
+            elif str(lat) != want_lat:
+                failures.append(f"pwcat {name}: node.latency {lat!r} "
+                                f"!= {want_lat!r}")
+            if want_fl is not None and \
+                    node.get("node_force_latency") not in (True, "true"):
+                failures.append(f"pwcat {name}: node.force-latency "
+                                f"{node.get('node_force_latency')!r} "
+                                "!= true")
+            lp = node.get("latency_param")
+            leg["latency_param"] = lp
+            if lp is not None:
+                params_seen.add(json.dumps(lp, sort_keys=True))
+        if name == "d07_flag_zero":
+            err = leg.get("stderr_tail") or ""
+            if "bad latency value" not in err:
+                failures.append(f"pwcat {name}: expected the non-fatal "
+                                f"argv error, stderr={err!r}")
+        if name == "d13_autoconnect_off":
+            if not leg.get("killed_at_bound"):
+                failures.append(f"pwcat {name}: an unlinked stream "
+                                "must stall to the bound")
+            for s in samples:
+                cons = (s.get("watch") or {}).get(ctag, {}).get(
+                    "consumers")
+                if cons:
+                    failures.append(f"pwcat {name}: autoconnect=false "
+                                    f"fed consumers {cons}")
+            continue
+        want_cons = [ns_b] if target == ns_b else \
+            [leg.get("oracle_at_leg", {}).get("sink_meta") or
+             leg.get("oracle_at_leg", {}).get("sink_pactl")]
+        cons = _loopback_r79_union(samples, ctag, "consumers")
+        if node is not None and cons != want_cons:
+            live_now = {ora0.get("sink_meta"), ora0.get("sink_pactl")} \
+                - {None}
+            if cons and set(cons) <= live_now:
+                leg["confound"] = ("default re-asserted mid-leg — "
+                                   f"consumers {cons}")
+                entry["confound_observed"] = True
+            else:
+                failures.append(f"pwcat {name}: expected consumers "
+                                f"{want_cons}, got {cons}")
+        if name == "d11_capsink_valid":
+            nd = node or {}
+            if nd.get("stream_capture_sink") not in (True, "true"):
+                failures.append(f"pwcat {name}: the prop must be "
+                                "recorded on the node")
+    # The reported Latency PARAM is a host/version surface, not the
+    # verdict: the r78 author measured it byte-identical across ten legs
+    # ("intent, never a negotiated param"), while run 2 here measured
+    # THREE distinct values that track the request (minQuantum 0.0 / 1.0
+    # / 2.0 with minRate 0 / 0 / 512). Both are recorded as named
+    # verdicts; the hard assertion stays on the PROP, which is what the
+    # tool actually stores.
+    entry["latency_param_set"] = sorted(params_seen)
+    entry["latency_param_verdict"] = (
+        "latency_param_inert" if len(params_seen) <= 1
+        else "latency_param_tracks_request")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (8) FILTER-CHAIN — libpipewire-module-filter-chain is a CLIENT of the
+#     running session; conf.d merge is per-fragment, the failure split is
+#     parse-soft / runtime-fatal.
+# --------------------------------------------------------------------------
+def _loopback_r79_fc_args(node_in, node_out, target, label="mixer"):
+    """The plugin-free builtin-mixer fragment body (the scout's recipe),
+    FAIL-CLOSED: playback.props ALWAYS pins target.object to a probe-owned
+    sink — never node.passive (an implicit destination is the scout's
+    second contamination defect)."""
+    return ("{ filter.graph = { nodes = [ { name = mix type = builtin "
+            f"label = {label} control = {{ \"Gain 1\" = 0.5 "
+            "\"Gain 2\" = 0.5 } } ] inputs = [ \"mix:In 1\" "
+            "\"mix:In 2\" ] outputs = [ \"mix:Out\" ] } "
+            f"capture.props = {{ node.name = \"{node_in}\" "
+            "audio.position = [ FL FR ] media.class = \"Audio/Sink\" } "
+            f"playback.props = {{ node.name = \"{node_out}\" "
+            "audio.position = [ FL ] stream.dont-remix = true "
+            f"target.object = \"{target}\" }} }}")
+
+
+def _loopback_r79_fc_fragment(node_in, node_out, target, label="mixer",
+                              flags=""):
+    """A conf.d fragment wrapping the module args."""
+    return ("context.modules = [ { name = libpipewire-module-filter-chain "
+            f"{flags} args = "
+            + _loopback_r79_fc_args(node_in, node_out, target, label)
+            + " } ]\n")
+
+
+def _loopback_r79_fc_reply_lines(text):
+    """The command replies inside a pw-cli transcript — the reply
+    interleaves the async global dump, so only unindented non-dump lines
+    are replies (the scout's filter)."""
+    return [ln for ln in text.splitlines()
+            if ln.strip() and not ln.startswith((" ", "\t"))
+            and "added global" not in ln and "remote 0" not in ln
+            and "Welcome" not in ln and "unsupported type" not in ln]
+
+
+def filterchain_module_r79_entry():
+    """(8) The filter-chain module, the scout's F1-F11 armed. conf.d path
+    (PIPEWIRE_CONFIG_DIR -> `pipewire -c filter-chain.conf` as a CLIENT):
+    a good fragment publishes both chain nodes into the live session and
+    killing the loader removes them; a syntax-error fragment is a
+    fail-soft warning and later fragments still load (per-fragment
+    merge); an unknown label with `nofail` is silently tolerated while
+    the same label without it exits the loader rc=254. pw-cli path:
+    `load-module` on ONE line publishes client-scoped nodes;
+    `unload-module @module:<n>` is refused 'unknown module' (never
+    `destroy` a scraped id — the reply stream can name a daemon-owned
+    module); `quit` is the teardown. The DSP witness: tone pinned onto
+    the chain's input ports -> 0.5*(L+R) on FL only."""
+    failures = []
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "filter-chain module — client-scoped conf.d/pw-cli "
+                      "loading, parse-soft vs runtime-fatal",
+             "class": "filterchain_client_scope",
+             "classes_extra": ["filterchain_parse_soft",
+                               "filterchain_runtime_fatal"],
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0}
+    fc = LOOPBACK_R79_FC_SINK
+    loads = _loopback_r79_sinks_load((fc,))
+    entry["sink_loads"] = loads
+    if not all(l.get("monitor_seen") for l in loads.values()):
+        return _loopback_r79_block(
+            entry, failures,
+            "the fc null sink/monitor did not enumerate", loads)
+    base = "/usr/share/pipewire/filter-chain.conf"
+    if not Path(base).exists():
+        return _loopback_r79_block(entry, failures,
+                                   "no shipped filter-chain.conf", loads)
+    fc_tag = LOOPBACK_R79_FC_PREFIX
+    bad_frag = "context.modules = [ { name = x\n"
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="r79fc-") as tmp:    # SHORT — the AF_UNIX limit
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+
+            def mkcfg(legname, fragments):
+                d = Path(tmp) / legname
+                (d / "filter-chain.conf.d").mkdir(parents=True)
+                shutil.copy(base, d / "filter-chain.conf")
+                for fn, body in fragments.items():
+                    (d / "filter-chain.conf.d" / fn).write_text(body)
+                return str(d)
+
+            def confd_leg(name, cfgdir, expect_node, content_check,
+                          suffix):
+                """One loader-client leg: spawn bounded, sample nodes,
+                pin tone for the content check, kill, verify gone. The
+                published node names carry the fragment's SHORT tag
+                (`mix_input.<fc_tag>_<suffix>`), not the leg's long name —
+                matching by the long name is how run 2 read an empty
+                `nodes_seen` from a perfectly healthy loader."""
+                ltag = f"{fc_tag}_{suffix}"
+                env = dict(os.environ, PIPEWIRE_CONFIG_DIR=cfgdir)
+                proc = subprocess.Popen(
+                    ["pipewire", "-c", "filter-chain.conf"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                    start_new_session=True, env=env)
+                leg = {"name": name, "cfg": cfgdir,
+                       "expect_node": expect_node, "ltag": ltag}
+                feed = None
+                try:
+                    time.sleep(LOOPBACK_R79_FC_SETTLE_S)
+                    leg["loader_alive"] = proc.poll() is None
+                    leg["loader_rc_early"] = proc.returncode
+                    # nodes are named mix_input.<ltag> — find by prefix.
+                    allnames = _playback_r78_node_names() or []
+                    seen = sorted(n for n in allnames if ltag in n)
+                    leg["nodes_seen"] = seen
+                    leg["expect_met"] = (expect_node in seen
+                                         if expect_node else
+                                         not seen)
+                    if expect_node and expect_node in seen and \
+                            content_check:
+                        ports = _playback_r78_input_ports(expect_node)
+                        leg["chain_input_ports"] = ports
+                        feed = subprocess.Popen(
+                            ["pw-cat", "-p", "-P",
+                             f"node.name={ltag}_feed",
+                             "--target", "0", str(tone)],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            start_new_session=True)
+                        time.sleep(0.8)
+                        pairs = [(f"{ltag}_feed:output_FL", p)
+                                 for p in ports[:1]] + \
+                                [(f"{ltag}_feed:output_FR", p)
+                                 for p in ports[1:2]]
+                        leg["pins"] = _playback_r78_pwlink_batch(
+                            pairs, False)
+                        tapf = Path(tmp) / f"tap_fc_{name}.wav"
+                        tap = _playback_r78_tap(
+                            fc, tapf,
+                            int(PLAYBACK_R78_TONE_RATE * 2.4),
+                            f"{ltag}_tap")
+                        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+                        leg["tap"] = {
+                            "target": fc, "exit_code": tap.returncode,
+                            **_playback_r78_tone_windows(tapf)}
+                        leg["tap"]["ran"] = bool(
+                            leg["tap"].get("windows"))
+                        leg["two_tone"] = _loopback_r79_two_tone(tapf)
+                finally:
+                    if feed is not None and feed.poll() is None:
+                        os.killpg(feed.pid, signal.SIGKILL)
+                        feed.wait()
+                    if proc.poll() is None:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    proc.wait()
+                    leg["loader_rc"] = proc.returncode
+                    full = proc.stderr.read().decode(errors="replace")
+                    leg["stderr_tail"] = _capture_tail(full, cfgdir)
+                    # the parse warning is followed by the offending line
+                    # and a caret, so the TAIL alone loses the message —
+                    # keep a redacted head for the parse-soft check.
+                    leg["stderr_scan"] = full.replace(cfgdir, "<cfg>")[:800]
+                    time.sleep(LOOPBACK_R79_FC_KILL_S)
+                    after = _playback_r78_node_names() or []
+                    leg["nodes_after_kill"] = sorted(
+                        n for n in after if ltag in n)
+                return leg
+
+            cfgs = {
+                "f1_good": ("mix_input." + fc_tag + "_f1", mkcfg(
+                    "f1", {"10-good.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f1",
+                        f"mix_output.{fc_tag}_f1", fc)})),
+                "f2_bad_syntax": (None, mkcfg(
+                    "f2", {"10-bad.conf": bad_frag})),
+                "f3_good_then_bad": (
+                    f"mix_input.{fc_tag}_f3", mkcfg(
+                        "f3", {"10-good.conf":
+                               _loopback_r79_fc_fragment(
+                                   f"mix_input.{fc_tag}_f3",
+                                   f"mix_output.{fc_tag}_f3", fc),
+                               "20-bad.conf": bad_frag})),
+                "f3b_bad_then_good": (
+                    f"mix_input.{fc_tag}_f3b", mkcfg(
+                        "f3b", {"10-bad.conf": bad_frag,
+                                "20-good.conf":
+                                _loopback_r79_fc_fragment(
+                                    f"mix_input.{fc_tag}_f3b",
+                                    f"mix_output.{fc_tag}_f3b", fc)})),
+                "f4_badlabel_nofail": (None, mkcfg(
+                    "f4", {"10-bl.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f4",
+                        f"mix_output.{fc_tag}_f4", fc,
+                        label="nosuchfilter",
+                        flags="flags = [ nofail ]")})),
+                "f5_badlabel": (None, mkcfg(
+                    "f5", {"10-bl.conf": _loopback_r79_fc_fragment(
+                        f"mix_input.{fc_tag}_f5",
+                        f"mix_output.{fc_tag}_f5", fc,
+                        label="nosuchfilter")})),
+                "f6_base_only": (None, mkcfg("f6", {})),
+            }
+            for name, (expect, cfgdir) in cfgs.items():
+                legs[name] = confd_leg(
+                    name, cfgdir, expect,
+                    content_check=name == "f1_good",
+                    suffix=name.split("_")[0])
+                time.sleep(0.4)
+
+            # ---------------- pw-cli path (one-line commands) ---------
+            cli = subprocess.Popen(
+                ["pw-cli"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, start_new_session=True)
+
+            def cli_cmd(cmd, wait_s=2.0):
+                try:
+                    cli.stdin.write((cmd + "\n").encode())
+                    cli.stdin.flush()
+                except (OSError, ValueError):
+                    return ""
+                buf = b""
+                deadline = time.monotonic() + wait_s
+                while time.monotonic() < deadline:
+                    r, _, _ = select.select([cli.stdout.fileno()], [],
+                                            [], 0.25)
+                    if not r:
+                        continue
+                    chunk = os.read(cli.stdout.fileno(), 65536)
+                    if not chunk:
+                        break
+                    buf += chunk
+                return buf.decode(errors="replace")
+
+            live_in = f"mix_input.{fc_tag}_live"
+            live_out = f"mix_output.{fc_tag}_live"
+            try:
+                text = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    + _loopback_r79_fc_args(live_in, live_out, fc), 2.5)
+                time.sleep(0.6)
+                names = _playback_r78_node_names() or []
+                seen = sorted(n for n in names if fc_tag + "_live" in n)
+                leg = {"name": "f7_cli_load",
+                       "reply": _loopback_r79_fc_reply_lines(text),
+                       "nodes_seen": seen}
+                feed = None
+                if live_in in seen:
+                    ports = _playback_r78_input_ports(live_in)
+                    leg["chain_input_ports"] = ports
+                    feed = subprocess.Popen(
+                        ["pw-cat", "-p", "-P",
+                         f"node.name={fc_tag}_f7feed",
+                         "--target", "0", str(tone)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        start_new_session=True)
+                    try:
+                        time.sleep(0.8)
+                        pairs = [(f"{fc_tag}_f7feed:output_FL", p)
+                                 for p in ports[:1]] + \
+                                [(f"{fc_tag}_f7feed:output_FR", p)
+                                 for p in ports[1:2]]
+                        leg["pins"] = _playback_r78_pwlink_batch(
+                            pairs, False)
+                        tapf = Path(tmp) / "tap_fc_live.wav"
+                        tap = _playback_r78_tap(
+                            fc, tapf,
+                            int(PLAYBACK_R78_TONE_RATE * 2.4),
+                            f"{fc_tag}_f7tap")
+                        _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+                        leg["two_tone"] = _loopback_r79_two_tone(tapf)
+                    finally:
+                        if feed.poll() is None:
+                            os.killpg(feed.pid, signal.SIGKILL)
+                        feed.wait()
+                legs["f7_cli_load"] = leg
+                # the unload refusal: the printed var goes back VERBATIM
+                # (with the @module: prefix) — never a bare id, never
+                # `destroy`.
+                mvar = None
+                for tok in " ".join(leg["reply"]).split():
+                    if tok.startswith("@module:"):
+                        mvar = tok
+                reply2 = cli_cmd(
+                    f"unload-module {mvar}" if mvar else
+                    "unload-module @module:0", 1.5)
+                names = _playback_r78_node_names() or []
+                legs["f8_unload_refusal"] = {
+                    "mvar": mvar,
+                    "reply": _loopback_r79_fc_reply_lines(reply2),
+                    "nodes_still": sorted(
+                        n for n in names if fc_tag + "_live" in n)}
+                bad_in = f"mix_input.{fc_tag}_bad"
+                reply3 = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    + _loopback_r79_fc_args(bad_in,
+                                            f"mix_output.{fc_tag}_bad",
+                                            fc, label="nosuchfilter"),
+                    2.5)
+                names = _playback_r78_node_names() or []
+                legs["f9_bad_label"] = {
+                    "reply": _loopback_r79_fc_reply_lines(reply3),
+                    "nodes_after": sorted(
+                        n for n in names if fc_tag + "_bad" in n),
+                    "daemon_alive": bool(_playback_r78_node_names()
+                                         is not None)}
+                reply4 = cli_cmd(
+                    "load-module libpipewire-module-filter-chain "
+                    "{ args = { oops", 1.5)
+                legs["f10_bad_args"] = {
+                    "reply": _loopback_r79_fc_reply_lines(reply4),
+                    "daemon_alive": _playback_r78_node_names()
+                    is not None}
+            finally:
+                try:
+                    cli.stdin.write(b"quit\n")
+                    cli.stdin.flush()
+                    cli.wait(timeout=4)
+                except (OSError, ValueError, subprocess.TimeoutExpired):
+                    pass
+                if cli.poll() is None:
+                    os.killpg(cli.pid, signal.SIGKILL)
+                    cli.wait()
+                time.sleep(0.8)
+                names = _playback_r78_node_names() or []
+                legs["f11_quit_teardown"] = {
+                    "nodes_after_quit": sorted(
+                        n for n in names if fc_tag + "_live" in n)}
+    finally:
+        _loopback_r79_sinks_unload(loads)
+    entry["legs"] = legs
+    _loopback_r79_teardown(entry, failures, loads)
+    # -- conf.d verdicts
+    f1 = legs.get("f1_good") or {}
+    if not f1.get("loader_alive") or not f1.get("expect_met"):
+        failures.append(f"fc f1: loader must stay up and publish the "
+                        f"chain node — got alive={f1.get('loader_alive')} "
+                        f"nodes={f1.get('nodes_seen')}")
+    if f1.get("pins") and any(p["exit"] != 0 for p in f1["pins"]):
+        failures.append(f"fc f1: the manual input-port pins failed "
+                        f"{f1['pins']}")
+    tt1 = f1.get("two_tone") or {}
+    if not tt1.get("channels"):
+        failures.append("fc f1: no two-tone content — the DSP path is "
+                        "unwitnessed")
+    else:
+        chs = tt1["channels"]
+        if not (2600 <= chs[0]["at_l"] <= 5800 and
+                2600 <= chs[0]["at_r"] <= 5800 and
+                chs[1]["at_l"] <= 1600 and chs[1]["at_r"] <= 1600):
+            failures.append(f"fc f1: expected 0.5*(L+R) on FL and "
+                            f"silence on FR, got {chs}")
+    if f1.get("nodes_after_kill"):
+        failures.append(f"fc f1: nodes survived the loader kill "
+                        f"{f1['nodes_after_kill']} — client-scoped "
+                        "teardown violated")
+    f2 = legs.get("f2_bad_syntax") or {}
+    if not f2.get("loader_alive") or f2.get("nodes_seen"):
+        failures.append(f"fc f2: a syntax-error fragment must leave the "
+                        f"loader alive with no nodes — got "
+                        f"{f2.get('loader_alive')}/"
+                        f"{f2.get('nodes_seen')}")
+    f2text = (f2.get("stderr_scan") or "") + (f2.get("stderr_tail") or "")
+    if "conf_load()" not in f2text and "error in config" not in f2text:
+        failures.append(f"fc f2: expected the parse warning on stderr, "
+                        f"got {f2.get('stderr_scan')!r}")
+    for name in ("f3_good_then_bad", "f3b_bad_then_good"):
+        fl = legs.get(name) or {}
+        if not fl.get("loader_alive") or not fl.get("expect_met"):
+            failures.append(f"fc {name}: a bad sibling fragment must "
+                            f"not poison the good one — alive="
+                            f"{fl.get('loader_alive')} nodes="
+                            f"{fl.get('nodes_seen')}")
+    f4 = legs.get("f4_badlabel_nofail") or {}
+    if not f4.get("loader_alive") or f4.get("nodes_seen"):
+        failures.append(f"fc f4: nofail must tolerate the bad label — "
+                        f"alive={f4.get('loader_alive')} nodes="
+                        f"{f4.get('nodes_seen')}")
+    f5 = legs.get("f5_badlabel") or {}
+    if f5.get("loader_alive") or f5.get("loader_rc") != 254:
+        failures.append(f"fc f5: an unknown label without nofail must "
+                        f"kill the loader rc=254 — got alive="
+                        f"{f5.get('loader_alive')} rc="
+                        f"{f5.get('loader_rc')}")
+    f6 = legs.get("f6_base_only") or {}
+    if not f6.get("loader_alive") or f6.get("nodes_seen"):
+        failures.append(f"fc f6: the base-only control must publish "
+                        f"nothing — alive={f6.get('loader_alive')} "
+                        f"nodes={f6.get('nodes_seen')}")
+    # -- pw-cli verdicts
+    f7 = legs.get("f7_cli_load") or {}
+    if f"mix_input.{fc_tag}_live" not in f7.get("nodes_seen", []):
+        failures.append(f"fc f7: the cli load published no live nodes "
+                        f"{f7.get('nodes_seen')}")
+    tt7 = f7.get("two_tone") or {}
+    if f7.get("nodes_seen") and not tt7.get("channels"):
+        failures.append("fc f7: nodes published but the DSP path is "
+                        "unwitnessed")
+    f8 = legs.get("f8_unload_refusal") or {}
+    if not any("Error" in r or "unknown module" in r
+               for r in f8.get("reply", [])):
+        failures.append(f"fc f8: unload-module must be refused — got "
+                        f"{f8.get('reply')}")
+    if not f8.get("nodes_still"):
+        failures.append("fc f8: the live nodes vanished on a refused "
+                        "unload — teardown is client exit only")
+    f9 = legs.get("f9_bad_label") or {}
+    if not any("Could not load module" in r for r in f9.get("reply", [])):
+        failures.append(f"fc f9: expected the load refusal, got "
+                        f"{f9.get('reply')}")
+    if f9.get("nodes_after"):
+        failures.append(f"fc f9: the bad label published nodes "
+                        f"{f9['nodes_after']}")
+    if f9.get("daemon_alive") is not True:
+        failures.append("fc f9: the daemon died on a client-scoped "
+                        "module refusal")
+    f10 = legs.get("f10_bad_args") or {}
+    if not any("Could not load module" in r or "Error" in r
+               for r in f10.get("reply", [])):
+        failures.append(f"fc f10: expected a refusal, got "
+                        f"{f10.get('reply')}")
+    if f10.get("daemon_alive") is not True:
+        failures.append("fc f10: the daemon died on malformed args")
+    f11 = legs.get("f11_quit_teardown") or {}
+    if f11.get("nodes_after_quit"):
+        failures.append(f"fc f11: live nodes survived the client quit "
+                        f"{f11['nodes_after_quit']}")
+    entry["failures"] = failures
+    return entry
+
+
+# ---------------------------------------------------------------------------
+# r80 MODULE frontier: the `pactl load-module` argument lattice + dynamic
+# topology lifecycle. A NEW parallel ledger family, --probe-module-r80;
+# prior rows untouched and the r76-r79 guards inherited, not relaxed.
+# Surface facts are the r80 scout's THIS-HOST measurements (PipeWire 1.6.8,
+# pactl 17.0-98-gb096, WirePlumber 0.5.17), re-armed through the r78/r79
+# conventions (pid-stamped names, port-readiness gates, named oracle,
+# coverage_blocked, teardown by captured module id ONLY — never by name:
+# the scout itself caused a foreign-module unload that way, §10 of its
+# report):
+#   ARGS. The plain `description=` argument is an UNKNOWN KEY — silently
+#     dropped (node.description stays the derived "<name> <class> sink");
+#     the same value through `sink_properties=device.description=` lands
+#     and wins. `rate=` is accepted VERBATIM into params.EnumFormat — no
+#     range check (99999 lands). `media.class=Audio/Source` is a real class
+#     change: 0 input ports, a pactl source entry named <n>, no sink and
+#     no <n>.monitor. `object.linger=true` unbinds the node from its
+#     client: it survives `pactl unload-module`, keeps a STALE
+#     pulse.module.id, stays listed as sink AND .monitor source, and only
+#     `pw-cli destroy <id>` removes it.
+#   TOPOLOGY. `@DEFAULT_SINK@` inside slaves=/sinks= is NOT expanded —
+#     rc=1 `Failure: Input/Output error`, no node created. `pw-link
+#     <o> <i>` lingers (outlives its exited process); `pw-link -m` is
+#     client-owned and dies with it. `pactl move-sink-input` is STICKY
+#     (still moved at +4.6 s) but a stream carrying `node.dont-move=true`
+#     turns it into a SILENT no-op (rc=0, links unchanged).
+MODULE_R80_SETTLE_S = 0.6
+MODULE_R80_NODE_WAIT_S = 5.0
+MODULE_R80_LINGER_LINK_HOLD_S = 2.0   # scout: linger link still up at +2 s
+MODULE_R80_MLINK_DEAD_S = 1.0         # -m link gone within ~0.3 s of kill
+MODULE_R80_MOVE_FIRST_S = 1.2         # post-move edge samples
+MODULE_R80_MOVE_LATE_S = 4.6          # stickiness horizon (scout: +6 s)
+MODULE_R80_TONE_S = 12.0              # feed file outlives every leg bound
+MODULE_R80_TAP_S = 6.8                # move-leg monitor tap duration
+MODULE_R80_PID = os.getpid()
+MODULE_R80_PREFIX = f"r80md_{MODULE_R80_PID}"
+def _module_r80_errclass(text):
+    """r80's only new class is `pa_io_error`, checked ahead of the
+    inherited r78 order — a one-class prepend rides the shared tuple
+    rather than wrapping it in a second family-local one."""
+    m = re.search(r"Input/[Oo]utput error", text)
+    if m:
+        return "pa_io_error", m.group(0).strip()
+    return _playback_r78_errclass(text)
+
+
+def _module_r80_pactl(args):
+    """One pactl call -> leaf. stderr is kept because several verdicts
+    ride on it (`No such entity`, `Input/Output error`) and pactl's rc
+    is not a verdict by itself (the scout's no-op forms)."""
+    try:
+        proc = subprocess.run(["pactl", *args], capture_output=True,
+                              timeout=15)
+        err = proc.stderr.decode(errors="replace")
+        cls, _ = _module_r80_errclass(err)
+        return {"exit_code": proc.returncode,
+                "stdout_tail": proc.stdout.decode(
+                    errors="replace").strip()[:200] or None,
+                "stderr_tail": _capture_tail(err, "module"),
+                "error_class": cls}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"exit_code": None, "error": str(exc)[:120]}
+
+
+def _module_r80_load(module, *args):
+    """pactl load-module -> leaf with the returned module index captured
+    verbatim (it is a stdout token, not a lookup)."""
+    leaf = _module_r80_pactl(["load-module", module, *args])
+    out = leaf.get("stdout_tail")
+    mid = None
+    if leaf.get("exit_code") == 0 and out and out.isdigit():
+        mid = int(out)
+    leaf["module_id"] = mid
+    return leaf
+
+
+def _module_r80_unload(module_id):
+    """Unload by the captured index ONLY — the by-name form unloads every
+    module of that name on the host including foreign ones (the scout's
+    own §10 incident). Never a name lookup."""
+    if module_id is None:
+        return {"skipped": "no module id captured"}
+    return _module_r80_pactl(["unload-module", str(module_id)])
+
+
+def _module_r80_module_map():
+    """`pactl list modules short` -> {index: name} — the ownership check
+    behind _module_r80_unload_own. Note the table ALSO lists native
+    libpipewire-module-* ids (boundary B3): a recycled pulse index can
+    point at a foreign or native module, so an index's presence in this
+    map is never proof of ownership."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+        out = {}
+        for ln in proc.stdout.decode(errors="replace").splitlines():
+            f = ln.split("\t")
+            if f and f[0].strip().isdigit():
+                out[int(f[0].strip())] = f[1].strip() if len(f) > 1 else ""
+        return out
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_own_leaves():
+    """{name: leaf} for live nodes carrying this run's prefix — the
+    pmid-citation check that distinguishes OUR module from a foreign
+    one holding a recycled index."""
+    pref = f"{MODULE_R80_PREFIX}_"
+    names = _playback_r78_node_names() or []
+    mine = [n for n in names if n.startswith(pref)]
+    return _module_r80_nodes(mine) if mine else {}
+
+
+def _module_r80_unload_own(module_id):
+    """Teardown-safe unload: only fire `pactl unload-module <id>` when a
+    live node of OURS still cites that pulse.module.id. Indexes recycle
+    LIFO within seconds (boundary B1); re-unloading a stale id after our
+    leg already unloaded it can kill a FOREIGN module that recycled the
+    index (the §10 incident class, one indirection removed — critic F2).
+    Skips are recorded, never silent: absent -> already_unloaded;
+    present-but-not-ours -> foreign_risk."""
+    if module_id is None:
+        return {"skipped": "no module id captured"}
+    mods = _module_r80_module_map()
+    if mods is None:
+        return {"skipped": "reader_error", "module_id": module_id}
+    if module_id not in mods:
+        return {"skipped": "already_unloaded", "module_id": module_id}
+    # Only a LIVE node's citation counts: an object.linger orphan keeps
+    # its stale pulse.module.id forever (a5's own measurement), so it
+    # cannot distinguish our dead module from a foreign recycler.
+    cited = {leaf.get("pulse_module_id")
+             for leaf in _module_r80_own_leaves().values()
+             if leaf.get("client_id") is not None}
+    if module_id in cited:
+        return _module_r80_unload(module_id)
+    return {"skipped": "foreign_risk", "module_id": module_id,
+            "listed_as": mods[module_id]}
+
+
+def _module_r80_nodes(names):
+    """One pw-dump -> {name: leaf} — same single-snapshot contract as the
+    r79 reader, plus the module-lattice props this frontier needs
+    (description / pulse.module.id / object.linger / port counts /
+    EnumFormat rates)."""
+    want = set(names)
+    out = {n: {"found": False} for n in want}
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        for n in want:
+            out[n] = {"found": False, "error": type(exc).__name__}
+        return out
+    for node in dump:
+        if not str(node.get("type", "")).endswith("Node"):
+            continue
+        info = node.get("info") or {}
+        props = info.get("props") or {}
+        nm = props.get("node.name")
+        if nm not in want:
+            continue
+        params = info.get("params") or {}
+        enum = params.get("EnumFormat") or []
+        out[nm] = {
+            "found": True, "object_id": node.get("id"),
+            "state": info.get("state"),
+            "media_class": props.get("media.class"),
+            "description": props.get("node.description"),
+            "factory": props.get("factory.name"),
+            "pulse_module_id": props.get("pulse.module.id"),
+            "object_serial": props.get("object.serial"),
+            "object_linger": props.get("object.linger"),
+            "node_dont_move": props.get("node.dont-move"),
+            "client_id": props.get("client.id"),
+            "n_input_ports": info.get("n-input-ports"),
+            "n_output_ports": info.get("n-output-ports"),
+            "audio_channels": props.get("audio.channels"),
+            "audio_position": props.get("audio.position"),
+            "enum_rates": [e.get("rate") for e in enum
+                           if isinstance(e, dict)],
+            "enum_formats": [{k: e.get(k) for k in
+                              ("format", "rate", "channels")}
+                             for e in enum if isinstance(e, dict)]}
+    return out
+
+
+def _module_r80_node_id(tag):
+    """The live node's global object id (the pw-cli destroy handle) —
+    a pw-dump `id`, NOT the pulse index and NOT object.serial."""
+    leaf = _module_r80_nodes([tag]).get(tag) or {}
+    return leaf.get("object_id")
+
+
+def _module_r80_own_nodes():
+    """Live node names still carrying this run's tag — the teardown
+    witness (nothing r80md_ may survive an entry)."""
+    names = _playback_r78_node_names()
+    if names is None:
+        return None
+    return sorted(n for n in names if MODULE_R80_PREFIX in n)
+
+
+def _module_r80_wait_node(tag):
+    """pw-dump presence gate for a module-created node — the load returns
+    at PA-accept time and the node lands later (same enumeration gap as
+    the r78 sink gate). Returns (seen, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < MODULE_R80_NODE_WAIT_S:
+        leaf = _module_r80_nodes([tag]).get(tag) or {}
+        if leaf.get("found"):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _module_r80_load_sink(name):
+    """Load one probe-owned module-null-sink and gate it. Returns a leaf
+    with module_id + gate verdicts."""
+    load = _module_r80_load("module-null-sink", f"sink_name={name}")
+    leaf = {"load": load}
+    if load.get("module_id") is not None:
+        seen, waited = _playback_r78_wait_sink(name)
+        leaf["sink_seen"] = seen
+        leaf["sink_waited_s"] = waited
+        if not seen:
+            _module_r80_unload(load["module_id"])
+            leaf["error"] = f"loaded but never enumerated in {waited}s"
+    return leaf
+
+
+def _module_r80_edges(tag):
+    """Directed pw-link -l edges touching this tag — the link witness."""
+    return sorted({e for e in (_playback_r78_links() or [])
+                   if e[0].split(":")[0] == tag or
+                   e[1].split(":")[0] == tag})
+
+
+def _module_r80_wait_edge(out_port, in_port):
+    """Gate until a specific directed edge exists in pw-link -l — a stream
+    is only routable once its link can be observed. Returns
+    (linked, waited_s)."""
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < MODULE_R80_NODE_WAIT_S:
+        if (out_port, in_port) in (_playback_r78_links() or []):
+            return True, round(time.monotonic() - t0, 3)
+        time.sleep(0.1)
+    return False, round(time.monotonic() - t0, 3)
+
+
+def _module_r80_sink_input(tag):
+    """`pactl -f json list sink-inputs` entry for the stream whose
+    node.name is `tag` — the pulse reroute handle (the scout measured
+    index == the stream node's object.serial; both are recorded)."""
+    try:
+        proc = subprocess.run(["pactl", "-f", "json", "list",
+                               "sink-inputs"], capture_output=True,
+                              timeout=10)
+        arr = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    for e in arr:
+        if (e.get("properties") or {}).get("node.name") == tag:
+            return {"index": e.get("index"), "sink": e.get("sink"),
+                    "entry_found": True}
+    return {"entry_found": False}
+
+
+def _module_r80_destroy(node_id):
+    """`pw-cli destroy <id>` — the ONLY reach into a lingering orphan;
+    pactl has no verb for it. Scoped to r80md_-tagged nodes by the caller
+    (a wrong id can name a foreign object — the r79 pw-cli rule)."""
+    if node_id is None:
+        return {"skipped": "no node id"}
+    try:
+        proc = subprocess.run(["pw-cli", "destroy", str(node_id)],
+                              capture_output=True, timeout=10)
+        return {"exit_code": proc.returncode,
+                "stderr_tail": _capture_tail(
+                    proc.stderr.decode(errors="replace"), "module")}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"exit_code": None, "error": str(exc)[:120]}
+
+
+def _module_r80_feed(target, tag, ctx, extra_props=()):
+    """Spawn the tag-tone feed — pw-cat playing ctx['tone'] into a
+    probe-owned sink, at FULL tag amplitude (the 0.05 scout volume was
+    the shared-default-sink concession; these targets are all
+    probe-owned so the standard `mine` bands apply)."""
+    argv = ["pw-cat", "-p", "-P", f"node.name={tag}"]
+    for prop in extra_props:
+        argv += ["-P", prop]
+    argv += ["--target", target, str(ctx["tone"])]
+    return subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.PIPE,
+                            start_new_session=True)
+
+
+def _module_r80_teardown(entry, failures, loads):
+    """Shared post-checks: every captured module id unloaded, every
+    lingering ORPHAN destroyed by node id (never by name), then the
+    two witnesses — probe sinks gone from pactl and no r80md_ node
+    survives."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unload_own", {})[tag] = _module_r80_unload_own(
+            (leaf or {}).get("load", {}).get("module_id"))
+    stray = _module_r80_own_nodes()
+    if stray is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — orphan/own_nodes_after "
+            "unmeasured")
+    elif stray:
+        entry["orphan_destroy"] = {
+            n: _module_r80_destroy(_module_r80_node_id(n))
+            for n in stray}
+        time.sleep(MODULE_R80_SETTLE_S)
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone "
+            "unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    rest = _module_r80_own_nodes()
+    if rest is None:
+        entry.setdefault("own_nodes_after", "reader_error")
+        if "teardown: node reader failed — orphan/own_nodes_after " \
+                "unmeasured" not in entry.get("coverage_blocked", []):
+            entry.setdefault("coverage_blocked", []).append(
+                "teardown: node reader failed — orphan/own_nodes_after "
+                "unmeasured")
+    else:
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r80-tagged nodes survived: {rest}")
+
+
+def _capture_r77_sink_names_strict():
+    """Same reader as _capture_r77_sink_names but None on failure — the
+    teardown witness must distinguish 'no sinks' from 'reader dead'
+    (critic F3: an empty list made the absence witness pass vacuously)."""
+    try:
+        proc = subprocess.run(["pactl", "list", "sinks", "short"],
+                              capture_output=True, timeout=10)
+        return [ln.split()[1] for ln in
+                proc.stdout.decode(errors="replace").splitlines()
+                if len(ln.split()) >= 2]
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_module_count():
+    """`pactl list modules short` line count — t1's no-side-effect
+    witness: a refused load must leave the module table untouched."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+        return len(proc.stdout.decode(errors="replace").splitlines())
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+
+
+def _module_r80_move_leg(tag, tapf, feed_to, tap_on, move_to, ctx,
+                         extra_props=(), with_node=False):
+    """The shared move-sink-input skeleton behind t4/t5: tap `tap_on`'s
+    monitor, feed the tag tone at `feed_to`, gate on its edge, move the
+    stream's sink-input to `move_to`, sample the edge set at the FIRST
+    and LATE horizons, then kill the feed and reap the tap. Returns the
+    measured pieces; each leg lays out its own leaf keys. `with_node`
+    adds the stream-node snapshot t5 records (t4 does not run it)."""
+    tap = _playback_r78_tap(tap_on, tapf,
+                            int(PLAYBACK_R78_TONE_RATE *
+                                MODULE_R80_TAP_S),
+                            f"{tag}_tap")
+    time.sleep(PLAYBACK_R78_TAP_LEAD_S)
+    feed = _module_r80_feed(feed_to, tag, ctx, extra_props=extra_props)
+    edge_a = (f"{tag}:output_FL", f"{feed_to}:playback_FL")
+    linked, waited = _module_r80_wait_edge(*edge_a)
+    si = _module_r80_sink_input(tag)
+    edges_before = _module_r80_edges(tag)
+    node = _module_r80_nodes([tag]).get(tag) or {} if with_node else None
+    move = _module_r80_pactl(
+        ["move-sink-input", str(si.get("index")),
+         move_to]) if si.get("index") is not None else \
+        {"skipped": "no sink-input index"}
+    time.sleep(MODULE_R80_MOVE_FIRST_S)
+    edges_first = _module_r80_edges(tag)
+    time.sleep(MODULE_R80_MOVE_LATE_S - MODULE_R80_MOVE_FIRST_S)
+    edges_late = _module_r80_edges(tag)
+    if feed.poll() is None:
+        os.killpg(feed.pid, signal.SIGKILL)
+    feed.wait()
+    _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+    return {"tag": tag, "feed_exit": feed.returncode,
+            "edge_a_waited_s": waited, "edge_a_linked": linked,
+            "sink_input": si, "node": node, "move": move,
+            "edges_before": edges_before,
+            "edges_after_first_s": MODULE_R80_MOVE_FIRST_S,
+            "edges_first": edges_first,
+            "edges_after_late_s": MODULE_R80_MOVE_LATE_S,
+            "edges_late": edges_late,
+            "tap": {"target": tap_on,
+                    "exit_code": tap.returncode,
+                    "stderr_tail": _capture_tail(
+                        tap.stderr.read().decode(
+                            errors="replace"), str(tapf)),
+                    **_playback_r78_tone_windows(tapf)}}
+
+
+def _module_r80_block(entry, failures, msg, loads):
+    """The named coverage block every entry shares — a blocked leg is
+    named coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry["coverage_blocked"] = [msg]
+    for tag, leaf in loads.items():
+        entry.setdefault("unload_own", {})[tag] = _module_r80_unload_own(
+            (leaf or {}).get("load", {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (1) ARG LATTICE — which `pactl load-module module-null-sink` arguments land
+#     on the node, which are silently dropped, and the linger orphan.
+# --------------------------------------------------------------------------
+def module_args_lattice_r80_entry():
+    """(1) The argument lattice: `description=D` is an unknown key and is
+    silently DROPPED while `sink_properties=device.description=D` lands;
+    `rate=99999` enters EnumFormat verbatim (no range check);
+    `media.class=Audio/Source` is a real class change (0 input ports, a
+    source entry, no sink/.monitor); `object.linger=true` makes a
+    permanent orphan that outlives its module, keeps a stale
+    pulse.module.id, stays listed as sink AND source, and answers only
+    to `pw-cli destroy`. Every leg loads its own module and unloads by
+    the captured index."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "pactl load-module argument lattice — dropped vs "
+                      "prop-vectored args, unclamped rate, class "
+                      "override, linger orphan",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    # space-free: `sink_properties=` is itself whitespace-split modargs —
+    # a value containing spaces truncates at the first (measured: a
+    # "r80md desc <pid> marker" run lands node.description == "r80md").
+    desc = f"r80md_desc_{MODULE_R80_PID}_marker"
+    legs = {}
+    loads = {}
+    try:
+        # a1: the plain description= argument does NOT reach
+        # node.description (the derived "<name> <class> sink" survives)
+        # — but it is NOT dropped: it lands verbatim as a plain
+        # `description` prop, like every other unknown modarg key
+        # (critic F1: the earlier "silently dropped" model was wrong).
+        name = f"{MODULE_R80_PREFIX}_a1"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                f"description={desc}")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a1_desc_dropped"] = {
+            "args": [f"sink_name=<n>", f"description=<d>"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "expected_description": f"{name} Audio/Sink sink",
+            "sent_description": desc,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a2: the SAME value through sink_properties lands and wins.
+        name = f"{MODULE_R80_PREFIX}_a2"
+        load = _module_r80_load(
+            "module-null-sink", f"sink_name={name}",
+            f"sink_properties=device.description={desc}")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a2_desc_prop_wins"] = {
+            "args": ["sink_name=<n>",
+                     "sink_properties=device.description=<d>"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node, "sent_description": desc,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a3: rate=99999 is accepted verbatim into params.EnumFormat —
+        # the node props carry no rate key at all, so only the param
+        # surface can see it.
+        name = f"{MODULE_R80_PREFIX}_a3"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "rate=99999")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node = _module_r80_nodes([name]).get(name) or {}
+        legs["a3_rate_no_check"] = {
+            "args": ["sink_name=<n>", "rate=99999"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a4: media.class=Audio/Source — a real class change, not
+        # decoration: zero input ports, a pactl SOURCE named <n>, and no
+        # sink entry / no <n>.monitor.
+        name = f"{MODULE_R80_PREFIX}_a4"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "media.class=Audio/Source")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        time.sleep(MODULE_R80_SETTLE_S)
+        node = _module_r80_nodes([name]).get(name) or {}
+        sinks_now = _capture_r77_sink_names()
+        sources_now = _playback_r78_source_names()
+        legs["a4_source_class"] = {
+            "args": ["sink_name=<n>", "media.class=Audio/Source"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node": node,
+            "in_ports": _playback_r78_input_ports(name),
+            "out_ports": _playback_r78_output_ports(name),
+            "pactl_sink_listed": name in sinks_now,
+            "pactl_source_listed": name in sources_now,
+            "pactl_monitor_listed": f"{name}.monitor" in sources_now,
+            "unload": _module_r80_unload(load.get("module_id")),
+            "gone_after_unload": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+        # a5: object.linger=true — the permanent orphan. Phase the leg:
+        # live (client.id absent) -> unload rc=0 -> node STILL present
+        # with the stale pulse.module.id, still a pactl sink+source ->
+        # re-unload rc=1 No such entity -> pw-cli destroy removes it.
+        name = f"{MODULE_R80_PREFIX}_a5"
+        load = _module_r80_load("module-null-sink", f"sink_name={name}",
+                                "object.linger=true")
+        loads[name] = {"load": load}
+        seen, waited = _module_r80_wait_node(name)
+        node_live = _module_r80_nodes([name]).get(name) or {}
+        unl = _module_r80_unload(load.get("module_id"))
+        time.sleep(MODULE_R80_SETTLE_S)
+        node_after = _module_r80_nodes([name]).get(name) or {}
+        sinks_mid = _capture_r77_sink_names()
+        sources_mid = _playback_r78_source_names()
+        reunl = _module_r80_unload_own(load.get("module_id"))
+        nid = _module_r80_node_id(name)
+        destroy = _module_r80_destroy(nid)
+        time.sleep(MODULE_R80_SETTLE_S)
+        legs["a5_linger_orphan"] = {
+            "args": ["sink_name=<n>", "object.linger=true"],
+            "load": load, "node_seen": seen, "node_waited_s": waited,
+            "node_live": node_live,
+            "unload": unl,
+            "node_after_unload": node_after,
+            "pactl_sink_after_unload": name in sinks_mid,
+            "pactl_monitor_after_unload":
+                f"{name}.monitor" in sources_mid,
+            "re_unload": reunl,
+            "destroy": destroy, "destroyed_id": nid,
+            "gone_after_destroy": not _module_r80_nodes(
+                [name]).get(name, {}).get("found")}
+    finally:
+        _module_r80_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- a1: description= is dropped, the derived string survives ----
+    leg = legs.get("a1_desc_dropped") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a1: load/enumerate failed — "
+                        f"{leg.get('load')} seen={leg.get('node_seen')}")
+    else:
+        if nd.get("description") == desc:
+            failures.append("args a1: plain description= LANDED — the "
+                            "silent-drop law is falsified")
+        if nd.get("description") != leg.get("expected_description"):
+            failures.append(f"args a1: node.description "
+                            f"{nd.get('description')!r} != the derived "
+                            f"{leg.get('expected_description')!r}")
+        if nd.get("pulse_module_id") != leg["load"].get("module_id"):
+            failures.append("args a1: pulse.module.id "
+                            f"{nd.get('pulse_module_id')} != the "
+                            "returned index — the observed node is not "
+                            "the one this load returned")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a1: node survived the unload")
+    # ---- a2: sink_properties=device.description= lands and wins ----
+    leg = legs.get("a2_desc_prop_wins") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a2: load/enumerate failed")
+    else:
+        if nd.get("description") != desc:
+            failures.append(f"args a2: sink_properties description did "
+                            f"NOT land — got {nd.get('description')!r}")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a2: node survived the unload")
+    # ---- a3: rate=99999 verbatim in EnumFormat, no range check ----
+    leg = legs.get("a3_rate_no_check") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a3: rate=99999 was refused — the "
+                        "no-range-check law is falsified on this host")
+    else:
+        if 99999 not in (nd.get("enum_rates") or []):
+            failures.append(f"args a3: EnumFormat rates "
+                            f"{nd.get('enum_rates')} do not contain "
+                            "99999 — the verbatim-accept law fails")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a3: node survived the unload")
+    # ---- a4: media.class=Audio/Source is a real class change ----
+    leg = legs.get("a4_source_class") or {}
+    nd = leg.get("node") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a4: load/enumerate failed")
+    else:
+        if nd.get("media_class") != "Audio/Source":
+            failures.append(f"args a4: media.class "
+                            f"{nd.get('media_class')!r} != Audio/Source")
+        if nd.get("n_input_ports") != 0 or leg.get("in_ports"):
+            failures.append(f"args a4: a Source node must have 0 input "
+                            f"ports — n_in={nd.get('n_input_ports')} "
+                            f"pw-link={leg.get('in_ports')}")
+        if leg.get("pactl_sink_listed"):
+            failures.append("args a4: a class-overridden node showed up "
+                            "as a pactl SINK — the law fails")
+        if not leg.get("pactl_source_listed") or \
+                leg.get("pactl_monitor_listed"):
+            failures.append(f"args a4: pactl sources — expected <n> "
+                            f"listed and <n>.monitor absent, got "
+                            f"listed={leg.get('pactl_source_listed')} "
+                            f"monitor={leg.get('pactl_monitor_listed')}")
+        if not leg.get("gone_after_unload"):
+            failures.append("args a4: node survived the unload")
+    # ---- a5: the linger orphan ----
+    leg = legs.get("a5_linger_orphan") or {}
+    live = leg.get("node_live") or {}
+    post = leg.get("node_after_unload") or {}
+    if leg.get("load", {}).get("exit_code") != 0 or not leg.get("node_seen"):
+        failures.append("args a5: load/enumerate failed")
+    else:
+        if live.get("object_linger") is not True:
+            failures.append("args a5: object.linger did not land on the "
+                            f"node — got {live.get('object_linger')!r}")
+        if live.get("client_id") is not None:
+            failures.append("args a5: a lingering node must have NO "
+                            f"client.id — got {live.get('client_id')}")
+        if leg.get("unload", {}).get("exit_code") != 0:
+            failures.append("args a5: the first unload failed — "
+                            f"{leg.get('unload')}")
+        if not post.get("found"):
+            failures.append("args a5: the orphan did NOT survive the "
+                            "module unload — the linger law is falsified")
+        else:
+            if post.get("pulse_module_id") != leg["load"].get(
+                    "module_id"):
+                failures.append("args a5: the orphan's stale "
+                                f"pulse.module.id {post.get('pulse_module_id')}"
+                                " != the unloaded index")
+            if not leg.get("pactl_sink_after_unload") or \
+                    not leg.get("pactl_monitor_after_unload"):
+                failures.append("args a5: the orphan must stay listed as "
+                                f"sink+monitor — got "
+                                f"{leg.get('pactl_sink_after_unload')}/"
+                                f"{leg.get('pactl_monitor_after_unload')}")
+        reunl = leg.get("re_unload") or {}
+        # The guarded unload names the same law client-side: absent id
+        # -> already_unloaded; recycled id -> foreign_risk (refused, not
+        # fired). Both are the "stale id is not ours" realization.
+        _re_ok = (reunl.get("exit_code") == 1 and
+                  reunl.get("error_class") == "pa_no_such_entity") or \
+            reunl.get("skipped") in ("already_unloaded", "foreign_risk")
+        if not _re_ok:
+            failures.append(f"args a5: the re-unload must be rc=1 "
+                            f"No such entity or a named skip — got {reunl}")
+        if leg.get("destroy", {}).get("exit_code") != 0 or \
+                not leg.get("gone_after_destroy"):
+            failures.append("args a5: pw-cli destroy is the ONLY removal "
+                            f"path — destroy={leg.get('destroy')} "
+                            f"gone={leg.get('gone_after_destroy')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) TOPOLOGY — combine slave refusal, pw-link authority, move-sink-input.
+# --------------------------------------------------------------------------
+def module_topology_r80_entry():
+    """(2) The lifecycle/link-authority surface: `@DEFAULT_SINK@` inside
+    `slaves=`/`sinks=` is NOT expanded (rc=1 Input/Output error, no
+    node); a `pw-link` link lingers past its creator while `pw-link -m`'s
+    dies with it; `pactl move-sink-input` is sticky AND content-carrying
+    (monitor tap on the destination), while the same move on a
+    `node.dont-move=true` stream is a silent rc=0 no-op."""
+    failures = []
+    inv = _capture_inventory()
+    ora0 = _loopback_r79_oracle()
+    entry = {"probe": "module topology — @DEFAULT_SINK@ slave refusal, "
+                      "pw-link linger vs -m, move-sink-input sticky vs "
+                      "dont-move no-op",
+             "contention": _playback_r78_foreign_clients(),
+             "oracle_at_start": ora0,
+             "inventory": {"default_sink": inv["default_sink"],
+                           "default_source": inv["default_source"]}}
+    names = {"lnk_a": f"{MODULE_R80_PREFIX}_lnk_a",
+             "lnk_b": f"{MODULE_R80_PREFIX}_lnk_b",
+             "mv_a": f"{MODULE_R80_PREFIX}_mv_a",
+             "mv_b": f"{MODULE_R80_PREFIX}_mv_b",
+             "dm_a": f"{MODULE_R80_PREFIX}_dm_a",
+             "dm_b": f"{MODULE_R80_PREFIX}_dm_b"}
+    loads = {}
+    legs = {}
+    try:
+        with tempfile.TemporaryDirectory(
+                prefix="module-r80-topo-") as tmp:
+            tone = Path(tmp) / "tag_tone.wav"
+            _playback_r78_write_tone(tone, MODULE_R80_TONE_S)
+            ctx = {"tone": tone}
+            for key, nm in names.items():
+                leaf = _module_r80_load_sink(nm)
+                loads[nm] = leaf
+                if not leaf.get("sink_seen"):
+                    return _module_r80_block(
+                        entry, failures,
+                        f"probe sink {key} did not enumerate "
+                        f"({leaf.get('error') or leaf.get('load')})",
+                        loads)
+            entry["sink_loads"] = {k: {"module_id": v["load"].get(
+                "module_id"), "sink_waited_s": v.get("sink_waited_s")}
+                                   for k, v in loads.items()}
+            # t1: @DEFAULT_SINK@ inside slaves=/sinks= is never expanded —
+            # both spellings refuse rc=1 Input/Output error, no node, and
+            # the module list is untouched.
+            cbname = f"{MODULE_R80_PREFIX}_cb"
+            mods_before = _module_r80_module_count()
+            tries = {}
+            for arg in ("slaves=@DEFAULT_SINK@", "sinks=@DEFAULT_SINK@"):
+                tries[arg] = _module_r80_load(
+                    "module-combine-sink", f"sink_name={cbname}", arg)
+                time.sleep(0.2)
+            time.sleep(MODULE_R80_SETTLE_S)
+            nodes_now = _module_r80_nodes([cbname])
+            branches = sorted(
+                n for n in (_playback_r78_node_names() or [])
+                if n.startswith(f"output.{cbname}"))
+            mods_after = _module_r80_module_count()
+            legs["t1_combine_default_refused"] = {
+                "attempts": tries, "node_created": nodes_now[
+                    cbname].get("found"), "branch_nodes": branches,
+                "module_count_before": mods_before,
+                "module_count_after": mods_after}
+            # Leak guard (critic F8): a hypothetical rc=0 try produced a
+            # real module — it must reach `loads` for teardown custody.
+            for i, att in enumerate(tries.values()):
+                if (att or {}).get("module_id") is not None:
+                    loads[f"{cbname}_try{i}"] = {"load": att}
+            # t2: `pw-link <o> <i>` — the linger default. The process has
+            # already EXITED (rc=0 in ms) when the edge is observed; it
+            # must still be up at +2 s (WirePlumber does not reap it).
+            out_p = f"{names['lnk_a']}:monitor_FL"
+            in_p = f"{names['lnk_b']}:playback_FL"
+            try:
+                proc = subprocess.run(
+                    ["pw-link", out_p, in_p],
+                    capture_output=True, timeout=10)
+                create = {"exit_code": proc.returncode,
+                          "stderr_tail": _capture_tail(
+                              proc.stderr.decode(errors="replace"),
+                              "pw-link")}
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                create = {"exit_code": None, "error": str(exc)[:120]}
+            edges_now = _module_r80_edges(names["lnk_b"])
+            linked_now = (out_p, in_p) in edges_now
+            time.sleep(MODULE_R80_LINGER_LINK_HOLD_S)
+            edges_later = _module_r80_edges(names["lnk_b"])
+            legs["t2_pwlink_lingers"] = {
+                "out": out_p, "in": in_p, "create": create,
+                "linked_immediately": linked_now,
+                "edges_immediately": edges_now,
+                "linked_after_s": MODULE_R80_LINGER_LINK_HOLD_S,
+                "linked_later": (out_p, in_p) in edges_later,
+                "edges_later": edges_later}
+            # teardown the linger link explicitly — it survives module
+            # teardown anyway, but the explicit -d keeps the receipt
+            # honest about WHO tore it down.
+            try:
+                proc = subprocess.run(["pw-link", "-d", out_p, in_p],
+                                      capture_output=True, timeout=10)
+                legs["t2_pwlink_lingers"]["teardown_d"] = {
+                    "exit_code": proc.returncode}
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                legs["t2_pwlink_lingers"]["teardown_d"] = {
+                    "exit_code": None, "error": str(exc)[:120]}
+            # t3: `pw-link -m` — the link is the CLIENT's; it dies with
+            # the process. FR ports (t2 used FL) so a failed t2
+            # teardown_d cannot alias this leg's edge evidence (F7).
+            out_p3 = f"{names['lnk_a']}:monitor_FR"
+            in_p3 = f"{names['lnk_b']}:playback_FR"
+            mproc = subprocess.Popen(
+                ["pw-link", "-m", out_p3, in_p3],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+                start_new_session=True)
+            time.sleep(1.0)
+            edges_live = _module_r80_edges(names["lnk_b"])
+            linked_live = (out_p3, in_p3) in edges_live
+            if mproc.poll() is None:
+                os.killpg(mproc.pid, signal.SIGKILL)
+            mproc.wait()
+            merr = mproc.stderr.read().decode(errors="replace")
+            time.sleep(MODULE_R80_MLINK_DEAD_S)
+            # Reader-error must not pass the "link died" claim vacuously
+            # (critic F3): a failed pw-link read is coverage_blocked.
+            raw_dead = _playback_r78_links()
+            edges_dead = None if raw_dead is None else sorted(
+                {e for e in raw_dead
+                 if e[0].split(":")[0] == names["lnk_b"] or
+                 e[1].split(":")[0] == names["lnk_b"]})
+            legs["t3_pwlink_m_dies"] = {
+                "out": out_p3, "in": in_p3,
+                "linked_while_running": linked_live,
+                "edges_while_running": edges_live,
+                "m_exit_code": mproc.returncode,
+                "m_stderr_tail": _capture_tail(merr, "pw-link"),
+                "linked_after_death": (
+                    None if edges_dead is None
+                    else (out_p3, in_p3) in edges_dead),
+                "edges_after_death": edges_dead}
+            # t4: pactl move-sink-input is STICKY and carries content —
+            # the tag tone is fed into mv_a, the move lands it on mv_b,
+            # and mv_b's monitor tap must carry it (the move is real,
+            # not relabeled).
+            tag = f"{MODULE_R80_PREFIX}_play_mv"
+            leg = _module_r80_move_leg(tag, Path(tmp) /
+                                       "tap_move_sticky.wav",
+                                       names["mv_a"], names["mv_b"],
+                                       names["mv_b"], ctx)
+            legs["t4_move_sticky"] = {k: leg[k] for k in leg
+                                      if k != "node"}
+            legs["t4_move_sticky"]["tap"]["ran"] = bool(
+                legs["t4_move_sticky"]["tap"].get("windows"))
+            # t5: node.dont-move=true — the same move is a SILENT no-op
+            # (rc=0, links unchanged). The tap on dm_a keeps carrying
+            # the tone: the move never happened.
+            tag = f"{MODULE_R80_PREFIX}_play_dm"
+            leg = _module_r80_move_leg(tag, Path(tmp) /
+                                       "tap_move_dontmove.wav",
+                                       names["dm_a"], names["dm_a"],
+                                       names["dm_b"], ctx,
+                                       extra_props=(
+                                           "node.dont-move=true",),
+                                       with_node=True)
+            legs["t5_move_dontmove_noop"] = {
+                "tag": leg["tag"], "feed_exit": leg["feed_exit"],
+                "edge_a_waited_s": leg["edge_a_waited_s"],
+                "edge_a_linked": leg["edge_a_linked"],
+                "sink_input": leg["sink_input"],
+                "node_dont_move_prop":
+                    leg["node"].get("node_dont_move"),
+                "node": leg["node"],
+                **{k: leg[k] for k in
+                   ("move", "edges_before", "edges_after_first_s",
+                    "edges_first", "edges_after_late_s", "edges_late",
+                    "tap")}}
+            legs["t5_move_dontmove_noop"]["tap"]["ran"] = bool(
+                legs["t5_move_dontmove_noop"]["tap"].get("windows"))
+    finally:
+        _module_r80_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- t1: both spellings refuse, nothing is created ----
+    leg = legs.get("t1_combine_default_refused") or {}
+    for arg, att in (leg.get("attempts") or {}).items():
+        if att.get("exit_code") != 1 or \
+                att.get("error_class") != "pa_io_error":
+            failures.append(f"topo t1: {arg} must be rc=1 "
+                            f"Input/Output error — got "
+                            f"{att.get('exit_code')}/"
+                            f"{att.get('stderr_tail')}")
+    if leg.get("node_created") or leg.get("branch_nodes"):
+        failures.append("topo t1: a refused combine load still created "
+                        f"nodes ({leg.get('node_created')}, "
+                        f"{leg.get('branch_nodes')})")
+    if leg.get("module_count_before") is not None and \
+            leg.get("module_count_after") is not None and \
+            leg["module_count_after"] != leg["module_count_before"]:
+        failures.append("topo t1: module count moved "
+                        f"{leg['module_count_before']} -> "
+                        f"{leg['module_count_after']} on refused loads")
+    # ---- t2: the linger link outlives its exited process ----
+    leg = legs.get("t2_pwlink_lingers") or {}
+    if leg.get("create", {}).get("exit_code") != 0:
+        failures.append(f"topo t2: pw-link create failed — "
+                        f"{leg.get('create')}")
+    if not leg.get("linked_immediately"):
+        failures.append("topo t2: the linger link was not observed")
+    if not leg.get("linked_later"):
+        failures.append("topo t2: the linger link did not survive "
+                        f"+{MODULE_R80_LINGER_LINK_HOLD_S}s — the "
+                        "linger law is falsified")
+    # ---- t3: the -m link dies with its client ----
+    leg = legs.get("t3_pwlink_m_dies") or {}
+    if not leg.get("linked_while_running"):
+        failures.append("topo t3: the -m link never appeared while the "
+                        "client ran")
+    if leg.get("linked_after_death") is None:
+        entry.setdefault("coverage_blocked", []).append(
+            "topo t3: pw-link reader failed post-death — "
+            "linked_after_death unmeasured")
+    elif leg.get("linked_after_death"):
+        failures.append("topo t3: the -m link SURVIVED its client's "
+                        "death — the monitor-mode law is falsified")
+    # ---- t4: the move is sticky and carries content ----
+    leg = legs.get("t4_move_sticky") or {}
+    edge_dst = (f"{leg.get('tag')}:output_FL",
+                f"{names['mv_b']}:playback_FL")
+    if not leg.get("edge_a_linked"):
+        failures.append("topo t4: the feed never linked onto mv_a — "
+                        f"waited {leg.get('edge_a_waited_s')}s")
+    if not leg.get("sink_input", {}).get("entry_found"):
+        failures.append("topo t4: no sink-input entry for the tagged "
+                        "stream — the move was never issued")
+    elif leg.get("move", {}).get("exit_code") != 0:
+        failures.append(f"topo t4: move-sink-input failed — "
+                        f"{leg.get('move')}")
+    edge_src4 = (f"{leg.get('tag')}:output_FL",
+                 f"{names['mv_a']}:playback_FL")
+    # The move must CREATE the dst edge and REMOVE the src one — without
+    # both halves a preloaded or fan-out edge set passes (critic F5).
+    if edge_dst in (leg.get("edges_before") or []):
+        failures.append("topo t4: the mv_b edge existed BEFORE the move "
+                        "— the sticky evidence is preloaded")
+    for when in ("edges_first", "edges_late"):
+        got = leg.get(when) or []
+        if edge_dst not in got:
+            failures.append(f"topo t4: at {when} the stream is not "
+                            f"linked to mv_b — got {got}")
+        if edge_src4 in got:
+            failures.append(f"topo t4: at {when} the mv_a edge survived "
+                            f"the move — the move is not proven ({got})")
+    tapv = leg.get("tap") or {}
+    if not tapv.get("ran"):
+        failures.append("topo t4: the destination monitor tap produced "
+                        "no windows — the content pin is vacuous")
+    elif not tapv.get("carries_tone"):
+        failures.append("topo t4: the moved-to sink's monitor never "
+                        "carried the tag tone — the move did not carry "
+                        "content")
+    # ---- t5: dont-move turns the move into a silent no-op ----
+    leg = legs.get("t5_move_dontmove_noop") or {}
+    edge_src = (f"{leg.get('tag')}:output_FL",
+                f"{names['dm_a']}:playback_FL")
+    edge_bad = (f"{leg.get('tag')}:output_FL",
+                f"{names['dm_b']}:playback_FL")
+    if not leg.get("edge_a_linked"):
+        failures.append("topo t5: the feed never linked onto dm_a")
+    if leg.get("node_dont_move_prop") is not True:
+        failures.append("topo t5: node.dont-move did not land on the "
+                        f"stream node — got "
+                        f"{leg.get('node_dont_move_prop')!r}")
+    if not leg.get("sink_input", {}).get("entry_found"):
+        failures.append("topo t5: no sink-input entry for the tagged "
+                        "stream")
+    elif leg.get("move", {}).get("exit_code") != 0:
+        # the no-op is only silent if rc==0 — a refusal is a different
+        # law and must be named.
+        failures.append(f"topo t5: move-sink-input refused (rc!=0) — "
+                        f"the silent-no-op law needs rc=0: "
+                        f"{leg.get('move')}")
+    for when in ("edges_first", "edges_late"):
+        got = leg.get(when) or []
+        if edge_src not in got or edge_bad in got:
+            failures.append(f"topo t5: at {when} the stream must still "
+                            f"be on dm_a and never on dm_b — got {got}")
+    tapv = leg.get("tap") or {}
+    if not tapv.get("ran"):
+        failures.append("topo t5: the source monitor tap produced no "
+                        "windows — the content pin is vacuous")
+    elif not tapv.get("carries_tone"):
+        failures.append("topo t5: the ORIGINAL sink's monitor lost the "
+                        "tag tone — the no-op claim fails on content")
+    entry["failures"] = failures
+    return entry
+
+
+# ---------------------------------------------------------------------------
+# r81 GST<->PIPEWIRE frontier: the GStreamer clients armed — the element
+# availability lattice, the node/Client naming crossover, the routing-prop
+# vectors and their precedence, the pulse `device=` axis, the direction-split
+# target-loss law, the gst-launch exit classes, and the autodetect backend.
+# A NEW parallel ledger family, --probe-gst-r81; prior rows untouched and the
+# r76-r80 guards inherited, not relaxed. Surface facts are the r81 scout's
+# THIS-HOST measurements (GStreamer 1.28.6, gst-plugin-pipewire 1.6.8 — the
+# gst plugin tracks the PipeWire version, PipeWire 1.6.8, libpulse 17.0+r98,
+# WirePlumber session manager), re-armed verbatim:
+#   LATTICE. pipewiresink/pipewiresrc exist (Klass Sink|Source/Audio/Video,
+#     plugin version 1.6.8); pulsesink/pulsesrc/autoaudiosink/autoaudiosrc
+#     exist at 1.28.6; openalsink is ABSENT — inspect rc=255. The identical
+#     absence is rc=255 through gst-inspect but rc=1 through gst-launch's
+#     parser — never read one tool's rc as the other's.
+#   NAMING CROSSOVER. `client-name=` renames the *node* (name + description
+#     + media.name); `client-properties=props,application.name=` renames
+#     the *pw Client object* — the two names cross over and neither
+#     touches the other's object.
+#   ROUTING VECTORS. gst `target-object=` is a TWO-KEY write (node.target
+#     AND target.object); stream-properties emits either alone and both
+#     route; PIPEWIRE_PROPS and PIPEWIRE_NODE envs are honored; and the gst
+#     ELEMENT property BEATS stream-properties — the inverse of r78's
+#     `-P`-beats-`--target` law on pw-cat (client-specific precedence, both
+#     laws pinned with their authorities).
+#   PULSE AXIS. `device=` is a name handed to the server, not a client-side
+#     bind: a bogus name is rc=0 with a SILENT fallback to the current
+#     default sink; the record direction refuses the same input (rc=1
+#     `No such entity` + 0-byte artifact). PULSE_SINK is honored and
+#     `device=` outranks it.
+#   TARGET LOSS — SPLIT BY DIRECTION. Playback re-links to the current
+#     default within one 0.2 s sample and never exits/errors; capture does
+#     NOT re-link — the artifact freezes at the last buffer (unfinalized
+#     wavenc streaming header), no error, no EOS, process alive — while a
+#     same-event pw-record re-links (client-specific law; the stale
+#     node.target prop is ruled out by the prop-only leg).
+#   EXIT CLASSES. parse refusal rc=1 + NO artifact (caps negotiation is a
+#     parse refusal in gst-launch terms); runtime state-change rc=255 +
+#     0-byte artifact; the pulsesrc outlier rc=1 + 0-byte artifact.
+#   AUTODETECT. autoaudiosink -> pulsesink (a pipewire-pulse protocol node,
+#     linked to the default sink); autoaudiosrc -> pulsesrc -> fails rc=1 —
+#     r77's "pulsesrc has no working default" survives the wrapper.
+# Contention (mandatory): every routing leg targets the seat-owned null
+# sink `gst_r81_auth_<pid>` or is read-only observation; stream/node names
+# are gst_r81_*; unloads go by the name-verified module index ONLY (the
+# args string must carry our sink_name — a bare captured index is never
+# trusted, indices recycle LIFO); never pactl set-default-sink/source;
+# every capture leg is triple-bounded (element bound where it exists +
+# wall cap + byte cap) in the same loop that owns the process group.
+GST_R81_PID = os.getpid()
+GST_R81_NS = f"gst_r81_auth_{GST_R81_PID}"     # seat-owned null sink
+GST_R81_TAG = f"gst_r81_{GST_R81_PID}"         # stream/node name prefix
+GST_R81_RAW = "audio/x-raw,format=S16LE,rate=48000,channels=2"
+GST_R81_WALL_S = 6.0
+GST_R81_BYTE_CAP = 4 * 1024 * 1024
+GST_R81_LOSS_EVENT_S = 1.2          # unload at +1.2 s (scout verbatim)
+GST_R81_LOSS_WALL_S = 4.5           # scout verbatim
+GST_R81_RELINK_BOUND_S = 0.45       # "within one 0.2 s sample" + fire skew
+GST_R81_BOGUS = "no_such_sink_r81"
+GST_R81_ANSI = re.compile(r"\x1b\[[0-9;]*m")
+# Receipt-stable node props — volatile ids/serials/counters are dropped;
+# client.id is kept at the node leaf level (the Client join needs it).
+GST_R81_PROP_KEEP = re.compile(
+    r"^(node\.|stream\.|target\.|media\.|application\.name$|client\.|"
+    r"object\.|pulse\.server)")
+GST_R81_PROP_DROP = {
+    "object.id", "object.serial", "node.driver-id", "node.latency",
+    "stream.is-live", "application.language", "client.id"}
+
+# gst-local error classes — a separate tuple, same rule as r77/r78: never
+# prepended into the shared _CAPTURE_ERR_CLASSES (that could reclassify a
+# committed row). Ordered most-specific first.
+_GST_R81_ERR_CLASSES = (
+    ("gst_target_not_found", r"stream error: target not found"),
+    ("gst_no_such_entity", r"Failed to connect stream: No such entity"),
+    ("gst_connection_refused", r"Failed to connect: Connection refused"),
+    ("gst_parse_refusal", r"(?:WARNING: erroneous pipeline|"
+     r"pipeline could not be constructed)[^\n]*"),
+    ("gst_state_change_refusal",
+     r"Failed to set pipeline to (?:PAUSED|PLAYING)[^\n]*"),
+    ("gst_not_negotiated", r"not-negotiated \(-4\)"),
+    ("gst_not_linked", r"not-linked \(-1\)"),
+    ("gst_no_element", r"No such element or plugin[^\n]*"),
+    ("gst_internal_stream", r"Internal data stream error\.?"),
+    ("other_error", r"ERROR:"),
+)
+
+
+def _gst_r81_errclass(text):
+    """First matching named class on a gst leg's stderr (r81 tuple)."""
+    for name, pat in _GST_R81_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _gst_r81_graph():
+    """One pw-dump -> {nodes, links, clients}. Identification is by
+    OBJECT ID, never by name: two gst-launch pipelines both publish a
+    `gst-launch-1.0` node, so port-name prefixes alias under contention.
+    The client join is node.client.id -> Client.application.process.id —
+    a native-protocol NODE does not carry the pid itself."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, links, clients = {}, [], {}
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "class": props.get("media.class"),
+                "desc": props.get("node.description"),
+                "client_id": props.get("client.id"),
+                "state": info.get("state"),
+                "props": {k: v for k, v in props.items()
+                          if GST_R81_PROP_KEEP.match(k)
+                          and k not in GST_R81_PROP_DROP}}
+        elif t.endswith("Link"):
+            links.append({"out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id")})
+        elif t.endswith("Client"):
+            clients[o["id"]] = {
+                "name": props.get("client.name"),
+                "application_name": props.get("application.name"),
+                "binary": props.get("application.process.binary"),
+                "pid": props.get("application.process.id")}
+    return {"nodes": nodes, "links": links, "clients": clients}
+
+
+def _gst_r81_our_nodes(g, pid):
+    """Our stream node(s): the Client whose application.process.id is our
+    spawned pid -> the Node(s) whose client.id is that client. Works
+    under renames (the naming legs' whole point) and under default-name
+    aliasing on a contended host."""
+    if "error" in g:
+        return []
+    ours = {cid for cid, c in g["clients"].items()
+            if str(c.get("pid")) == str(pid)}
+    return [(nid, n) for nid, n in g["nodes"].items()
+            if n.get("client_id") in ours]
+
+
+def _gst_r81_consumers(g, node_id):
+    """Sink-node names our node's output ports link INTO (by object id —
+    the only collision-proof consumption statement)."""
+    if "error" in g:
+        return None
+    return sorted({(g["nodes"].get(l["in_node"]) or {}).get("name")
+                   for l in g["links"]
+                   if l["out_node"] == node_id and l["in_node"] is not None
+                   } - {None})
+
+
+def _gst_r81_producers(g, node_id):
+    """Source-node names feeding our node's input ports (by object id)."""
+    if "error" in g:
+        return None
+    return sorted({(g["nodes"].get(l["out_node"]) or {}).get("name")
+                   for l in g["links"]
+                   if l["in_node"] == node_id and l["out_node"] is not None
+                   } - {None})
+
+
+def _gst_r81_sample(proc, out_path, el):
+    """One timeline sample: process liveness, artifact size, our node
+    (client-joined, prop-filtered) with its link endpoints."""
+    g = _gst_r81_graph()
+    s = {"t": round(el, 3), "live": proc.poll() is None,
+         "size": (Path(out_path).stat().st_size
+                  if out_path and Path(out_path).exists() else None),
+         "nodes": []}
+    if "error" in g:
+        s["graph_error"] = g["error"]
+        return s
+    for nid, n in _gst_r81_our_nodes(g, proc.pid):
+        cl = dict(g["clients"].get(n.get("client_id")) or {})
+        cl.pop("pid", None)          # volatile — the join already happened
+        s["nodes"].append({
+            "id": nid, "name": n.get("name"), "class": n.get("class"),
+            "desc": n.get("desc"), "client_id": n.get("client_id"),
+            "state": n.get("state"), "props": n.get("props"),
+            "client": cl or None,
+            "consumers": _gst_r81_consumers(g, nid),
+            "producers": _gst_r81_producers(g, nid)})
+    return s
+
+
+def _gst_r81_last_node(leg, require_linked=False):
+    """The leg's last sample carrying our node -> that node leaf (the
+    verdict surface for prop/link assertions)."""
+    for s in reversed(leg.get("samples") or []):
+        nodes = s.get("nodes") or []
+        if nodes:
+            if require_linked and not (nodes[0].get("consumers") or
+                                       nodes[0].get("producers")):
+                continue
+            return nodes[0]
+    return None
+
+
+def _gst_r81_wav_inspect(path):
+    """Scout-faithful artifact shape: riff/data size-field classes name
+    the wavenc streaming placeholders verbatim (the frozen-capture
+    signature), plus the raw declared ints and the fmt fields."""
+    insp = {"exists": bool(path and Path(path).exists())}
+    if not insp["exists"]:
+        return insp
+    p = Path(path)
+    size = p.stat().st_size
+    insp["bytes"] = size
+    if size < 44:
+        insp["riff"] = "short"
+        return insp
+    with p.open("rb") as fh:
+        head = fh.read(64)
+    if head[:4] != b"RIFF" or head[8:12] != b"WAVE":
+        insp["riff"] = "not_wav"
+        return insp
+    riff = struct.unpack("<I", head[4:8])[0]
+    insp["riff_size"] = riff
+    insp["riff"] = (
+        "finalized" if riff == size - 8 else
+        "placeholder_8" if riff == 8 else
+        "zero" if riff == 0 else
+        "wavenc_streaming" if riff == 0x7FFF0024 else f"other:{riff}")
+    try:
+        (insp["fmt"], insp["ch"], insp["rate"],
+         _br, _ba, insp["bits"]) = struct.unpack("<HHIIHH", head[20:36])
+    except struct.error:
+        pass
+    off = 12
+    while off + 8 <= 64:
+        cid = head[off:off + 4].decode("latin1")
+        csz = struct.unpack("<I", head[off + 4:off + 8])[0]
+        if cid == "data":
+            insp["data_declared"] = csz
+            insp["data_actual"] = size - (off + 8)
+            insp["data"] = (
+                "finalized" if csz == size - (off + 8) else
+                "zero" if csz == 0 else
+                "wavenc_streaming" if csz == 0x7FFF0000 else
+                "placeholder_ff" if csz == 0xFFFFFFFF else
+                f"other:{csz}")
+            frame = max(1, (insp.get("ch") or 1) *
+                        ((insp.get("bits") or 8) // 8))
+            insp["frames_declared"] = csz // frame
+            break
+        off += 8 + csz + (csz & 1)
+    return insp
+
+
+def _gst_r81_sink_module_index(sink_name):
+    """`pactl list modules short` -> the index whose ARGUMENTS carry
+    `sink_name=<sink_name>` (short listings include the arg string). The
+    name-in-args match is the ownership proof — an index alone proves
+    nothing on a host that recycles them LIFO."""
+    try:
+        proc = subprocess.run(["pactl", "list", "modules", "short"],
+                              capture_output=True, timeout=10)
+    except (subprocess.TimeoutExpired, OSError):
+        return None
+    for ln in proc.stdout.decode(errors="replace").splitlines():
+        f = ln.split("\t")
+        if f and f[0].strip().isdigit() and \
+                "module-null-sink" in ln and \
+                f"sink_name={sink_name}" in ln:
+            return int(f[0].strip())
+    return None
+
+
+def _gst_r81_unload_own(module_id, sink_name=GST_R81_NS):
+    """Unload by the NAME-VERIFIED index ONLY: re-read the module table
+    immediately before firing, require the index whose args name OUR
+    sink, and unload that index. A bare captured id is never fired (a
+    recycled index can belong to a foreign module — the scout's
+    §10/r80-class incident). `recycled` records a captured-vs-verified
+    drift; the name match still proves ownership."""
+    idx = _gst_r81_sink_module_index(sink_name)
+    res = {"verified_index": idx, "captured": module_id}
+    if idx is None:
+        res["skipped"] = "not_listed"
+        return res
+    res["recycled"] = (module_id is not None and idx != module_id)
+    try:
+        proc = subprocess.run(["pactl", "unload-module", str(idx)],
+                              capture_output=True, timeout=15)
+        res["exit_code"] = proc.returncode
+        res["stderr_tail"] = proc.stderr.decode(
+            errors="replace").strip()[:120] or None
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        res["exit_code"] = None
+        res["error"] = str(exc)[:120]
+    return res
+
+
+def _gst_r81_ns_ensure(loads):
+    """(Re)load the seat-owned null sink if absent, with the r78
+    port-readiness gate plus the monitor-source gate — a record spawned
+    in the enumeration gap binds the live default and hangs to its
+    bound."""
+    if GST_R81_NS in (_capture_r77_sink_names() or []):
+        leaf = {"present": True,
+                "module_id": _gst_r81_sink_module_index(GST_R81_NS),
+                "sink_seen": True}
+    else:
+        leaf = _loopback_r79_sinks_load([GST_R81_NS])[GST_R81_NS]
+    loads[GST_R81_NS] = leaf
+    return leaf
+
+
+def _gst_r81_teardown(entry, failures, loads):
+    """Every own module unloaded by name-verified index, then the two
+    witnesses: probe sinks gone from pactl and no gst_r81_* node of ours
+    surviving."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unloads", {})[tag] = _gst_r81_unload_own(
+            (leaf or {}).get("module_id"))
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if GST_R81_TAG in n or n == GST_R81_NS)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r81-tagged nodes survived: {rest}")
+
+
+def _gst_r81_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares: record it, unload
+    anything this entry loaded, and return — a blocked leg is named
+    coverage, never a silent pass."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    if loads is not None:
+        for leaf in loads.values():
+            _gst_r81_unload_own((leaf or {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+def _gst_r81_leg(name, argv, ctx, env_extra=None, out_path=None,
+                 wall_cap=GST_R81_WALL_S, byte_cap=GST_R81_BYTE_CAP,
+                 sample_at=(0.4, 0.9), timeline=None, events=()):
+    """One bounded gst/pw leg, triple-bounded INSIDE the loop that owns
+    the process group (no watchdog thread — the r77 flood lesson): the
+    element bound (num-buffers / -n) rides inside argv where it exists,
+    the wall cap SIGKILLs the pgid, and the byte cap on out_path is
+    checked on the same loop tick. Timed events fire in-order: an
+    "unload_module" goes through the name-verified unload. Each sample
+    resolves our node by client object id (name-alias-proof)."""
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        env.update(env_extra)
+    if out_path:
+        Path(out_path).unlink(missing_ok=True)
+    rec = {"name": name, "env_extra": env_extra or None,
+           "samples": [], "fired": []}
+    try:
+        proc = subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE,
+                                start_new_session=True, env=env)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:120]
+        return rec
+    t0 = time.monotonic()
+    ev = sorted(events, key=lambda e: e[0])
+    due = [] if timeline else list(sample_at)
+    next_tl = timeline
+    killed = None
+    while True:
+        el = time.monotonic() - t0
+        if proc.poll() is not None:
+            break
+        while ev and el >= ev[0][0]:
+            _, kind, arg = ev.pop(0)
+            when = round(el, 3)
+            try:
+                if kind == "unload_module":
+                    res = _gst_r81_unload_own(arg)
+                else:
+                    res = {"unknown_event": kind}
+            except Exception as exc:                 # defensive: event must not kill the loop
+                res = {"exc": repr(exc)[:160]}
+            rec["fired"].append({"at": when, "kind": kind, "result": res})
+        if timeline:
+            if el >= next_tl:
+                rec["samples"].append(_gst_r81_sample(proc, out_path, el))
+                next_tl += timeline
+        elif due and el >= due[0]:
+            rec["samples"].append(
+                _gst_r81_sample(proc, out_path, due.pop(0)))
+        if out_path and Path(out_path).exists() and \
+                Path(out_path).stat().st_size > byte_cap:
+            killed = f"bytecap:{Path(out_path).stat().st_size}"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        if el > wall_cap:
+            killed = "wallcap"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        time.sleep(0.008)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    err = GST_R81_ANSI.sub(
+        "", proc.stderr.read().decode(errors="replace"))
+    cls, hit = _gst_r81_errclass(err)
+    shown = " ".join(argv)
+    for token, mark in ((str(out_path), "<out>"),
+                        (ctx.get("tmp"), "<tmp>")):
+        if token:
+            shown = shown.replace(str(token), mark)
+    rec.update({"argv": shown,
+                "exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed": killed,
+                "stderr_head": err.strip().splitlines()[:3],
+                "stderr": err[:3000],
+                "error_class": cls, "error_hit": hit,
+                "out": (_gst_r81_wav_inspect(out_path)
+                        if out_path else None)})
+    return rec
+
+
+def _gst_r81_entry_head(probe):
+    """Shared entry preamble: inventory, oracle, contention census."""
+    inv = _capture_inventory()
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"]}}
+
+
+# --------------------------------------------------------------------------
+# (1) ELEMENT LATTICE — the gst-inspect availability table.
+# --------------------------------------------------------------------------
+def gst_element_lattice_r81_entry():
+    """(1) The availability lattice: the six named elements inspect rc=0
+    at their pinned klass/plugin/version — the pipewire pair at 1.6.8
+    (the gst plugin tracks PipeWire's version, not GStreamer's), the
+    pulse/autodetect elements at 1.28.6 — and `openalsink` is ABSENT
+    rc=255 `No such element or plugin`, the same class as the
+    nosuchelement control. Two reps per element, row-stability asserted."""
+    failures = []
+    entry = _gst_r81_entry_head(
+        "gst-inspect element lattice — availability, klass, plugin, "
+        "version; absent-element rc=255; pipewire plugin at 1.6.8")
+    want = {
+        "pipewiresink": {"rc": 0, "klass": "Sink/Audio/Video",
+                         "plugin": "libgstpipewire.so", "version": "1.6.8"},
+        "pipewiresrc": {"rc": 0, "klass": "Source/Audio/Video",
+                        "plugin": "libgstpipewire.so", "version": "1.6.8"},
+        "pulsesink": {"rc": 0, "klass": "Sink/Audio",
+                      "plugin": "libgstpulseaudio.so", "version": "1.28.6"},
+        "pulsesrc": {"rc": 0, "klass": "Source/Audio",
+                     "plugin": "libgstpulseaudio.so", "version": "1.28.6"},
+        "autoaudiosink": {"rc": 0, "klass": "Sink/Audio",
+                          "plugin": "libgstautodetect.so",
+                          "version": "1.28.6"},
+        "autoaudiosrc": {"rc": 0, "klass": "Source/Audio",
+                         "plugin": "libgstautodetect.so",
+                         "version": "1.28.6"},
+        "alsasink": {"rc": 0, "klass": "Sink/Audio",
+                     "plugin": "libgstalsa.so", "version": "1.28.6"},
+        "alsasrc": {"rc": 0, "klass": "Source/Audio",
+                    "plugin": "libgstalsa.so", "version": "1.28.6"},
+        "audiotestsrc": {"rc": 0, "klass": "Source/Audio",
+                         "plugin": "libgstaudiotestsrc.so",
+                         "version": "1.28.6"},
+        "wavenc": {"rc": 0, "klass": "Codec/Muxer/Audio",
+                   "plugin": "libgstwavenc.so", "version": "1.28.6"},
+        "filesink": {"rc": 0, "klass": "Sink/File",
+                     "plugin": "libgstcoreelements.so",
+                     "version": "1.28.6"},
+        "fakesink": {"rc": 0, "klass": "Sink",
+                     "plugin": "libgstcoreelements.so",
+                     "version": "1.28.6"},
+        "openalsink": {"rc": 255,
+                       "first_line":
+                           "No such element or plugin 'openalsink'"},
+        "nosuchelement_r81_xyz": {"rc": 255,
+                                "first_line":
+                                    "No such element or plugin "
+                                    "'nosuchelement_r81_xyz'"},
+    }
+    legs = {}
+    for el, exp in want.items():
+        rows = []
+        for _rep in range(2):
+            try:
+                proc = subprocess.run(["gst-inspect-1.0", el],
+                                      capture_output=True, timeout=30)
+                txt = GST_R81_ANSI.sub(
+                    "", proc.stdout.decode(errors="replace") +
+                    proc.stderr.decode(errors="replace"))
+
+                def _field(name, _txt=txt):
+                    m = re.search(rf"^\s*{name}\s+(.+)$", _txt, re.M)
+                    return m.group(1).strip() if m else None
+
+                rows.append({"rc": proc.returncode,
+                             "klass": _field("Klass"),
+                             "plugin": _field("Filename"),
+                             "version": _field("Version"),
+                             "first_line":
+                                 (txt.strip().splitlines() or [""])[0][:120]})
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                rows.append({"rc": None, "error": str(exc)[:120]})
+        legs[el] = {"expect": exp, "rows": rows,
+                    "stable": len({json.dumps(r, sort_keys=True)
+                                   for r in rows}) == 1}
+    try:
+        proc = subprocess.run(["gst-inspect-1.0", "pipewire"],
+                              capture_output=True, timeout=30)
+        txt = GST_R81_ANSI.sub("", proc.stdout.decode(errors="replace"))
+        m = re.search(r"^\s*Version\s+(\S+)", txt, re.M)
+        legs["plugin_pipewire"] = {"rc": proc.returncode,
+                                   "version": m.group(1) if m else None}
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        legs["plugin_pipewire"] = {"rc": None, "error": str(exc)[:120]}
+    entry["legs"] = legs
+    for el, exp in want.items():
+        leg = legs[el]
+        for r in leg["rows"]:
+            if r.get("rc") != exp["rc"]:
+                failures.append(f"lattice {el}: rc {r.get('rc')} != "
+                                f"{exp['rc']}")
+                continue
+            if exp["rc"] == 0:
+                if r.get("klass") != exp["klass"]:
+                    failures.append(f"lattice {el}: klass "
+                                    f"{r.get('klass')!r} != "
+                                    f"{exp['klass']!r}")
+                if not (r.get("plugin") or "").endswith(exp["plugin"]):
+                    failures.append(f"lattice {el}: plugin "
+                                    f"{r.get('plugin')!r} does not end "
+                                    f"with {exp['plugin']!r}")
+                if r.get("version") != exp["version"]:
+                    failures.append(f"lattice {el}: version "
+                                    f"{r.get('version')!r} != "
+                                    f"{exp['version']!r}")
+            elif r.get("first_line") != exp["first_line"]:
+                failures.append(f"lattice {el}: refusal line "
+                                f"{r.get('first_line')!r} != "
+                                f"{exp['first_line']!r}")
+        if not leg["stable"]:
+            failures.append(f"lattice {el}: rows differ across reps")
+    pw = legs["plugin_pipewire"]
+    if pw.get("rc") != 0 or pw.get("version") != "1.6.8":
+        failures.append(f"lattice plugin_pipewire: {pw}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) NAMING — the node/Client crossover.
+# --------------------------------------------------------------------------
+def gst_naming_r81_entry():
+    """(2) The naming crossover: `client-name=` renames the *node*
+    (node.name + node.description + media.name) while the pw Client
+    object keeps `gst-launch-1.0`; `client-properties=
+    props,application.name=` renames the *Client* while the node keeps
+    `gst-launch-1.0` on all three strings; `stream-properties
+    node.name=` renames only node.name. Every leg routes into the
+    seat-owned null sink so the graph witnesses are contention-free;
+    our node is resolved by client object id (never by name)."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "gst naming crossover — client-name renames the node, "
+        "client-properties renames the Client object")
+    ctx = {}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    tgt = ["target-object=" + GST_R81_NS]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gst_r81_block(
+                entry, failures, "null sink load/enumerate failed",
+                loads)
+        legs["n0_bare"] = _gst_r81_leg(
+            "n0_bare", base + ["pipewiresink"] + tgt, ctx)
+        legs["n1_stream_node_name"] = _gst_r81_leg(
+            "n1_stream_node_name",
+            base + ["pipewiresink"] + tgt +
+            [f"stream-properties=props,node.name={GST_R81_TAG}_snk"],
+            ctx)
+        legs["n2_client_name"] = _gst_r81_leg(
+            "n2_client_name",
+            base + ["pipewiresink"] + tgt +
+            [f"client-name={GST_R81_TAG}_client"], ctx)
+        legs["n3_client_properties"] = _gst_r81_leg(
+            "n3_client_properties",
+            base + ["pipewiresink"] + tgt +
+            [f"client-properties=props,application.name="
+             f"{GST_R81_TAG}_app"], ctx)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-name-") as tmp:
+            cap = str(Path(tmp) / "cap.wav")
+            legs["n4_src_client_name"] = _gst_r81_leg(
+                "n4_src_client_name",
+                ["gst-launch-1.0", "-q", "pipewiresrc"] + tgt +
+                [f"client-name={GST_R81_TAG}_src_client",
+                 "stream-properties=props,stream.capture.sink=true",
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap}"],
+                dict(ctx, tmp=tmp), out_path=cap)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- n0: the default shape — node AND Client are gst-launch-1.0 ----
+    leg, nd = legs.get("n0_bare") or {}, _gst_r81_last_node(
+        legs.get("n0_bare") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"name n0: leg failed or no node — "
+                        f"rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        cl = nd.get("client") or {}
+        if not (nd.get("name") == nd.get("desc") ==
+                props.get("media.name") == "gst-launch-1.0"):
+            failures.append(f"name n0: default identity strings differ "
+                            f"— {nd.get('name')!r}/{nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+        if nd.get("class") != "Stream/Output/Audio":
+            failures.append(f"name n0: media.class "
+                            f"{nd.get('class')!r}")
+        if props.get("application.name") is not None:
+            failures.append("name n0: application.name present on a "
+                            "native pipewire node — scout pinned it "
+                            "absent")
+        if (cl.get("application_name") or cl.get("name")) != \
+                "gst-launch-1.0":
+            failures.append(f"name n0: Client name "
+                            f"{cl.get('application_name')!r} != "
+                            "gst-launch-1.0")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"name n0: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- n1: stream-properties node.name renames only node.name ----
+    leg, nd = legs.get("n1_stream_node_name") or {}, _gst_r81_last_node(
+        legs.get("n1_stream_node_name") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if nd.get("name") != f"{GST_R81_TAG}_snk":
+            failures.append(f"name n1: node.name {nd.get('name')!r} did "
+                            "not take the stream-properties rename")
+        if nd.get("desc") != "gst-launch-1.0" or \
+                props.get("media.name") != "gst-launch-1.0":
+            failures.append("name n1: description/media.name must stay "
+                            f"gst-launch-1.0 — got {nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+    # ---- n2: client-name renames the NODE, not the Client ----
+    leg, nd = legs.get("n2_client_name") or {}, _gst_r81_last_node(
+        legs.get("n2_client_name") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n2: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        cl = nd.get("client") or {}
+        want = f"{GST_R81_TAG}_client"
+        if not (nd.get("name") == nd.get("desc") ==
+                props.get("media.name") == want):
+            failures.append(f"name n2: client-name did NOT rename the "
+                            f"node — {nd.get('name')!r}/{nd.get('desc')!r}/"
+                            f"{props.get('media.name')!r}")
+        if (cl.get("application_name") or cl.get("name")) != \
+                "gst-launch-1.0":
+            failures.append(f"name n2: the pw Client MOVED to "
+                            f"{cl.get('application_name')!r} — the "
+                            "crossover law is falsified")
+    # ---- n3: client-properties renames the Client, not the node ----
+    leg, nd = legs.get("n3_client_properties") or {}, _gst_r81_last_node(
+        legs.get("n3_client_properties") or {})
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("name n3: leg failed or no node")
+    else:
+        cl = nd.get("client") or {}
+        if nd.get("name") != "gst-launch-1.0":
+            failures.append(f"name n3: the NODE moved to "
+                            f"{nd.get('name')!r} — the crossover law is "
+                            "falsified")
+        if (cl.get("application_name") or cl.get("name")) != \
+                f"{GST_R81_TAG}_app":
+            failures.append(f"name n3: Client name "
+                            f"{cl.get('application_name')!r} != "
+                            f"{GST_R81_TAG}_app")
+    # ---- n4: the capture-side node takes client-name too ----
+    leg, nd = legs.get("n4_src_client_name") or {}, _gst_r81_last_node(
+        legs.get("n4_src_client_name") or {}, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"name n4: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("name") != f"{GST_R81_TAG}_src_client":
+            failures.append(f"name n4: capture node {nd.get('name')!r} "
+                            "did not take client-name")
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"name n4: producers {nd.get('producers')} "
+                            "!= [<ns>]")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) ROUTING — prop vectors, precedence, envs; capture-side props.
+# --------------------------------------------------------------------------
+def gst_routing_r81_entry():
+    """(3) The routing vectors: gst `target-object=` writes BOTH
+    node.target and target.object (the two-key write); stream-properties
+    emits either alone and both route; PIPEWIRE_PROPS and PIPEWIRE_NODE
+    are honored; and the gst ELEMENT property overwrites
+    stream-properties — the INVERSE of r78's `-P`-beats-`--target` law
+    on pw-cat (client-specific precedence, both authorities recorded).
+    A sink-side target miss is rc=0 + silent fallback to the CURRENT
+    default; the capture side's miss without the stream.capture.sink
+    prop is rc=255 `target not found`, and a `<sink>.monitor` name does
+    NOT resolve — it lands the *default* sink's monitor (the r77
+    residual, decided on a non-default probe sink)."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "gst routing vectors — two-key target-object write, gst-prop "
+        "precedence over stream-properties, PIPEWIRE_PROPS/"
+        "PIPEWIRE_NODE envs, silent fallback, capture prop gate")
+    ctx = {}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _gst_r81_block(
+                entry, failures,
+                "null sink load/enumerate failed", loads)
+        play = base + ["pipewiresink"]
+        L = [
+            ("r1_target_object", play + ["target-object=" + GST_R81_NS],
+             None, {}),
+            ("r2_sp_node_target",
+             play + ["stream-properties=props,node.target=" + GST_R81_NS],
+             None, {}),
+            ("r3_sp_target_object",
+             play + ["stream-properties=props,target.object=" +
+                     GST_R81_NS], None, {}),
+            ("r4_bogus_target",
+             play + ["target-object=" + GST_R81_BOGUS], None, {}),
+            ("r5_prop_beats_props",
+             play + ["target-object=" + GST_R81_NS,
+                     "stream-properties=props,target.object=" +
+                     GST_R81_BOGUS], None, {}),
+            ("r6_env_pipewire_props", play,
+             {"PIPEWIRE_PROPS": "{ node.name=" + GST_R81_TAG + "_env"
+              " node.target=" + GST_R81_NS + " }"}, {}),
+            ("r7_env_pipewire_node", play,
+             {"PIPEWIRE_NODE": GST_R81_NS}, {}),
+            ("r8_no_autoconnect",
+             play + ["target-object=" + GST_R81_NS,
+                     "stream-properties=props,node.autoconnect=false"],
+             None, {}),
+        ]
+        for name, argv, envx, kw in L:
+            legs[name] = _gst_r81_leg(name, argv, ctx, env_extra=envx,
+                                      **kw)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-route-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            # c0: capture WITHOUT the stream.capture.sink prop -> the
+            # strict-side refusal (rc=255, 0-byte artifact).
+            cap0 = str(Path(tmp) / "c0.wav")
+            legs["c0_no_prop"] = _gst_r81_leg(
+                "c0_no_prop",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 "target-object=" + GST_R81_NS, "num-buffers=100", "!",
+                 GST_R81_RAW, "!", "wavenc", "!", "filesink",
+                 f"location={cap0}"], ctx, out_path=cap0)
+            # c1: the prop opens the sink side — tone-anchored content.
+            tone = Path(tmp) / "tag.wav"
+            _playback_r78_write_tone(tone, 6.0)
+            feed = subprocess.Popen(
+                ["pw-play", "-P", f"node.name={GST_R81_TAG}_feed",
+                 "--target", GST_R81_NS, str(tone)],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            cap1 = str(Path(tmp) / "c1.wav")
+            try:
+                legs["c1_prop_capture"] = _gst_r81_leg(
+                    "c1_prop_capture",
+                    ["gst-launch-1.0", "-q", "pipewiresrc",
+                     "target-object=" + GST_R81_NS,
+                     "stream-properties=props,stream.capture.sink=true",
+                     "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc",
+                     "!", "filesink", f"location={cap1}"], ctx,
+                    out_path=cap1)
+            finally:
+                try:
+                    os.killpg(feed.pid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    pass
+                feed.wait()
+            legs["c1_prop_capture"]["tone"] = \
+                _playback_r78_tone_windows(Path(cap1))
+            # c4: `target-object=<ns>.monitor` does not resolve — the
+            # capture lands on the *default* sink's monitor (the r77
+            # residual decided on a non-default probe sink).
+            cap4 = str(Path(tmp) / "c4.wav")
+            legs["c4_monitor_suffix"] = _gst_r81_leg(
+                "c4_monitor_suffix",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 f"target-object={GST_R81_NS}.monitor",
+                 "stream-properties=props,stream.capture.sink=true",
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap4}"], ctx, out_path=cap4)
+            # c7: prop-only node.target routes the capture with no gst
+            # target-object at all (the t6 law's benign half).
+            cap7 = str(Path(tmp) / "c7.wav")
+            legs["c7_prop_only"] = _gst_r81_leg(
+                "c7_prop_only",
+                ["gst-launch-1.0", "-q", "pipewiresrc",
+                 "stream-properties=props,stream.capture.sink=true,"
+                 "node.target=" + GST_R81_NS,
+                 "num-buffers=100", "!", GST_R81_RAW, "!", "wavenc", "!",
+                 "filesink", f"location={cap7}"], ctx, out_path=cap7)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default_seen = [entry["inventory"]["default_sink"],
+                    entry["oracle_at_start"]["sink_pactl"],
+                    entry["oracle_at_start"]["sink_meta"]]
+    default_seen = [d for d in default_seen if d]
+
+    def _node(lname):
+        return legs.get(lname) or {}, _gst_r81_last_node(
+            legs.get(lname) or {})
+
+    # ---- r1: the two-key write + honored route ----
+    leg, nd = _node("r1_target_object")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.target") != GST_R81_NS or \
+                props.get("target.object") != GST_R81_NS:
+            failures.append("route r1: target-object must write BOTH "
+                            f"keys — got node.target="
+                            f"{props.get('node.target')!r} target.object="
+                            f"{props.get('target.object')!r}")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r1: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- r2/r3: each single-key prop vector routes alone ----
+    for lname, key in (("r2_sp_node_target", "node.target"),
+                       ("r3_sp_target_object", "target.object")):
+        leg, nd = _node(lname)
+        other = "target.object" if key == "node.target" else "node.target"
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"route {lname}: leg failed or no node")
+            continue
+        props = nd.get("props") or {}
+        if props.get(key) != GST_R81_NS:
+            failures.append(f"route {lname}: {key} "
+                            f"{props.get(key)!r} != <ns>")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route {lname}: consumers "
+                            f"{nd.get('consumers')} != [<ns>] "
+                            f"(other key {other}="
+                            f"{props.get(other)!r})")
+    # ---- r4: the silent sink-side fallback ----
+    leg, nd = _node("r4_bogus_target")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r4: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_BOGUS or \
+                props.get("node.target") != GST_R81_BOGUS:
+            failures.append("route r4: bogus target must be written "
+                            f"verbatim — got {props.get('node.target')!r}/"
+                            f"{props.get('target.object')!r}")
+        cons = nd.get("consumers") or []
+        if cons != [entry["inventory"]["default_sink"]]:
+            failures.append(f"route r4: silent fallback must land the "
+                            f"leg-time default {default_seen} — got "
+                            f"{cons}")
+        if leg.get("stderr_head"):
+            failures.append(f"route r4: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- r5: the gst element property BEATS stream-properties ----
+    leg, nd = _node("r5_prop_beats_props")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r5: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                props.get("node.target") != GST_R81_NS:
+            failures.append("route r5: element prop must overwrite "
+                            f"stream-properties — got "
+                            f"{props.get('node.target')!r}/"
+                            f"{props.get('target.object')!r} (inverse of "
+                            "r78's -P-beats-flag law)")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r5: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- r6/r7: the env vectors ----
+    leg, nd = _node("r6_env_pipewire_props")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r6: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.target") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS] or \
+                nd.get("name") != f"{GST_R81_TAG}_env":
+            failures.append(f"route r6: PIPEWIRE_PROPS not honored — "
+                            f"name={nd.get('name')!r} node.target="
+                            f"{props.get('node.target')!r} consumers="
+                            f"{nd.get('consumers')}")
+    leg, nd = _node("r7_env_pipewire_node")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("route r7: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"route r7: PIPEWIRE_NODE must land as "
+                            f"target.object — got "
+                            f"{props.get('target.object')!r} consumers="
+                            f"{nd.get('consumers')}")
+    # ---- r8: node.autoconnect=false stalls unlinked, prop is a STRING ----
+    leg, nd = _node("r8_no_autoconnect")
+    if leg.get("killed") != "wallcap" or leg.get("exit_code") != -9:
+        failures.append(f"route r8: expected a stalled pipeline killed "
+                        f"at the wall cap — rc={leg.get('exit_code')} "
+                        f"killed={leg.get('killed')}")
+    if nd is not None:
+        props = nd.get("props") or {}
+        if props.get("node.autoconnect") != "FALSE":
+            failures.append("route r8: node.autoconnect must read the "
+                            f"STRING \"FALSE\" — got "
+                            f"{props.get('node.autoconnect')!r}")
+        if nd.get("consumers"):
+            failures.append(f"route r8: an autoconnect-off node must "
+                            f"stay unlinked — got {nd.get('consumers')}")
+    else:
+        failures.append("route r8: no node witnessed")
+    # ---- c0: the strict capture-side refusal ----
+    leg = legs.get("c0_no_prop") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 255 or \
+            leg.get("error_class") != "gst_target_not_found":
+        failures.append(f"route c0: expected rc=255 target not found — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"route c0: expected a 0-byte artifact — {out}")
+    # ---- c1: the prop opens the sink side; tag tone lands ----
+    leg = legs.get("c1_prop_capture") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    tw = leg.get("tone") or {}
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c1: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"route c1: producers "
+                            f"{nd.get('producers')} != [<ns>]")
+        props = nd.get("props") or {}
+        if props.get("stream.capture.sink") != "TRUE":
+            failures.append("route c1: gst writes stream.capture.sink "
+                            "as the STRING \"TRUE\" — got "
+                            f"{props.get('stream.capture.sink')!r}")
+    out = leg.get("out") or {}
+    if out.get("riff") != "finalized" or not tw.get("mine_windows"):
+        failures.append(f"route c1: expected a finalized wav carrying "
+                        f"the tag tone — riff={out.get('riff')} "
+                        f"mine={tw.get('mine_windows')}")
+    # ---- c4: the .monitor suffix does NOT resolve -> default monitor ----
+    leg = legs.get("c4_monitor_suffix") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c4: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [entry["inventory"]["default_sink"]]:
+            failures.append(f"route c4: <ns>.monitor must land the "
+                            f"DEFAULT monitor — producers "
+                            f"{nd.get('producers')}")
+        if GST_R81_NS in (nd.get("producers") or []):
+            failures.append("route c4: the .monitor name resolved to "
+                            "our sink — the r77 residual law is "
+                            "falsified")
+    # ---- c7: prop-only node.target routes the capture ----
+    leg = legs.get("c7_prop_only") or {}
+    nd = _gst_r81_last_node(leg, require_linked=True)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"route c7: leg failed or no linked node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        if nd.get("producers") != [GST_R81_NS]:
+            failures.append(f"route c7: producers "
+                            f"{nd.get('producers')} != [<ns>]")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) PULSE AXIS — `device=` is a server-side name; the direction split.
+# --------------------------------------------------------------------------
+def gst_pulse_axis_r81_entry():
+    """(4) `pulsesink device=` is a name handed to the SERVER, not a
+    client-side bind: the client writes it verbatim into target.object
+    and policy creates the link — a bogus name is rc=0 with a SILENT
+    fallback to the current default. The record direction refuses the
+    same input: `pulsesrc device=<bogus>` is rc=1 `No such entity` +
+    0-byte artifact. PULSE_SINK is honored as the client-local default
+    and `device=` outranks it; a dead `server=` is a state-change
+    refusal (rc=255). Pulse-protocol nodes carry client.api
+    =pipewire-pulse — the backend witness."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "pulse device= axis — server-side name resolution, silent "
+        "playback fallback vs strict record refusal, PULSE_SINK "
+        "precedence")
+    ctx = {}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=96", "!", GST_R81_RAW, "!"]
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+    try:
+        load = _gst_r81_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _gst_r81_block(
+                entry, failures, "null sink load/enumerate failed",
+                loads)
+        legs["p1_device_ns"] = _gst_r81_leg(
+            "p1_device_ns",
+            base + ["pulsesink", "device=" + GST_R81_NS], ctx)
+        legs["p2_device_bogus"] = _gst_r81_leg(
+            "p2_device_bogus",
+            base + ["pulsesink", "device=" + GST_R81_BOGUS], ctx)
+        legs["p3_env_pulse_sink"] = _gst_r81_leg(
+            "p3_env_pulse_sink", base + ["pulsesink"], ctx,
+            env_extra={"PULSE_SINK": GST_R81_NS})
+        if default:
+            legs["p4_env_vs_device"] = _gst_r81_leg(
+                "p4_env_vs_device",
+                base + ["pulsesink", "device=" + default], ctx,
+                env_extra={"PULSE_SINK": GST_R81_NS})
+        else:
+            legs["p4_env_vs_device"] = {"skipped": "no default sink"}
+        legs["p5_bogus_server"] = _gst_r81_leg(
+            "p5_bogus_server",
+            base + ["pulsesink", "server=unix:/nonexistent-r81"], ctx)
+        with tempfile.TemporaryDirectory(prefix="gst-r81-pulse-") as tmp:
+            cap = str(Path(tmp) / "rec.wav")
+            legs["p6_pulsesrc_bogus"] = _gst_r81_leg(
+                "p6_pulsesrc_bogus",
+                ["gst-launch-1.0", "-q", "pulsesrc",
+                 "device=" + GST_R81_BOGUS, "num-buffers=4", "!",
+                 GST_R81_RAW, "!", "wavenc", "!", "filesink",
+                 f"location={cap}"], dict(ctx, tmp=tmp), out_path=cap)
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+
+    def _nd(lname):
+        return legs.get(lname) or {}, _gst_r81_last_node(
+            legs.get(lname) or {})
+
+    # ---- p1: device= writes target.object verbatim and routes ----
+    leg, nd = _nd("p1_device_ns")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("pulse p1: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS:
+            failures.append(f"pulse p1: target.object "
+                            f"{props.get('target.object')!r} != <ns>")
+        if nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"pulse p1: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+        if props.get("client.api") != "pipewire-pulse":
+            failures.append(f"pulse p1: client.api "
+                            f"{props.get('client.api')!r} != "
+                            "pipewire-pulse")
+    # ---- p2: the silent playback fallback (rc=0, verbatim prop, def) ----
+    leg, nd = _nd("p2_device_bogus")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"pulse p2: expected rc=0 + a node — "
+                        f"rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_BOGUS:
+            failures.append("pulse p2: the bogus name must reach "
+                            f"target.object verbatim — got "
+                            f"{props.get('target.object')!r}")
+        if nd.get("consumers") != [entry["inventory"]["default_sink"]]:
+            failures.append(f"pulse p2: silent fallback must land the "
+                            f"leg-time default — got "
+                            f"{nd.get('consumers')}")
+        if leg.get("stderr_head"):
+            failures.append(f"pulse p2: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- p3: PULSE_SINK is the client-local default ----
+    leg, nd = _nd("p3_env_pulse_sink")
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append("pulse p3: leg failed or no node")
+    else:
+        props = nd.get("props") or {}
+        if props.get("target.object") != GST_R81_NS or \
+                nd.get("consumers") != [GST_R81_NS]:
+            failures.append(f"pulse p3: PULSE_SINK not honored — "
+                            f"target.object={props.get('target.object')!r} "
+                            f"consumers={nd.get('consumers')}")
+    # ---- p4: device= outranks PULSE_SINK ----
+    leg = legs.get("p4_env_vs_device") or {}
+    if "skipped" not in leg:
+        nd = _gst_r81_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append("pulse p4: leg failed or no node")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != default or \
+                    nd.get("consumers") != [default]:
+                failures.append(f"pulse p4: device= must beat "
+                                f"PULSE_SINK — target.object="
+                                f"{props.get('target.object')!r} "
+                                f"consumers={nd.get('consumers')} "
+                                f"default={default!r}")
+    # ---- p5: dead server -> state-change refusal ----
+    leg = legs.get("p5_bogus_server") or {}
+    if leg.get("exit_code") != 255 or \
+            leg.get("error_class") != "gst_connection_refused":
+        failures.append(f"pulse p5: expected rc=255 connection refused "
+                        f"— rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')} "
+                        f"err={leg.get('stderr_head')}")
+    elif "Failed to set pipeline to PAUSED" not in \
+            (leg.get("stderr") or ""):
+        failures.append("pulse p5: no `Failed to set pipeline to "
+                        "PAUSED` in stderr")
+    # ---- p6: the record direction refuses the same input ----
+    leg = legs.get("p6_pulsesrc_bogus") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 1 or \
+            leg.get("error_class") != "gst_no_such_entity":
+        failures.append(f"pulse p6: expected rc=1 No such entity — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')} "
+                        f"err={leg.get('stderr_head')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"pulse p6: expected a 0-byte artifact — {out}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) TARGET LOSS — playback re-links, capture freezes (the split law).
+# --------------------------------------------------------------------------
+def gst_target_loss_r81_entry():
+    """(5) The split law under target-node destruction: PLAYBACK
+    (`pipewiresink target-object=`, `pulsesink device=`) re-links to the
+    current default within one 0.2 s sample and never exits or errors;
+    CAPTURE (`pipewiresrc`) does NOT re-link — the artifact freezes at
+    the last buffer (unfinalized wavenc streaming header), no error, no
+    EOS, process alive to the wall cap. `on-disconnect=none|error|eos`
+    is inert; a prop-only target.object capture freezes identically
+    (the stale node.target prop is ruled out as the cause); a same-event
+    pw-record control re-links within one sample (the law is
+    client-specific). The unload fires by the NAME-VERIFIED index."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _gst_r81_entry_head(
+        "target loss — playback re-links <= one 0.2 s sample, gst "
+        "capture freezes at the last buffer (no re-link, no error), "
+        "pw-record control re-links; on-disconnect inert")
+    ctx = {}
+    play = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "!", GST_R81_RAW, "!"]
+    try:
+        for name, argv in (
+                ("t1_pwsink", play +
+                 ["pipewiresink", "target-object=" + GST_R81_NS]),
+                ("t2_pulsesink", play +
+                 ["pulsesink", "device=" + GST_R81_NS])):
+            load = _gst_r81_ns_ensure(loads)
+            if not load.get("sink_seen"):
+                return _gst_r81_block(
+                    entry, failures,
+                    f"null sink load failed before {name}", loads)
+            legs[name] = _gst_r81_leg(
+                name, argv, ctx, timeline=0.2,
+                wall_cap=GST_R81_LOSS_WALL_S,
+                events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                         load.get("module_id"))])
+        with tempfile.TemporaryDirectory(prefix="gst-r81-loss-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            cap_tail = ["num-buffers=1000000", "!", GST_R81_RAW, "!",
+                        "wavenc", "!", "filesink"]
+            for name, argv in (
+                    ("t3_pwsrc",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t4_on_disconnect_error",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "on-disconnect=error",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t5_on_disconnect_eos",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "target-object=" + GST_R81_NS,
+                      "on-disconnect=eos",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true"] + cap_tail),
+                    ("t6_prop_only",
+                     ["gst-launch-1.0", "-q", "pipewiresrc",
+                      "stream-properties=props,"
+                      "stream.capture.sink=true,target.object=" +
+                      GST_R81_NS] + cap_tail)):
+                load = _gst_r81_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _gst_r81_block(
+                        entry, failures,
+                        f"null sink load failed before {name}", loads)
+                cap = str(Path(tmp) / f"{name}.wav")
+                legs[name] = _gst_r81_leg(
+                    name, argv + [f"location={cap}"], ctx,
+                    out_path=cap, timeline=0.2,
+                    wall_cap=GST_R81_LOSS_WALL_S,
+                    events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+            # t7: the pw-record control on the same host event (r80 L4).
+            load = _gst_r81_ns_ensure(loads)
+            if not load.get("sink_seen") or \
+                    not load.get("monitor_seen", True):
+                return _gst_r81_block(
+                    entry, failures,
+                    "null sink load failed before t7", loads)
+            cap = str(Path(tmp) / "t7.wav")
+            legs["t7_pw_record_control"] = _gst_r81_leg(
+                "t7_pw_record_control",
+                ["pw-record", "-P", "stream.capture.sink=true",
+                 "-P", f"node.name={GST_R81_TAG}_pwrec",
+                 "--target", GST_R81_NS, "-n", "1000000", cap],
+                ctx, out_path=cap, timeline=0.2,
+                wall_cap=GST_R81_LOSS_WALL_S,
+                events=[(GST_R81_LOSS_EVENT_S, "unload_module",
+                         load.get("module_id"))])
+    finally:
+        _gst_r81_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+
+    def _unload_at(leg):
+        for f in leg.get("fired") or []:
+            if f.get("kind") == "unload_module":
+                return f.get("at"), (f.get("result") or {})
+        return None, {}
+
+    def _post(leg, t0):
+        return [s for s in leg.get("samples") or []
+                if s["t"] >= (t0 or 0)]
+
+    # ---- t1/t2: playback re-links to the default and never exits ----
+    for lname in ("t1_pwsink", "t2_pulsesink"):
+        leg = legs.get(lname) or {}
+        unl_at, res = _unload_at(leg)
+        post = _post(leg, unl_at)
+        if leg.get("killed") != "wallcap":
+            failures.append(f"loss {lname}: the consumer must still be "
+                            f"alive at the wall cap — rc="
+                            f"{leg.get('exit_code')} killed="
+                            f"{leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and \
+                not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        relink = None
+        for s in post:
+            cons = []
+            for nd in s.get("nodes") or []:
+                cons = nd.get("consumers") or []
+                if cons:
+                    break
+            if cons:
+                relink = (s["t"], cons)
+                break
+        if relink is None:
+            failures.append(f"loss {lname}: no post-unload sample shows "
+                            "a link — the re-link law fails")
+        else:
+            if relink[0] - (unl_at or 0) > GST_R81_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at "
+                                f"+{relink[0] - (unl_at or 0):.3f} s — "
+                                "beyond one 0.2 s sample")
+            if relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked consumers "
+                                f"{relink[1]} != the leg-time default "
+                                f"{default!r}")
+        if leg.get("stderr_head"):
+            failures.append(f"loss {lname}: stderr not silent — "
+                            f"{leg['stderr_head']}")
+    # ---- t3-t6: the gst capture FREEZES — no re-link, no error ----
+    frozen = {}
+    for lname in ("t3_pwsrc", "t4_on_disconnect_error",
+                  "t5_on_disconnect_eos", "t6_prop_only"):
+        leg = legs.get(lname) or {}
+        unl_at, res = _unload_at(leg)
+        post = _post(leg, unl_at)
+        out = leg.get("out") or {}
+        sizes = [s.get("size") for s in post if s.get("size") is not None]
+        relinked = False
+        prods_seen = set()
+        for s in post:
+            for nd in s.get("nodes") or []:
+                prods_seen.update(nd.get("producers") or [])
+        if prods_seen:
+            relinked = True
+        frozen[lname] = {"relinked": relinked,
+                         "sizes_tail": sizes[-3:] if sizes else []}
+        if leg.get("killed") != "wallcap":
+            failures.append(f"loss {lname}: the frozen capture must be "
+                            f"alive at the wall cap — rc="
+                            f"{leg.get('exit_code')} killed="
+                            f"{leg.get('killed')}")
+        if leg.get("stderr_head"):
+            failures.append(f"loss {lname}: stderr must be EMPTY — "
+                            f"{leg['stderr_head']}")
+        if relinked:
+            failures.append(f"loss {lname}: the capture RE-LINKED to "
+                            f"{sorted(prods_seen)} — the split law is "
+                            "falsified")
+        if not out.get("exists") or (out.get("bytes") or 0) <= 44:
+            failures.append(f"loss {lname}: artifact must have real "
+                            f"bytes — {out}")
+        else:
+            if out.get("riff") != "wavenc_streaming" or \
+                    out.get("riff_size") != 0x7FFF0024 or \
+                    out.get("data") != "wavenc_streaming" or \
+                    out.get("data_declared") != 0x7FFF0000:
+                failures.append(f"loss {lname}: the frozen artifact "
+                                "must carry the pinned wavenc streaming "
+                                "placeholders (riff_size 0x7FFF0024, "
+                                "data_declared 0x7FFF0000) — riff="
+                                f"{out.get('riff')}/"
+                                f"{out.get('riff_size')} data="
+                                f"{out.get('data')}/"
+                                f"{out.get('data_declared')}")
+        if len(sizes) >= 2 and sizes[-1] != sizes[0]:
+            # growth after the unload means it kept consuming — the
+            # freeze claim fails even if links stayed empty.
+            failures.append(f"loss {lname}: file kept GROWING after "
+                            f"the unload — sizes {sizes[:2]}..{sizes[-2:]}")
+    # t4/t5/t6 outcomes must equal t3's (on-disconnect inert; prop-only
+    # identical — the stale node.target prop is ruled out).
+    base = frozen.get("t3_pwsrc") or {}
+    for lname in ("t4_on_disconnect_error", "t5_on_disconnect_eos",
+                  "t6_prop_only"):
+        cur = frozen.get(lname) or {}
+        if cur.get("relinked") != base.get("relinked"):
+            failures.append(f"loss {lname}: outcome differs from t3 — "
+                            "the inert-prop/identical-freeze law fails")
+    # ---- t7: the pw-record control DOES re-link (client-specific) ----
+    leg = legs.get("t7_pw_record_control") or {}
+    unl_at, res = _unload_at(leg)
+    post = _post(leg, unl_at)
+    out = leg.get("out") or {}
+    relink = None
+    for s in post:
+        prods = []
+        for nd in s.get("nodes") or []:
+            prods = nd.get("producers") or []
+            if prods:
+                break
+        if prods:
+            relink = (s["t"], prods)
+            break
+    if relink is None:
+        failures.append("loss t7: the pw-record control never "
+                        "re-linked — the client-specific law fails")
+    else:
+        if relink[0] - (unl_at or 0) > GST_R81_RELINK_BOUND_S:
+            failures.append(f"loss t7: control re-link at "
+                            f"+{relink[0] - (unl_at or 0):.3f} s — "
+                            "beyond one 0.2 s sample")
+        if relink[1] != [default]:
+            failures.append(f"loss t7: control re-linked producers "
+                            f"{relink[1]} != default monitor "
+                            f"{default!r}")
+    sizes = [s.get("size") for s in (leg.get("samples") or [])
+             if s.get("size") is not None]
+    if len(sizes) >= 2 and not (out.get("bytes") or 0) > max(
+            sizes[: max(1, len(sizes) // 2)]):
+        failures.append(f"loss t7: control file stopped growing — "
+                        f"sizes {sizes[:2]}..{sizes[-2:]} "
+                        f"final={out.get('bytes')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) EXIT CLASSES — parse refusal / state-change / the pulsesrc outlier.
+# --------------------------------------------------------------------------
+def gst_exit_classes_r81_entry():
+    """(6) The gst-launch exit/artifact classes: a PARSE refusal is
+    rc=1 `WARNING: erroneous pipeline:` (or `pipeline could not be
+    constructed`) and creates NO artifact — caps negotiation lands here
+    too because gst-launch checks caps at link time; a RUNTIME
+    state-change failure is rc=255 `ERROR: from element` + `Failed to
+    set pipeline to PAUSED` with a 0-byte artifact already created;
+    `pulsesrc` is the outlier — rc=1 WITH a 0-byte artifact. Assert the
+    (rc, artifact shape) PAIR — never rc alone."""
+    failures = []
+    legs = {}
+    entry = _gst_r81_entry_head(
+        "gst-launch exit classes — parse refusal rc=1/no-artifact, "
+        "state-change refusal rc=255/0-byte, pulsesrc outlier "
+        "rc=1/0-byte")
+    ctx = {}
+    with tempfile.TemporaryDirectory(prefix="gst-r81-exit-") as tmp:
+        ctx = dict(ctx, tmp=tmp)
+        f1 = str(Path(tmp) / "e1.wav")
+        f2 = str(Path(tmp) / "e10.wav")
+        f3 = str(Path(tmp) / "e11.wav")
+        f4 = str(Path(tmp) / "e3.wav")
+        f5 = str(Path(tmp) / "e8.wav")
+        f6 = str(Path(tmp) / "e9.wav")
+        L = [
+            ("e1_missing_element",
+             ["gst-launch-1.0", "-q", "nosuchelementsrc_r81", "!",
+              "wavenc", "!", "filesink", f"location={f1}"], f1,
+             'no element "nosuchelementsrc_r81"'),
+            ("e3_bogus_property",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "bogus-prop=42",
+              "num-buffers=4", "!", "wavenc", "!", "filesink",
+              f"location={f4}"], f4,
+             'no property "bogus-prop" in element "audiotestsrc"'),
+            ("e8_negotiation_f64",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "num-buffers=4",
+              "!", "tee", "name=t", "!",
+              "audio/x-raw,format=F64LE,rate=48000,channels=2",
+              "!", "pulsesink", "t.", "!", "wavenc", "!", "filesink",
+              f"location={f5}"], f5,
+             "can't handle caps"),
+            ("e9_incomplete",
+             ["gst-launch-1.0", "-q", "audiotestsrc", "!", "wavenc",
+              "!", "filesink", f"location={f6}", "!"], f6,
+             "syntax error"),
+            ("e10_pwsrc_no_prop",
+             ["gst-launch-1.0", "-q", "pipewiresrc",
+              "target-object=" + GST_R81_BOGUS, "num-buffers=4", "!",
+              GST_R81_RAW, "!", "wavenc", "!", "filesink",
+              f"location={f2}"], f2, "target not found"),
+            ("e11_pulsesrc_bogus",
+             ["gst-launch-1.0", "-q", "pulsesrc",
+              "device=" + GST_R81_BOGUS, "num-buffers=4", "!",
+              GST_R81_RAW, "!", "wavenc", "!", "filesink",
+              f"location={f3}"], f3, "No such entity"),
+        ]
+        for name, argv, op, hit in L:
+            legs[name] = _gst_r81_leg(name, argv, ctx, out_path=op)
+            legs[name]["expect_hit"] = hit
+    entry["legs"] = legs
+    expect = {
+        "e1_missing_element": (1, "absent", "gst_parse_refusal"),
+        "e3_bogus_property": (1, "absent", "gst_parse_refusal"),
+        "e8_negotiation_f64": (1, "absent", "gst_parse_refusal"),
+        "e9_incomplete": (1, "absent", "gst_parse_refusal"),
+        "e10_pwsrc_no_prop": (255, "zero_byte", "gst_target_not_found"),
+        "e11_pulsesrc_bogus": (1, "zero_byte", "gst_no_such_entity"),
+    }
+    for lname, (rc, shape, cls) in expect.items():
+        leg = legs.get(lname) or {}
+        out = leg.get("out") or {"exists": False}
+        if leg.get("exit_code") != rc:
+            failures.append(f"exit {lname}: rc {leg.get('exit_code')} "
+                            f"!= {rc}")
+        if leg.get("error_class") != cls:
+            failures.append(f"exit {lname}: error class "
+                            f"{leg.get('error_class')!r} != {cls!r} "
+                            f"(err={leg.get('stderr_head')})")
+        hit = leg.get("expect_hit")
+        if hit and hit not in (leg.get("stderr") or ""):
+            failures.append(f"exit {lname}: {hit!r} missing from "
+                            f"stderr — {leg.get('stderr_head')}")
+        if shape == "absent" and out.get("exists"):
+            failures.append(f"exit {lname}: a parse refusal must leave "
+                            f"NO artifact — {out}")
+        elif shape == "zero_byte" and \
+                (not out.get("exists") or out.get("bytes") != 0):
+            failures.append(f"exit {lname}: expected a 0-byte "
+                            f"artifact — {out}")
+    # the class-level statement: parse refusals never create the file,
+    # runtime refusals create it empty — assert across the whole entry.
+    parse = [l for l in expect if expect[l][2] == "gst_parse_refusal"]
+    runtime = [l for l in expect if expect[l][1] == "zero_byte"]
+    entry["class_summary"] = {
+        "parse_rc1_no_artifact": all(
+            not ((legs.get(l) or {}).get("out") or
+                 {"exists": False}).get("exists") for l in parse),
+        "runtime_refusal_zero_byte": all(
+            (((legs.get(l) or {}).get("out") or {}).get("bytes") == 0 and
+             ((legs.get(l) or {}).get("out") or {}).get("exists"))
+            for l in runtime)}
+    if not entry["class_summary"]["parse_rc1_no_artifact"]:
+        failures.append("exit classes: a parse-class leg left an "
+                        "artifact — the pair law fails")
+    if not entry["class_summary"]["runtime_refusal_zero_byte"]:
+        failures.append("exit classes: a runtime-class leg lacks the "
+                        "0-byte artifact — the pair law fails")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) AUTODETECT — the wrapper resolves to the pulse elements.
+# --------------------------------------------------------------------------
+def gst_autodetect_r81_entry():
+    """(7) The autodetect backend: `autoaudiosink` resolves to the PULSE
+    path (a pipewire-pulse protocol node appears, linked to the default
+    sink, media.name filled from the pipeline); `autoaudiosrc` resolves
+    to `pulsesrc` and inherits r77's no-working-default — rc=1
+    `Failed to connect stream: No such entity` + `not-negotiated (-4)`
+    + a 0-byte artifact. The `alsasink device=null` control leaves no
+    pw node — the "no pw node" signature really is an ALSA path."""
+    failures = []
+    legs = {}
+    entry = _gst_r81_entry_head(
+        "autodetect backend — autoaudiosink resolves to pulsesink "
+        "(pipewire-pulse node), autoaudiosrc to pulsesrc (rc=1 "
+        "no-default refusal); alsasink control leaves no pw node")
+    ctx = {}
+    base = ["gst-launch-1.0", "-q", "audiotestsrc", "wave=silence",
+            "num-buffers=48", "!", GST_R81_RAW, "!"]
+    with tempfile.TemporaryDirectory(prefix="gst-r81-auto-") as tmp:
+        ctx = dict(ctx, tmp=tmp)
+        legs["a0_autoaudiosink"] = _gst_r81_leg(
+            "a0_autoaudiosink", base + ["autoaudiosink"], ctx)
+        cap = str(Path(tmp) / "a1.wav")
+        legs["a1_autoaudiosrc"] = _gst_r81_leg(
+            "a1_autoaudiosrc",
+            ["gst-launch-1.0", "-q", "autoaudiosrc", "!", GST_R81_RAW,
+             "!", "wavenc", "!", "filesink", f"location={cap}"],
+            ctx, out_path=cap)
+        legs["a2_alsasink_control"] = _gst_r81_leg(
+            "a2_alsasink_control",
+            base + ["alsasink", "device=null"], ctx)
+    entry["legs"] = legs
+    # ---- a0: the pulse backend appears and links to the default ----
+    leg = legs.get("a0_autoaudiosink") or {}
+    nd = _gst_r81_last_node(leg)
+    default = entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"auto a0: leg failed or no node — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("client.api") != "pipewire-pulse":
+            failures.append(f"auto a0: the autodetected backend is NOT "
+                            f"the pulse path — client.api="
+                            f"{props.get('client.api')!r}")
+        if nd.get("consumers") != [default]:
+            failures.append(f"auto a0: consumers {nd.get('consumers')} "
+                            f"!= leg-time default {default!r}")
+        if props.get("media.name") != "audiotest wave":
+            failures.append("auto a0: media.name must be filled from "
+                            f"the pipeline — got "
+                            f"{props.get('media.name')!r}")
+    # ---- a1: autoaudiosrc inherits the missing default (rc=1) ----
+    leg = legs.get("a1_autoaudiosrc") or {}
+    out = leg.get("out") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if leg.get("exit_code") != 1:
+        failures.append(f"auto a1: expected rc=1 — got "
+                        f"{leg.get('exit_code')}")
+    if "GstPulseSrc" not in err_text or "No such entity" not in err_text:
+        failures.append(f"auto a1: stderr must name the pulsesrc "
+                        f"refusal — {leg.get('stderr_head')}")
+    if not out.get("exists") or out.get("bytes") != 0:
+        failures.append(f"auto a1: expected a 0-byte artifact — {out}")
+    # ---- a2: the ALSA control leaves no pw node ----
+    leg = legs.get("a2_alsasink_control") or {}
+    nodes_seen = [n for s in leg.get("samples") or []
+                  for n in (s.get("nodes") or [])]
+    if leg.get("exit_code") != 0:
+        failures.append(f"auto a2: control rc {leg.get('exit_code')} "
+                        f"!= 0")
+    if nodes_seen:
+        failures.append(f"auto a2: an ALSA path must publish NO pw "
+                        f"stream node — saw {[n.get('name') for n in nodes_seen]}")
+    entry["failures"] = failures
+    return entry
+
+
+# ==========================================================================
+# r82: the FFMPEG/FFPROBE/FFPLAY <-> PIPEWIRE ledger — --probe-ffmpeg-r82.
+#
+# A NEW parallel ledger family; prior rows untouched and every r76-r81
+# guard inherited (seat-owned r82ff_*/r82ffx_* names, name-verified module
+# index unloads — a bare captured index is never fired — never
+# set-default-*, process-group ownership, wall + byte + element bounds in
+# the loop that owns the pgid). Surface facts are the r82 scout's
+# THIS-HOST measurements (ffmpeg/ffprobe/ffplay n9.0.1 built
+# --enable-libpulse with NO pipewire indev; PipeWire 1.6.8; libpulse
+# 17.0+r98 protocol 35; WirePlumber 0.5.17), re-armed verbatim:
+#   DEVICES. `ffmpeg -devices` lists pulse/alsa/jack/oss/sndio and NO
+#     pipewire device; `-f pipewire -i x` is rc=234 EINVAL `Unknown input
+#     format`; `-sources pipewire` is rc=0 with an EMPTY list while
+#     `-sources pulse`/`-sinks pulse` enumerate the live graph (the `*`
+#     default marker may DISAGREE with `pactl info` — recorded, never
+#     gated; its provenance was not established by the scout).
+#   VALIDATION ASYMMETRY. The capture side resolves the source name at
+#     connect: a bogus source, a bare sink name, and `default` are rc=251
+#     EIO in ~1 s (the `default` cell is BIMODAL — one scout rep hung and
+#     was SIGKILLed; the fixture arms the {eio_251, hang_killed} envelope
+#     and records the realization). The playback side NEVER validates: a
+#     bogus sink, a source name, a `<sink>.monitor` name, `default`, and
+#     `@DEFAULT_SINK@` are all rc=0; `target.object` keeps the literal
+#     written value (except @DEFAULT_SINK@ which lands RESOLVED) while
+#     WirePlumber silently routes to the current default — measured via a
+#     bounded monitor tap carrying the tag tone.
+#   PROPS. Pulse-path nodes default to node.name=application.name=
+#     Lavf63.1.101 (the libpulse app name), media.name `record` (indev) or
+#     the output URL tail (outdev); `-name`/`-stream_name` override.
+#     PIPEWIRE_PROPS `stream.capture.sink=true` lands; `node.name=` in the
+#     same env is OVERRIDDEN on the pulse path but LANDS on the
+#     pipewire-alsa plugin path — the split is pinned on both sides.
+#   BUFFER LATTICE. Outdev -buffer_size/-buffer_duration/-prebuf/-minreq
+#     land as pulse.attr.tlength/prebuf/minreq with libpulse's derived
+#     clamp/floor values; indev -fragment_size lands as fragsize + a
+#     recomputed node.latency. Options placed AFTER `-i` are SILENTLY
+#     swallowed (props unchanged, no warning) — except the deprecated
+#     `-frame_size`, which is a pre-`-i` deprecation note and a post-`-i`
+#     ffmpeg_sched SIGABRT.
+#   TARGET LOSS — NO SPLIT (unlike r81's gst law): BOTH directions
+#     re-link to the leg-time default within ~0.3 s (scout 0.22/0.27 s
+#     means over 3 reps each; armed bound 0.8 s) and keep running.
+#   EXIT MAP. 187 access-denied (outdev bad server), 222 ERANGE (AVOption
+#     bounds), 234 EINVAL (unknown format), 251 EIO (unresolvable source,
+#     busy or unopenable ALSA pcm), 253 ESRCH (indev bad server), -6
+#     SIGABRT (libpulse assertion / ffmpeg_sched assertion).
+#   FFPLAY DUAL PERSONALITY. Auto driver -> SDL's NATIVE pipewire client
+#     (no client.api, media.role=Game, node.async); SDL_AUDIODRIVER=
+#     pulseaudio -> a pipewire-pulse node with pulse.attr.* — and there
+#     PULSE_SINK is IGNORED while ffmpeg's own `-f pulse` honors it
+#     (client-specific env law, both authorities pinned).
+#   FFPROBE. `-f pulse -i <sink>.monitor` returns rc=0 in ~1 s with
+#     pcm_s16le/48k/2ch and an EPOCH-CLASS start_pts (wall-clock PTS).
+#   ALSA SPLIT. `hw:C,D` is independent per direction: busy -> 251
+#     `Device or resource busy` (capture AND playback), free -> rc=0 even
+#     while PipeWire holds the card's playback subdevice; `-i pipewire`
+#     and unknown PCMs are 251 `cannot set parameters`/`Unknown PCM`;
+#     `-i default` resolves through the pipewire plugin (env node.name
+#     lands) on the scout's host — armed as an envelope since the same
+#     invocation also measured 251 `cannot set parameters` once;
+#     -sample_rate 12345 silently clamps to a hardware rate (44100
+#     measured).
+# Contention (mandatory): every routing leg targets the seat-owned null
+#   sink r82ff_ns_<pid> or is read-only; taps on the shared default sink
+#   monitor are bounded pw-record runs and are DECLARED in each entry's
+#   contamination leaf (the tag tone is audible on the default sink for
+#   the legs whose claim is content-level fallback — the scout's own
+#   measurement; it is never left running).
+FFPW_R82_PID = os.getpid()
+FFPW_R82_NS = f"r82ff_ns_{FFPW_R82_PID}"      # seat-owned null sink
+FFPW_R82_TAG = f"r82ff_{FFPW_R82_PID}"        # stream/node/tap name prefix
+FFPW_R82_XTAG = f"r82ffx_{FFPW_R82_PID}"      # PIPEWIRE_PROPS-set names
+FFPW_R82_OUT_NAME = f"r82ff-play-{FFPW_R82_PID}"   # outdev URL -> media.name
+FFPW_R82_WALL_S = 6.0
+FFPW_R82_BYTE_CAP = 8 * 1024 * 1024
+FFPW_R82_LOSS_EVENT_S = 1.2          # unload at +1.2 s (scout verbatim)
+FFPW_R82_LOSS_WALL_S = 6.5           # playback tone 3.6 s + slack
+FFPW_R82_CAP_LOSS_WALL_S = 9.0       # -t 5.0 capture + slack
+FFPW_R82_RELINK_BOUND_S = 0.8        # scout mean ~0.22-0.27 s; wider arm
+FFPW_R82_TONE_L_HZ = 1210.0          # distinct from the r78 1k/1.5k tag
+FFPW_R82_TONE_R_HZ = 1780.0          # so a foreign same-pair probe can
+FFPW_R82_TONE_AMP = 8192             # never read as `mine`
+FFPW_R82_BOGUS_SINK = "no_such_sink_r82"
+FFPW_R82_BOGUS_SOURCE = "no_such_source_r82"
+FFPW_R82_BOGUS_PCM = "no_such_pcm_r82"
+FFPW_R82_BAD_SERVER = "unix:/nonexistent-r82ff"
+FFPW_R82_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")   # ffplay emits \x1b[2K
+FFPW_R82_PROP_KEEP = re.compile(
+    r"^(node\.|stream\.|target\.|media\.|application\.|client\.|"
+    r"object\.|pulse\.|port\.|clock\.|library\.|factory\.|adapt\.|"
+    r"device\.|api\.)")
+FFPW_R82_PROP_DROP = {
+    "object.id", "object.serial", "node.driver-id", "factory.id",
+    "client.id", "stream.is-live", "application.language",
+    "application.process.id", "application.process.host",
+    "application.process.machine-id", "application.process.session-id",
+    "application.process.user", "window.x11.display", "pulse.corked"}
+
+# ffmpeg-local stderr classes — a separate tuple, same rule as every prior
+# family: never prepended into a shared table. Ordered most-specific first.
+_FFPW_R82_ERR_CLASSES = (
+    ("ff_unknown_format", r"Unknown (?:input|output) format: '[^']*'"),
+    ("ff_libpulse_assert", r"Assertion 'pa_[^'\n]*' failed[^\n]*"),
+    ("ff_sched_assert", r"Assertion enc->sq_idx[^\n]*failed[^\n]*"),
+    ("ff_alsa_busy", r"Device or resource busy"),
+    ("ff_alsa_params", r"cannot set parameters[^\n]*"),
+    ("ff_alsa_unknown_pcm", r"Unknown PCM [^\n ]*"),
+    ("ff_no_such_process", r"No such process"),
+    ("ff_access_denied", r"Cannot connect context: Access denied"),
+    ("ff_pulse_sink_info",
+     r"(?:pa_context_get_sink_info_by_name failed|"
+     r"Updating sink info failed)"),
+    ("ff_option_range",
+     r"(?:out of range \[|Numerical result out of range)"),
+    ("ff_io_error", r"Input/output error"),
+    ("other_error", r"(?i)\berror\b[^\n]*"),
+)
+
+
+def _ffpw_r82_errclass(text):
+    """First matching named class on an ffmpeg-family stderr."""
+    for name, pat in _FFPW_R82_ERR_CLASSES:
+        m = re.search(pat, text)
+        if m:
+            return name, m.group(0).strip()
+    return None, None
+
+
+def _ffpw_r82_graph():
+    """pw-dump -> {nodes, links, clients} with the r82 prop filter
+    (pulse.attr.*, media.role, application.process.binary are kept — the
+    props ARE the claim for this family)."""
+    try:
+        proc = subprocess.run(["pw-dump"], capture_output=True, timeout=15)
+        dump = json.loads(proc.stdout or b"[]")
+    except (subprocess.TimeoutExpired, OSError, ValueError) as exc:
+        return {"error": type(exc).__name__}
+    nodes, links, clients = {}, [], {}
+    for o in dump:
+        t = str(o.get("type", ""))
+        info = o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith("Node"):
+            nodes[o["id"]] = {
+                "name": props.get("node.name"),
+                "class": props.get("media.class"),
+                "desc": props.get("node.description"),
+                "client_id": props.get("client.id"),
+                "state": info.get("state"),
+                "props": {k: v for k, v in props.items()
+                          if FFPW_R82_PROP_KEEP.match(k)
+                          and k not in FFPW_R82_PROP_DROP}}
+        elif t.endswith("Link"):
+            links.append({"out_node": info.get("output-node-id"),
+                          "out_port": info.get("output-port-id"),
+                          "in_node": info.get("input-node-id"),
+                          "in_port": info.get("input-port-id")})
+        elif t.endswith("Client"):
+            clients[o["id"]] = {
+                "name": props.get("client.name"),
+                "application_name": props.get("application.name"),
+                "binary": props.get("application.process.binary"),
+                "pid": props.get("application.process.id")}
+    return {"nodes": nodes, "links": links, "clients": clients}
+
+
+def _ffpw_r82_sample(procs, out_path, el):
+    """One timeline sample: main-proc liveness, artifact size, and every
+    spawned process's node (client-joined by pid — name-alias-proof) with
+    link endpoints. `watch` procs (taps, pumps) appear as nodes with a
+    `src` label so the pump's own re-link is witnessed in-place."""
+    g = _ffpw_r82_graph()
+    s = {"t": round(el, 3),
+         "live": procs["main"].poll() is None,
+         "live_map": {k: p.poll() is None for k, p in procs.items()},
+         "size": (Path(out_path).stat().st_size
+                  if out_path and Path(out_path).exists() else None),
+         "nodes": []}
+    if "error" in g:
+        s["graph_error"] = g["error"]
+        return s
+    for label, p in procs.items():
+        for nid, n in _gst_r81_our_nodes(g, p.pid):
+            cl = dict(g["clients"].get(n.get("client_id")) or {})
+            cl.pop("pid", None)      # volatile — the join already happened
+            s["nodes"].append({
+                "id": nid, "src": label, "name": n.get("name"),
+                "class": n.get("class"), "desc": n.get("desc"),
+                "client_id": n.get("client_id"), "state": n.get("state"),
+                "props": n.get("props"), "client": cl or None,
+                "consumers": _gst_r81_consumers(g, nid),
+                "producers": _gst_r81_producers(g, nid)})
+    return s
+
+
+def _ffpw_r82_last_node(leg, src="main"):
+    """The last sample's node leaf for `src` — the verdict surface."""
+    for s in reversed(leg.get("samples") or []):
+        for nd in (s.get("nodes") or []):
+            if src and nd.get("src") != src:
+                continue
+            return nd
+    return None
+
+
+def _ffpw_r82_kill_watch(proc):
+    """Timed-event kill for a watch proc (the pump) — SIGKILL its pgid."""
+    if proc.poll() is not None:
+        return {"already_exited": proc.returncode}
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+        return {"sigkilled": True}
+    except OSError as exc:
+        return {"error": str(exc)[:120]}
+
+
+def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
+                  watch=None, wall_cap=FFPW_R82_WALL_S,
+                  byte_cap=FFPW_R82_BYTE_CAP, sample_at=(0.4, 0.9),
+                  timeline=None, events=(), want_stdout=False):
+    """One bounded ffmpeg/ffprobe/ffplay/pw-record leg, triple-bounded in
+    the pgid-owning loop: the element bound (-t/-n/-re EOF) rides inside
+    argv, the wall cap SIGKILLs the pgid, the byte cap rides the same
+    tick. env_extra supports value=None to REMOVE an inherited var (the
+    SDL_AUDIODRIVER/PULSE_SINK hygiene for ffplay legs). Events:
+    unload_module goes through the name-verified unload against OUR sink
+    name; kill_watch SIGKILLs a named watch proc's group."""
+    env = None
+    if env_extra:
+        env = dict(os.environ)
+        for k, v in env_extra.items():
+            if v is None:
+                env.pop(k, None)
+            else:
+                env[k] = v
+    if out_path:
+        Path(out_path).unlink(missing_ok=True)
+    watch = dict(watch or {})
+    rec = {"name": name, "env_extra": env_extra or None,
+           "samples": [], "fired": []}
+    if watch:
+        rec["watch_argv"] = {k: " ".join(str(a) for a in
+                                       (getattr(p, "args", None) or []))
+                             for k, p in watch.items()}
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=(subprocess.PIPE if want_stdout
+                          else subprocess.DEVNULL),
+            stderr=subprocess.PIPE, start_new_session=True, env=env)
+    except OSError as exc:
+        rec["spawn_error"] = str(exc)[:120]
+        return rec
+    procs = {"main": proc}
+    procs.update(watch)
+    t0 = time.monotonic()
+    ev = sorted(events, key=lambda e: e[0])
+    due = [] if timeline else list(sample_at)
+    next_tl = timeline
+    killed = None
+    while True:
+        el = time.monotonic() - t0
+        if proc.poll() is not None:
+            break
+        while ev and el >= ev[0][0]:
+            _, kind, arg = ev.pop(0)
+            when = round(el, 3)
+            try:
+                if kind == "unload_module":
+                    res = _gst_r81_unload_own(arg, sink_name=FFPW_R82_NS)
+                elif kind == "kill_watch":
+                    res = _ffpw_r82_kill_watch(procs.get(arg))
+                else:
+                    res = {"unknown_event": kind}
+            except Exception as exc:                 # defensive: event must not kill the loop
+                res = {"exc": repr(exc)[:160]}
+            rec["fired"].append({"at": when, "kind": kind, "result": res})
+        if timeline:
+            if el >= next_tl:
+                rec["samples"].append(_ffpw_r82_sample(procs, out_path, el))
+                next_tl += timeline
+        elif due and el >= due[0]:
+            rec["samples"].append(
+                _ffpw_r82_sample(procs, out_path, due.pop(0)))
+        if out_path and Path(out_path).exists() and \
+                Path(out_path).stat().st_size > byte_cap:
+            killed = f"bytecap:{Path(out_path).stat().st_size}"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        if el > wall_cap:
+            killed = "wallcap"
+            os.killpg(proc.pid, signal.SIGKILL)
+            break
+        time.sleep(0.008)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    rec["wall_s"] = round(time.monotonic() - t0, 3)
+    err = FFPW_R82_ANSI.sub(
+        "", proc.stderr.read().decode(errors="replace"))
+    cls, hit = _ffpw_r82_errclass(err)
+    shown = " ".join(argv)
+    for token, mark in ((str(out_path), "<out>"), (ctx.get("tmp"), "<tmp>")):
+        if token:
+            shown = shown.replace(str(token), mark)
+    rec.update({"argv": shown,
+                "exit_code": proc.returncode,
+                "signal": (signal.Signals(-proc.returncode).name
+                           if (proc.returncode or 0) < 0 else None),
+                "killed": killed,
+                "stderr_head": err.strip().splitlines()[:3],
+                "stderr": err[:3000],
+                "error_class": cls, "error_hit": hit,
+                "out_file": str(out_path) if out_path else None,
+                "out": (_gst_r81_wav_inspect(out_path)
+                        if out_path else None)})
+    if want_stdout:
+        rec["stdout"] = FFPW_R82_ANSI.sub(
+            "", (proc.stdout.read() or b"").decode(errors="replace"))[:6000]
+    return rec
+
+
+def _ffpw_r82_shot(argv, timeout_s=12.0):
+    """A read-only instant command (devices/sources/sinks/-h/ffprobe
+    listing) — subprocess timeout is the bound; no stream ever opens."""
+    try:
+        proc = subprocess.run(argv, capture_output=True,
+                              timeout=timeout_s)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        return {"argv": " ".join(argv), "rc": None,
+                "error": type(exc).__name__ + ": " + str(exc)[:120]}
+    err = FFPW_R82_ANSI.sub("", proc.stderr.decode(errors="replace"))
+    cls, hit = _ffpw_r82_errclass(err)
+    return {"argv": " ".join(str(a) for a in argv), "rc": proc.returncode,
+            "out": FFPW_R82_ANSI.sub(
+                "", proc.stdout.decode(errors="replace"))[:6000],
+            "err": err[:3000], "stderr_head": err.strip().splitlines()[:3],
+            "error_class": cls, "error_hit": hit}
+
+
+def _ffpw_r82_device_rows(text):
+    """`ffmpeg -devices` -> {device_name: 'DE'/'D.'/'.E'} (flags
+    normalized, spaces folded)."""
+    rows = {}
+    for ln in text.splitlines():
+        m = re.match(r"^ ([DE. ])([DE. ]) (\S+)\s+(.+)$", ln)
+        if not m:
+            continue
+        name = m.group(3)
+        if name in ("=", "---") or name.startswith("---"):
+            continue
+        rows[name] = ((m.group(1) if m.group(1) != " " else ".") +
+                      (m.group(2) if m.group(2) != " " else "."))
+    return rows
+
+
+def _ffpw_r82_enum_rows(text):
+    """`ffmpeg -sources|-sinks <dev>` -> (row_names, starred_names)."""
+    rows, star = [], []
+    for ln in text.splitlines():
+        m = re.match(r"^\s*(\*)?\s*(\S+)\s+\[", ln)
+        if m:
+            rows.append(m.group(2))
+            if m.group(1):
+                star.append(m.group(2))
+    return rows, star
+
+
+def _ffpw_r82_write_tone(path, seconds):
+    """The r82 tag tone: L 1210 Hz / R 1780 Hz at amp 8192 with +-30 LSB
+    uniform dither — a pair DISTINCT from the r78 1k/1.5k tag so a foreign
+    probe's tone can never read as `mine` at the 6% window tolerance, and
+    the dither defeats the mpegts-misprobe edge the scout noted on a pure
+    S16 stereo tone (the r82 ffplay legs probe the file positionally)."""
+    n = int(48000 * seconds)
+    t = np.arange(n) / 48000
+    rng = np.random.default_rng(0x82FF ^ (FFPW_R82_PID & 0xFFFF))
+    dith = rng.integers(-30, 31, n)
+    left = np.clip(FFPW_R82_TONE_AMP *
+                   np.sin(2 * np.pi * FFPW_R82_TONE_L_HZ * t) + dith,
+                   -32768, 32767).astype("<i2")
+    right = np.clip(FFPW_R82_TONE_AMP *
+                    np.sin(2 * np.pi * FFPW_R82_TONE_R_HZ * t) + dith,
+                    -32768, 32767).astype("<i2")
+    pcm = np.empty(n * 2, dtype="<i2")
+    pcm[0::2], pcm[1::2] = left, right
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(48000)
+        w.writeframes(pcm.tobytes())
+
+
+def _ffpw_r82_tone_windows(path):
+    """The r78 window classifier re-pointed at the r82 pair (1210/1780 Hz
+    within 6%, amp>=the r78 floor): `mine` means BOTH channels carry the
+    tag, `audio` means any signal — the only statement that survives a
+    shared default sink."""
+    path = Path(path)
+    insp = _capture_wav_inspect(path)
+    pcm = _playback_r78_pcm_array(path, insp)
+    out = {"exists": insp.get("exists"), "bytes": insp.get("bytes"),
+           "windows": [], "mine_spans": []}
+    if pcm is None:
+        out["unsupported"] = "no s16 stereo data chunk"
+        return out
+    rate = (insp.get("fmt") or {}).get("rate") or 48000
+    win = max(64, int(rate * PLAYBACK_R78_TONE_WINDOW_S))
+    han = np.hanning(win)
+    freq_axis = np.fft.rfftfreq(win, 1.0 / rate)
+    tol_l = FFPW_R82_TONE_L_HZ * PLAYBACK_R78_TONE_TOL
+    tol_r = FFPW_R82_TONE_R_HZ * PLAYBACK_R78_TONE_TOL
+    spans, cur = [], None
+    for i in range(len(pcm) // win):
+        seg = pcm[i * win:(i + 1) * win].astype(np.float64) * han[:, None]
+        fl, al = _playback_r78_domfreq(seg[:, 0], freq_axis)
+        fr, ar = _playback_r78_domfreq(seg[:, 1], freq_axis)
+        at = round(i * PLAYBACK_R78_TONE_WINDOW_S, 2)
+        mine = (abs(fl - FFPW_R82_TONE_L_HZ) <= tol_l and
+                abs(fr - FFPW_R82_TONE_R_HZ) <= tol_r and
+                al >= PLAYBACK_R78_TONE_AMP_MIN and
+                ar >= PLAYBACK_R78_TONE_AMP_MIN)
+        audio = max(al, ar) >= PLAYBACK_R78_TONE_AUDIO_MIN
+        out["windows"].append({"at_s": at, "f_l": int(fl), "a_l": int(al),
+                               "f_r": int(fr), "a_r": int(ar),
+                               "mine": bool(mine), "audio": bool(audio)})
+        if mine:
+            cur = [at, at + PLAYBACK_R78_TONE_WINDOW_S] if cur is None \
+                else [cur[0], at + PLAYBACK_R78_TONE_WINDOW_S]
+        elif cur is not None:
+            spans.append([round(x, 2) for x in cur])
+            cur = None
+    if cur is not None:
+        spans.append([round(x, 2) for x in cur])
+    out["mine_spans"] = spans
+    out["mine_windows"] = sum(1 for w in out["windows"] if w["mine"])
+    out["audio_windows"] = sum(1 for w in out["windows"] if w["audio"])
+    out["zero_windows"] = sum(1 for w in out["windows"] if not w["audio"])
+    out["peak_l"] = max((w["a_l"] for w in out["windows"]), default=0)
+    out["peak_r"] = max((w["a_r"] for w in out["windows"]), default=0)
+    out["carries_tone"] = (out["mine_windows"] >=
+                           PLAYBACK_R78_CARRIES_TONE_WINDOWS)
+    return out
+
+
+def _ffpw_r82_unload_own(module_id):
+    """Name-verified unload of OUR null sink — the args string must carry
+    sink_name=<FFPW_R82_NS>; a bare captured index is never fired."""
+    return _gst_r81_unload_own(module_id, sink_name=FFPW_R82_NS)
+
+
+def _ffpw_r82_ns_ensure(loads):
+    """(Re)load the seat-owned null sink if absent, with the r79 port +
+    monitor-source readiness gates (a record spawned in the enumeration
+    gap binds the live default and hangs to its bound)."""
+    if FFPW_R82_NS in (_capture_r77_sink_names() or []):
+        leaf = {"present": True,
+                "module_id": _gst_r81_sink_module_index(FFPW_R82_NS),
+                "sink_seen": True}
+    else:
+        leaf = _loopback_r79_sinks_load([FFPW_R82_NS])[FFPW_R82_NS]
+    loads[FFPW_R82_NS] = leaf
+    return leaf
+
+
+def _ffpw_r82_teardown(entry, failures, loads):
+    """Every own module unloaded by name-verified index, then the
+    witnesses: probe sinks gone from pactl and no r82ff_<pid>/r82ffx_<pid>
+    node surviving (foreign r82ff names from other lanes are NOT counted —
+    ownership is pid-keyed)."""
+    for tag, leaf in loads.items():
+        entry.setdefault("unloads", {})[tag] = _ffpw_r82_unload_own(
+            (leaf or {}).get("module_id"))
+    sinks_now = _capture_r77_sink_names_strict()
+    if sinks_now is None:
+        entry["sinks_gone"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: pactl sink reader failed — sinks_gone unmeasured")
+    else:
+        gone = {nm: nm not in sinks_now for nm in loads}
+        entry["sinks_gone"] = gone
+        if not all(gone.values()):
+            failures.append(f"teardown: probe sinks survived unload: "
+                            f"{[n for n, g in gone.items() if not g]}")
+    names = _playback_r78_node_names()
+    if names is None:
+        entry["own_nodes_after"] = "reader_error"
+        entry.setdefault("coverage_blocked", []).append(
+            "teardown: node reader failed — own_nodes_after unmeasured")
+    else:
+        rest = sorted(n for n in names
+                      if FFPW_R82_TAG in n or FFPW_R82_XTAG in n
+                      or n == FFPW_R82_NS)
+        entry["own_nodes_after"] = rest
+        if rest:
+            failures.append(f"teardown: r82-tagged nodes survived: {rest}")
+
+
+def _ffpw_r82_block(entry, failures, msg, loads=None):
+    """The named coverage block every entry shares."""
+    entry["blocked"] = msg
+    entry.setdefault("coverage_blocked", []).append(msg)
+    if loads is not None:
+        for leaf in loads.values():
+            _ffpw_r82_unload_own((leaf or {}).get("module_id"))
+    entry["failures"] = failures
+    return entry
+
+
+def _ffpw_r82_entry_head(probe):
+    """Shared entry preamble: inventory, oracle, contention census."""
+    inv = _capture_inventory()
+    return {"probe": probe,
+            "contention": _playback_r78_foreign_clients(),
+            "oracle_at_start": _loopback_r79_oracle(),
+            "inventory": {"default_sink": inv["default_sink"],
+                          "default_source": inv["default_source"],
+                          "sources_count": len(inv["sources"]),
+                          "monitors_count": len(inv["monitors"]),
+                          "alsa_capture_devices":
+                          inv["alsa_capture_devices"]}}
+
+
+def _ffpw_r82_tap(target, path, seconds, tag):
+    """Bounded monitor tap on a SINK name (the capture.sink prop
+    authorizes the monitor ports). rc=1 at the -n bound is success."""
+    return _playback_r78_tap(target, str(path), int(seconds * 48000), tag)
+
+
+def _ffpw_r82_pump(tone, target, tag):
+    """The tag-tone pump: ffmpeg -re loop of the tag tone into `target`
+    via the pulse outdev — itself an ffmpeg pulse playback node (its own
+    re-link is witnessed when the sink is destroyed)."""
+    argv = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-re", "-stream_loop", "-1", "-f", "wav", "-i", str(tone),
+            "-f", "pulse", "-name", tag, "-device", target,
+            FFPW_R82_OUT_NAME]
+    return subprocess.Popen(argv, stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL, start_new_session=True)
+
+
+def _ffpw_r82_reap_watch(watch, timeout_s=4.0):
+    """Reap the watch procs (taps end at their -n bound; the pump was
+    killed by the timed event); record each rc."""
+    out = {}
+    for label, proc in (watch or {}).items():
+        _capture_r77_reap(proc, timeout_s)
+        leaf = {"exit_code": proc.returncode}
+        try:
+            err = FFPW_R82_ANSI.sub(
+                "", proc.stderr.read().decode(errors="replace"))
+            if err.strip():
+                leaf["stderr_head"] = err.strip().splitlines()[:2]
+        except Exception:
+            pass
+        out[label] = leaf
+    return out
+
+
+def _ffpw_r82_prop_check(failures, lname, nd, want):
+    """Assert exact node-prop values; every mismatch names the prop."""
+    props = (nd or {}).get("props") or {}
+    for k, v in want.items():
+        if props.get(k) != v:
+            failures.append(f"{lname}: prop {k}={props.get(k)!r} "
+                            f"!= pinned {v!r}")
+
+
+def _ffpw_r82_default_sink(entry):
+    return entry["inventory"]["default_sink"] or \
+        entry["oracle_at_start"]["sink_pactl"]
+
+
+# --------------------------------------------------------------------------
+# (1) DEVICE SURFACES — the device/format lattice.
+# --------------------------------------------------------------------------
+def ffpw_device_surfaces_r82_entry():
+    """(1) The device lattice verbatim: `ffmpeg -devices` lists pulse/
+    alsa/jack/oss/sndio and NO pipewire device row; `-f pipewire -i x` is
+    rc=234 EINVAL `Unknown input format`; `-sources pipewire` is rc=0 with
+    zero rows while `-sources pulse`/`-sinks pulse` enumerate the live
+    graph — the `*` default marker is recorded against `pactl info` as
+    agree/disagree/no_star, never gated (its provenance is the scout's
+    open honesty item). `-h muxer=pulse`/`-h demuxer=pulse` pin the
+    option table including the Lavf63.1.101/record/48000/2 defaults."""
+    failures = []
+    legs = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg device surfaces — no pipewire device row (rc=234 "
+        "EINVAL forced), -sources pipewire empty, -sources/-sinks pulse "
+        "live, `*` marker discord recorded, -h option table")
+    if shutil.which("ffmpeg") is None:
+        return _ffpw_r82_block(entry, failures, "ffmpeg binary absent")
+    for rep in range(2):
+        legs[f"d0_devices_r{rep}"] = _ffpw_r82_shot(
+            ["ffmpeg", "-hide_banner", "-devices"])
+    legs["d1_forced_pipewire"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-nostdin", "-f", "pipewire", "-i", "x"])
+    legs["d2_sources_pipewire"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sources", "pipewire"])
+    legs["d3_sources_pulse"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sources", "pulse"])
+    legs["d4_sinks_pulse"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-sinks", "pulse"])
+    legs["d5_muxer_help"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-h", "muxer=pulse"])
+    legs["d6_demuxer_help"] = _ffpw_r82_shot(
+        ["ffmpeg", "-hide_banner", "-h", "demuxer=pulse"])
+    entry["legs"] = legs
+    # ---- d0: the audio device lattice, stable across the two reps ----
+    rows_seen = []
+    for rep in range(2):
+        leg = legs[f"d0_devices_r{rep}"]
+        rows = _ffpw_r82_device_rows(leg.get("out") or "")
+        leg["audio_rows"] = {k: v for k, v in rows.items()
+                             if k in ("alsa", "pulse", "jack", "oss",
+                                      "sndio", "pipewire", "lavfi")}
+        rows_seen.append(rows)
+    rows = rows_seen[0]
+    want_flags = {"alsa": "DE", "pulse": "DE", "jack": "D.", "oss": "DE",
+                  "sndio": "DE"}
+    for dev, flags in want_flags.items():
+        if rows.get(dev) != flags:
+            failures.append(f"devices: {dev} flags {rows.get(dev)!r} "
+                            f"!= pinned {flags!r}")
+    if "pipewire" in rows:
+        failures.append("devices: a pipewire device row EXISTS — the "
+                        "build-gained-a-device realization (falsifies "
+                        "the scout lattice)")
+    if rows_seen[0] != rows_seen[1]:
+        failures.append("devices: rep-to-rep drift in the device table")
+    # ---- d1: forcing the absent indev is rc=234 EINVAL ----
+    leg = legs["d1_forced_pipewire"]
+    if leg.get("rc") != 234 or leg.get("error_class") != "ff_unknown_format":
+        failures.append(f"forced pipewire: rc={leg.get('rc')} "
+                        f"cls={leg.get('error_class')} — expected rc=234 "
+                        "EINVAL `Unknown input format`")
+    # ---- d2/d3/d4: the enumeration channels ----
+    leg = legs["d2_sources_pipewire"]
+    rows_pw, _ = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_pw
+    if leg.get("rc") != 0:
+        failures.append(f"sources pipewire: rc={leg.get('rc')} != 0")
+    if rows_pw:
+        failures.append(f"sources pipewire: rows listed for an absent "
+                        f"indev — {rows_pw}")
+    leg = legs["d3_sources_pulse"]
+    rows_s, star_s = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_s
+    leg["starred"] = star_s
+    if leg.get("rc") != 0 or not rows_s:
+        failures.append(f"sources pulse: rc={leg.get('rc')} rows="
+                        f"{len(rows_s)} — expected rc=0 with live rows")
+    leg = legs["d4_sinks_pulse"]
+    rows_k, star_k = _ffpw_r82_enum_rows(leg.get("out") or "")
+    leg["rows"] = rows_k
+    leg["starred"] = star_k
+    if leg.get("rc") != 0 or not rows_k:
+        failures.append(f"sinks pulse: rc={leg.get('rc')} rows="
+                        f"{len(rows_k)} — expected rc=0 with live rows")
+    # the honest discord leaf: `*` vs the pactl default — recorded, not gated
+    default = _ffpw_r82_default_sink(entry)
+    leg["star_vs_pactl"] = (
+        "no_star" if not star_k else
+        "agree" if star_k == [default] else "disagree")
+    # ---- d5/d6: the option tables ----
+    for lname, want_opts, want_defs in (
+            ("d5_muxer_help",
+             ("server", "name", "stream_name", "device", "buffer_size",
+              "buffer_duration", "prebuf", "minreq"),
+             ()),
+            ("d6_demuxer_help",
+             ("server", "name", "stream_name", "sample_rate", "channels",
+              "frame_size", "fragment_size", "wallclock"),
+             (('name', 'Lavf63.1.101'), ('stream_name', 'record'),
+              ('sample_rate', '48000'), ('channels', '2')))):
+        leg = legs[lname]
+        text = (leg.get("out") or "") + (leg.get("err") or "")
+        if leg.get("rc") != 0:
+            failures.append(f"{lname}: rc={leg.get('rc')} != 0")
+            continue
+        got = {}
+        for opt in want_opts:
+            m = re.search(rf"^\s+-{opt}\s+(.*)$", text, re.M)
+            got[opt] = (m.group(1).strip()[:110] if m else None)
+        leg["options"] = got
+        for opt, line in got.items():
+            if line is None:
+                failures.append(f"{lname}: option -{opt} absent from "
+                                "the help table")
+        for opt, default in want_defs:
+            line = got.get(opt) or ""
+            if f'default "{default}"' not in line and \
+                    f"default {default}" not in line:
+                failures.append(f"{lname}: -{opt} default not pinned as "
+                                f"{default!r} — line {line!r}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (2) CAPTURE LATTICE — the STRICT side: source-name validation at connect.
+# --------------------------------------------------------------------------
+def ffpw_capture_lattice_r82_entry():
+    """(2) Capture validates the target name at connect — with ONE
+    permissive hole: `<ns>.monitor` links (producers==[ns], target.object
+    lands with `.monitor` STRIPPED, stream.capture.sink prop published),
+    a bare sink name / bogus source / `<default-sink>` are rc=251 EIO in
+    well under a second even with the capture.sink prop, `default` is
+    the BIMODAL {eio_251, hang_killed} cell (x3 reps),
+    @DEFAULT_MONITOR@/@DEFAULT_SOURCE@ resolve and link the real
+    defaults, -name/-stream_name rename the node while PIPEWIRE_PROPS
+    node.name is overridden to Lavf63.1.101 (stream.capture.sink still
+    lands), and a real source captures directly. The hole (r82-boundary):
+    any UNRESOLVABLE name ending in `.monitor` is rc=0 and silently
+    falls back to the default sink's monitor — literal target.object,
+    producers=[default]. The pulse indev never clamps: `-sample_rate
+    12345` publishes node.rate=1/12345 verbatim. Bogus `-server` is
+    rc=253 ESRCH."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg capture lattice — source validated at connect (251 EIO "
+        "bogus/bare-sink/sink-name; `default` bimodal), aliases resolve, "
+        "name-vs-env override split, spec legs")
+    ctx = {}
+    prop = "{ stream.capture.sink=true }"
+    base = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-y", "-f", "pulse"]
+    pump = None
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        defsrc = entry["inventory"]["default_source"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-cap-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 3.0)
+            pump = _ffpw_r82_pump(tone, FFPW_R82_NS,
+                                  f"{FFPW_R82_TAG}_pump")
+            time.sleep(0.4)     # let the pump link before the legs sample it
+            watch = {"pump": pump}
+
+            def _cap(name, pre, src, env=None, wall=None,
+                     w=watch, tone=False):
+                out = str(Path(tmp) / f"{name}.wav")
+                leg = _ffpw_r82_leg(
+                    name,
+                    base + list(pre) + ["-i", src] +
+                    ["-t", "2.0", "-c:a", "pcm_s16le", out],
+                    ctx, env_extra=env, out_path=out,
+                    watch=w, wall_cap=wall or FFPW_R82_WALL_S)
+                if tone:
+                    tw = _ffpw_r82_tone_windows(out)   # inside the tmpdir
+                    leg["tone"] = {"carries_tone": tw.get("carries_tone"),
+                                   "mine_windows": tw.get("mine_windows"),
+                                   "mine_spans": tw.get("mine_spans"),
+                                   "peak_l": tw.get("peak_l")}
+                return leg
+
+            legs["c0_ns_monitor"] = _cap(
+                "c0_ns_monitor", [], FFPW_R82_NS + ".monitor",
+                env={"PIPEWIRE_PROPS":
+                     f"{{ stream.capture.sink=true }}"}, tone=True)
+            legs["c1_bare_sink"] = _cap(
+                "c1_bare_sink", [], FFPW_R82_NS, env={"PIPEWIRE_PROPS": prop})
+            legs["c2_bogus_src"] = _cap(
+                "c2_bogus_src", [], FFPW_R82_BOGUS_SOURCE)
+            # c3: the bimodal `default` cell — 3 reps, envelope-armed
+            for rep in range(3):
+                legs[f"c3_default_r{rep}"] = _cap(
+                    f"c3_default_r{rep}", [], "default", w=None,
+                    wall=5.0)
+            legs["c4_defmon_alias"] = _cap(
+                "c4_defmon_alias", [], "@DEFAULT_MONITOR@",
+                env={"PIPEWIRE_PROPS": prop})
+            if defsrc:
+                legs["c5_defsrc_alias"] = _cap(
+                    "c5_defsrc_alias", [], "@DEFAULT_SOURCE@")
+            legs["c6_named"] = _cap(
+                "c6_named",
+                ["-name", f"{FFPW_R82_TAG}_capname",
+                 "-stream_name", f"{FFPW_R82_TAG} cap stream"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            legs["c7_env_props"] = _cap(
+                "c7_env_props", [], FFPW_R82_NS + ".monitor",
+                env={"PIPEWIRE_PROPS":
+                     f"{{ node.name={FFPW_R82_XTAG}_cap "
+                     f"stream.capture.sink=true }}"})
+            legs["c8_spec_44k1"] = _cap(
+                "c8_spec_44k1", ["-sample_rate", "44100", "-channels", "1"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            if defsrc:
+                legs["c9_real_source"] = _cap(
+                    "c9_real_source", [], defsrc)
+            legs["c10_weird_ch7"] = _cap(
+                "c10_weird_ch7", ["-channels", "7"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+            legs["c11_bad_server"] = _cap(
+                "c11_bad_server", ["-server", FFPW_R82_BAD_SERVER],
+                "default", w=None)
+            legs["c12_sink_name"] = _cap(
+                "c12_sink_name", [], default or "<none>",
+                env={"PIPEWIRE_PROPS": prop})
+            # c13: the boundary's captured-facing fallback — an
+            # unresolvable name ending in `.monitor` does NOT refuse; it
+            # silently lands on the default sink's monitor (the `.monitor`
+            # suffix bypasses the name lookup). So "capture validates" is
+            # not universal: only the bare/source/sink-name forms are.
+            legs["c13_bogus_monitor"] = _cap(
+                "c13_bogus_monitor", [],
+                f"no_such_thing_{FFPW_R82_PID}.monitor")
+            # c14: the pulse path does NOT clamp — `-sample_rate 12345`
+            # publishes node.rate=1/12345 (contrast a6's ALSA
+            # nearest-supported clamp to 44100).
+            legs["c14_rate_passthrough"] = _cap(
+                "c14_rate_passthrough", ["-sample_rate", "12345"],
+                FFPW_R82_NS + ".monitor", env={"PIPEWIRE_PROPS": prop})
+    finally:
+        if pump is not None and pump.poll() is None:
+            os.killpg(pump.pid, signal.SIGKILL)
+        if pump is not None:
+            _capture_r77_reap(pump, 3)
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+
+    def _refusal(name, want_rc=251, want_class="ff_io_error"):
+        leg = legs.get(name) or {}
+        if leg.get("exit_code") != want_rc or \
+                leg.get("error_class") != want_class:
+            failures.append(f"cap {name}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != "
+                            f"{want_rc}/{want_class}")
+        if leg.get("wall_s") is not None and leg["wall_s"] > 4.0 and \
+                not leg.get("killed"):
+            failures.append(f"cap {name}: refusal took {leg['wall_s']}s "
+                            "— outside the ~1 s envelope")
+        out = leg.get("out") or {}
+        if out.get("exists") and (out.get("bytes") or 0) > 44:
+            failures.append(f"cap {name}: a refused capture must not "
+                            f"produce audio — {out}")
+
+    # ---- c0: the pinned success shape ----
+    leg = legs.get("c0_ns_monitor") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c0: leg failed — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c0", nd, {
+            "node.name": "Lavf63.1.101",
+            "application.name": "Lavf63.1.101",
+            "media.name": "record",
+            "media.class": "Stream/Input/Audio",
+            "target.object": FFPW_R82_NS,
+            "stream.capture.sink": True,
+            "client.api": "pipewire-pulse",
+            "node.rate": "1/48000",
+            "node.latency": "2400/48000",
+            "pulse.attr.fragsize": 9600})
+        if nd.get("producers") != [FFPW_R82_NS]:
+            failures.append(f"cap c0: producers {nd.get('producers')} "
+                            "!= [<ns>]")
+        w = leg.get("tone") or {}
+        if not w.get("carries_tone"):
+            failures.append("cap c0: the pump's tag tone never landed in "
+                            "the captured wav (mine_windows "
+                            f"{w.get('mine_windows')})")
+    # ---- refusals ----
+    for lname in ("c1_bare_sink", "c2_bogus_src", "c12_sink_name"):
+        _refusal(lname)
+    # ---- c3: the bimodal `default` cell ----
+    seen = []
+    for rep in range(3):
+        leg = legs.get(f"c3_default_r{rep}") or {}
+        rc, killed, cls = (leg.get("exit_code"), leg.get("killed"),
+                           leg.get("error_class"))
+        if rc == 251 and cls == "ff_io_error":
+            seen.append("eio_251")
+        elif killed == "wallcap" or (rc is not None and rc < 0):
+            seen.append("hang_killed")
+        else:
+            seen.append(f"unexpected:rc{rc}/{cls}")
+            failures.append(f"cap c3_default_r{rep}: outside the "
+                            f"{{eio_251, hang_killed}} envelope — rc={rc} "
+                            f"cls={cls} killed={killed}")
+    entry["c3_default_realizations"] = seen
+    # ---- c4/c5: the resolving aliases ----
+    leg = legs.get("c4_defmon_alias") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c4: leg failed — rc={leg.get('exit_code')}")
+    elif default:
+        props = nd.get("props") or {}
+        if props.get("target.object") != default:
+            failures.append(f"cap c4: @DEFAULT_MONITOR@ target.object "
+                            f"{props.get('target.object')!r} != the "
+                            f"resolved default sink {default!r}")
+        if nd.get("producers") != [default]:
+            failures.append(f"cap c4: producers {nd.get('producers')} "
+                            "!= [default sink]")
+    if defsrc:
+        leg = legs.get("c5_defsrc_alias") or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"cap c5: leg failed — rc="
+                            f"{leg.get('exit_code')}")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != defsrc:
+                failures.append(f"cap c5: @DEFAULT_SOURCE@ target.object "
+                                f"{props.get('target.object')!r} != "
+                                f"{defsrc!r}")
+            if nd.get("producers") != [defsrc]:
+                failures.append(f"cap c5: producers {nd.get('producers')} "
+                                "!= [default source]")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "c5_defsrc_alias: no pactl default source")
+    # ---- c6: -name/-stream_name rename the node ----
+    leg = legs.get("c6_named") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c6: leg failed — rc={leg.get('exit_code')}")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c6", nd, {
+            "node.name": f"{FFPW_R82_TAG}_capname",
+            "application.name": f"{FFPW_R82_TAG}_capname",
+            "media.name": f"{FFPW_R82_TAG} cap stream"})
+    # ---- c7: PIPEWIRE_PROPS node.name is overridden; capture.sink lands
+    leg = legs.get("c7_env_props") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c7: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        if props.get("node.name") != "Lavf63.1.101":
+            failures.append(f"cap c7: env node.name was NOT overridden — "
+                            f"node.name={props.get('node.name')!r}")
+        if props.get("stream.capture.sink") is not True:
+            failures.append("cap c7: env stream.capture.sink did not land")
+    # ---- c8: spec rewrite ----
+    leg = legs.get("c8_spec_44k1") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0:
+        failures.append(f"cap c8: rc={leg.get('exit_code')} != 0")
+    else:
+        if out.get("rate") != 44100 or out.get("ch") != 1:
+            failures.append(f"cap c8: wav spec {out} != 44100/1ch")
+        if nd is not None:
+            _ffpw_r82_prop_check(failures, "cap c8", nd, {
+                "node.rate": "1/44100", "node.latency": "2205/44100",
+                "pulse.attr.fragsize": 4410})
+    # ---- c9: a real source captures directly ----
+    if defsrc:
+        leg = legs.get("c9_real_source") or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"cap c9: leg failed — rc="
+                            f"{leg.get('exit_code')}")
+        else:
+            props = nd.get("props") or {}
+            if props.get("target.object") != defsrc or \
+                    nd.get("producers") != [defsrc]:
+                failures.append(f"cap c9: direct source capture did not "
+                                f"bind {defsrc} — target="
+                                f"{props.get('target.object')!r} "
+                                f"producers={nd.get('producers')}")
+    # ---- c10: the 7-channel spec ----
+    leg = legs.get("c10_weird_ch7") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or out.get("ch") != 7:
+        failures.append(f"cap c10: rc={leg.get('exit_code')} ch="
+                        f"{out.get('ch')} — expected rc=0 7ch wav")
+    elif nd is not None:
+        _ffpw_r82_prop_check(failures, "cap c10", nd, {
+            "pulse.attr.fragsize": 33600,
+            "pulse.attr.maxlength": 4194302})
+    # ---- c11: bad server on the indev is ESRCH ----
+    leg = legs.get("c11_bad_server") or {}
+    if leg.get("exit_code") != 253 or \
+            leg.get("error_class") != "ff_no_such_process":
+        failures.append(f"cap c11: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 253/"
+                        "ff_no_such_process")
+    # ---- c13: the `.monitor`-suffix permissive hole (r82-boundary) ----
+    leg = legs.get("c13_bogus_monitor") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c13: the bogus-.monitor leg REFUSED — "
+                        f"rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} (the permissive hole "
+                        "closed?)")
+    else:
+        props = nd.get("props") or {}
+        want_lit = f"no_such_thing_{FFPW_R82_PID}"
+        if props.get("target.object") != want_lit:
+            failures.append(f"cap c13: target.object "
+                            f"{props.get('target.object')!r} != the "
+                            f"literal (.monitor-stripped) {want_lit!r}")
+        if props.get("stream.capture.sink") is not True:
+            failures.append("cap c13: stream.capture.sink not set on the "
+                            "fallback capture")
+        if default and nd.get("producers") != [default]:
+            failures.append(f"cap c13: producers {nd.get('producers')} "
+                            "!= [default sink] — where did it land?")
+    # ---- c14: no pulse-side clamp (vs a6's ALSA clamp) ----
+    leg = legs.get("c14_rate_passthrough") or {}
+    nd = _ffpw_r82_last_node(leg)
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"cap c14: rc={leg.get('exit_code')} — the "
+                        "weird-rate pulse capture failed")
+    else:
+        _ffpw_r82_prop_check(failures, "cap c14", nd, {
+            "node.rate": "1/12345",
+            "node.latency": "617/12345",
+            "pulse.attr.fragsize": 2468})
+        if out.get("rate") != 12345:
+            failures.append(f"cap c14: wav rate {out.get('rate')} != "
+                            "12345 — the pulse path clamped (ALSA-style "
+                            "negotiation reached the indev?)")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (3) PLAYBACK LATTICE — the PERMISSIVE side: no validation, silent re-route.
+# --------------------------------------------------------------------------
+def ffpw_playback_lattice_r82_entry():
+    """(3) Playback validates only the EMPTY string: every non-empty name
+    form is rc=0 with `target.object` keeping the literal written value
+    while WirePlumber re-routes to the leg-time default — measured by
+    the two bounded monitor taps (the shared-default tap carries the tag
+    tone, the probe-sink tap stays clean). `-device ""` is the single
+    refusal: rc=187 `pa_context_get_sink_info_by_name failed`, no node,
+    no tone. `@DEFAULT_SINK@` lands RESOLVED (the one non-literal),
+    `default` stays literal, `-device` absent means no target.object at
+    all. PULSE_SINK is honored on ffmpeg's pulse path; a bad `-server`
+    is rc=187 access-denied; -name/-stream_name rename; PIPEWIRE_PROPS
+    target.object on the outdev is the freshly-measured env-routing
+    cell."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg playback lattice — no target validation (rc=0 bogus/"
+        "source/monitor/default/alias), literal target.object + silent "
+        "re-route to default (monitor-tap witnessed), PULSE_SINK "
+        "honored, -server 187")
+    entry["contamination"] = {
+        "shared_default_tone": True,
+        "note": "fallback legs play the bounded (~2.2 s) tag tone through "
+                "the CURRENT default sink — the scout's own content-level "
+                "witness for silent re-route; taps are bounded pw-record "
+                "runs reaped at each leg",
+        "legs": ["p1_bogus", "p2_src_name", "p3_monitor_name",
+                 "p4_default_kw", "p5_alias", "p8_no_device"]}
+    ctx = {}
+    base = ["ffmpeg", "-hide_banner", "-loglevel", "warning", "-nostdin",
+            "-re", "-f", "wav", "-i"]
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen"):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        defsrc = entry["inventory"]["default_source"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-play-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 2.2)
+
+            def _play(name, out_opts, env=None, taps=True, wall=None):
+                argv = base + [str(tone), "-f", "pulse"] + \
+                    list(out_opts) + [FFPW_R82_OUT_NAME]
+                watch = {}
+                paths = {}
+                if taps:
+                    tp = Path(tmp)
+                    ns_p = tp / f"{name}_ns.wav"
+                    df_p = tp / f"{name}_def.wav"
+                    watch["tap_ns"] = _ffpw_r82_tap(
+                        FFPW_R82_NS, ns_p, 3.4,
+                        f"{FFPW_R82_TAG}_tns_{name}")
+                    if default:
+                        watch["tap_def"] = _ffpw_r82_tap(
+                            default, df_p, 3.4,
+                            f"{FFPW_R82_TAG}_tdef_{name}")
+                    paths = {"tap_ns": ns_p, "tap_def": df_p}
+                leg = _ffpw_r82_leg(
+                    name, argv, ctx, env_extra=env, watch=watch,
+                    wall_cap=wall or FFPW_R82_WALL_S,
+                    sample_at=(0.4, 0.9, 1.6))
+                leg["taps"] = _ffpw_r82_reap_watch(watch)
+                for label, path in paths.items():
+                    if Path(path).exists():
+                        w = _ffpw_r82_tone_windows(path)
+                        leg["taps"].setdefault(label, {})["tone"] = {
+                            "carries_tone": w.get("carries_tone"),
+                            "mine_windows": w.get("mine_windows"),
+                            "mine_spans": w.get("mine_spans"),
+                            "peak_l": w.get("peak_l"),
+                            "audio_windows": w.get("audio_windows")}
+                return leg
+
+            legs["p0_honor"] = _play("p0_honor", ["-device", FFPW_R82_NS])
+            legs["p1_bogus"] = _play("p1_bogus",
+                                     ["-device", FFPW_R82_BOGUS_SINK])
+            if defsrc:
+                legs["p2_src_name"] = _play("p2_src_name",
+                                            ["-device", defsrc])
+            legs["p3_monitor_name"] = _play(
+                "p3_monitor_name", ["-device", FFPW_R82_NS + ".monitor"])
+            legs["p4_default_kw"] = _play("p4_default_kw",
+                                          ["-device", "default"])
+            legs["p5_alias"] = _play("p5_alias",
+                                     ["-device", "@DEFAULT_SINK@"])
+            legs["p6_env_sink"] = _play(
+                "p6_env_sink", [], env={"PULSE_SINK": FFPW_R82_NS})
+            legs["p7_env_vs_flag"] = _play(
+                "p7_env_vs_flag", ["-device", "default"],
+                env={"PULSE_SINK": FFPW_R82_NS})
+            legs["p8_no_device"] = _play("p8_no_device", [])
+            legs["p9_bad_server"] = _play(
+                "p9_bad_server", ["-server", FFPW_R82_BAD_SERVER,
+                                  "-device", FFPW_R82_NS], taps=False)
+            legs["p10_named"] = _play(
+                "p10_named", ["-device", FFPW_R82_NS,
+                              "-name", f"{FFPW_R82_TAG}_playname",
+                              "-stream_name",
+                              f"{FFPW_R82_TAG} play stream"])
+            legs["p11_env_target"] = _play(
+                "p11_env_target", [],
+                env={"PIPEWIRE_PROPS":
+                     f"{{ target.object={FFPW_R82_NS} }}"})
+            # p12: the ONE string that does get validated — the boundary's
+            # falsification of "never validates" as a universal law:
+            # `-device ""` dies at header-write with rc=187
+            # `pa_context_get_sink_info_by_name failed` (no node, no
+            # tone — a REFUSAL, not a fallback).
+            legs["p12_empty_device"] = _play(
+                "p12_empty_device", ["-device", ""])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry)
+
+    def _tap_tone(leg, label):
+        return ((leg.get("taps") or {}).get(label) or {}).get("tone") or {}
+
+    # ---- the two routing shapes ----
+    def _landed_on(name, sink, want_target):
+        leg = legs.get(name) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"play {name}: leg failed — "
+                            f"rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+            return
+        props = nd.get("props") or {}
+        if want_target == "<absent>":
+            if props.get("target.object") is not None:
+                failures.append(f"play {name}: bare playback must not "
+                                f"publish target.object — got "
+                                f"{props.get('target.object')!r}")
+        elif props.get("target.object") != want_target:
+            failures.append(f"play {name}: target.object "
+                            f"{props.get('target.object')!r} != "
+                            f"{want_target!r}")
+        if nd.get("consumers") != [sink]:
+            failures.append(f"play {name}: consumers "
+                            f"{nd.get('consumers')} != [{sink}]")
+        tdef = _tap_tone(leg, "tap_def")
+        tns = _tap_tone(leg, "tap_ns")
+        if sink == FFPW_R82_NS:
+            if not tns.get("carries_tone"):
+                failures.append(f"play {name}: the probe-sink tap never "
+                                "carried the tag tone")
+            if tdef.get("carries_tone"):
+                failures.append(f"play {name}: the tag tone LEAKED to "
+                                "the shared default sink")
+        else:
+            if not tdef.get("carries_tone"):
+                failures.append(f"play {name}: the shared-default tap "
+                                "never carried the tag tone — the "
+                                "silent re-route claim is unproven")
+            if tns.get("carries_tone"):
+                failures.append(f"play {name}: the tag tone landed on "
+                                "the PROBE sink — not a fallback")
+
+    _landed_on("p0_honor", FFPW_R82_NS, FFPW_R82_NS)
+    nd = _ffpw_r82_last_node(legs.get("p0_honor") or {})
+    if nd is not None:
+        _ffpw_r82_prop_check(failures, "play p0", nd, {
+            "node.name": "Lavf63.1.101",
+            "application.name": "Lavf63.1.101",
+            "media.name": FFPW_R82_OUT_NAME,
+            "media.class": "Stream/Output/Audio",
+            "client.api": "pipewire-pulse",
+            "node.rate": "1/48000",
+            "node.latency": "8192/48000",
+            "node.want-driver": True,
+            "pulse.attr.tlength": 384000,
+            "pulse.attr.prebuf": 380164,
+            "pulse.attr.minreq": 3840,
+            "pulse.attr.maxlength": 4194304})
+    if default:
+        _landed_on("p1_bogus", default, FFPW_R82_BOGUS_SINK)
+        if defsrc:
+            _landed_on("p2_src_name", default, defsrc)
+        _landed_on("p3_monitor_name", default, FFPW_R82_NS + ".monitor")
+        _landed_on("p4_default_kw", default, "default")
+        _landed_on("p5_alias", default, default)
+        _landed_on("p8_no_device", default, "<absent>")
+        # p6: PULSE_SINK honored -> lands on OUR sink
+        _landed_on("p6_env_sink", FFPW_R82_NS, FFPW_R82_NS)
+        # p7: -device vs PULSE_SINK — the precedence cell, armed with the
+        # freshly measured winner (recorded either way).
+        leg = legs.get("p7_env_vs_flag") or {}
+        nd = _ffpw_r82_last_node(leg)
+        cons = (nd or {}).get("consumers") or []
+        entry["p7_env_vs_flag_winner"] = (
+            "device_flag" if cons == [default] else
+            "env_pulse_sink" if cons == [FFPW_R82_NS] else
+            f"other:{cons}")
+        if leg.get("exit_code") != 0 or nd is None or \
+                cons not in ([default], [FFPW_R82_NS]):
+            failures.append(f"play p7: rc={leg.get('exit_code')} "
+                            f"consumers={cons} — outside the "
+                            "{device,env} envelope")
+        # p11: PIPEWIRE_PROPS target.object on the outdev — fresh cell.
+        leg = legs.get("p11_env_target") or {}
+        nd = _ffpw_r82_last_node(leg)
+        cons = (nd or {}).get("consumers") or []
+        tgt = ((nd or {}).get("props") or {}).get("target.object")
+        entry["p11_env_target"] = {"consumers": cons,
+                                   "target.object": tgt}
+        if leg.get("exit_code") != 0:
+            failures.append(f"play p11: rc={leg.get('exit_code')} != 0")
+    else:
+        entry.setdefault("coverage_blocked", []).append(
+            "default-sink routing legs: no pactl default sink")
+    # ---- p9: bad server on the outdev is access-denied 187 ----
+    leg = legs.get("p9_bad_server") or {}
+    if leg.get("exit_code") != 187 or \
+            leg.get("error_class") != "ff_access_denied":
+        failures.append(f"play p9: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 187/"
+                        "ff_access_denied")
+    # ---- p10: -name/-stream_name rename the playback node ----
+    leg = legs.get("p10_named") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"play p10: leg failed — rc={leg.get('exit_code')}")
+    else:
+        _ffpw_r82_prop_check(failures, "play p10", nd, {
+            "node.name": f"{FFPW_R82_TAG}_playname",
+            "application.name": f"{FFPW_R82_TAG}_playname",
+            "media.name": f"{FFPW_R82_TAG} play stream",
+            "target.object": FFPW_R82_NS})
+    # ---- p12: `-device ""` — the single validated string (rc=187) ----
+    leg = legs.get("p12_empty_device") or {}
+    if leg.get("exit_code") != 187 or \
+            leg.get("error_class") != "ff_pulse_sink_info":
+        failures.append(f"play p12: rc={leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')} != 187/"
+                        "ff_pulse_sink_info — the empty-string refusal "
+                        "changed class")
+    nd = _ffpw_r82_last_node(leg)
+    if nd is not None:
+        failures.append("play p12: an empty `-device` still published a "
+                        "stream node — refusal weakened to fallback?")
+    tdef = _tap_tone(leg, "tap_def")
+    tns = _tap_tone(leg, "tap_ns")
+    if tdef.get("carries_tone") or tns.get("carries_tone"):
+        failures.append("play p12: the refused leg still moved the tag "
+                        "tone — not a hard refusal")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (4) BUFFER KNOBS — the pulse.attr lattice + position sensitivity.
+# --------------------------------------------------------------------------
+def ffpw_buffer_knobs_r82_entry():
+    """(4) The outdev knobs land as pulse.attr.* with libpulse's derived
+    clamp/floor values (buffer_size 16384 -> tlength 16384/prebuf 12548/
+    latency 2176; buffer_duration wins over buffer_size; minreq 512 ->
+    1024; buffer_size 1 -> floor 3072/2052/1024/latency 256). The indev
+    -fragment_size lands as fragsize + recomputed node.latency; options
+    placed AFTER `-i` are silently swallowed (fragsize stays 9600, wav
+    keeps 48k/2ch, no warning) EXCEPT deprecated `-frame_size` — a
+    pre-`-i` deprecation note and a post-`-i` ffmpeg_sched SIGABRT."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg buffer lattice — outdev pulse.attr mapping with libpulse "
+        "derivations, indev fragsize/latency, position-sensitive swallow "
+        "vs deprecation vs SIGABRT")
+    ctx = {}
+    prop = "{ stream.capture.sink=true }"
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        with tempfile.TemporaryDirectory(prefix="r82ff-buf-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 2.2)
+            base = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                    "-nostdin", "-re", "-f", "wav", "-i", str(silence),
+                    "-f", "pulse", "-device", FFPW_R82_NS]
+
+            def _bout(name, opts):
+                return _ffpw_r82_leg(
+                    name, base + list(opts) + [FFPW_R82_OUT_NAME], ctx,
+                    sample_at=(0.4, 0.9, 1.6))
+
+            legs["b0_default"] = _bout("b0_default", [])
+            legs["b1_bufsize"] = _bout("b1_bufsize",
+                                       ["-buffer_size", "16384"])
+            legs["b2_bufdur"] = _bout("b2_bufdur",
+                                      ["-buffer_duration", "500"])
+            legs["b3_prebuf"] = _bout("b3_prebuf", ["-prebuf", "8192"])
+            legs["b4_minreq"] = _bout("b4_minreq", ["-minreq", "512"])
+            legs["b5_all"] = _bout(
+                "b5_all", ["-buffer_size", "32768", "-buffer_duration",
+                           "200", "-prebuf", "16384", "-minreq", "1024"])
+            legs["b6_bufsize_1"] = _bout("b6_bufsize_1",
+                                         ["-buffer_size", "1"])
+
+            cbase = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-y", "-f", "pulse"]
+
+            def _cap(name, pre, post):
+                out = str(Path(tmp) / f"{name}.wav")
+                argv = cbase + list(pre) + \
+                    ["-i", FFPW_R82_NS + ".monitor"] + list(post) + \
+                    ["-t", "2.0", "-c:a", "pcm_s16le", out]
+                return _ffpw_r82_leg(
+                    name, argv, ctx, out_path=out,
+                    env_extra={"PIPEWIRE_PROPS": prop})
+
+            legs["ci0_default"] = _cap("ci0_default", [], [])
+            legs["ci1_frag_before"] = _cap(
+                "ci1_frag_before", ["-fragment_size", "2048"], [])
+            legs["ci2_frag_big_before"] = _cap(
+                "ci2_frag_big_before", ["-fragment_size", "65536"], [])
+            legs["ci3_framesize_before"] = _cap(
+                "ci3_framesize_before", ["-frame_size", "8192"], [])
+            legs["ci4_frag_after"] = _cap(
+                "ci4_frag_after", [], ["-fragment_size", "2048"])
+            legs["ci5_framesize_after"] = _cap(
+                "ci5_framesize_after", [], ["-frame_size", "8192"])
+            legs["ci6_spec_after"] = _cap(
+                "ci6_spec_after", [],
+                ["-sample_rate", "44100", "-channels", "1"])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    # ---- the outdev attr map ----
+    want_b = {
+        "b0_default": {"pulse.attr.tlength": 384000,
+                       "pulse.attr.prebuf": 380164,
+                       "pulse.attr.minreq": 3840,
+                       "node.latency": "8192/48000"},
+        "b1_bufsize": {"pulse.attr.tlength": 16384,
+                       "pulse.attr.prebuf": 12548,
+                       "pulse.attr.minreq": 3840,
+                       "node.latency": "2176/48000"},
+        "b2_bufdur": {"pulse.attr.tlength": 96000,
+                      "pulse.attr.prebuf": 92164,
+                      "pulse.attr.minreq": 3840,
+                      "node.latency": "8192/48000"},
+        "b3_prebuf": {"pulse.attr.tlength": 384000,
+                      "pulse.attr.prebuf": 8192,
+                      "pulse.attr.minreq": 3840},
+        "b4_minreq": {"pulse.attr.tlength": 384000,
+                      "pulse.attr.prebuf": 382980,
+                      "pulse.attr.minreq": 1024,
+                      "node.latency": "8192/48000"},
+        "b5_all": {"pulse.attr.tlength": 38400,
+                   "pulse.attr.prebuf": 16384,
+                   "pulse.attr.minreq": 1024},
+        "b6_bufsize_1": {"pulse.attr.tlength": 3072,
+                         "pulse.attr.prebuf": 2052,
+                         "pulse.attr.minreq": 1024,
+                         "node.latency": "256/48000"}}
+    for lname, want in want_b.items():
+        leg = legs.get(lname) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0 or nd is None:
+            failures.append(f"buf {lname}: leg failed — "
+                            f"rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+            continue
+        _ffpw_r82_prop_check(failures, f"buf {lname}", nd, want)
+        if nd.get("consumers") != [FFPW_R82_NS]:
+            failures.append(f"buf {lname}: consumers "
+                            f"{nd.get('consumers')} != [<ns>]")
+    # ---- the indev position sensitivity ----
+    want_ci = {
+        "ci0_default": (9600, "2400/48000"),
+        "ci1_frag_before": (2048, "512/48000"),
+        "ci2_frag_big_before": (65536, "16384/48000"),
+        "ci3_framesize_before": (9600, "2400/48000"),
+        "ci4_frag_after": (9600, "2400/48000"),
+        "ci6_spec_after": (9600, "2400/48000")}
+    for lname, (frag, lat) in want_ci.items():
+        leg = legs.get(lname) or {}
+        nd = _ffpw_r82_last_node(leg)
+        if leg.get("exit_code") != 0:
+            failures.append(f"buf {lname}: rc={leg.get('exit_code')} "
+                            f"!= 0 (cls={leg.get('error_class')})")
+            continue
+        if nd is not None:
+            _ffpw_r82_prop_check(failures, f"buf {lname}", nd, {
+                "pulse.attr.fragsize": frag, "node.latency": lat})
+        out = leg.get("out") or {}
+        if lname == "ci6_spec_after":
+            # swallowed: the wav keeps the INDEV spec, not the asked one
+            # (the boundary's "post-`-i` -ac/-ar land" is about the
+            # ENCODER spellings, not the demuxer names used here)
+            if out.get("rate") != 48000 or out.get("ch") != 2:
+                failures.append(f"buf ci6: post-`-i` spec was NOT "
+                                f"swallowed — wav {out}")
+    leg = legs.get("ci3_framesize_before") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if "deprecated" not in err_text:
+        failures.append("buf ci3: pre-`-i` -frame_size must print the "
+                        f"deprecation note — {leg.get('stderr_head')}")
+    leg = legs.get("ci4_frag_after") or {}
+    err_text = " ".join(leg.get("stderr_head") or [])
+    if "deprecated" in err_text or leg.get("error_class"):
+        failures.append("buf ci4: post-`-i` -fragment_size must be "
+                        f"silent — {leg.get('stderr_head')}")
+    leg = legs.get("ci5_framesize_after") or {}
+    if leg.get("exit_code") != -6 or \
+            leg.get("error_class") != "ff_sched_assert":
+        failures.append(f"buf ci5: post-`-i` -frame_size must be the "
+                        f"ffmpeg_sched SIGABRT — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (5) TARGET LOSS — BOTH directions re-link (the ffmpeg-specific law, a
+# deliberate divergence from r81's gst capture-freeze).
+# --------------------------------------------------------------------------
+def ffpw_target_loss_r82_entry():
+    """(5) Under seat-owned-sink destruction the ffmpeg streams RE-LINK:
+    playback's consumers go [ns] -> [default] within ~0.3 s (scout mean
+    0.22 s, armed bound 0.8 s) and the process exits cleanly at input
+    EOF; capture's producers re-link [ns] -> [default] and the artifact
+    keeps GROWING to its -t bound (finalized wav — the opposite of r81's
+    wavenc-streaming freeze). A same-event pw-record control re-links too
+    (WirePlumber-generic). Unload fires by the name-verified index; the
+    pump's own playback re-link is witnessed inside the capture legs."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg target loss — BOTH directions re-link to the leg-time "
+        "default (playback exits rc=0 at EOF, capture artifact keeps "
+        "growing); pw-record control re-links; ffmpeg-vs-gst split noted")
+    entry["contamination"] = {
+        "shared_default_tone": True,
+        "note": "post-unlink the re-linked streams carry the tag tone to "
+                "the shared default sink for the remaining bounded "
+                "window (the re-link's own content witness)"}
+    ctx = {}
+    try:
+        with tempfile.TemporaryDirectory(prefix="r82ff-loss-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            tone = Path(tmp) / "tone.wav"
+            _ffpw_r82_write_tone(tone, 3.6)
+            default = None
+            for rep in range(3):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen"):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t1_r{rep}", loads)
+                default = _ffpw_r82_default_sink(entry)
+                watch = {}
+                paths = {}
+                if default:
+                    df_p = Path(tmp) / f"t1_r{rep}_def.wav"
+                    watch["tap_def"] = _ffpw_r82_tap(
+                        default, df_p, 5.0,
+                        f"{FFPW_R82_TAG}_tdef_t1{rep}")
+                    paths["tap_def"] = df_p
+                legs[f"t1_play_r{rep}"] = _ffpw_r82_leg(
+                    f"t1_play_r{rep}",
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-re", "-f", "wav", "-i", str(tone),
+                     "-f", "pulse", "-device", FFPW_R82_NS,
+                     FFPW_R82_OUT_NAME],
+                    ctx, watch=watch, timeline=0.2,
+                    wall_cap=FFPW_R82_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+                legs[f"t1_play_r{rep}"]["taps"] = _ffpw_r82_reap_watch(watch)
+                for label, path in paths.items():
+                    if Path(path).exists():
+                        w = _ffpw_r82_tone_windows(path)
+                        legs[f"t1_play_r{rep}"]["taps"][label]["tone"] = {
+                            "carries_tone": w.get("carries_tone"),
+                            "mine_spans": w.get("mine_spans")}
+            for rep in range(3):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t2_r{rep}", loads)
+                default = _ffpw_r82_default_sink(entry)
+                pump = _ffpw_r82_pump(tone, FFPW_R82_NS,
+                                      f"{FFPW_R82_TAG}_pump{rep}")
+                cap = str(Path(tmp) / f"t2_r{rep}.wav")
+                legs[f"t2_cap_r{rep}"] = _ffpw_r82_leg(
+                    f"t2_cap_r{rep}",
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-y", "-f", "pulse", "-i",
+                     FFPW_R82_NS + ".monitor",
+                     "-t", "5.0", "-c:a", "pcm_s16le", cap],
+                    ctx,
+                    env_extra={"PIPEWIRE_PROPS":
+                               "{ stream.capture.sink=true }"},
+                    out_path=cap, watch={"pump": pump}, timeline=0.2,
+                    wall_cap=FFPW_R82_CAP_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id")),
+                            (2.0, "kill_watch", "pump")])
+                _capture_r77_reap(pump, 3)
+                w = _ffpw_r82_tone_windows(cap)
+                legs[f"t2_cap_r{rep}"]["cap_tone"] = {
+                    "mine_windows": w.get("mine_windows"),
+                    "mine_spans": w.get("mine_spans")}
+            for rep in range(2):
+                load = _ffpw_r82_ns_ensure(loads)
+                if not load.get("sink_seen") or \
+                        not load.get("monitor_seen", True):
+                    return _ffpw_r82_block(
+                        entry, failures,
+                        f"null sink load failed before t3_r{rep}", loads)
+                cap = str(Path(tmp) / f"t3_r{rep}.wav")
+                legs[f"t3_pwrec_r{rep}"] = _ffpw_r82_leg(
+                    f"t3_pwrec_r{rep}",
+                    ["pw-record", "-P", "stream.capture.sink=true",
+                     "-P", f"node.name={FFPW_R82_TAG}_pwrec{rep}",
+                     "--target", FFPW_R82_NS, "-n", "250000", cap],
+                    ctx, out_path=cap, timeline=0.2,
+                    wall_cap=FFPW_R82_CAP_LOSS_WALL_S,
+                    events=[(FFPW_R82_LOSS_EVENT_S, "unload_module",
+                             load.get("module_id"))])
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry) or \
+        entry["inventory"]["default_sink"]
+
+    def _unload_at(leg):
+        for f in leg.get("fired") or []:
+            if f.get("kind") == "unload_module":
+                return f.get("at"), (f.get("result") or {})
+        return None, {}
+
+    def _relink(leg, key):
+        """(t, names) of the first post-unload sample whose main node has
+        non-empty consumers/producers — plus the pre-unlink witness."""
+        unl_at, res = _unload_at(leg)
+        pre, relink = None, None
+        for s in leg.get("samples") or []:
+            nd = next((n for n in (s.get("nodes") or [])
+                       if n.get("src") == "main"), None)
+            if nd is None:
+                continue
+            names = nd.get(key) or []
+            if unl_at is not None and s["t"] < unl_at:
+                if names:
+                    pre = (s["t"], names)
+            elif unl_at is not None and relink is None and names:
+                relink = (s["t"], names)
+        return unl_at, res, pre, relink
+
+    # ---- t1: playback re-links and exits clean at EOF ----
+    for rep in range(3):
+        lname = f"t1_play_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "consumers")
+        if leg.get("exit_code") != 0:
+            failures.append(f"loss {lname}: the player must exit rc=0 at "
+                            f"EOF — rc={leg.get('exit_code')} "
+                            f"killed={leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        if pre is None or pre[1] != [FFPW_R82_NS]:
+            failures.append(f"loss {lname}: no pre-unload sample shows "
+                            f"consumers==[<ns>] — pre={pre}")
+        if relink is None:
+            failures.append(f"loss {lname}: the playback stream never "
+                            "re-linked — the ffmpeg law fails")
+        else:
+            if relink[0] - (unl_at or 0) > FFPW_R82_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at +"
+                                f"{relink[0] - (unl_at or 0):.3f}s — "
+                                f"beyond the {FFPW_R82_RELINK_BOUND_S}s "
+                                "armed bound")
+            if default and relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked consumers "
+                                f"{relink[1]} != [default]")
+        tap = ((legs.get(lname) or {}).get("taps") or {}).get(
+            "tap_def", {}).get("tone") or {}
+        if default and tap:
+            # the tag tone must appear on the shared default AFTER the
+            # unload (the re-link's own content witness)
+            post_mine = [s for s in (tap.get("mine_spans") or [])
+                         if s[0] >= (unl_at or 0) - 0.2]
+            if not post_mine:
+                failures.append(f"loss {lname}: the default-monitor tap "
+                                "never carried the tag tone post-unlink")
+    # ---- t2: capture re-links and the artifact keeps growing ----
+    for rep in range(3):
+        lname = f"t2_cap_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "producers")
+        if leg.get("exit_code") != 0:
+            failures.append(f"loss {lname}: bounded capture must exit "
+                            f"rc=0 at its -t bound — rc="
+                            f"{leg.get('exit_code')} "
+                            f"killed={leg.get('killed')}")
+        if res.get("exit_code") not in (0, None) and not res.get("skipped"):
+            failures.append(f"loss {lname}: unload result {res}")
+        if pre is None or pre[1] != [FFPW_R82_NS]:
+            failures.append(f"loss {lname}: no pre-unload sample shows "
+                            f"producers==[<ns>] — pre={pre}")
+        if relink is None:
+            failures.append(f"loss {lname}: the capture never re-linked "
+                            "— the ffmpeg law fails")
+        else:
+            if relink[0] - (unl_at or 0) > FFPW_R82_RELINK_BOUND_S:
+                failures.append(f"loss {lname}: re-link at +"
+                                f"{relink[0] - (unl_at or 0):.3f}s")
+            if default and relink[1] != [default]:
+                failures.append(f"loss {lname}: re-linked producers "
+                                f"{relink[1]} != [default]")
+        post_sizes = [s.get("size") for s in (leg.get("samples") or [])
+                      if unl_at is not None and s["t"] >= unl_at and
+                      s.get("size") is not None]
+        if len(post_sizes) >= 2 and post_sizes[-1] <= post_sizes[0]:
+            failures.append(f"loss {lname}: the artifact STOPPED growing "
+                            f"after the unload — sizes {post_sizes[:3]}"
+                            f"..{post_sizes[-2:]} (gst-freeze shape)")
+        out = leg.get("out") or {}
+        if out.get("riff") != "finalized":
+            failures.append(f"loss {lname}: bounded capture must leave "
+                            f"a finalized wav — {out}")
+        # the pump's own playback re-link, witnessed inside this leg
+        pump_re = None
+        for s in leg.get("samples") or []:
+            if unl_at is not None and s["t"] < unl_at:
+                continue
+            for nd in (s.get("nodes") or []):
+                if nd.get("src") == "pump" and nd.get("consumers"):
+                    pump_re = (s["t"], nd["consumers"])
+                    break
+            if pump_re:
+                break
+        leg["pump_relinked_to"] = pump_re[1] if pump_re else None
+    # ---- t3: the pw-record control re-links too ----
+    for rep in range(2):
+        lname = f"t3_pwrec_r{rep}"
+        leg = legs.get(lname) or {}
+        unl_at, res, pre, relink = _relink(leg, "producers")
+        if relink is None:
+            failures.append(f"loss {lname}: the pw-record control did "
+                            "NOT re-link — the client-specificity claim "
+                            "loses its positive control")
+        elif default and relink[1] != [default]:
+            failures.append(f"loss {lname}: control re-linked to "
+                            f"{relink[1]} != [default]")
+        if relink is not None and unl_at is not None and \
+                relink[0] - unl_at > FFPW_R82_RELINK_BOUND_S:
+            failures.append(f"loss {lname}: control re-link at +"
+                            f"{relink[0] - unl_at:.3f}s")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (6) EXIT CLASSES — the typed rc map.
+# --------------------------------------------------------------------------
+def ffpw_error_classes_r82_entry():
+    """(6) The typed rc map: AVOption bound violations are rc=222 ERANGE
+    at option-set time; hostile values that pass the AVOption check reach
+    libpulse and SIGABRT (-6) on `pa_channels_valid`/`pa_sample_spec_
+    valid`; an unreachable `-server` on the indev is rc=253 ESRCH
+    `No such process`. Each leg carries its verbatim stderr class."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg exit classes — 222 ERANGE option bounds, -6 libpulse "
+        "asserts, 253 ESRCH bad server")
+    ctx = {}
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        base = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                "-nostdin", "-y", "-f", "pulse"]
+        out_t = ["-t", "1.0", "-c:a", "pcm_s16le"]
+        with tempfile.TemporaryDirectory(prefix="r82ff-err-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            mon = FFPW_R82_NS + ".monitor"
+            legs["e1_rate0"] = _ffpw_r82_leg(
+                "e1_rate0", base + ["-sample_rate", "0", "-i", "default"]
+                + out_t + [str(Path(tmp) / "e1.wav")], ctx)
+            legs["e2_ch0"] = _ffpw_r82_leg(
+                "e2_ch0", base + ["-channels", "0", "-i", "default"]
+                + out_t + [str(Path(tmp) / "e2.wav")], ctx)
+            legs["e3_frag_neg"] = _ffpw_r82_leg(
+                "e3_frag_neg", base + ["-fragment_size", "-2", "-i",
+                                       "default"] + out_t
+                + [str(Path(tmp) / "e3.wav")], ctx)
+            legs["e4_ch99"] = _ffpw_r82_leg(
+                "e4_ch99", base + ["-channels", "99", "-i", mon] + out_t
+                + [str(Path(tmp) / "e4.wav")], ctx)
+            legs["e5_rate999999"] = _ffpw_r82_leg(
+                "e5_rate999999",
+                base + ["-sample_rate", "999999", "-i", mon] + out_t
+                + [str(Path(tmp) / "e5.wav")], ctx)
+            legs["e6_bad_server_in"] = _ffpw_r82_leg(
+                "e6_bad_server_in",
+                base + ["-server", FFPW_R82_BAD_SERVER, "-i", "default"]
+                + out_t + [str(Path(tmp) / "e6.wav")], ctx)
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    want = {"e1_rate0": (222, "ff_option_range", "sample_rate"),
+            "e2_ch0": (222, "ff_option_range", "channels"),
+            "e3_frag_neg": (222, "ff_option_range", "fragment_size"),
+            "e4_ch99": (-6, "ff_libpulse_assert", "pa_channels_valid"),
+            "e5_rate999999": (-6, "ff_libpulse_assert", "pa_sample_spec"),
+            "e6_bad_server_in": (253, "ff_no_such_process",
+                                 "No such process")}
+    for lname, (rc, cls, hit) in want.items():
+        leg = legs.get(lname) or {}
+        if leg.get("exit_code") != rc or leg.get("error_class") != cls:
+            failures.append(f"err {lname}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != {rc}/{cls}")
+        if hit not in ((leg.get("stderr") or "") +
+                       (leg.get("error_hit") or "")):
+            failures.append(f"err {lname}: stderr missing the pinned "
+                            f"token {hit!r} — {leg.get('stderr_head')}")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (7) ALSA SPLIT — the in-process ALSA surface.
+# --------------------------------------------------------------------------
+def ffpw_alsa_split_r82_entry():
+    """(7) The ALSA lattice: `hw:C,D` is busy->251 `Device or resource
+    busy` in BOTH directions (arecord/aplay holders), independent per
+    direction (rc=0 capture while PipeWire holds the card's playback
+    subdevice — the holder is an ffmpeg -f pulse silence pump witnessed
+    in the graph); `-i pipewire` and unknown PCMs are 251 `cannot set
+    parameters`/`Unknown PCM`; `-i default` under PIPEWIRE_PROPS is the
+    envelope cell (scout: rc=0 via the pipewire plugin with the env
+    node.name LANDING — the pulse-path override split — plus one
+    historical 251 params realization, so both are admitted and the
+    realization is recorded); `-sample_rate 12345` clamps silently to a
+    hardware rate (44100 measured)."""
+    failures = []
+    legs = {}
+    entry = _ffpw_r82_entry_head(
+        "ffmpeg alsa split — hw busy 251 both directions, subdevice "
+        "independence under a PW-held playback, pipewire/bogus pcm 251, "
+        "default-plugin envelope, rate clamp")
+    inv_devs = entry["inventory"]["alsa_capture_devices"] or []
+    if not inv_devs:
+        return _ffpw_r82_block(
+            entry, failures, "no ALSA capture device enumerated")
+    cap_dev = f"hw:{inv_devs[0]['card']},{inv_devs[0]['device']}"
+    entry["alsa_dev"] = cap_dev
+    pcm = _playback_r78_pcm_map()
+    sinks_on_card = sorted(
+        n for n, m in (pcm.get("map") or {}).items()
+        if m.get("media_class") == "Audio/Sink" and
+        m.get("aplay_device") and
+        m["aplay_device"].startswith(f"hw:{inv_devs[0]['card']},"))
+    entry["card_sinks"] = sinks_on_card
+    ctx = {}
+    base_in = ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+               "-nostdin", "-y", "-f", "alsa"]
+    try:
+        with tempfile.TemporaryDirectory(prefix="r82ff-alsa-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 3.0)
+            # a0: capture busy — arecord holds the same hw dev
+            hold = subprocess.Popen(
+                ["arecord", "-D", cap_dev, "-t", "raw", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-d", "4", "/dev/null"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            out = str(Path(tmp) / "a0.wav")
+            legs["a0_hw_busy_cap"] = _ffpw_r82_leg(
+                "a0_hw_busy_cap",
+                base_in + ["-i", cap_dev, "-t", "1.0", "-c:a",
+                           "pcm_s16le", out],
+                ctx, out_path=out, wall_cap=5.0)
+            _capture_r77_reap(hold, 5)
+            # a1: playback busy — aplay holds the same hw dev
+            hold = subprocess.Popen(
+                ["aplay", "-D", cap_dev, "-t", "raw", "-f", "S16_LE",
+                 "-r", "48000", "-c", "2", "-d", "4", "/dev/zero"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                start_new_session=True)
+            time.sleep(0.5)
+            legs["a1_hw_busy_play"] = _ffpw_r82_leg(
+                "a1_hw_busy_play",
+                ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                 "-nostdin", "-re", "-f", "wav", "-i", str(silence),
+                 "-f", "alsa", cap_dev],
+                ctx, wall_cap=5.0)
+            _capture_r77_reap(hold, 5)
+            # a2: PW holds the card's playback subdevice — capture still rc=0
+            if sinks_on_card:
+                holder = subprocess.Popen(
+                    ["ffmpeg", "-hide_banner", "-loglevel", "warning",
+                     "-nostdin", "-re", "-stream_loop", "-1", "-f", "wav",
+                     "-i", str(silence), "-f", "pulse", "-name",
+                     f"{FFPW_R82_TAG}_hold", "-device", sinks_on_card[0],
+                     FFPW_R82_OUT_NAME],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    start_new_session=True)
+                time.sleep(0.6)
+                out = str(Path(tmp) / "a2.wav")
+                legs["a2_hw_free_pwheld"] = _ffpw_r82_leg(
+                    "a2_hw_free_pwheld",
+                    base_in + ["-i", cap_dev, "-t", "1.5", "-c:a",
+                               "pcm_s16le", out],
+                    ctx, out_path=out, watch={"holder": holder},
+                    wall_cap=6.0)
+                if holder.poll() is None:
+                    os.killpg(holder.pid, signal.SIGKILL)
+                _capture_r77_reap(holder, 3)
+            else:
+                entry.setdefault("coverage_blocked", []).append(
+                    "a2_hw_free_pwheld: no Audio/Sink maps to the capture "
+                    "card — PW-held independence unmeasured")
+            # a3: the pipewire pcm name is refused
+            legs["a3_pipewire_pcm"] = _ffpw_r82_leg(
+                "a3_pipewire_pcm",
+                base_in + ["-i", "pipewire", "-t", "0.5", "-c:a",
+                           "pcm_s16le", str(Path(tmp) / "a3.wav")],
+                ctx, wall_cap=5.0)
+            legs["a4_bogus_pcm"] = _ffpw_r82_leg(
+                "a4_bogus_pcm",
+                base_in + ["-i", FFPW_R82_BOGUS_PCM, "-t", "0.5", "-c:a",
+                           "pcm_s16le", str(Path(tmp) / "a4.wav")],
+                ctx, wall_cap=5.0)
+            # a5: the envelope cell — `default` under env props
+            out = str(Path(tmp) / "a5.wav")
+            legs["a5_default_plugin"] = _ffpw_r82_leg(
+                "a5_default_plugin",
+                base_in + ["-i", "default", "-t", "1.5", "-c:a",
+                           "pcm_s16le", out],
+                ctx, out_path=out,
+                env_extra={"PIPEWIRE_PROPS":
+                           f"{{ node.name={FFPW_R82_XTAG}_alsa }}"},
+                wall_cap=6.0)
+            # a6: the silent rate clamp on the raw device
+            out = str(Path(tmp) / "a6.wav")
+            legs["a6_clamp_12345"] = _ffpw_r82_leg(
+                "a6_clamp_12345",
+                base_in + ["-sample_rate", "12345", "-i", cap_dev,
+                           "-t", "1.5", "-c:a", "pcm_s16le", out],
+                ctx, out_path=out, wall_cap=6.0)
+    finally:
+        pass
+    entry["legs"] = legs
+    # ---- busy cells ----
+    for lname in ("a0_hw_busy_cap", "a1_hw_busy_play"):
+        leg = legs.get(lname) or {}
+        if leg.get("exit_code") != 251 or \
+                leg.get("error_class") != "ff_alsa_busy":
+            failures.append(f"alsa {lname}: rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')} != "
+                            "251/ff_alsa_busy")
+    # ---- independence under a PW-held playback subdevice ----
+    leg = legs.get("a2_hw_free_pwheld")
+    if leg is not None:
+        if leg.get("exit_code") != 0:
+            failures.append(f"alsa a2: capture under a PW-held playback "
+                            f"must be rc=0 — rc={leg.get('exit_code')} "
+                            f"cls={leg.get('error_class')}")
+        out = leg.get("out") or {}
+        if out.get("riff") != "finalized" or (out.get("bytes") or 0) < 1000:
+            failures.append(f"alsa a2: the independent capture must "
+                            f"finalize real audio — {out}")
+        holder_nd = _ffpw_r82_last_node(leg, src="holder")
+        leg["holder_consumers"] = (holder_nd or {}).get("consumers")
+    # ---- refusal cells ----
+    leg = legs.get("a3_pipewire_pcm") or {}
+    if leg.get("exit_code") != 251 or \
+            leg.get("error_class") != "ff_alsa_params":
+        failures.append(f"alsa a3: `-i pipewire` must be 251 "
+                        f"cannot-set-parameters — rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    leg = legs.get("a4_bogus_pcm") or {}
+    if leg.get("exit_code") != 251 or \
+            leg.get("error_class") != "ff_alsa_unknown_pcm":
+        failures.append(f"alsa a4: bogus pcm must be 251 Unknown PCM — "
+                        f"rc={leg.get('exit_code')} "
+                        f"cls={leg.get('error_class')}")
+    # ---- a5: the `default` envelope ----
+    leg = legs.get("a5_default_plugin") or {}
+    nd = _ffpw_r82_last_node(leg)
+    props = (nd or {}).get("props") or {}
+    if leg.get("exit_code") == 0:
+        entry["a5_realization"] = "plugin_rc0"
+        if nd is None:
+            failures.append("alsa a5: rc=0 but NO pw node — `default` "
+                            "resolved off-Plugin (unwitnessed path)")
+        else:
+            if props.get("node.name") != f"{FFPW_R82_XTAG}_alsa":
+                failures.append(f"alsa a5: PIPEWIRE_PROPS node.name did "
+                                f"NOT land on the alsa path — "
+                                f"{props.get('node.name')!r} (the "
+                                "pulse-path override split fails)")
+            app = props.get("application.name") or ""
+            if "PipeWire ALSA" not in app:
+                failures.append(f"alsa a5: node landed without the "
+                                f"PipeWire-ALSA backend name — {app!r}")
+    elif leg.get("exit_code") == 251 and \
+            leg.get("error_class") == "ff_alsa_params":
+        entry["a5_realization"] = "params_251"
+    else:
+        entry["a5_realization"] = f"unexpected:rc{leg.get('exit_code')}"
+        failures.append(f"alsa a5: outside the {{plugin_rc0, "
+                        f"params_251}} envelope — rc="
+                        f"{leg.get('exit_code')} cls="
+                        f"{leg.get('error_class')}")
+    # ---- a6: the silent clamp ----
+    leg = legs.get("a6_clamp_12345") or {}
+    out = leg.get("out") or {}
+    if leg.get("exit_code") != 0 or out.get("rate") in (None, 12345):
+        failures.append(f"alsa a6: expected rc=0 with a CLAMPED rate — "
+                        f"rc={leg.get('exit_code')} wav rate="
+                        f"{out.get('rate')}")
+    entry["a6_clamped_rate"] = out.get("rate")
+    entry["failures"] = failures
+    return entry
+
+
+# --------------------------------------------------------------------------
+# (8) FFPLAY/FFPROBE — the sibling binaries' own personalities.
+# --------------------------------------------------------------------------
+def ffpw_ffplay_ffprobe_r82_entry():
+    """(8) ffplay's dual personality: auto driver -> SDL's NATIVE
+    pipewire client (no client.api, media.role=Game, node.async,
+    latency 2048/48000); SDL_AUDIODRIVER=pulseaudio -> a pipewire-pulse
+    node (client.api, media.name `Audio Stream`, tlength 6144, latency
+    512/48000) where PULSE_SINK is IGNORED (still lands on the default —
+    the client-specific env law; ffmpeg's own -f pulse honored it in the
+    playback lattice). ffprobe `-f pulse -i <sink>.monitor` is rc=0 in
+    ~1 s reporting pcm_s16le/48k/2ch with an epoch-class wall-clock
+    start_pts. The ffplay legs feed SILENCE — only routing/props are the
+    verdict, nothing is made audible."""
+    failures = []
+    legs = {}
+    loads = {}
+    entry = _ffpw_r82_entry_head(
+        "ffplay/ffprobe — SDL native-vs-pulse dual personality, "
+        "PULSE_SINK ignored under SDL's pulse driver, ffprobe live "
+        "indev + wall-clock PTS")
+    for tool in ("ffplay", "ffprobe", "ffmpeg"):
+        if shutil.which(tool) is None:
+            return _ffpw_r82_block(entry, failures,
+                                   f"{tool} binary absent")
+    ctx = {}
+    try:
+        load = _ffpw_r82_ns_ensure(loads)
+        if not load.get("sink_seen") or not load.get("monitor_seen", True):
+            return _ffpw_r82_block(
+                entry, failures, "null sink load/enumerate failed", loads)
+        default = _ffpw_r82_default_sink(entry)
+        with tempfile.TemporaryDirectory(prefix="r82ff-ffp-") as tmp:
+            ctx = dict(ctx, tmp=tmp)
+            silence = Path(tmp) / "silence.wav"
+            _loopback_r79_write_silence(silence, 2.2)
+            # NOTE: -nostdin is NOT an ffplay option (option-parser
+            # collision -> rc=1 `Failed to set value ... for option
+            # 'nostdin'` — the scout's recorded harness artifact); the
+            # real legs omit it.
+            fbase = ["ffplay", "-hide_banner", "-loglevel", "warning",
+                     "-nodisp", "-autoexit"]
+            legs["f0_ffplay_native"] = _ffpw_r82_leg(
+                "f0_ffplay_native", fbase + [str(silence)], ctx,
+                env_extra={"SDL_AUDIODRIVER": None,
+                           "PULSE_SINK": None},
+                sample_at=(0.5, 1.1, 1.7), wall_cap=8.0)
+            legs["f1_ffplay_sdl_pulse"] = _ffpw_r82_leg(
+                "f1_ffplay_sdl_pulse", fbase + [str(silence)], ctx,
+                env_extra={"SDL_AUDIODRIVER": "pulseaudio",
+                           "PULSE_SINK": FFPW_R82_NS},
+                sample_at=(0.5, 1.1, 1.7), wall_cap=8.0)
+            legs["f2_ffprobe_live"] = _ffpw_r82_leg(
+                "f2_ffprobe_live",
+                ["ffprobe", "-hide_banner", "-v", "error",
+                 "-show_streams", "-f", "pulse", "-i",
+                 FFPW_R82_NS + ".monitor"],
+                ctx, want_stdout=True, wall_cap=8.0)
+    finally:
+        _ffpw_r82_teardown(entry, failures, loads)
+    entry["legs"] = legs
+    default = _ffpw_r82_default_sink(entry)
+    # ---- f0: the native SDL client ----
+    leg = legs.get("f0_ffplay_native") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"ffp f0: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        _ffpw_r82_prop_check(failures, "ffp f0", nd, {
+            "node.name": "ffplay",
+            "application.name": "ffplay",
+            "media.name": "ffplay",
+            "media.role": "Game",
+            "media.class": "Stream/Output/Audio",
+            "node.async": True,
+            "node.latency": "2048/48000"})
+        if props.get("client.api") is not None:
+            failures.append(f"ffp f0: the native client must NOT carry "
+                            f"client.api — got {props.get('client.api')!r}")
+        if default and nd.get("consumers") != [default]:
+            failures.append(f"ffp f0: consumers {nd.get('consumers')} "
+                            "!= [default]")
+    # ---- f1: SDL's pulse driver — PULSE_SINK ignored ----
+    leg = legs.get("f1_ffplay_sdl_pulse") or {}
+    nd = _ffpw_r82_last_node(leg)
+    if leg.get("exit_code") != 0 or nd is None:
+        failures.append(f"ffp f1: leg failed — rc={leg.get('exit_code')}")
+    else:
+        props = nd.get("props") or {}
+        _ffpw_r82_prop_check(failures, "ffp f1", nd, {
+            "client.api": "pipewire-pulse",
+            "media.name": "Audio Stream",
+            "node.name": "ffplay",
+            "application.name": "ffplay",
+            "pulse.attr.tlength": 6144,
+            "pulse.attr.prebuf": 4100,
+            "pulse.attr.minreq": 2048,
+            "node.latency": "512/48000"})
+        if default:
+            if props.get("target.object") != default:
+                failures.append(f"ffp f1: PULSE_SINK was honored — "
+                                f"target.object={props.get('target.object')!r} "
+                                "instead of the default sink (the "
+                                "ignore-law is falsified)")
+            if nd.get("consumers") != [default]:
+                failures.append(f"ffp f1: consumers "
+                                f"{nd.get('consumers')} != [default]")
+    # ---- f2: ffprobe live indev ----
+    leg = legs.get("f2_ffprobe_live") or {}
+    text = leg.get("stdout") or ""
+    fields = dict(re.findall(r"^(\w+)=([^\n]*)$", text, re.M))
+    if leg.get("exit_code") != 0:
+        failures.append(f"ffp f2: rc={leg.get('exit_code')} != 0 — "
+                        f"{leg.get('stderr_head')}")
+    else:
+        for k, v in (("codec_name", "pcm_s16le"), ("sample_rate", "48000"),
+                     ("channels", "2")):
+            if fields.get(k) != v:
+                failures.append(f"ffp f2: {k}={fields.get(k)!r} != {v!r}")
+        try:
+            start = float(fields.get("start_time") or "nan")
+            leg["start_time_epoch_s"] = start
+            if not (abs(start - time.time()) < 7200):
+                failures.append(f"ffp f2: start_time {start} is not "
+                                "wall-clock class (epoch PTS claim "
+                                "fails)")
+        except (TypeError, ValueError):
+            failures.append("ffp f2: start_time missing/not numeric — "
+                            "the wall-clock PTS witness is absent")
+        if leg.get("wall_s") is not None and leg["wall_s"] > 4.0:
+            failures.append(f"ffp f2: the ~1 s bounded probe ran "
+                            f"{leg['wall_s']}s")
+    entry["failures"] = failures
+    return entry
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--probe-failing", action="store_true")
+    parser.add_argument("--probe-slope", action="store_true")
+    parser.add_argument("--probe-flat", action="store_true")
+    parser.add_argument("--probe-layer-flat", action="store_true")
+    parser.add_argument("--probe-layer-join", action="store_true")
+    parser.add_argument("--probe-layer-slope", action="store_true")
+    parser.add_argument("--probe-layer-alt-flat", action="store_true")
+    parser.add_argument("--probe-layer-alt-join", action="store_true")
+    parser.add_argument("--probe-layer-alt-slope", action="store_true")
+    parser.add_argument("--probe-layer-alt-reverse", action="store_true")
+    parser.add_argument("--probe-layer-third-slope", action="store_true")
+    parser.add_argument("--probe-layer-third-slope-edge-pass", action="store_true")
+    parser.add_argument("--probe-layer-third-slope-edge-fail", action="store_true")
+    parser.add_argument("--probe-layer-third-join", action="store_true")
+    parser.add_argument("--probe-layer-third-join-edge-pass", action="store_true")
+    parser.add_argument("--probe-layer-third-join-edge-fail", action="store_true")
+    parser.add_argument("--probe-invalid", action="store_true")
+    parser.add_argument("--probe-ui-clone", action="store_true")
+    parser.add_argument("--probe-ui-duration-below", action="store_true")
+    parser.add_argument("--probe-ui-duration-at", action="store_true")
+    parser.add_argument("--probe-ui-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-lower-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-lower-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-orientation-forward", action="store_true")
+    parser.add_argument("--probe-ui-orientation-reverse", action="store_true")
+    parser.add_argument("--probe-ui-joint-below", action="store_true")
+    parser.add_argument("--probe-ui-mixed-pass", action="store_true")
+    parser.add_argument("--probe-ambience-centroid-below", action="store_true")
+    parser.add_argument("--probe-ambience-centroid-above", action="store_true")
+    parser.add_argument("--probe-ambience-orientation-forward", action="store_true")
+    parser.add_argument("--probe-ambience-orientation-reverse", action="store_true")
+    parser.add_argument("--probe-outer-endpoint-983", action="store_true")
+    parser.add_argument("--probe-outer-endpoint-984", action="store_true")
+    parser.add_argument("--probe-outer-slope-32", action="store_true")
+    parser.add_argument("--probe-outer-slope-33", action="store_true")
+    parser.add_argument("--probe-ui-peak-31129", action="store_true")
+    parser.add_argument("--probe-ui-peak-31130", action="store_true")
+    parser.add_argument("--probe-ui-crest-46", action="store_true")
+    parser.add_argument("--probe-ui-crest-47", action="store_true")
+    parser.add_argument("--probe-ui-tolerance-5807", action="store_true")
+    parser.add_argument("--probe-ui-tolerance-5809", action="store_true")
+    parser.add_argument("--probe-ui-lower-tolerance-5713", action="store_true")
+    parser.add_argument("--probe-ui-lower-tolerance-5711", action="store_true")
+    parser.add_argument("--probe-ui-absolute-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-absolute-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-upper-centroid-below", action="store_true")
+    parser.add_argument("--probe-ui-upper-centroid-above", action="store_true")
+    parser.add_argument("--probe-ui-rate-47999", action="store_true")
+    parser.add_argument("--probe-ui-rate-48000", action="store_true")
+    parser.add_argument("--probe-ui-rate-48001", action="store_true")
+    parser.add_argument("--probe-ui-rate-48000-r49", action="store_true")
+    parser.add_argument("--probe-ui-channel-stereo", action="store_true")
+    parser.add_argument("--probe-ui-channel-mono", action="store_true")
+    parser.add_argument("--probe-ui-pcm24", action="store_true")
+    parser.add_argument("--probe-ui-pcm16", action="store_true")
+    parser.add_argument("--probe-ui-pcm8", action="store_true")
+    parser.add_argument("--probe-ui-pcm16-r52", action="store_true")
+    parser.add_argument("--probe-ui-float32", action="store_true")
+    parser.add_argument("--probe-ui-pcm16-r53", action="store_true")
+    parser.add_argument("--probe-ui-pcm32", action="store_true")
+    parser.add_argument("--probe-ui-pcm16-r54", action="store_true")
+    parser.add_argument("--probe-ui-extensible-pcm16", action="store_true")
+    parser.add_argument("--probe-ui-standard-pcm16-r55", action="store_true")
+    parser.add_argument("--probe-ui-extensible-mask-zero", action="store_true")
+    parser.add_argument("--probe-ui-extensible-mask-center", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-15", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-14-r58", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16-r58", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-13-r59", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16-r59", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-0-r60", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16-r60", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-17-r61", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-16-r61", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-24-r62", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-32-r62", action="store_true")
+    parser.add_argument("--probe-ui-route-act-84-r63", action="store_true")
+    parser.add_argument("--probe-ui-route-act-00-r63", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-8-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-9-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-24-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-25-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-56-r64", action="store_true")
+    parser.add_argument("--probe-ui-extensible-valid-57-r64", action="store_true")
+    parser.add_argument("--probe-ui-preempt-act-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-gsrt-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-hcom-r65", action="store_true")
+    parser.add_argument("--probe-ui-preempt-both-r65", action="store_true")
+    parser.add_argument("--probe-ui-dec-hcom-r66", action="store_true")
+    parser.add_argument("--probe-ui-dec-act-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-gsrt-24-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-gsrt-25-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-hcom-131-r66", action="store_true")
+    parser.add_argument("--probe-ui-lengate-hcom-132-r66", action="store_true")
+    parser.add_argument("--probe-transport-preempt-act-r67", action="store_true")
+    parser.add_argument("--probe-transport-preempt-gsrt-r67", action="store_true")
+    parser.add_argument("--probe-transport-preempt-hcom-r67", action="store_true")
+    parser.add_argument("--probe-transport-preempt-both-r67", action="store_true")
+    parser.add_argument("--probe-transport-dec-hcom-r67", action="store_true")
+    parser.add_argument("--probe-transport-dec-act-r67", action="store_true")
+    parser.add_argument("--probe-transport-lengate-gsrt-24-r67", action="store_true")
+    parser.add_argument("--probe-transport-lengate-gsrt-25-r67", action="store_true")
+    parser.add_argument("--probe-transport-lengate-hcom-131-r67", action="store_true")
+    parser.add_argument("--probe-transport-lengate-hcom-132-r67", action="store_true")
+    parser.add_argument("--probe-transport-posttable-nomatch-r68", action="store_true")
+    parser.add_argument("--probe-transport-txw-piperefuse-r68", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-wav-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-bin-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-txw-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-f32-r69", action="store_true")
+    parser.add_argument("--probe-transport-extsuffix-snd-r69", action="store_true")
+    parser.add_argument("--probe-fifo-hold-ladder-r70", action="store_true")
+    parser.add_argument("--probe-ffprobe-transport-r71", action="store_true")
+    parser.add_argument("--probe-sndfile-transport-r72",
+                        action="store_true")
+    parser.add_argument("--probe-consumers-r73", action="store_true")
+    parser.add_argument("--probe-lavfsweep-r74", action="store_true")
+    parser.add_argument("--probe-consumers2-r75", action="store_true")
+    parser.add_argument("--probe-ffmpeg-r82", action="store_true")
+    parser.add_argument("--probe-gst-r81", action="store_true")
+    parser.add_argument("--probe-module-r80", action="store_true")
+    parser.add_argument("--probe-capture-r79", action="store_true")
+    parser.add_argument("--probe-capture-r78", action="store_true")
+    parser.add_argument("--probe-capture-r77", action="store_true")
+    parser.add_argument("--probe-capture-r76", action="store_true")
+    args = parser.parse_args()
+    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82]) > 1:
+        parser.error("choose one probe mode")
+    if args.probe_invalid:
+        command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+        results = invalid_probes()
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+        out = ROOT / "live" / "runs" / (stamp + "-invalid")
+        out.mkdir(parents=True)
+        (out / "measurements.json").write_text(json.dumps({"mode": "probe-invalid", "invalid_probes": results}, indent=2, allow_nan=False) + "\n")
+        print(json.dumps({"receipt": str(out / "measurements.json"),
+                          "failures": {r["probe"]: r["observed_failure"] for r in results}}))
+        return 1 if all(r["status"] in ("expected_failure", "expected_pass") for r in results) else 2
+    command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
+            *(["--probe-fifo-hold-ladder-r70"] if args.probe_fifo_hold_ladder_r70 else []),
+            *(["--probe-transport-extsuffix-wav-r69"] if args.probe_transport_extsuffix_wav_r69 else []),
+            *(["--probe-transport-extsuffix-bin-r69"] if args.probe_transport_extsuffix_bin_r69 else []),
+            *(["--probe-transport-extsuffix-txw-r69"] if args.probe_transport_extsuffix_txw_r69 else []),
+            *(["--probe-transport-extsuffix-f32-r69"] if args.probe_transport_extsuffix_f32_r69 else []),
+            *(["--probe-transport-extsuffix-snd-r69"] if args.probe_transport_extsuffix_snd_r69 else []),
+            *(["--probe-transport-posttable-nomatch-r68"] if args.probe_transport_posttable_nomatch_r68 else []),
+            *(["--probe-transport-txw-piperefuse-r68"] if args.probe_transport_txw_piperefuse_r68 else []),
+            *(["--probe-failing"] if args.probe_failing else []),
+            *(["--probe-slope"] if args.probe_slope else []),
+            *(["--probe-flat"] if args.probe_flat else []),
+            *(["--probe-layer-flat"] if args.probe_layer_flat else []),
+            *(["--probe-layer-join"] if args.probe_layer_join else []),
+            *(["--probe-layer-slope"] if args.probe_layer_slope else []),
+            *(["--probe-layer-alt-flat"] if args.probe_layer_alt_flat else []),
+            *(["--probe-layer-alt-join"] if args.probe_layer_alt_join else []),
+            *(["--probe-layer-alt-slope"] if args.probe_layer_alt_slope else []),
+            *(["--probe-layer-alt-reverse"] if args.probe_layer_alt_reverse else []),
+            *(["--probe-layer-third-slope"] if args.probe_layer_third_slope else []),
+            *(["--probe-layer-third-slope-edge-pass"] if args.probe_layer_third_slope_edge_pass else []),
+            *(["--probe-layer-third-slope-edge-fail"] if args.probe_layer_third_slope_edge_fail else []),
+            *(["--probe-layer-third-join"] if args.probe_layer_third_join else []),
+            *(["--probe-layer-third-join-edge-pass"] if args.probe_layer_third_join_edge_pass else []),
+            *(["--probe-layer-third-join-edge-fail"] if args.probe_layer_third_join_edge_fail else []),
+            *(["--probe-ui-clone"] if args.probe_ui_clone else []),
+            *(["--probe-ui-duration-below"] if args.probe_ui_duration_below else []),
+            *(["--probe-ui-duration-at"] if args.probe_ui_duration_at else []),
+            *(["--probe-ui-centroid-below"] if args.probe_ui_centroid_below else []),
+            *(["--probe-ui-centroid-above"] if args.probe_ui_centroid_above else []),
+            *(["--probe-ui-lower-centroid-below"] if args.probe_ui_lower_centroid_below else []),
+            *(["--probe-ui-lower-centroid-above"] if args.probe_ui_lower_centroid_above else []),
+            *(["--probe-ui-orientation-forward"] if args.probe_ui_orientation_forward else []),
+            *(["--probe-ui-orientation-reverse"] if args.probe_ui_orientation_reverse else []),
+            *(["--probe-ui-joint-below"] if args.probe_ui_joint_below else []),
+            *(["--probe-ui-mixed-pass"] if args.probe_ui_mixed_pass else []),
+            *(["--probe-ambience-centroid-below"] if args.probe_ambience_centroid_below else []),
+            *(["--probe-ambience-centroid-above"] if args.probe_ambience_centroid_above else []),
+            *(["--probe-ambience-orientation-forward"] if args.probe_ambience_orientation_forward else []),
+            *(["--probe-ambience-orientation-reverse"] if args.probe_ambience_orientation_reverse else []),
+            *(["--probe-outer-endpoint-983"] if args.probe_outer_endpoint_983 else []),
+            *(["--probe-outer-endpoint-984"] if args.probe_outer_endpoint_984 else []),
+            *(["--probe-outer-slope-32"] if args.probe_outer_slope_32 else []),
+            *(["--probe-outer-slope-33"] if args.probe_outer_slope_33 else []),
+            *(["--probe-ui-peak-31129"] if args.probe_ui_peak_31129 else []),
+            *(["--probe-ui-peak-31130"] if args.probe_ui_peak_31130 else []),
+            *(["--probe-ui-crest-46"] if args.probe_ui_crest_46 else []),
+            *(["--probe-ui-crest-47"] if args.probe_ui_crest_47 else []),
+            *(["--probe-ui-tolerance-5807"] if args.probe_ui_tolerance_5807 else []),
+            *(["--probe-ui-tolerance-5809"] if args.probe_ui_tolerance_5809 else []),
+            *(["--probe-ui-lower-tolerance-5713"] if args.probe_ui_lower_tolerance_5713 else []),
+            *(["--probe-ui-lower-tolerance-5711"] if args.probe_ui_lower_tolerance_5711 else []),
+            *(["--probe-ui-absolute-centroid-below"] if args.probe_ui_absolute_centroid_below else []),
+            *(["--probe-ui-absolute-centroid-above"] if args.probe_ui_absolute_centroid_above else []),
+            *(["--probe-ui-upper-centroid-below"] if args.probe_ui_upper_centroid_below else []),
+            *(["--probe-ui-upper-centroid-above"] if args.probe_ui_upper_centroid_above else []),
+            *(["--probe-ui-rate-47999"] if args.probe_ui_rate_47999 else []),
+            *(["--probe-ui-rate-48000"] if args.probe_ui_rate_48000 else []),
+            *(["--probe-ui-rate-48001"] if args.probe_ui_rate_48001 else []),
+            *(["--probe-ui-rate-48000-r49"] if args.probe_ui_rate_48000_r49 else []),
+            *(["--probe-ui-channel-stereo"] if args.probe_ui_channel_stereo else []),
+            *(["--probe-ui-channel-mono"] if args.probe_ui_channel_mono else []),
+            *(["--probe-ui-pcm24"] if args.probe_ui_pcm24 else []),
+            *(["--probe-ui-pcm16"] if args.probe_ui_pcm16 else []),
+            *(["--probe-ui-pcm8"] if args.probe_ui_pcm8 else []),
+            *(["--probe-ui-pcm16-r52"] if args.probe_ui_pcm16_r52 else []),
+            *(["--probe-ui-float32"] if args.probe_ui_float32 else []),
+            *(["--probe-ui-pcm16-r53"] if args.probe_ui_pcm16_r53 else []),
+            *(["--probe-ui-pcm32"] if args.probe_ui_pcm32 else []),
+            *(["--probe-ui-pcm16-r54"] if args.probe_ui_pcm16_r54 else []),
+            *(["--probe-ui-extensible-pcm16"] if args.probe_ui_extensible_pcm16 else []),
+            *(["--probe-ui-standard-pcm16-r55"] if args.probe_ui_standard_pcm16_r55 else []),
+            *(["--probe-ui-extensible-mask-zero"] if args.probe_ui_extensible_mask_zero else []),
+            *(["--probe-ui-extensible-mask-center"] if args.probe_ui_extensible_mask_center else []),
+            *(["--probe-ui-extensible-valid-15"] if args.probe_ui_extensible_valid_15 else []),
+            *(["--probe-ui-extensible-valid-16"] if args.probe_ui_extensible_valid_16 else []),
+            *(["--probe-ui-extensible-valid-14-r58"] if args.probe_ui_extensible_valid_14_r58 else []),
+            *(["--probe-ui-extensible-valid-16-r58"] if args.probe_ui_extensible_valid_16_r58 else []),
+            *(["--probe-ui-extensible-valid-13-r59"] if args.probe_ui_extensible_valid_13_r59 else []),
+            *(["--probe-ui-extensible-valid-16-r59"] if args.probe_ui_extensible_valid_16_r59 else []),
+            *(["--probe-ui-extensible-valid-0-r60"] if args.probe_ui_extensible_valid_0_r60 else []),
+            *(["--probe-ui-extensible-valid-16-r60"] if args.probe_ui_extensible_valid_16_r60 else []),
+            *(["--probe-ui-extensible-valid-17-r61"] if args.probe_ui_extensible_valid_17_r61 else []),
+            *(["--probe-ui-extensible-valid-16-r61"] if args.probe_ui_extensible_valid_16_r61 else []),
+            *(["--probe-ui-extensible-valid-24-r62"] if args.probe_ui_extensible_valid_24_r62 else []),
+            *(["--probe-ui-extensible-valid-32-r62"] if args.probe_ui_extensible_valid_32_r62 else []),
+            *(["--probe-ui-route-act-84-r63"] if args.probe_ui_route_act_84_r63 else []),
+            *(["--probe-ui-route-act-00-r63"] if args.probe_ui_route_act_00_r63 else []),
+            *(["--probe-ui-extensible-valid-8-r64"] if args.probe_ui_extensible_valid_8_r64 else []),
+            *(["--probe-ui-extensible-valid-9-r64"] if args.probe_ui_extensible_valid_9_r64 else []),
+            *(["--probe-ui-extensible-valid-24-r64"] if args.probe_ui_extensible_valid_24_r64 else []),
+            *(["--probe-ui-extensible-valid-25-r64"] if args.probe_ui_extensible_valid_25_r64 else []),
+            *(["--probe-ui-extensible-valid-56-r64"] if args.probe_ui_extensible_valid_56_r64 else []),
+            *(["--probe-ui-extensible-valid-57-r64"] if args.probe_ui_extensible_valid_57_r64 else []),
+            *(["--probe-ui-preempt-act-r65"] if args.probe_ui_preempt_act_r65 else []),
+            *(["--probe-ui-preempt-gsrt-r65"] if args.probe_ui_preempt_gsrt_r65 else []),
+            *(["--probe-ui-preempt-hcom-r65"] if args.probe_ui_preempt_hcom_r65 else []),
+            *(["--probe-ui-preempt-both-r65"] if args.probe_ui_preempt_both_r65 else []),
+            *(["--probe-ui-dec-hcom-r66"] if args.probe_ui_dec_hcom_r66 else []),
+            *(["--probe-ui-dec-act-r66"] if args.probe_ui_dec_act_r66 else []),
+            *(["--probe-ui-lengate-gsrt-24-r66"] if args.probe_ui_lengate_gsrt_24_r66 else []),
+            *(["--probe-ui-lengate-gsrt-25-r66"] if args.probe_ui_lengate_gsrt_25_r66 else []),
+            *(["--probe-ui-lengate-hcom-131-r66"] if args.probe_ui_lengate_hcom_131_r66 else []),
+            *(["--probe-ui-lengate-hcom-132-r66"] if args.probe_ui_lengate_hcom_132_r66 else []))
+    measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
+    if args.probe_slope:
+        path = ROOT / "live" / "round-3" / "slope_probe.wav"
+        measurements["slope_probe"] = measure("slope_probe", (1.0, 5, 24000, True), path)
+    if args.probe_flat:
+        path = ROOT / "live" / "round-4" / "flat30_probe.wav"
+        measurements["flat30_probe"] = measure("flat30_probe", SPECS["stem_sections"], path)
+    if args.probe_layer_flat:
+        path = ROOT / "live" / "round-8" / "flat120_probe.wav"
+        measurements["flat120_probe"] = measure("flat120_probe", SPECS["stem_layer"], path)
+    if args.probe_layer_join:
+        path = ROOT / "live" / "round-10" / "join_probe.wav"
+        measurements["join_probe"] = measure("join_probe", SPECS["stem_layer"], path)
+    if args.probe_layer_slope:
+        path = ROOT / "live" / "round-11" / "slope_probe.wav"
+        measurements["layer_slope_probe"] = measure("layer_slope_probe", SPECS["stem_layer"], path)
+    if args.probe_layer_alt_flat:
+        path = ROOT / "live" / "round-13" / "flat180_probe.wav"
+        measurements["flat180_probe"] = measure("flat180_probe", SPECS["stem_layer_alt"], path)
+    if args.probe_layer_alt_join:
+        path = ROOT / "live" / "round-14" / "join180_probe.wav"
+        measurements["join180_probe"] = measure("join180_probe", SPECS["stem_layer_alt"], path)
+    if args.probe_layer_alt_slope:
+        path = ROOT / "live" / "round-15" / "slope180_probe.wav"
+        measurements["slope180_probe"] = measure("slope180_probe", SPECS["stem_layer_alt"], path)
+    if args.probe_layer_alt_reverse:
+        path = ROOT / "live" / "round-16" / "reverse180_probe.wav"
+        measurements["reverse180_probe"] = measure("reverse180_probe", SPECS["stem_layer_alt"], path)
+    if args.probe_layer_third_slope:
+        path = ROOT / "live" / "round-18" / "slope200_probe.wav"
+        measurements["slope200_probe"] = measure("slope200_probe", SPECS["stem_layer_third"], path)
+    if args.probe_layer_third_slope_edge_pass or args.probe_layer_third_slope_edge_fail:
+        name = "edgepass_probe" if args.probe_layer_third_slope_edge_pass else "edgefail_probe"
+        path = ROOT / "live" / "round-19" / (name + ".wav")
+        measurements[name] = measure(name, SPECS["stem_layer_third"], path)
+    if args.probe_layer_third_join:
+        path = ROOT / "live" / "round-20" / "join200_probe.wav"
+        measurements["join200_probe"] = measure("join200_probe", SPECS["stem_layer_third"], path)
+    if args.probe_layer_third_join_edge_pass or args.probe_layer_third_join_edge_fail:
+        name = "join200_edgepass_probe" if args.probe_layer_third_join_edge_pass else "join200_edgefail_probe"
+        path = ROOT / "live" / "round-21" / (name + ".wav")
+        measurements[name] = measure(name, SPECS["stem_layer_third"], path)
+    if args.probe_ui_clone:
+        for name in ("ui_clone", "ui_clone_alt"):
+            path = ROOT / "live" / "round-26" / (name + ".wav")
+            measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_duration_below or args.probe_ui_duration_at:
+        label = "below" if args.probe_ui_duration_below else "at"
+        duration = 6719 / 48000 if args.probe_ui_duration_below else 6720 / 48000
+        for name, spec in ((f"ui_duration_{label}", SPECS["ui"]),
+                           (f"ui_duration_{label}_alt", (duration, *SPECS["ui"][1:]))):
+            path = ROOT / "live" / "round-27" / (name + ".wav")
+            measurements[name] = measure(name, spec, path)
+    if args.probe_ui_centroid_below or args.probe_ui_centroid_above:
+        label = "below" if args.probe_ui_centroid_below else "above"
+        for name in (f"ui_centroid_{label}", f"ui_centroid_{label}_alt"):
+            path = ROOT / "live" / "round-28" / (name + ".wav")
+            measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_lower_centroid_below or args.probe_ui_lower_centroid_above:
+        label = "below" if args.probe_ui_lower_centroid_below else "above"
+        for name in (f"ui_lower_centroid_{label}", f"ui_lower_centroid_{label}_alt"):
+            path = ROOT / "live" / "round-29" / (name + ".wav")
+            measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_orientation_forward or args.probe_ui_orientation_reverse:
+        label = "reverse" if args.probe_ui_orientation_reverse else "forward"
+        for name in (f"ui_orientation_{label}", f"ui_orientation_{label}_alt"):
+            path = ROOT / "live" / "round-30" / (name + ".wav")
+            measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_joint_below:
+        for name, spec in (("ui_joint_below", SPECS["ui"]),
+                           ("ui_joint_below_alt", (6719 / 48000, *SPECS["ui"][1:]))):
+            path = ROOT / "live" / "round-31" / (name + ".wav")
+            measurements[name] = measure(name, spec, path)
+    if args.probe_ui_mixed_pass:
+        for name, spec in (("ui_mixed_pass", SPECS["ui"]),
+                           ("ui_mixed_pass_alt", (6719 / 48000, *SPECS["ui"][1:]))):
+            path = ROOT / "live" / "round-32" / (name + ".wav")
+            measurements[name] = measure(name, spec, path)
+    if args.probe_fifo_hold_ladder_r70:
+        # r70: pin fifo_writer_hold_s as a MEASURED determinism bound. r67
+        # chose 1.0 s because a bare one-shot writer raced the ffmpeg
+        # bridge's open #2 (5/5 shell runs -> exit-2 au-magic; one python
+        # run blocked >10 s). This ladder sweeps hold x feed on the dec_act
+        # member — the arm whose verdict needs open #2 — and records the
+        # per-cell verdict DISTRIBUTION, so the bound is measured rather
+        # than asserted. The chunked feed (writer attached through delivery)
+        # is the claim's 'correctly blocking writer' arm: if the verdict is
+        # binary on writer-attached-at-open-#2, chunked is stable at h=0
+        # whenever the feed window alone covers the re-open.
+        directory, filename = TRANSPORT_R67_MEMBERS[TRANSPORT_R70_MEMBER]
+        measurements["fifo_hold_ladder_dec_act_r70_probe"] = fifo_hold_ladder_entry(
+            TRANSPORT_R70_MEMBER, ROOT / "live" / directory / filename)
+    if args.probe_ffprobe_transport_r71:
+        # r71: SECOND DECODER runtime (ffmpeg n9.0.1/ffprobe) on the tracked
+        # transport member set — a NEW parallel ledger family, prior rows
+        # untouched. The falsifiable claim (content-probing vs the r68/r69
+        # suffix/named axis) is measured per-member: extsuffix_* carry
+        # identical bytes under five names (does ffmpeg care about the
+        # name at all?), posttable/txw carry post-table content, dec_* are
+        # the members whose SOX verdicts already cross the ffmpeg bridge.
+        for member, (directory, filename) in TRANSPORT_R71_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            measurements[f"ffprobe_{member}_r71_probe"] = ffprobe_transport_entry(
+                member, path)
+    if args.probe_consumers_r73:
+        # r73: CONSUMER class — pw-cat (PipeWire realtime playback) + mpv
+        # (lavf detect/decode) on the canonical member x transport matrix.
+        # A NEW parallel ledger family, prior rows untouched. The MEASURED
+        # claim (r73 adjudicated — the briefed class-polarity partition was
+        # falsified corpus-wide, confirmed member-locally): two forks with
+        # different drivers — mpv x dec_hcom inverts on the seekable bit
+        # (lavf refresh-seek -> synthetic EPERM, rc2 vs rc0; redirected_fd
+        # groups with file since the fd IS seekable), pw-cat x .snd forks
+        # on the NAME axis (its decode layer IS libsndfile — inherits the
+        # r72 post-sniff extension fallback; pwcat_name_axis isolates it:
+        # identical bytes via .snd/.wav/.bin fifos -> rc 0/1/1).
+        # The ops entry pins the pw-cat daemon gate + fifo writer semantics
+        # + playback-paced consumption (viability-conditional: needs a
+        # reachable PipeWire daemon).
+        measurements["consumer_pwcat_ops_r73_probe"] = consumer_ops_entry()
+        for member, (directory, filename) in CONSUMER_R73_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            measurements[f"consumer_{member}_r73_probe"] = \
+                consumer_transport_entry(member, path)
+    if args.probe_lavfsweep_r74:
+        # r74: lavf NO-SEEK demuxer sweep (xconnector X2) + pw-cat ops-2
+        # (X3). mpv's seekable-bit fork is predicted PER MEMBER from the
+        # demuxer's source-level seek capability: iss/apc/acm satisfy all
+        # four clauses (probe-detected, no read_seek/read_timestamp, no
+        # GENERIC_INDEX, non-pcm codec) and must fork; adx/aifc/dec_act
+        # fail clause (3)/(2)/(4) respectively and must stay invariant.
+        # New members are generated byte-deterministically under
+        # corpus/live/round-74 before the sweep so the arm is
+        # self-sufficient on a fresh tree; a generation blockage degrades
+        # to a recorded blockage, never a fabricated member.
+        gen = build_lavf_r74_members()
+        measurements["lavfsweep_generation_r74_probe"] = {
+            "probe": "lavf r74 member generation (byte-deterministic)",
+            "failures": [], **gen}
+        for member, (directory, filename, prediction) in \
+                LAVF_R74_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            if member in gen["blocked"] or not path.exists():
+                measurements[f"lavfsweep_{member}_r74_probe"] = {
+                    "pair_member": member, "predicted": prediction,
+                    "blockage": gen["blocked"].get(
+                        member, "member absent after generation"),
+                    "failures": []}
+                continue
+            measurements[f"lavfsweep_{member}_r74_probe"] = \
+                lavf_transport_entry(member, path)
+        measurements["lavf_startpos_wav_r74_probe"] = \
+            lavf_startpos_entry(LAVF_R74_PACER)
+        measurements["consumer_pwcat_ops2_r74_probe"] = pwcat_ops2_entry()
+    if args.probe_consumers2_r75:
+        # r75: consumer breadth-2 — paplay (pacat/pipewire-pulse, fd-open
+        # libsndfile = name-blind), aplay (in-process ALSA, device-coupled
+        # not daemon-coupled, raw-accept), ffplay (SDL pull-model — a
+        # second lavf consumer: no post-probe refresh seek, so mpv's
+        # dec_hcom seekable-bit fork cannot transfer; rc is never the
+        # verdict — invalid input still exits 0). A NEW parallel ledger
+        # family, prior rows untouched. Ops rows pin each consumer's
+        # gate (pulse server / ALSA card / SDL driver), the writerless-
+        # fifo kill classes (paplay -15, aplay -9, ffplay 123), and the
+        # paplay .snd name-axis control (predicted invariant-reject).
+        measurements["consumer2_paplay_ops_r75_probe"] = \
+            consumers2_paplay_ops_entry()
+        measurements["consumer2_aplay_ops_r75_probe"] = \
+            consumers2_aplay_ops_entry()
+        measurements["consumer2_ffplay_ops_r75_probe"] = \
+            consumers2_ffplay_ops_entry()
+        for member, (directory, filename) in CONSUMER_R75_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            measurements[f"consumer2_{member}_r75_probe"] = \
+                consumer2_transport_entry(member, path)
+    if args.probe_ffmpeg_r82:
+        # r82: FFMPEG/FFPROBE/FFPLAY <-> PIPEWIRE frontier — the device
+        # lattice (no pipewire device; forced rc=234), the capture-vs-
+        # playback validation asymmetry (source resolved at connect:
+        # 251 EIO / `default` bimodal; playback never validates: literal
+        # target.object + WirePlumber silent re-route witnessed by
+        # bounded monitor taps), the pulse.attr buffer lattice with its
+        # position-sensitive swallow/deprecation/SIGABRT, the
+        # BOTH-directions re-link under target loss (the ffmpeg-specific
+        # law — no r81-style freeze), the typed exit map, the ALSA split,
+        # and the ffplay/ffprobe sibling personalities. A NEW parallel
+        # ledger family, prior rows untouched; the r76-r81 guards are
+        # inherited (name-verified unloads, seat-owned r82ff_* names,
+        # never set-default-*, triple-bounded captures inside the
+        # pgid-owning loop).
+        measurements["ffpw_device_surfaces_r82_probe"] = \
+            ffpw_device_surfaces_r82_entry()
+        measurements["ffpw_capture_lattice_r82_probe"] = \
+            ffpw_capture_lattice_r82_entry()
+        measurements["ffpw_playback_lattice_r82_probe"] = \
+            ffpw_playback_lattice_r82_entry()
+        measurements["ffpw_buffer_knobs_r82_probe"] = \
+            ffpw_buffer_knobs_r82_entry()
+        measurements["ffpw_target_loss_r82_probe"] = \
+            ffpw_target_loss_r82_entry()
+        measurements["ffpw_error_classes_r82_probe"] = \
+            ffpw_error_classes_r82_entry()
+        measurements["ffpw_alsa_split_r82_probe"] = \
+            ffpw_alsa_split_r82_entry()
+        measurements["ffpw_ffplay_ffprobe_r82_probe"] = \
+            ffpw_ffplay_ffprobe_r82_entry()
+    if args.probe_gst_r81:
+        # r81: GST<->PIPEWIRE frontier — the GStreamer clients' element
+        # lattice, the node/Client naming crossover, the routing vectors
+        # and their precedence, the pulse device= axis, the direction-
+        # split target-loss law, the gst-launch exit classes and the
+        # autodetect backend. A NEW parallel ledger family, prior rows
+        # untouched; the r76-r80 guards are inherited (name-verified
+        # unloads, seat-owned gst_r81_* names, never set-default-*,
+        # triple-bounded captures inside the pgid-owning loop).
+        measurements["gst_element_lattice_r81_probe"] = \
+            gst_element_lattice_r81_entry()
+        measurements["gst_naming_r81_probe"] = gst_naming_r81_entry()
+        measurements["gst_routing_r81_probe"] = gst_routing_r81_entry()
+        measurements["gst_pulse_axis_r81_probe"] = \
+            gst_pulse_axis_r81_entry()
+        measurements["gst_target_loss_r81_probe"] = \
+            gst_target_loss_r81_entry()
+        measurements["gst_exit_classes_r81_probe"] = \
+            gst_exit_classes_r81_entry()
+        measurements["gst_autodetect_r81_probe"] = \
+            gst_autodetect_r81_entry()
+    if args.probe_module_r80:
+        # r80: the pactl load-module frontier — the argument lattice
+        # (description= silently dropped vs sink_properties honored,
+        # rate= verbatim into EnumFormat, media.class=Audio/Source a real
+        # class change, object.linger=true the permanent orphan) and the
+        # link-authority lifecycle (@DEFAULT_SINK@ never expands inside
+        # slave lists, pw-link linger vs -m, move-sink-input sticky vs
+        # the dont-move silent no-op). A NEW parallel ledger family,
+        # prior rows untouched.
+        measurements["module_args_lattice_r80_probe"] = \
+            module_args_lattice_r80_entry()
+        measurements["module_topology_r80_probe"] = \
+            module_topology_r80_entry()
+    if args.probe_capture_r79:
+        # r79: the pw-loopback frontier — one client, two stream nodes
+        # (input.<n>/output.<n>), the in-client copy; the -C capture
+        # lattice whose unpropped fallback arm is the DEFAULT SOURCE
+        # (pw-record's law does not transfer); the -P write side
+        # reproducing the r78 ungated default-sink law; the
+        # audio.position-driven channel matrix; pw-record --target vs the
+        # loopback pair; the both-ways hot-plug re-link; pw-cat's
+        # verbatim node.latency prop vector; and the client-scoped
+        # filter-chain module (conf.d merge + pw-cli load, parse-soft vs
+        # runtime-fatal). A NEW parallel ledger family, prior rows
+        # untouched.
+        measurements["loopback_shape_r79_probe"] = \
+            loopback_shape_r79_entry()
+        measurements["loopback_capture_lattice_r79_probe"] = \
+            loopback_capture_lattice_r79_entry()
+        measurements["loopback_playback_lattice_r79_probe"] = \
+            loopback_playback_lattice_r79_entry()
+        measurements["loopback_matrix_r79_probe"] = \
+            loopback_matrix_r79_entry()
+        measurements["loopback_record_target_r79_probe"] = \
+            loopback_record_target_r79_entry()
+        measurements["loopback_hotplug_r79_probe"] = \
+            loopback_hotplug_r79_entry()
+        measurements["pwcat_latency_r79_probe"] = \
+            pwcat_latency_r79_entry()
+        measurements["filterchain_module_r79_probe"] = \
+            filterchain_module_r79_entry()
+    if args.probe_capture_r78:
+        # r78: PLAYBACK direction — the write-side target lattice (ungated
+        # default-sink fallback), the live-default follow with the
+        # pactl_stale_default class, mid-play target loss vs manual
+        # unlink, the target.object/node.target/PIPEWIRE_PROPS precedence
+        # table, the media.class SIGSEGV row, aplay's device axis vs
+        # arecord's, and the two ranked capture-side gaps
+        # (unlinked_sustained_zeros, parec --fix-* header_prefix_mismatch).
+        # A NEW parallel ledger family, prior rows untouched.
+        measurements["playback_target_lattice_r78_probe"] = \
+            playback_target_lattice_r78_entry()
+        measurements["playback_default_follow_r78_probe"] = \
+            playback_default_follow_r78_entry()
+        measurements["playback_target_loss_r78_probe"] = \
+            playback_target_loss_r78_entry()
+        measurements["playback_props_r78_probe"] = \
+            playback_props_r78_entry()
+        measurements["playback_class_segv_r78_probe"] = \
+            playback_class_segv_r78_entry()
+        measurements["playback_aplay_axis_r78_probe"] = \
+            playback_aplay_axis_r78_entry()
+        measurements["capture_unlinked_zeros_r78_probe"] = \
+            capture_unlinked_zeros_r78_entry()
+        measurements["capture_parec_fix_r78_probe"] = \
+            capture_parec_fix_r78_entry()
+    if args.probe_capture_r77:
+        # r77: CAPTURE-SOURCE frontier — the source-selection lattice, a
+        # dead target, reader trustworthiness, the arecord open header, the
+        # 2 GiB split and the format axis. A NEW parallel ledger family,
+        # prior rows untouched; the r76 folds' guards are inherited (the
+        # 0x80000000 row is re-measured as the UNBOUNDED case of the
+        # bound-derived-header law rather than as a consumer shape).
+        measurements["capture_target_loss_r77_probe"] = \
+            capture_target_loss_r77_entry()
+        measurements["capture_source_lattice_r77_probe"] = \
+            capture_source_lattice_r77_entry()
+        measurements["capture_readers_r77_probe"] = \
+            capture_readers_r77_entry()
+        measurements["capture_arecord_sever_r77_probe"] = \
+            capture_arecord_sever_r77_entry()
+        measurements["capture_split_sentinel_r77_probe"] = \
+            capture_split_sentinel_r77_entry()
+        measurements["capture_format_axis_r77_probe"] = \
+            capture_format_axis_r77_entry()
+    if args.probe_capture_r76:
+        # r76: CAPTURE direction — bounded RECORD operations on four
+        # capture consumers (pw-record, parec/parecord, arecord, ffmpeg
+        # pulse+alsa). A NEW parallel ledger family, prior rows
+        # untouched. The gate entry enumerates sources/devices first —
+        # an absent source is a named `blocked`, never fabricated
+        # audio. Kill-class cells pin TERM-finalize vs KILL-wound per
+        # consumer; the name axis is extension-vs-flag per consumer;
+        # the roundtrip cell feeds monitor-captured member bytes back
+        # through the existing sox/aplay detect legs.
+        measurements["capture_gate_r76_probe"] = capture_gate_r76_entry()
+        measurements["capture_bounded_r76_probe"] = \
+            capture_bounded_r76_entry()
+        measurements["capture_sever_r76_probe"] = capture_sever_r76_entry()
+        measurements["capture_name_axis_r76_probe"] = \
+            capture_name_axis_r76_entry()
+        measurements["capture_device_axis_r76_probe"] = \
+            capture_device_axis_r76_entry()
+        measurements["capture_roundtrip_r76_probe"] = \
+            capture_roundtrip_r76_entry()
+    if args.probe_sndfile_transport_r72:
+        # r72: THIRD DECODER (libsndfile) on the same canonical members —
+        # the 3-decoder verdict lattice. Claim under test (critic-corrected):
+        # measured partition is {sox-only (txw-seekable/.f32-named),
+        # sox+sndfile joint (.snd-named), ffmpeg-strictest} — NOT
+        # "sndfile-only .snd" (sox accepts it too) nor "ffmpeg superset"
+        # (ffmpeg detect set is the SMALLEST: 8 < sndfile 10 < sox 11-14).
+        for member, (directory, filename) in TRANSPORT_R72_MEMBERS.items():
+            path = ROOT / "live" / directory / filename
+            measurements[f"sndfile_{member}_r72_probe"] = sndfile_transport_entry(
+                member, path)
+    if (args.probe_transport_extsuffix_wav_r69 or args.probe_transport_extsuffix_bin_r69
+            or args.probe_transport_extsuffix_txw_r69 or args.probe_transport_extsuffix_f32_r69
+            or args.probe_transport_extsuffix_snd_r69):
+        # r69 arm: pin EXTENSION-SUFFIX as a measured axis of the post-table
+        # fallback. r68 pinned named-vs-anonymous; these five members carry
+        # ONE identical no-match buffer under five names, so the only
+        # variable inside the named arm is lsx_find_file_extension(path).
+        # wav/bin/txw/f32 exercise four distinct fallback-handler outcomes;
+        # snd fires the ext-gated sndr CHECK row — the first tracked member
+        # whose DETECTION (sox_detected_format), not just its decode
+        # verdict, forks on transport name. Members built by
+        # build_ui_extsuffix_r69_probe (forwarded above); same
+        # transport_entry machinery as r67/r68.
+        member = ("extsuffix_wav" if args.probe_transport_extsuffix_wav_r69 else
+                  "extsuffix_bin" if args.probe_transport_extsuffix_bin_r69 else
+                  "extsuffix_txw" if args.probe_transport_extsuffix_txw_r69 else
+                  "extsuffix_f32" if args.probe_transport_extsuffix_f32_r69 else
+                  "extsuffix_snd")
+        directory, filename = TRANSPORT_R69_MEMBERS[member]
+        name = f"transport_{member}_r69_probe"
+        measurements[name] = transport_entry(member, ROOT / "live" / directory / filename)
+    if (args.probe_transport_posttable_nomatch_r68
+            or args.probe_transport_txw_piperefuse_r68):
+        # r68 arm: pin the POST-TABLE path as a measured axis. r67 showed
+        # detection never forks over matched members; this arm measures what
+        # happens when NO CHECK row matches (posttable_nomatch) — the
+        # remaining classifier is the filename extension (named arms route
+        # to the wav reader: file via true rewind, fifo via pending-buffer
+        # replay of the <=257-B prefetch; anonymous '-' arms fail
+        # 'can't determine type') — plus the reader-level !seekable
+        # pipe-refusal pin downstream of a real txw detection
+        # (txw_piperefuse). Members built by build_ui_posttable_r68_probe
+        # (forwarded above); same transport_entry machinery as r67.
+        member = ("posttable_nomatch" if args.probe_transport_posttable_nomatch_r68
+                  else "txw_piperefuse")
+        directory, filename = TRANSPORT_R68_MEMBERS[member]
+        name = f"transport_{member}_r68_probe"
+        measurements[name] = transport_entry(member, ROOT / "live" / directory / filename)
+    if (args.probe_transport_preempt_act_r67 or args.probe_transport_preempt_gsrt_r67
+            or args.probe_transport_preempt_hcom_r67 or args.probe_transport_preempt_both_r67
+            or args.probe_transport_dec_hcom_r67 or args.probe_transport_dec_act_r67
+            or args.probe_transport_lengate_gsrt_24_r67 or args.probe_transport_lengate_gsrt_25_r67
+            or args.probe_transport_lengate_hcom_131_r67 or args.probe_transport_lengate_hcom_132_r67):
+        # r67 transport arm: pin TRANSPORT as a measured axis of the autodetect
+        # ledger. Every prior row ran the `file` transport implicitly; each
+        # member now records a {file, stdin_pipe, redirected_fd, fifo_path}
+        # detection+decode verdict matrix explicitly. r65/r66 established the
+        # forks this axis pins: gsrt's seekable-gated checksum pass (file:
+        # premature EOF vs non-seekable: encoding/header fail), the ffmpeg
+        # bridge's file-only decode (named seekable decodes; `-` dies; pipe
+        # dies on the pending-buffer au-magic poison), and hcom/wav as the
+        # transport-invariant controls. The member set is the complete tracked
+        # autodetect family — no new fixtures (members already tracked under
+        # live/round-65|66); the fork set over it is exactly measurable.
+        member = ("preempt_act" if args.probe_transport_preempt_act_r67 else
+                  "preempt_gsrt" if args.probe_transport_preempt_gsrt_r67 else
+                  "preempt_hcom" if args.probe_transport_preempt_hcom_r67 else
+                  "preempt_both" if args.probe_transport_preempt_both_r67 else
+                  "dec_hcom" if args.probe_transport_dec_hcom_r67 else
+                  "dec_act" if args.probe_transport_dec_act_r67 else
+                  "lengate_gsrt_24" if args.probe_transport_lengate_gsrt_24_r67 else
+                  "lengate_gsrt_25" if args.probe_transport_lengate_gsrt_25_r67 else
+                  "lengate_hcom_131" if args.probe_transport_lengate_hcom_131_r67 else
+                  "lengate_hcom_132")
+        directory, filename = TRANSPORT_R67_MEMBERS[member]
+        name = f"transport_{member}_r67_probe"
+        measurements[name] = transport_entry(member, ROOT / "live" / directory / filename)
+    if (args.probe_ui_dec_hcom_r66 or args.probe_ui_dec_act_r66
+            or args.probe_ui_lengate_gsrt_24_r66 or args.probe_ui_lengate_gsrt_25_r66
+            or args.probe_ui_lengate_hcom_131_r66 or args.probe_ui_lengate_hcom_132_r66):
+        # r66 preemptor-map completion family. The dec pair shares the r65
+        # preemptor-collision shape but the hcom member is reader-valid:
+        # detected hcom -> the native hcom reader decodes 9 samples @22050
+        # (the standard ffprobe->duration pipeline cannot complete on the
+        # hcom stream, so that member lands in the measure_pipeline branch).
+        # The lengate members pin the CHECK len gates at exact file sizes:
+        # gsrt 24|25 and hcom 131|132 — the below-gate member is the same
+        # RIFF/WAVE shell minus the signature's final byte and falls
+        # through to the wav row. Same leg set as r65 plus a raw f32
+        # decode leg (the decodable-preemptor claim's direct evidence).
+        member = ("dec_hcom" if args.probe_ui_dec_hcom_r66 else
+                  "dec_act" if args.probe_ui_dec_act_r66 else
+                  "lengate_gsrt_24" if args.probe_ui_lengate_gsrt_24_r66 else
+                  "lengate_gsrt_25" if args.probe_ui_lengate_gsrt_25_r66 else
+                  "lengate_hcom_131" if args.probe_ui_lengate_hcom_131_r66 else
+                  "lengate_hcom_132")
+        name = f"ui_{member}_r66_probe"
+        path = ROOT / "live" / "round-66" / f"pair_{member}.wav"
+        route = subprocess.run(["sox", "-V6", str(path), "-n", "stat"], capture_output=True)
+        detected = re.search(r"detected file format type `(\S+?)'",
+                             route.stderr.decode(errors="replace"))
+        read = re.search(r"Samples read:\s*(\d+)", route.stderr.decode(errors="replace"))
+        bridge = subprocess.run(["sox", "-t", "act", str(path), "-n", "stat"], capture_output=True)
+        bread = re.search(r"Samples read:\s*(\d+)", bridge.stderr.decode(errors="replace"))
+        native = subprocess.run(["sox", "-t", "wav", str(path), "-n", "stat"], capture_output=True)
+        nread = re.search(r"Samples read:\s*(\d+)", native.stderr.decode(errors="replace"))
+        f32 = subprocess.run(["sox", str(path), "-t", "f32", "-e", "floating-point", "-"],
+                             capture_output=True)
+        try:
+            entry = measure(name, SPECS["ui"], path)
+        except subprocess.CalledProcessError as exc:
+            # ffprobe demuxer diagnostics carry an ASLR context address
+            # ("[wav @ 0x...]"); strip the address so the receipt is
+            # byte-deterministic while keeping the message verbatim.
+            entry = {"path": str(path.relative_to(ROOT)),
+                     "decode_error_tool": Path(exc.cmd[0]).name,
+                     "sox_exit_code": exc.returncode,
+                     "sox_stderr": re.sub(r" @ 0x[0-9a-f]+\]", "]",
+                                          exc.stderr.decode(errors="replace").strip()),
+                     "failures": ["decode: default SoX route rejected input"]}
+        except Exception as exc:
+            # measure() completes ffprobe+sox decode but can still stop on
+            # stream-shape gaps (e.g. hcom's format object carries no
+            # duration field) — record the stop point deterministically.
+            entry = {"path": str(path.relative_to(ROOT)),
+                     "decode_error_tool": "measure_pipeline",
+                     "measure_error": f"{type(exc).__name__}: {exc}",
+                     "failures": ["decode: standard measurement pipeline rejected input"]}
+        entry["pair_member"] = member
+        entry["sox_detected_format"] = detected.group(1) if detected else None
+        entry["sox_route"] = ("ffmpeg" if (detected and detected.group(1) == "act")
+                              or b"(ffmpeg)" in route.stderr else "native")
+        entry["sox_stat_exit_code"] = route.returncode
+        entry["sox_stat_samples_read"] = int(read.group(1)) if read else None
+        if route.returncode and not read:
+            tail = route.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_stat_stderr"] = tail[-1][-160:] if tail else ""
+        entry["sox_bridge_exit_code"] = bridge.returncode
+        entry["sox_bridge_samples_read"] = int(bread.group(1)) if bread else None
+        if bridge.returncode and not bread:
+            tail = bridge.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_bridge_stderr"] = tail[-1][-160:] if tail else ""
+        entry["sox_native_exit_code"] = native.returncode
+        entry["sox_native_samples_read"] = int(nread.group(1)) if nread else None
+        if native.returncode and not nread:
+            tail = native.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_native_stderr"] = tail[-1][-160:] if tail else ""
+        entry["sox_f32_exit_code"] = f32.returncode
+        entry["sox_f32_bytes"] = len(f32.stdout)
+        measurements[name] = entry
+    if (args.probe_ui_preempt_act_r65 or args.probe_ui_preempt_gsrt_r65
+            or args.probe_ui_preempt_hcom_r65 or args.probe_ui_preempt_both_r65):
+        # r65 preemptor-collision family: every member carries the r63 act
+        # trigger (RIFF@0, 0x84@256); "gsrt"/"hcom"/"both" additionally carry
+        # preemptor signatures (gsrt "ring.bin\0"@16, hcom "FSSD"@65 +
+        # "HCOM"@128). Detection is first-match-wins, so the recorded
+        # detected-format/route is the receipt's discriminating content.
+        # The forced -t act leg is the counterfactual (would the bridge have
+        # decoded it) and the -t wav leg the native verdict underneath.
+        member = ("act" if args.probe_ui_preempt_act_r65 else
+                  "gsrt" if args.probe_ui_preempt_gsrt_r65 else
+                  "hcom" if args.probe_ui_preempt_hcom_r65 else "both")
+        name = f"ui_preempt_{member}_r65_probe"
+        path = ROOT / "live" / "round-65" / f"pair_preempt_{member}.wav"
+        route = subprocess.run(["sox", "-V6", str(path), "-n", "stat"], capture_output=True)
+        detected = re.search(r"detected file format type `(\S+?)'",
+                             route.stderr.decode(errors="replace"))
+        read = re.search(r"Samples read:\s*(\d+)", route.stderr.decode(errors="replace"))
+        bridge = subprocess.run(["sox", "-t", "act", str(path), "-n", "stat"], capture_output=True)
+        bread = re.search(r"Samples read:\s*(\d+)", bridge.stderr.decode(errors="replace"))
+        native = subprocess.run(["sox", "-t", "wav", str(path), "-n", "stat"], capture_output=True)
+        nread = re.search(r"Samples read:\s*(\d+)", native.stderr.decode(errors="replace"))
+        try:
+            entry = measure(name, SPECS["ui"], path)
+        except subprocess.CalledProcessError as exc:
+            # ffprobe demuxer diagnostics carry an ASLR context address
+            # ("[wav @ 0x...]"); strip the address so the receipt is
+            # byte-deterministic while keeping the message verbatim.
+            entry = {"path": str(path.relative_to(ROOT)),
+                     "decode_error_tool": Path(exc.cmd[0]).name,
+                     "sox_exit_code": exc.returncode,
+                     "sox_stderr": re.sub(r" @ 0x[0-9a-f]+\]", "]",
+                                          exc.stderr.decode(errors="replace").strip()),
+                     "failures": ["decode: default SoX route rejected input"]}
+        entry["sox_detected_format"] = detected.group(1) if detected else None
+        entry["sox_route"] = ("ffmpeg" if (detected and detected.group(1) == "act")
+                              or b"(ffmpeg)" in route.stderr else "native")
+        entry["sox_stat_exit_code"] = route.returncode
+        entry["sox_stat_samples_read"] = int(read.group(1)) if read else None
+        if route.returncode and not read:
+            tail = route.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_stat_stderr"] = tail[-1][-160:] if tail else ""
+        entry["sox_bridge_exit_code"] = bridge.returncode
+        entry["sox_bridge_samples_read"] = int(bread.group(1)) if bread else None
+        if bridge.returncode and not bread:
+            tail = bridge.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_bridge_stderr"] = tail[-1][-160:] if tail else ""
+        entry["sox_native_exit_code"] = native.returncode
+        entry["sox_native_samples_read"] = int(nread.group(1)) if nread else None
+        if native.returncode and not nread:
+            tail = native.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_native_stderr"] = tail[-1][-160:] if tail else ""
+        measurements[name] = entry
+    if (args.probe_ui_extensible_valid_8_r64 or args.probe_ui_extensible_valid_9_r64
+            or args.probe_ui_extensible_valid_24_r64 or args.probe_ui_extensible_valid_25_r64
+            or args.probe_ui_extensible_valid_56_r64 or args.probe_ui_extensible_valid_57_r64):
+        # r64 sweep control: each member sits on one side of a width step of the
+        # valid-bits -> codec map (8|9: u8|s16le, 24|25: s24le|s32le,
+        # 56|57: none|s64le). Byte 256 is pinned 0x84 -> default route is
+        # act-detected -> ffmpeg bridge. Record the negotiated codec plus both
+        # route outcomes so each receipt carries the boundary evidence.
+        valid = (8 if args.probe_ui_extensible_valid_8_r64 else
+                 9 if args.probe_ui_extensible_valid_9_r64 else
+                 24 if args.probe_ui_extensible_valid_24_r64 else
+                 25 if args.probe_ui_extensible_valid_25_r64 else
+                 56 if args.probe_ui_extensible_valid_56_r64 else 57)
+        name = f"ui_extensible_valid_{valid}_r64_probe"
+        path = ROOT / "live" / "round-64" / f"pair_valid_{valid}.wav"
+        route = subprocess.run(["sox", "-V6", str(path), "-n", "stat"], capture_output=True)
+        detected = re.search(r"detected file format type `(\S+?)'",
+                             route.stderr.decode(errors="replace"))
+        read = re.search(r"Samples read:\s*(\d+)", route.stderr.decode(errors="replace"))
+        native = subprocess.run(["sox", "-t", "wav", str(path), "-n", "stat"], capture_output=True)
+        nread = re.search(r"Samples read:\s*(\d+)", native.stderr.decode(errors="replace"))
+        try:
+            entry = measure(name, SPECS["ui"], path)
+        except subprocess.CalledProcessError as exc:
+            entry = {"path": str(path.relative_to(ROOT)),
+                     "sox_exit_code": exc.returncode,
+                     "sox_stderr": exc.stderr.decode(errors="replace").strip(),
+                     "failures": ["decode: default SoX route rejected input"]}
+        entry["valid_bits"] = valid
+        entry["sox_detected_format"] = detected.group(1) if detected else None
+        entry["sox_route"] = ("ffmpeg" if (detected and detected.group(1) == "act")
+                              or b"(ffmpeg)" in route.stderr else "native")
+        entry["sox_stat_exit_code"] = route.returncode
+        entry["sox_stat_samples_read"] = int(read.group(1)) if read else None
+        entry["sox_native_exit_code"] = native.returncode
+        entry["sox_native_samples_read"] = int(nread.group(1)) if nread else None
+        if native.returncode and not nread:
+            tail = native.stderr.decode(errors="replace").strip().splitlines()
+            entry["sox_native_stderr"] = tail[-1][-160:] if tail else ""
+        measurements[name] = entry
+    if args.probe_ui_route_act_84_r63 or args.probe_ui_route_act_00_r63:
+        byte = 0x84 if args.probe_ui_route_act_84_r63 else 0x00
+        name = f"ui_route_act_{byte:02x}_r63_probe"
+        path = ROOT / "live" / "round-63" / f"pair_route_{byte:02x}.wav"
+        route = subprocess.run(["sox", "-V6", str(path), "-n", "stat"], capture_output=True)
+        detected = re.search(r"detected file format type `(\S+?)'",
+                             route.stderr.decode(errors="replace"))
+        try:
+            entry = measure(name, SPECS["ui"], path)
+        except subprocess.CalledProcessError as exc:
+            entry = {"path": str(path.relative_to(ROOT)),
+                     "sox_exit_code": exc.returncode,
+                     "sox_stderr": exc.stderr.decode(errors="replace").strip(),
+                     "failures": ["decode: default SoX route rejected input"]}
+        entry["sox_detected_format"] = detected.group(1) if detected else None
+        entry["sox_route"] = "ffmpeg" if b"(ffmpeg)" in route.stderr else "native"
+        measurements[name] = entry
+    if args.probe_ui_extensible_valid_24_r62 or args.probe_ui_extensible_valid_32_r62:
+        valid = 24 if args.probe_ui_extensible_valid_24_r62 else 32
+        name = f"ui_extensible_valid_{valid}_r62_probe"
+        path = ROOT / "live" / "round-62" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_valid_17_r61 or args.probe_ui_extensible_valid_16_r61:
+        valid = 17 if args.probe_ui_extensible_valid_17_r61 else 16
+        name = f"ui_extensible_valid_{valid}_r61_probe"
+        path = ROOT / "live" / "round-61" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_valid_0_r60 or args.probe_ui_extensible_valid_16_r60:
+        valid = 0 if args.probe_ui_extensible_valid_0_r60 else 16
+        name = f"ui_extensible_valid_{valid}_r60_probe"
+        path = ROOT / "live" / "round-60" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_valid_13_r59 or args.probe_ui_extensible_valid_16_r59:
+        valid = 13 if args.probe_ui_extensible_valid_13_r59 else 16
+        name = f"ui_extensible_valid_{valid}_r59_probe"
+        path = ROOT / "live" / "round-59" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_valid_14_r58 or args.probe_ui_extensible_valid_16_r58:
+        valid = 14 if args.probe_ui_extensible_valid_14_r58 else 16
+        name = f"ui_extensible_valid_{valid}_r58_probe"
+        path = ROOT / "live" / "round-58" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_valid_15 or args.probe_ui_extensible_valid_16:
+        valid = 15 if args.probe_ui_extensible_valid_15 else 16
+        name = f"ui_extensible_valid_{valid}_r57_probe"
+        path = ROOT / "live" / "round-57" / f"pair_valid_{valid}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_mask_zero or args.probe_ui_extensible_mask_center:
+        mask = "zero" if args.probe_ui_extensible_mask_zero else "center"
+        name = f"ui_extensible_mask_{mask}_r56_probe"
+        path = ROOT / "live" / "round-56" / f"pair_mask_{mask}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_extensible_pcm16 or args.probe_ui_standard_pcm16_r55:
+        header = "extensible" if args.probe_ui_extensible_pcm16 else "standard"
+        name = f"ui_{header}_pcm16_r55_probe"
+        path = ROOT / "live" / "round-55" / f"pair_{header}_pcm16.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_pcm32 or args.probe_ui_pcm16_r54:
+        depth = "pcm32" if args.probe_ui_pcm32 else "pcm16"
+        name = f"ui_depth_{depth}_r54_probe"
+        path = ROOT / "live" / "round-54" / f"pair_{depth}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_float32 or args.probe_ui_pcm16_r53:
+        depth = "float32" if args.probe_ui_float32 else "pcm16"
+        name = f"ui_depth_{depth}_r53_probe"
+        path = ROOT / "live" / "round-53" / f"pair_{depth}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_pcm8 or args.probe_ui_pcm16_r52:
+        depth = "pcm8" if args.probe_ui_pcm8 else "pcm16"
+        name = f"ui_depth_{depth}_r52_probe"
+        path = ROOT / "live" / "round-52" / f"pair_{depth}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_pcm24 or args.probe_ui_pcm16:
+        depth = "pcm24" if args.probe_ui_pcm24 else "pcm16"
+        name = f"ui_depth_{depth}_probe"
+        path = ROOT / "live" / "round-51" / f"pair_{depth}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_channel_stereo or args.probe_ui_channel_mono:
+        channel = "stereo" if args.probe_ui_channel_stereo else "mono"
+        name = f"ui_channel_{channel}_probe"
+        path = ROOT / "live" / "round-50" / f"{channel}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_rate_48001 or args.probe_ui_rate_48000_r49:
+        rate = 48001 if args.probe_ui_rate_48001 else 48000
+        name = f"ui_rate_r49_{rate}_probe"
+        path = ROOT / "live" / "round-49" / f"ui-{rate}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_rate_47999 or args.probe_ui_rate_48000:
+        rate = 47999 if args.probe_ui_rate_47999 else 48000
+        name = f"ui_rate_{rate}_probe"
+        path = ROOT / "live" / "round-48" / f"ui-{rate}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_upper_centroid_below or args.probe_ui_upper_centroid_above:
+        label = "below" if args.probe_ui_upper_centroid_below else "above"
+        name = f"ui_upper_centroid_{label}_probe"
+        path = ROOT / "live" / "round-47" / f"upper-{label}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_absolute_centroid_below or args.probe_ui_absolute_centroid_above:
+        label = "below" if args.probe_ui_absolute_centroid_below else "above"
+        name = f"ui_absolute_centroid_{label}_probe"
+        path = ROOT / "live" / "round-46" / f"centroid-{label}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_lower_tolerance_5713 or args.probe_ui_lower_tolerance_5711:
+        frames = 5713 if args.probe_ui_lower_tolerance_5713 else 5711
+        name = f"ui_lower_tolerance_{frames}_probe"
+        path = ROOT / "live" / "round-45" / f"duration-{frames}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_tolerance_5807 or args.probe_ui_tolerance_5809:
+        frames = 5807 if args.probe_ui_tolerance_5807 else 5809
+        name = f"ui_tolerance_{frames}_probe"
+        path = ROOT / "live" / "round-44" / f"duration-{frames}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_crest_46 or args.probe_ui_crest_47:
+        counts = 46 if args.probe_ui_crest_46 else 47
+        name = f"ui_crest_{counts}_probe"
+        path = ROOT / "live" / "round-43" / f"crest-{counts}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_ui_peak_31129 or args.probe_ui_peak_31130:
+        counts = 31129 if args.probe_ui_peak_31129 else 31130
+        name = f"ui_peak_{counts}_probe"
+        path = ROOT / "live" / "round-42" / f"ui-peak-{counts}.wav"
+        measurements[name] = measure(name, SPECS["ui"], path)
+    if args.probe_outer_slope_32 or args.probe_outer_slope_33:
+        counts = 32 if args.probe_outer_slope_32 else 33
+        name = f"slope_{counts}_probe"
+        path = ROOT / "live" / "round-41" / f"slope-{counts}.wav"
+        measurements[name] = measure(name, (2.0, 5, 200, True), path)
+    if args.probe_outer_endpoint_983 or args.probe_outer_endpoint_984:
+        counts = 983 if args.probe_outer_endpoint_983 else 984
+        name = f"endpoint_{counts}_probe"
+        path = ROOT / "live" / "round-40" / f"endpoint_{counts}.wav"
+        measurements[name] = measure(name, (2.0, 5, 200, True), path)
+    if args.probe_ambience_orientation_forward or args.probe_ambience_orientation_reverse:
+        reverse = args.probe_ambience_orientation_reverse
+        for name, source in (("ambience_orientation", "orientation_high" if reverse else "orientation_low"),
+                             ("ambience_orientation_alt", "orientation_low" if reverse else "orientation_high")):
+            path = ROOT / "live" / "round-39" / (source + ".wav")
+            measurements[name] = measure(name, (2.0, 5, 200, True), path)
+    if args.probe_ambience_centroid_above:
+        for name in ("ambience_above", "ambience_above_alt"):
+            path = ROOT / "live" / "round-38" / (name + ".wav")
+            measurements[name] = measure(name, (2.0, 5, 200, True), path)
+    if args.probe_ambience_centroid_below:
+        for name in ("ambience_probe", "ambience_probe_alt"):
+            path = ROOT / "live" / "round-37" / (name + ".wav")
+            measurements[name] = measure(name, (2.0, 5, 200, True), path)
+    distinctness = {}
+    for name, variant in measurements.items():
+        if not name.endswith("_alt"):
+            continue
+        base = measurements[name[:-4]]
+        duration_delta = abs(variant["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(variant["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        distinctness[name] = {"baseline": name[:-4], "duration_delta_s": duration_delta,
+                              "centroid_relative_delta": centroid_relative_delta, "passed": passed}
+        if not passed:
+            variant["failures"].append("distinctness: duration < .020 s and centroid delta < 10%")
+    ui_family_comparisons = {}
+    third = measurements["ui_third"]
+    for name in ("ui", "ui_alt"):
+        base = measurements[name]
+        duration_delta = abs(third["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        ui_family_comparisons[name] = {"baseline": name, "variant": "ui_third",
+                                       "duration_delta_s": duration_delta,
+                                       "centroid_relative_delta": centroid_relative_delta,
+                                       "passed": passed}
+        if not passed:
+            third["failures"].append(f"ui family distinctness: ui_third vs {name} below duration and centroid minima")
+    impact_family_comparisons = {}
+    third_impact = measurements["impact_third"]
+    for name in ("impact", "impact_alt"):
+        base = measurements[name]
+        duration_delta = abs(third_impact["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third_impact["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        impact_family_comparisons[name] = {"baseline": name, "variant": "impact_third",
+                                           "duration_delta_s": duration_delta,
+                                           "centroid_relative_delta": centroid_relative_delta,
+                                           "passed": passed}
+        if not passed:
+            third_impact["failures"].append(f"impact family distinctness: impact_third vs {name} below duration and centroid minima")
+    movement_family_comparisons = {}
+    third_movement = measurements["movement_third"]
+    for name in ("movement", "movement_alt"):
+        base = measurements[name]
+        duration_delta = abs(third_movement["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third_movement["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        movement_family_comparisons[name] = {"baseline": name, "variant": "movement_third",
+                                             "duration_delta_s": duration_delta,
+                                             "centroid_relative_delta": centroid_relative_delta,
+                                             "passed": passed}
+        if not passed:
+            third_movement["failures"].append(f"movement family distinctness: movement_third vs {name} below duration and centroid minima")
+    ambience_family_comparisons = {}
+    third_ambience = measurements["ambience_third"]
+    for name in ("ambience", "ambience_alt"):
+        base = measurements[name]
+        duration_delta = abs(third_ambience["duration_s"] - base["duration_s"])
+        centroid_relative_delta = abs(third_ambience["spectral_centroid_hz"] - base["spectral_centroid_hz"]) / base["spectral_centroid_hz"]
+        passed = duration_delta >= .020 or centroid_relative_delta >= .10
+        ambience_family_comparisons[name] = {"baseline": name, "variant": "ambience_third",
+                                             "duration_delta_s": duration_delta,
+                                             "centroid_relative_delta": centroid_relative_delta,
+                                             "passed": passed}
+        if not passed:
+            third_ambience["failures"].append(f"ambience family distinctness: ambience_third vs {name} below duration and centroid minima")
+    sections = {name: section_contrast(ROOT / data["path"], 200 if name in ("stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe") else
+                                       180 if name in ("stem_layer_alt", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe") else
+                                       120 if name in ("stem_layer", "flat120_probe", "join_probe", "layer_slope_probe") else 30)
+                for name, data in measurements.items()
+                if name in ("stem_sections", "flat30_probe", "stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat120_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe")}
+    for name, result in sections.items():
+        if not result["passed"]:
+            measurements[name]["failures"].append(f"sections: {result['component_hz']} Hz component amplitude contrast < 6 dB or invalid")
+        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "join_probe", "layer_slope_probe") and result["internal_join_adjacent_delta_full_scale"] is not None and result["internal_join_adjacent_delta_full_scale"] > .03:
+            measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+        if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+            measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+    mode = "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    receipt = {"mode": mode,
+               "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                              "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+                              "loop_endpoint_delta_max": .03,
+                              "loop_slope_delta_max_full_scale_per_sample": .001,
+                              "section_contrast_min_db": 6.0,
+                              "internal_join_adjacent_delta_max_full_scale": .03,
+                              "internal_join_side_slope_mismatch_max_full_scale_per_sample": .001,
+                              "section_component_amplitude_min_full_scale": .01,
+                              "section_rms_min_full_scale": .001,
+                              "distinctness_duration_delta_min_s": .020,
+                              "distinctness_centroid_relative_delta_min": .10,
+                              "centroid_bands_hz": {k: [v[1], v[2]] for k,v in SPECS.items()}},
+               "measurements": measurements, "distinctness": distinctness,
+               "ui_family_comparisons": ui_family_comparisons,
+               "impact_family_comparisons": impact_family_comparisons,
+               "movement_family_comparisons": movement_family_comparisons,
+               "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    suffix = "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    out = ROOT / "live" / "runs" / (stamp + suffix)
+    out.mkdir(parents=True)
+    (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
+    failed = {k: v["failures"] for k,v in measurements.items() if v["failures"]}
+    print(json.dumps({"receipt": str(out / "measurements.json"), "failures": failed}))
+    return bool(failed)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

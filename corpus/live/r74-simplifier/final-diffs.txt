@@ -1,0 +1,44 @@
+== control1 (fa40a60c) vs control2 (ebddda25) — SAME committed code ==
+A sha256: fa40a60c0091a88e929e0a821ab6256a359c707213eb09bab4a1175c73fb33c5
+B sha256: ebddda2506212f2e004ae019e0c1325435d0d90bb238a38722f442ac355cdb6a
+keys: A=995 B=995 union=995
+STABLE diffs: 0
+JITTER diffs (declared, excluded): 1
+  jitter .measurements.consumer_pwcat_ops2_r74_probe.target0_unlinked_stream.wall_s: 4.001 -> 4.002
+VERDICT: stable projection IDENTICAL
+
+== control2 vs D-E1 treatment ==
+A sha256: ebddda2506212f2e004ae019e0c1325435d0d90bb238a38722f442ac355cdb6a
+B sha256: ebddda2506212f2e004ae019e0c1325435d0d90bb238a38722f442ac355cdb6a
+keys: A=995 B=995 union=995
+STABLE diffs: 0
+JITTER diffs (declared, excluded): 0
+VERDICT: stable projection IDENTICAL
+
+== D-E1 treatment vs author landed receipt (153739) ==
+A sha256: ebddda2506212f2e004ae019e0c1325435d0d90bb238a38722f442ac355cdb6a
+B sha256: ebddda2506212f2e004ae019e0c1325435d0d90bb238a38722f442ac355cdb6a
+keys: A=995 B=995 union=995
+STABLE diffs: 0
+JITTER diffs (declared, excluded): 0
+VERDICT: stable projection IDENTICAL
+
+== r73 replay vs post-drift committed (153153) ==
+A sha256: ef2647b503bb4338183783a1217865c0b0cc8cabd033cf3435ad021d15c37b1a
+B sha256: 3db1d43679744f6727bf764ba212407cc3cc8e7518788db2774d2e64dbf3fb3d
+keys: A=1363 B=1363 union=1363
+STABLE diffs: 0
+JITTER diffs (declared, excluded): 1
+  jitter .measurements.consumer_pwcat_ops_r73_probe.pacing_instant.wall_s: 4.033 -> 4.036
+VERDICT: stable projection IDENTICAL
+
+== r73 replay vs pre-drift committed (151240) ==
+A sha256: f6d5379a60df861e96de66f953d8e243d9ce1f8700c38e63209d3a481d664cdd
+B sha256: 3db1d43679744f6727bf764ba212407cc3cc8e7518788db2774d2e64dbf3fb3d
+keys: A=1363 B=1363 union=1363
+STABLE diffs: 1
+  DIFF .measurements.consumer_pwcat_ops_r73_probe.daemon_live.default_sink: 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink' -> 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.2'
+JITTER diffs (declared, excluded): 2
+  jitter .measurements.consumer_pwcat_ops_r73_probe.pacing_instant.wall_s: 4.032 -> 4.036
+  jitter .measurements.consumer_pwcat_ops_r73_probe.pacing_trickle.wall_s: 6.004 -> 6.003
+VERDICT: stable projection DIFFERS

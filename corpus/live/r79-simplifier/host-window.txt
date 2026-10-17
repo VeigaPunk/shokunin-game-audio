@@ -1,0 +1,18 @@
+# Host window (plazir27), r79 simplifier pair runs — sibling lanes observed
+# by ps/pactl during each run (the r79 entries are host-state witnesses).
+
+C1  control  2026-10-15T08:06:09Z -> 08:11:37Z  receipt 20261015T081137379814Z-capture-r79
+    concurrent: verifier `verify-run.sh vrun2 --probe-capture-r79` (pid 127171,
+    08:05:18Z-08:10:45Z); boundary-lane r79bchk* experiments.
+D1  cand     2026-10-15T08:11:37Z -> 08:17:05Z  receipt 20261015T081705030963Z-capture-r79
+    concurrent: r78 battery `--probe-capture-r78` (pid 190539, 08:10:55Z-08:14:21Z,
+    receipt 20261015T081421351571Z-capture-r78) + verifier forge run from 08:16:24Z.
+    -> a6/c04/c05 taps heard the r78 tag tone (1630/2130 Hz = 997+(190539%4)*211,
+    and 190539%4 == 3) and the a6 stream carried the foreign consumer
+    `r78_def_sink_190539`.
+C2  control  2026-10-15T08:17:05Z -> 08:22:32Z  receipt 20261015T082232715628Z-capture-r79
+    concurrent: verifier forge run (08:16:24Z-08:21:30Z), boundary r79bo_* work.
+D2  cand     2026-10-15T08:23:57Z -> 08:28:57Z  receipt 20261015T082857514558Z-capture-r79
+    concurrent: verifier forge3 run (08:22:06Z-08:27:0xZ), boundary r79bo_* work.
+FM  fault-monitor  control 08:29:44Z / cand 08:29:46Z  (2 s each; all 8 entries blocked)
+FA  fault-authority control 08:30:11Z / cand 08:30:37Z (25 s each; 7 blocks fired)

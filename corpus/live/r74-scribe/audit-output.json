@@ -1,0 +1,351 @@
+{
+  "fixture_blob": "9b6e836ebda4c0ce6bfedec281a6d8d14d4a91d8",
+  "fixture_sha256": "77f107864b74f794aea1d4fa8ea28f6f50d741591297dff192b9b6f949b2543b",
+  "cases": [
+    {
+      "case": "A.real:mpv-file-pair_dec_hcom.wav.log",
+      "note": "raw 217 lines; 5 line(s) touched by the 6 parse regexes; all other raw lines dropped (log not persisted by mpv_leg)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": "hcom",
+        "lavf_probe": "hcom",
+        "lavf_score": 100,
+        "stream_not_seekable": false,
+        "refresh_seek": true,
+        "seek_failed": "Operation not permitted",
+        "audio_track": "hcom 1ch 22050 Hz",
+        "mpv_verdict": "no audio or video data played (reason 4)",
+        "error": "no audio or video data played (reason 4)"
+      }
+    },
+    {
+      "case": "A.real:mpv-fifo-pair_dec_hcom.wav.log",
+      "note": "raw 236 lines; 4 line(s) touched by the 6 parse regexes; all other raw lines dropped (log not persisted by mpv_leg)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 0,
+        "lavf_detected": "hcom",
+        "lavf_probe": "hcom",
+        "lavf_score": 100,
+        "stream_not_seekable": true,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": "hcom 1ch 22050 Hz",
+        "mpv_verdict": "success (reason 0)",
+        "error": null
+      }
+    },
+    {
+      "case": "A.real:mpv-file-extsuffix_nomatch.wav.log",
+      "note": "raw 207 lines; 2 line(s) touched by the 6 parse regexes; all other raw lines dropped (log not persisted by mpv_leg)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": null,
+        "lavf_probe": null,
+        "lavf_score": null,
+        "stream_not_seekable": false,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": null,
+        "mpv_verdict": "unrecognized file format (reason 4)",
+        "error": "unrecognized file format (reason 4)"
+      }
+    },
+    {
+      "case": "A.real:mpv-file-txw_piperefuse.wav.log",
+      "note": "raw 207 lines; 2 line(s) touched by the 6 parse regexes; all other raw lines dropped (log not persisted by mpv_leg)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": null,
+        "lavf_probe": null,
+        "lavf_score": null,
+        "stream_not_seekable": false,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": null,
+        "mpv_verdict": "unrecognized file format (reason 4)",
+        "error": "unrecognized file format (reason 4)"
+      }
+    },
+    {
+      "case": "B.forged-prepended-finished-playback",
+      "note": "real log ends reason 4; a PREPENDED forged 'success' line wins (first-match re.search) while rc stays 2 -> mpv_verdict says success with exit_code 2",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": null,
+        "lavf_probe": null,
+        "lavf_score": null,
+        "stream_not_seekable": false,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": null,
+        "mpv_verdict": "success (reason 0)",
+        "error": "success (reason 0)"
+      }
+    },
+    {
+      "case": "B2.fifo-arm-verbatim",
+      "note": "real fifo log: rc=0, seek_failed=None -> groups with stdin_pipe",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 0,
+        "lavf_detected": "hcom",
+        "lavf_probe": "hcom",
+        "lavf_score": 100,
+        "stream_not_seekable": true,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": "hcom 1ch 22050 Hz",
+        "mpv_verdict": "success (reason 0)",
+        "error": null
+      }
+    },
+    {
+      "case": "B3.forged-seek-line-repartitions",
+      "note": "ONE appended forged 'Seek failed' line sets seek_failed -> the fifo leg leaves the [0,hcom,None] group (fork partition is forgeable from a single log line; consumer_transport_entry keys on (exit_code, lavf_detected, seek_failed), measure_audio.py:1169-1170)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 0,
+        "lavf_detected": "hcom",
+        "lavf_probe": "hcom",
+        "lavf_score": 100,
+        "stream_not_seekable": true,
+        "refresh_seek": false,
+        "seek_failed": "Operation not permitted",
+        "audio_track": "hcom 1ch 22050 Hz",
+        "mpv_verdict": "success (reason 0)",
+        "error": null
+      }
+    },
+    {
+      "case": "C1.fallback-vs-real-log-line",
+      "note": "no finished-playback line but the real 'Failed to recognize file format.' line present -> mpv_verdict is the synthetic fallback string, byte-identical to the log line's text; receipt cannot distinguish the two provenances",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": null,
+        "lavf_probe": null,
+        "lavf_score": null,
+        "stream_not_seekable": false,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": null,
+        "mpv_verdict": "Failed to recognize file format.",
+        "error": "Failed to recognize file format."
+      }
+    },
+    {
+      "case": "C2.no-verdict-witness",
+      "note": "neither a finished-playback line nor the fallback string -> mpv_verdict None with exit_code 2; error falls back to 'exit 2'",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 2,
+        "lavf_detected": null,
+        "lavf_probe": null,
+        "lavf_score": null,
+        "stream_not_seekable": false,
+        "refresh_seek": false,
+        "seek_failed": null,
+        "audio_track": null,
+        "mpv_verdict": null,
+        "error": "exit 2"
+      }
+    },
+    {
+      "case": "D1.transport_error-last-wins",
+      "note": "two FAIL lines: LAST wins (fails[-1]); an appended forged line replaces the genuine verdict",
+      "result": {
+        "error": "forged error"
+      }
+    },
+    {
+      "case": "D2.transport_error-no-quote",
+      "note": "FAIL line without \"':\" -> whole line returned verbatim (regex miss path)",
+      "result": {
+        "error": "sox FAIL oops"
+      }
+    },
+    {
+      "case": "D3.transport_leg-forged",
+      "note": "production sox leg: error=forged line (last-wins); stderr_tail=forged line (tail[-1]); no cross-check between the two",
+      "result": {
+        "input": "member",
+        "sox_detected_format": null,
+        "sox_route": "none",
+        "exit_code": 1,
+        "samples_read": null,
+        "error": "forged error",
+        "stderr_tail": "sox FAIL formats: can't open input file `<input>': forged error"
+      }
+    },
+    {
+      "case": "E1.pwcat-forged-first-last",
+      "note": "sndfile_err is FIRST match; pw_error is LAST error: line -> the two fields can come from different raw lines; a forged pair splits them",
+      "result": {
+        "sndfile_error": "FORGED-FIRST",
+        "pw_error": "FORGED-LAST"
+      }
+    },
+    {
+      "case": "E2.pwcat_leg-forged",
+      "note": "production pw-cat leg on the forged stream: error priority blocked > sndfile_err > pw_err; stderr_tail = last line (FORGED-LAST)",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 1,
+        "sndfile_error": "FORGED-FIRST",
+        "pw_error": "FORGED-LAST",
+        "error": "FORGED-FIRST",
+        "stderr_tail": "error: FORGED-LAST"
+      }
+    },
+    {
+      "case": "F.consumer_tail-160",
+      "note": "[-160:] keeps the END of the line; everything before the last 160 chars is dropped from the receipt",
+      "result": {
+        "tail": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA NEEDLE-AT-START",
+        "len": 160,
+        "needle_present": true
+      }
+    },
+    {
+      "case": "G1._tail-address-with-bracket",
+      "note": "ffprobe _tail strips ' @ 0x\u2026' with or without ']'",
+      "result": {
+        "t1": "x [wav] boom"
+      }
+    },
+    {
+      "case": "G2._tail-address-no-bracket",
+      "note": "no ']' required \u2014 still stripped (contrast with the sox variant in D/H)",
+      "result": {
+        "t2": "x [wav boom"
+      }
+    },
+    {
+      "case": "G3._tail-pipe-replace",
+      "note": "probe_arg 'pipe:' replaced by <input>; replacement is a plain str.replace (any occurrence, not path-anchored)",
+      "result": {
+        "t3": "<input> Invalid data found"
+      }
+    },
+    {
+      "case": "G4._tail-pipe-overreach",
+      "note": "plain str.replace rewrites the literal 'pipe:' in any context ('pipe:0' -> '<input>0'); replacement is not anchored to the argv position",
+      "result": {
+        "t4": "Invalid argument <input>0 boom"
+      }
+    },
+    {
+      "case": "H1.sox-tail-address-with-bracket",
+      "note": "the sox-side regex requires ']' after the address; the observed ffmpeg-bridge form has it -> stripped",
+      "result": {
+        "input": "member",
+        "sox_detected_format": null,
+        "sox_route": "none",
+        "exit_code": 1,
+        "samples_read": null,
+        "error": null,
+        "stderr_tail": "[wav] no 'data' tag found"
+      }
+    },
+    {
+      "case": "H2.sox-tail-address-no-bracket",
+      "note": "address WITHOUT ']' is NOT stripped -> latent ASLR leak in stderr_tail (no such form observed on disk; ffprobe's _tail does not have this gap)",
+      "result": {
+        "input": "member",
+        "sox_detected_format": null,
+        "sox_route": "none",
+        "exit_code": 1,
+        "samples_read": null,
+        "error": null,
+        "stderr_tail": "[wav @ 0x559e1fb98e40 no bracket"
+      }
+    },
+    {
+      "case": "I1.route-ffmpeg-no-detection",
+      "note": "route='ffmpeg' from the bare substring '(ffmpeg)' with sox_detected_format=None \u2014 a route attribution with no detection witness (same shape at measure_audio.py:424-426, 1950-1951, 2005-2006)",
+      "result": {
+        "input": "member",
+        "sox_detected_format": null,
+        "sox_route": "ffmpeg",
+        "exit_code": 1,
+        "samples_read": null,
+        "error": "sox FAIL formats: x",
+        "stderr_tail": "sox FAIL formats: x"
+      }
+    },
+    {
+      "case": "K.real:pwcat-file-txw_piperefuse.wav.log",
+      "note": "raw 2 stderr line(s); sndfile_error = first sndfile: line, stderr_tail = last line (160-char cap) \u2014 the other line survives only in its parsed field",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 1,
+        "sndfile_error": "File contains data in an unimplemented format.",
+        "pw_error": "open failed: Input/output error",
+        "error": "File contains data in an unimplemented format.",
+        "stderr_tail": "error: open failed: Input/output error"
+      }
+    },
+    {
+      "case": "K.real:pwcat-fifo-txw_piperefuse.wav.log",
+      "note": "raw 2 stderr line(s); sndfile_error = first sndfile: line, stderr_tail = last line (160-char cap) \u2014 the other line survives only in its parsed field",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 1,
+        "sndfile_error": "File contains data in an unimplemented format.",
+        "pw_error": "open failed: Input/output error",
+        "error": "File contains data in an unimplemented format.",
+        "stderr_tail": "error: open failed: Input/output error"
+      }
+    },
+    {
+      "case": "K.real:pwcat-fifo-empty.log",
+      "note": "raw 2 stderr line(s); sndfile_error = first sndfile: line, stderr_tail = last line (160-char cap) \u2014 the other line survives only in its parsed field",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 1,
+        "sndfile_error": "Format not recognised.",
+        "pw_error": "open failed: Input/output error",
+        "error": "Format not recognised.",
+        "stderr_tail": "error: open failed: Input/output error"
+      }
+    },
+    {
+      "case": "K.real:pwcat-nodaemon.log",
+      "note": "raw 1 stderr line(s); sndfile_error = first sndfile: line, stderr_tail = last line (160-char cap) \u2014 the other line survives only in its parsed field",
+      "result": {
+        "input": "live/round-69/extsuffix_nomatch.wav",
+        "exit_code": 1,
+        "sndfile_error": null,
+        "pw_error": "pw_context_connect() failed: Host is down",
+        "error": "pw_context_connect() failed: Host is down",
+        "stderr_tail": "error: pw_context_connect() failed: Host is down"
+      }
+    },
+    {
+      "case": "J.receipt-leg-keys",
+      "note": "persisted mpv leg fields (13 keys, no raw log / no stderr tail) \u2014 the parse surface is ephemeral; the receipt is a parse RESULT with no raw backing",
+      "result": {
+        "mpv_leg_keys": [
+          "audio_track",
+          "error",
+          "exit_code",
+          "input",
+          "lavf_detected",
+          "lavf_probe",
+          "lavf_score",
+          "mpv_verdict",
+          "named",
+          "refresh_seek",
+          "seek_failed",
+          "seekable",
+          "stream_not_seekable"
+        ]
+      }
+    }
+  ]
+}

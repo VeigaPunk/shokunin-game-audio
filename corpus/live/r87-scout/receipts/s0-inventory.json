@@ -1,0 +1,267 @@
+{
+ "time": "2026-10-15T07:12:20Z",
+ "unames": "7.2.3-arch1-3",
+ "versions": {
+  "pw-cat": [
+   "pw-cat",
+   "Compiled with libpipewire 1.6.8",
+   "Linked with libpipewire 1.6.8"
+  ],
+  "pw-cli": [
+   "pw-cli",
+   "Compiled with libpipewire 1.6.8",
+   "Linked with libpipewire 1.6.8"
+  ],
+  "pw-dump": [
+   "pw-dump",
+   "Compiled with libpipewire 1.6.8",
+   "Linked with libpipewire 1.6.8"
+  ]
+ },
+ "pactl": [
+  "pactl 17.0-98-gb096",
+  "Compiled with libpulse 17.0.0"
+ ],
+ "symlinks": {
+  "pw-play": "/usr/bin/pw-cat",
+  "pw-record": "/usr/bin/pw-cat",
+  "pw-midiplay": "/usr/bin/pw-cat",
+  "pw-midirecord": "/usr/bin/pw-cat",
+  "pw-mididump": "/usr/bin/pw-mididump"
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+ "nodes": [
+  {
+   "id": 29,
+   "name": "Dummy-Driver",
+   "class": null,
+   "serial": 29,
+   "client": null
+  },
+  {
+   "id": 30,
+   "name": "Freewheel-Driver",
+   "class": null,
+   "serial": 30,
+   "client": null
+  },
+  {
+   "id": 50,
+   "name": "Midi-Bridge",
+   "class": "Midi/Bridge",
+   "serial": 51,
+   "client": 33
+  },
+  {
+   "id": 57,
+   "name": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+   "class": "Audio/Sink",
+   "serial": 59,
+   "client": 33
+  },
+  {
+   "id": 35,
+   "name": "bluez_midi.server",
+   "class": "Midi/Bridge",
+   "serial": 60,
+   "client": 45
+  },
+  {
+   "id": 46,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "class": "Audio/Sink",
+   "serial": 63,
+   "client": 33
+  },
+  {
+   "id": 54,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "class": "Audio/Sink",
+   "serial": 64,
+   "client": 33
+  },
+  {
+   "id": 53,
+   "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+   "class": "Audio/Sink",
+   "serial": 65,
+   "client": 33
+  },
+  {
+   "id": 58,
+   "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "class": "Audio/Source",
+   "serial": 66,
+   "client": 33
+  },
+  {
+   "id": 59,
+   "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+   "class": "Audio/Source",
+   "serial": 67,
+   "client": 33
+  },
+  {
+   "id": 176,
+   "name": "r79lb_ns_a_3889192",
+   "class": "Audio/Sink",
+   "serial": 48094,
+   "client": 162
+  },
+  {
+   "id": 91,
+   "name": "r79lb_ns_b_3889192",
+   "class": "Audio/Sink",
+   "serial": 48105,
+   "client": 130
+  },
+  {
+   "id": 96,
+   "name": "output.r79lb_3889192_b07_prop_false",
+   "class": "Stream/Output/Audio",
+   "serial": 48721,
+   "client": 99
+  },
+  {
+   "id": 170,
+   "name": "input.r79lb_3889192_b07_prop_false",
+   "class": "Stream/Input/Audio",
+   "serial": 48722,
+   "client": 99
+  }
+ ],
+ "clients": [
+  {
+   "id": 33,
+   "app": "WirePlumber",
+   "pid": 2883626
+  },
+  {
+   "id": 34,
+   "app": "xdg-desktop-portal",
+   "pid": 1203504
+  },
+  {
+   "id": 32,
+   "app": "pipewire",
+   "pid": 2883627
+  },
+  {
+   "id": 45,
+   "app": "WirePlumber [client]",
+   "pid": 2883626
+  },
+  {
+   "id": 140,
+   "app": "waybar",
+   "pid": 3392929
+  },
+  {
+   "id": 162,
+   "app": "pipewire",
+   "pid": 2883627
+  },
+  {
+   "id": 130,
+   "app": "pipewire",
+   "pid": 2883627
+  },
+  {
+   "id": 99,
+   "app": "pw-loopback",
+   "pid": 3902000
+  },
+  {
+   "id": 120,
+   "app": "pw-dump",
+   "pid": 3903909
+  }
+ ],
+ "modules_pulse": [
+  "1\tlibpipewire-module-rt\t{",
+  "            nice.level    = -11",
+  "            rt.prio       = 88",
+  "            #rt.time.soft = -1",
+  "            #rt.time.hard = -1",
+  "            #rlimits.enabled = true",
+  "            rtportal.enabled = false",
+  "            #rtkit.enabled = true",
+  "            #uclamp.min = 0",
+  "            #uclamp.max = 1024",
+  "        }\t",
+  "2\tlibpipewire-module-protocol-native\t{",
+  "            # List of server Unix sockets, and optionally permissions",
+  "            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]",
+  "        }\t",
+  "4\tlibpipewire-module-profiler\t{",
+  "            #profile.interval.ms = 0",
+  "        }\t",
+  "6\tlibpipewire-module-metadata\t\t",
+  "8\tlibpipewire-module-spa-device-factory\t\t",
+  "10\tlibpipewire-module-spa-node-factory\t\t",
+  "12\tlibpipewire-module-client-node\t\t",
+  "14\tlibpipewire-module-client-device\t\t",
+  "16\tlibpipewire-module-portal\t\t",
+  "17\tlibpipewire-module-access\t{",
+  "            # Socket-specific access permissions",
+  "            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }",
+  "",
+  "            # Deprecated legacy mode (not socket-based),",
+  "            # for now enabled by default if access.socket is not specified",
+  "            #access.legacy = true",
+  "        }\t",
+  "18\tlibpipewire-module-adapter\t\t",
+  "20\tlibpipewire-module-link-factory\t{",
+  "            #allow.link.passive = false",
+  "\t}\t",
+  "22\tlibpipewire-module-session-manager\t\t",
+  "536870912\tmodule-always-sink\t\t",
+  "536870913\tmodule-device-manager\t\t",
+  "536870914\tmodule-device-restore\t\t",
+  "536870915\tmodule-stream-restore\t\t",
+  "536870919\tmodule-null-sink\tsink_name=r79lb_ns_a_3889192\t",
+  "536870921\tmodule-null-sink\tsink_name=r79lb_ns_b_3889192\t"
+ ],
+ "native_module_dir": [
+  "libpipewire-module-access.so",
+  "libpipewire-module-adapter.so",
+  "libpipewire-module-avb.so",
+  "libpipewire-module-client-device.so",
+  "libpipewire-module-client-node.so",
+  "libpipewire-module-combine-stream.so",
+  "libpipewire-module-echo-cancel.so",
+  "libpipewire-module-fallback-sink.so",
+  "libpipewire-module-filter-chain.so",
+  "libpipewire-module-link-factory.so",
+  "libpipewire-module-loopback.so",
+  "libpipewire-module-metadata.so",
+  "libpipewire-module-netjack2-driver.so",
+  "libpipewire-module-netjack2-manager.so",
+  "libpipewire-module-parametric-equalizer.so",
+  "libpipewire-module-pipe-tunnel.so",
+  "libpipewire-module-portal.so",
+  "libpipewire-module-profiler.so",
+  "libpipewire-module-protocol-native.so",
+  "libpipewire-module-protocol-pulse.so",
+  "libpipewire-module-protocol-simple.so",
+  "libpipewire-module-pulse-tunnel.so",
+  "libpipewire-module-rt.so",
+  "libpipewire-module-rtkit.so",
+  "libpipewire-module-rtp-sap.so",
+  "libpipewire-module-rtp-sink.so",
+  "libpipewire-module-rtp-source.so",
+  "libpipewire-module-session-manager.so",
+  "libpipewire-module-spa-device-factory.so",
+  "libpipewire-module-spa-device.so",
+  "libpipewire-module-spa-node-factory.so",
+  "libpipewire-module-spa-node.so",
+  "libpipewire-module-vban-recv.so",
+  "libpipewire-module-vban-send.so"
+ ],
+ "remote_named_objects": [],
+ "avahi": [
+  "1364 avahi-daemon: running [plazir27.local]",
+  "1396 avahi-daemon: chroot helper"
+ ]
+}

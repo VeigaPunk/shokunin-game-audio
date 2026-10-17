@@ -1,0 +1,354 @@
+{
+ "stage": "f3",
+ "reps": 3,
+ "started": "2026-10-15T11:20:33-0300",
+ "host": {
+  "pipewire": "1.6.8",
+  "wireplumber": "0.5.17"
+ },
+ "entry_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915,
+   536870921,
+   536870922
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_4041488"
+  ],
+  "clients": 8
+ },
+ "legs": [
+  {
+   "rep": 1,
+   "v1_which": {
+    "label": "which",
+    "cmd": [
+     "bash",
+     "-c",
+     "which pw-v4l2; ls -l /usr/bin/pw-v4l2; ls /usr/share/man/man1 | grep -i v4l2"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "fd4bd4c93d30ba0459aa48f32329288c3added08d88c65f2ea7cd92e1940533c",
+    "err_sha": "a23c77b8f21c84f8671f0322ed79164987cc66d00dd69bf91df577ee8c5f76f9",
+    "out_len": 63,
+    "err_len": 614,
+    "out_head": "qv4l2.1.gz\nv4l2-compliance.1.gz\nv4l2-ctl.1.gz\nv4l2-tracer.1.gz\n",
+    "err_head": "which: no pw-v4l2 in (/home/vgpnk/.kimi-code/bin:/run/user/1000/fnm_multishells/821742_1792073844840/bin:/home/vgpnk/.local/share/fnm:/home/vgpnk/.local/share/mise/installs/node/latest/bin:/home/vgpnk/.local/share/mise/shims:/home/vgpnk/.local/share/omarchy/bin:/home/vgpnk/.opencode/bin:/home/vgpnk/.local/bin:/run/user/1000/fnm_multishells/1205269_1791994315477/bin:/run/user/1000/fnm_multishells/1203242_1791994267411/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl)\nls: cannot access '/usr/bin/pw-v4l2': No such file"
+   },
+   "v2_pkg": {
+    "label": "pkg",
+    "cmd": [
+     "bash",
+     "-c",
+     "pacman -Qs pipewire-v4l2; pacman -Ql pipewire | grep -i v4l2; pacman -Ss '^pipewire-v4l2$'"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 166,
+    "out_sha": "ac53f61b8e740b4a76dabb6e547bb0161beda9d428f07bb5640ff4cc13efe5f6",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 176,
+    "err_len": 0,
+    "out_head": "pipewire /usr/lib/spa-0.2/v4l2/\npipewire /usr/lib/spa-0.2/v4l2/libspa-v4l2.so\nextra/pipewire-v4l2 1:1.6.8-1\n    Low-latency audio/video router and processor - V4L2 interceptor\n",
+    "err_head": ""
+   },
+   "v3_spa": {
+    "label": "spa",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /usr/lib/spa-0.2/v4l2/; strings -a /usr/lib/spa-0.2/v4l2/libspa-v4l2.so | grep -cE 'v4l2' "
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "09910fb134ca5f2d628ab68ce55c507d6e8b44d6880c7d65ba0f23f1ad434ad5",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 162,
+    "err_len": 0,
+    "out_head": "total 136\ndrwxr-xr-x 1 root root     28 Oct  3 17:42 .\ndrwxr-xr-x 1 root root    226 Oct  3 17:42 ..\n-rwxr-xr-x 1 root root 137704 Jul 10 03:31 libspa-v4l2.so\n44\n",
+    "err_head": ""
+   },
+   "v4_devices": {
+    "label": "devices",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /dev/video* 2>&1; lsmod | grep -icE 'v4l2|uvcvideo'; ls /sys/class/video4linux 2>&1"
+    ],
+    "rc": 2,
+    "timed_out": false,
+    "ms": 4,
+    "out_sha": "273b38aa8907f05c991a0589f5a0926f4e3f35f005050e77d38754a39084c267",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 131,
+    "err_len": 0,
+    "out_head": "ls: cannot access '/dev/video*': No such file or directory\n0\nls: cannot access '/sys/class/video4linux': No such file or directory\n",
+    "err_head": ""
+   },
+   "v5_services": {
+    "label": "services",
+    "cmd": [
+     "bash",
+     "-c",
+     "pactl list | grep -i v4l2; pw-cli ls Device | grep -c v4l2"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 7,
+    "out_sha": "9094f11a2db675938850fbca147eb5df5cabe65502e8dd7a2303c3426989fffb",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 266,
+    "err_len": 0,
+    "out_head": "\t\tsession.services = \"[video-capture, policy.linking.standard, api.v4l2, api.alsa-seq, policy.linking.role-based, midi, api.libcamera, audio, policy.device.routes, bluetooth.midi, api.alsa, api.bluez, bluetooth.audio, policy.default-nodes, policy.device.profile]\"\n0\n",
+    "err_head": ""
+   },
+   "parsed": {
+    "v4l2_nodes": [],
+    "device_apis": [
+     "alsa"
+    ]
+   },
+   "_wall_s": 0.19
+  },
+  {
+   "rep": 2,
+   "v1_which": {
+    "label": "which",
+    "cmd": [
+     "bash",
+     "-c",
+     "which pw-v4l2; ls -l /usr/bin/pw-v4l2; ls /usr/share/man/man1 | grep -i v4l2"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "fd4bd4c93d30ba0459aa48f32329288c3added08d88c65f2ea7cd92e1940533c",
+    "err_sha": "a23c77b8f21c84f8671f0322ed79164987cc66d00dd69bf91df577ee8c5f76f9",
+    "out_len": 63,
+    "err_len": 614,
+    "out_head": "qv4l2.1.gz\nv4l2-compliance.1.gz\nv4l2-ctl.1.gz\nv4l2-tracer.1.gz\n",
+    "err_head": "which: no pw-v4l2 in (/home/vgpnk/.kimi-code/bin:/run/user/1000/fnm_multishells/821742_1792073844840/bin:/home/vgpnk/.local/share/fnm:/home/vgpnk/.local/share/mise/installs/node/latest/bin:/home/vgpnk/.local/share/mise/shims:/home/vgpnk/.local/share/omarchy/bin:/home/vgpnk/.opencode/bin:/home/vgpnk/.local/bin:/run/user/1000/fnm_multishells/1205269_1791994315477/bin:/run/user/1000/fnm_multishells/1203242_1791994267411/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl)\nls: cannot access '/usr/bin/pw-v4l2': No such file"
+   },
+   "v2_pkg": {
+    "label": "pkg",
+    "cmd": [
+     "bash",
+     "-c",
+     "pacman -Qs pipewire-v4l2; pacman -Ql pipewire | grep -i v4l2; pacman -Ss '^pipewire-v4l2$'"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 129,
+    "out_sha": "ac53f61b8e740b4a76dabb6e547bb0161beda9d428f07bb5640ff4cc13efe5f6",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 176,
+    "err_len": 0,
+    "out_head": "pipewire /usr/lib/spa-0.2/v4l2/\npipewire /usr/lib/spa-0.2/v4l2/libspa-v4l2.so\nextra/pipewire-v4l2 1:1.6.8-1\n    Low-latency audio/video router and processor - V4L2 interceptor\n",
+    "err_head": ""
+   },
+   "v3_spa": {
+    "label": "spa",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /usr/lib/spa-0.2/v4l2/; strings -a /usr/lib/spa-0.2/v4l2/libspa-v4l2.so | grep -cE 'v4l2' "
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "09910fb134ca5f2d628ab68ce55c507d6e8b44d6880c7d65ba0f23f1ad434ad5",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 162,
+    "err_len": 0,
+    "out_head": "total 136\ndrwxr-xr-x 1 root root     28 Oct  3 17:42 .\ndrwxr-xr-x 1 root root    226 Oct  3 17:42 ..\n-rwxr-xr-x 1 root root 137704 Jul 10 03:31 libspa-v4l2.so\n44\n",
+    "err_head": ""
+   },
+   "v4_devices": {
+    "label": "devices",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /dev/video* 2>&1; lsmod | grep -icE 'v4l2|uvcvideo'; ls /sys/class/video4linux 2>&1"
+    ],
+    "rc": 2,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "273b38aa8907f05c991a0589f5a0926f4e3f35f005050e77d38754a39084c267",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 131,
+    "err_len": 0,
+    "out_head": "ls: cannot access '/dev/video*': No such file or directory\n0\nls: cannot access '/sys/class/video4linux': No such file or directory\n",
+    "err_head": ""
+   },
+   "v5_services": {
+    "label": "services",
+    "cmd": [
+     "bash",
+     "-c",
+     "pactl list | grep -i v4l2; pw-cli ls Device | grep -c v4l2"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 6,
+    "out_sha": "9094f11a2db675938850fbca147eb5df5cabe65502e8dd7a2303c3426989fffb",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 266,
+    "err_len": 0,
+    "out_head": "\t\tsession.services = \"[video-capture, policy.linking.standard, api.v4l2, api.alsa-seq, policy.linking.role-based, midi, api.libcamera, audio, policy.device.routes, bluetooth.midi, api.alsa, api.bluez, bluetooth.audio, policy.default-nodes, policy.device.profile]\"\n0\n",
+    "err_head": ""
+   },
+   "parsed": {
+    "v4l2_nodes": [],
+    "device_apis": [
+     "alsa"
+    ]
+   },
+   "_wall_s": 0.15
+  },
+  {
+   "rep": 3,
+   "v1_which": {
+    "label": "which",
+    "cmd": [
+     "bash",
+     "-c",
+     "which pw-v4l2; ls -l /usr/bin/pw-v4l2; ls /usr/share/man/man1 | grep -i v4l2"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "fd4bd4c93d30ba0459aa48f32329288c3added08d88c65f2ea7cd92e1940533c",
+    "err_sha": "a23c77b8f21c84f8671f0322ed79164987cc66d00dd69bf91df577ee8c5f76f9",
+    "out_len": 63,
+    "err_len": 614,
+    "out_head": "qv4l2.1.gz\nv4l2-compliance.1.gz\nv4l2-ctl.1.gz\nv4l2-tracer.1.gz\n",
+    "err_head": "which: no pw-v4l2 in (/home/vgpnk/.kimi-code/bin:/run/user/1000/fnm_multishells/821742_1792073844840/bin:/home/vgpnk/.local/share/fnm:/home/vgpnk/.local/share/mise/installs/node/latest/bin:/home/vgpnk/.local/share/mise/shims:/home/vgpnk/.local/share/omarchy/bin:/home/vgpnk/.opencode/bin:/home/vgpnk/.local/bin:/run/user/1000/fnm_multishells/1205269_1791994315477/bin:/run/user/1000/fnm_multishells/1203242_1791994267411/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl)\nls: cannot access '/usr/bin/pw-v4l2': No such file"
+   },
+   "v2_pkg": {
+    "label": "pkg",
+    "cmd": [
+     "bash",
+     "-c",
+     "pacman -Qs pipewire-v4l2; pacman -Ql pipewire | grep -i v4l2; pacman -Ss '^pipewire-v4l2$'"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 132,
+    "out_sha": "ac53f61b8e740b4a76dabb6e547bb0161beda9d428f07bb5640ff4cc13efe5f6",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 176,
+    "err_len": 0,
+    "out_head": "pipewire /usr/lib/spa-0.2/v4l2/\npipewire /usr/lib/spa-0.2/v4l2/libspa-v4l2.so\nextra/pipewire-v4l2 1:1.6.8-1\n    Low-latency audio/video router and processor - V4L2 interceptor\n",
+    "err_head": ""
+   },
+   "v3_spa": {
+    "label": "spa",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /usr/lib/spa-0.2/v4l2/; strings -a /usr/lib/spa-0.2/v4l2/libspa-v4l2.so | grep -cE 'v4l2' "
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "09910fb134ca5f2d628ab68ce55c507d6e8b44d6880c7d65ba0f23f1ad434ad5",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 162,
+    "err_len": 0,
+    "out_head": "total 136\ndrwxr-xr-x 1 root root     28 Oct  3 17:42 .\ndrwxr-xr-x 1 root root    226 Oct  3 17:42 ..\n-rwxr-xr-x 1 root root 137704 Jul 10 03:31 libspa-v4l2.so\n44\n",
+    "err_head": ""
+   },
+   "v4_devices": {
+    "label": "devices",
+    "cmd": [
+     "bash",
+     "-c",
+     "ls -la /dev/video* 2>&1; lsmod | grep -icE 'v4l2|uvcvideo'; ls /sys/class/video4linux 2>&1"
+    ],
+    "rc": 2,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "273b38aa8907f05c991a0589f5a0926f4e3f35f005050e77d38754a39084c267",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 131,
+    "err_len": 0,
+    "out_head": "ls: cannot access '/dev/video*': No such file or directory\n0\nls: cannot access '/sys/class/video4linux': No such file or directory\n",
+    "err_head": ""
+   },
+   "v5_services": {
+    "label": "services",
+    "cmd": [
+     "bash",
+     "-c",
+     "pactl list | grep -i v4l2; pw-cli ls Device | grep -c v4l2"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 7,
+    "out_sha": "9094f11a2db675938850fbca147eb5df5cabe65502e8dd7a2303c3426989fffb",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 266,
+    "err_len": 0,
+    "out_head": "\t\tsession.services = \"[video-capture, policy.linking.standard, api.v4l2, api.alsa-seq, policy.linking.role-based, midi, api.libcamera, audio, policy.device.routes, bluetooth.midi, api.alsa, api.bluez, bluetooth.audio, policy.default-nodes, policy.device.profile]\"\n0\n",
+    "err_head": ""
+   },
+   "parsed": {
+    "v4l2_nodes": [],
+    "device_apis": [
+     "alsa"
+    ]
+   },
+   "_wall_s": 0.16
+  }
+ ],
+ "exit_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915,
+   536870921,
+   536870922
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_4041488"
+  ],
+  "clients": 8
+ }
+}

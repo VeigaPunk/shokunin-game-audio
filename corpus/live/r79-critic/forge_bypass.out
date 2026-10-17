@@ -1,0 +1,80 @@
+{
+ "pid": 144113,
+ "sinks": [
+  "r79cr_a_144113",
+  "r79cr_b_144113",
+  "r79cr_b2_144113"
+ ],
+ "legs": {
+  "control_feed_source": {
+   "feed_sink": "r79cr_a_144113",
+   "tap_target": "r79cr_b2_144113",
+   "play_target": "r79cr_b2_144113",
+   "loopback_consumers": [
+    "r79cr_b2_144113"
+   ],
+   "tap_bound_to_target": true,
+   "tap_bound_producers": [
+    "r79cr_b2_144113"
+   ],
+   "tap_mine_windows": 40,
+   "tap_peak_l": 7980,
+   "tap_peak_r": 8136,
+   "tap_carries_tone": true,
+   "link_from_loopback_to_tap_target": [
+    "r79cr_b2_144113:playback_FL",
+    "r79cr_b2_144113:playback_FR"
+   ],
+   "failures": [],
+   "verdict": "PASS (content pin satisfied)"
+  },
+  "forge_feed_tap_target": {
+   "feed_sink": "r79cr_b_144113",
+   "tap_target": "r79cr_b_144113",
+   "play_target": "r79cr_b2_144113",
+   "loopback_consumers": [
+    "r79cr_b2_144113"
+   ],
+   "tap_bound_to_target": true,
+   "tap_bound_producers": [
+    "r79cr_b_144113"
+   ],
+   "tap_mine_windows": 40,
+   "tap_peak_l": 7980,
+   "tap_peak_r": 8136,
+   "tap_carries_tone": true,
+   "link_from_loopback_to_tap_target": [],
+   "failures": [],
+   "verdict": "PASS (content pin satisfied)"
+  }
+ },
+ "sink_loads": {
+  "r79cr_a_144113": {
+   "module_id": 536870924,
+   "rc": 0,
+   "error": null,
+   "monitor_ready": true,
+   "monitor_waited_s": 0.005
+  },
+  "r79cr_b_144113": {
+   "module_id": 536870925,
+   "rc": 0,
+   "error": null,
+   "monitor_ready": true,
+   "monitor_waited_s": 0.005
+  },
+  "r79cr_b2_144113": {
+   "module_id": 536870923,
+   "rc": 0,
+   "error": null,
+   "monitor_ready": true,
+   "monitor_waited_s": 0.006
+  }
+ },
+ "teardown": {
+  "r79cr_a_144113": true,
+  "r79cr_b_144113": true,
+  "r79cr_b2_144113": true
+ },
+ "own_nodes_after": []
+}

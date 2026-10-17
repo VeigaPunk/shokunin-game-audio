@@ -1,0 +1,16 @@
+--- corpus/fixtures/measure_audio.py	2026-10-15 04:16:38.505231272 -0300
++++ corpus/live/r79-verify/forge/measure_audio_forge_tap.py	2026-10-15 05:22:04.627069711 -0300
+@@ -9213,9 +9213,10 @@
+     tap = tapf = None
+     if tap_target is not None:
+         tapf = Path(ctx["tmp"]) / f"tap_{name}.wav"
+-        tap = _playback_r78_tap(tap_target, tapf,
+-                                int(PLAYBACK_R78_TONE_RATE * tap_seconds),
+-                                f"{ltag}_tap")
++        tap = _playback_r78_tap(
++            "forge_missing_tap_node_r79" if ltag.endswith("_a1")
++            else tap_target, tapf,
++            int(PLAYBACK_R78_TONE_RATE * tap_seconds), f"{ltag}_tap")
+         # the r78 provenance rule, unchanged: every sample records the
+         # tap's own producers so `mine` counts only while it listens to
+         # the claimed node's monitor.

@@ -1,0 +1,217 @@
+{
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+ "legs": {
+  "no_prop|HDMI_sink": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "-n",
+    "4800"
+   ],
+   "bytes": 44,
+   "err_tail": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "feeding_nodes": [
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "port_map": {
+    "pw-record:input_FL": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL"
+    ],
+    "pw-record:input_FR": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR"
+    ]
+   },
+   "rc": 1,
+   "stream_objects": [
+    {
+     "object.serial": 12060,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    }
+   ]
+  },
+  "no_prop|LINE_source": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x96355803.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "no_prop|SPDIF_monitor": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-n",
+    "4800"
+   ],
+   "bytes": 44,
+   "err_tail": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "feeding_nodes": [
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+   ],
+   "port_map": {
+    "pw-record:input_FL": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL"
+    ],
+    "pw-record:input_FR": [
+     "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR"
+    ]
+   },
+   "rc": 1,
+   "stream_objects": [
+    {
+     "object.serial": 12072,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    }
+   ]
+  },
+  "no_prop|SPDIF_sink": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "4800"
+   ],
+   "bytes": 44,
+   "err_tail": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|GARBAGE": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "no_such_node_xyz",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x29547026.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|HDMI_monitor": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x83026686.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|HDMI_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x54073025.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|LINE_source": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x31637476.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|MIC_source": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x79061354.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|SPDIF_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x31033371.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  },
+  "prop|SPEAKER_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "4800"
+   ],
+   "bytes": 19244,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7/x19115627.wav",
+   "feeding_nodes": [],
+   "port_map": {},
+   "rc": 1,
+   "stream_objects": []
+  }
+ },
+ "probe": "override-extent2-r77",
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-icrm0cp7"
+}

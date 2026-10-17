@@ -1,0 +1,1161 @@
+LAW cot-r1-t2.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW cot-r1-t2.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW cot-r1-t2.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW cot-r1-t2.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW cot-r1-t2.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3060710': 0, 'r89a_ns2_3060710': 0}
+LAW cot-r1-t2.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3060710': True, 'r89a_ns2_3060710': True}
+LAW cot-r1-t2.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW cot-r1-t2.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t2.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW cot-r1-t2.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW cot-r1-t2.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3060710': 0}
+LAW cot-r1-t2.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3060710': True}
+LAW cot-r1-t2.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW cot-r1-t2.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t2.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW cot-r1-t2.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW cot-r1-t2.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3060710': 0, 'r89a_nsb_3060710': 0}
+LAW cot-r1-t2.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3060710': True, 'r89a_nsb_3060710': True}
+LAW cot-r1-t2.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW cot-r1-t2.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t2.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW cot-r1-t2.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3072274 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured', 'x_top: 
+LAW cot-r1-t2.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3060710': 0}
+LAW cot-r1-t2.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3060710': True}
+LAW cot-r1-t2.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW cot-r1-t2.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW cot-r1-t2.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.043 drivers=['Dummy-Driver', 'r89a_ns2_3060710', 'r89a_ns2_3060711', 'r89a_ns_3060710', 'r90a_ns2_3056345', 'r90a_ns_3056345', 'r93a_in']
+LAW cot-r1-t2.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.031 hist=[['Dummy-Driver', 1], ['r89a_ns2_3060710', 1], ['r89a_ns2_3060711', 1], ['r93a_in', 1]]
+LAW cot-r1-t2.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW cot-r1-t2.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=212 bytes=188065
+LAW cot-r1-t2.receipt.json G03b g_term flush has >=5 infos PASS n_info=212
+LAW cot-r1-t2.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=142 bytes=126797
+LAW cot-r1-t2.receipt.json G03b g_int flush has >=5 infos PASS n_info=142
+LAW cot-r1-t2.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Unterminated string starting at: line 640 column bytes=131072
+LAW cot-r1-t2.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Expecting value: line 560 column 130 (char 11468 bytes=114688
+LAW cot-r1-t2.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting value: line 580 column 69 (char 118783 bytes=118784
+LAW cot-r1-t2.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 45056}, {'t': 0.6, 'bytes': 94208}, {'t': 0.9, 'bytes': 143360}]
+LAW cot-r1-t2.receipt.json G05b g_blocks monotone PASS mono=True
+LAW cot-r1-t2.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW cot-r1-t2.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW cot-r1-t2.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW cot-r1-t2.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r1-t2.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r1-t2.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW cot-r1-t2.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW cot-r1-t2.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=310
+LAW cot-r1-t2.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.032
+LAW cot-r1-t2.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.02
+LAW cot-r1-t2.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.04
+LAW cot-r1-t2.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=318 alive=True
+LAW cot-r1-t2.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=413 alive=True
+LAW cot-r1-t2.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=411 alive=True
+LAW cot-r1-t2.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=384 alive=True
+LAW cot-r1-t2.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=18405 alive=True
+LAW cot-r1-t2.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=251 alive=True
+LAW cot-r1-t2.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=259 alive=True
+LAW cot-r1-t2.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW cot-r1-t2.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.201
+LAW cot-r1-t2.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW cot-r1-t2.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW cot-r1-t2.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW cot-r1-t2.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=33420
+LAW cot-r1-t2.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=24576 rows=23 wall=2.013
+LAW cot-r1-t2.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=24576
+LAW cot-r1-t2.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW cot-r1-t2.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW cot-r1-t2.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4400
+LAW cot-r1-t2.receipt.json O10 o_dash literal filename PASS rc=0 dash=6601
+LAW cot-r1-t2.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW cot-r1-t2.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW cot-r1-t2.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW cot-r1-t2.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3060710/x: No such fi
+LAW cot-r1-t2.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW cot-r1-t2.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=6
+LAW cot-r1-t2.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=6 drivers=['r89a_ns_3060710', 'r89a_ns_3060711', 'r90a_la_3056345', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r1-t2.receipt.json S03 block order info->clock->driver PASS True
+LAW cot-r1-t2.receipt.json S03 info.count +1/cycle PASS True
+LAW cot-r1-t2.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW cot-r1-t2.receipt.json S03 position+=duration PASS True
+LAW cot-r1-t2.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW cot-r1-t2.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW cot-r1-t2.receipt.json S03 nsec inside monotonic window PASS True
+LAW cot-r1-t2.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW cot-r1-t2.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW cot-r1-t2.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW cot-r1-t2.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW cot-r1-t2.receipt.json S08 ids == own node PASS own=191 clock=[191] driver=[191]
+LAW cot-r1-t2.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW cot-r1-t2.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW cot-r1-t2.receipt.json S11 fclock_rows==0 PASS 0
+LAW cot-r1-t2.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW cot-r1-t2.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[8, 9] last=[12, 13] n=6
+LAW cot-r1-t2.receipt.json S14 s_second count persists (c2>c1) PASS c1=13 c2=14 gap=1
+LAW cot-r1-t2.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58548051904497
+LAW cot-r1-t2.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW cot-r1-t2.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=94
+LAW cot-r1-t2.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.431
+LAW cot-r1-t2.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870930"], "own_pactl_idx": 536870930, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW cot-r1-t2.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870930, "own_idx": 536870930}
+LAW cot-r1-t2.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3072274, "pwprof_before": 1, "pwprof_during": 0, "nodes_delta": 0}
+LAW cot-r1-t2.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=10519,10519 byte_identical=True
+LAW cot-r1-t2.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW cot-r1-t2.receipt.json X06 x_top median WAIT/BUSY cross-witness BLOCKED no real-cycle own row (transient skipped: 3) — named coverage class
+LAW cot-r1-t2.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW cot-r1-t2.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW cot-r1-t2.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW cot-r1-t2.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW cot-r1-t2.receipt.json R02 x_top real-row provenance BLOCKED unarmed (no real row) — coverage class
+LAW cot-r1-t2.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.82 bytes=114688 alive=True
+LAW cot-r1-t2.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 0, "clients_added": ["pactl", "pw-cat"], "nodes_delta": 0, "own_clients": []}
+LAW cot-r1-t2.receipt.json R05 no undeclared xw leg keys PASS []
+LAW cot-r1-t3.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW cot-r1-t3.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW cot-r1-t3.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW cot-r1-t3.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW cot-r1-t3.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3060711': 0, 'r89a_ns2_3060711': 0}
+LAW cot-r1-t3.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3060711': True, 'r89a_ns2_3060711': True}
+LAW cot-r1-t3.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW cot-r1-t3.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t3.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW cot-r1-t3.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW cot-r1-t3.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3060711': 0}
+LAW cot-r1-t3.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3060711': True}
+LAW cot-r1-t3.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW cot-r1-t3.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t3.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW cot-r1-t3.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW cot-r1-t3.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3060711': 0, 'r89a_nsb_3060711': 0}
+LAW cot-r1-t3.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3060711': True, 'r89a_nsb_3060711': True}
+LAW cot-r1-t3.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW cot-r1-t3.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r1-t3.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW cot-r1-t3.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3072545 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured', 'x_top: 
+LAW cot-r1-t3.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3060711': 0}
+LAW cot-r1-t3.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3060711': True}
+LAW cot-r1-t3.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW cot-r1-t3.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW cot-r1-t3.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.043 drivers=['Dummy-Driver', 'r89a_ns2_3060711', 'r89a_ns_3060710', 'r89a_ns_3060711', 'r90a_ns2_3056345', 'r90a_ns_3056345', 'r93a_in']
+LAW cot-r1-t3.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.031 hist=[['Dummy-Driver', 2], ['r89a_ns_3060710', 1], ['r93a_in', 1]]
+LAW cot-r1-t3.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW cot-r1-t3.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=212 bytes=187214
+LAW cot-r1-t3.receipt.json G03b g_term flush has >=5 infos PASS n_info=212
+LAW cot-r1-t3.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=149 bytes=133141
+LAW cot-r1-t3.receipt.json G03b g_int flush has >=5 infos PASS n_info=149
+LAW cot-r1-t3.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Unterminated string starting at: line 639 column bytes=131072
+LAW cot-r1-t3.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Unterminated string starting at: line 560 column bytes=114688
+LAW cot-r1-t3.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting ':' delimiter: line 560 column 68 (cha bytes=114688
+LAW cot-r1-t3.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 45056}, {'t': 0.6, 'bytes': 94208}, {'t': 0.9, 'bytes': 143360}]
+LAW cot-r1-t3.receipt.json G05b g_blocks monotone PASS mono=True
+LAW cot-r1-t3.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW cot-r1-t3.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW cot-r1-t3.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW cot-r1-t3.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r1-t3.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r1-t3.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW cot-r1-t3.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW cot-r1-t3.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=314
+LAW cot-r1-t3.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.041
+LAW cot-r1-t3.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.03
+LAW cot-r1-t3.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.01
+LAW cot-r1-t3.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=315 alive=True
+LAW cot-r1-t3.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=402 alive=True
+LAW cot-r1-t3.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=415 alive=True
+LAW cot-r1-t3.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=384 alive=True
+LAW cot-r1-t3.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=18537 alive=True
+LAW cot-r1-t3.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=266 alive=True
+LAW cot-r1-t3.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=249 alive=True
+LAW cot-r1-t3.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW cot-r1-t3.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.403
+LAW cot-r1-t3.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW cot-r1-t3.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW cot-r1-t3.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW cot-r1-t3.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=21561
+LAW cot-r1-t3.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=28672 rows=25 wall=2.019
+LAW cot-r1-t3.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=28672
+LAW cot-r1-t3.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW cot-r1-t3.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW cot-r1-t3.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4316
+LAW cot-r1-t3.receipt.json O10 o_dash literal filename PASS rc=0 dash=6480
+LAW cot-r1-t3.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW cot-r1-t3.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW cot-r1-t3.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW cot-r1-t3.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3060711/x: No such fi
+LAW cot-r1-t3.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW cot-r1-t3.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=6
+LAW cot-r1-t3.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=6 drivers=['r89a_ns_3060710', 'r89a_ns_3060711', 'r90a_la_3056345', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r1-t3.receipt.json S03 block order info->clock->driver PASS True
+LAW cot-r1-t3.receipt.json S03 info.count +1/cycle PASS True
+LAW cot-r1-t3.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW cot-r1-t3.receipt.json S03 position+=duration PASS True
+LAW cot-r1-t3.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW cot-r1-t3.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW cot-r1-t3.receipt.json S03 nsec inside monotonic window PASS True
+LAW cot-r1-t3.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW cot-r1-t3.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW cot-r1-t3.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW cot-r1-t3.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW cot-r1-t3.receipt.json S08 ids == own node PASS own=96 clock=[96] driver=[96]
+LAW cot-r1-t3.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW cot-r1-t3.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW cot-r1-t3.receipt.json S11 fclock_rows==0 PASS 0
+LAW cot-r1-t3.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW cot-r1-t3.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[8, 9] last=[12, 13] n=6
+LAW cot-r1-t3.receipt.json S14 s_second count persists (c2>c1) PASS c1=13 c2=15 gap=2
+LAW cot-r1-t3.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58549045626597
+LAW cot-r1-t3.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW cot-r1-t3.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=103
+LAW cot-r1-t3.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.43
+LAW cot-r1-t3.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870924"], "own_pactl_idx": 536870924, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW cot-r1-t3.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870924, "own_idx": 536870924}
+LAW cot-r1-t3.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3072545, "pwprof_before": 1, "pwprof_during": 0, "nodes_delta": -3}
+LAW cot-r1-t3.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=11329,11329 byte_identical=True
+LAW cot-r1-t3.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW cot-r1-t3.receipt.json X06 x_top median WAIT/BUSY cross-witness BLOCKED no real-cycle own row (transient skipped: 3) — named coverage class
+LAW cot-r1-t3.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW cot-r1-t3.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW cot-r1-t3.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW cot-r1-t3.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW cot-r1-t3.receipt.json R02 x_top real-row provenance BLOCKED unarmed (no real row) — coverage class
+LAW cot-r1-t3.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.821 bytes=114688 alive=True
+LAW cot-r1-t3.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 0, "clients_added": ["gst-launch-1.0", "pw-link"], "nodes_delta": -3, "own_clients": []}
+LAW cot-r1-t3.receipt.json R05 no undeclared xw leg keys PASS []
+LAW cot-r2-t2.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW cot-r2-t2.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW cot-r2-t2.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW cot-r2-t2.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW cot-r2-t2.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3073241': 0, 'r89a_ns2_3073241': 0}
+LAW cot-r2-t2.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3073241': True, 'r89a_ns2_3073241': True}
+LAW cot-r2-t2.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW cot-r2-t2.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t2.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW cot-r2-t2.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW cot-r2-t2.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3073241': 0}
+LAW cot-r2-t2.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3073241': True}
+LAW cot-r2-t2.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW cot-r2-t2.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t2.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW cot-r2-t2.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW cot-r2-t2.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3073241': 0, 'r89a_nsb_3073241': 0}
+LAW cot-r2-t2.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3073241': True, 'r89a_nsb_3073241': True}
+LAW cot-r2-t2.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW cot-r2-t2.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t2.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW cot-r2-t2.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_top: no real-cycle own row in the pw-top frames (transient quant-0/0.0us rows skipped: 3) — the cross-witness is unmeasured']
+LAW cot-r2-t2.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3073241': 0}
+LAW cot-r2-t2.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3073241': True}
+LAW cot-r2-t2.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW cot-r2-t2.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW cot-r2-t2.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.033 drivers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'r89a_ns2_3073241', 'r89a_ns_3073240', 'r89a_ns_3073241', 'r90a_ns_3056345', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r2-t2.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.02 hist=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 1], ['r89a_ns2_3073241', 1], ['r90a_ns_3056345', 1], ['r93a_in', 1]]
+LAW cot-r2-t2.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW cot-r2-t2.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=201 bytes=154257
+LAW cot-r2-t2.receipt.json G03b g_term flush has >=5 infos PASS n_info=201
+LAW cot-r2-t2.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=165 bytes=125687
+LAW cot-r2-t2.receipt.json G03b g_int flush has >=5 infos PASS n_info=165
+LAW cot-r2-t2.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Unterminated string starting at: line 499 column bytes=102400
+LAW cot-r2-t2.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Expecting ',' delimiter: line 420 column 52 (cha bytes=86016
+LAW cot-r2-t2.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Unterminated string starting at: line 444 column bytes=90112
+LAW cot-r2-t2.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 32768}, {'t': 0.6, 'bytes': 57344}, {'t': 0.9, 'bytes': 77824}]
+LAW cot-r2-t2.receipt.json G05b g_blocks monotone PASS mono=True
+LAW cot-r2-t2.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW cot-r2-t2.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW cot-r2-t2.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW cot-r2-t2.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r2-t2.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r2-t2.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW cot-r2-t2.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW cot-r2-t2.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=194
+LAW cot-r2-t2.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.061
+LAW cot-r2-t2.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.02
+LAW cot-r2-t2.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.03
+LAW cot-r2-t2.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=254 alive=True
+LAW cot-r2-t2.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=174 alive=True
+LAW cot-r2-t2.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW cot-r2-t2.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=146 alive=True
+LAW cot-r2-t2.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=197 alive=True
+LAW cot-r2-t2.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=197 alive=True
+LAW cot-r2-t2.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=233 alive=True
+LAW cot-r2-t2.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW cot-r2-t2.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.404
+LAW cot-r2-t2.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW cot-r2-t2.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW cot-r2-t2.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW cot-r2-t2.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=34107
+LAW cot-r2-t2.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=49152 rows=45 wall=2.015
+LAW cot-r2-t2.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=49152
+LAW cot-r2-t2.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW cot-r2-t2.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW cot-r2-t2.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4336
+LAW cot-r2-t2.receipt.json O10 o_dash literal filename PASS rc=0 dash=6494
+LAW cot-r2-t2.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW cot-r2-t2.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW cot-r2-t2.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW cot-r2-t2.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3073241/x: No such fi
+LAW cot-r2-t2.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW cot-r2-t2.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=7
+LAW cot-r2-t2.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=7 drivers=['Dummy-Driver', 'r89a_ns_3073240', 'r89a_ns_3073241', 'r91a_ns2_3070411', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r2-t2.receipt.json S03 block order info->clock->driver PASS True
+LAW cot-r2-t2.receipt.json S03 info.count +1/cycle PASS True
+LAW cot-r2-t2.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW cot-r2-t2.receipt.json S03 position+=duration PASS True
+LAW cot-r2-t2.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW cot-r2-t2.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW cot-r2-t2.receipt.json S03 nsec inside monotonic window PASS True
+LAW cot-r2-t2.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW cot-r2-t2.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW cot-r2-t2.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW cot-r2-t2.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW cot-r2-t2.receipt.json S08 ids == own node PASS own=240 clock=[240] driver=[240]
+LAW cot-r2-t2.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW cot-r2-t2.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW cot-r2-t2.receipt.json S11 fclock_rows==0 PASS 0
+LAW cot-r2-t2.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW cot-r2-t2.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[8, 9] last=[13, 14] n=7
+LAW cot-r2-t2.receipt.json S14 s_second count persists (c2>c1) PASS c1=14 c2=15 gap=1
+LAW cot-r2-t2.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58581338113924
+LAW cot-r2-t2.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=22 blocks=22
+LAW cot-r2-t2.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=97
+LAW cot-r2-t2.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.43
+LAW cot-r2-t2.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870917"], "own_pactl_idx": 536870917, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW cot-r2-t2.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870917, "own_idx": 536870917}
+LAW cot-r2-t2.receipt.json X03 x_foot own-scoped 1-Client footprint PASS {"own_pid": 3089440, "own_clients": [252], "own_objects": [], "pwprof_before": 1, "pwprof_during": 1, "clients_added": ["pactl", "pw-cat", "r95jack"], "nodes_delta": 2, "rc": 0}
+LAW cot-r2-t2.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=7166,7166 byte_identical=True
+LAW cot-r2-t2.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW cot-r2-t2.receipt.json X06 x_top median WAIT/BUSY cross-witness BLOCKED no real-cycle own row (transient skipped: 3) — named coverage class
+LAW cot-r2-t2.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW cot-r2-t2.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW cot-r2-t2.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW cot-r2-t2.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW cot-r2-t2.receipt.json R02 x_top real-row provenance BLOCKED unarmed (no real row) — coverage class
+LAW cot-r2-t2.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.819 bytes=86016 alive=True
+LAW cot-r2-t2.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 1, "clients_added": ["pactl", "pw-cat", "r95jack"], "nodes_delta": 2, "own_clients": [252]}
+LAW cot-r2-t2.receipt.json R05 no undeclared xw leg keys PASS []
+LAW cot-r2-t3.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW cot-r2-t3.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW cot-r2-t3.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW cot-r2-t3.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW cot-r2-t3.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3073240': 0, 'r89a_ns2_3073240': 0}
+LAW cot-r2-t3.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3073240': True, 'r89a_ns2_3073240': True}
+LAW cot-r2-t3.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW cot-r2-t3.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t3.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW cot-r2-t3.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW cot-r2-t3.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3073240': 0}
+LAW cot-r2-t3.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3073240': True}
+LAW cot-r2-t3.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW cot-r2-t3.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t3.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW cot-r2-t3.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW cot-r2-t3.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3073240': 0, 'r89a_nsb_3073240': 0}
+LAW cot-r2-t3.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3073240': True, 'r89a_nsb_3073240': True}
+LAW cot-r2-t3.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW cot-r2-t3.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW cot-r2-t3.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW cot-r2-t3.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3089912 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured', 'x_top: 
+LAW cot-r2-t3.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3073240': 0}
+LAW cot-r2-t3.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3073240': True}
+LAW cot-r2-t3.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW cot-r2-t3.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW cot-r2-t3.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.043 drivers=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'r89a_ns2_3073240', 'r89a_ns2_3073241', 'r89a_ns_3073240', 'r90a_ns_3056345', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r2-t3.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.03 hist=[['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 1], ['r89a_ns2_3073241', 1], ['r89a_ns_3073240', 1], ['r91a_ns_3070411', 1]]
+LAW cot-r2-t3.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW cot-r2-t3.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=187 bytes=143139
+LAW cot-r2-t3.receipt.json G03b g_term flush has >=5 infos PASS n_info=187
+LAW cot-r2-t3.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=155 bytes=117587
+LAW cot-r2-t3.receipt.json G03b g_int flush has >=5 infos PASS n_info=155
+LAW cot-r2-t3.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting value: line 499 column 95 (char 102400 bytes=102400
+LAW cot-r2-t3.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Expecting property name enclosed in double quote bytes=90112
+LAW cot-r2-t3.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting property name enclosed in double quote bytes=90112
+LAW cot-r2-t3.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 20480}, {'t': 0.6, 'bytes': 45056}, {'t': 0.9, 'bytes': 65536}]
+LAW cot-r2-t3.receipt.json G05b g_blocks monotone PASS mono=True
+LAW cot-r2-t3.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW cot-r2-t3.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW cot-r2-t3.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW cot-r2-t3.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r2-t3.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW cot-r2-t3.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW cot-r2-t3.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW cot-r2-t3.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=198
+LAW cot-r2-t3.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.051
+LAW cot-r2-t3.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.02
+LAW cot-r2-t3.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.02
+LAW cot-r2-t3.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=257 alive=True
+LAW cot-r2-t3.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=154 alive=True
+LAW cot-r2-t3.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW cot-r2-t3.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=161 alive=True
+LAW cot-r2-t3.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=198 alive=True
+LAW cot-r2-t3.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=198 alive=True
+LAW cot-r2-t3.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=234 alive=True
+LAW cot-r2-t3.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW cot-r2-t3.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.414
+LAW cot-r2-t3.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW cot-r2-t3.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 2 followers
+
+LAW cot-r2-t3.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW cot-r2-t3.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=33449
+LAW cot-r2-t3.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=49152 rows=46 wall=2.015
+LAW cot-r2-t3.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=49152
+LAW cot-r2-t3.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW cot-r2-t3.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW cot-r2-t3.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4321
+LAW cot-r2-t3.receipt.json O10 o_dash literal filename PASS rc=0 dash=6477
+LAW cot-r2-t3.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW cot-r2-t3.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW cot-r2-t3.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW cot-r2-t3.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3073240/x: No such fi
+LAW cot-r2-t3.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW cot-r2-t3.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=5
+LAW cot-r2-t3.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=5 drivers=['Dummy-Driver', 'r89a_ns_3073240', 'r89a_ns_3073241', 'r91a_ns2_3070411', 'r91a_ns_3070411', 'r93a_in']
+LAW cot-r2-t3.receipt.json S03 block order info->clock->driver PASS True
+LAW cot-r2-t3.receipt.json S03 info.count +1/cycle PASS True
+LAW cot-r2-t3.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW cot-r2-t3.receipt.json S03 position+=duration PASS True
+LAW cot-r2-t3.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW cot-r2-t3.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW cot-r2-t3.receipt.json S03 nsec inside monotonic window PASS True
+LAW cot-r2-t3.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW cot-r2-t3.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW cot-r2-t3.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW cot-r2-t3.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW cot-r2-t3.receipt.json S08 ids == own node PASS own=182 clock=[182] driver=[182]
+LAW cot-r2-t3.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW cot-r2-t3.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW cot-r2-t3.receipt.json S11 fclock_rows==0 PASS 0
+LAW cot-r2-t3.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW cot-r2-t3.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[9, 10] last=[12, 13] n=5
+LAW cot-r2-t3.receipt.json S14 s_second count persists (c2>c1) PASS c1=13 c2=15 gap=2
+LAW cot-r2-t3.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58582300636294
+LAW cot-r2-t3.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW cot-r2-t3.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=106
+LAW cot-r2-t3.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.426
+LAW cot-r2-t3.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870930"], "own_pactl_idx": 536870930, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW cot-r2-t3.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870930, "own_idx": 536870930}
+LAW cot-r2-t3.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3089912, "pwprof_before": 1, "pwprof_during": 0, "nodes_delta": 2}
+LAW cot-r2-t3.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=8530,8530 byte_identical=True
+LAW cot-r2-t3.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW cot-r2-t3.receipt.json X06 x_top median WAIT/BUSY cross-witness BLOCKED no real-cycle own row (transient skipped: 3) — named coverage class
+LAW cot-r2-t3.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW cot-r2-t3.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW cot-r2-t3.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW cot-r2-t3.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW cot-r2-t3.receipt.json R02 x_top real-row provenance BLOCKED unarmed (no real row) — coverage class
+LAW cot-r2-t3.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.821 bytes=90112 alive=True
+LAW cot-r2-t3.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 0, "clients_added": ["pipewire"], "nodes_delta": 2, "own_clients": []}
+LAW cot-r2-t3.receipt.json R05 no undeclared xw leg keys PASS []
+LAW held-foreign.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW held-foreign.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW held-foreign.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW held-foreign.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW held-foreign.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3091689': 0, 'r89a_ns2_3091689': 0}
+LAW held-foreign.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3091689': True, 'r89a_ns2_3091689': True}
+LAW held-foreign.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW held-foreign.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW held-foreign.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW held-foreign.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW held-foreign.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3091689': 0}
+LAW held-foreign.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3091689': True}
+LAW held-foreign.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW held-foreign.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW held-foreign.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW held-foreign.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW held-foreign.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3091689': 0, 'r89a_nsb_3091689': 0}
+LAW held-foreign.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3091689': True, 'r89a_nsb_3091689': True}
+LAW held-foreign.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW held-foreign.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW held-foreign.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW held-foreign.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3109456 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 1) — unmeasured']
+LAW held-foreign.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3091689': 0}
+LAW held-foreign.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3091689': True}
+LAW held-foreign.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW held-foreign.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW held-foreign.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.073 drivers=['Dummy-Driver', 'r89a_ns2_3091689', 'r89a_ns_3091689', 'r91a_ns_3070411', 'r93a_in']
+LAW held-foreign.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.033 hist=[['Dummy-Driver', 1], ['r89a_ns2_3091689', 1], ['r89a_ns_3091689', 1], ['r91a_ns_3070411', 1]]
+LAW held-foreign.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW held-foreign.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=117 bytes=98077
+LAW held-foreign.receipt.json G03b g_term flush has >=5 infos PASS n_info=117
+LAW held-foreign.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=113 bytes=106979
+LAW held-foreign.receipt.json G03b g_int flush has >=5 infos PASS n_info=113
+LAW held-foreign.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting ',' delimiter: line 537 column 151 (ch bytes=110592
+LAW held-foreign.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Unterminated string starting at: line 439 column bytes=90112
+LAW held-foreign.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting ',' delimiter: line 357 column 30 (cha bytes=73728
+LAW held-foreign.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 24576}, {'t': 0.6, 'bytes': 53248}, {'t': 0.9, 'bytes': 86016}]
+LAW held-foreign.receipt.json G05b g_blocks monotone PASS mono=True
+LAW held-foreign.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW held-foreign.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW held-foreign.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW held-foreign.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW held-foreign.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW held-foreign.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW held-foreign.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW held-foreign.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=259
+LAW held-foreign.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.051
+LAW held-foreign.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.02
+LAW held-foreign.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.031
+LAW held-foreign.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=226 alive=True
+LAW held-foreign.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=17467 alive=True
+LAW held-foreign.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=163 alive=True
+LAW held-foreign.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=160 alive=True
+LAW held-foreign.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=166 alive=True
+LAW held-foreign.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW held-foreign.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=131 alive=True
+LAW held-foreign.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW held-foreign.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.213
+LAW held-foreign.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW held-foreign.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW held-foreign.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW held-foreign.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=35632
+LAW held-foreign.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=49152 rows=46 wall=2.013
+LAW held-foreign.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=49152
+LAW held-foreign.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW held-foreign.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW held-foreign.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4316
+LAW held-foreign.receipt.json O10 o_dash literal filename PASS rc=0 dash=6802
+LAW held-foreign.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW held-foreign.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW held-foreign.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW held-foreign.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3091689/x: No such fi
+LAW held-foreign.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW held-foreign.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=16
+LAW held-foreign.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=16 drivers=['r89a_ns_3091689', 'r91a_ns_3105651', 'r93a_in']
+LAW held-foreign.receipt.json S03 block order info->clock->driver PASS True
+LAW held-foreign.receipt.json S03 info.count +1/cycle PASS True
+LAW held-foreign.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW held-foreign.receipt.json S03 position+=duration PASS True
+LAW held-foreign.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW held-foreign.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW held-foreign.receipt.json S03 nsec inside monotonic window PASS True
+LAW held-foreign.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW held-foreign.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW held-foreign.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW held-foreign.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW held-foreign.receipt.json S08 ids == own node PASS own=257 clock=[257] driver=[257]
+LAW held-foreign.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW held-foreign.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW held-foreign.receipt.json S11 fclock_rows==0 PASS 0
+LAW held-foreign.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW held-foreign.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[9, 10] last=[23, 24] n=16
+LAW held-foreign.receipt.json S14 s_second count persists (c2>c1) PASS c1=24 c2=25 gap=1
+LAW held-foreign.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58619947933268
+LAW held-foreign.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW held-foreign.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=126
+LAW held-foreign.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.439
+LAW held-foreign.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870924"], "own_pactl_idx": 536870924, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW held-foreign.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870924, "own_idx": 536870924}
+LAW held-foreign.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3109456, "pwprof_before": 1, "pwprof_during": 1, "nodes_delta": -1}
+LAW held-foreign.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=6522,6522 byte_identical=True
+LAW held-foreign.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW held-foreign.receipt.json X06 x_top median WAIT/BUSY cross-witness PASS top-med 6.4/6.7us over 1 real rows vs prof 5.22/4.55us
+LAW held-foreign.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW held-foreign.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW held-foreign.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW held-foreign.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW held-foreign.receipt.json R02 x_top real-row provenance PASS row={"status": "R", "id": 113, "quant": 2048, "rate": 48000, "wait": "6.4us", "busy": "6.7us", "wait_us": 6.4, "busy_us": 6.7} real_rows=1 transient=2
+LAW held-foreign.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.821 bytes=90112 alive=True
+LAW held-foreign.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 1, "clients_added": ["pw-cat"], "nodes_delta": -1, "own_clients": []}
+LAW held-foreign.receipt.json R05 no undeclared xw leg keys PASS []
+LAW mut-footglobal-held.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW mut-footglobal-held.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW mut-footglobal-held.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW mut-footglobal-held.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW mut-footglobal-held.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3157950': 0, 'r89a_ns2_3157950': 0}
+LAW mut-footglobal-held.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3157950': True, 'r89a_ns2_3157950': True}
+LAW mut-footglobal-held.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW mut-footglobal-held.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-footglobal-held.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW mut-footglobal-held.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW mut-footglobal-held.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3157950': 0}
+LAW mut-footglobal-held.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3157950': True}
+LAW mut-footglobal-held.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW mut-footglobal-held.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-footglobal-held.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW mut-footglobal-held.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW mut-footglobal-held.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3157950': 0, 'r89a_nsb_3157950': 0}
+LAW mut-footglobal-held.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3157950': True, 'r89a_nsb_3157950': True}
+LAW mut-footglobal-held.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW mut-footglobal-held.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-footglobal-held.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW mut-footglobal-held.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_top: no real-cycle own row in the pw-top frames (transient quant-0/0.0us rows skipped: 3) — the cross-witness is unmeasured']
+LAW mut-footglobal-held.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3157950': 0}
+LAW mut-footglobal-held.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3157950': True}
+LAW mut-footglobal-held.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW mut-footglobal-held.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW mut-footglobal-held.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.103 drivers=['r89a_ns2_3157950', 'r89a_ns_3157950', 'r93a_in']
+LAW mut-footglobal-held.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.071 hist=[['r89a_ns2_3157950', 1], ['r89a_ns_3157950', 2], ['r93a_in', 1]]
+LAW mut-footglobal-held.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW mut-footglobal-held.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=77 bytes=71989
+LAW mut-footglobal-held.receipt.json G03b g_term flush has >=5 infos PASS n_info=77
+LAW mut-footglobal-held.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=117 bytes=104478
+LAW mut-footglobal-held.receipt.json G03b g_int flush has >=5 infos PASS n_info=117
+LAW mut-footglobal-held.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting property name enclosed in double quote bytes=86016
+LAW mut-footglobal-held.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Expecting ':' delimiter: line 324 column 93 (cha bytes=65536
+LAW mut-footglobal-held.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting ',' delimiter: line 161 column 264 (ch bytes=32768
+LAW mut-footglobal-held.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 8192}, {'t': 0.6, 'bytes': 20480}, {'t': 0.9, 'bytes': 40960}]
+LAW mut-footglobal-held.receipt.json G05b g_blocks monotone PASS mono=True
+LAW mut-footglobal-held.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW mut-footglobal-held.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW mut-footglobal-held.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW mut-footglobal-held.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW mut-footglobal-held.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW mut-footglobal-held.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW mut-footglobal-held.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW mut-footglobal-held.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=132
+LAW mut-footglobal-held.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.081
+LAW mut-footglobal-held.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.033
+LAW mut-footglobal-held.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.041
+LAW mut-footglobal-held.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=120 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=187 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=133 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=175 alive=True
+LAW mut-footglobal-held.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=149 alive=True
+LAW mut-footglobal-held.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW mut-footglobal-held.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.404
+LAW mut-footglobal-held.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW mut-footglobal-held.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW mut-footglobal-held.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW mut-footglobal-held.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=33453
+LAW mut-footglobal-held.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=49152 rows=45 wall=2.018
+LAW mut-footglobal-held.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=49152
+LAW mut-footglobal-held.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW mut-footglobal-held.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW mut-footglobal-held.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4318
+LAW mut-footglobal-held.receipt.json O10 o_dash literal filename PASS rc=0 dash=6476
+LAW mut-footglobal-held.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW mut-footglobal-held.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW mut-footglobal-held.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW mut-footglobal-held.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3157950/x: No such fi
+LAW mut-footglobal-held.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW mut-footglobal-held.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=14
+LAW mut-footglobal-held.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=14 drivers=['r89a_ns_3157950', 'r91a_ns2_3153207', 'r91a_ns_3153207']
+LAW mut-footglobal-held.receipt.json S03 block order info->clock->driver PASS True
+LAW mut-footglobal-held.receipt.json S03 info.count +1/cycle PASS True
+LAW mut-footglobal-held.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW mut-footglobal-held.receipt.json S03 position+=duration PASS True
+LAW mut-footglobal-held.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW mut-footglobal-held.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW mut-footglobal-held.receipt.json S03 nsec inside monotonic window PASS True
+LAW mut-footglobal-held.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW mut-footglobal-held.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW mut-footglobal-held.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW mut-footglobal-held.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW mut-footglobal-held.receipt.json S08 ids == own node PASS own=79 clock=[79] driver=[79]
+LAW mut-footglobal-held.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW mut-footglobal-held.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW mut-footglobal-held.receipt.json S11 fclock_rows==0 PASS 0
+LAW mut-footglobal-held.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW mut-footglobal-held.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[8, 9] last=[20, 21] n=14
+LAW mut-footglobal-held.receipt.json S14 s_second count persists (c2>c1) PASS c1=21 c2=22 gap=1
+LAW mut-footglobal-held.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58800244608475
+LAW mut-footglobal-held.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW mut-footglobal-held.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=23
+LAW mut-footglobal-held.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.422
+LAW mut-footglobal-held.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870928"], "own_pactl_idx": 536870928, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW mut-footglobal-held.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870928, "own_idx": 536870928}
+LAW mut-footglobal-held.receipt.json X03 x_foot own-scoped 1-Client footprint PASS {"own_pid": 3167522, "own_clients": [118], "own_objects": [], "pwprof_before": 1, "pwprof_during": 2, "clients_added": ["parec", "pw-profiler"], "nodes_delta": 0, "rc": 0}
+LAW mut-footglobal-held.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=8652,8831 byte_identical=False
+LAW mut-footglobal-held.receipt.json X05 x_conc broadcast dict-identity PASS shared=7
+LAW mut-footglobal-held.receipt.json X06 x_top median WAIT/BUSY cross-witness BLOCKED no real-cycle own row (transient skipped: 3) — named coverage class
+LAW mut-footglobal-held.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW mut-footglobal-held.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW mut-footglobal-held.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW mut-footglobal-held.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW mut-footglobal-held.receipt.json R02 x_top real-row provenance BLOCKED unarmed (no real row) — coverage class
+LAW mut-footglobal-held.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.822 bytes=65536 alive=True
+LAW mut-footglobal-held.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 1, "pwprof_during": 2, "clients_added": ["parec", "pw-profiler"], "nodes_delta": 0, "own_clients": [118]}
+LAW mut-footglobal-held.receipt.json R05 no undeclared xw leg keys PASS []
+LAW mut-sigreset-nohup.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW mut-sigreset-nohup.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW mut-sigreset-nohup.receipt.json C02 pwprof_gate_r89_probe failures FAIL ['g_hup: rc=-9 parse=Expecting value: line 2514 column 144 (char 511999) (len=511999) — the truncating-signal class fails']
+LAW mut-sigreset-nohup.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW mut-sigreset-nohup.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3140273': 0, 'r89a_ns2_3140273': 0}
+LAW mut-sigreset-nohup.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3140273': True, 'r89a_ns2_3140273': True}
+LAW mut-sigreset-nohup.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW mut-sigreset-nohup.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-sigreset-nohup.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW mut-sigreset-nohup.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW mut-sigreset-nohup.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3140273': 0}
+LAW mut-sigreset-nohup.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3140273': True}
+LAW mut-sigreset-nohup.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW mut-sigreset-nohup.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-sigreset-nohup.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW mut-sigreset-nohup.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW mut-sigreset-nohup.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3140273': 0, 'r89a_nsb_3140273': 0}
+LAW mut-sigreset-nohup.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3140273': True, 'r89a_nsb_3140273': True}
+LAW mut-sigreset-nohup.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW mut-sigreset-nohup.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW mut-sigreset-nohup.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW mut-sigreset-nohup.receipt.json C03 pwprof_xw_r89_probe coverage_blocked PASS []
+LAW mut-sigreset-nohup.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3140273': 0}
+LAW mut-sigreset-nohup.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3140273': True}
+LAW mut-sigreset-nohup.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW mut-sigreset-nohup.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW mut-sigreset-nohup.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.134 drivers=['r89a_ns2_3140273', 'r89a_ns_3140273', 'r93a_in']
+LAW mut-sigreset-nohup.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.071 hist=[['r89a_ns2_3140273', 1], ['r89a_ns_3140273', 1], ['r93a_in', 2]]
+LAW mut-sigreset-nohup.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW mut-sigreset-nohup.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=70 bytes=66386
+LAW mut-sigreset-nohup.receipt.json G03b g_term flush has >=5 infos PASS n_info=70
+LAW mut-sigreset-nohup.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=90 bytes=82006
+LAW mut-sigreset-nohup.receipt.json G03b g_int flush has >=5 infos PASS n_info=90
+LAW mut-sigreset-nohup.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Unterminated string starting at: line 304 column bytes=61440
+LAW mut-sigreset-nohup.receipt.json G04 g_hup truncating rc-1+invalid FAIL rc=-9 parse=Expecting value: line 2514 column 144 (char 5119 bytes=512000
+LAW mut-sigreset-nohup.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Unterminated string starting at: line 142 column bytes=28672
+LAW mut-sigreset-nohup.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 8192}, {'t': 0.6, 'bytes': 20480}, {'t': 0.9, 'bytes': 32768}]
+LAW mut-sigreset-nohup.receipt.json G05b g_blocks monotone PASS mono=True
+LAW mut-sigreset-nohup.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW mut-sigreset-nohup.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW mut-sigreset-nohup.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW mut-sigreset-nohup.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW mut-sigreset-nohup.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW mut-sigreset-nohup.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW mut-sigreset-nohup.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW mut-sigreset-nohup.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=66
+LAW mut-sigreset-nohup.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.171
+LAW mut-sigreset-nohup.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.081
+LAW mut-sigreset-nohup.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.081
+LAW mut-sigreset-nohup.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=99 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=128 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=127 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=65 alive=True
+LAW mut-sigreset-nohup.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=81 alive=True
+LAW mut-sigreset-nohup.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW mut-sigreset-nohup.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.211
+LAW mut-sigreset-nohup.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW mut-sigreset-nohup.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW mut-sigreset-nohup.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW mut-sigreset-nohup.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=66911
+LAW mut-sigreset-nohup.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=77824 rows=70 wall=2.012
+LAW mut-sigreset-nohup.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=77824
+LAW mut-sigreset-nohup.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW mut-sigreset-nohup.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW mut-sigreset-nohup.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4428
+LAW mut-sigreset-nohup.receipt.json O10 o_dash literal filename PASS rc=0 dash=6642
+LAW mut-sigreset-nohup.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW mut-sigreset-nohup.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW mut-sigreset-nohup.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW mut-sigreset-nohup.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3140273/x: No such fi
+LAW mut-sigreset-nohup.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW mut-sigreset-nohup.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=8
+LAW mut-sigreset-nohup.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=8 drivers=['r89a_ns_3140273', 'r91a_ns_3153207', 'r93a_in']
+LAW mut-sigreset-nohup.receipt.json S03 block order info->clock->driver PASS True
+LAW mut-sigreset-nohup.receipt.json S03 info.count +1/cycle PASS True
+LAW mut-sigreset-nohup.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW mut-sigreset-nohup.receipt.json S03 position+=duration PASS True
+LAW mut-sigreset-nohup.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW mut-sigreset-nohup.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW mut-sigreset-nohup.receipt.json S03 nsec inside monotonic window PASS True
+LAW mut-sigreset-nohup.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW mut-sigreset-nohup.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW mut-sigreset-nohup.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW mut-sigreset-nohup.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW mut-sigreset-nohup.receipt.json S08 ids == own node PASS own=181 clock=[181] driver=[181]
+LAW mut-sigreset-nohup.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW mut-sigreset-nohup.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW mut-sigreset-nohup.receipt.json S11 fclock_rows==0 PASS 0
+LAW mut-sigreset-nohup.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW mut-sigreset-nohup.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[0, 1] last=[6, 7] n=8
+LAW mut-sigreset-nohup.receipt.json S14 s_second count persists (c2>c1) PASS c1=7 c2=8 gap=1
+LAW mut-sigreset-nohup.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58764603975643
+LAW mut-sigreset-nohup.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=22 blocks=22
+LAW mut-sigreset-nohup.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=79
+LAW mut-sigreset-nohup.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.423
+LAW mut-sigreset-nohup.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870928"], "own_pactl_idx": 536870928, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW mut-sigreset-nohup.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870928, "own_idx": 536870928}
+LAW mut-sigreset-nohup.receipt.json X03 x_foot own-scoped 1-Client footprint PASS {"own_pid": 3156829, "own_clients": [248], "own_objects": [], "pwprof_before": 0, "pwprof_during": 1, "clients_added": ["pw-cli", "pw-profiler"], "nodes_delta": 0, "rc": 0}
+LAW mut-sigreset-nohup.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=5417,5417 byte_identical=True
+LAW mut-sigreset-nohup.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW mut-sigreset-nohup.receipt.json X06 x_top median WAIT/BUSY cross-witness PASS top-med 2.8/4.1us over 2 real rows vs prof 3.99/3.88us
+LAW mut-sigreset-nohup.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW mut-sigreset-nohup.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW mut-sigreset-nohup.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW mut-sigreset-nohup.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW mut-sigreset-nohup.receipt.json R02 x_top real-row provenance PASS row={"status": "R", "id": 207, "quant": 2048, "rate": 48000, "wait": "1.7us", "busy": "1.7us", "wait_us": 1.7, "busy_us": 1.7} real_rows=2 transient=1
+LAW mut-sigreset-nohup.receipt.json R03 g_hup bounded at sig point FAIL rc=-9 wall=9.034 bytes=512000 alive=True
+LAW mut-sigreset-nohup.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 0, "pwprof_during": 1, "clients_added": ["pw-cli", "pw-profiler"], "nodes_delta": 0, "own_clients": [248]}
+LAW mut-sigreset-nohup.receipt.json R05 no undeclared xw leg keys PASS []
+LAW r89v1.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW r89v1.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW r89v1.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW r89v1.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW r89v1.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3016599': 0, 'r89a_ns2_3016599': 0}
+LAW r89v1.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3016599': True, 'r89a_ns2_3016599': True}
+LAW r89v1.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW r89v1.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v1.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW r89v1.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW r89v1.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3016599': 0}
+LAW r89v1.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3016599': True}
+LAW r89v1.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW r89v1.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v1.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW r89v1.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW r89v1.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3016599': 0, 'r89a_nsb_3016599': 0}
+LAW r89v1.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3016599': True, 'r89a_nsb_3016599': True}
+LAW r89v1.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW r89v1.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v1.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW r89v1.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3031302 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured']
+LAW r89v1.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3016599': 0}
+LAW r89v1.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3016599': True}
+LAW r89v1.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW r89v1.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW r89v1.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.073 drivers=['r89a_ns2_3016599', 'r89a_ns_3016599', 'r92a_dev_in_3002023']
+LAW r89v1.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.041 hist=[['r89a_ns2_3016599', 1], ['r89a_ns_3016599', 1], ['r92a_dev_in_3002023', 2]]
+LAW r89v1.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW r89v1.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=52 bytes=43968
+LAW r89v1.receipt.json G03b g_term flush has >=5 infos PASS n_info=52
+LAW r89v1.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=48 bytes=38996
+LAW r89v1.receipt.json G03b g_int flush has >=5 infos PASS n_info=48
+LAW r89v1.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting value: line 182 column 176 (char 36863 bytes=36864
+LAW r89v1.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Unterminated string starting at: line 223 column bytes=45056
+LAW r89v1.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Expecting property name enclosed in double quote bytes=110592
+LAW r89v1.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 53248}, {'t': 0.6, 'bytes': 114688}, {'t': 0.9, 'bytes': 159744}]
+LAW r89v1.receipt.json G05b g_blocks monotone PASS mono=True
+LAW r89v1.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW r89v1.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW r89v1.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW r89v1.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v1.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v1.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW r89v1.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW r89v1.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=132
+LAW r89v1.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.064
+LAW r89v1.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.031
+LAW r89v1.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.041
+LAW r89v1.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=131 alive=True
+LAW r89v1.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=154 alive=True
+LAW r89v1.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=168 alive=True
+LAW r89v1.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=131 alive=True
+LAW r89v1.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=131 alive=True
+LAW r89v1.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=132 alive=True
+LAW r89v1.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=179 alive=True
+LAW r89v1.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW r89v1.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.201
+LAW r89v1.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW r89v1.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW r89v1.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW r89v1.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=37844
+LAW r89v1.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=77824 rows=66 wall=2.017
+LAW r89v1.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=77824
+LAW r89v1.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW r89v1.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW r89v1.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4751
+LAW r89v1.receipt.json O10 o_dash literal filename PASS rc=0 dash=7039
+LAW r89v1.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW r89v1.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW r89v1.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW r89v1.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3016599/x: No such fi
+LAW r89v1.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW r89v1.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=39
+LAW r89v1.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=39 drivers=['r89a_ns_3016599', 'r92a_dev_out_3002023']
+LAW r89v1.receipt.json S03 block order info->clock->driver PASS True
+LAW r89v1.receipt.json S03 info.count +1/cycle PASS True
+LAW r89v1.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW r89v1.receipt.json S03 position+=duration PASS True
+LAW r89v1.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW r89v1.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW r89v1.receipt.json S03 nsec inside monotonic window PASS True
+LAW r89v1.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW r89v1.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW r89v1.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW r89v1.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW r89v1.receipt.json S08 ids == own node PASS own=73 clock=[73] driver=[73]
+LAW r89v1.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW r89v1.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW r89v1.receipt.json S11 fclock_rows==0 PASS 0
+LAW r89v1.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW r89v1.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[0, 1] last=[37, 38] n=39
+LAW r89v1.receipt.json S14 s_second count persists (c2>c1) PASS c1=38 c2=39 gap=1
+LAW r89v1.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58442249103923
+LAW r89v1.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW r89v1.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=74
+LAW r89v1.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.415
+LAW r89v1.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870918"], "own_pactl_idx": 536870918, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW r89v1.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870918, "own_idx": 536870918}
+LAW r89v1.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3031302, "pwprof_before": 0, "pwprof_during": 0, "nodes_delta": 0}
+LAW r89v1.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=9839,9839 byte_identical=True
+LAW r89v1.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW r89v1.receipt.json X06 x_top median WAIT/BUSY cross-witness PASS top-med 3.1/3.7us over 1 real rows vs prof 6.54/3.15us
+LAW r89v1.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW r89v1.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW r89v1.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW r89v1.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW r89v1.receipt.json R02 x_top real-row provenance PASS row={"status": "R", "id": 256, "quant": 2048, "rate": 48000, "wait": "3.1us", "busy": "3.7us", "wait_us": 3.1, "busy_us": 3.7} real_rows=1 transient=2
+LAW r89v1.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.817 bytes=45056 alive=True
+LAW r89v1.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 0, "pwprof_during": 0, "clients_added": [], "nodes_delta": 0, "own_clients": []}
+LAW r89v1.receipt.json R05 no undeclared xw leg keys PASS []
+LAW r89v2.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW r89v2.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW r89v2.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW r89v2.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW r89v2.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3031878': 0, 'r89a_ns2_3031878': 0}
+LAW r89v2.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3031878': True, 'r89a_ns2_3031878': True}
+LAW r89v2.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW r89v2.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v2.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW r89v2.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW r89v2.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3031878': 0}
+LAW r89v2.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3031878': True}
+LAW r89v2.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW r89v2.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v2.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW r89v2.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW r89v2.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3031878': 0, 'r89a_nsb_3031878': 0}
+LAW r89v2.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3031878': True, 'r89a_nsb_3031878': True}
+LAW r89v2.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW r89v2.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v2.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW r89v2.receipt.json C03 pwprof_xw_r89_probe coverage_blocked PASS []
+LAW r89v2.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3031878': 0}
+LAW r89v2.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3031878': True}
+LAW r89v2.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW r89v2.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW r89v2.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.154 drivers=['r89a_ns2_3031878', 'r89a_ns_3031878']
+LAW r89v2.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.081 hist=[['r89a_ns2_3031878', 2], ['r89a_ns_3031878', 2]]
+LAW r89v2.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW r89v2.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=47 bytes=38234
+LAW r89v2.receipt.json G03b g_term flush has >=5 infos PASS n_info=47
+LAW r89v2.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=55 bytes=53503
+LAW r89v2.receipt.json G03b g_int flush has >=5 infos PASS n_info=55
+LAW r89v2.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting value: line 586 column 26 (char 122879 bytes=122880
+LAW r89v2.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Expecting ',' delimiter: line 162 column 28 (cha bytes=32768
+LAW r89v2.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Unterminated string starting at: line 142 column bytes=28672
+LAW r89v2.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 8192}, {'t': 0.6, 'bytes': 20480}, {'t': 0.9, 'bytes': 32768}]
+LAW r89v2.receipt.json G05b g_blocks monotone PASS mono=True
+LAW r89v2.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW r89v2.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW r89v2.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW r89v2.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v2.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v2.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW r89v2.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW r89v2.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=99
+LAW r89v2.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.071
+LAW r89v2.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.041
+LAW r89v2.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.041
+LAW r89v2.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=83 alive=True
+LAW r89v2.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=76 alive=True
+LAW r89v2.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=165 alive=True
+LAW r89v2.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=263 alive=True
+LAW r89v2.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=256 alive=True
+LAW r89v2.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=190 alive=True
+LAW r89v2.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=177 alive=True
+LAW r89v2.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW r89v2.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.201
+LAW r89v2.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW r89v2.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW r89v2.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW r89v2.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=33453
+LAW r89v2.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=65536 rows=60 wall=2.014
+LAW r89v2.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=65536
+LAW r89v2.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW r89v2.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW r89v2.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4244
+LAW r89v2.receipt.json O10 o_dash literal filename PASS rc=0 dash=6630
+LAW r89v2.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW r89v2.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW r89v2.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW r89v2.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3031878/x: No such fi
+LAW r89v2.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW r89v2.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=12
+LAW r89v2.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=12 drivers=['Dummy-Driver', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.29', 'r89a_ns_3031878']
+LAW r89v2.receipt.json S03 block order info->clock->driver PASS True
+LAW r89v2.receipt.json S03 info.count +1/cycle PASS True
+LAW r89v2.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW r89v2.receipt.json S03 position+=duration PASS True
+LAW r89v2.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW r89v2.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW r89v2.receipt.json S03 nsec inside monotonic window PASS True
+LAW r89v2.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW r89v2.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW r89v2.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW r89v2.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW r89v2.receipt.json S08 ids == own node PASS own=91 clock=[91] driver=[91]
+LAW r89v2.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW r89v2.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW r89v2.receipt.json S11 fclock_rows==0 PASS 0
+LAW r89v2.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW r89v2.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[0, 1] last=[10, 11] n=12
+LAW r89v2.receipt.json S14 s_second count persists (c2>c1) PASS c1=11 c2=12 gap=1
+LAW r89v2.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58474862562848
+LAW r89v2.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW r89v2.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=45
+LAW r89v2.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.418
+LAW r89v2.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870930"], "own_pactl_idx": 536870930, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW r89v2.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870930, "own_idx": 536870930}
+LAW r89v2.receipt.json X03 x_foot own-scoped 1-Client footprint PASS {"own_pid": 3046221, "own_clients": [80], "own_objects": [], "pwprof_before": 0, "pwprof_during": 1, "clients_added": ["pw-profiler"], "nodes_delta": 0, "rc": 0}
+LAW r89v2.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=6499,6499 byte_identical=True
+LAW r89v2.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW r89v2.receipt.json X06 x_top median WAIT/BUSY cross-witness PASS top-med 3.1/2.7us over 1 real rows vs prof 6.51/5.37us
+LAW r89v2.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW r89v2.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW r89v2.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW r89v2.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW r89v2.receipt.json R02 x_top real-row provenance PASS row={"status": "R", "id": 134, "quant": 2048, "rate": 48000, "wait": "3.1us", "busy": "2.7us", "wait_us": 3.1, "busy_us": 2.7} real_rows=1 transient=2
+LAW r89v2.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.816 bytes=32768 alive=True
+LAW r89v2.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 0, "pwprof_during": 1, "clients_added": ["pw-profiler"], "nodes_delta": 0, "own_clients": [80]}
+LAW r89v2.receipt.json R05 no undeclared xw leg keys PASS []
+LAW r89v3.receipt.json C01 four entries present PASS 27/12/4/9 legs
+LAW r89v3.receipt.json C01b leg census PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9} total=52
+LAW r89v3.receipt.json C02 pwprof_gate_r89_probe failures PASS []
+LAW r89v3.receipt.json C03 pwprof_gate_r89_probe coverage_blocked PASS []
+LAW r89v3.receipt.json C04 pwprof_gate_r89_probe unloads rc0 PASS {'r89a_ns_3046610': 0, 'r89a_ns2_3046610': 0}
+LAW r89v3.receipt.json C05 pwprof_gate_r89_probe sinks_gone PASS {'r89a_ns_3046610': True, 'r89a_ns2_3046610': True}
+LAW r89v3.receipt.json C06 pwprof_gate_r89_probe own_nodes_after PASS []
+LAW r89v3.receipt.json C07 pwprof_gate_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v3.receipt.json C02 pwprof_oart_r89_probe failures PASS []
+LAW r89v3.receipt.json C03 pwprof_oart_r89_probe coverage_blocked PASS []
+LAW r89v3.receipt.json C04 pwprof_oart_r89_probe unloads rc0 PASS {'r89a_ns_3046610': 0}
+LAW r89v3.receipt.json C05 pwprof_oart_r89_probe sinks_gone PASS {'r89a_ns_3046610': True}
+LAW r89v3.receipt.json C06 pwprof_oart_r89_probe own_nodes_after PASS []
+LAW r89v3.receipt.json C07 pwprof_oart_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v3.receipt.json C02 pwprof_schema_r89_probe failures PASS []
+LAW r89v3.receipt.json C03 pwprof_schema_r89_probe coverage_blocked PASS []
+LAW r89v3.receipt.json C04 pwprof_schema_r89_probe unloads rc0 PASS {'r89a_ns_3046610': 0, 'r89a_nsb_3046610': 0}
+LAW r89v3.receipt.json C05 pwprof_schema_r89_probe sinks_gone PASS {'r89a_ns_3046610': True, 'r89a_nsb_3046610': True}
+LAW r89v3.receipt.json C06 pwprof_schema_r89_probe own_nodes_after PASS []
+LAW r89v3.receipt.json C07 pwprof_schema_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-play': '/usr/bin/pw-play', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl'}
+LAW r89v3.receipt.json C02 pwprof_xw_r89_probe failures PASS []
+LAW r89v3.receipt.json C03 pwprof_xw_r89_probe coverage_blocked BLOCKED ['x_foot: no Client carrying own pid 3057777 inside the window (connect slower than the bracket, foreign pw-profiler clients present: 0) — unmeasured']
+LAW r89v3.receipt.json C04 pwprof_xw_r89_probe unloads rc0 PASS {'r89a_ns_3046610': 0}
+LAW r89v3.receipt.json C05 pwprof_xw_r89_probe sinks_gone PASS {'r89a_ns_3046610': True}
+LAW r89v3.receipt.json C06 pwprof_xw_r89_probe own_nodes_after PASS []
+LAW r89v3.receipt.json C07 pwprof_xw_r89_probe tools PASS {'pw-profiler': '/usr/bin/pw-profiler', 'pw-top': '/usr/bin/pw-top', 'pw-cli': '/usr/bin/pw-cli', 'pw-dump': '/usr/bin/pw-dump', 'pactl': '/usr/bin/pactl', 'pw-play': '/usr/bin/pw-play'}
+LAW r89v3.receipt.json G01 g_own exact-N rc0/term/8 PASS rc=0 term=True n_info=8 wall=0.063 drivers=['Dummy-Driver', 'r89a_ns2_3046610', 'r89a_ns_3046610']
+LAW r89v3.receipt.json G02 g_two summed-N rc0/4/wall<=1.5 PASS rc=0 n_info=4 wall=0.03 hist=[['Dummy-Driver', 2], ['r89a_ns2_3046610', 1], ['r89a_ns_3046610', 1]]
+LAW r89v3.receipt.json G02b g_two hist sums to N PASS sum=4
+LAW r89v3.receipt.json G03 g_term graceful rc0+term PASS rc=0 term=True n_info=168 bytes=168008
+LAW r89v3.receipt.json G03b g_term flush has >=5 infos PASS n_info=168
+LAW r89v3.receipt.json G03 g_int graceful rc0+term PASS rc=0 term=True n_info=177 bytes=169049
+LAW r89v3.receipt.json G03b g_int flush has >=5 infos PASS n_info=177
+LAW r89v3.receipt.json G04 g_kill truncating rc-9+invalid PASS rc=-9 parse=Expecting property name enclosed in double quote bytes=159744
+LAW r89v3.receipt.json G04 g_hup truncating rc-1+invalid PASS rc=-1 parse=Unterminated string starting at: line 6901 colum bytes=1392640
+LAW r89v3.receipt.json G04 g_usr1 truncating rc-10+invalid PASS rc=-10 parse=Unterminated string starting at: line 25289 colu bytes=5115904
+LAW r89v3.receipt.json G05 g_blocks exact-4096 multiples PASS [{'t': 0.3, 'bytes': 90112}, {'t': 0.6, 'bytes': 184320}, {'t': 0.9, 'bytes': 278528}]
+LAW r89v3.receipt.json G05b g_blocks monotone PASS mono=True
+LAW r89v3.receipt.json G06 g_o_ignored -o ignored under -J PASS created=False rc=0 n_info=4
+LAW r89v3.receipt.json G07 g_extra positional ignored rc0/4 PASS rc=0 n_info=4
+LAW r89v3.receipt.json G08 g_remote_empty -r '' default rc0/4 PASS rc=0 n_info=4
+LAW r89v3.receipt.json G09 g_remote_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v3.receipt.json G09 g_env_bogus rc255 connect_down PASS rc=255 class=pwprof_connect_down hit=Can't connect: Host is down
+LAW r89v3.receipt.json G10 g_opt_bogus rc255 opt class PASS rc=255 class=pwprof_opt hit=unrecognized option '--r89bogus'
+LAW r89v3.receipt.json G11 g_version rc0 libpipewire PASS rc=0 stdout=pw-profiler
+Compiled with libpipewire 1.6.8
+Linked with libp
+LAW r89v3.receipt.json G12 g_lastwins -n4 -n0 unbounded PASS alive=True rc=0 n_info=367
+LAW r89v3.receipt.json G13 n_007 strtol->7 bounded PASS class=bounded rc=0 n_info=7 wall=0.051
+LAW r89v3.receipt.json G13 n_plus3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.031
+LAW r89v3.receipt.json G13 n_space3 strtol->3 bounded PASS class=bounded rc=0 n_info=3 wall=0.022
+LAW r89v3.receipt.json G14 n_2_5 unbounded PASS class=unbounded rc=0 n_info=184 alive=True
+LAW r89v3.receipt.json G14 n_3abc unbounded PASS class=unbounded rc=0 n_info=228 alive=True
+LAW r89v3.receipt.json G14 n_1e1 unbounded PASS class=unbounded rc=0 n_info=192 alive=True
+LAW r89v3.receipt.json G14 n_huge unbounded PASS class=unbounded rc=0 n_info=213 alive=True
+LAW r89v3.receipt.json G14 n_neg unbounded PASS class=unbounded rc=0 n_info=199 alive=True
+LAW r89v3.receipt.json G14 n_abc unbounded PASS class=unbounded rc=0 n_info=167 alive=True
+LAW r89v3.receipt.json G14 n_zero unbounded PASS class=unbounded rc=0 n_info=130 alive=True
+LAW r89v3.receipt.json G15 parser partition (no 'other') PASS {'n_007': 'bounded', 'n_plus3': 'bounded', 'n_space3': 'bounded', 'n_2_5': 'unbounded', 'n_3abc': 'unbounded', 'n_1e1': 'unbounded', 'n_huge': 'unbounded', 'n_neg': 'unbounded', 'n_abc': 'unbounded', 'n_zero': 'unbounded'}
+LAW r89v3.receipt.json O01 o_live rc0 10 rows PASS rc=0 rows=10 wall=0.406
+LAW r89v3.receipt.json O02 o_live aux set superset PASS ['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'art', 'generate_timings.sh']
+LAW r89v3.receipt.json O03 o_live Logging-to stderr PASS Logging to art
+
+dumping scripts for 1 followers
+
+LAW r89v3.receipt.json O04 o_live generate_timings mentioned PASS 
+LAW r89v3.receipt.json O05 o_int graceful rc0 bytes>0 PASS rc=0 bytes=32377
+LAW r89v3.receipt.json O06 o_kill SIGKILL leaves content PASS rc=-9 bytes=49152 rows=46 wall=2.018
+LAW r89v3.receipt.json O06b o_kill size %4096==0 (incremental blocks) PASS bytes=49152
+LAW r89v3.receipt.json O07 o_exist truncating open PASS marker_gone=True
+LAW r89v3.receipt.json O08 o_eager created inside run PASS {'t': 0.01, 'bytes': 0}
+LAW r89v3.receipt.json O09 o_default profiler.log>0 PASS rc=0 profiler.log=4319
+LAW r89v3.receipt.json O10 o_dash literal filename PASS rc=0 dash=6477
+LAW r89v3.receipt.json O11 o_devnull aux in cwd PASS rc=0 aux=['Timing1.plot', 'Timing2.plot', 'Timing3.plot', 'Timing4.plot', 'Timing5.plot', 'Timings.html', 'generate_timings.sh']
+LAW r89v3.receipt.json O12 o_dir rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file .: Is a directory
+LAW r89v3.receipt.json O12 o_empty rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file : No such file or directory
+LAW r89v3.receipt.json O12 o_proc rc255 cant_open PASS rc=255 class=pwprof_cant_open hit=Can't open file /proc/r89a_3046610/x: No such fi
+LAW r89v3.receipt.json S01 s_window rc0 clean parse PASS rc=0 parse=None
+LAW r89v3.receipt.json S02 s_window own_blocks>=3 PASS own_blocks=11
+LAW r89v3.receipt.json S02b s_window own-driver fraction recorded PASS own_blocks=11 drivers=['Dummy-Driver', 'r89a_ns_3046610', 'r91a_ns_3038085']
+LAW r89v3.receipt.json S03 block order info->clock->driver PASS True
+LAW r89v3.receipt.json S03 info.count +1/cycle PASS True
+LAW r89v3.receipt.json S03 next_nsec-nsec==duration/rate PASS True
+LAW r89v3.receipt.json S03 position+=duration PASS True
+LAW r89v3.receipt.json S03 prev<=signal<=awake<=finish PASS True
+LAW r89v3.receipt.json S03 prev[k+1]==signal[k] PASS True
+LAW r89v3.receipt.json S03 nsec inside monotonic window PASS True
+LAW r89v3.receipt.json S04 transports==['stopped'] PASS ['stopped']
+LAW r89v3.receipt.json S05 diffs==[1.0] PASS [1.0]
+LAW r89v3.receipt.json S06 driver_statuses==['finished'] PASS ['finished']
+LAW r89v3.receipt.json S07 driver_latencies==['0/0'] PASS ['0/0']
+LAW r89v3.receipt.json S08 ids == own node PASS own=170 clock=[170] driver=[170]
+LAW r89v3.receipt.json S09 clock_names==['clock.system.monotonic'] PASS ['clock.system.monotonic']
+LAW r89v3.receipt.json S10 xruns==[0] and xrun_counts==[0] PASS xruns=[0] xrun_counts=[0]
+LAW r89v3.receipt.json S11 fclock_rows==0 PASS 0
+LAW r89v3.receipt.json S12 nsb_blocks==0 (follower-less sink) PASS 0
+LAW r89v3.receipt.json S13 own counts contiguous +1 (window-local) PASS first=[0, 1] last=[9, 10] n=11
+LAW r89v3.receipt.json S14 s_second count persists (c2>c1) PASS c1=10 c2=11 gap=1
+LAW r89v3.receipt.json S15 s_suspend kill hook fired PASS kill_mono=58508468794013
+LAW r89v3.receipt.json S16 s_suspend own_pre_kill>0 PASS pre=21 blocks=21
+LAW r89v3.receipt.json S17 s_suspend own_after_kill==0 PASS after=0 foreign_after=81
+LAW r89v3.receipt.json S18 s_suspend graceful TERM rc0 PASS rc=0 wall=2.43
+LAW r89v3.receipt.json X01 x_modreg pactl-vs-native mismatch PASS {"pactl_added": ["536870916"], "own_pactl_idx": 536870916, "own_in_dump_modules": false, "own_node_in_dump": true, "dump_module_count": 13}
+LAW r89v3.receipt.json X02 x_blank guarded parse survives PASS {"blank_lines": [28], "own_found": 536870916, "own_idx": 536870916}
+LAW r89v3.receipt.json X03 x_foot own-scoped 1-Client footprint BLOCKED own client not enumerated in the 0.35s bracket — named coverage class {"own_pid": 3057777, "pwprof_before": 0, "pwprof_during": 0, "nodes_delta": -1}
+LAW r89v3.receipt.json X04 x_conc clean captures PASS rc=0,0 bytes=8536,8536 byte_identical=True
+LAW r89v3.receipt.json X05 x_conc broadcast dict-identity PASS shared=8
+LAW r89v3.receipt.json X06 x_top median WAIT/BUSY cross-witness PASS top-med 3.5/4.7us over 2 real rows vs prof 10.19/7.57us
+LAW r89v3.receipt.json X07 x_profobj introspection refusal PASS ids=[5] bad=[]
+LAW r89v3.receipt.json X08 x_sigpipe closed reader rc-13 PASS {"rc": -13}
+LAW r89v3.receipt.json X09 x_devfull silent write error PASS {"rc": 0, "stderr_bytes": 0}
+LAW r89v3.receipt.json R01 leg census == 27/12/4/9 (52) PASS {'pwprof_gate_r89_probe': 27, 'pwprof_oart_r89_probe': 12, 'pwprof_schema_r89_probe': 4, 'pwprof_xw_r89_probe': 9}
+LAW r89v3.receipt.json R02 x_top real-row provenance PASS row={"status": "R", "id": 61, "quant": 2048, "rate": 48000, "wait": "3.5us", "busy": "4.7us", "wait_us": 3.5, "busy_us": 4.7} real_rows=2 transient=1
+LAW r89v3.receipt.json R03 g_hup bounded at sig point PASS rc=-1 wall=0.888 bytes=1392640 alive=True
+LAW r89v3.receipt.json R04 x_foot globals recorded-but-unarmed PASS {"pwprof_before": 0, "pwprof_during": 0, "clients_added": ["pw-cat"], "nodes_delta": -1, "own_clients": []}
+LAW r89v3.receipt.json R05 no undeclared xw leg keys PASS []
+SUMMARY receipts=10 PASS=1083 FAIL=3 BLOCKED=24 TOTAL=1110 | base106=1060 pass=1039 fail=2 blocked=19 | R-add=50 pass=44 fail=1 blocked=5

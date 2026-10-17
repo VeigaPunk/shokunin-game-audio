@@ -1,0 +1,114 @@
+{
+ "P1": {
+  "probe": "P1 writerless-fifo TERM ladder (3 x 1.0 s)",
+  "prediction_landed": {
+   "paplay": "dies on TERM1 -> -15 (sigterm_immune False)",
+   "aplay": "sigterm_immune True, -9 (landed field)",
+   "ffplay": "TERM1 -> graceful 123 (sigterm_immune False)"
+  },
+  "cells": [
+   {
+    "cell": "paplay",
+    "argv": "paplay <fifo>",
+    "env_extra": {},
+    "term_waits_s": 1.0,
+    "blocked": true,
+    "wchan": "wait_for_partner",
+    "term_ladder": [
+     {
+      "term_n": 1,
+      "died": true,
+      "exit_code": -15,
+      "after_s": 0.001
+     }
+    ],
+    "survived_term1": false,
+    "killed_by_term2": false,
+    "survived_all_terms": false,
+    "exit_code": -15
+   },
+   {
+    "cell": "aplay -D null",
+    "argv": "aplay -D null <fifo>",
+    "env_extra": {},
+    "term_waits_s": 1.0,
+    "blocked": true,
+    "wchan": "wait_for_partner",
+    "term_ladder": [
+     {
+      "term_n": 1,
+      "died": false,
+      "alive_after_s": 1.0
+     },
+     {
+      "term_n": 2,
+      "died": true,
+      "exit_code": -15,
+      "after_s": 0.001
+     }
+    ],
+    "stderr_tail": "Aborted by signal Terminated...",
+    "survived_term1": true,
+    "killed_by_term2": true,
+    "survived_all_terms": false,
+    "exit_code": -15
+   },
+   {
+    "cell": "ffplay",
+    "argv": "ffplay -nodisp -autoexit -v info <fifo>",
+    "env_extra": {
+     "SDL_AUDIODRIVER": "dummy"
+    },
+    "term_waits_s": 1.0,
+    "blocked": true,
+    "wchan": "hrtimer_nanosleep",
+    "term_ladder": [
+     {
+      "term_n": 1,
+      "died": true,
+      "exit_code": 123,
+      "after_s": 0.003
+     }
+    ],
+    "stderr_tail": "    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B",
+    "survived_term1": false,
+    "killed_by_term2": false,
+    "survived_all_terms": false,
+    "exit_code": 123
+   },
+   {
+    "cell": "pw-cat -p (contrast)",
+    "argv": "pw-cat -p <fifo>",
+    "env_extra": {},
+    "term_waits_s": 1.0,
+    "blocked": true,
+    "wchan": "wait_for_partner",
+    "term_ladder": [
+     {
+      "term_n": 1,
+      "died": false,
+      "alive_after_s": 1.0
+     },
+     {
+      "term_n": 2,
+      "died": false,
+      "alive_after_s": 1.0
+     },
+     {
+      "term_n": 3,
+      "died": false,
+      "alive_after_s": 1.0
+     },
+     {
+      "escalation": "killpg SIGKILL",
+      "exit_code": -9
+     }
+    ],
+    "survived_term1": true,
+    "killed_by_term2": false,
+    "survived_all_terms": true,
+    "exit_code": -9
+   }
+  ]
+ }
+}

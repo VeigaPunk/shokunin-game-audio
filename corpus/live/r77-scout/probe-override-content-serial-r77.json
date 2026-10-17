@@ -1,0 +1,233 @@
+{
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "legs": {
+  "A1 play->SPDIF   cap prop|SPDIF_sink": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "A1 play->SPDIF   cap prop|SPDIF_sink",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "A2 play->SPDIF   cap prop|SPEAKER_sink": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "A2 play->SPDIF   cap prop|SPEAKER_sink",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "A3 play->SPDIF   cap prop|GARBAGE": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "no_such_node_xyz",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "A3 play->SPDIF   cap prop|GARBAGE",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "B1 play->SPEAKER cap prop|SPDIF_sink": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "B1 play->SPEAKER cap prop|SPDIF_sink",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "B2 play->SPEAKER cap prop|SPEAKER_sink": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "B2 play->SPEAKER cap prop|SPEAKER_sink",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "C1 play->SPEAKER cap parec SPDIF.monitor (no prop)": {
+   "cap": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_rc": 0,
+   "carries_tone": false,
+   "leg": "C1 play->SPEAKER cap parec SPDIF.monitor (no prop)",
+   "nonzero_frac": 0.0,
+   "payload": 65536,
+   "peak": 0,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "C2 play->SPDIF   cap parec SPDIF.monitor (no prop)": {
+   "cap": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_rc": 0,
+   "carries_tone": true,
+   "leg": "C2 play->SPDIF   cap parec SPDIF.monitor (no prop)",
+   "nonzero_frac": 0.8798,
+   "payload": 65536,
+   "peak": 16384,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "D1 play->SPEAKER cap pwrecord --target SPEAKER_sink (no prop)": {
+   "cap": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "D1 play->SPEAKER cap pwrecord --target SPEAKER_sink (no prop)",
+   "nonzero_frac": null,
+   "payload": 0,
+   "peak": null,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/tone.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  },
+  "E0 no play       cap prop|SPDIF_sink (silence baseline)": {
+   "cap": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "E0 no play       cap prop|SPDIF_sink (silence baseline)",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0,
+   "play": [
+    "pw-cat",
+    "-p",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o/silence.wav",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "play_err": "",
+   "play_rc": 0
+  }
+ },
+ "probe": "override-content-serial-r77",
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-93s_3_2o"
+}

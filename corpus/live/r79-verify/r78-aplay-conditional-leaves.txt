@@ -1,0 +1,13 @@
+# r78 aplay arm: params_cap.params leaf presence is environment-conditional
+# (verifier, from the r78 regression comparison vs the baseline anchor)
+#
+# anchor 20261015T060513912020Z (clean tree, 06:05Z):
+#   params_play.params keys = 8 (dump parsed)
+#   params_cap.params  keys = 0  -> arecord exit 1 stderr:
+#     "arecord: main:850: audio open error: Device or resource busy"
+#   => the envelope assertion (pp.channels_max vs cp.channels_max) was SKIPPED
+# mine 20261015T081421351571Z (r79 tree, 08:14Z):
+#   params_cap.params keys = 8, arecord exit 1 stderr = "HW Params of device ..."
+# author 20261015T055701745739Z (r78 round):
+#   params_cap.params keys = 8
+# code path measure_audio.py:7932-8000, outside every r79 diff hunk.

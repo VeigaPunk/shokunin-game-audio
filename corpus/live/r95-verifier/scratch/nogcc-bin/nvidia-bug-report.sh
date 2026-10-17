@@ -1,0 +1,1 @@
+/usr/bin/nvidia-bug-report.sh

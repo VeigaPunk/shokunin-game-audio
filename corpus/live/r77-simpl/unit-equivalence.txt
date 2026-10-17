@@ -1,0 +1,39 @@
+== S3 `_capture_r77_link_producers` (synthetic pw-link -l tables)
+  OK  link_producers[empty]
+      -> producers=[] nodes=[] ambiguous=False
+  OK  link_producers[one-sided]
+      -> producers=['alsa_output.sinkA:monitor_FL'] nodes=['alsa_output.sinkA'] ambiguous=False
+  OK  link_producers[both+ghost]
+      -> producers=['alsa_output.ghost:monitor_FL', 'alsa_output.sinkA:monitor_FL', 'alsa_output.sinkA:monitor_FR'] nodes=['alsa_output.ghost', 'alsa_output.sinkA'] ambiguous=True
+  OK  link_producers[foreign node]
+      -> producers=['alsa_output.sinkA:monitor_FL', 'alsa_output.sinkA:monitor_FR'] nodes=['alsa_output.sinkA'] ambiguous=False
+== S3 `_capture_r77_link_delta` (synthetic per-port maps)
+  OK  link_delta
+== `_capture_r77_frame_class` (whole verdict matrix)
+  OK  frame_class(None, 10, 20)
+  OK  frame_class(0, 0, 0)
+  OK  frame_class(5, 0, 0)
+  OK  frame_class(10, 10, 20)
+  OK  frame_class(20, 10, 20)
+  OK  frame_class(30, 10, 20)
+  OK  frame_class(7, 10, 20)
+  OK  frame_class(10, 10, 10)
+== S8e reader rate fallback
+  OK  readers(rate=44100)
+  OK  readers(rate=None)
+== `_capture_r77_rate_buckets` / `_capture_r77_reader_honesty`
+  OK  rate_buckets
+  OK  reader_honesty
+== S4 `_capture_r77_reap` (real child: exits / ignores TERM)
+  OK  reap[exits] (wall class)
+      -> pristine 0.0s / candidate 0.0s
+  OK  reap[ignores-term] (wall class)
+      -> pristine 1.0s / candidate 1.0s
+== S10 `_capture_r77_loss_leaf`: the ONE deliberate difference
+      pristine  data_actual_zero=False
+      candidate data_actual_zero=None
+  OK  only declared key differs
+  OK  real-wav leaf
+      real wav data_actual_zero=False
+
+UNIT EQUIVALENCE: PASS (all changed helpers, synthetic inputs; the only difference is S10's declared unknown-state leaf)

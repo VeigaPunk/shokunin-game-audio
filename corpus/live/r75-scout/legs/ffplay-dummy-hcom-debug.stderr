@@ -1,0 +1,59 @@
+ffplay version n9.0.1 Copyright (c) 2003-2026 the FFmpeg developers
+  built with gcc 16 (GCC)
+  configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-lcms2 --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan --disable-decoder=magicyuv
+  libavutil      61.  1.101 / 61.  1.101
+  libavcodec     63.  1.101 / 63.  1.101
+  libavformat    63.  1.101 / 63.  1.101
+  libavdevice    63.  1.101 / 63.  1.101
+  libavfilter    12.  1.101 / 12.  1.101
+  libswscale     10.  1.101 / 10.  1.101
+  libswresample   7.  1.101 /  7.  1.101
+    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B [AVFormatContext @ 0x7f52a40009c0] Opening 'corpus/live/round-66/pair_dec_hcom.wav' for reading
+[file @ 0x7f52a4001300] Setting default whitelist 'file,crypto,data'
+[hcom @ 0x7f52a40009c0] Format hcom probed with size=2048 and score=100
+[hcom @ 0x7f52a40009c0] Before avformat_find_stream_info() pos: 160 bytes read:600 seeks:0 nb_streams:1
+[hcom @ 0x7f52a40009c0] After avformat_find_stream_info() pos: 600 bytes read:600 seeks:0 frames:1
+[2KInput #0, hcom, from 'corpus/live/round-66/pair_dec_hcom.wav':
+  Duration: N/A, bitrate: N/A
+  Stream #0:0, 1, 1/22050: Audio: hcom, 22050 Hz, 1 channels, u8
+detected 32 logical cores
+[ffplay_abuffer @ 0x7f52a4007080] Setting 'sample_rate' to value '22050'
+[ffplay_abuffer @ 0x7f52a4007080] Setting 'sample_fmt' to value 'u8'
+[ffplay_abuffer @ 0x7f52a4007080] Setting 'time_base' to value '1/22050'
+[ffplay_abuffer @ 0x7f52a4007080] Setting 'channel_layout' to value '1 channels'
+[ffplay_abuffer @ 0x7f52a4007080] tb:1/22050 samplefmt:u8 samplerate:22050 chlayout:1 channels
+Filter 'ffplay_abuffer' formats:
+  out[0] 'default':
+    Channel layouts: 1 channels
+    Sample rates: 22050
+    Sample formats: u8
+Filter 'ffplay_abuffersink' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: s16
+[ffplay_abuffersink @ 0x7f52a4007500] auto-inserting filter 'auto_aresample_0' between the filter 'ffplay_abuffer' and the filter 'ffplay_abuffersink'
+[AVFilterGraph @ 0x7f52a4004540] query_formats: 2 queried, 6 merged, 7 already done, 0 delayed
+[auto_aresample_0 @ 0x7f52a4007c40] [SWR @ 0x7f52a4011680] Using s16p internally between filters
+[auto_aresample_0 @ 0x7f52a4007c40] ch:1 chl:1 channels fmt:u8 r:22050Hz -> ch:1 chl:1 channels fmt:s16 r:22050Hz
+Audio frame changed from rate:22050 ch:1 fmt:u8 layout:1 channels serial:-1 to rate:22050 ch:1 fmt:u8 layout:1 channels serial:1
+[ffplay_abuffer @ 0x7f52a4007500] Setting 'sample_rate' to value '22050'
+[ffplay_abuffer @ 0x7f52a4007500] Setting 'sample_fmt' to value 'u8'
+[ffplay_abuffer @ 0x7f52a4007500] Setting 'time_base' to value '1/22050'
+[ffplay_abuffer @ 0x7f52a4007500] Setting 'channel_layout' to value '1 channels'
+[ffplay_abuffer @ 0x7f52a4007500] tb:1/22050 samplefmt:u8 samplerate:22050 chlayout:1 channels
+Filter 'ffplay_abuffer' formats:
+  out[0] 'default':
+    Channel layouts: 1 channels
+    Sample rates: 22050
+    Sample formats: u8
+Filter 'ffplay_abuffersink' formats:
+  in[0] 'default':
+    Channel layouts: mono
+    Sample rates: 22050
+    Sample formats: s16
+[ffplay_abuffersink @ 0x7f52a4007080] auto-inserting filter 'auto_aresample_0' between the filter 'ffplay_abuffer' and the filter 'ffplay_abuffersink'
+[AVFilterGraph @ 0x7f52a4004540] query_formats: 2 queried, 6 merged, 6 already done, 0 delayed
+[auto_aresample_0 @ 0x7f52a4007180] [SWR @ 0x7f5290002d00] Using s16p internally between filters
+[auto_aresample_0 @ 0x7f52a4007180] ch:1 chl:1 channels fmt:u8 r:22050Hz -> ch:1 chl:mono fmt:s16 r:22050Hz
+[AVIOContext @ 0x7f52a4009500] Statistics: 600 bytes read, 0 seeks

@@ -1,0 +1,631 @@
+diff --git c/corpus/fixtures/measure_audio.py w/corpus/fixtures/measure_audio.py
+index 9b6e836..a5ad365 100755
+--- c/corpus/fixtures/measure_audio.py
++++ w/corpus/fixtures/measure_audio.py
+@@ -985,13 +985,17 @@ def sndfile_transport_entry(member, path):
+ #   conditional on a reachable daemon: the pw_context_connect gate fires
+ #   BEFORE the input is opened (ops entry records both sides; frontier
+ #   measured instant rc=1 "Host is down" with an empty runtime dir).
+-#   mpv detects by content via libavformat on every transport but forks
+-#   DECODE on the stream's seekable bit: a seekable hcom stream gets a
+-#   "refresh seek to 0" the hcom demuxer refuses EPERM (zero data -> rc=2),
+-#   while the same bytes on a non-seekable stream skip the refresh and
+-#   decode (rc=0) — the INVERSE polarity of the decoder {named} axis.
+-# Claim under test: consumer verdicts partition by mandatory-seek vs
+-# stream-consume polarity — opposite of the decoder axis.
++#   mpv detects by content via libavformat on every transport and, on
++#   exactly one tracked member, forks at the demux/seek layer: a seekable
++#   hcom stream gets lavf's "refresh seek to 0" which fails with a
++#   SYNTHETIC EPERM (hcom has no .read_seek; EPERM = strerror(-1) — strace
++#   shows zero failing syscalls) after stream probing drained the whole
++#   member (zero data -> rc=2), while the same bytes on a non-seekable
++#   stream skip the refresh and decode (rc=0). r73 adjudicated: the
++#   briefed class-polarity partition was FALSIFIED corpus-wide — two
++#   member-local forks only (mpv x dec_hcom seekable-bit wound; pw-cat x
++#   .snd name-axis via its libsndfile decode layer); the other 7 members
++#   are transport-invariant on both consumers.
+ CONSUMER_R73_MEMBERS = TRANSPORT_R72_MEMBERS   # same canonical 9
+ CONSUMER_R73_TIMEOUT_S = 15
+ # Pacing member: a base SPEC artifact (4.0 s programme) — long enough for
+@@ -1423,6 +1427,535 @@ def consumer_ops_entry():
+     return entry
+ 
+ 
++# r74 lavf NO-SEEK demuxer sweep (xconnector X2): mpv's inverted
++# seekability fork as a function of the demuxer's seek capability.
++# Source-derived rule under test (measured member-locally on hcom in r73):
++# a lavf demuxer forks mpv on the seekable bit IFF (1) the content probe
++# detects it, (2) the demuxer carries no .read_seek/.read_timestamp,
++# (3) no AVFMT_GENERIC_INDEX, and (4) the codec is not pcm_*+block_align
++# (mpv's PCM seek hack rescues wav-family streams). Member family:
++#   predicted FORK (all 4 clauses): iss (IMA_ADPCM_Sound), apc (CRYO_APC),
++#     acm (Interplay ACM; AVFMT_NO_BYTE_SEEK|NOTIMESTAMPS flags)
++#   predicted INVARIANT: adx (GENERIC_INDEX index-seek rescue), aifc
++#     (aiff's own read_seek), dec_act (wav: read_seek + the pcm seek hack
++#     — already tracked under round-66)
++# Two wound shapes are measured, not asserted: a member small enough that
++# stream probing drains it shows the hcom shape ({file,redirected_fd}=rc2
++# EPERM vs {stdin_pipe,fifo}=rc0); a MULTI-PACKET member keeps unread
++# packets behind the probe window, so the seekable arm survives the
++# failed refresh seek and plays a truncated head (rc=0 + EPERM) — the
++# acm row shows the same ENOSYS-class wound at small size. Members are
++# byte-deterministic under corpus/live/round-74 (hand-built headers for
++# the demuxer-only formats; ffmpeg lavfi synth where a muxer exists) so
++# the arm is self-sufficient on a fresh tree.
++LAVF_R74_DIR = "round-74"
++LAVF_R74_EXTENT_TIMEOUT_S = 20
++LAVF_R74_START_S = 2.0
++# Position-fork cell pacer: the r73 4.0 s wav (seekable demuxer + pcm
++# seek hack) — `mpv --start=2` predicts {file,redirected_fd} -> ~2.0 s of
++# decoded output vs {stdin_pipe,fifo} -> ~4.0 s.
++LAVF_R74_PACER = CONSUMER_R73_PACER
++LAVF_R74_ZERO_SINK_WAIT_S = 6.0
++LAVF_R74_MEMBERS = {
++    "lavf_iss":       (LAVF_R74_DIR, "lavf_iss.iss", "fork"),
++    "lavf_apc":       (LAVF_R74_DIR, "lavf_apc.apc", "fork"),
++    "lavf_acm":       (LAVF_R74_DIR, "lavf_acm.acm", "fork"),
++    "lavf_iss_multi": (LAVF_R74_DIR, "lavf_iss_multi.iss", "fork"),
++    "lavf_adx":       (LAVF_R74_DIR, "lavf_adx.adx", "invariant"),
++    "lavf_aifc":      (LAVF_R74_DIR, "lavf_aifc.aifc", "invariant"),
++    "dec_act":        (*TRANSPORT_R67_MEMBERS["dec_act"], "invariant"),
++}
++
++
++def build_lavf_r74_members():
++    """Byte-deterministic member generation for the r74 sweep.
++
++    Header layouts are taken from the n9.0.1 demuxer sources
++    (libavformat/iss.c, apc.c, acm.c — all probe-detected, no
++    read_seek/read_timestamp, no AVFMT_GENERIC_INDEX, non-pcm codecs):
++      iss "IMA_ADPCM_Sound" + 9 space-separated ASCII tokens, then
++          packets of exactly packet_size bytes (iss_read_packet fails on
++          a short read, so the payload is always whole packets);
++      apc "CRYO_APC"+"1.20" | u32LE samples | u32LE rate | 8B extradata |
++          u32LE stereo flag | payload (demuxer reads <=4096 B/packet);
++      acm BE magic 0x97280301 inside the demuxer's 14-B extradata |
++          u32LE samples | u16LE channels | u16LE rate | u16LE subformat
++          (0x7700 -> level 0, rows 0x77 -> 119-byte all-zero frames that
++          interplayacm decodes to silence — payload is 20 frames).
++    adx/aifc come from `ffmpeg -f lavfi` synth (muxers exist for both);
++    generation is idempotent — every run rewrites identical bytes. A
++    missing ffmpeg or a failed synth is recorded as a per-member blockage
++    (the hand-built members still run); a fabricated member is never
++    substituted."""
++    out = ROOT / "live" / LAVF_R74_DIR
++    out.mkdir(parents=True, exist_ok=True)
++    made, blocked = {}, {}
++
++    def _iss(packet_size, n_packets, name):
++        tokens = ["IMA_ADPCM_Sound", str(packet_size), "0",
++                  str(packet_size * n_packets), "0", "0", "1", "0", "1",
++                  str(packet_size * n_packets)]
++        path = out / name
++        path.write_bytes(" ".join(tokens).encode()
++                         + b" " + b"\x00" * (packet_size * n_packets))
++
++    _iss(256, 2, "lavf_iss.iss")            # drains during probe -> rc2 wound
++    _iss(512, 256, "lavf_iss_multi.iss")    # > probe window -> truncated head
++    made["lavf_iss"] = "iss"
++    made["lavf_iss_multi"] = "iss"
++
++    # apc: 32-byte header then adpcm_ima_apc payload.
++    apc = (b"CRYO_APC" + b"1.20"
++           + (5120).to_bytes(4, "little") + (44100).to_bytes(4, "little")
++           + b"\x00" * 8 + (0).to_bytes(4, "little") + b"\x00" * 5120)
++    (out / "lavf_apc.apc").write_bytes(apc)
++    made["lavf_apc"] = "apc"
++
++    # acm: 14-byte header (extradata INCLUDES the BE magic) + 20x119B
++    # zero frames that interplayacm decodes to silence.
++    acm = (bytes((0x97, 0x28, 0x03, 0x01))
++           + (400).to_bytes(4, "little")
++           + (1).to_bytes(2, "little") + (44100).to_bytes(2, "little")
++           + (0x7700).to_bytes(2, "little") + b"\x00" * 2380)
++    (out / "lavf_acm.acm").write_bytes(acm)
++    made["lavf_acm"] = "acm"
++
++    for member, name, codec in (
++            ("lavf_adx", "lavf_adx.adx", "adpcm_adx"),
++            ("lavf_aifc", "lavf_aifc.aifc", "pcm_s16be")):
++        try:
++            subprocess.run(
++                ["ffmpeg", "-hide_banner", "-y", "-f", "lavfi", "-i",
++                 "sine=frequency=440:sample_rate=44100:duration=0.5",
++                 "-ac", "1", "-c:a", codec, str(out / name)],
++                check=True, capture_output=True, timeout=30)
++            made[member] = name.rsplit(".", 1)[1]
++        except (subprocess.CalledProcessError, subprocess.TimeoutExpired,
++                OSError) as exc:
++            blocked[member] = f"ffmpeg lavfi synth -> {name} failed: {exc}"
++    made["dec_act"] = "preexisting tracked member (round-66 wav)"
++    return {"directory": f"live/{LAVF_R74_DIR}", "generated": made,
++            "blocked": blocked}
++
++
++def mpv_extent_leg(transport, path, data, hold_s, extra_opts=()):
++    """mpv leg whose AO is `pcm` instead of `null`: the decoded stream
++    lands in a scratch wav and its byte length is the PCM-extent pin —
++    the observable for the head-truncation (lavf_iss_multi) and position
++    (--start=N on a seeking wav) wound shapes, where the fork is in HOW
++    MUCH audio plays, not the verdict signature. ao=pcm needs no device
++    (the r73 ao=null pin guards the pipewire/dead-runtime class only);
++    log parsing mirrors mpv_leg's field set."""
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=LAVF_R74_EXTENT_TIMEOUT_S, **kw)
++            return proc.returncode, None
++        except subprocess.TimeoutExpired:
++            return None, (f"blocked: no verdict within "
++                          f"{LAVF_R74_EXTENT_TIMEOUT_S} s")
++
++    with tempfile.TemporaryDirectory(prefix="mpv-r74-") as tmp:
++        log = Path(tmp) / "mpv.log"
++        pcm = Path(tmp) / "out.wav"
++        argv = ["mpv", "--no-config", "--vo=null", "--ao=pcm",
++                f"--ao-pcm-file={pcm}", "--audio-display=no",
++                "--really-quiet", f"--log-file={log}", *extra_opts]
++        if transport == "file":
++            code, blocked = run(argv + [str(path)])
++            label = str(path.relative_to(ROOT))
++        elif transport == "stdin_pipe":
++            code, blocked = run(argv + ["-"], input=data)
++            label = "-"
++        elif transport == "redirected_fd":
++            with path.open("rb") as fh:
++                code, blocked = run(argv + ["-"], stdin=fh)
++            label = "-"
++        else:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                code, blocked = run(argv + [str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++            label = path.name
++        text = log.read_text(errors="replace") if log.exists() else ""
++        pcm_bytes = pcm.stat().st_size if pcm.exists() else None
++        duration = None
++        if pcm.exists():
++            try:
++                probe = subprocess.run(
++                    ["ffprobe", "-v", "error", "-show_entries",
++                     "format=duration", "-of", "default=nw=1:nk=1",
++                     str(pcm)], capture_output=True, timeout=10)
++                duration = float(probe.stdout.decode().strip())
++            except (subprocess.TimeoutExpired, ValueError, OSError):
++                duration = None
++    detected = re.search(r"Detected file format: (\S+) \(libavformat\)", text)
++    probe_tag = re.search(r"Found '([^']+)' at score=(\d+)", text)
++    seekfail = re.search(r"Seek failed \(([^)]*)\)", text)
++    verdict = re.search(r"finished playback, (.*)$", text, re.M)
++    reason = (verdict.group(1).strip() if verdict else
++              "Failed to recognize file format."
++              if "Failed to recognize file format" in text else None)
++    leg = {"input": label, "exit_code": code,
++           "lavf_detected": detected.group(1) if detected else None,
++           "lavf_probe": probe_tag.group(1) if probe_tag else None,
++           "lavf_score": int(probe_tag.group(2)) if probe_tag else None,
++           "stream_not_seekable": "Stream is not seekable" in text,
++           "refresh_seek": "refresh seek to" in text,
++           "seek_failed": seekfail.group(1) if seekfail else None,
++           "mpv_verdict": reason,
++           "pcm_out_bytes": pcm_bytes,
++           "pcm_out_duration_s": duration,
++           "error": blocked or (None if code == 0 else
++                                reason or f"exit {code}")}
++    return leg
++
++
++def lavf_transport_entry(member, path):
++    """r74 receipt entry: mpv's seekable-bit verdict matrix on one member —
++    the mpv consumer half of consumer_transport_entry (same leg + group
++    machinery). `predicted` names the claim cell the member exercises:
++    "fork" members must split the matrix on the seekable bit, "invariant"
++    members must not. Failures pin deviations from the declared cell, so
++    an absent predicted fork and an invariant-member fork are both
++    measured falsifications."""
++    prediction = LAVF_R74_MEMBERS[member][2]
++    hold_s = fifo_writer_hold_s()
++    data = path.read_bytes()
++    arms = {t: mpv_leg(t, path, data, hold_s)
++            for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
++    for t, named, seekable in TRANSPORT_R67_ARMS:
++        arms[t]["named"], arms[t]["seekable"] = named, seekable
++    groups = []
++    for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
++        a = arms[t]
++        sig = (a["exit_code"], a["lavf_detected"], a["seek_failed"])
++        for g in groups:
++            if g[0] == sig:
++                g[1].append(t)
++                break
++        else:
++            groups.append((sig, [t]))
++    # Critic r74-F: fork kind annotation — a partition on seek_failed
++    # alone (same exit_code, same decoded output) is a WOUND-level fork
++    # (the lavf refresh-seek fires but the demuxer survives it: acm's
++    # AVFMT_NOGENSEARCH early-return), NOT an output-level fork. The
++    # output fork is the rc partition (iss/apc small members, hcom);
++    # truncation is carried by the extent legs for multi-packet members.
++    rcs = {g[0][0] for g in groups}
++    if len(groups) <= 1:
++        fork_kind = None
++    elif len(rcs) > 1:
++        fork_kind = "output_rc"
++    else:
++        fork_kind = "wound"
++    entry = {"path": str(path.relative_to(ROOT)), "pair_member": member,
++             "predicted": prediction,
++             "fork_kind": fork_kind,
++             "transport_axis": arms,
++             "transport_protocol": {
++                 "arm_timeout_s": CONSUMER_R73_TIMEOUT_S,
++                 "fifo_writer_hold_s": hold_s,
++                 "fifo_feed": "one-shot write then writer lingers",
++                 "mpv": ("mpv --no-config --vo=null --ao=null "
++                         "--audio-display=no --really-quiet "
++                         "--log-file=<tmp> <in|->")},
++             "transport_verdict_groups": [
++                 {"transports": ts, "verdict": list(sig)}
++                 for sig, ts in groups],
++             "transport_fork": len(groups) > 1,
++             "failures": []}
++    if entry["transport_fork"] != (prediction == "fork"):
++        if prediction == "fork":
++            entry["failures"].append(
++                "lavf: predicted seekable-bit fork absent "
++                f"({len(groups)} verdict group(s))")
++        else:
++            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
++                               for sig, ts in groups)
++            entry["failures"].append(
++                "lavf: predicted-invariant member forked across "
++                f"transports ({desc})")
++    if member == "lavf_iss_multi":
++        # Wound-shape corollary cell: a multi-packet member on a no-seek
++        # demuxer predicts head-truncation (seekable arm plays fewer PCM
++        # bytes than the stream arm) rather than the rc2 wound.
++        entry["extent_legs"] = {
++            t: mpv_extent_leg(t, path, data, hold_s)
++            for t in ("file", "fifo_path")}
++        f_leg, p_leg = (entry["extent_legs"]["file"],
++                        entry["extent_legs"]["fifo_path"])
++        f_b, p_b = f_leg.get("pcm_out_bytes"), p_leg.get("pcm_out_bytes")
++        entry["head_truncation"] = {
++            "file_pcm_out_bytes": f_b,
++            "file_pcm_out_duration_s": f_leg.get("pcm_out_duration_s"),
++            "fifo_pcm_out_bytes": p_b,
++            "fifo_pcm_out_duration_s": p_leg.get("pcm_out_duration_s"),
++            "delta_bytes": (p_b - f_b) if None not in (f_b, p_b) else None,
++            "truncated": (p_b > f_b) if None not in (f_b, p_b) else None}
++        if entry["head_truncation"]["truncated"] is not True:
++            entry["failures"].append(
++                "lavf: multi-packet no-seek member did not show "
++                "head-truncation on the seekable arm")
++        elif entry["fork_kind"] == "wound":
++            # Reviewer r74-F1: a measured head-truncation outranks the
++            # verdict-group wound label — the real wound shape here is
++            # lost PCM bytes at rc=0, not just a failed refresh seek.
++            entry["fork_kind"] = "truncation"
++    return entry
++
++
++def lavf_startpos_entry(path):
++    """r74 --start=N position-fork cell: on a SEEKING member (wav — own
++    read_seek + the pcm seek hack), `mpv --start=2` seeks the seekable
++    arms to 2.0 s while the non-seekable arms cannot seek and play from
++    0 — the fork is positional, so the pin is decoded extent (ao=pcm
++    output duration), never bare rc."""
++    hold_s = fifo_writer_hold_s()
++    data = path.read_bytes()
++    legs = {t: mpv_extent_leg(t, path, data, hold_s,
++                              extra_opts=(f"--start={LAVF_R74_START_S}",))
++            for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
++    for t, named, seekable in TRANSPORT_R67_ARMS:
++        legs[t]["named"], legs[t]["seekable"] = named, seekable
++    durations = {t: legs[t].get("pcm_out_duration_s")
++                 for t in ("file", "stdin_pipe", "redirected_fd",
++                           "fifo_path")}
++    seekable = [durations[t] for t in ("file", "redirected_fd")]
++    streaming = [durations[t] for t in ("stdin_pipe", "fifo_path")]
++    complete = None not in (*seekable, *streaming)
++    entry = {"path": str(path.relative_to(ROOT)),
++             "cell": f"mpv --start={LAVF_R74_START_S} on a seeking wav member",
++             "predicted": ("seekable arms play from --start (extent ~= "
++                           "duration - start); non-seekable arms play "
++                           "from 0 (extent ~= duration)"),
++             "extent_legs": legs,
++             "pcm_out_duration_s": durations,
++             "position_fork": (bool(complete) and
++                               max(seekable) < min(streaming) - 1.0
++                               if complete else None),
++             "failures": []}
++    if entry["position_fork"] is not True:
++        entry["failures"].append(
++            "lavf: --start position fork absent (seekable arms did not "
++            "start at the seek point vs the streaming arms)")
++    return entry
++
++
++def pwcat_ops2_entry():
++    """r74 ops-2 — the pw-cat hang taxonomy pinned as SEPARATE classes plus
++    the raw-bypass name-axis kill:
++    (a) writerless-fifo open-block: SIGTERM-IMMUNE in wait_for_partner;
++        r73 pinned the block itself — this cell adds the measured
++        kill-escalation (TERM ignored for a beat, KILL -> rc -9).
++    (b) `--target 0` unlinked-stream hang: TERM-TERMINABLE — a bounded
++        NEGATIVE ops case (GNU `timeout -s TERM` -> rc 124 at the bound;
++        r73-boundary measured the same class).
++    (c) `-a/--raw` bypass: no libsndfile decode layer -> the r73 name
++        axis dies — identical .snd-family bytes through raw mode accept
++        under EVERY fifo name (.wav/.bin included).
++    (d) zero-sink private daemon: socket reachable but no Audio/Sink —
++        pw-cat hangs on stream link, KILL-bounded (cheap: a private
++        PIPEWIRE_RUNTIME_DIR; recorded as a blockage when the private
++        daemon cannot be spawned or its socket never appears)."""
++    failures = []
++    entry = {"probe": "pw-cat ops-2 — hang taxonomy + raw name-axis kill"}
++    directory, filename = TRANSPORT_R67_MEMBERS["dec_hcom"]
++    member_path = ROOT / "live" / directory / filename
++    # (a) writerless fifo: SIGTERM is ignored inside the open block (the
++    # r73 cell); the escalation to SIGKILL lands the measured rc -9.
++    with tempfile.TemporaryDirectory(prefix="pwcat-r74-") as tmp:
++        fifo = Path(tmp) / "nowriter.wav"
++        os.mkfifo(fifo)
++        proc = subprocess.Popen(["pw-cat", "-p", str(fifo)],
++                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                start_new_session=True)
++        try:
++            proc.wait(timeout=CONSUMER_R73_NOWRITER_WAIT_S)
++            entry["fifo_no_writer_escalation"] = {
++                "blocked": False, "exit_code": proc.returncode,
++                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
++        except subprocess.TimeoutExpired:
++            try:
++                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
++            except OSError:
++                wchan = None
++            proc.send_signal(signal.SIGTERM)
++            try:
++                proc.wait(timeout=1.0)
++                term_immune = False
++            except subprocess.TimeoutExpired:
++                term_immune = True
++            if term_immune:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++            entry["fifo_no_writer_escalation"] = {
++                "blocked": True, "wchan": wchan,
++                "sigterm_wait_s": 1.0, "sigterm_immune": term_immune,
++                "exit_code": proc.returncode,
++                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
++        finally:
++            if proc.poll() is None:
++                os.killpg(proc.pid, signal.SIGKILL)
++                proc.wait()
++            reap_fifo_orphans(fifo)
++    esc = entry["fifo_no_writer_escalation"]
++    if not (esc.get("blocked") and esc.get("sigterm_immune")
++            and esc.get("exit_code") == -signal.SIGKILL):
++        failures.append("consumer: writerless-fifo block deviated from "
++                        "the measured escalation (blocked, SIGTERM-immune, "
++                        "SIGKILL -> rc -9)")
++    # (b) --target 0: the stream object exists but nothing links it — the
++    # hang is real yet TERM-TERMINABLE (contrast (a)'s TERM immunity).
++    # GNU `timeout -s TERM` converts the kill to rc 124 at the bound;
++    # the subprocess timeout is only the backstop for a TERM-immune
++    # surprise.
++    t0 = time.monotonic()
++    try:
++        proc = subprocess.run(
++            ["timeout", "-s", "TERM", "4", "pw-cat", "-p", "--target", "0",
++             str(member_path)], capture_output=True,
++            timeout=CONSUMER_R73_TIMEOUT_S)
++        entry["target0_unlinked_stream"] = {
++            "argv": "timeout -s TERM 4 pw-cat -p --target 0 <member>",
++            "bound_s": 4, "signal": "TERM",
++            "exit_code": proc.returncode,
++            "wall_s": round(time.monotonic() - t0, 3),
++            "term_terminable": proc.returncode == 124,
++            "stderr_tail": _consumer_tail(
++                proc.stderr.decode(errors="replace"), str(member_path))}
++    except subprocess.TimeoutExpired:
++        entry["target0_unlinked_stream"] = {
++            "argv": "timeout -s TERM 4 pw-cat -p --target 0 <member>",
++            "bound_s": 4, "signal": "TERM", "exit_code": None,
++            "wall_s": round(time.monotonic() - t0, 3),
++            "term_terminable": False, "blocked_past_wrapper": True}
++    t0e = entry["target0_unlinked_stream"]
++    if not (t0e.get("exit_code") == 124 and t0e.get("term_terminable")):
++        failures.append("consumer: --target 0 hang deviated from the "
++                        "TERM-terminable class (timeout -s TERM -> rc 124)")
++    # (c) --raw bypass kills the name axis: pw-cat -a/--raw skips the
++    # libsndfile decode layer entirely, so identical no-magic bytes accept
++    # under EVERY fifo name — the .snd/.wav/.bin fork of ops-1's
++    # pwcat_name_axis collapses to rc=0 without the decode layer.
++    snd_dir, snd_name = TRANSPORT_R69_MEMBERS["extsuffix_snd"]
++    snd_data = (ROOT / "live" / snd_dir / snd_name).read_bytes()
++    name_hold_s = fifo_writer_hold_s()
++    with tempfile.TemporaryDirectory(prefix="pwcat-r74-") as tmp:
++        raw_axis = {}
++        for fname in ("axis.snd", "axis.wav", "axis.bin"):
++            fifo = Path(tmp) / fname
++            os.mkfifo(fifo)
++            writer = threading.Thread(
++                target=fifo_feed, args=(fifo, snd_data, name_hold_s),
++                daemon=True)
++            writer.start()
++            try:
++                proc = subprocess.run(["pw-cat", "-p", "--raw", str(fifo)],
++                                      capture_output=True,
++                                      timeout=CONSUMER_R73_TIMEOUT_S)
++                se, pe = _pwcat_fields(proc.stderr.decode(errors="replace"))
++                raw_axis[fname] = {"exit_code": proc.returncode,
++                                   "sndfile_error": se, "pw_error": pe}
++            except subprocess.TimeoutExpired:
++                raw_axis[fname] = {"exit_code": None, "blocked": True}
++            finally:
++                writer.join(timeout=name_hold_s + 5)
++                reap_fifo_orphans(fifo)
++        entry["pwcat_raw_name_axis"] = {
++            "member": str((ROOT / "live" / snd_dir / snd_name
++                           ).relative_to(ROOT)),
++            "mode": "pw-cat -p --raw (libsndfile decode layer bypassed)",
++            "legs": raw_axis}
++    ra = entry["pwcat_raw_name_axis"]["legs"]
++    if not all(ra.get(f, {}).get("exit_code") == 0
++               for f in ("axis.snd", "axis.wav", "axis.bin")):
++        failures.append("consumer: raw-bypass name-axis kill deviated "
++                        "(predicted rc=0 under every fifo name)")
++    # (d) zero-sink private daemon: a private pipewire in a scratch
++    # PIPEWIRE_RUNTIME_DIR exposes a socket but no Audio/Sink — pw-cat
++    # hangs on the stream link rather than erroring (r73-boundary
++    # measured the same class; teardown restores nothing — the private
++    # daemon is killed, the live daemon is never touched).
++    with tempfile.TemporaryDirectory(prefix="pwrt-r74-") as rt_dir:
++        env = {**os.environ, "PIPEWIRE_RUNTIME_DIR": rt_dir,
++               "XDG_RUNTIME_DIR": rt_dir}
++        daemon = None
++        try:
++            daemon = subprocess.Popen(
++                ["pipewire"], env=env,
++                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++            sock = Path(rt_dir) / "pipewire-0"
++            for _ in range(50):
++                if sock.exists():
++                    break
++                time.sleep(0.2)
++            if not sock.exists():
++                entry["zero_sink_daemon"] = {
++                    "attempted": True, "socket_up": False,
++                    "blockage": "private pipewire socket never appeared"}
++            else:
++                sinks = None
++                try:
++                    dump = subprocess.run(
++                        ["timeout", "-s", "KILL", "5", "pw-dump"], env=env,
++                        capture_output=True, timeout=10)
++                    if dump.returncode == 0:
++                        sinks = sum(
++                            1 for o in json.loads(
++                                dump.stdout.decode("utf-8", "replace"))
++                            if ((o.get("info") or {}).get("props") or {})
++                            .get("media.class") == "Audio/Sink")
++                except (subprocess.TimeoutExpired, OSError, ValueError):
++                    sinks = None
++                proc = subprocess.Popen(
++                    ["pw-cat", "-p", str(member_path)], env=env,
++                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                    start_new_session=True)
++                try:
++                    proc.wait(timeout=LAVF_R74_ZERO_SINK_WAIT_S)
++                    zs_leg = {"exit_code": proc.returncode,
++                              "blocked": False}
++                except subprocess.TimeoutExpired:
++                    os.killpg(proc.pid, signal.SIGKILL)
++                    proc.wait()
++                    zs_leg = {"exit_code": proc.returncode,
++                              "blocked": True}
++                finally:
++                    if proc.poll() is None:
++                        os.killpg(proc.pid, signal.SIGKILL)
++                        proc.wait()
++                entry["zero_sink_daemon"] = {
++                    "attempted": True, "socket_up": True,
++                    "audio_sink_count": sinks,
++                    "pwcat_wait_s": LAVF_R74_ZERO_SINK_WAIT_S,
++                    "pwcat": zs_leg}
++                if not zs_leg["blocked"]:
++                    failures.append("consumer: zero-sink daemon pw-cat "
++                                    "exited instead of hanging on stream "
++                                    "link")
++        except OSError as exc:
++            entry["zero_sink_daemon"] = {
++                "attempted": False,
++                "blockage": f"private pipewire spawn failed: {exc}"}
++        finally:
++            if daemon is not None:
++                daemon.terminate()
++                try:
++                    daemon.wait(timeout=5)
++                except subprocess.TimeoutExpired:
++                    daemon.kill()
++                    daemon.wait()
++    entry["failures"] = failures
++    return entry
++
++
+ def transport_entry(member, path):
+     """Receipt entry: transport axis matrix + verdict groups + fork pin."""
+     arms = transport_matrix(path)
+@@ -1575,8 +2108,9 @@ def main():
+     parser.add_argument("--probe-sndfile-transport-r72",
+                         action="store_true")
+     parser.add_argument("--probe-consumers-r73", action="store_true")
++    parser.add_argument("--probe-lavfsweep-r74", action="store_true")
+     args = parser.parse_args()
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73]) > 1:
++    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74]) > 1:
+         parser.error("choose one probe mode")
+     if args.probe_invalid:
+         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+@@ -1816,6 +2350,36 @@ def main():
+             path = ROOT / "live" / directory / filename
+             measurements[f"consumer_{member}_r73_probe"] = \
+                 consumer_transport_entry(member, path)
++    if args.probe_lavfsweep_r74:
++        # r74: lavf NO-SEEK demuxer sweep (xconnector X2) + pw-cat ops-2
++        # (X3). mpv's seekable-bit fork is predicted PER MEMBER from the
++        # demuxer's source-level seek capability: iss/apc/acm satisfy all
++        # four clauses (probe-detected, no read_seek/read_timestamp, no
++        # GENERIC_INDEX, non-pcm codec) and must fork; adx/aifc/dec_act
++        # fail clause (3)/(2)/(4) respectively and must stay invariant.
++        # New members are generated byte-deterministically under
++        # corpus/live/round-74 before the sweep so the arm is
++        # self-sufficient on a fresh tree; a generation blockage degrades
++        # to a recorded blockage, never a fabricated member.
++        gen = build_lavf_r74_members()
++        measurements["lavfsweep_generation_r74_probe"] = {
++            "probe": "lavf r74 member generation (byte-deterministic)",
++            "failures": [], **gen}
++        for member, (directory, filename, prediction) in \
++                LAVF_R74_MEMBERS.items():
++            path = ROOT / "live" / directory / filename
++            if member in gen["blocked"] or not path.exists():
++                measurements[f"lavfsweep_{member}_r74_probe"] = {
++                    "pair_member": member, "predicted": prediction,
++                    "blockage": gen["blocked"].get(
++                        member, "member absent after generation"),
++                    "failures": []}
++                continue
++            measurements[f"lavfsweep_{member}_r74_probe"] = \
++                lavf_transport_entry(member, path)
++        measurements["lavf_startpos_wav_r74_probe"] = \
++            lavf_startpos_entry(LAVF_R74_PACER)
++        measurements["consumer_pwcat_ops2_r74_probe"] = pwcat_ops2_entry()
+     if args.probe_sndfile_transport_r72:
+         # r72: THIRD DECODER (libsndfile) on the same canonical members —
+         # the 3-decoder verdict lattice. Claim under test (critic-corrected):
+@@ -2282,7 +2846,7 @@ def main():
+             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+-    mode = "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    mode = "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     receipt = {"mode": mode,
+                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+@@ -2302,7 +2866,7 @@ def main():
+                "movement_family_comparisons": movement_family_comparisons,
+                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+-    suffix = "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    suffix = "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     out = ROOT / "live" / "runs" / (stamp + suffix)
+     out.mkdir(parents=True)
+     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

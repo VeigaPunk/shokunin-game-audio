@@ -1,0 +1,11 @@
+flush-block witness (gcd of payload sizes of killed/partial files, per consumer):
+  ar-hw      n=10 payloads=[0, 24000, 264000] gcd=24000
+  ar-null    n=10 payloads=[173940000, 194952000, 200760000, 214044000, 234420000, 288000000] gcd=12000
+  pa         n=10 payloads=[0] gcd=0
+  pw         n=10 payloads=[4096, 8192, 12288, 278528, 286720, 290816] gcd=4096
+
+partial-file sizes (all consumers, incl. ffmpeg):
+  sevrep1 [('sev-mid-pw', 278572), ('sev-mid-pa', 44), ('sev-mid-ar-null', 288000044), ('sev-mid-ar-hw', 264044), ('sev-mid-ff-pulse', 262144), ('sev-mid-ff-alsa-null', 2621440), ('sev-mid-ff-alsa-hw', 262144), ('sev-early-pw', 12332), ('sev-early-pa', 44), ('sev-early-ar-null', 234420044), ('sev-early-ar-hw', 44), ('sev-early-ff-pulse', 0), ('sev-early-ff-alsa-null', 0), ('sev-early-ff-alsa-hw', 0)]
+  sevrep2 [('sev-mid-pw', 286764), ('sev-mid-pa', 44), ('sev-mid-ar-null', 288000044), ('sev-mid-ar-hw', 264044), ('sev-mid-ff-pulse', 262144), ('sev-mid-ff-alsa-null', 3407872), ('sev-mid-ff-alsa-hw', 262144), ('sev-early-pw', 4140), ('sev-early-pa', 44), ('sev-early-ar-null', 173940044), ('sev-early-ar-hw', 44), ('sev-early-ff-pulse', 0), ('sev-early-ff-alsa-null', 0), ('sev-early-ff-alsa-hw', 0)]
+  sevrep3 [('sev-mid-pw', 290860), ('sev-mid-pa', 44), ('sev-mid-ar-null', 288000044), ('sev-mid-ar-hw', 264044), ('sev-mid-ff-pulse', 262144), ('sev-mid-ff-alsa-null', 2883584), ('sev-mid-ff-alsa-hw', 262144), ('sev-early-pw', 12332), ('sev-early-pa', 44), ('sev-early-ar-null', 214044044), ('sev-early-ar-hw', 24044), ('sev-early-ff-pulse', 0), ('sev-early-ff-alsa-null', 0), ('sev-early-ff-alsa-hw', 0)]
+  sevrep4 [('sev-mid-pw', 290860), ('sev-mid-pa', 44), ('sev-mid-ar-null', 288000044), ('sev-mid-ar-hw', 264044), ('sev-mid-ff-pulse', 262144), ('sev-mid-ff-alsa-null', 3145728), ('sev-mid-ff-alsa-hw', 262144), ('sev-early-pw', 4140), ('sev-early-pa', 44), ('sev-early-ar-null', 200760044), ('sev-early-ar-hw', 44), ('sev-early-ff-pulse', 0), ('sev-early-ff-alsa-null', 0), ('sev-early-ff-alsa-hw', 0)]

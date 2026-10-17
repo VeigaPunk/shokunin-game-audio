@@ -1,0 +1,287 @@
+{
+ "default_source_restored": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+ "legs": {
+  "baseline_ffmpeg_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "r77_scout_probe_sink.monitor",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 489678,
+   "data_actual": 489600,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": null,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "leg": "baseline_ffmpeg_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 255,
+   "riff_size_field": "finalized"
+  },
+  "baseline_parec_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "parec",
+    "-d",
+    "r77_scout_probe_sink.monitor",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 65580,
+   "data_actual": 65536,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": null,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "leg": "baseline_parec_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 0,
+   "riff_size_field": "finalized"
+  },
+  "baseline_pwrecord_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "r77_scout_probe_sink",
+    "<out>"
+   ],
+   "bytes": 421932,
+   "data_actual": 421888,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-2difs16p/hp_pwr.wav",
+   "event": null,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "leg": "baseline_pwrecord_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "riff_size_field": "finalized"
+  },
+  "ffmpeg_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "r77_scout_probe_sink.monitor",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 489678,
+   "data_actual": 489600,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "leg": "ffmpeg_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 255,
+   "riff_size_field": "finalized"
+  },
+  "parec_default_source_move": {
+   "alive_after_event": true,
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 65580,
+   "data_actual": 65536,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "leg": "parec_default_source_move",
+   "out_kind": "riff_wav",
+   "rc": 0,
+   "riff_size_field": "finalized"
+  },
+  "parec_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "parec",
+    "-d",
+    "r77_scout_probe_sink.monitor",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 65580,
+   "data_actual": 65536,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "leg": "parec_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 0,
+   "riff_size_field": "finalized"
+  },
+  "parec_move_source_output": {
+   "bytes": 44,
+   "err_tail": "",
+   "leg": "parec_move_source_output",
+   "move_rc": 0,
+   "move_stderr": "",
+   "out_kind": "riff_wav_empty",
+   "rc": 0,
+   "source_output_idx": [
+    "12951",
+    "12960",
+    "12969"
+   ]
+  },
+  "parec_mute_source": {
+   "alive_after_event": true,
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 65580,
+   "data_actual": 65536,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "leg": "parec_mute_source",
+   "out_kind": "riff_wav",
+   "rc": 0,
+   "riff_size_field": "finalized"
+  },
+  "parec_suspend_source": {
+   "alive_after_event": true,
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 65580,
+   "data_actual": 65536,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "leg": "parec_suspend_source",
+   "out_kind": "riff_wav",
+   "rc": 0,
+   "riff_size_field": "finalized"
+  },
+  "pwrecord_mon_unload": {
+   "alive_after_event": true,
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "r77_scout_probe_sink",
+    "<out>"
+   ],
+   "bytes": 421932,
+   "data_actual": 421888,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_class": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-2difs16p/hp_pwr.wav",
+   "event": 0,
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "leg": "pwrecord_mon_unload",
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "riff_size_field": "finalized"
+  }
+ },
+ "modules": {
+  "load": {
+   "module_id": 536870916,
+   "stderr": ""
+  },
+  "reload_for_ffmpeg_mon_unload": 536870916,
+  "reload_for_parec_mon_unload": 536870916,
+  "reload_for_pwrecord_mon_unload": 536870916
+ },
+ "probe": "hotplug-r77",
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-2difs16p"
+}

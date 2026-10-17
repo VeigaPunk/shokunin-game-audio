@@ -1,0 +1,16 @@
+=== 1. function params never referenced in body ===
+
+=== 2. locals assigned but never loaded ===
+  wpstate_store_r90_probe            {'argv_y': [36812], 'val_row': [36535], '_': [36535, 36608, 36608, 36733, 36733, 36746, 36746]}
+  wplink_r90_entry                   {'_g': [37202, 37211, 37219, 37269, 37275, 37284, 37294, 37306, 37245, 37255], 'argv': [37440]}
+  main                               {'_r84_family_lock': [38193], '_r86_family_lock': [38226], '_r87_family_lock': [38252], '_r88_family_lock': [38274], '_r94_family_lock': [38302], '_r90_family_lock': [38374], '_r89_family_lock': [38400], '_r85_family_lock': [38422], '_r82_family_lock': [38450]}
+
+=== 3. statements after a bare return/raise in the same body ===
+Traceback (most recent call last):
+  File "/tmp/r90-dead.py", line 57, in <module>
+    if region(node) and hasattr(node, "body"):
+       ~~~~~~^^^^^^
+  File "/tmp/r90-dead.py", line 15, in region
+    return start <= node.lineno <= end
+                    ^^^^^^^^^^^
+AttributeError: 'Module' object has no attribute 'lineno'

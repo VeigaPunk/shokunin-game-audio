@@ -1,0 +1,2548 @@
+{
+ "group": "g2-kill-mid-capture",
+ "host_start": {
+  "t": 1792052370.291,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 19,
+  "foreign_r7x_nodes": [
+   "r79lb_224789_cm1_mono_c1_m_tap",
+   "r79lb_229236_c03_garbage_tap",
+   "r79lb_ns_a_224789",
+   "r79lb_ns_a_229236",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b2_229236",
+   "r79lb_ns_b_224789",
+   "r79lb_ns_b_229236",
+   "r79lb_ns_b_4041488"
+  ],
+  "foreign_procs": [
+   "224785 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224788 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224789 python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79",
+   "229235 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "229236 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "242886 pw-record -P stream.capture.sink=true -P node.name=r79lb_229236_c03_garbage_tap --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-play-vcn5xyhf/tap_c03_garbage.wav",
+   "243400 pw-record -P stream.capture.sink=true -P node.name=r79lb_224789_cm1_mono_c1_m_tap --target r79lb_ns_b_224789 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-cm-9ostflhq/tap_cm1_mono_c1_m.wav",
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log"
+  ]
+ },
+ "sinks": [
+  {
+   "name": "r79b_243406_ns_a",
+   "module_id": 536870927,
+   "rc": 0,
+   "err": ""
+  },
+  {
+   "name": "r79b_243406_ns_b",
+   "module_id": 536870917,
+   "rc": 0,
+   "err": ""
+  }
+ ],
+ "legs": [
+  {
+   "leg": "g2a-kill",
+   "name": "r79b_243406_g2a",
+   "wait_s": 0.014,
+   "nodes_seen": [
+    "input.r79b_243406_g2a",
+    "output.r79b_243406_g2a"
+   ],
+   "pre": {
+    "sample": {
+     "input": {
+      "present": true,
+      "id": 151,
+      "serial": 78298,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_243406_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 167,
+      "serial": 78297,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_243406_ns_b",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_243406_ns_a:monitor_FL",
+      "r79b_243406_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_243406_g2a_tapout:input_FL",
+      "r79b_243406_g2a_tapout:input_FR",
+      "r79b_243406_ns_b:playback_FL",
+      "r79b_243406_ns_b:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_243406_g2a:output_FL -> r79b_243406_g2a_tapout:input_FL",
+      "output.r79b_243406_g2a:output_FL -> r79b_243406_ns_b:playback_FL",
+      "output.r79b_243406_g2a:output_FR -> r79b_243406_g2a_tapout:input_FR",
+      "output.r79b_243406_g2a:output_FR -> r79b_243406_ns_b:playback_FR",
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_a:monitor_FL -> input.r79b_243406_g2a:input_FL",
+      "r79b_243406_ns_a:monitor_FR -> input.r79b_243406_g2a:input_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_243406_ns_a": true,
+      "r79b_243406_ns_b": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "tap_b_node": {
+     "present": true,
+     "id": 145,
+     "serial": 78314,
+     "class": "Stream/Input/Audio",
+     "state": "running",
+     "target_object": "r79b_243406_ns_b",
+     "autoconnect": true,
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "tap_out_node": {
+     "present": true,
+     "id": 119,
+     "serial": 78312,
+     "class": "Stream/Input/Audio",
+     "state": "running",
+     "target_object": "output.r79b_243406_g2a",
+     "autoconnect": true,
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "tap_out_peers": [
+     "output.r79b_243406_g2a:output_FL",
+     "output.r79b_243406_g2a:output_FR"
+    ],
+    "clients": {
+     "144": "pw-loopback",
+     "93": "pw-loopback",
+     "107": "pw-loopback"
+    }
+   },
+   "kill": {
+    "signal": "SIGKILL",
+    "t": 152494.271
+   },
+   "post": [
+    {
+     "dt": 0.1,
+     "nodes": [],
+     "links": [
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "tap_b_state": "running",
+     "tap_out_state": "running",
+     "tap_out_present": true,
+     "links_touching_taps": []
+    },
+    {
+     "dt": 0.3,
+     "nodes": [],
+     "links": [
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "tap_b_state": "running",
+     "tap_out_state": "running",
+     "tap_out_present": true,
+     "links_touching_taps": []
+    },
+    {
+     "dt": 0.6,
+     "nodes": [],
+     "links": [
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "tap_b_state": "running",
+     "tap_out_state": "running",
+     "tap_out_present": true,
+     "links_touching_taps": []
+    },
+    {
+     "dt": 1.2,
+     "nodes": [],
+     "links": [
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "tap_b_state": "running",
+     "tap_out_state": "running",
+     "tap_out_present": true,
+     "links_touching_taps": []
+    },
+    {
+     "dt": 2.0,
+     "nodes": [],
+     "links": [
+      "r79b_243406_g2a_tone:output_FL -> r79b_243406_ns_a:playback_FL",
+      "r79b_243406_g2a_tone:output_FR -> r79b_243406_ns_a:playback_FR",
+      "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2a_tapb:input_FL",
+      "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2a_tapb:input_FR"
+     ],
+     "tap_b_state": "running",
+     "tap_out_state": "running",
+     "tap_out_present": true,
+     "links_touching_taps": []
+    }
+   ],
+   "lb_rc": -9,
+   "tone": {
+    "wall_s": 3.0,
+    "rc": -9,
+    "stderr": ""
+   },
+   "tap_b": {
+    "wall_s": 0.0,
+    "rc": 1,
+    "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2a_tap_b.wav\n",
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2a_tap_b.wav",
+     "exists": true,
+     "frames": 336000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 1344044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      2999.6,
+      2999.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 789.0
+      },
+      {
+       "hz": 1500.0,
+       "amp": 788.6
+      }
+     ],
+     "class": [
+      "foreign@1000.0Hz",
+      "foreign@1500.0Hz"
+     ],
+     "carries_tone": false
+    },
+    "tone_span": {
+     "windows": 278,
+     "first_tone_s": 0.1,
+     "last_tone_s": 1.975,
+     "tone_windows": 76,
+     "max_amp": 8191.3
+    },
+    "tail": {
+     "exists": true,
+     "frames": 336000,
+     "window_s": [
+      4.0,
+      6.9
+     ],
+     "peak": [
+      0,
+      0
+     ],
+     "rms": [
+      0.0,
+      0.0
+     ]
+    }
+   },
+   "tap_out": {
+    "wall_s": 10.0,
+    "rc": -9,
+    "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2a_tap_out.wav\n",
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2a_tap_out.wav",
+     "exists": true,
+     "error": "wave: fmt chunk and/or data chunk missing"
+    },
+    "tone_span": {
+     "windows": 0,
+     "first_tone_s": null,
+     "last_tone_s": null,
+     "tone_windows": 0,
+     "max_amp": 0.0
+    },
+    "tail": {
+     "exists": true,
+     "wav_error": "Error: fmt chunk and/or data chunk missing"
+    },
+    "wav_error": "Error: fmt chunk and/or data chunk missing"
+   },
+   "teardown": {
+    "kill_at_tap_s": 2.0,
+    "last_tone_in_tap_s": 1.975,
+    "silence_after_kill_s": 0.025
+   }
+  },
+  {
+   "leg": "g2b-freeze-loopback",
+   "name": "r79b_243406_g2b",
+   "wait_s": 0.013,
+   "nodes_seen": [
+    "input.r79b_243406_g2b",
+    "output.r79b_243406_g2b"
+   ],
+   "stop_wall": 152511.379,
+   "swap1": "1k -> 1.5k at the stop instant",
+   "swap2": "1.5k -> 1k while still stopped",
+   "ps_during_stop": "PID STAT NLWP CMD\n 244301 Ts      1 timeout -s KILL 30 pw-loopback -n r79b_243406_g2b -C r79b_243406_ns_a -i stream.capture.sink=true -P r79b_243406_ns_b\n 244302 TLl     3 pw-loopback -n r79b_243406_g2b -C r79b_243406_ns_a -i stream.capture.sink=true -P r79b_243406_ns_b",
+   "links_during_stop": {
+    "input": {
+     "present": true,
+     "id": 195,
+     "serial": 78531,
+     "class": "Stream/Input/Audio",
+     "state": "running",
+     "target_object": "r79b_243406_ns_a",
+     "autoconnect": true,
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "output": {
+     "present": true,
+     "id": 180,
+     "serial": 78530,
+     "class": "Stream/Output/Audio",
+     "state": "running",
+     "target_object": "r79b_243406_ns_b",
+     "autoconnect": true,
+     "ports_in": [],
+     "ports_out": [
+      "output_FL",
+      "output_FR"
+     ]
+    },
+    "input_in_peers": [
+     "r79b_243406_ns_a:monitor_FL",
+     "r79b_243406_ns_a:monitor_FR"
+    ],
+    "input_out_peers": [],
+    "output_out_peers": [
+     "r79b_243406_ns_b:playback_FL",
+     "r79b_243406_ns_b:playback_FR"
+    ],
+    "output_in_peers": [],
+    "links": [
+     "output.r79b_243406_g2b:output_FL -> r79b_243406_ns_b:playback_FL",
+     "output.r79b_243406_g2b:output_FR -> r79b_243406_ns_b:playback_FR",
+     "r79b_243406_g2b_t3:output_FL -> r79b_243406_ns_a:playback_FL",
+     "r79b_243406_g2b_t3:output_FR -> r79b_243406_ns_a:playback_FR",
+     "r79b_243406_ns_a:monitor_FL -> input.r79b_243406_g2b:input_FL",
+     "r79b_243406_ns_a:monitor_FR -> input.r79b_243406_g2b:input_FR",
+     "r79b_243406_ns_b:monitor_FL -> r79b_243406_g2b_tap:input_FL",
+     "r79b_243406_ns_b:monitor_FR -> r79b_243406_g2b_tap:input_FR"
+    ],
+    "self_link": false,
+    "sinks_present": {
+     "r79b_243406_ns_a": true,
+     "r79b_243406_ns_b": true
+    },
+    "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+    "default_source": null
+   },
+   "cont_wall": 152515.906,
+   "alive": true,
+   "tap": {
+    "wall_s": 5.52,
+    "rc": 1,
+    "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2b_tap_b.wav\n",
+    "timeline": [
+     [
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.05,
+      0.0,
+      0.0
+     ],
+     [
+      0.1,
+      3604.2,
+      0.0
+     ],
+     [
+      0.15,
+      8191.3,
+      0.0
+     ],
+     [
+      0.2,
+      8191.3,
+      0.0
+     ],
+     [
+      0.25,
+      8191.3,
+      0.0
+     ],
+     [
+      0.3,
+      8191.3,
+      0.0
+     ],
+     [
+      0.35,
+      8191.3,
+      0.0
+     ],
+     [
+      0.4,
+      8191.3,
+      0.0
+     ],
+     [
+      0.45,
+      8191.3,
+      0.0
+     ],
+     [
+      0.5,
+      8191.3,
+      0.0
+     ],
+     [
+      0.55,
+      8191.3,
+      0.0
+     ],
+     [
+      0.6,
+      8191.3,
+      0.0
+     ],
+     [
+      0.65,
+      8191.3,
+      0.0
+     ],
+     [
+      0.7,
+      8191.3,
+      0.0
+     ],
+     [
+      0.75,
+      8191.3,
+      0.0
+     ],
+     [
+      0.8,
+      8191.3,
+      0.0
+     ],
+     [
+      0.85,
+      8191.3,
+      0.0
+     ],
+     [
+      0.9,
+      8191.3,
+      0.0
+     ],
+     [
+      0.95,
+      8191.3,
+      0.0
+     ],
+     [
+      1.0,
+      8191.3,
+      0.0
+     ],
+     [
+      1.05,
+      8191.3,
+      0.0
+     ],
+     [
+      1.1,
+      8191.3,
+      0.0
+     ],
+     [
+      1.15,
+      8191.3,
+      0.0
+     ],
+     [
+      1.2,
+      8191.3,
+      0.0
+     ],
+     [
+      1.25,
+      8191.3,
+      0.0
+     ],
+     [
+      1.3,
+      8191.3,
+      0.0
+     ],
+     [
+      1.35,
+      8191.3,
+      0.0
+     ],
+     [
+      1.4,
+      8191.3,
+      0.0
+     ],
+     [
+      1.45,
+      8191.3,
+      0.0
+     ],
+     [
+      1.5,
+      8191.3,
+      0.0
+     ],
+     [
+      1.55,
+      8191.3,
+      0.0
+     ],
+     [
+      1.6,
+      8191.3,
+      0.0
+     ],
+     [
+      1.65,
+      8191.3,
+      0.0
+     ],
+     [
+      1.7,
+      8191.3,
+      0.0
+     ],
+     [
+      1.75,
+      8191.3,
+      0.0
+     ],
+     [
+      1.8,
+      8191.3,
+      0.0
+     ],
+     [
+      1.85,
+      8191.3,
+      0.0
+     ],
+     [
+      1.9,
+      8191.3,
+      0.0
+     ],
+     [
+      1.95,
+      8191.3,
+      0.0
+     ],
+     [
+      2.0,
+      780.5,
+      85.1
+     ],
+     [
+      2.05,
+      8191.3,
+      0.0
+     ],
+     [
+      2.1,
+      8191.3,
+      0.0
+     ],
+     [
+      2.15,
+      8191.3,
+      0.0
+     ],
+     [
+      2.2,
+      8191.3,
+      0.0
+     ],
+     [
+      2.25,
+      8191.3,
+      0.0
+     ],
+     [
+      2.3,
+      8191.3,
+      0.0
+     ],
+     [
+      2.35,
+      8191.3,
+      0.0
+     ],
+     [
+      2.4,
+      8191.3,
+      0.0
+     ],
+     [
+      2.45,
+      8191.3,
+      0.0
+     ],
+     [
+      2.5,
+      8191.3,
+      0.0
+     ],
+     [
+      2.55,
+      8191.3,
+      0.0
+     ],
+     [
+      2.6,
+      8191.3,
+      0.0
+     ],
+     [
+      2.65,
+      8191.3,
+      0.0
+     ],
+     [
+      2.7,
+      8191.3,
+      0.0
+     ],
+     [
+      2.75,
+      8191.3,
+      0.0
+     ],
+     [
+      2.8,
+      8191.3,
+      0.0
+     ],
+     [
+      2.85,
+      8191.3,
+      0.0
+     ],
+     [
+      2.9,
+      8191.3,
+      0.0
+     ],
+     [
+      2.95,
+      8191.3,
+      0.0
+     ],
+     [
+      3.0,
+      8191.3,
+      0.0
+     ],
+     [
+      3.05,
+      8191.3,
+      0.0
+     ],
+     [
+      3.1,
+      8191.3,
+      0.0
+     ],
+     [
+      3.15,
+      8191.3,
+      0.0
+     ],
+     [
+      3.2,
+      8191.3,
+      0.0
+     ],
+     [
+      3.25,
+      8191.3,
+      0.0
+     ],
+     [
+      3.3,
+      8191.3,
+      0.0
+     ],
+     [
+      3.35,
+      8191.3,
+      0.0
+     ],
+     [
+      3.4,
+      8191.3,
+      0.0
+     ],
+     [
+      3.45,
+      8191.3,
+      0.0
+     ],
+     [
+      3.5,
+      8191.3,
+      0.0
+     ],
+     [
+      3.55,
+      3006.3,
+      177.4
+     ],
+     [
+      3.6,
+      0.0,
+      0.0
+     ],
+     [
+      3.65,
+      0.0,
+      0.0
+     ],
+     [
+      3.7,
+      0.0,
+      0.0
+     ],
+     [
+      3.75,
+      0.0,
+      0.0
+     ],
+     [
+      3.8,
+      0.0,
+      0.0
+     ],
+     [
+      3.85,
+      0.0,
+      0.0
+     ],
+     [
+      3.9,
+      0.0,
+      0.0
+     ],
+     [
+      3.95,
+      0.0,
+      0.0
+     ],
+     [
+      4.0,
+      0.0,
+      0.0
+     ],
+     [
+      4.05,
+      0.0,
+      0.0
+     ],
+     [
+      4.1,
+      0.0,
+      0.0
+     ],
+     [
+      4.15,
+      0.0,
+      0.0
+     ],
+     [
+      4.2,
+      0.0,
+      0.0
+     ],
+     [
+      4.25,
+      0.0,
+      0.0
+     ],
+     [
+      4.3,
+      0.0,
+      0.0
+     ],
+     [
+      4.35,
+      0.0,
+      0.0
+     ],
+     [
+      4.4,
+      0.0,
+      0.0
+     ],
+     [
+      4.45,
+      0.0,
+      0.0
+     ],
+     [
+      4.5,
+      0.0,
+      0.0
+     ],
+     [
+      4.55,
+      0.0,
+      0.0
+     ],
+     [
+      4.6,
+      0.0,
+      0.0
+     ],
+     [
+      4.65,
+      0.0,
+      0.0
+     ],
+     [
+      4.7,
+      0.0,
+      0.0
+     ],
+     [
+      4.75,
+      0.0,
+      0.0
+     ],
+     [
+      4.8,
+      0.0,
+      0.0
+     ],
+     [
+      4.85,
+      0.0,
+      0.0
+     ],
+     [
+      4.9,
+      0.0,
+      0.0
+     ],
+     [
+      4.95,
+      0.0,
+      0.0
+     ],
+     [
+      5.0,
+      0.0,
+      0.0
+     ],
+     [
+      5.05,
+      0.0,
+      0.0
+     ],
+     [
+      5.1,
+      0.0,
+      0.0
+     ],
+     [
+      5.15,
+      0.0,
+      0.0
+     ],
+     [
+      5.2,
+      0.0,
+      0.0
+     ],
+     [
+      5.25,
+      0.0,
+      0.0
+     ],
+     [
+      5.3,
+      0.0,
+      0.0
+     ],
+     [
+      5.35,
+      0.0,
+      0.0
+     ],
+     [
+      5.4,
+      0.0,
+      0.0
+     ],
+     [
+      5.45,
+      0.0,
+      0.0
+     ],
+     [
+      5.5,
+      0.0,
+      0.0
+     ],
+     [
+      5.55,
+      0.0,
+      0.0
+     ],
+     [
+      5.6,
+      0.0,
+      0.0
+     ],
+     [
+      5.65,
+      0.0,
+      0.0
+     ],
+     [
+      5.7,
+      0.0,
+      0.0
+     ],
+     [
+      5.75,
+      0.0,
+      0.0
+     ],
+     [
+      5.8,
+      0.0,
+      0.0
+     ],
+     [
+      5.85,
+      0.0,
+      0.0
+     ],
+     [
+      5.9,
+      0.0,
+      0.0
+     ],
+     [
+      5.95,
+      0.0,
+      0.0
+     ],
+     [
+      6.0,
+      0.0,
+      0.0
+     ],
+     [
+      6.05,
+      0.0,
+      0.0
+     ],
+     [
+      6.1,
+      0.0,
+      0.0
+     ],
+     [
+      6.15,
+      0.0,
+      0.0
+     ],
+     [
+      6.2,
+      0.0,
+      0.0
+     ],
+     [
+      6.25,
+      0.0,
+      0.0
+     ],
+     [
+      6.3,
+      0.0,
+      0.0
+     ],
+     [
+      6.35,
+      0.0,
+      0.0
+     ],
+     [
+      6.4,
+      0.0,
+      0.0
+     ],
+     [
+      6.45,
+      0.0,
+      0.0
+     ],
+     [
+      6.5,
+      0.0,
+      0.0
+     ],
+     [
+      6.55,
+      0.0,
+      0.0
+     ],
+     [
+      6.6,
+      0.0,
+      0.0
+     ],
+     [
+      6.65,
+      0.0,
+      0.0
+     ],
+     [
+      6.7,
+      0.0,
+      0.0
+     ],
+     [
+      6.75,
+      0.0,
+      0.0
+     ],
+     [
+      6.8,
+      0.0,
+      0.0
+     ],
+     [
+      6.85,
+      0.0,
+      0.0
+     ],
+     [
+      6.9,
+      0.0,
+      0.0
+     ],
+     [
+      6.95,
+      0.0,
+      0.0
+     ],
+     [
+      7.0,
+      0.0,
+      0.0
+     ],
+     [
+      7.05,
+      0.0,
+      0.0
+     ],
+     [
+      7.1,
+      0.0,
+      0.0
+     ],
+     [
+      7.15,
+      0.0,
+      0.0
+     ],
+     [
+      7.2,
+      0.0,
+      0.0
+     ],
+     [
+      7.25,
+      0.0,
+      0.0
+     ],
+     [
+      7.3,
+      0.0,
+      0.0
+     ],
+     [
+      7.35,
+      0.0,
+      0.0
+     ],
+     [
+      7.4,
+      0.0,
+      0.0
+     ],
+     [
+      7.45,
+      0.0,
+      0.0
+     ],
+     [
+      7.5,
+      0.0,
+      0.0
+     ],
+     [
+      7.55,
+      0.0,
+      0.0
+     ],
+     [
+      7.6,
+      0.0,
+      0.0
+     ],
+     [
+      7.65,
+      0.0,
+      0.0
+     ],
+     [
+      7.7,
+      0.0,
+      0.0
+     ],
+     [
+      7.75,
+      0.0,
+      0.0
+     ],
+     [
+      7.8,
+      0.0,
+      0.0
+     ],
+     [
+      7.85,
+      0.0,
+      0.0
+     ],
+     [
+      7.9,
+      0.0,
+      0.0
+     ],
+     [
+      7.95,
+      0.0,
+      0.0
+     ],
+     [
+      8.0,
+      0.0,
+      0.0
+     ],
+     [
+      8.05,
+      0.0,
+      0.0
+     ],
+     [
+      8.1,
+      0.0,
+      0.0
+     ],
+     [
+      8.15,
+      0.0,
+      0.0
+     ],
+     [
+      8.2,
+      0.0,
+      0.0
+     ],
+     [
+      8.25,
+      0.0,
+      0.0
+     ],
+     [
+      8.3,
+      0.0,
+      0.0
+     ],
+     [
+      8.35,
+      0.0,
+      0.0
+     ],
+     [
+      8.4,
+      0.0,
+      0.0
+     ],
+     [
+      8.45,
+      0.0,
+      0.0
+     ],
+     [
+      8.5,
+      0.0,
+      0.0
+     ],
+     [
+      8.55,
+      0.0,
+      0.0
+     ],
+     [
+      8.6,
+      0.0,
+      0.0
+     ],
+     [
+      8.65,
+      0.0,
+      0.0
+     ],
+     [
+      8.7,
+      0.0,
+      0.0
+     ],
+     [
+      8.75,
+      0.0,
+      0.0
+     ],
+     [
+      8.8,
+      0.0,
+      0.0
+     ],
+     [
+      8.85,
+      0.0,
+      0.0
+     ],
+     [
+      8.9,
+      0.0,
+      0.0
+     ]
+    ],
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2b_tap_b.wav",
+     "exists": true,
+     "frames": 432000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 1728044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      3566.9,
+      3566.9
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1k"
+     ],
+     "carries_tone": true
+    }
+   }
+  },
+  {
+   "leg": "g2c-freeze-source-pwcat",
+   "name": "r79b_243406_g2c",
+   "ps": "PID STAT CMD\n 245219 TLsl pw-cat -p -P node.name=r79b_243406_g2c_t --target r79b_243406_ns_a /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/scratch/tone1k_243406.wav",
+   "tap": {
+    "wall_s": 1.57,
+    "rc": 1,
+    "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2c_tap_a.wav\n",
+    "timeline": [
+     [
+      0.0,
+      1210.2
+     ],
+     [
+      0.025,
+      5305.7
+     ],
+     [
+      0.05,
+      8191.3
+     ],
+     [
+      0.075,
+      8191.3
+     ],
+     [
+      0.1,
+      8191.3
+     ],
+     [
+      0.125,
+      8191.3
+     ],
+     [
+      0.15,
+      8191.3
+     ],
+     [
+      0.175,
+      8191.3
+     ],
+     [
+      0.2,
+      8191.3
+     ],
+     [
+      0.225,
+      8191.3
+     ],
+     [
+      0.25,
+      8191.3
+     ],
+     [
+      0.275,
+      8191.3
+     ],
+     [
+      0.3,
+      8191.3
+     ],
+     [
+      0.325,
+      8191.3
+     ],
+     [
+      0.35,
+      8191.3
+     ],
+     [
+      0.375,
+      8191.3
+     ],
+     [
+      0.4,
+      8191.3
+     ],
+     [
+      0.425,
+      8191.3
+     ],
+     [
+      0.45,
+      8191.3
+     ],
+     [
+      0.475,
+      8191.3
+     ],
+     [
+      0.5,
+      8191.3
+     ],
+     [
+      0.525,
+      8191.3
+     ],
+     [
+      0.55,
+      8191.3
+     ],
+     [
+      0.575,
+      8191.3
+     ],
+     [
+      0.6,
+      8191.3
+     ],
+     [
+      0.625,
+      8191.3
+     ],
+     [
+      0.65,
+      8191.3
+     ],
+     [
+      0.675,
+      8191.3
+     ],
+     [
+      0.7,
+      8191.3
+     ],
+     [
+      0.725,
+      8191.3
+     ],
+     [
+      0.75,
+      8191.3
+     ],
+     [
+      0.775,
+      8191.3
+     ],
+     [
+      0.8,
+      8191.3
+     ],
+     [
+      0.825,
+      8191.3
+     ],
+     [
+      0.85,
+      8191.3
+     ],
+     [
+      0.875,
+      8191.3
+     ],
+     [
+      0.9,
+      8191.3
+     ],
+     [
+      0.925,
+      8191.3
+     ],
+     [
+      0.95,
+      8191.3
+     ],
+     [
+      0.975,
+      8191.3
+     ],
+     [
+      1.0,
+      8191.3
+     ],
+     [
+      1.025,
+      8191.3
+     ],
+     [
+      1.05,
+      8191.3
+     ],
+     [
+      1.075,
+      8191.3
+     ],
+     [
+      1.1,
+      8191.3
+     ],
+     [
+      1.125,
+      8191.3
+     ],
+     [
+      1.15,
+      8191.3
+     ],
+     [
+      1.175,
+      8191.3
+     ],
+     [
+      1.2,
+      8191.3
+     ],
+     [
+      1.225,
+      8191.3
+     ],
+     [
+      1.25,
+      8191.3
+     ],
+     [
+      1.275,
+      8191.3
+     ],
+     [
+      1.3,
+      8191.3
+     ],
+     [
+      1.325,
+      8191.3
+     ],
+     [
+      1.35,
+      8191.3
+     ],
+     [
+      1.375,
+      8191.3
+     ],
+     [
+      1.4,
+      8191.3
+     ],
+     [
+      1.425,
+      8191.3
+     ],
+     [
+      1.45,
+      8191.3
+     ],
+     [
+      1.475,
+      8191.3
+     ],
+     [
+      1.5,
+      8191.3
+     ],
+     [
+      1.525,
+      8191.3
+     ],
+     [
+      1.55,
+      8191.3
+     ],
+     [
+      1.575,
+      8191.3
+     ],
+     [
+      1.6,
+      8191.3
+     ],
+     [
+      1.625,
+      8191.3
+     ],
+     [
+      1.65,
+      8191.3
+     ],
+     [
+      1.675,
+      8191.3
+     ],
+     [
+      1.7,
+      8191.3
+     ],
+     [
+      1.725,
+      8191.3
+     ],
+     [
+      1.75,
+      8191.3
+     ],
+     [
+      1.775,
+      8191.3
+     ],
+     [
+      1.8,
+      8191.3
+     ],
+     [
+      1.825,
+      8191.3
+     ],
+     [
+      1.85,
+      8191.3
+     ],
+     [
+      1.875,
+      8191.3
+     ],
+     [
+      1.9,
+      8191.3
+     ],
+     [
+      1.925,
+      8191.3
+     ],
+     [
+      1.95,
+      8191.3
+     ],
+     [
+      1.975,
+      8191.3
+     ],
+     [
+      2.0,
+      7863.6
+     ],
+     [
+      2.025,
+      3768.0
+     ],
+     [
+      2.05,
+      0.0
+     ],
+     [
+      2.075,
+      0.0
+     ],
+     [
+      2.1,
+      0.0
+     ],
+     [
+      2.125,
+      0.0
+     ],
+     [
+      2.15,
+      0.0
+     ],
+     [
+      2.175,
+      0.0
+     ],
+     [
+      2.2,
+      0.0
+     ],
+     [
+      2.225,
+      0.0
+     ],
+     [
+      2.25,
+      0.0
+     ],
+     [
+      2.275,
+      0.0
+     ],
+     [
+      2.3,
+      0.0
+     ],
+     [
+      2.325,
+      0.0
+     ],
+     [
+      2.35,
+      0.0
+     ],
+     [
+      2.375,
+      0.0
+     ],
+     [
+      2.4,
+      0.0
+     ],
+     [
+      2.425,
+      0.0
+     ],
+     [
+      2.45,
+      0.0
+     ],
+     [
+      2.475,
+      0.0
+     ],
+     [
+      2.5,
+      0.0
+     ],
+     [
+      2.525,
+      0.0
+     ],
+     [
+      2.55,
+      0.0
+     ],
+     [
+      2.575,
+      0.0
+     ],
+     [
+      2.6,
+      0.0
+     ],
+     [
+      2.625,
+      0.0
+     ],
+     [
+      2.65,
+      0.0
+     ],
+     [
+      2.675,
+      0.0
+     ],
+     [
+      2.7,
+      0.0
+     ],
+     [
+      2.725,
+      0.0
+     ],
+     [
+      2.75,
+      0.0
+     ],
+     [
+      2.775,
+      0.0
+     ],
+     [
+      2.8,
+      0.0
+     ],
+     [
+      2.825,
+      0.0
+     ],
+     [
+      2.85,
+      0.0
+     ],
+     [
+      2.875,
+      0.0
+     ],
+     [
+      2.9,
+      0.0
+     ],
+     [
+      2.925,
+      0.0
+     ],
+     [
+      2.95,
+      0.0
+     ],
+     [
+      2.975,
+      0.0
+     ],
+     [
+      3.0,
+      0.0
+     ],
+     [
+      3.025,
+      0.0
+     ],
+     [
+      3.05,
+      0.0
+     ],
+     [
+      3.075,
+      0.0
+     ],
+     [
+      3.1,
+      0.0
+     ],
+     [
+      3.125,
+      0.0
+     ],
+     [
+      3.15,
+      0.0
+     ],
+     [
+      3.175,
+      0.0
+     ],
+     [
+      3.2,
+      0.0
+     ],
+     [
+      3.225,
+      0.0
+     ],
+     [
+      3.25,
+      0.0
+     ],
+     [
+      3.275,
+      0.0
+     ],
+     [
+      3.3,
+      0.0
+     ],
+     [
+      3.325,
+      0.0
+     ],
+     [
+      3.35,
+      0.0
+     ],
+     [
+      3.375,
+      0.0
+     ],
+     [
+      3.4,
+      0.0
+     ],
+     [
+      3.425,
+      0.0
+     ],
+     [
+      3.45,
+      0.0
+     ],
+     [
+      3.475,
+      0.0
+     ],
+     [
+      3.5,
+      0.0
+     ],
+     [
+      3.525,
+      0.0
+     ],
+     [
+      3.55,
+      0.0
+     ],
+     [
+      3.575,
+      0.0
+     ],
+     [
+      3.6,
+      0.0
+     ],
+     [
+      3.625,
+      0.0
+     ],
+     [
+      3.65,
+      0.0
+     ],
+     [
+      3.675,
+      0.0
+     ],
+     [
+      3.7,
+      0.0
+     ],
+     [
+      3.725,
+      0.0
+     ],
+     [
+      3.75,
+      0.0
+     ],
+     [
+      3.775,
+      0.0
+     ],
+     [
+      3.8,
+      0.0
+     ],
+     [
+      3.825,
+      0.0
+     ],
+     [
+      3.85,
+      0.0
+     ],
+     [
+      3.875,
+      0.0
+     ],
+     [
+      3.9,
+      0.0
+     ],
+     [
+      3.925,
+      0.0
+     ],
+     [
+      3.95,
+      0.0
+     ],
+     [
+      3.975,
+      0.0
+     ],
+     [
+      4.0,
+      0.0
+     ],
+     [
+      4.025,
+      0.0
+     ],
+     [
+      4.05,
+      0.0
+     ],
+     [
+      4.075,
+      0.0
+     ],
+     [
+      4.1,
+      0.0
+     ],
+     [
+      4.125,
+      0.0
+     ],
+     [
+      4.15,
+      0.0
+     ],
+     [
+      4.175,
+      0.0
+     ],
+     [
+      4.2,
+      0.0
+     ],
+     [
+      4.225,
+      0.0
+     ],
+     [
+      4.25,
+      0.0
+     ],
+     [
+      4.275,
+      0.0
+     ],
+     [
+      4.3,
+      0.0
+     ],
+     [
+      4.325,
+      0.0
+     ],
+     [
+      4.35,
+      0.0
+     ],
+     [
+      4.375,
+      0.0
+     ],
+     [
+      4.4,
+      0.0
+     ],
+     [
+      4.425,
+      0.0
+     ],
+     [
+      4.45,
+      0.0
+     ],
+     [
+      4.475,
+      359.8
+     ],
+     [
+      4.5,
+      4455.4
+     ],
+     [
+      4.525,
+      8191.3
+     ],
+     [
+      4.55,
+      8191.3
+     ],
+     [
+      4.575,
+      8191.3
+     ],
+     [
+      4.6,
+      8191.3
+     ],
+     [
+      4.625,
+      8191.3
+     ],
+     [
+      4.65,
+      8191.3
+     ],
+     [
+      4.675,
+      8191.3
+     ],
+     [
+      4.7,
+      8191.3
+     ],
+     [
+      4.725,
+      8191.3
+     ],
+     [
+      4.75,
+      8191.3
+     ],
+     [
+      4.775,
+      8191.3
+     ],
+     [
+      4.8,
+      8191.3
+     ],
+     [
+      4.825,
+      8191.3
+     ],
+     [
+      4.85,
+      8191.3
+     ],
+     [
+      4.875,
+      8191.3
+     ],
+     [
+      4.9,
+      8191.3
+     ],
+     [
+      4.925,
+      8191.3
+     ],
+     [
+      4.95,
+      8191.3
+     ],
+     [
+      4.975,
+      8191.3
+     ],
+     [
+      5.0,
+      8191.3
+     ],
+     [
+      5.025,
+      8191.3
+     ],
+     [
+      5.05,
+      8191.3
+     ],
+     [
+      5.075,
+      8191.3
+     ],
+     [
+      5.1,
+      8191.3
+     ],
+     [
+      5.125,
+      8191.3
+     ],
+     [
+      5.15,
+      8191.3
+     ],
+     [
+      5.175,
+      8191.3
+     ],
+     [
+      5.2,
+      8191.3
+     ],
+     [
+      5.225,
+      8191.3
+     ],
+     [
+      5.25,
+      8191.3
+     ],
+     [
+      5.275,
+      8191.3
+     ],
+     [
+      5.3,
+      8191.3
+     ],
+     [
+      5.325,
+      8191.3
+     ],
+     [
+      5.35,
+      8191.3
+     ],
+     [
+      5.375,
+      8191.3
+     ],
+     [
+      5.4,
+      8191.3
+     ],
+     [
+      5.425,
+      8191.3
+     ],
+     [
+      5.45,
+      5374.1
+     ],
+     [
+      5.475,
+      1278.4
+     ],
+     [
+      5.5,
+      0.0
+     ],
+     [
+      5.525,
+      0.0
+     ],
+     [
+      5.55,
+      0.0
+     ],
+     [
+      5.575,
+      0.0
+     ],
+     [
+      5.6,
+      0.0
+     ],
+     [
+      5.625,
+      0.0
+     ],
+     [
+      5.65,
+      0.0
+     ],
+     [
+      5.675,
+      0.0
+     ],
+     [
+      5.7,
+      0.0
+     ],
+     [
+      5.725,
+      0.0
+     ],
+     [
+      5.75,
+      0.0
+     ],
+     [
+      5.775,
+      0.0
+     ],
+     [
+      5.8,
+      0.0
+     ],
+     [
+      5.825,
+      0.0
+     ],
+     [
+      5.85,
+      0.0
+     ],
+     [
+      5.875,
+      0.0
+     ],
+     [
+      5.9,
+      0.0
+     ],
+     [
+      5.925,
+      0.0
+     ],
+     [
+      5.95,
+      0.0
+     ],
+     [
+      5.975,
+      0.0
+     ],
+     [
+      6.0,
+      0.0
+     ],
+     [
+      6.025,
+      0.0
+     ],
+     [
+      6.05,
+      0.0
+     ],
+     [
+      6.075,
+      0.0
+     ],
+     [
+      6.1,
+      0.0
+     ],
+     [
+      6.125,
+      0.0
+     ],
+     [
+      6.15,
+      0.0
+     ],
+     [
+      6.175,
+      0.0
+     ],
+     [
+      6.2,
+      0.0
+     ],
+     [
+      6.225,
+      0.0
+     ],
+     [
+      6.25,
+      0.0
+     ],
+     [
+      6.275,
+      0.0
+     ],
+     [
+      6.3,
+      0.0
+     ],
+     [
+      6.325,
+      0.0
+     ],
+     [
+      6.35,
+      0.0
+     ],
+     [
+      6.375,
+      0.0
+     ],
+     [
+      6.4,
+      0.0
+     ],
+     [
+      6.425,
+      0.0
+     ],
+     [
+      6.45,
+      0.0
+     ],
+     [
+      6.475,
+      0.0
+     ],
+     [
+      6.5,
+      0.0
+     ],
+     [
+      6.525,
+      0.0
+     ],
+     [
+      6.55,
+      0.0
+     ],
+     [
+      6.575,
+      0.0
+     ],
+     [
+      6.6,
+      0.0
+     ],
+     [
+      6.625,
+      0.0
+     ],
+     [
+      6.65,
+      0.0
+     ],
+     [
+      6.675,
+      0.0
+     ],
+     [
+      6.7,
+      0.0
+     ],
+     [
+      6.725,
+      0.0
+     ],
+     [
+      6.75,
+      0.0
+     ],
+     [
+      6.775,
+      0.0
+     ],
+     [
+      6.8,
+      0.0
+     ],
+     [
+      6.825,
+      0.0
+     ],
+     [
+      6.85,
+      0.0
+     ],
+     [
+      6.875,
+      0.0
+     ],
+     [
+      6.9,
+      0.0
+     ],
+     [
+      6.925,
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "leg": "g2d-freeze-consumer-pwrecord",
+   "name": "r79b_243406_g2d",
+   "size_pre": 389164,
+   "size_during": [
+    389164,
+    389164,
+    389164,
+    389164,
+    389164
+   ],
+   "size_after": [
+    495660,
+    593964,
+    684076,
+    782380
+   ],
+   "tap": {
+    "wall_s": 4.97,
+    "rc": 1,
+    "stderr": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2d_tap_b.wav\n",
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g2d_tap_b.wav",
+     "exists": true,
+     "frames": 432000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 1728044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      3856.3,
+      3856.3
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1k"
+     ],
+     "carries_tone": true
+    }
+   }
+  }
+ ],
+ "host_end": {
+  "t": 1792052420.418,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 18,
+  "foreign_r7x_nodes": [
+   "r79b_243406_ns_a",
+   "r79b_243406_ns_b",
+   "r79lb_ns_a_224789",
+   "r79lb_ns_a_229236",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_224789",
+   "r79lb_ns_b_229236",
+   "r79lb_ns_b_4041488"
+  ],
+  "foreign_procs": [
+   "224785 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224788 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224789 python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79",
+   "229235 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "229236 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log"
+  ]
+ },
+ "final_check": {
+  "group": "g2",
+  "own_nodes_after": [],
+  "own_sink_modules_after": [],
+  "own_procs_alive": []
+ }
+}

@@ -1,0 +1,62 @@
+r91 VERIFIER — identity record (produced 2026-10-16, window 10:00Z–10:20Z)
+
+archive
+  command      : git archive HEAD | tar -x -C /home/vgpnk/r91-verify-tree
+  taken at     : 2026-10-16T10:01:0xZ (local 07:01:0x, UTC-3)
+  HEAD then    : 7358f13b (r96 author)   [HEAD moved during this seat's window:
+                                            b8ff4efc (r97 author) at 10:01:30Z, then
+                                            a2c6e3b7 (r90 adjudicate + wave-B reports)
+                                            at 10:14:28Z. The r91 family block is
+                                            byte-identical at both (6fe734a8..., see
+                                            below), so no later landing touches this gate.]
+  tar sha256   : 5a6a10007560163db43881a9e98bfe3a49c123c247f38f42bcb5ffd1b754a6f4
+                 (reproduced: `git archive 7358f13b | sha256sum`)
+  tree size    : 3.2 GB
+  file census  : 44582 files extracted; `git ls-tree -r 7358f13b --name-only` = 44579;
+                 symdiff = exactly the 3 files this seat created:
+                   corpus/live/measure_audio-gstfrz-r91.lock
+                   corpus/live/runs/20261016T100257559587Z-gstfrz-r91/measurements.json
+                   corpus/live/runs/20261016T100551473978Z-gstfrz-r91/measurements.json
+                 -> zero missing, zero renamed, zero foreign additions.
+
+fixtures (tree copy == committed blob)
+  97ed1b1c586d2d5446f2ae85d1ab158e43b0f7d71edf430c2c5f045ed5299efc  corpus/fixtures/measure_audio.py
+  066d6fff7ba74ef40d11b2f3a71ae336d4ee21c6d73d0975d6dc94fe714b1dc2  corpus/fixtures/gstfreeze_r91_resume.py
+
+r91 block byte-identity (the author's measured bytes transfer to committed bytes)
+  family block, 1464 lines (banner -> `def main()`):
+    sha256 6fe734a8ff7cd530b8790c4ada4cec6fae58216955ef3cbe7d5bc6fc0a52570d
+    identical in: d78f1cc9 (the landing) / 7358f13b (archive HEAD) / b8ff4efc (r97) /
+                  a2c6e3b7 (r90-adjudicate, current HEAD) / author worktree wt-r91
+                  lines 30982-32445
+    == the r91-integrate report's declared block sha.
+  dispatch block, 33 lines (1888 B):
+    sha256 91bb18f8decae5beb30232ead31c03e3be917c59200705530419dde747f2e562
+    identical in d78f1cc9 (lines 39878-39910) and 7358f13b (lines 44493-44525)
+    == the r91-integrate report's declared dispatch sha.
+  wiring:
+    parser.add_argument("--probe-gstfrz-r91", action="store_true")   byte-identical d78/HEAD
+    probe mutex: r91 token present exactly once; at d78f1cc9 it is the list's LAST token
+      (137 tokens, index 136) -- the author's own placement; later landings (r92, r96, r97)
+      appended theirs after it.
+    mode / suffix ternaries: the r91 clause `"probe-gstfrz-r91" if args.probe_gstfrz_r91 else`
+      / `"-gstfrz-r91" if args.probe_gstfrz_r91 else` byte-identical d78/HEAD.
+  py_compile in the frozen tree: rc 0.
+
+reference values cited by the landing report (re-checked against the frozen tree)
+  integrate block sha 6fe734a8ff7cd530b8790c4ada4cec6fae58216955ef3cbe7d5bc6fc0a52570d  MATCH
+  integrate dispatch sha 91bb18f8decae5beb30232ead31c03e3be917c59200705530419dde747f2e562 MATCH
+  author fixture sha 066d6fff7ba74ef40d11b2f3a71ae336d4ee21c6d73d0975d6dc94fe714b1dc2     MATCH
+  author report sha de9e9ecd5bf8914d045303df54a66533fdc10315bf8dc57877c63700d8a30bd5     MATCH
+  (author measure_audio.py worktree sha b0ab6fda8b35eafa76b753ce8e31687b14ec278396fbdd00c8efc2b432124af0
+   is the WT file, which differs from the merged file -- expected; the BLOCK is byte-identical.)
+
+foreign state observed, not touched
+  the shared worktree corpus/fixtures/measure_audio.py was being edited by a sibling lane at
+  10:01:02Z (sha a3830880...) and again written at 10:01:02/07:01:02; at 10:01:30Z it was
+  committed as b8ff4efc (r97 author) and is clean now. Every number in this report comes from
+  the frozen tree copies; this seat wrote no tracked file (git status --untracked-files=no empty
+  before and after the window).
+  another lane ran the SAME family from its own tree (/home/vgpnk/Projects/shokunin/r91c-tree)
+  at 10:00:58-10:01:42Z (green, failures {}); the family lock is tree-relative, so that run and
+  this seat's do not exclude each other.

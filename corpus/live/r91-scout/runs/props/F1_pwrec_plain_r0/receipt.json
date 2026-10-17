@@ -1,0 +1,104 @@
+{
+ "family": "F1_pwrec_plain",
+ "leg": "F1_pwrec_plain_r0",
+ "node": {
+  "id": 134,
+  "props": {
+   "adapt.follower.spa-node": "",
+   "application.name": "pw-record",
+   "client.id": 129,
+   "clock.quantum-limit": 8192,
+   "factory.id": 9,
+   "library.name": "audioconvert/libspa-audioconvert",
+   "media.category": "Capture",
+   "media.class": "Stream/Input/Audio",
+   "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav",
+   "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav",
+   "media.role": "Music",
+   "media.type": "Audio",
+   "node.async": true,
+   "node.autoconnect": true,
+   "node.loop.class": "main",
+   "node.loop.name": "main-loop",
+   "node.name": "r91s_pwrec_plain",
+   "node.rate": "1/48000",
+   "node.want-driver": true,
+   "object.id": 134,
+   "object.register": false,
+   "object.serial": 2458,
+   "port.group": "stream.0",
+   "stream.is-live": true,
+   "target.object": "r91s_ns1"
+  },
+  "serial": 2458,
+  "state": "suspended"
+ },
+ "ns1_load": {
+  "idx": 536870916,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-null-sink",
+    "sink_name=r91s_ns1",
+    "node.description=r91scout_r91s_ns1"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870916\n",
+   "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+   "timed_out": false
+  },
+  "ok": true,
+  "row": [
+   {
+    "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+    "index": 536870916,
+    "name": "module-null-sink"
+   }
+  ]
+ },
+ "ns1_unload": {
+  "gone": true,
+  "ok": true,
+  "rc": 0,
+  "stderr": "",
+  "stdout": ""
+ },
+ "rep": 0,
+ "run": {
+  "argv": [
+   "pw-record",
+   "-P",
+   "node.name=r91s_pwrec_plain",
+   "--target",
+   "r91s_ns1",
+   "-n",
+   "1000000",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav"
+  ],
+  "byte_cap_bytes": 4194304,
+  "combined_log_head": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav\nstream node 134 error: no target node available\nremote error: id=2 seq:7 res:-2 (No such file or directory): no target node available\n",
+  "combined_log_len": 233,
+  "combined_log_sha256": "0fec6b95458272a32247fc43eb2fd4068c392c4fd91ba0dff8703843644dafcd",
+  "elapsed_s": 0.018,
+  "killed": null,
+  "rc": 1,
+  "timeline": [
+   {
+    "links_relevant": [],
+    "node_id": 134,
+    "node_state": "suspended",
+    "t": 0.0
+   }
+  ],
+  "unload_at": null,
+  "unload_result": null,
+  "unload_t": null,
+  "wall_cap_s": 2.4
+ },
+ "wpctl_inspect": "",
+ "wpctl_rc": 3
+}

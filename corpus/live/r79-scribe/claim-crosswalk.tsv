@@ -1,0 +1,56 @@
+# r79-author claim -> evidence crosswalk (scribe r79, read-only audit)
+# verdict: RECEIPTED = matched against a receipt/artifact I read;
+#          CODE-ONLY = claim is about source text, no execution evidence;
+#          UNRECEIPTED = no artifact in the r79-author corpus backs it;
+#          FALSIFIED = a live read-only check contradicts it.
+claim_id	report	claim	evidence	verdict
+C01	§1	2 formal runs, 66 r79 legs, failures {}, exit 0	corpus/live/runs/20261015T072219089606Z-capture-r79/measurements.json + r79-runB.stdout.json (failures {}, EXIT=0); leg census = 6+12+10+4+6+3+13+12 = 66	RECEIPTED
+C02	§1	receipt sha256s	runs/…T072219089606Z sha 658773646ec8381b…, runs/…T072746218296Z sha f4572530cbf0c708…; byte-equal copies (cmp clean)	RECEIPTED
+C03	§1	8/8 r79 entries, no blocked entry	8 *_r79_probe keys; every entry failures=[] and no blocked/coverage_blocked key in B and C	RECEIPTED
+C04	§1	68/70 verdict fields identical between runs	receipt-BC-diff.txt: 68 SAME / 2 DIFF	RECEIPTED
+C05	§0	defect 1: every entry blocked vacuously on first execution	runs/20261015T063951291469Z: all 8 entries blocked "a probe null sink/monitor did not enumerate" (fc: "the fc …"), no legs	RECEIPTED
+C06	§0	defect 3: record legs ran after the loopback was reaped (d2a/d2b no target node, d2c default-sink fallback, D17 ENOENT)	runs/20261015T064636573588Z record legs: d2a error_class=no_target_node, d2b error_class=no_target_node, d2c producer=SPDIF sink, d17 pins exit 255 "failed to link ports: No such file or directory"	RECEIPTED
+C07	§0	defect 4: capture default-source arms failed with no named outcome	runs/20261015T064636573588Z: b02/b03/b05/b06/b07 failures "expected producers […Line…], got []"	RECEIPTED
+C08	§0	defect 5: matrix bands mis-calibrated; strict tone classifier blind to a mono mix	runs/20261015T064636573588Z matrix: cm1/cm3/cm4 "expected the 0.5*(L+R) mix signature, got 2269.3/2269.3" + "the tap … carried no tag-tone windows"	RECEIPTED
+C09	§0	defect 6: -C @SRC@ expected-producer never substituted	runs/20261015T064636573588Z: "capture b04_real_source: expected producers [@SRC@], got ['…Mic__source']"	RECEIPTED
+C10	§0	defect 7: inherited arm asserted the Latency param invariant	runs/20261015T064636573588Z pwcat: "the reported Latency param VARIED across legs" (verdict field absent in that run)	RECEIPTED
+C11	§0	defect 8: filter-chain legs matched node names by the leg's long name	runs/20261015T064636573588Z fc: f1/f3/f3b "loader must stay up and publish the chain node — got alive=True nodes=[]"	RECEIPTED
+C12	§0	defect 2: inherited pw-cat fallback leg played the tag tone into the shared default sink	run 1 was all-blocked; run 2 d12 already shows feed_content=silence / content_witness=declined_shared_default (repaired state). No receipt shows the inherited behaviour	UNRECEIPTED
+C13	§0	defect 9: cosmetic always-true operand removed	inherited (never-committed) r79 arm is not in any git blob; claim is a self-report of a source edit	CODE-ONLY
+C14	§2.1/§11	_playback_r78_wait_source("<sink>.monitor") can never confirm a null-sink monitor here	git show HEAD: helper requires (a) "<sink>.monitor" in `pactl list sources short` AND (b) pw-link -o ports of a NODE named "<sink>.monitor"; r79 gate records pactl_listed=true with ports taken from the SINK node; no .monitor node exists. Committed r78 code (a005e1e)	RECEIPTED
+C15	§11	the two r78 arms are coverage_blocked from the committed-fold receipts 05:50:13Z on; 05:37:41Z still True	r78 scan: 055013/055701/060513 enum=False + blocked + coverage_blocked; 053741 enum=True	RECEIPTED (timeline note F4)
+C16	§11	the r79 baseline counted those two blocked arms as "clean"	r79-baseline.md §3: "6/8 r78 arms clean (… capture_unlinked_zeros, capture_parec_fix)"; the 06:05:13Z anchor receipt has both blocked with failures=[]	RECEIPTED
+C17	§3.1	no `default.audio.source` metadata key; wpctl marks no source with *	receipt oracle_at_start.source_meta=null (B and C); host-window.log prints only the "Found "default" metadata 42" header; wpctl Sources: list has no `*`	RECEIPTED
+C18	§3.1	plain pw-record with no --target dies no target node available	receipt default_source_probe: available=false, exit 1, error_class=no_target_node, res:-2	RECEIPTED
+C19	§3.1	writing the key does not help; keeping the source running changes nothing	exp-default-source-r79.json (write → read-back → mid_metadata raw=null → legs still zero-port/suspended) and exp-capture-ports-r79.json (source_state_while_held=running; legs still zero-port)	RECEIPTED
+C20	§3.1	run 3 (07:04Z): a concurrent lane's r86ctl_src was the live default source; b02/b03 linked to it; gone by b05	runs/20261015T070406112526Z: oracle_at_start source_meta=r86ctl_src; b02/b03 input_producers_union=['r86ctl_src']; b05 producers=[] (recorded as a failure in that run)	RECEIPTED (leg-span note F7: b04 oracle source_meta=null)
+C21	§4	c01–c10 playback lattice verdicts	receipt legs: c01/c02/c07/c09 expected_kind=node + tone; c03/c04/c05/c06/c10 consumers=[SPDIF]; c08 consumers=[]	RECEIPTED
+C22	§4	c07 control tap on the flag sink: 0 mine, bound+ran	tap_flag_sink: ran=true, bound_to_target=true, mine_windows=0, peak 0/0; main tap mine_windows=40	RECEIPTED
+C23	§5	matrix signature 2269.3 / 4538.6, ratio 0.500	B: cm1/cm3/cm4 two_tone 2269.3 both + mix_half_gain_ratio 0.5; cm2 4538.6/2.7 & 4.1/4538.6; C: same with 2.9/3.9	RECEIPTED
+C24	§5	table figures "cm1 peak 8191; cm2 4538.6/2.8, 4.0/4538.6"	exact match to run 20261015T071014963276Z only; B shows 8192 + 2.7/4.1, C shows 8191 + 2.9/3.9	RECEIPTED-with-provenance-note (F5)
+C25	§6	d2b/d2c/D17 carry tone 14/14; d2a unnegotiated; d2d silence	receipt: mine_windows 14/14/14/0 (d2b/d2c/d17/d2d); d2a outcome=capture_default_source_unnegotiated; D17 pins exit 0 both	RECEIPTED
+C26	§6	loopback held 16.7 s, route re-verified	record leg "loopback" wall_s=16.73, killed_at_bound=true	RECEIPTED
+C27	§7	e1/e2/e3 hotplug both ways, taps 16/37 mine, client alive	receipt: e1 tap 16 mine, consumers hp→SPDIF; e2 tap 37 mine, SPDIF→hp2; e3 capture ns_a→SPDIF; all exit −9 at bound, stderr null	RECEIPTED
+C28	§8	latency vector d01–d13 and prop-beats-flag	receipt measured_latency: 4800/48000, 480/48000, 256/48000, 480, 1024/48000, 2048/48000, null, 0, 24000/48000, 480/48000, 4800/48000, 4800/48000, 4800/48000	RECEIPTED
+C29	§8	latency_param_tracks_request; 3 distinct param values	latency_param_set = 3 entries (quantum 0.0/1.0/2.0); verdict identical in B and C	RECEIPTED
+C30	§8	d12 fed digital silence, content_witness=declined_shared_default	receipt d12 feed_content=silence, content_witness=declined_shared_default; contamination.shared_default_tone=false	RECEIPTED
+C31	§9	f1 publishes both chain nodes + DSP witness FL 4095.6 (both components), FR 0.0, peak 8192	receipt f1: nodes_seen both, two_tone channels[0]={at_l 4095.6, at_r 4095.7, peak 8192}, channels[1]={0.0,0.0,0}	RECEIPTED
+C32	§9	f2 parse error is fail-soft (warning, loader alive); f3/f3b per-fragment; f4 nofail silent; f5 rc=254	receipt f2/f3/f3b stderr_scan "conf_load() … Mismatched bracket" + loader_alive true; f4 loader_alive true stderr empty; f5 loader_rc 254, loader_alive false	RECEIPTED
+C33	§9	pw-cli: load-module reply "1 = @module:22", unload refused, teardown on quit	receipt f7 reply ["1 = @module:22"] + both nodes; f8 reply Error "unload-module: unknown module '@module:22'" + nodes_still; f11 nodes_after_quit=[]; f9/f10 "Could not load module" + daemon_alive	RECEIPTED
+C34	§10	own_nodes_after [] in all eight entries, both runs; every probe sink gone	B and C: own_nodes_after=[] for all 8; sinks_gone all true	RECEIPTED
+C35	§10	both formal receipts contain no blocked entry; zero failures	runs B/C: no blocked/coverage_blocked key; per-entry failures []	RECEIPTED
+C36	§10	probe stderr 0 bytes on both runs	r79-runB.stderr.log / r79-runC.stderr.log = 0 bytes	RECEIPTED
+C37	§12	this arm's tone never reaches the shared default sink	guard _loopback_r79_guard_playback (fail-closed) + d12 silence; contamination.shared_default_tone=false; no receipt shows a `mine` window on the shared sink	RECEIPTED (mechanism CODE-ONLY where the guard fires)
+C38	§12	run A 07:16Z: b09 tapped a foreign tag-shaped tone at 11997/8997 while unfed	runs/20261015T071612380726Z b09: fed=false, tap peak_l=11997 peak_r=8997, mine_windows=11, entry failure recorded	RECEIPTED
+C39	§12	the arm "now decides who fed it from the ceiling (foreign_tone_on_shared_monitor, peaks recorded)"	code exists at measure_audio.py:9400-9419 (ceiling PLAYBACK_R78_TONE_AMP*1.05 = 8601.6) but ZERO r79 receipts contain "foreign_tone_on_shared_monitor" or "foreign_tone_witness"; run A recorded the generic failure with confound=False	CODE-ONLY / UNRECEIPTED (F1)
+C40	§12	host_is_quiet=false recorded	contention.host_is_quiet=false in every entry of B and C	RECEIPTED
+C41	§12	one foreign aplay (r78-era stale process)	contention.aplay=1 in every entry; r79-baseline §2 names the stale `aplay -D null` pid 2202613	RECEIPTED
+C42	§12	the game-dev lane's battery load	no r79-author artifact records it; host snapshots show only load averages; contention.fixture_runs=0 (counts sibling measure_audio.py only)	UNRECEIPTED (F8)
+C43	§12	no sibling measure_audio probe live at any formal-run snapshot	host-window.log sibling scan matched only the formal-runs.sh driver shell (its command text contains "measure_audio.py")	RECEIPTED
+C44	§12	diagnostics: default.audio.source written once and deleted; pre/post both absent	exp-default-source-r79.json: pre_metadata raw=null, restored_metadata raw=null	RECEIPTED
+C45	§13	labrat H1 PARTIAL: stream.capture.sink only in WirePlumber material, in no PipeWire config or man page	WirePlumber citations verified; PipeWire config tree verified absent; PipeWire MAN PAGE libpipewire-module-protocol-simple.7 line 72 + line ~117 DO contain it	FALSIFIED (F2)
+C46	§13	labrat "11 fragments" in /usr/share/pipewire/filter-chain	12 .conf files; 12 carry one of the cited props; 11 carry node.passive	UNVERIFIABLE-AS-PRINTED (F2 note)
+C47	§13	labrat made zero writes / spawned zero processes; output advisory, no receipt	no artifact under corpus/live/ for the labrat; no claim depends on it	UNRECEIPTED-BY-DESIGN (advisory)
+C48	§15	one tracked edit: measure_audio.py, sha 4ee754b3…, bytes 672390, +2737/−3	sha256sum matches; wc -c 672390; git diff --numstat 2737/3	RECEIPTED
+C49	§15	py_compile cache restored to HEAD	pyc absent from `git status --untracked=no` at scribe start; re-dirtied 08:01:54Z by a post-author seat	RECEIPTED-for-its-window (F9)
+C50	§15	SHONEN.md already modified before this seat's first command and untouched	SHONEN.md mtime 2026-10-15T04:50:20Z (before baseline 06:01Z and author 06:38Z); still ` M`, uncommitted; author diff = SHONEN.md + measure_audio.py only	RECEIPTED

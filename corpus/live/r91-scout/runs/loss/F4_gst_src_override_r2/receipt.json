@@ -1,0 +1,678 @@
+{
+ "family": "F4_gst_src_override",
+ "final_bytes": 204844,
+ "frozen_bytes_between": true,
+ "leg": "F4_gst_src_override_r2",
+ "node_props_at_connect": {
+  "adapt.follower.spa-node": "",
+  "client.id": 105,
+  "clock.quantum-limit": 8192,
+  "factory.id": 9,
+  "library.name": "audioconvert/libspa-audioconvert",
+  "media.class": "Stream/Input/Audio",
+  "media.name": "gst_r91_src_override",
+  "node.async": true,
+  "node.autoconnect": true,
+  "node.description": "gst_r91_src_override",
+  "node.dont-reconnect": "FALSE",
+  "node.driver-id": 108,
+  "node.loop.class": "main",
+  "node.loop.name": "pipewire-main-l",
+  "node.name": "gst_r91_src_override",
+  "node.target": "r91s_ns1",
+  "node.want-driver": true,
+  "object.id": 142,
+  "object.register": false,
+  "object.serial": 4947,
+  "port.group": "stream.0",
+  "stream.capture.sink": "TRUE",
+  "stream.is-live": true,
+  "target.object": "r91s_ns1"
+ },
+ "ns1_load": {
+  "idx": 536870918,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-null-sink",
+    "sink_name=r91s_ns1",
+    "node.description=r91scout_r91s_ns1"
+   ],
+   "dur_s": 0.003,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870918\n",
+   "stdout_sha256": "1b8ec74cad1097813191ecbf6556632d926536cc7271418c70fad350467f068f",
+   "timed_out": false
+  },
+  "ok": true,
+  "row": [
+   {
+    "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+    "index": 536870918,
+    "name": "module-null-sink"
+   }
+  ]
+ },
+ "post_unload_link_lines": [
+  "  |-> gst_r91_src_override:input_FL",
+  "  |-> gst_r91_src_override:input_FR",
+  "gst_r91_src_override:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "gst_r91_src_override:input_FR",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+  "  |-> gst_r91_src_override:input_FL",
+  "  |-> gst_r91_src_override:input_FR",
+  "gst_r91_src_override:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "gst_r91_src_override:input_FR",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+  "  |-> gst_r91_src_override:input_FL",
+  "  |-> gst_r91_src_override:input_FR",
+  "gst_r91_src_override:input_FL",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+  "gst_r91_src_override:input_FR",
+  "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+  "  |-> gst_r91_src_override:input_FL",
+  "  |-> gst_r91_src_override:input_FR"
+ ],
+ "rep": 2,
+ "run": {
+  "argv": [
+   "gst-launch-1.0",
+   "-q",
+   "pipewiresrc",
+   "client-name=gst_r91_src_override",
+   "target-object=r91s_ns1",
+   "stream-properties=props,stream.capture.sink=true,node.dont-reconnect=false",
+   "num-buffers=1000000",
+   "!",
+   "audio/x-raw,format=S16LE,rate=48000,channels=2",
+   "!",
+   "wavenc",
+   "!",
+   "filesink",
+   "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F4_gst_src_override_r2.wav"
+  ],
+  "byte_cap_bytes": 4194304,
+  "combined_log_head": "",
+  "combined_log_len": 0,
+  "combined_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "elapsed_s": 4.831,
+  "killed": "wallcap",
+  "rc": -9,
+  "timeline": [
+   {
+    "file_bytes": 0,
+    "links_relevant": [],
+    "links_sha256": "358d60fb429565718dff824c27aa8d29a10a5cc589bf1cd077ef25e769346a01",
+    "t": 0.0
+   },
+   {
+    "file_bytes": 0,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.162
+   },
+   {
+    "file_bytes": 0,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.328
+   },
+   {
+    "file_bytes": 65580,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.485
+   },
+   {
+    "file_bytes": 65580,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.641
+   },
+   {
+    "file_bytes": 135212,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.797
+   },
+   {
+    "file_bytes": 135212,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "547a36a205658ad67db8a53ac9c12fb248c926a91d572208c15dae80b4e2c531",
+    "node_id": 142,
+    "t": 0.953
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id =",
+    "info_rc": 0,
+    "info_sha256": "13529a28f6a586e10ef852660f94326a6084d7437e3eca1ad624e25603d8de01",
+    "links_relevant": [
+     "  |<- r79lb_ns_b_1141702:monitor_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_override:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "615f71f53db996c0e336edd9d3ea9495022b9827c2014f27085570eed3afcfdb",
+    "node_id": 142,
+    "t": 1.109
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- r79lb_ns_b_1141702:monitor_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "7b635fd9312d3ae4535c993b156bbcec9a6d38d9af07c83457206ee88e5dc51f",
+    "node_id": 142,
+    "t": 1.275
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- r79lb_ns_b_1141702:monitor_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "7b635fd9312d3ae4535c993b156bbcec9a6d38d9af07c83457206ee88e5dc51f",
+    "node_id": 142,
+    "t": 1.431
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "e720bd1d0dbb7ee47279630db6042c675f375f9db3c71825744474033c17ee21",
+    "node_id": 142,
+    "t": 1.587
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "e720bd1d0dbb7ee47279630db6042c675f375f9db3c71825744474033c17ee21",
+    "node_id": 142,
+    "t": 1.744
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "e720bd1d0dbb7ee47279630db6042c675f375f9db3c71825744474033c17ee21",
+    "node_id": 142,
+    "t": 1.9
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "e720bd1d0dbb7ee47279630db6042c675f375f9db3c71825744474033c17ee21",
+    "node_id": 142,
+    "t": 2.057
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |-> r79lb_1141702_b13_nullsource_law_tap:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "53abe9f705119cbcc123f6a8131fee5d0a19c83d758dde58a650da66622cc367",
+    "node_id": 142,
+    "t": 2.214
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |-> r79lb_1141702_b13_nullsource_law_tap:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "53abe9f705119cbcc123f6a8131fee5d0a19c83d758dde58a650da66622cc367",
+    "node_id": 142,
+    "t": 2.37
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |-> r79lb_1141702_b13_nullsource_law_tap:input_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "53abe9f705119cbcc123f6a8131fee5d0a19c83d758dde58a650da66622cc367",
+    "node_id": 142,
+    "t": 2.526
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 2.682
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 2.838
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 2.994
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.149
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.305
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.46
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.616
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.771
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 3.926
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 4.082
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 4.238
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 4.393
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 4.549
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 142\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_override\"\n*\t\tnode.description = \"gst_r91_src_override\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tnode.dont-reconnect = \"FALSE\"\n*\t\tmedia.name = \"gst_r91_src_override\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"1",
+    "info_rc": 0,
+    "info_sha256": "a4b2b735a0325c4752144b99c7feece9e19e6ad1472bb522a795d38e3fd355b3",
+    "links_relevant": [
+     "  |-> gst_r91_src_override:input_FL",
+     "  |-> gst_r91_src_override:input_FR",
+     "  |<- output.r79lb_1141702_b13_nullsource_law:output_FR",
+     "gst_r91_src_override:input_FL",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+     "gst_r91_src_override:input_FR",
+     "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+    ],
+    "links_sha256": "b703ac49fbc7e7890384da7e6c32b6bd8390908cd8217c668598958cf35261c2",
+    "node_id": 142,
+    "t": 4.704
+   }
+  ],
+  "unload_at": 1.2,
+  "unload_result": {
+   "gone": true,
+   "ok": true,
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "unload_t": 1.205,
+  "wall_cap_s": 4.8
+ },
+ "src_load": null,
+ "src_state": null,
+ "tone_state": null
+}

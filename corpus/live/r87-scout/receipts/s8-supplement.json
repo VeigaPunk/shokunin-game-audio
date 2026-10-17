@@ -1,0 +1,210 @@
+{
+ "create_node": {
+  "cli_errors": [
+   "unsupported type PipeWire:Interface:SecurityContext",
+   "unsupported type PipeWire:Interface:Profiler"
+  ],
+  "proxy_lines": [
+   "1 = @proxy:94"
+  ],
+  "present": false,
+  "id": null
+ },
+ "send_command": {
+  "sink_id": 157,
+  "Suspend": {
+   "errors": [
+    "unsupported type PipeWire:Interface:SecurityContext",
+    "unsupported type PipeWire:Interface:Profiler"
+   ],
+   "lines": [
+    "Error: \"unsupported type PipeWire:Interface:SecurityContext\"",
+    "Error: \"unsupported type PipeWire:Interface:Profiler\"",
+    "pipewire-0>> send-command 157 Suspend {}",
+    "*\tstate: \"suspended\""
+   ]
+  },
+  "Pause": {
+   "errors": [
+    "unsupported type PipeWire:Interface:SecurityContext",
+    "unsupported type PipeWire:Interface:Profiler"
+   ],
+   "lines": [
+    "Error: \"unsupported type PipeWire:Interface:SecurityContext\"",
+    "Error: \"unsupported type PipeWire:Interface:Profiler\"",
+    "pipewire-0>> send-command 157 Pause {}",
+    "*\tstate: \"suspended\""
+   ]
+  },
+  "0": {
+   "errors": [
+    "unsupported type PipeWire:Interface:SecurityContext",
+    "unsupported type PipeWire:Interface:Profiler",
+    "send-command: unknown node command type: 0"
+   ],
+   "lines": [
+    "Error: \"unsupported type PipeWire:Interface:SecurityContext\"",
+    "Error: \"unsupported type PipeWire:Interface:Profiler\"",
+    "pipewire-0>> send-command 157 0 {}",
+    "Error: \"send-command: unknown node command type: 0\"",
+    "*\tstate: \"suspended\""
+   ]
+  },
+  "bogus-cmd": {
+   "errors": [
+    "unsupported type PipeWire:Interface:SecurityContext",
+    "unsupported type PipeWire:Interface:Profiler",
+    "send-command: unknown node command type: bogus-cmd"
+   ],
+   "lines": [
+    "Error: \"unsupported type PipeWire:Interface:SecurityContext\"",
+    "Error: \"unsupported type PipeWire:Interface:Profiler\"",
+    "pipewire-0>> send-command 157 bogus-cmd {}",
+    "Error: \"send-command: unknown node command type: bogus-cmd\"",
+    "*\tstate: \"suspended\""
+   ]
+  }
+ },
+ "format_setparam": {
+  "stream_id": 163,
+  "errors": [
+   "unsupported type PipeWire:Interface:SecurityContext",
+   "unsupported type PipeWire:Interface:Profiler"
+  ],
+  "marks": [
+   {
+    "t": 1.4,
+    "cmd": "enum-params 163 EnumFormat"
+   },
+   {
+    "t": 2.0,
+    "cmd": "set-param 163 Format { mediaType: 1, mediaSubtype: 1, format: 3, rate: 96000, channels: 2 }"
+   },
+   {
+    "t": 2.7,
+    "cmd": "enum-params 163 Format"
+   },
+   {
+    "t": 3.2,
+    "cmd": "set-param 163 Format { }"
+   },
+   {
+    "t": 3.801,
+    "cmd": "enum-params 163 Format"
+   },
+   {
+    "t": 4.151,
+    "cmd": "quit"
+   }
+  ],
+  "node_alive": true,
+  "links": {
+   "r87fmt:output_FL": [
+    "r87_ns:playback_FL",
+    "r87_ns:playback_FL"
+   ],
+   "r87fmt:output_FR": [
+    "r87_ns:playback_FR",
+    "r87_ns:playback_FR"
+   ]
+  },
+  "play_rc": 1,
+  "play_err": ""
+ },
+ "mididump_live": {
+  "dump_node": {
+   "client.id": 176,
+   "media.category": "Filter",
+   "media.name": "midi-dump",
+   "media.role": "DSP",
+   "media.type": "Midi",
+   "node.name": "midi-dump",
+   "node.want-driver": true,
+   "object.id": 163,
+   "object.serial": 50994
+  },
+  "dump_in": [
+   {
+    "id": 137,
+    "name": "input",
+    "alias": "midi-dump:input",
+    "direction": "in",
+    "node_id": "163"
+   }
+  ],
+  "bridge_out": [
+   {
+    "id": 52,
+    "name": "Midi Through: Port-0 (capture)",
+    "alias": "Midi Through:Midi Through Port-0",
+    "direction": "out",
+    "node_id": "50"
+   }
+  ],
+  "pwlink_rc": 0,
+  "pwlink_err": "",
+  "links_after": {
+   "midi-dump:input": [
+    "Midi-Bridge:Midi",
+    "Midi-Bridge:Midi Through: Port-0 (capture)"
+   ]
+  },
+  "aplaymidi_rc": 0,
+  "rc": 0,
+  "stdout": " 934: track: 0 sec:0.424792 Note On    (channel  1): note   C4, velocity  96\n 680: track: 0 sec:2.424833 Note Off   (channel  1): note   C4, velocity   0\n 552: track: 0 sec:3.424833 Note On    (channel  1): note   E4, velocity  96\n 424: track: 0 sec:4.424833 Note Off   (channel  1): note   E4, velocity   0\n",
+  "stderr": ""
+ },
+ "midi_props": {
+  "mprop_tobj_bridge": {
+   "present": false,
+   "class": null,
+   "links": {},
+   "rc": 1,
+   "stderr": "stream node 163 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available\n"
+  },
+  "mprop_nodetgt_bridge": {
+   "present": false,
+   "class": null,
+   "links": {},
+   "rc": 1,
+   "stderr": "stream node 163 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available\n"
+  },
+  "mprop_tobj_garbage": {
+   "present": false,
+   "class": null,
+   "links": {},
+   "rc": 1,
+   "stderr": "stream node 163 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available\n"
+  },
+  "mprop_noauto": {
+   "present": true,
+   "class": "Stream/Output/Midi",
+   "links": {},
+   "rc": 1,
+   "stderr": ""
+  }
+ },
+ "midi_modeflag": {
+  "pwcat_m_p": {
+   "present": true,
+   "class": "Stream/Output/Midi",
+   "ports": [
+    {
+     "id": 137,
+     "name": "output_1",
+     "alias": "r87mm_p:output_1",
+     "direction": "out",
+     "node_id": "163"
+    }
+   ],
+   "rc": 1,
+   "stderr": ""
+  },
+  "pwcat_d_p": {
+   "present": false,
+   "class": null,
+   "rc": 1,
+   "stderr": "--midi                            Midi mode\n  -d, --dsd                             DSD mode\n  -s, --sysex                           SysEx mode\n  -c, --midi-clip                       MIDI clip mode\n\n"
+  }
+ }
+}

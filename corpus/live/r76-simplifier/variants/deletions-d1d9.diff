@@ -1,0 +1,95 @@
+--- corpus/live/r76-simplifier/mirror/corpus/fixtures/measure_audio_baseline_head.py	2026-10-14 15:33:17.164436041 -0300
++++ corpus/live/r76-simplifier/mirror/corpus/fixtures/measure_audio_simplified_d1d9.py	2026-10-14 15:39:00.865780023 -0300
+@@ -3077,7 +3077,6 @@
+                 actual % CAPTURE_R76_FLUSH_GRANULE == 0)
+             insp["data_256k_aligned"] = (
+                 actual % CAPTURE_R76_FFMPEG_GRANULE == 0)
+-            insp["data_4k_aligned"] = actual % 4096 == 0
+     return insp
+ 
+ 
+@@ -3280,7 +3279,7 @@
+ 
+ def _capture_sever_cell(argv, fname, sig,
+                         wait_s=CAPTURE_R76_SEVER_WAIT_S,
+-                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S, env=None):
++                        kill_wait_s=CAPTURE_R76_KILL_WAIT_S):
+     """Spawn a file-writing capture, sever it mid-record, classify the
+     wound: exit code, header-finalize class, and parser usability. A leg
+     that exits BEFORE the sever (e.g. arecord hitting a held device)
+@@ -3292,7 +3291,6 @@
+         proc = subprocess.Popen(argv + [str(out)],
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+-                                env={**os.environ, **(env or {})},
+                                 start_new_session=True)
+         early_rc = None
+         try:
+@@ -3350,7 +3348,7 @@
+     inv = _capture_inventory()
+     entry = {"probe": "capture consumer gate + enumeration surface",
+              "inventory": inv}
+-    src, mon, hw0 = _capture_leg_targets(inv)
++    src, mon, _ = _capture_leg_targets(inv)
+     entry["viability"] = {
+         "pulse_source": bool(inv["sources"]),
+         "pw_target": bool(inv["sources"]),
+@@ -3537,7 +3535,7 @@
+                 os.killpg(proc.pid, signal.SIGKILL)
+                 proc.wait()
+             err = proc.stderr.read().decode(errors="replace")
+-            cls, line = _capture_errclass(err)
++            cls, _ = _capture_errclass(err)
+             spec = re.search(r"sample spec(?:ification)? '([^']+)'",
+                              err)
+             legs["parec_byte_cap"] = {
+@@ -3640,7 +3638,7 @@
+     failures = []
+     inv = _capture_inventory()
+     entry = {"probe": "capture sever classes — TERM/KILL mid-record"}
+-    src, mon, hw0 = _capture_leg_targets(inv)
++    src, _, _ = _capture_leg_targets(inv)
+     cells = {}
+     tgt = src or "alsa_input.nonexistent-r76"
+     for sig, tag in ((signal.SIGTERM, "term"), (signal.SIGKILL, "kill")):
+@@ -3704,7 +3702,7 @@
+                      "kill_rc": -signal.SIGKILL,
+                      "kill_riff": "placeholder_8"},
+         "ffmpeg": {"term_rc": 255, "term_final": True,
+-                   "kill_rc": -signal.SIGKILL, "kill_riff": None},
++                   "kill_rc": -signal.SIGKILL},
+         "arecord": {"term_rc": 1, "term_final": True,
+                     "kill_rc": -signal.SIGKILL,
+                     "kill_riff": "placeholder_80000000"}}
+@@ -3771,7 +3769,7 @@
+     failures = []
+     inv = _capture_inventory()
+     entry = {"probe": "capture output-name axis"}
+-    src, mon, hw0 = _capture_leg_targets(inv)
++    src, mon, _ = _capture_leg_targets(inv)
+     legs = {}
+     with tempfile.TemporaryDirectory(prefix="capture-r76-") as tmp:
+         tgt = src or "alsa_input.nonexistent-r76"
+@@ -3825,10 +3823,8 @@
+                     "blocked": "no monitor source or no pulse demuxer"}
+     entry["legs"] = legs
+     for leg in legs.values():
+-        if "file" in leg and leg["file"].get("exists") is not False:
++        if leg.get("file"):
+             leg["out_kind"] = _capture_out_kind(leg["file"])
+-        elif leg.get("file"):
+-            leg["out_kind"] = "missing"
+     expected_kind = {
+         "pwrecord_wav": "riff_wav", "pwrecord_raw": "raw_stream",
+         "pwrecord_bin": "riff_wav", "pwrecord_rawflag_on_bin":
+@@ -3984,9 +3980,8 @@
+         # the existing detect legs on captured bytes vs the source member
+         # (argv paths are ABSOLUTE — the leg's cwd is the caller's; the
+         # receipt label stays the repo-relative form)
+-        cap_rel = str(cap)
+         mem_rel = str(member.relative_to(ROOT))
+-        sox_cap = transport_leg(["sox", "-V6", cap_rel, "-n", "stat"],
++        sox_cap = transport_leg(["sox", "-V6", str(cap), "-n", "stat"],
+                                 "live/r76-author/<tmp>/"
+                                 "roundtrip_capture.wav")
+         sox_mem = transport_leg(["sox", "-V6", str(member), "-n", "stat"],

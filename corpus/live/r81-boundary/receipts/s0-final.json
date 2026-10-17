@@ -1,0 +1,97 @@
+{
+ "probe": "s0-final",
+ "host": "plazir27",
+ "when": "2026-10-15T17:21:19+00:00",
+ "toolchain": {
+  "gst_launch": "gst-launch-1.0 version 1.28.6",
+  "pw": "pipewire",
+  "pactl": "pactl 17.0-98-gb096",
+  "kernel": "7.2.3-arch1-3",
+  "python": "3.14.7",
+  "pkgs": "gstreamer 1.28.6-3"
+ },
+ "byte_cap_bytes": 4194304,
+ "body": {
+  "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "default_source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+  "sinks": [
+   "52\talsa_output.pci-0000_01_00.1.hdmi-stereo\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "61\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+   "62\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "63\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED"
+  ],
+  "sources": [
+   "52\talsa_output.pci-0000_01_00.1.hdmi-stereo.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "61\talsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor\tPipeWire\ts16le 2ch 48000Hz\tSUSPENDED",
+   "62\talsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "63\talsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor\tPipeWire\ts32le 2ch 48000Hz\tSUSPENDED",
+   "64\talsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED",
+   "65\talsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source\tPipeWire\ts24le 2ch 48000Hz\tSUSPENDED"
+  ],
+  "modules": [
+   "1\tlibpipewire-module-rt\t{",
+   "            nice.level    = -11",
+   "            rt.prio       = 88",
+   "            #rt.time.soft = -1",
+   "            #rt.time.hard = -1",
+   "            #rlimits.enabled = true",
+   "            rtportal.enabled = false",
+   "            #rtkit.enabled = true",
+   "            #uclamp.min = 0",
+   "            #uclamp.max = 1024",
+   "        }\t",
+   "2\tlibpipewire-module-protocol-native\t{",
+   "            # List of server Unix sockets, and optionally permissions",
+   "            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]",
+   "        }\t",
+   "4\tlibpipewire-module-profiler\t{",
+   "            #profile.interval.ms = 0",
+   "        }\t",
+   "6\tlibpipewire-module-metadata\t\t",
+   "8\tlibpipewire-module-spa-device-factory\t\t",
+   "10\tlibpipewire-module-spa-node-factory\t\t",
+   "12\tlibpipewire-module-client-node\t\t",
+   "14\tlibpipewire-module-client-device\t\t",
+   "16\tlibpipewire-module-portal\t\t",
+   "17\tlibpipewire-module-access\t{",
+   "            # Socket-specific access permissions",
+   "            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }",
+   "",
+   "            # Deprecated legacy mode (not socket-based),",
+   "            # for now enabled by default if access.socket is not specified",
+   "            #access.legacy = true",
+   "        }\t",
+   "18\tlibpipewire-module-adapter\t\t",
+   "20\tlibpipewire-module-link-factory\t{",
+   "            #allow.link.passive = false",
+   "\t}\t",
+   "22\tlibpipewire-module-session-manager\t\t",
+   "536870912\tmodule-always-sink\t\t",
+   "536870913\tmodule-device-manager\t\t",
+   "536870914\tmodule-device-restore\t\t",
+   "536870915\tmodule-stream-restore\t\t"
+  ],
+  "sink_inputs": [],
+  "source_outputs": [],
+  "graph": {
+   "links": [],
+   "mine": {},
+   "seat": [],
+   "phys": [
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "node_count": 10,
+   "clients": 9
+  },
+  "leftover_modules": [],
+  "leftover_procs": [
+   "1423734 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && export XDG_RUNTIME_DIR=/run/user/1000 && timeout 120 python3 corpus/live/r81-boundary/r81_bnd_probe.py final 2>&1 | tail -20; echo \"=== seat modules/nodes left ===\"; pactl list short modules | grep -c \"gst_r81_bnd\" || echo 0; pw-dump 2>/dev/null | grep -c \"gst_r81_bnd\" || echo 0"
+  ],
+  "scratch_bytes": 10059573
+ }
+}

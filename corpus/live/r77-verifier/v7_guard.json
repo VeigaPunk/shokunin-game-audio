@@ -1,0 +1,46 @@
+{
+  "probe": "r77-verifier probe-mode guard check",
+  "trials": [
+    {
+      "flags": [
+        "--probe-capture-r76",
+        "--probe-consumers2-r75"
+      ],
+      "guard_fired": true,
+      "system_exit_code": 2
+    },
+    {
+      "flags": [
+        "--probe-capture-r77",
+        "--probe-capture-r76"
+      ],
+      "guard_fired": false,
+      "main_rc": false
+    },
+    {
+      "flags": [
+        "--probe-capture-r77",
+        "--probe-consumers2-r75"
+      ],
+      "guard_fired": false,
+      "main_rc": false
+    },
+    {
+      "flags": [
+        "--probe-capture-r77"
+      ],
+      "guard_fired": false,
+      "main_rc": false
+    }
+  ],
+  "failures": [
+    "--probe-capture-r77 --probe-capture-r76: two probe modes accepted \u2014 the guard did not fire",
+    "--probe-capture-r77 --probe-consumers2-r75: two probe modes accepted \u2014 the guard did not fire"
+  ],
+  "guard_fires_for": [
+    [
+      "--probe-capture-r76",
+      "--probe-consumers2-r75"
+    ]
+  ]
+}

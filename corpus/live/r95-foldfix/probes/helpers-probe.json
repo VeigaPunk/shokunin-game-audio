@@ -1,0 +1,102 @@
+{
+ "daemon_gate": {
+  "ok": true,
+  "rc": 0,
+  "killed": false,
+  "wall_s": 0.012,
+  "block": null
+ },
+ "probe_state": {
+  "ok": {
+   "ok": true,
+   "state": "ok",
+   "detail": null
+  },
+  "open_timeout": {
+   "ok": false,
+   "state": "jack_r95_open_timeout",
+   "detail": "the bounded child was SIGKILLed at 10.0s with 0 stdout bytes and no R95AJSON record \u2014 jack_client_open never returned"
+  },
+  "no_daemon": {
+   "ok": false,
+   "state": "jack_r95_no_daemon",
+   "detail": "libjack refused the open: 'Could not connect to JACK server'"
+  },
+  "no_record": {
+   "ok": false,
+   "state": "jack_r95_no_record",
+   "detail": "rc=1 stderr='boom' stdout='' \u2014 no R95AJSON record"
+  }
+ },
+ "lock_path": "/run/user/1000/ufo-measure_audio-jack-r95.lock",
+ "lock_acquired": true,
+ "lock_stale_text": null,
+ "lock_waiter_other_tree": {
+  "acquired": false,
+  "block": "jack_r95_family_lock_busy: /run/user/1000/ufo-measure_audio-jack-r95.lock held for 2.0s > cap 2.0s \u2014 a same-family run is live (holder text 'pid=112887 ns=r95a_ns_112887 role=r95arole112887 path=/run/user/1000/ufo-measure_audio-jack-r95.lock'); the family is not run against a shared host-global quantum",
+  "waited_s": 2.001,
+  "holder_text": "pid=112887 ns=r95a_ns_112887 role=r95arole112887 path=/run/user/1000/ufo-measure_audio-jack-r95.lock"
+ },
+ "lock_file_after_release": "",
+ "lock2_acquired": true,
+ "lock2_stale_text": null,
+ "lock2_stale_pid_dead": null,
+ "meta_rows": {
+  "keys": [
+   "clock.allowed-rates",
+   "clock.force-quantum",
+   "clock.force-rate",
+   "clock.max-quantum"
+  ],
+  "subjects": [
+   0
+  ],
+  "row_count": 8,
+  "subject_count": 1,
+  "force_quantum": "0"
+ },
+ "block_entry": {
+  "has_legs": true,
+  "legs": {
+   "a_avail": {
+    "synthetic": true
+   }
+  },
+  "measured": false,
+  "blocked": "synthetic block",
+  "sinks_gone": {
+   "r95f_never_loaded": true
+  },
+  "sinks_censused": [
+   "r95f_never_loaded"
+  ],
+  "own_nodes_after": [],
+  "stream_properties_own_rows": [],
+  "coverage_blocked": [
+   "synthetic block"
+  ],
+  "failures": []
+ },
+ "restore_noop": {
+  "keys": [
+   "probe"
+  ],
+  "failures": []
+ },
+ "witness_ok": true,
+ "witness_bad": false,
+ "witness_blocks": [
+  "leg: concurrent graph witness unreadable (TimeoutExpired: pw-dump) \u2014 the PW-side arms of this leg are unmeasured, not falsified"
+ ],
+ "lock_blocked_entry": {
+  "probe": "jack_surface_r95_probe: family lock not acquired",
+  "blocked": "busy",
+  "coverage_blocked": [
+   "busy"
+  ],
+  "legs": {},
+  "legs_measured": 0,
+  "measured": false,
+  "failures": []
+ }
+}

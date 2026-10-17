@@ -1,0 +1,67 @@
+A /home/vgpnk/Projects/shokunin/r90s/base/corpus/live/runs/20261016T100335959656Z-wpstate-r90
+B /home/vgpnk/Projects/shokunin/r90s/f1/corpus/live/runs/20261016T100215992353Z-wpstate-r90
+
+== wpformat_r90_probe: failures A=[] B=[] legs A=6 B=6 law-projection IDENTICAL
+
+== wplink_r90_probe: failures A=[] B=[] legs A=24 B=24 law-projection DIFFERS
+--- A
++++ B
+@@ -145,2 +145,13 @@
+      "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FL",
++     "error_class": null,
++     "error_hit": null,
++     "exit_code": 0,
++     "stderr": "",
++     "stderr_bytes": 0,
++     "stdout": "",
++     "stdout_bytes": 0,
++     "stdout_token": ""
++    },
++    {
++     "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FR",
+      "error_class": "wpstate_unlink_failed",
+@@ -150,13 +161,2 @@
+      "stderr_bytes": 50,
+-     "stdout": "",
+-     "stdout_bytes": 0,
+-     "stdout_token": ""
+-    },
+-    {
+-     "argv": "pw-link -d <foreign><tag>_<pid>:monitor_FL <foreign><tag>_<pid>:playback_FR",
+-     "error_class": null,
+-     "error_hit": null,
+-     "exit_code": 0,
+-     "stderr": "",
+-     "stderr_bytes": 0,
+      "stdout": "",
+   ... 0 more diff lines
+
+== wpstate_pmod_r90_probe: failures A=[] B=['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id'] legs A=15 B=15 law-projection DIFFERS
+--- A
++++ B
+@@ -1,3 +1,6 @@
+ {
+- "failures": [],
++ "failures": [
++  "m_phantom: the unreachable tunnel did not return 0 (rc 1)",
++  "m_phantom: the tunnel load returned no module id"
++ ],
+  "legs": {
+@@ -176,7 +179,7 @@
+     "error_hit": null,
+-    "exit_code": 0,
+-    "stderr": "",
+-    "stderr_bytes": 0,
+-    "stdout": "<mid>\n",
+-    "stdout_bytes": 10
++    "exit_code": 1,
++    "stderr": "Failure: Unknown error code\n",
++    "stderr_bytes": 28,
++    "stdout": "",
++    "stdout_bytes": 0
+    },
+   ... 0 more diff lines
+
+== wpstate_store_r90_probe: failures A=[] B=[] legs A=15 B=15 law-projection IDENTICAL
+
+VERDICT: DIFFERS (see the hunks above)

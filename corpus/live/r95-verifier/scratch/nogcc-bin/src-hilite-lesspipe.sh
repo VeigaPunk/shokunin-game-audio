@@ -1,0 +1,1 @@
+/usr/bin/src-hilite-lesspipe.sh

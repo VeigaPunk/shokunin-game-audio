@@ -1,0 +1,128 @@
+[
+  {
+    "id": 35,
+    "type": "PipeWire:Interface:Node",
+    "version": 3,
+    "permissions": [ "r", "w", "x", "m" ],
+    "info": {
+      "max-input-ports": 1,
+      "max-output-ports": 1,
+      "change-mask": [ "input-ports", "output-ports", "state", "props", "params" ],
+      "n-input-ports": 1,
+      "n-output-ports": 1,
+      "state": "suspended",
+      "error": null,
+      "props": {
+        "api.bluez5.role": "server",
+        "api.glib.mainloop": true,
+        "client.id": 45,
+        "clock.quantum-limit": 8192,
+        "device.api": "bluez5",
+        "factory.id": 12,
+        "factory.name": "api.bluez5.midi.node",
+        "media.class": "Midi/Bridge",
+        "node.description": "BLE MIDI 1",
+        "node.loop.name": "data-loop.0",
+        "node.name": "bluez_midi.server",
+        "object.id": 35,
+        "object.serial": 60
+      },
+      "params": {
+        "PropInfo": [
+          {
+            "id": "latencyOffsetNsec",
+            "description": "Latency offset (ns)",
+            "type": { "default": 0, "min": -9223372036854775808, "max": 9223372036854775807 }
+          },
+          {
+            "id": "deviceName",
+            "description": "Device name",
+            "type": "BLE MIDI 1"
+          }
+        ],
+        "Props": [
+          {
+            "latencyOffsetNsec": 0,
+            "deviceName": "BLE MIDI 1"
+          }
+        ],
+        "IO": [
+        ]
+      }
+    }
+  },
+  {
+    "id": 60,
+    "type": "PipeWire:Interface:Port",
+    "version": 3,
+    "permissions": [ "r", "x", "m" ],
+    "info": {
+      "direction": "input",
+      "change-mask": [ "props", "params" ],
+      "props": {
+        "audio.channel": "FL",
+        "format.dsp": "32 bit float mono audio",
+        "node.id": 57,
+        "object.id": 60,
+        "object.path": "alsa:acp:NVidia:4:playback:playback_0",
+        "object.serial": 68,
+        "port.alias": "LG ULTRAWIDE:playback_FL",
+        "port.direction": "in",
+        "port.group": "playback",
+        "port.id": 0,
+        "port.name": "playback_FL",
+        "port.physical": true,
+        "port.terminal": true
+      },
+      "params": {
+        "EnumFormat": [
+          {
+            "mediaType": "audio",
+            "mediaSubtype": "dsp",
+            "format": "F32P"
+          }
+        ],
+        "Meta": [
+          {
+            "type": "Header",
+            "size": 32
+          }
+        ],
+        "IO": [
+          {
+            "id": "Buffers",
+            "size": 8
+          },
+          {
+            "id": "AsyncBuffers",
+            "size": 16
+          }
+        ],
+        "Format": [ ],
+        "Buffers": [ ],
+        "Latency": [
+          {
+            "direction": "Input",
+            "minQuantum": 1.000000,
+            "maxQuantum": 1.000000,
+            "minRate": 0,
+            "maxRate": 0,
+            "minNs": 0,
+            "maxNs": 0
+          },
+          {
+            "direction": "Output",
+            "minQuantum": 0.000000,
+            "maxQuantum": 0.000000,
+            "minRate": 0,
+            "maxRate": 0,
+            "minNs": 0,
+            "maxNs": 0
+          }
+        ],
+        "Tag": [
+        ]
+      }
+    }
+  }
+]

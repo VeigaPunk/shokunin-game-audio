@@ -1,0 +1,220 @@
+{
+ "probe": "r77-boundary/p5b-contention",
+ "t0": "2026-10-14T19:49:12Z",
+ "preflight_device_free": {
+  "attempts": 23,
+  "waited_s": 11.0,
+  "err": "Recording WAVE '/dev/shm/r77b/free_probe.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo"
+ },
+ "A_two_pw_same_source": {
+  "A_A_first": {
+   "tag": "A_A",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 96000 /dev/shm/r77b/A1.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/A1.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "e3a90286b3b54201",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  },
+  "A_B_second": {
+   "tag": "A_B",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 96000 /dev/shm/r77b/A2.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/A2.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "e3a90286b3b54201",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  }
+ },
+ "preflight_B": {
+  "attempts": 1,
+  "waited_s": 0.0,
+  "err": "Recording WAVE '/dev/shm/r77b/free_probe.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo"
+ },
+ "B_arecord_then_pw": {
+  "B_A_first": {
+   "tag": "B_A",
+   "cmd": "arecord -D hw:0,0 -f cd -t wav -d 2 /dev/shm/r77b/B1.wav",
+   "rc": 0,
+   "killed_by_us": false,
+   "err": "Recording WAVE '/dev/shm/r77b/B1.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo",
+   "class": "other",
+   "bytes": 352844,
+   "sha16": "6d3d50499cba6386",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 88200,
+   "peak": 56.0,
+   "nz": 0.6831,
+   "tone": false
+  },
+  "B_B_second": {
+   "tag": "B_B",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 96000 /dev/shm/r77b/B2.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/B2.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "e3a90286b3b54201",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  }
+ },
+ "preflight_C": {
+  "attempts": 1,
+  "waited_s": 0.0,
+  "err": "Recording WAVE '/dev/shm/r77b/free_probe.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo"
+ },
+ "C_pw_then_arecord": {
+  "C_A_first": {
+   "tag": "C_A",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 96000 /dev/shm/r77b/C1.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/C1.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "e3a90286b3b54201",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  },
+  "C_B_second": {
+   "tag": "C_B",
+   "cmd": "arecord -D hw:0,0 -f cd -t wav -d 2 /dev/shm/r77b/C2.wav",
+   "rc": 0,
+   "killed_by_us": false,
+   "err": "Recording WAVE '/dev/shm/r77b/C2.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo",
+   "class": "other",
+   "bytes": 352844,
+   "sha16": "ec992202baca7107",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 88200,
+   "peak": 569.0,
+   "nz": 0.7774,
+   "tone": false
+  }
+ },
+ "preflight_D": {
+  "attempts": 1,
+  "waited_s": 0.0,
+  "err": "Recording WAVE '/dev/shm/r77b/free_probe.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo"
+ },
+ "D_two_arecord": {
+  "D_A_first": {
+   "tag": "D_A",
+   "cmd": "arecord -D hw:0,0 -f cd -t wav -d 2 /dev/shm/r77b/D1.wav",
+   "rc": 0,
+   "killed_by_us": false,
+   "err": "Recording WAVE '/dev/shm/r77b/D1.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo",
+   "class": "other",
+   "bytes": 352844,
+   "sha16": "140cb94ea9172383",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 88200,
+   "peak": 52.0,
+   "nz": 0.6808,
+   "tone": false
+  },
+  "D_B_second": {
+   "tag": "D_B",
+   "cmd": "arecord -D hw:0,0 -f cd -t wav -d 2 /dev/shm/r77b/D2.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "arecord: main:850: audio open error: Device or resource busy",
+   "class": "alsa_busy",
+   "bytes": null,
+   "sha16": null,
+   "riff": null,
+   "data": null,
+   "frames": null,
+   "peak": null,
+   "nz": 0,
+   "tone": false
+  }
+ },
+ "E_monitor_during_source_hold": {
+  "monitor_leg": {
+   "tag": "E_mon",
+   "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/E_mon.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/E_mon.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "5703c13c771852c3",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 16384.0,
+   "nz": 0.7539,
+   "tone": true
+  },
+  "source_hold_leg": {
+   "tag": "E_hold",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 144000 /dev/shm/r77b/E_hold.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/E_hold.wav",
+   "class": "other",
+   "bytes": 576044,
+   "sha16": "ec3650bd450cebe9",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 144000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  }
+ },
+ "F_parec_during_hold": {
+  "parec_rc": 0,
+  "raw_bytes": 65536,
+  "parec_err": "write() failed: Broken pipe\n",
+  "hold_leg": {
+   "tag": "F_hold",
+   "cmd": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 96000 /dev/shm/r77b/F_hold.wav",
+   "rc": 1,
+   "killed_by_us": false,
+   "err": "/dev/shm/r77b/F_hold.wav",
+   "class": "other",
+   "bytes": 384044,
+   "sha16": "e3a90286b3b54201",
+   "riff": "finalized",
+   "data": "finalized",
+   "frames": 96000,
+   "peak": 0.0,
+   "nz": 0,
+   "tone": false
+  }
+ },
+ "postflight_device_free": {
+  "attempts": 1,
+  "waited_s": 0.0,
+  "err": "Recording WAVE '/dev/shm/r77b/free_probe.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo"
+ }
+}

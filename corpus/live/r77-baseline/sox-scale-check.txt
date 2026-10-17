@@ -1,0 +1,10 @@
+=== sox 'Volume adjustment' scale check ===
+purpose: confirm the sox stat field used to read captured-vs-member level
+is a true dB level measure (differences = dB deltas).
+--- sox-scale-same.wav (member scaled x1.0)
+Maximum amplitude:     0.172363
+Volume adjustment:        5.802
+--- sox-scale-half.wav (member scaled x0.5)
+Maximum amplitude:     0.086182
+Volume adjustment:       11.603
+6.02 dB amplitude halving -> +6.02 dB printed (5.802 -> 11.603): the field is -20*log10(level), so differences are exact dB deltas.

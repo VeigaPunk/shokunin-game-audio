@@ -1,0 +1,20 @@
+baseline ports=14 nodes=[]
+baseline procs='3509437 [pw-record] <defunct>'
+--- bounded -n 4800 (0.1 s)
+  before: nodes=[] procs='3509437 [pw-record] <defunct>'
+  after : rc=1 err=None nodes=[] procs='3509437 [pw-record] <defunct>'
+  +2s   : nodes=[] procs=''
+--- sever TERM (2.5 s then SIGTERM)
+  before: nodes=[] procs=''
+  after TERM rc=1 nodes=[] procs=''
+--- roundtrip -n 240000 (5 s)
+  before: nodes=[] procs=''
+  exited rc=1 after 5.07 s
+  after : nodes=[] procs=''
+--- arecord -D sysdefault -d 1
+  before: nodes=[] procs=''
+--- arecord -D sysdefault -d 1
+  before: nodes=[] procs=''
+  after : rc=0 err=None nodes=[] procs=''
+  +2s   : nodes=[] procs=''
+FINAL ports=14 nodes=[] procs=''

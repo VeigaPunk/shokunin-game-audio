@@ -1,0 +1,50 @@
+{
+  "fixture": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/fixtures/measure_audio.py",
+  "r82_pair": [
+    1210.0,
+    1780.0
+  ],
+  "r82_tol": 0.06,
+  "r82_amp_floor": 3000,
+  "r78_pid_mod4": 1,
+  "r78_pair_this_proc": [
+    1208.0,
+    1711.0
+  ],
+  "cases": {
+    "r78pid1_tone_through_r82_classifier": {
+      "mine_windows": 20,
+      "carries_tone": true,
+      "peak_l": 7981,
+      "peak_r": 8137
+    },
+    "r78pid0_tone_through_r82_classifier": {
+      "mine_windows": 0,
+      "carries_tone": false,
+      "peak_l": 7726,
+      "peak_r": 8190
+    },
+    "r82_tone_through_r82_classifier": {
+      "mine_windows": 20,
+      "carries_tone": true,
+      "peak_l": 8190,
+      "peak_r": 8190
+    },
+    "r82_tone_through_r78_classifier_pid1": {
+      "mine_windows": 20,
+      "carries_tone": true,
+      "peak_l": 8190,
+      "peak_r": 8190
+    },
+    "r78pid0_tone_through_r78_classifier_pid1": {
+      "mine_windows": 0,
+      "carries_tone": false,
+      "peak_l": 7726,
+      "peak_r": 8190
+    }
+  },
+  "verdict": {
+    "r82_classifier_reads_r78pid1_as_mine": true,
+    "r78_classifier_pid1_reads_r82_as_mine": true
+  }
+}

@@ -1,0 +1,41 @@
+== T1: FFPW_R82_FFPLAY constant ==
+PASS  FFPW_R82_FFPLAY has 0 Load refs (got [])
+
+== T2: _ffpw_r82_last_node require_linked ==
+PASS  22 call sites, 0 pass require_linked (bad=[])
+
+== T3: _ffpw_r82_shot env_extra ==
+PASS  7 call sites (8 executions), 0 pass env_extra (bad=[])
+
+== T4: _landed_on taps ==
+PASS  8 call sites, 0 pass taps (bad=[])
+
+== T5: entry-6 legs omit out_path ==
+PASS  6 legs, none passes out_path (got [(15929, False), (15932, False), (15935, False), (15939, False), (15942, False), (15946, False)])
+PASS  _ffpw_r82_leg stores out=None without out_path (lines [12989, 14501]+[12990, 14500, 14502])
+
+== T6: superseded predicate (implication) ==
+PASS  per-device mismatch loop precedes the any(...is None) predicate
+
+== T7: _star dead store ==
+PASS  _star has 0 Load refs (got [])
+
+== T8: entry-2 _cap post ==
+PASS  no _cap call site passes post (bad=[]); 22 total _cap calls (both closures)
+
+== T10: _ffpw_r82_kill_watch ==
+PASS  1 call site with 2 positional args: [(14456, 2, [])]
+PASS  sole kill_watch event arg is the literal "pump"
+PASS  same leg passes watch={"pump": pump} (live Popen)
+
+== T11: _ffpw_r82_tone_windows path ==
+PASS  4 call sites: [(14957, 1, []), (15303, 1, []), (15717, 1, []), (15747, 1, [])]
+      line 14957: tw = _ffpw_r82_tone_windows(out)   # inside the tmpdir
+      line 15303: w = _ffpw_r82_tone_windows(path)
+      line 15717: w = _ffpw_r82_tone_windows(path)
+      line 15747: w = _ffpw_r82_tone_windows(cap)
+
+== census: module-level names in the region ==
+PASS  only definition-only region name is FFPW_R82_FFPLAY (got [('FFPW_R82_FFPLAY', 14267)])
+
+RESULT: ALL STATIC PROOFS HOLD

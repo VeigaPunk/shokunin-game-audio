@@ -1,0 +1,34 @@
+fixture table (name, resolver, prop, expected node, expected tone):
+  prop_default_sink            prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_default_sink_monitor    prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_other_sink              prop=True  expect=other_sink  tone=False  fallback-consistent=False
+  prop_source                  prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_default_token           prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_pulse_token             prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_garbage                 prop=True  expect=default_sink tone=True   fallback-consistent=True
+  prop_auto                    prop=True  expect=default_sink tone=True   fallback-consistent=True
+  noprop_default_sink          prop=False expect=empty_wav   tone=False  fallback-consistent=False
+  noprop_default_sink_monitor  prop=False expect=empty_wav   tone=False  fallback-consistent=False
+  noprop_source                prop=False expect=source      tone=False  fallback-consistent=False
+
+rows satisfied by H_fallback ALONE: 7/11
+    prop_default_sink
+    prop_default_sink_monitor
+    prop_source
+    prop_default_token
+    prop_pulse_token
+    prop_garbage
+    prop_auto
+rows that can separate the law from H_fallback: 4
+    prop_other_sink (expect=other_sink, tone=False)
+    noprop_default_sink (expect=empty_wav, tone=False)
+    noprop_default_sink_monitor (expect=empty_wav, tone=False)
+    noprop_source (expect=source, tone=False)
+
+rows whose TARGET is a `.monitor` name: ['prop_default_sink_monitor', 'noprop_default_sink_monitor']
+of those, rows whose target is a NON-default sink's monitor: []
+
+boundary seat's falsifying row (default moved to Speaker):
+  target=HiFi__SPDIF__sink.monitor signature=[False, True] consumed=SPEAKER monitor
+  -> under the moved default the r77 row would compute want=usb-Generic_USB_Audio-00 and got=the same node: PASS, whether or not the `.monitor` name resolved.
+  -> pw-dump monitor-named nodes: []

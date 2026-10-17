@@ -1,0 +1,468 @@
+diff --git i/corpus/fixtures/measure_audio.py w/corpus/fixtures/measure_audio.py
+index b068dbb..7b89bff 100755
+--- i/corpus/fixtures/measure_audio.py
++++ w/corpus/fixtures/measure_audio.py
+@@ -978,6 +978,410 @@ def sndfile_transport_entry(member, path):
+     return entry
+ 
+ 
++# r73 CONSUMER-class expansion: playback consumers (not decoder runtimes) on
++# the canonical member x transport matrix.
++#   pw-cat (PipeWire realtime playback) decodes via libsndfile — `sndfile:`
++#   error lines — and paces consumption at playback rate. Viability is
++#   conditional on a reachable daemon: the pw_context_connect gate fires
++#   BEFORE the input is opened (ops entry records both sides; frontier
++#   measured instant rc=1 "Host is down" with an empty runtime dir).
++#   mpv detects by content via libavformat on every transport but forks
++#   DECODE on the stream's seekable bit: a seekable hcom stream gets a
++#   "refresh seek to 0" the hcom demuxer refuses EPERM (zero data -> rc=2),
++#   while the same bytes on a non-seekable stream skip the refresh and
++#   decode (rc=0) — the INVERSE polarity of the decoder {named} axis.
++# Claim under test: consumer verdicts partition by mandatory-seek vs
++# stream-consume polarity — opposite of the decoder axis.
++CONSUMER_R73_MEMBERS = TRANSPORT_R72_MEMBERS   # same canonical 9
++CONSUMER_R73_TIMEOUT_S = 15
++# Pacing member: a base SPEC artifact (4.0 s programme) — long enough for
++# playback-paced consumption to be measurable against instant delivery.
++CONSUMER_R73_PACER = ARTIFACTS / "stem_sections.wav"
++CONSUMER_R73_PACER_DURATION_S = 4.0
++CONSUMER_R73_NOWRITER_WAIT_S = 3.0
++CONSUMER_R73_TRICKLE_CHUNKS = 8
++CONSUMER_R73_TRICKLE_GAP_S = 0.75
++
++
++def _consumer_tail(text, probe_arg):
++    """Normalized last-line tail: mpv `[t][lvl][mod]` log tags, quoted input
++    paths, backtick names and ASLR tags stripped so the receipt is
++    byte-deterministic across transports and runs."""
++    lines = text.strip().splitlines()
++    if not lines:
++        return None
++    t = re.sub(r"^\s*(\[[^\]]*\])+\s*", "", lines[-1])
++    t = re.sub(r"`[^']*'", "`<input>'", t)
++    t = re.sub(r'"[^"]*"', '"<input>"', t)
++    t = re.sub(r" @ 0x[0-9a-fA-F]+", "", t)
++    return t.replace(str(probe_arg), "<input>")[-160:]
++
++
++def _pwcat_fields(text):
++    """pw-cat's decode layer is libsndfile: the `sndfile:` line carries the
++    format verdict, the trailing `error:` line the stream/open verdict."""
++    m = re.search(r'sndfile: failed to open audio file "[^"]*":\s*(.*)', text)
++    sndfile_err = m.group(1).strip() if m else None
++    errs = [ln for ln in text.strip().splitlines() if ln.startswith("error:")]
++    pw_err = errs[-1].split(":", 1)[1].strip() if errs else None
++    return sndfile_err, pw_err
++
++
++def pwcat_leg(transport, path, data, hold_s):
++    """One bounded `pw-cat -p <in>` playback leg -> stream-consume verdict.
++
++    <in> is a path for the named transports or `-` (stdin) for the
++    anonymous arms — a pipe for stdin_pipe, a fresh O_RDONLY fd (anonymous
++    but SEEKABLE) for redirected_fd. The fifo arm reuses the r67 writer
++    protocol; pw-cat single-opens its input (no re-open bridge — the hold
++    only keeps parity with sibling arms) and exits rc=0 at writer EOF.
++    A timeout means open()/read() waits on a writer; subprocess's
++    timeout-kill is SIGKILL — the only signal a fifo-blocked pw-cat honors
++    (frontier measured >30 s SIGTERM survival in open())."""
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=CONSUMER_R73_TIMEOUT_S, **kw)
++            return proc.stderr.decode(errors="replace"), proc.returncode, None
++        except subprocess.TimeoutExpired as exc:
++            return ((exc.stderr or b"").decode(errors="replace"), None,
++                    f"blocked: no verdict within {CONSUMER_R73_TIMEOUT_S} s")
++
++    if transport == "file":
++        text, code, blocked = run(["pw-cat", "-p", str(path)])
++        label = str(path.relative_to(ROOT))
++    elif transport == "stdin_pipe":
++        text, code, blocked = run(["pw-cat", "-p", "-"], input=data)
++        label = "-"
++    elif transport == "redirected_fd":
++        with path.open("rb") as fh:
++            text, code, blocked = run(["pw-cat", "-p", "-"], stdin=fh)
++        label = "-"
++    else:
++        with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                text, code, blocked = run(["pw-cat", "-p", str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++        label = path.name
++    sndfile_err, pw_err = _pwcat_fields(text)
++    leg = {"input": label, "exit_code": code,
++           "sndfile_error": sndfile_err, "pw_error": pw_err,
++           "error": blocked or sndfile_err or pw_err}
++    tail = _consumer_tail(text, label)
++    if tail:
++        leg["stderr_tail"] = tail
++    return leg
++
++
++def mpv_leg(transport, path, data, hold_s):
++    """One bounded mpv playback leg -> mandatory-seek consumer verdict.
++
++    mpv sniffs content via libavformat on every transport; `--log-file` is
++    the parse surface (--really-quiet leaves the console empty), decoded
++    with ao/vo null so no device is needed. <in> is a path for the named
++    transports or `-` (stdin) for the anonymous arms — a pipe for
++    stdin_pipe, a fresh O_RDONLY fd for redirected_fd (anonymous but
++    SEEKABLE: lavf treats the fd as seekable and attempts the refresh
++    seek, grouping it with the file arm). The fifo arm reuses the r67
++    writer protocol; mpv exits at writer EOF."""
++    def run(argv, **kw):
++        try:
++            proc = subprocess.run(argv, capture_output=True,
++                                  timeout=CONSUMER_R73_TIMEOUT_S, **kw)
++            return proc.returncode, None
++        except subprocess.TimeoutExpired:
++            return None, f"blocked: no verdict within {CONSUMER_R73_TIMEOUT_S} s"
++
++    with tempfile.TemporaryDirectory(prefix="mpv-r73-") as tmp:
++        log = Path(tmp) / "mpv.log"
++        argv = ["mpv", "--no-config", "--vo=null", "--ao=null",
++                "--audio-display=no", "--really-quiet", f"--log-file={log}"]
++        if transport == "file":
++            code, blocked = run(argv + [str(path)])
++            label = str(path.relative_to(ROOT))
++        elif transport == "stdin_pipe":
++            code, blocked = run(argv + ["-"], input=data)
++            label = "-"
++        elif transport == "redirected_fd":
++            with path.open("rb") as fh:
++                code, blocked = run(argv + ["-"], stdin=fh)
++            label = "-"
++        else:
++            fifo = Path(tmp) / path.name
++            os.mkfifo(fifo)
++            writer = threading.Thread(target=fifo_feed,
++                                      args=(fifo, data, hold_s), daemon=True)
++            writer.start()
++            try:
++                code, blocked = run(argv + [str(fifo)])
++            finally:
++                writer.join(timeout=hold_s + 5)
++                reap_fifo_orphans(fifo)
++            label = path.name
++        text = log.read_text(errors="replace") if log.exists() else ""
++    detected = re.search(r"Detected file format: (\S+) \(libavformat\)", text)
++    probe = re.search(r"Found '([^']+)' at score=(\d+)", text)
++    seekfail = re.search(r"Seek failed \(([^)]*)\)", text)
++    track = re.search(r"Audio\s+--aid=1\s+\(([^)]*)\)", text)
++    verdict = re.search(r"finished playback, (.*)$", text, re.M)
++    reason = (verdict.group(1).strip() if verdict else
++              "Failed to recognize file format."
++              if "Failed to recognize file format" in text else None)
++    leg = {"input": label, "exit_code": code,
++           "lavf_detected": detected.group(1) if detected else None,
++           "lavf_probe": probe.group(1) if probe else None,
++           "lavf_score": int(probe.group(2)) if probe else None,
++           "stream_not_seekable": "Stream is not seekable" in text,
++           "refresh_seek": "refresh seek to" in text,
++           "seek_failed": seekfail.group(1) if seekfail else None,
++           "audio_track": track.group(1) if track else None,
++           "mpv_verdict": reason,
++           "error": blocked or (None if code == 0 else
++                                reason or f"exit {code}")}
++    return leg
++
++
++def consumer_transport_entry(member, path):
++    """r73 receipt entry: BOTH playback consumers on the member's transport
++    matrix. Each consumer gets its own verdict groups keyed on its verdict
++    signature; a fork lands as a failure per the r67 convention, keyed by
++    consumer so the receipt pins which polarity axis each one exercises."""
++    hold_s = fifo_writer_hold_s()
++    data = path.read_bytes()
++    consumers = {}
++    failures = []
++    for consumer in ("pw-cat", "mpv"):
++        legs = pwcat_leg if consumer == "pw-cat" else mpv_leg
++        arms = {t: legs(t, path, data, hold_s)
++                for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path")}
++        for t, named, seekable in TRANSPORT_R67_ARMS:
++            arms[t]["named"], arms[t]["seekable"] = named, seekable
++        groups = []
++        for t in ("file", "stdin_pipe", "redirected_fd", "fifo_path"):
++            a = arms[t]
++            sig = ((a["exit_code"], a["sndfile_error"]) if consumer == "pw-cat"
++                   else (a["exit_code"], a["lavf_detected"], a["seek_failed"]))
++            for g in groups:
++                if g[0] == sig:
++                    g[1].append(t)
++                    break
++            else:
++                groups.append((sig, [t]))
++        consumers[consumer] = {
++            "transport_axis": arms,
++            "transport_verdict_groups": [
++                {"transports": ts, "verdict": list(sig)}
++                for sig, ts in groups],
++            "transport_fork": len(groups) > 1}
++        if consumers[consumer]["transport_fork"]:
++            desc = " vs ".join("/".join(ts) + "=" + "/".join(str(s) for s in sig)
++                               for sig, ts in groups)
++            failures.append(f"transport: {consumer} verdict forks across "
++                            f"transports ({desc})")
++    return {"path": str(path.relative_to(ROOT)), "pair_member": member,
++            "consumers": consumers,
++            "consumer_protocol": {
++                "arm_timeout_s": CONSUMER_R73_TIMEOUT_S,
++                "fifo_writer_hold_s": hold_s,
++                "fifo_feed": "one-shot write then writer lingers",
++                "pwcat": ("pw-cat -p <in|-> — PipeWire realtime playback, "
++                          "libsndfile decode layer (sndfile: errors); "
++                          "SIGKILL-bound (survives SIGTERM fifo-blocked)"),
++                "mpv": ("mpv --no-config --vo=null --ao=null "
++                        "--audio-display=no --really-quiet "
++                        "--log-file=<tmp> <in|->")},
++            "failures": failures}
++
++
++def consumer_ops_entry():
++    """r73 ops entry — the member-independent pw-cat operational surface:
++    (a) daemon liveness + the pw_context_connect gate's precedence over
++    input open, (b) fifo writer-attach semantics (no-writer open block,
++    empty-writer verdict), (c) playback-paced consumption on a 4.0 s
++    member (instant dump + starved trickle)."""
++    failures = []
++    entry = {"probe": "pw-cat realtime consumer operational surface"}
++    # (a) daemon liveness via the PulseAudio-on-PipeWire protocol, then the
++    # gate leg: PIPEWIRE_RUNTIME_DIR=<empty> severs the socket without
++    # touching the real session daemon — frontier measured instant rc=1
++    # "Host is down" BEFORE the input is opened (no fifo block).
++    try:
++        proc = subprocess.run(["pactl", "info"], capture_output=True,
++                              timeout=10)
++        out = proc.stdout.decode(errors="replace")
++        m = re.search(r"^Server Name:\s*(.*)$", out, re.M)
++        s = re.search(r"^Default Sink:\s*(.*)$", out, re.M)
++        entry["daemon_live"] = {
++            "pactl_exit": proc.returncode,
++            "server_name": m.group(1).strip() if m else None,
++            "default_sink": s.group(1).strip() if s else None,
++            "live": proc.returncode == 0}
++    except (subprocess.TimeoutExpired, OSError) as exc:
++        entry["daemon_live"] = {"pactl_exit": None, "live": False,
++                                "error": str(exc)[:120]}
++    directory, filename = TRANSPORT_R67_MEMBERS["dec_hcom"]
++    dec = ROOT / "live" / directory / filename
++    with tempfile.TemporaryDirectory(prefix="pwrt-r73-") as emptyrt:
++        t0 = time.monotonic()
++        try:
++            proc = subprocess.run(
++                ["pw-cat", "-p", str(dec)], capture_output=True,
++                env={**os.environ, "PIPEWIRE_RUNTIME_DIR": emptyrt},
++                timeout=CONSUMER_R73_TIMEOUT_S)
++            entry["daemon_gate"] = {
++                "env_override": "PIPEWIRE_RUNTIME_DIR=<empty dir>",
++                "exit_code": proc.returncode,
++                "wall_s": round(time.monotonic() - t0, 3),
++                "stderr_tail": _consumer_tail(
++                    proc.stderr.decode(errors="replace"), str(dec))}
++        except subprocess.TimeoutExpired:
++            entry["daemon_gate"] = {
++                "env_override": "PIPEWIRE_RUNTIME_DIR=<empty dir>",
++                "exit_code": None, "blocked": True,
++                "wall_s": round(time.monotonic() - t0, 3)}
++    gate = entry["daemon_gate"]
++    if gate.get("exit_code") != 1 or "pw_context_connect" not in (
++            gate.get("stderr_tail") or ""):
++        failures.append("consumer: daemon gate deviated from the frontier "
++                        "signature (instant rc=1 pw_context_connect failure)")
++    # (b) writer-attach semantics on a fifo.
++    with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
++        fifo = Path(tmp) / "nowriter.wav"
++        os.mkfifo(fifo)
++        proc = subprocess.Popen(["pw-cat", "-p", str(fifo)],
++                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                start_new_session=True)
++        try:
++            proc.wait(timeout=CONSUMER_R73_NOWRITER_WAIT_S)
++            entry["fifo_no_writer"] = {
++                "blocked": False, "exit_code": proc.returncode,
++                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S}
++        except subprocess.TimeoutExpired:
++            try:
++                wchan = Path(f"/proc/{proc.pid}/wchan").read_text().strip()
++            except OSError:
++                wchan = None
++            os.killpg(proc.pid, signal.SIGKILL)
++            proc.wait()
++            entry["fifo_no_writer"] = {
++                "blocked": True, "wchan": wchan,
++                "waited_s": CONSUMER_R73_NOWRITER_WAIT_S,
++                "exit_code": proc.returncode}
++        finally:
++            reap_fifo_orphans(fifo)
++        fifo2 = Path(tmp) / "empty.wav"
++        os.mkfifo(fifo2)
++
++        def empty_feed():
++            try:
++                open(fifo2, "wb").close()
++            except OSError:
++                pass
++        t = threading.Thread(target=empty_feed, daemon=True)
++        t.start()
++        try:
++            proc = subprocess.run(["pw-cat", "-p", str(fifo2)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R73_TIMEOUT_S)
++            se, pe = _pwcat_fields(proc.stderr.decode(errors="replace"))
++            entry["fifo_empty_writer"] = {"exit_code": proc.returncode,
++                                          "sndfile_error": se,
++                                          "pw_error": pe}
++        except subprocess.TimeoutExpired:
++            entry["fifo_empty_writer"] = {"exit_code": None, "blocked": True}
++        finally:
++            t.join(timeout=5)
++            reap_fifo_orphans(fifo2)
++    if not entry["fifo_no_writer"].get("blocked"):
++        failures.append("consumer: fifo open without a writer did not block")
++    ew = entry["fifo_empty_writer"]
++    if ew.get("exit_code") != 1 or ew.get("sndfile_error") != "Format not recognised.":
++        failures.append("consumer: empty-writer fifo deviated from the "
++                        "frontier signature (rc=1 'Format not recognised.')")
++    # (c) playback-paced consumption: instant dump of a 4.0 s member must
++    # still take ~4.0 s of wall (drain is realtime), and a slower-than-
++    # realtime trickle must stream as bytes arrive (block when starved,
++    # no underrun abort) with wall >= the delivery window.
++    data = CONSUMER_R73_PACER.read_bytes()
++    with tempfile.TemporaryDirectory(prefix="pwcat-r73-") as tmp:
++        fifo = Path(tmp) / CONSUMER_R73_PACER.name
++        os.mkfifo(fifo)
++        writer = threading.Thread(target=fifo_feed, args=(fifo, data, 0.0),
++                                  daemon=True)
++        t0 = time.monotonic()
++        writer.start()
++        try:
++            proc = subprocess.run(["pw-cat", "-p", str(fifo)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R73_TIMEOUT_S)
++            wall = time.monotonic() - t0
++            entry["pacing_instant"] = {
++                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
++                "bytes": len(data),
++                "content_duration_s": CONSUMER_R73_PACER_DURATION_S,
++                "exit_code": proc.returncode, "wall_s": round(wall, 3),
++                "playback_paced": bool(wall >= CONSUMER_R73_PACER_DURATION_S * .75)}
++        except subprocess.TimeoutExpired:
++            entry["pacing_instant"] = {
++                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
++                "exit_code": None, "blocked": True}
++        finally:
++            writer.join(timeout=5)
++            reap_fifo_orphans(fifo)
++        fifo2 = Path(tmp) / ("trickle-" + CONSUMER_R73_PACER.name)
++        os.mkfifo(fifo2)
++        chunk = -(-len(data) // CONSUMER_R73_TRICKLE_CHUNKS)
++
++        def trickle_feed():
++            try:
++                with open(fifo2, "wb") as fh:
++                    for i in range(0, len(data), chunk):
++                        fh.write(data[i:i + chunk])
++                        fh.flush()
++                        time.sleep(CONSUMER_R73_TRICKLE_GAP_S)
++            except OSError:
++                pass
++        writer = threading.Thread(target=trickle_feed, daemon=True)
++        t0 = time.monotonic()
++        writer.start()
++        try:
++            proc = subprocess.run(["pw-cat", "-p", str(fifo2)],
++                                  capture_output=True,
++                                  timeout=CONSUMER_R73_TIMEOUT_S + 10)
++            wall = time.monotonic() - t0
++            entry["pacing_trickle"] = {
++                "member": str(CONSUMER_R73_PACER.relative_to(ROOT)),
++                "chunks": CONSUMER_R73_TRICKLE_CHUNKS,
++                "chunk_gap_s": CONSUMER_R73_TRICKLE_GAP_S,
++                "delivery_window_s": round(
++                    CONSUMER_R73_TRICKLE_CHUNKS * CONSUMER_R73_TRICKLE_GAP_S, 3),
++                "exit_code": proc.returncode,
++                "wall_s": round(wall, 3),
++                "starved_ok": proc.returncode == 0}
++        except subprocess.TimeoutExpired:
++            entry["pacing_trickle"] = {"exit_code": None, "blocked": True}
++        finally:
++            writer.join(timeout=5)
++            reap_fifo_orphans(fifo2)
++    pi = entry["pacing_instant"]
++    if pi.get("exit_code") != 0 or not pi.get("playback_paced"):
++        failures.append("consumer: instant-dump consumption was not "
++                        "playback-paced")
++    pt = entry["pacing_trickle"]
++    if pt.get("exit_code") != 0:
++        failures.append("consumer: starved trickle aborted instead of "
++                        "blocking to EOF")
++    entry["failures"] = failures
++    return entry
++
++
+ def transport_entry(member, path):
+     """Receipt entry: transport axis matrix + verdict groups + fork pin."""
+     arms = transport_matrix(path)
+@@ -1129,8 +1533,9 @@ def main():
+     parser.add_argument("--probe-ffprobe-transport-r71", action="store_true")
+     parser.add_argument("--probe-sndfile-transport-r72",
+                         action="store_true")
++    parser.add_argument("--probe-consumers-r73", action="store_true")
+     args = parser.parse_args()
+-    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72]) > 1:
++    if sum([args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73]) > 1:
+         parser.error("choose one probe mode")
+     if args.probe_invalid:
+         command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")), "--probe-invalid")
+@@ -1350,6 +1755,23 @@ def main():
+             path = ROOT / "live" / directory / filename
+             measurements[f"ffprobe_{member}_r71_probe"] = ffprobe_transport_entry(
+                 member, path)
++    if args.probe_consumers_r73:
++        # r73: CONSUMER class — pw-cat (PipeWire realtime playback) + mpv
++        # (lavf detect/decode) on the canonical member x transport matrix.
++        # A NEW parallel ledger family, prior rows untouched. The claim
++        # under test — consumer verdicts partition by mandatory-seek vs
++        # stream-consume polarity, opposite of the decoder {named} axis —
++        # is measured per member per consumer: pw-cat's libsndfile decode
++        # layer inherits the post-sniff extension fallback (named axis),
++        # mpv forks decode on the stream's seekable bit (mandatory-seek).
++        # The ops entry pins the pw-cat daemon gate + fifo writer semantics
++        # + playback-paced consumption (viability-conditional: needs a
++        # reachable PipeWire daemon).
++        measurements["consumer_pwcat_ops_r73_probe"] = consumer_ops_entry()
++        for member, (directory, filename) in CONSUMER_R73_MEMBERS.items():
++            path = ROOT / "live" / directory / filename
++            measurements[f"consumer_{member}_r73_probe"] = \
++                consumer_transport_entry(member, path)
+     if args.probe_sndfile_transport_r72:
+         # r72: THIRD DECODER (libsndfile) on the same canonical members —
+         # the 3-decoder verdict lattice. Claim under test (critic-corrected):
+@@ -1816,7 +2238,7 @@ def main():
+             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
+         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
+             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
+-    mode = "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    mode = "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     receipt = {"mode": mode,
+                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
+                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
+@@ -1836,7 +2258,7 @@ def main():
+                "movement_family_comparisons": movement_family_comparisons,
+                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
+     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+-    suffix = "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
++    suffix = "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+     out = ROOT / "live" / "runs" / (stamp + suffix)
+     out.mkdir(parents=True)
+     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")

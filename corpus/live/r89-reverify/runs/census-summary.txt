@@ -1,0 +1,23 @@
+== COMMITTED BYTES 5755be5b: receipts=8 cells=888 PASS=867 FAIL=0 BLOCKED=21
+   base106: 848 cells PASS=831 FAIL=0 BLOCKED=17
+   R-add  : 40 cells PASS=36 FAIL=0 BLOCKED=4
+== REVERT-THE-FIX MUTANTS: receipts=2 cells=222 PASS=216 FAIL=3 BLOCKED=3
+   base106: 212 cells PASS=208 FAIL=2 BLOCKED=2
+   R-add  : 10 cells PASS=8 FAIL=1 BLOCKED=1
+   FAIL: LAW mut-sigreset-nohup.receipt.json C02 pwprof_gate_r89_probe failures FAIL ['g_hup: rc=-9 parse=Expecting value: line 2514 column 144 (char 511999) (len=511999) — the truncating-signal class fails']
+   FAIL: LAW mut-sigreset-nohup.receipt.json G04 g_hup truncating rc-1+invalid FAIL rc=-9 parse=Expecting value: line 2514 column 144 (char 5119 bytes=512000
+   FAIL: LAW mut-sigreset-nohup.receipt.json R03 g_hup bounded at sig point FAIL rc=-9 wall=9.034 bytes=512000 alive=True
+== class arms (committed):
+   r89v1                census=27/12/4/9=52 g_hup rc=-1@0.817s x_foot=BLOCKED x_top=GREEN med=3.1/3.7 failures={}
+   r89v2                census=27/12/4/9=52 g_hup rc=-1@0.816s x_foot=GREEN own=[80] x_top=GREEN med=3.1/2.7 failures={}
+   r89v3                census=27/12/4/9=52 g_hup rc=-1@0.888s x_foot=BLOCKED x_top=GREEN med=3.5/4.7 failures={}
+   cot-r1-t2            census=27/12/4/9=52 g_hup rc=-1@0.82s x_foot=BLOCKED x_top=BLOCKED failures={}
+   cot-r1-t3            census=27/12/4/9=52 g_hup rc=-1@0.821s x_foot=BLOCKED x_top=BLOCKED failures={}
+   cot-r2-t2            census=27/12/4/9=52 g_hup rc=-1@0.819s x_foot=GREEN own=[252] x_top=BLOCKED failures={}
+   cot-r2-t3            census=27/12/4/9=52 g_hup rc=-1@0.821s x_foot=BLOCKED x_top=BLOCKED failures={}
+   held-foreign         census=27/12/4/9=52 g_hup rc=-1@0.821s x_foot=BLOCKED x_top=GREEN med=6.4/6.7 failures={}
+== class arms (mutants):
+   mut-sigreset-nohup   census=27/12/4/9=52 g_hup rc=-9@9.034s x_foot=GREEN own=[248] x_top=GREEN med=2.8/4.1 failures={'pwprof_gate_r89_probe': ['g_hup: rc=-9 parse=Expecting value: line 2514 column 144 (char 511999) (len=511999) — the truncating-signal class fails']}
+   mut-footglobal-held  census=27/12/4/9=52 g_hup rc=-1@0.822s x_foot=GREEN own=[118] x_top=BLOCKED failures={}
+== custody (unload index verification, sinks_gone, own_nodes):
+   10 receipts × 4 entries: violations=0

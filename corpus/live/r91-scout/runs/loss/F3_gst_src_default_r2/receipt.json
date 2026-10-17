@@ -1,0 +1,487 @@
+{
+ "family": "F3_gst_src_default",
+ "final_bytes": 204844,
+ "frozen_bytes_between": true,
+ "leg": "F3_gst_src_default_r2",
+ "node_props_at_connect": {
+  "adapt.follower.spa-node": "",
+  "client.id": 155,
+  "clock.quantum-limit": 8192,
+  "factory.id": 9,
+  "library.name": "audioconvert/libspa-audioconvert",
+  "media.class": "Stream/Input/Audio",
+  "media.name": "gst_r91_src_default",
+  "node.async": true,
+  "node.autoconnect": true,
+  "node.description": "gst_r91_src_default",
+  "node.dont-reconnect": true,
+  "node.driver-id": 132,
+  "node.loop.class": "main",
+  "node.loop.name": "pipewire-main-l",
+  "node.name": "gst_r91_src_default",
+  "node.target": "r91s_ns1",
+  "node.want-driver": true,
+  "object.id": 118,
+  "object.register": false,
+  "object.serial": 4573,
+  "port.group": "stream.0",
+  "stream.capture.sink": "TRUE",
+  "stream.is-live": true,
+  "target.object": "r91s_ns1"
+ },
+ "ns1_load": {
+  "idx": 536870916,
+  "load": {
+   "argv": [
+    "pactl",
+    "load-module",
+    "module-null-sink",
+    "sink_name=r91s_ns1",
+    "node.description=r91scout_r91s_ns1"
+   ],
+   "dur_s": 0.003,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "536870916\n",
+   "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+   "timed_out": false
+  },
+  "ok": true,
+  "row": [
+   {
+    "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+    "index": 536870916,
+    "name": "module-null-sink"
+   }
+  ]
+ },
+ "post_unload_link_lines": [],
+ "rep": 2,
+ "run": {
+  "argv": [
+   "gst-launch-1.0",
+   "-q",
+   "pipewiresrc",
+   "client-name=gst_r91_src_default",
+   "target-object=r91s_ns1",
+   "stream-properties=props,stream.capture.sink=true",
+   "num-buffers=1000000",
+   "!",
+   "audio/x-raw,format=S16LE,rate=48000,channels=2",
+   "!",
+   "wavenc",
+   "!",
+   "filesink",
+   "location=/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/loss_F3_gst_src_default_r2.wav"
+  ],
+  "byte_cap_bytes": 4194304,
+  "combined_log_head": "",
+  "combined_log_len": 0,
+  "combined_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "elapsed_s": 4.806,
+  "killed": "wallcap",
+  "rc": -9,
+  "timeline": [
+   {
+    "file_bytes": 0,
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "t": 0.0
+   },
+   {
+    "file_bytes": 0,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.164
+   },
+   {
+    "file_bytes": 0,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.332
+   },
+   {
+    "file_bytes": 65580,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.488
+   },
+   {
+    "file_bytes": 65580,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.643
+   },
+   {
+    "file_bytes": 135212,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.8
+   },
+   {
+    "file_bytes": 135212,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 0.956
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"running\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"15",
+    "info_rc": 0,
+    "info_sha256": "750be5eecb52b31dfdfd6a174c0ba41679bfc1a9c372ebe2ec00621120ee1274",
+    "links_relevant": [
+     "  |-> r79lb_ns_a_1141702:playback_FR",
+     "r91s_ns1:monitor_FL",
+     "  |-> gst_r91_src_default:input_FL",
+     "r91s_ns1:monitor_FR",
+     "  |-> gst_r91_src_default:input_FR",
+     "gst_r91_src_default:input_FL",
+     "  |<- r91s_ns1:monitor_FL",
+     "gst_r91_src_default:input_FR",
+     "  |<- r91s_ns1:monitor_FR"
+    ],
+    "links_sha256": "01b99a7038217708728eabaf430de077d964333ec72c1fc7f5c56df3e078bb06",
+    "node_id": 118,
+    "t": 1.112
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 1.277
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 1.433
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 1.59
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 1.746
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 1.902
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.058
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.215
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.371
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.527
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.683
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.838
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "7d06681ee2e50a72efea73c3736941f749e695f50702337fc5ee2de0e1980a73",
+    "node_id": 118,
+    "t": 2.994
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "8d4f63d38d4474594ffa1d9768b06b2cc73936cdb5b3164c9730bc198fbb2c34",
+    "node_id": 118,
+    "t": 3.15
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "73226e6637d9bb6ba982890511de6b426a79dcb9062b1f2e6787672c3ed96042",
+    "node_id": 118,
+    "t": 3.307
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "73226e6637d9bb6ba982890511de6b426a79dcb9062b1f2e6787672c3ed96042",
+    "node_id": 118,
+    "t": 3.464
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "73226e6637d9bb6ba982890511de6b426a79dcb9062b1f2e6787672c3ed96042",
+    "node_id": 118,
+    "t": 3.619
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "849960f4539818e5d9e6d47d6ded8af771379b9375e240f816b12015949000d1",
+    "node_id": 118,
+    "t": 3.775
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "849960f4539818e5d9e6d47d6ded8af771379b9375e240f816b12015949000d1",
+    "node_id": 118,
+    "t": 3.931
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "849960f4539818e5d9e6d47d6ded8af771379b9375e240f816b12015949000d1",
+    "node_id": 118,
+    "t": 4.086
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "849960f4539818e5d9e6d47d6ded8af771379b9375e240f816b12015949000d1",
+    "node_id": 118,
+    "t": 4.242
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "b9c646e060ee47e4ef94c3690dde0df0baa3b58281b7fa886c62d12eec913278",
+    "node_id": 118,
+    "t": 4.398
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "b9c646e060ee47e4ef94c3690dde0df0baa3b58281b7fa886c62d12eec913278",
+    "node_id": 118,
+    "t": 4.554
+   },
+   {
+    "file_bytes": 204844,
+    "info_head": "\tid: 118\n\tpermissions: rwxm-\n\ttype: PipeWire:Interface:Node/3\n*\tinput ports: 2/129\n*\toutput ports: 2/0\n*\tstate: \"idle\"\n*\tproperties:\n*\t\tnode.name = \"gst_r91_src_default\"\n*\t\tnode.description = \"gst_r91_src_default\"\n*\t\tstream.capture.sink = \"TRUE\"\n*\t\tmedia.name = \"gst_r91_src_default\"\n*\t\tstream.is-live = \"true\"\n*\t\tnode.want-driver = \"true\"\n*\t\ttarget.object = \"r91s_ns1\"\n*\t\tnode.target = \"r91s_ns1\"\n*\t\tnode.autoconnect = \"true\"\n*\t\tnode.dont-reconnect = \"true\"\n*\t\tnode.loop.class = \"main\"\n*\t\tnode.async = \"true\"\n*\t\tmedia.class = \"Stream/Input/Audio\"\n*\t\tport.group = \"stream.0\"\n*\t\tadapt.follower.spa-node = \"\"\n*\t\tobject.register = \"false\"\n*\t\tfactory.id = \"9\"\n*\t\tclock.quantum-limit = \"8192\"\n*\t\tnode.loop.name = \"pipewire-main-l\"\n*\t\tlibrary.name = \"audioconvert/libspa-audioconvert\"\n*\t\tclient.id = \"155\"\n",
+    "info_rc": 0,
+    "info_sha256": "b2ce1154b04ec52cead912a273fece4bd6f8eb031933194442612fa786b44687",
+    "links_relevant": [],
+    "links_sha256": "3f49bd064b075c78fed6f28628aa6fd6a5982a970ff14089052384a35fdf6b6f",
+    "node_id": 118,
+    "t": 4.71
+   }
+  ],
+  "unload_at": 1.2,
+  "unload_result": {
+   "gone": true,
+   "ok": true,
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "unload_t": 1.208,
+  "wall_cap_s": 4.8
+ },
+ "src_load": null,
+ "src_state": null,
+ "tone_state": null
+}

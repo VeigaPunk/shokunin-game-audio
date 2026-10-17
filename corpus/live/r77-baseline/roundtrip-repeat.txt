@@ -1,0 +1,96 @@
+host 2026-10-14T19:50:16Z
+member measure-env/corpus/artifacts/stem_sections.wav
+REPEATS=3
+
+--- fixture rep 1: exit=0
+{
+ "receipt": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/live/runs/20261014T195105042290Z-capture-r76/measurements.json",
+ "content_witness": {
+  "nonzero_fraction_gt_half": true,
+  "peak_within_3db_of_member": true
+ },
+ "capture_exit": 1,
+ "player_exit": 0,
+ "bytes": 960044,
+ "sox_member_vol": "Volume adjustment:        5.802",
+ "sox_captured_vol": "Volume adjustment:        4.436",
+ "aplay_captured_tail": "ing WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+ "failures": []
+}
+
+--- fixture rep 2: exit=1
+{
+ "receipt": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/live/runs/20261014T195154481817Z-capture-r76/measurements.json",
+ "content_witness": {
+  "nonzero_fraction_gt_half": true,
+  "peak_within_3db_of_member": false
+ },
+ "capture_exit": 1,
+ "player_exit": 0,
+ "bytes": 960044,
+ "sox_member_vol": "Volume adjustment:        5.802",
+ "sox_captured_vol": "Volume adjustment:        1.490",
+ "aplay_captured_tail": "ing WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+ "failures": [
+  "roundtrip content witness deviated (captured pcm silent or level-far from the member)"
+ ]
+}
+
+--- fixture rep 3: exit=0
+{
+ "receipt": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/live/runs/20261014T195239476759Z-capture-r76/measurements.json",
+ "content_witness": {
+  "nonzero_fraction_gt_half": true,
+  "peak_within_3db_of_member": true
+ },
+ "capture_exit": 1,
+ "player_exit": 0,
+ "bytes": 960044,
+ "sox_member_vol": "Volume adjustment:        5.802",
+ "sox_captured_vol": "Volume adjustment:        5.802",
+ "aplay_captured_tail": "ing WAVE <input>' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+ "failures": []
+}
+
+--- direct level rep 1
+{
+ "tag": 1,
+ "sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "cap_bytes": 960044,
+ "cap_peak": 5648.0,
+ "src_peak": 5648.0,
+ "delta_db": 0.0,
+ "nonzero_frac": 0.7975,
+ "rec_exit": 1,
+ "play_exit": 0,
+ "within_3db": true
+}
+
+--- direct level rep 2
+{
+ "tag": 2,
+ "sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "cap_bytes": 960044,
+ "cap_peak": 5648.0,
+ "src_peak": 5648.0,
+ "delta_db": 0.0,
+ "nonzero_frac": 0.7847,
+ "rec_exit": 1,
+ "play_exit": 0,
+ "within_3db": true
+}
+
+--- direct level rep 3
+{
+ "tag": 3,
+ "sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "cap_bytes": 960044,
+ "cap_peak": 5648.0,
+ "src_peak": 5648.0,
+ "delta_db": 0.0,
+ "nonzero_frac": 0.7975,
+ "rec_exit": 1,
+ "play_exit": 0,
+ "within_3db": true
+}
+

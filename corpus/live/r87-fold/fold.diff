@@ -1,0 +1,817 @@
+diff --git i/corpus/fixtures/measure_audio.py w/corpus/fixtures/measure_audio.py
+index fab804d4..846d1a59 100755
+--- i/corpus/fixtures/measure_audio.py
++++ w/corpus/fixtures/measure_audio.py
+@@ -25569,10 +25569,12 @@ PWBIND_R87_DEAD = "99999999"          # bogus global for the refusal family
+ PWBIND_R87_STALE_SERIAL = "98765432"  # never-allocated serial on this host
+ PWBIND_R87_AMP = PLAYBACK_R78_TONE_AMP            # 8192
+ PWBIND_R87_TONE_S = 16.0           # one player covers the lattice legs
+-PWBIND_R87_LINK_WAIT_S = 5.0
+-PWBIND_R87_TAP_WAIT_S = 6.0
+ PWBIND_R87_STREAM_WAIT_S = 8.0
+ PWBIND_R87_OBSERVE_S = (0.9, 1.7)   # watch-leg sample times (boundary's)
++PWBIND_R87_SYSEX_OBSERVE_S = (0.9, 5.0)   # the 5.0 s sample sits past
++                                        # the 4.0 s SMF fixture EOF —
++                                        # the sysex stay-up arm needs
++                                        # a snapshot on the far side
+ PWBIND_R87_SOLO_ENV = (0.85, 1.18)  # x8192 solo/restore window
+ PWBIND_R87_V25_ENV = (0.15, 0.35)   # exact 0.25x (boundary: 0.2500)
+ PWBIND_R87_MUTE_MAX = 128           # post-mute peak cap (measured 0.0)
+@@ -25899,8 +25901,7 @@ def _pwbind_r87_teardown(entry, failures, loads):
+     create-node object is pactl-invisible) is destroyed by id via
+     pw-cli before the final sweep — the sweep is a witness, never a
+     bludgeon."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -25923,7 +25924,7 @@ def _pwbind_r87_teardown(entry, failures, loads):
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -25938,7 +25939,7 @@ def _pwbind_r87_teardown(entry, failures, loads):
+     else:
+         rest = sorted(n for n in names
+                       if f"r87a_{PWBIND_R87_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -25950,7 +25951,6 @@ def _pwbind_r87_block(entry, failures, msg, loads=None):
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+@@ -26071,10 +26071,14 @@ def _pwbind_r87_seq_port():
+     return None
+ 
+ 
+-def _pwbind_r87_target_leg(legs, name, argv, env=None):
++def _pwbind_r87_target_leg(legs, name, argv, env=None,
++                           observe_s=None):
+     """A watch leg + the routing verdict fields (consumers + last-snap
+     port/class summary)."""
+-    leg = _pwbind_r87_watch(f"{PWBIND_R87_PREFIX}_{name}", argv, env=env)
++    leg = _pwbind_r87_watch(f"{PWBIND_R87_PREFIX}_{name}", argv,
++                            env=env,
++                            observe_s=(observe_s
++                                       or PWBIND_R87_OBSERVE_S))
+     leg["consumers"] = _pwbind_r87_consumers(leg)
+     snap = _pwbind_r87_last_snap(leg)
+     leg["last"] = {"media_class": snap.get("media_class"),
+@@ -26187,7 +26191,10 @@ def pwbind_modes_r87_entry():
+                 argv = tail[:1] + ["-P",
+                                    f"node.name={PWBIND_R87_PREFIX}_{name}"] \
+                     + tail[1:]
+-                leg = _pwbind_r87_target_leg(legs, name, argv)
++                leg = _pwbind_r87_target_leg(
++                    legs, name, argv,
++                    observe_s=(PWBIND_R87_SYSEX_OBSERVE_S
++                               if name == "m_sysex" else None))
+                 leg["want_class"] = want_cls
+             for name, fname in (("m_p_r", "m_pr.wav"),
+                                 ("m_r_p_r", "m_rpr.wav"),
+@@ -26267,10 +26274,17 @@ def pwbind_modes_r87_entry():
+             failures.append(f"{name}: midi input_1 absent on {ports}")
+         if name == "m_midi_p" and not any(p == "output_1" for p in outs):
+             failures.append(f"{name}: midi output_1 absent on {ports}")
+-        if name == "m_sysex" and leg.get("exit_code") == 0:
+-            failures.append(
+-                "m_sysex: sysex mode exited early — the stream did "
+-                "not stay up")
++        if name == "m_sysex":
++            # the law is node-ALIVE past the 4.0 s SMF fixture EOF —
++            # the harness SIGTERMs the group at the last sample, so
++            # the exit status carries the harness kill, not the law;
++            # the arm is presence at the LAST (post-EOF) snapshot
++            last = (leg.get("snaps") or [{}])[-1]
++            if not last.get("present"):
++                failures.append(
++                    "m_sysex: the sysex node was absent at the last "
++                    f"snapshot ({last.get('at_s')} s — expected alive "
++                    "past the 4.0 s fixture EOF)")
+     entry["legs"] = legs
+     entry["failures"] = failures
+     return entry
+@@ -26427,7 +26441,7 @@ def pwbind_target_r87_entry():
+     finally:
+         _pwbind_r87_teardown(entry, failures, loads)
+     # ---------------- verdicts ----------------
+-    DEF = entry.get("default_sink_at_start") or "<unreadable-default>"
++    DEF = entry["default_sink_at_start"]
+     entry["default_sink_at_end"] = _pwbind_r87_default_sink()
+     if entry["default_sink_at_end"] != DEF:
+         failures.append(
+@@ -26453,14 +26467,20 @@ def pwbind_target_r87_entry():
+     _pwbind_r87_expect(legs, failures, "p_prop_serial", [NS])
+     _pwbind_r87_expect(legs, failures, "p_prop_objid", [DEF])
+     for name in ("p_zero", "p_zero_prop", "p_noauto"):
++        snaps = legs[name].get("snaps") or []
+         got = _pwbind_r87_consumers(legs[name])
+-        snap = _pwbind_r87_last_snap(legs[name])
+-        if got or not any(s.get("present")
+-                          for s in legs[name]["snaps"]):
++        snap = snaps[-1] if snaps else {}
++        # the link arm is RAW edges_out — a real link whose peer name
++        # missed the snapshot's node map still proves the switch
++        # failed (co-tenancy can leave in_node unresolved); and the
++        # node must be present at the LAST snap, not any snap
++        edges_out = [e for s in snaps for e in
++                     (s.get("edges_out") or [])]
++        if edges_out or not snap.get("present"):
+             failures.append(
+-                f"{name}: consumers={got} present="
+-                f"{snap.get('present')} — the hard no-link switch "
+-                "fails")
++                f"{name}: edges={len(edges_out)} consumers={got} "
++                f"last_present={snap.get('present')} — the hard "
++                "no-link switch fails")
+     _pwbind_r87_expect(legs, failures, "p_mon", [DEF])
+     _pwbind_r87_expect(legs, failures, "p_mon_cs", [DEF])
+     if src:
+@@ -26477,6 +26497,14 @@ def pwbind_target_r87_entry():
+     _pwbind_r87_expect(legs, failures, "p_mediarole", [DEF])
+     _pwbind_r87_expect(legs, failures, "p_capsink", [DEF])
+     _pwbind_r87_expect(legs, failures, "p_empty", [DEF])
++    # the collision must be REAL before the sink-wins arm means
++    # anything — if the same-named stream never published, the
++    # pre-condition is unmeasured, not vacuously green
++    if not any(o.get("media_class") == "Stream/Output/Audio"
++               for o in (legs.get("collision_objects") or [])):
++        entry.setdefault("coverage_blocked", []).append(
++            "p_coll: the same-named stream never published — the "
++            "sink-wins-collision arm is unmeasured")
+     got = _pwbind_r87_consumers(legs.get("p_coll") or {})
+     if got != [NS]:
+         failures.append(
+@@ -26485,8 +26513,7 @@ def pwbind_target_r87_entry():
+     coll_ports = [e.get("in_port_name")
+                   for s in (legs.get("p_coll") or {}).get("snaps", [])
+                   for e in s.get("edges_out") or []]
+-    if coll_ports and not all(str(p).startswith("playback_")
+-                              for p in coll_ports):
++    if not all(str(p).startswith("playback_") for p in coll_ports):
+         failures.append(
+             f"p_coll: linked to non-playback ports {coll_ports}")
+     entry["legs"] = legs
+@@ -26598,7 +26625,7 @@ def pwbind_cli_r87_entry():
+                     None, 4294967295)
+             if attached:
+                 sleep_to(mark() + 0.8)
+-                solo_lo, solo_hi = mark(), None
++                solo_lo = mark()
+                 sleep_to(solo_lo + 0.6)
+                 solo_hi = mark()
+                 writes["w_v25"] = setp("Props", "{ volume: 0.25 }")
+@@ -26637,17 +26664,16 @@ def pwbind_cli_r87_entry():
+             # ---------- Format seal on the SINK (stream still linked —
+             # the sink stays running; a suspended sink answers res:-5) --
+             fs = {}
+-            if nid is not None:
+-                fs["pre"] = _pwbind_r87_pwcli(
+-                    "enum-params", nid, "Format", timeout_s=10.0,
+-                                           keep_chars=4000)
+-                fs["write_valid"] = _pwbind_r87_pwcli(
+-                    "set-param", nid, "Format",
+-                    "{ mediaType: 1, mediaSubtype: 1, format: 259, "
+-                    "rate: 44100, channels: 2 }", timeout_s=10.0)
+-                fs["post_valid"] = _pwbind_r87_pwcli(
+-                    "enum-params", nid, "Format", timeout_s=10.0,
+-                                           keep_chars=4000)
++            fs["pre"] = _pwbind_r87_pwcli(
++                "enum-params", nid, "Format", timeout_s=10.0,
++                                       keep_chars=4000)
++            fs["write_valid"] = _pwbind_r87_pwcli(
++                "set-param", nid, "Format",
++                "{ mediaType: 1, mediaSubtype: 1, format: 259, "
++                "rate: 44100, channels: 2 }", timeout_s=10.0)
++            fs["post_valid"] = _pwbind_r87_pwcli(
++                "enum-params", nid, "Format", timeout_s=10.0,
++                                       keep_chars=4000)
+             legs["fmt_sink"] = fs
+             legs["player_alive_at_end"] = player.poll() is None
+             if player.poll() is None:
+@@ -26933,6 +26959,11 @@ def pwbind_cli_r87_entry():
+                 time.sleep(1.6)
+                 log = _pwbind_r87_cli_close(proc, chunks)
+                 legs[lname] = {
++                    # the FULL normed session log — async registry
++                    # churn can push the refusal past any tail bound
++                    # (r87 fold: match over the whole capture, keep
++                    # the tail field only as recorded context)
++                    "log": _pwbind_r87_norm(log),
+                     "log_tail": _pwbind_r87_norm(log)[-500:],
+                     "errors": _pwbind_r87_errors(log)}
+             # ---------- destroy sink node -> module unload (LAST: it
+@@ -26953,11 +26984,12 @@ def pwbind_cli_r87_entry():
+     # ---------------- verdicts ----------------
+     l = legs["cold_nowarm"]
+     blob = (l.get("stdout") or "") + (l.get("stderr") or "")
+-    if f"unknown global '{nid}'" not in blob and \
+-            "unknown global" not in blob:
++    # the cold-registry artifact must fire on OUR cold id — a generic
++    # "unknown global" can name a foreign dead object under churn
++    if f"unknown global '{nid}'" not in blob:
+         failures.append(
+             "cold_nowarm: the cold-registry artifact did not fire "
+-            f"({blob[-160:]})")
++            f"for own id {nid} ({blob[-160:]})")
+     if legs["warm_control"].get("exit_code") != 0 or \
+             "id:" not in (legs["warm_control"].get("stdout") or ""):
+         failures.append(
+@@ -27006,12 +27038,15 @@ def pwbind_cli_r87_entry():
+                 failures.append(
+                     f"{wn}: the Props write refused "
+                     f"(rc={legs['writes'][wn].get('exit_code')})")
+-    if legs.get("props_unk") is not None:
+-        pu = legs["props_unk"]
+-        if pu.get("exit_code") != 0 or pu.get("errors"):
+-            failures.append(
+-                "props_unk: the unknown-key write was not the silent "
+-                f"drop ({pu.get('errors') or pu.get('error_class')})")
++    pu = legs.get("props_unk")
++    if pu is None:
++        entry.setdefault("coverage_blocked", []).append(
++            "props_unk: leg never measured — the unknown-key "
++            "silent-drop arm is vacuous")
++    elif pu.get("exit_code") != 0 or pu.get("errors"):
++        failures.append(
++            "props_unk: the unknown-key write was not the silent "
++            f"drop ({pu.get('errors') or pu.get('error_class')})")
+     for scope, key in (("fmt_stream", "post_valid"),
+                        ("fmt_stream", "post_empty"),
+                        ("fmt_sink", "post_valid")):
+@@ -27083,8 +27118,11 @@ def pwbind_cli_r87_entry():
+             failures.append(
+                 f"foreign: errors on foreign verbs {allerr} — a gate "
+                 "appeared")
+-        if fo.get("volume_read") is not None and \
+-                fo.get("volume_after") != fo.get("volume_read"):
++        if fo.get("volume_read") is None:
++            entry.setdefault("coverage_blocked", []).append(
++                "foreign: the foreign volume never parsed — the "
++                "identical-value write arm is unmeasured")
++        elif fo.get("volume_after") != fo.get("volume_read"):
+             failures.append(
+                 f"foreign: identical-value write moved the volume "
+                 f"{fo.get('volume_read')} -> {fo.get('volume_after')}")
+@@ -27119,16 +27157,18 @@ def pwbind_cli_r87_entry():
+             f"after_destroy={cl.get('present_after_destroy')} — the "
+             "linger carve-out fails")
+     bf = (legs.get("create_badfac") or {})
+-    if "res:-2" not in (bf.get("log_tail") or ""):
++    bf_log = bf.get("log") or bf.get("log_tail") or ""
++    if "res:-2" not in bf_log:
+         failures.append(
+-            f"create_badfac: no async res:-2 refusal "
+-            f"({(bf.get('log_tail') or '')[-160:]})")
++            "create_badfac: no async res:-2 refusal in the full "
++            f"session log ({bf_log[-160:]})")
+     cu = (legs.get("create_usage") or {})
+-    if "usage: factory.name=" not in (cu.get("log_tail") or "") and \
+-            "res:-22" not in (cu.get("log_tail") or ""):
++    cu_log = cu.get("log") or cu.get("log_tail") or ""
++    if "usage: factory.name=" not in cu_log and \
++            "res:-22" not in cu_log:
+         failures.append(
+-            f"create_usage: no usage refusal "
+-            f"({(cu.get('log_tail') or '')[-160:]})")
++            "create_usage: no usage refusal in the full session "
++            f"log ({cu_log[-160:]})")
+     dk = legs.get("destroy_sink_module") or {}
+     if dk.get("sink_listed_after") is not False or \
+             dk.get("node_after"):
+@@ -27290,6 +27330,10 @@ def pwbind_midi_r87_entry():
+                 pass
+             legs["skeleton"] = {
+                 "rc": mp2.returncode,
++                # self_exited: the process must have refused on its
++                # own — a SIGKILL at the 1.2 s mark is NOT evidence
++                # of the refusal class (the harness wrote it)
++                "self_exited": sk_rc is not None,
+                 "stderr": _pwbind_r87_norm(
+                     mp2.stderr.read().decode(errors="replace"))[-300:],
+                 "file": _pwbind_r87_smf_witness(rec2)}
+@@ -27403,6 +27447,9 @@ def pwbind_midi_r87_entry():
+                  "m_t_garbage", "m_t_prop", "m_t_nt"):
+         l = legs.get(name)
+         if l is None:
++            entry.setdefault("coverage_blocked", []).append(
++                f"{name}: leg never measured — the dead-target "
++                "census is partial")
+             continue
+         blob = (l.get("stderr") or "") + (l.get("stdout") or "")
+         if l.get("exit_code") == 0 or \
+@@ -27415,11 +27462,16 @@ def pwbind_midi_r87_entry():
+         leg = legs[name]
+         snap = _pwbind_r87_last_snap(leg)
+         got = _pwbind_r87_consumers(leg)
+-        if not snap.get("present") or got or \
++        # raw edges, not resolved names — a real link whose peer name
++        # missed the snapshot still proves the arm failed
++        edges_out = [e for s in leg.get("snaps") or []
++                     for e in (s.get("edges_out") or [])]
++        if not snap.get("present") or edges_out or \
+                 snap.get("media_class") != "Stream/Output/Midi":
+             failures.append(
+                 f"{name}: present={snap.get('present')} "
+-                f"class={snap.get('media_class')} links={got} — the "
++                f"class={snap.get('media_class')} edges="
++                f"{len(edges_out)} links={got} — the "
+                 "publish-unlinked arm fails")
+     pin = legs["pin"]
+     if pin.get("file"):
+@@ -27439,12 +27491,15 @@ def pwbind_midi_r87_entry():
+             "midi pin leg unmeasured — bridge capture port or seq "
+             "14:0 absent")
+     sk = legs["skeleton"]["file"]
+-    if legs["skeleton"].get("rc") == 0 or not sk.get("has_mthd") \
++    if legs["skeleton"].get("rc") == 0 or \
++            not legs["skeleton"].get("self_exited") or \
++            not sk.get("has_mthd") \
+             or not (20 <= (sk.get("bytes") or 0) <= 34) \
+             or any(sk.get("note_ons") or []):
+         failures.append(
+             f"skeleton: refused midirecord wrote {sk} rc="
+-            f"{legs['skeleton'].get('rc')}")
++            f"{legs['skeleton'].get('rc')} self_exited="
++            f"{legs['skeleton'].get('self_exited')}")
+     md = legs["mdump_off"]
+     if md.get("exit_code") != 0 or "Note On" not in (
+             md.get("stdout") or ""):
+@@ -27453,12 +27508,17 @@ def pwbind_midi_r87_entry():
+             "parse failed")
+     live = legs["mdump_live"]["attempts"]
+     noted = [a for a in live if a.get("node")]
+-    if live and not noted:
++    if not live:
++        entry.setdefault("coverage_blocked", []).append(
++            "mdump_live: zero attempts — the Midi-Bridge capture "
++            "port or the seq 14:0 port was absent (live dump "
++            "unmeasured)")
++    elif not noted:
+         entry.setdefault("coverage_blocked", []).append(
+             "pw-mididump never published a node in 3 attempts — the "
+             "boundary's startup flake (live dump unmeasured)")
+-    elif noted and not any("Note On" in (a.get("stdout") or "")
+-                           for a in noted):
++    elif not any("Note On" in (a.get("stdout") or "")
++                 for a in noted):
+         failures.append(
+             "mdump_live: a live node published and pinned but no "
+             "Note On/Off lines arrived")
+@@ -27639,11 +27699,24 @@ _BTWIT_R88_ERR_CLASSES = (
+ 
+ 
+ def _btwit_r88_errclass(text):
+-    for name, pat in _BTWIT_R88_ERR_CLASSES:
+-        m = re.search(pat, text or "")
+-        if m:
+-            return name, m.group(0).strip()
+-    return _pwbind_r87_errclass(text or "")
++    """Latest-position match wins across the r88-local AND inherited
++    r87 classes — the owning request's error is the LAST error line
++    the session emits; a first-table-match scan can pick an earlier
++    foreign refusal instead (r88 fold: a foreign res:-2 precedes
++    pwcli_remote_einval in the r87 table). Falls through to the r86
++    chain untouched."""
++    best = None
++    for name, pat in [*_BTWIT_R88_ERR_CLASSES,
++                      *_PWBIND_R87_ERR_CLASSES]:
++        last = None
++        for m in re.finditer(pat, text or ""):
++            last = m
++        if last is not None and \
++                (best is None or last.start() > best[0]):
++            best = (last.start(), name, last.group(0).strip())
++    if best is not None:
++        return best[1], best[2]
++    return _pwctl_r86_errclass(text or "")
+ 
+ 
+ def _btwit_r88_norm(text):
+@@ -27656,24 +27729,45 @@ def _btwit_r88_norm(text):
+     return s
+ 
+ 
+-def _btwit_r88_run(argv, timeout_s, env=None, stdin_data=None,
+-                   keep_chars=900, keep_raw=False):
++# Foreign registry-churn lines: an async object-death event from ANY
++# client (a co-tenant seat's, WirePlumber's, a transient pw-cli's) is
++# broadcast to every attached client's stderr as a `remote N: error`
++# line. The measured shapes are `no global <id>` / `no global <id> any
++# more`, `unknown resource <id> op:<n>`, and the stale-handle carrier
++# `res:-116`. An OWN request's refusal is a different lexical class —
++# `Error: "<verb>: unknown global '<id>'"` — so this filter can never
++# eat an own refusal (r88 fold).
++_BTWIT_R88_FOREIGN_ERR = re.compile(
++    r"remote \d+: error[^\n]*?(?:no global \d|unknown resource \d|"
++    r"Stale file handle)")
++
++
++def _btwit_r88_scrub_foreign(text):
++    """Split foreign registry-death lines out of a captured channel.
++    Returns (cleaned_text, dropped_lines) — the dropped lines are
++    recorded on the leg as foreign_noise, never hidden."""
++    kept, dropped = [], []
++    for ln in (text or "").splitlines():
++        (dropped if _BTWIT_R88_FOREIGN_ERR.search(ln)
++         else kept).append(ln)
++    return "\n".join(kept), dropped
++
++
++def _btwit_r88_run(argv, timeout_s, keep_chars=900, keep_raw=False):
+     """One bounded spawn -> rc/signal/stdout/stderr + r88 error class
+     (same kill-group discipline as r87's runner)."""
+     rec = {"argv": " ".join(str(a) for a in argv)}
+     try:
+         proc = subprocess.Popen(
+             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-            stdin=(subprocess.PIPE if stdin_data is not None
+-                   else subprocess.DEVNULL),
+-            env=env, start_new_session=True)
++            stdin=subprocess.DEVNULL, start_new_session=True)
+     except OSError as exc:
+         rec["spawn_error"] = str(exc)[:160]
+         return rec
+     t0 = time.monotonic()
+     killed = False
+     try:
+-        out, err = proc.communicate(input=stdin_data, timeout=timeout_s)
++        out, err = proc.communicate(timeout=timeout_s)
+     except subprocess.TimeoutExpired:
+         killed = True
+         try:
+@@ -27683,7 +27777,11 @@ def _btwit_r88_run(argv, timeout_s, env=None, stdin_data=None,
+         out, err = proc.communicate()
+     errt = err.decode(errors="replace")
+     outt = out.decode(errors="replace")
+-    cls, hit = _btwit_r88_errclass(errt + "\n" + outt)
++    # the error class is computed on the foreign-scrubbed text — an
++    # async object-death line is not this request's refusal (r88 fold)
++    ferr_clean, ferr_dropped = _btwit_r88_scrub_foreign(errt)
++    fout_clean, fout_dropped = _btwit_r88_scrub_foreign(outt)
++    cls, hit = _btwit_r88_errclass(ferr_clean + "\n" + fout_clean)
+     rec.update({"exit_code": proc.returncode,
+                 "signal": (signal.Signals(-proc.returncode).name
+                            if (proc.returncode or 0) < 0 else None),
+@@ -27696,6 +27794,10 @@ def _btwit_r88_run(argv, timeout_s, env=None, stdin_data=None,
+                 "stderr": _btwit_r88_norm(errt)[:keep_chars],
+                 "stderr_bytes": len(errt),
+                 "error_class": cls, "error_hit": hit})
++    if ferr_dropped or fout_dropped:
++        rec["foreign_noise"] = {
++            "stderr": [_btwit_r88_norm(x) for x in ferr_dropped],
++            "stdout": [_btwit_r88_norm(x) for x in fout_dropped]}
+     if keep_raw:
+         # the verbatim channels for in-run parsers — the normed text
+         # above is the recorded witness; ids must survive for the
+@@ -28018,13 +28120,12 @@ def _btwit_r88_teardown(entry, failures, loads):
+     """Name-verified unload of every own module, then the residue
+     destroy: any surviving r88a_<pid>-tagged node is destroyed by id
+     via pw-cli before the final sweep."""
+-    for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
++    for tag, leaf in loads.items():
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     g = _pactlmon_r85_graph()
+     residual = sorted(
+         (nid, n.get("name")) for nid, n in (g.get("nodes") or {}).items()
+@@ -28043,7 +28144,7 @@ def _btwit_r88_teardown(entry, failures, loads):
+             "teardown: pactl sink reader failed — sinks_gone "
+             "unmeasured")
+     else:
+-        gone = {nm: nm not in sinks_now for nm in (loads or {})}
++        gone = {nm: nm not in sinks_now for nm in loads}
+         entry["sinks_gone"] = gone
+         if not all(gone.values()):
+             failures.append(
+@@ -28058,7 +28159,7 @@ def _btwit_r88_teardown(entry, failures, loads):
+     else:
+         rest = sorted(n for n in names
+                       if f"r88a_{BTWIT_R88_PID}" in n
+-                      or n in (loads or {}))
++                      or n in loads)
+         entry["own_nodes_after"] = rest
+         if rest:
+             failures.append(
+@@ -28070,12 +28171,11 @@ def _btwit_r88_block(entry, failures, msg, loads=None):
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+     for tag, leaf in (loads or {}).items():
+-        leaf = leaf or {}
+         entry.setdefault("unloads", {})[tag] = \
+             _pactlmon_r85_unload_own(
+                 leaf.get("module_id"),
+-                leaf.get("field", "sink_name"),
+-                leaf.get("value", tag))
++                leaf["field"],
++                leaf["value"])
+     entry["failures"] = failures
+     return entry
+ 
+@@ -28144,14 +28244,22 @@ def btabs_bluez_r88_entry():
+         legs["bz_midi_bridge"] = {"bluez_objects":
+                                   _btwit_r88_bluez_objs(objs)}
+         # ---------- D-Bus layer: stack alive, devices HID-only -------
+-        tree = _btwit_r88_busctl("tree", "org.bluez")
++        # keep_chars is the enumeration bound — 2400 chars truncates
++        # the tail devices on a populated tree (r88 fold), so the
++        # capture is widened and a still-truncated result is armed
++        # rather than silently judged
++        tree = _btwit_r88_busctl("tree", "org.bluez",
++                                 keep_chars=16000)
+         devs = sorted(set(re.findall(
+             r"(/org/bluez/hci\d+/dev_[0-9A-Fa-f_]+)",
+             tree.get("stdout") or "")))
+         adapters = sorted(set(re.findall(
+             r"(/org/bluez/hci\d+)", tree.get("stdout") or "")))
+         legs["bz_tree"] = {"adapters": adapters, "devices": devs,
+-                           "raw_head": tree.get("stdout_head")}
++                           "raw_head": tree.get("stdout_head"),
++                           "stdout_bytes": tree.get("stdout_bytes"),
++                           "truncated": (tree.get("stdout_bytes") or 0)
++                           > 16000}
+         hci = adapters[0] if adapters else None
+         if hci:
+             legs["bz_adapter"] = _btwit_r88_busctl(
+@@ -28261,8 +28369,8 @@ def btabs_bluez_r88_entry():
+                 % (fac, f"{BTWIT_R88_PREFIX}_{name}"))
+         g2 = _pactlmon_r85_graph()
+         legs["bz_own_residue"] = sorted(
+-            n.get("name") for nid, n in
+-            (g2.get("nodes") or {}).items()
++            n.get("name") for n in
++            (g2.get("nodes") or {}).values()
+             if n.get("name") and
+             f"{BTWIT_R88_PREFIX}_bz_create" in n["name"])
+     finally:
+@@ -28307,6 +28415,11 @@ def btabs_bluez_r88_entry():
+                 f"bz_midi_bridge: bluez object {o} is not "
+                 "Midi/Bridge — an audio-class bluez node exists")
+     l = legs["bz_tree"]
++    if l.get("truncated"):
++        entry.setdefault("coverage_blocked", []).append(
++            f"bz_tree: busctl tree exceeded the 16000-char bound "
++            f"({l.get('stdout_bytes')} B) — tail devices may be "
++            "dropped, enumeration unmeasured")
+     if not l["adapters"]:
+         failures.append("bz_tree: no hci adapter — stack dead?")
+     l = legs.get("bz_adapter") or {}
+@@ -28321,8 +28434,21 @@ def btabs_bluez_r88_entry():
+     if "0000110a-" not in uu or "0000110b-" not in uu:
+         failures.append(
+             f"bz_media1: A2DP src/sink UUIDs not advertised {uu[:80]}")
+-    for rec in (legs["bz_device"].get("devices") or []):
+-        if rec.get("audio_uuids"):
++    devs_rec = legs["bz_device"].get("devices") or []
++    if not devs_rec:
++        entry.setdefault("coverage_blocked", []).append(
++            "bz_device: zero paired devices — the HID-only claim is "
++            "negative-only (unmeasured)")
++    for rec in devs_rec:
++        # a device with an UNREAD UUIDs prop is not a HID witness —
++        # the parse of a failed get-property yields uuid16 == [] and
++        # the arm would pass vacuously on absence-of-evidence
++        if not rec.get("uuid16"):
++            entry.setdefault("coverage_blocked", []).append(
++                f"bz_device: {rec.get('path')} UUIDs unread "
++                f"({rec.get('uuids')}) — this device's HID-only "
++                "record is unmeasured")
++        elif rec.get("audio_uuids"):
+             failures.append(
+                 f"bz_device: {rec['path']} advertises audio UUIDs "
+                 f"{rec['audio_uuids']} — it could become a bluez "
+@@ -28767,6 +28893,9 @@ def witdiff_dump_r88_entry():
+                  "wd_setrule_foreign_id", "wd_setrule_foreign_serial"):
+         l = legs.get(name)
+         if not l:
++            entry.setdefault("coverage_blocked", []).append(
++                f"{name}: leg never measured — the set-rule arm is "
++                "vacuous")
+             continue
+         if l.get("got") is None:
+             entry.setdefault("coverage_blocked", []).append(
+@@ -28782,12 +28911,16 @@ def witdiff_dump_r88_entry():
+             f"wd_no_nested: pw-dump {l['key']} returned "
+             f"{l['port_objects']} Port objects — nested expansion "
+             "falsified")
+-    for name in ("wd_mode_raw", "wd_mode_indent0"):
+-        if legs[name]["ids"] != [str(legs["wd_no_nested"]
+-                                     ["members"][0])]:
+-            failures.append(
+-                f"{name}: mode output {legs[name]['ids']} — "
+-                "membership not mode-invariant")
++    if not (l.get("members") or []):
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_no_nested: pw-dump <own_id> returned no members — "
++            "the mode-invariance arms are unmeasured")
++    else:
++        for name in ("wd_mode_raw", "wd_mode_indent0"):
++            if legs[name]["ids"] != [str(l["members"][0])]:
++                failures.append(
++                    f"{name}: mode output {legs[name]['ids']} — "
++                    "membership not mode-invariant")
+     l = legs["wd_mode_spa"]
+     _spa_text = l.get("stdout_raw") or l.get("stdout") or ""
+     if f"id = {entry['refs']['own_id']}" not in _spa_text or \
+@@ -28873,9 +29006,13 @@ def witdiff_dump_r88_entry():
+     for name in ("wd_silent_dump_id", "wd_silent_dump_abc",
+                  "wd_silent_dump_huge"):
+         l = legs[name]
++        # the emptiness arm judges the OWN channel — foreign async
++        # registry-death lines are noise, recorded under
++        # foreign_noise, not this leg's output (r88 fold)
++        own_err = _btwit_r88_scrub_foreign(l.get("stderr"))[0]
+         if l.get("exit_code") != 0 or \
+                 (l.get("stdout") or "").strip() or \
+-                (l.get("stderr") or "").strip():
++                own_err.strip():
+             failures.append(
+                 f"{name}: rc={l.get('exit_code')} — the silent-"
+                 "absence class fails (expected rc 0 + both empty)")
+@@ -28885,7 +29022,7 @@ def witdiff_dump_r88_entry():
+             "wd_silent_cli_meta: no dump-visible metadata")
+     elif l.get("exit_code") != 0 or \
+             (l.get("stdout") or "").strip() or \
+-            (l.get("stderr") or "").strip():
++            _btwit_r88_scrub_foreign(l.get("stderr"))[0].strip():
+         failures.append(
+             f"wd_silent_cli_meta: rc={l.get('exit_code')} — the "
+             "messageless silent class fails")
+@@ -28894,12 +29031,42 @@ def witdiff_dump_r88_entry():
+         failures.append(
+             f"wd_dump_empty: rc={l.get('exit_code')} parsed="
+             f"{bool(l.get('parsed_ids'))} — '' is not the full dump")
+-    elif not (l.get("equals_before") or l.get("equals_after")):
+-        failures.append(
+-            "wd_dump_empty: object set matches neither bracket "
+-            "census — '' is not the full dump")
++    elif c1 is None or c2 is None:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_dump_empty: a bracket census was unreadable — the "
++            "membership arm is unmeasured")
++    else:
++        # census MEMBERSHIP, not set equality — transient clients can
++        # drift the brackets by ±1, so the armed claims are: every
++        # object stable across BOTH brackets must appear in the dump
++        # (completeness — the falsifiable half of "'' is the full
++        # dump"), and dump-only ids are mid-window transients,
++        # recorded as churn (r88 fold)
++        c1_ids = {str(o.get("id")) for o in c1}
++        c2_ids = {str(o.get("id")) for o in c2}
++        parsed_ids = set(l["parsed_ids"])
++        stable = c1_ids & c2_ids
++        missing = sorted(stable - parsed_ids)
++        extras = sorted(parsed_ids - (c1_ids | c2_ids))
++        l["census_bracket"] = {"stable_core": len(stable),
++                               "missing_from_dump": missing,
++                               "transient_in_dump": extras}
++        if missing:
++            failures.append(
++                f"wd_dump_empty: objects {missing} present at BOTH "
++                "bracket censuses are absent from the '' dump — the "
++                "full-dump claim fails")
++        elif extras:
++            entry.setdefault("coverage_blocked", []).append(
++                f"wd_dump_empty: dump-only ids {extras} — mid-window "
++                "transients; exact set equality unverifiable but the "
++                "stable core is complete")
+     l = legs.get("wd_dump_two")
+-    if l and l.get("ids") != [entry["refs"]["own_id"]]:
++    if l is None:
++        entry.setdefault("coverage_blocked", []).append(
++            "wd_dump_two: no foreign node in the census — the "
++            "two-arg dump form is unmeasured")
++    elif l.get("ids") != [entry["refs"]["own_id"]]:
+         failures.append(
+             f"wd_dump_two: ids {l.get('ids')} — the two-arg form "
+             "does not honor id1 only")
+@@ -28929,7 +29096,7 @@ def witdiff_dump_r88_entry():
+         pass  # the superset arm already carries the claim
+     elif l.get("exit_code") != 0 or \
+             (l.get("stdout") or "").strip() or \
+-            (l.get("stderr") or "").strip():
++            _btwit_r88_scrub_foreign(l.get("stderr"))[0].strip():
+         failures.append(
+             "wd_cli_meta_extra: info on an ls-only metadata id was "
+             "not silent-rc0")
+@@ -28942,16 +29109,36 @@ def witdiff_dump_r88_entry():
+     for name in ("wd_enum_fmt", "wd_enum_num4"):
+         l = legs[name]
+         l["has_pod"] = "Object:" in (l.get("stdout") or "")
++        # "silent" requires rc 0 like every other silence arm — a
++        # nonzero exit is its own class, never the silent signature
+         l["outcome"] = ("pod" if l["has_pod"]
+-                        else ("silent" if l.get("error_class") is None
+-                              else l["error_class"]))
++                        else ("silent" if l.get("exit_code") == 0
++                              and l.get("error_class") is None
++                              else (l.get("error_class") or
++                                    f"loud_rc{l.get('exit_code')}")))
+         if l["has_pod"]:
+             failures.append(
+                 f"{name}: a write-only param returned a pod on the "
+                 "suspended own sink — the write-only signature fails")
++        elif l.get("exit_code") != 0:
++            failures.append(
++                f"{name}: rc={l.get('exit_code')} — the write-only "
++                "signature is rc-0 (silent or remote-refused); a "
++                "nonzero exit is a different class")
+     p1, p2 = legs["wd_enum_props"], legs["wd_enum_num2"]
+-    t1 = ((p1.get("stdout") or "") + "\n" + (p1.get("stderr") or ""))
+-    t2 = ((p2.get("stdout") or "") + "\n" + (p2.get("stderr") or ""))
++    # compare the FULL captured channels, foreign-noise-free — the
++    # recorded 2400-char fields self-mask a tail difference and a
++    # foreign registry-death line pollutes one side only (r88 fold)
++    t1_raw = (p1.get("stdout_raw") or p1.get("stdout") or "") + \
++        "\n" + (p1.get("stderr_raw") or p1.get("stderr") or "")
++    t2_raw = (p2.get("stdout_raw") or p2.get("stdout") or "") + \
++        "\n" + (p2.get("stderr_raw") or p2.get("stderr") or "")
++    t1, f1 = _btwit_r88_scrub_foreign(t1_raw)
++    t2, f2 = _btwit_r88_scrub_foreign(t2_raw)
++    if f1 or f2:
++        legs["wd_enum_num2"]["foreign_noise"] = {
++            "props": [_btwit_r88_norm(x) for x in f1],
++            "num2": [_btwit_r88_norm(x) for x in f2]}
+     if not t1.strip() or "Object:" not in t1:
+         entry.setdefault("coverage_blocked", []).append(
+             "wd_enum_props: the readable param answered nothing — "
+@@ -28979,7 +29166,7 @@ def witdiff_dump_r88_entry():
+             "wd_dead_serial: ns2 serial never resolved")
+     elif l.get("exit_code") != 0 or \
+             (l.get("stdout") or "").strip() or \
+-            (l.get("stderr") or "").strip():
++            _btwit_r88_scrub_foreign(l.get("stderr"))[0].strip():
+         failures.append(
+             f"wd_dead_serial: rc={l.get('exit_code')} — the "
+             "dead-serial silent-absence class fails")
+@@ -29067,7 +29254,6 @@ def pwtop_r88_entry():
+         m = re.search(r'state: "([a-z]+)"',
+                       r_st.get("stdout_raw") or "")
+         r_top, t_frames = _btwit_r88_top_until(3, 2, tries=2)
+-        r_top.pop("_frames_cache", None)
+         legs["pt_state_idle_toprec"] = r_top
+         own_row = next((r for r in (t_frames[-1] if t_frames else [])
+                         if r["id"] == int(own_id)), None)
+@@ -29129,7 +29315,6 @@ def pwtop_r88_entry():
+                                    r_st2.get("stdout_raw") or "")
+                     r_top2, t2 = _btwit_r88_top_until(
+                         3, 2, bound_s=20.0, tries=2)
+-                    r_top2.pop("_frames_cache", None)
+                     legs["pt_state_active_toprec"] = r_top2
+                     row2 = next(
+                         (r for r in (t2[-1] if t2 else [])
+@@ -29207,10 +29392,19 @@ def pwtop_r88_entry():
+     for name in ("pt_nneg", "pt_nabc"):
+         l = legs[name]
+         fr = _btwit_r88_top_frames(l.get("stdout") or "")
+-        if not l.get("killed_at_bound") or not fr:
++        l["frames_seen"] = len(fr)
++        # the armed law is "infinite" = still running at the bound —
++        # the frame witness rides on a block-buffered stdout that a
++        # bound SIGKILL can lose entirely (flush-timing lottery); a
++        # missing frame is an UNMEASURED witness, not a law failure
++        if not l.get("killed_at_bound"):
+             failures.append(
+-                f"{name}: killed={l.get('killed_at_bound')} "
+-                f"frames={len(fr)} — the infinite class fails")
++                f"{name}: killed={l.get('killed_at_bound')} — the "
++                "infinite class fails (exited inside the bound)")
++        elif not fr:
++            entry.setdefault("coverage_blocked", []).append(
++                f"{name}: bound-killed but 0 frames flushed — the "
++                "frame witness is lost to block buffering")
+     l = legs["pt_rbogus"]
+     if l.get("exit_code") == 0 or \
+             l.get("error_class") != "pwtop_connect_down":
+@@ -29240,7 +29434,11 @@ def pwtop_r88_entry():
+         entry.setdefault("coverage_blocked", []).append(
+             "pt_state_active: pw-top never emitted a real-state "
+             "frame under load — the top witness is unmeasured")
+-    elif l.get("vocab"):
++    elif not l.get("vocab"):
++        entry.setdefault("coverage_blocked", []).append(
++            "pt_state_active: vocab never recorded — the four-"
++            "witness agreement is unmeasured")
++    else:
+         voc = l["vocab"]
+         if len(set(voc.values())) != 1 or \
+                 voc.get("dump") != "running" or None in voc.values():

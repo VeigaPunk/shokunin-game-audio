@@ -1,0 +1,17 @@
+claim	frontier_ref	artifact	corroboration	status
+pw-cat requires reachable daemon; no socket -> immediate rc=1 before input open	fb-pipewire.md:12-22	pwcat-nodaemon.log ("error: pw_context_connect() failed: Host is down"), r73-critic/pwcat-nodaemon-{file,fifo}.stderr (same, independent run)	log-backed; rc value itself not persisted (only text)	CORROBORATED
+pw-cat fifo no-writer: blocks in open (wait_for_partner), zero output, survives SIGTERM >30s	fb-pipewire.md:33	pwcat-fifo-nowriter.log (0 B)	report-text-only; no rc/wchan artifact; consistent with 0-byte log	PARTIAL (artifact exists, timing/wchan not receipt-backed)
+pw-cat fifo empty writer: open returns, read blocks, empty close -> sndfile Format not recognised rc=1	fb-pipewire.md:34	pwcat-fifo-empty.log		log-backed (message); rc text-only	CORROBORATED
+pw-cat fifo full member: sniffs, plays, exits rc=0 at writer EOF; single open, no re-open-by-name	fb-pipewire.md:35	pwcat-fifo-w1.log (0 B) + pwcat-fifo-w1.rc ("pwcat-rc:0")	rc artifact exists	CORROBORATED (single-open claim = report-text-only)
+pw-cat consumption playback-paced: instant 64KB dump wall=4s	fb-pipewire.md:36	pwcat-fifo-instant.log (0 B)	report-text-only (no timing artifact)	UNBACKED-BY-ARTIFACT (report text only)
+pw-cat half-rate trickle wall=9s, rc=0, no underrun abort	fb-pipewire.md:37	pwcat-fifo-slow.log (0 B)	report-text-only	UNBACKED-BY-ARTIFACT
+pw-cat raw -a over fifo rc=0 ~5s	fb-pipewire.md:38	pwcat-fifo-raw.log (0 B)	report-text-only	UNBACKED-BY-ARTIFACT
+pw-cat --target 0 hangs forever rc=124	fb-pipewire.md:26	(no artifact)	report-text-only	UNBACKED-BY-ARTIFACT
+pw-cat decode layer is libsndfile (sndfile: prefix on all errors)	fb-pipewire.md:27	pwcat-file-*.log, pwcat-fifo-*.log (all error text sndfile:-prefixed); r73-critic file-arm stderr identical	log-backed	CORROBORATED
+pw-cat file-arm verdicts: hcom/act rc=0; txw/lengate/extsuffix rc=1	fb-pipewire.md:44-48	pwcat-file-*.log (empty for hcom; errors for txw/lengate/extsuffix); r73-reviewer replay-pwcat-file.json rc 0/0/1/1 independent	CORROBORATED (reviewer scratch, uncommitted)
+pw-cat fifo-arm verdicts invariant with file arm	fb-pipewire.md:44-50	pwcat-fifo-*.log; r73-reviewer replay-pwcat-fifo.json rc 0 hcom/act, 1 txw	CORROBORATED (reviewer scratch, uncommitted)
+mpv sniffs content via lavf regardless of transport (Found 'hcom' score=100 both arms)	fb-pipewire.md:54,58-59	mpv-file/fifo-pair_dec_hcom.wav.log:162/168 "Found 'hcom' at score=100 size=600"	log-backed	CORROBORATED
+mpv file arm hcom: refresh seek -> Seek failed EPERM -> rc=2, no data played	fb-pipewire.md:58	mpv-file-pair_dec_hcom.wav.log:178-181,203	log-backed	CORROBORATED
+mpv fifo arm hcom: not seekable -> no refresh seek -> plays rc=0	fb-pipewire.md:58	mpv-fifo-pair_dec_hcom.wav.log:171,180, tail "finished playback, success (reason 0)"	log-backed	CORROBORATED
+mpv txw/extsuffix both arms: No format found -> rc=2	fb-pipewire.md:59-60	mpv-{file,fifo}-{txw_piperefuse,extsuffix_nomatch}.wav.log "Failed to recognize file format"	log-backed	CORROBORATED
+mpv seekability fork generalizes across 4 transports (file,stdin_file -> EPERM; fifo,stdin_pipe -> plays)	not in fb-pipewire (wave-11 in-flight)	corpus/live/r73-scout/logs/cal-{file,stdinfile,fifo,stdinpipe}-dec_hcom.log	independent in-flight sibling scratch, NOT committed	IN-FLIGHT (not evidence)

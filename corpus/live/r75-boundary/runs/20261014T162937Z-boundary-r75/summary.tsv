@@ -1,0 +1,325 @@
+group	cell	member	transport	consumer	rc	wall_s	detail
+fork	fork-ffplay-dec_act-fifo	dec_act	fifo	ffplay	0	0.076	wav
+fork	fork-ffplay-dec_act-file	dec_act	file	ffplay	0	0.077	wav
+fork	fork-ffplay-dec_hcom-fifo	dec_hcom	fifo	ffplay	0	0.097	hcom
+fork	fork-ffplay-dec_hcom-file	dec_hcom	file	ffplay	0	0.094	hcom
+fork	fork-mpv-dec_act-fifo	dec_act	fifo	mpv	0	0.086	success (reason 0)
+fork	fork-mpv-dec_act-file	dec_act	file	mpv	0	0.087	success (reason 0)
+fork	fork-mpv-dec_hcom-fifo	dec_hcom	fifo	mpv	0	0.235	success (reason 0)
+fork	fork-mpv-dec_hcom-file	dec_hcom	file	mpv	2	0.04	no audio or video data played (reason 4)
+gates	gate-aplay-default-device	dec_act	file	aplay	0	0.206	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+gates	gate-aplay-hw00	dec_act	file	aplay	1	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+gates	gate-aplay-nosuchdevice	dec_act	file	aplay	1	0.002	aplay: main:850: audio open error: No such file or directory
+gates	gate-ffplay-bogus-sdl	dec_act	file	ffplay	1	0.021	(Did you set the DISPLAY variable?)
+gates	gate-ffplay-default-sdl	dec_act	file	ffplay	0	0.094	wav
+gates	gate-paplay-deadrt	dec_act	file	paplay	1	0.003	pa_context_connect() failed: Connection refused
+gates	gate-paplay-deadrt-orphanwriter	dec_act	fifo	paplay	1	0.003	pa_context_connect() failed: Connection refused
+kill	k1-emptywriter-aplay	dec_act	fifo	aplay	1	0.003	aplay: read_header:2973: read error
+kill	k1-emptywriter-ffplay	dec_act	fifo	ffplay	0	0.033	<input>: Invalid data found when processing input
+kill	k1-emptywriter-paplay	dec_act	fifo	paplay	1	0.003	Failed to open audio file.
+kill	k1-lingerwriter-aplay	dec_act	fifo	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+kill	k1-lingerwriter-ffplay	dec_act	fifo	ffplay	-9	6.002	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k1-lingerwriter-paplay	dec_act	fifo	paplay	-9	6.001	
+kill	k1-partialkill-aplay	dec_act	fifo	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+kill	k1-partialkill-ffplay	dec_act	fifo	ffplay	0	0.076	wav
+kill	k1-partialkill-paplay	dec_act	fifo	paplay	0	0.115	
+kill	k1-writerless-aplay-KILL6	dec_act	fifo	aplay	-9	6.001	
+kill	k1-writerless-aplay-TERM4	dec_act	fifo	aplay	-9	10.006	Aborted by signal Terminated...
+kill	k1-writerless-aplay-TERM4-k2	dec_act	fifo	aplay	-9	6.001	Aborted by signal Terminated...
+kill	k1-writerless-ffplay-KILL6	dec_act	fifo	ffplay	-9	6.002	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k1-writerless-ffplay-TERM4	dec_act	fifo	ffplay	124	4.004	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k1-writerless-ffplay-TERM4-k2	dec_act	fifo	ffplay	124	4.004	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k1-writerless-paplay-KILL6	dec_act	fifo	paplay	-9	6.001	
+kill	k1-writerless-paplay-TERM4	dec_act	fifo	paplay	124	4.001	
+kill	k1-writerless-paplay-TERM4-k2	dec_act	fifo	paplay	124	4.002	
+kill	k2-emptywriter-aplay	dec_act	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+kill	k2-emptywriter-ffplay	dec_act	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+kill	k2-emptywriter-paplay	dec_act	fifo	paplay	1	0.003	Failed to open audio file.
+kill	k2-lingerwriter-aplay	dec_act	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+kill	k2-lingerwriter-ffplay	dec_act	fifo	ffplay	-9	6.002	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k2-lingerwriter-paplay	dec_act	fifo	paplay	-9	6.001	
+kill	k2-partialkill-aplay	dec_act	fifo	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+kill	k2-partialkill-ffplay	dec_act	fifo	ffplay	0	0.076	wav
+kill	k2-partialkill-paplay	dec_act	fifo	paplay	0	0.117	
+kill	k2-writerless-aplay-KILL6	dec_act	fifo	aplay	-9	6.001	
+kill	k2-writerless-aplay-TERM4	dec_act	fifo	aplay	-9	10.007	Aborted by signal Terminated...
+kill	k2-writerless-aplay-TERM4-k2	dec_act	fifo	aplay	-9	6.001	Aborted by signal Terminated...
+kill	k2-writerless-ffplay-KILL6	dec_act	fifo	ffplay	-9	6.002	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k2-writerless-ffplay-TERM4	dec_act	fifo	ffplay	124	4.003	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k2-writerless-ffplay-TERM4-k2	dec_act	fifo	ffplay	124	4.004	nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B
+kill	k2-writerless-paplay-KILL6	dec_act	fifo	paplay	-9	6.001	
+kill	k2-writerless-paplay-TERM4	dec_act	fifo	paplay	124	4.002	
+kill	k2-writerless-paplay-TERM4-k2	dec_act	fifo	paplay	124	4.002	
+load	load8-aplay-TERM4-k2	dec_act	fifo	x8			
+load	load8-ffplay-TERM4	dec_act	fifo	x8			
+load	load8-mixed-paplay4-ffplay4-TERM4	dec_act	fifo	x8			
+load	load8-paplay-TERM4	dec_act	fifo	x8			
+matrix	m1-aplay-dec_act-fifo	dec_act	fifo	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-dec_act-file	dec_act	file	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-dec_hcom-fifo	dec_hcom	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-dec_hcom-file	dec_hcom	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-empty.bin-fifo	empty.bin	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m1-aplay-empty.bin-file	empty.bin	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_bin-fifo	extsuffix_bin	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_bin-file	extsuffix_bin	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_f32-fifo	extsuffix_f32	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_f32-file	extsuffix_f32	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_snd-fifo	extsuffix_snd	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_snd-file	extsuffix_snd	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_txw-fifo	extsuffix_txw	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_txw-file	extsuffix_txw	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_wav-fifo	extsuffix_wav	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-extsuffix_wav-file	extsuffix_wav	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m1-aplay-lengate_gsrt_24-file	lengate_gsrt_24	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1055)
+matrix	m1-aplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m1-aplay-lengate_gsrt_25-file	lengate_gsrt_25	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1055)
+matrix	m1-aplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-lengate_hcom_131-file	lengate_hcom_131	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-lengate_hcom_132-file	lengate_hcom_132	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-nomagic512.snd-fifo	nomagic512.snd	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-nomagic512.snd-file	nomagic512.snd	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-posttable_nomatch-fifo	posttable_nomatch	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-posttable_nomatch-file	posttable_nomatch	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m1-aplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1067)
+matrix	m1-aplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-txw_piperefuse-fifo	txw_piperefuse	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-txw_piperefuse-file	txw_piperefuse	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m1-aplay-zerodata.wav-fifo	zerodata.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-aplay-zerodata.wav-file	zerodata.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m1-ffplay-dec_act-fifo	dec_act	fifo	ffplay	0	0.075	wav
+matrix	m1-ffplay-dec_act-file	dec_act	file	ffplay	0	0.075	wav
+matrix	m1-ffplay-dec_hcom-fifo	dec_hcom	fifo	ffplay	0	0.096	hcom
+matrix	m1-ffplay-dec_hcom-file	dec_hcom	file	ffplay	0	0.094	hcom
+matrix	m1-ffplay-empty.bin-fifo	empty.bin	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-empty.bin-file	empty.bin	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_bin-fifo	extsuffix_bin	fifo	ffplay	0	0.033	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_bin-file	extsuffix_bin	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_f32-fifo	extsuffix_f32	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_f32-file	extsuffix_f32	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_snd-fifo	extsuffix_snd	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_snd-file	extsuffix_snd	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_txw-fifo	extsuffix_txw	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_txw-file	extsuffix_txw	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_wav-fifo	extsuffix_wav	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-extsuffix_wav-file	extsuffix_wav	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	ffplay	0	0.064	wav
+matrix	m1-ffplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	ffplay	0	0.063	wav
+matrix	m1-ffplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-lengate_gsrt_24-file	lengate_gsrt_24	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-lengate_gsrt_25-file	lengate_gsrt_25	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	ffplay	0	0.075	wav
+matrix	m1-ffplay-lengate_hcom_131-file	lengate_hcom_131	file	ffplay	0	0.076	wav
+matrix	m1-ffplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m1-ffplay-lengate_hcom_132-file	lengate_hcom_132	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m1-ffplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-nomagic512.snd-fifo	nomagic512.snd	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-nomagic512.snd-file	nomagic512.snd	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-posttable_nomatch-fifo	posttable_nomatch	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-posttable_nomatch-file	posttable_nomatch	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m1-ffplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	ffplay	0	0.076	wav
+matrix	m1-ffplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	ffplay	0	0.073	wav
+matrix	m1-ffplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	ffplay	0	0.094	hcom
+matrix	m1-ffplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	ffplay	0	0.094	hcom
+matrix	m1-ffplay-txw_piperefuse-fifo	txw_piperefuse	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-txw_piperefuse-file	txw_piperefuse	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m1-ffplay-zerodata.wav-fifo	zerodata.wav	fifo	ffplay	0	0.064	wav
+matrix	m1-ffplay-zerodata.wav-file	zerodata.wav	file	ffplay	0	0.064	wav
+matrix	m1-paplay-dec_act-fifo	dec_act	fifo	paplay	0	0.126	
+matrix	m1-paplay-dec_act-file	dec_act	file	paplay	0	0.122	
+matrix	m1-paplay-dec_hcom-fifo	dec_hcom	fifo	paplay	0	0.126	
+matrix	m1-paplay-dec_hcom-file	dec_hcom	file	paplay	0	0.127	
+matrix	m1-paplay-empty.bin-fifo	empty.bin	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-empty.bin-file	empty.bin	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-extsuffix_bin-fifo	extsuffix_bin	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_bin-file	extsuffix_bin	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-extsuffix_f32-fifo	extsuffix_f32	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_f32-file	extsuffix_f32	file	paplay	1	0.001	Failed to open audio file.
+matrix	m1-paplay-extsuffix_snd-fifo	extsuffix_snd	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_snd-file	extsuffix_snd	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_txw-fifo	extsuffix_txw	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_txw-file	extsuffix_txw	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-extsuffix_wav-fifo	extsuffix_wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-extsuffix_wav-file	extsuffix_wav	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	paplay	0	0.128	
+matrix	m1-paplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	paplay	0	0.095	
+matrix	m1-paplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-lengate_gsrt_24-file	lengate_gsrt_24	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-lengate_gsrt_25-file	lengate_gsrt_25	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	paplay	0	0.127	
+matrix	m1-paplay-lengate_hcom_131-file	lengate_hcom_131	file	paplay	0	0.114	
+matrix	m1-paplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	paplay	0	0.127	
+matrix	m1-paplay-lengate_hcom_132-file	lengate_hcom_132	file	paplay	0	0.127	
+matrix	m1-paplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-nomagic512.snd-fifo	nomagic512.snd	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-nomagic512.snd-file	nomagic512.snd	file	paplay	1	0.002	Failed to open audio file.
+matrix	m1-paplay-posttable_nomatch-fifo	posttable_nomatch	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-posttable_nomatch-file	posttable_nomatch	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	paplay	0	0.127	
+matrix	m1-paplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	paplay	0	0.105	
+matrix	m1-paplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	paplay	0	0.127	
+matrix	m1-paplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	paplay	0	0.128	
+matrix	m1-paplay-txw_piperefuse-fifo	txw_piperefuse	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-txw_piperefuse-file	txw_piperefuse	file	paplay	1	0.003	Failed to open audio file.
+matrix	m1-paplay-zerodata.wav-fifo	zerodata.wav	fifo	paplay	0	0.127	
+matrix	m1-paplay-zerodata.wav-file	zerodata.wav	file	paplay	0	0.121	
+matrix	m2-aplay-dec_act-fifo	dec_act	fifo	aplay	0	0.003	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-dec_act-file	dec_act	file	aplay	0	0.001	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-dec_hcom-fifo	dec_hcom	fifo	aplay	0	0.001	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-dec_hcom-file	dec_hcom	file	aplay	0	0.001	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-empty.bin-fifo	empty.bin	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m2-aplay-empty.bin-file	empty.bin	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_bin-fifo	extsuffix_bin	fifo	aplay	0	0.001	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_bin-file	extsuffix_bin	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_f32-fifo	extsuffix_f32	fifo	aplay	0	0.003	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_f32-file	extsuffix_f32	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_snd-fifo	extsuffix_snd	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_snd-file	extsuffix_snd	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_txw-fifo	extsuffix_txw	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_txw-file	extsuffix_txw	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_wav-fifo	extsuffix_wav	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-extsuffix_wav-file	extsuffix_wav	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m2-aplay-lengate_gsrt_24-file	lengate_gsrt_24	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1055)
+matrix	m2-aplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m2-aplay-lengate_gsrt_25-file	lengate_gsrt_25	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1055)
+matrix	m2-aplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-lengate_hcom_131-file	lengate_hcom_131	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-lengate_hcom_132-file	lengate_hcom_132	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-nomagic512.snd-fifo	nomagic512.snd	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-nomagic512.snd-file	nomagic512.snd	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-posttable_nomatch-fifo	posttable_nomatch	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-posttable_nomatch-file	posttable_nomatch	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	aplay	1	0.002	aplay: read_header:2973: read error
+matrix	m2-aplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	aplay	1	0.002	aplay: test_wavefile_read:994: read error (called from line 1067)
+matrix	m2-aplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	aplay	0	0.001	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-txw_piperefuse-fifo	txw_piperefuse	fifo	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-txw_piperefuse-file	txw_piperefuse	file	aplay	0	0.002	Unsigned 8 bit, Rate 8000 Hz, Mono
+matrix	m2-aplay-zerodata.wav-fifo	zerodata.wav	fifo	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-aplay-zerodata.wav-file	zerodata.wav	file	aplay	0	0.002	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+matrix	m2-ffplay-dec_act-fifo	dec_act	fifo	ffplay	0	0.074	wav
+matrix	m2-ffplay-dec_act-file	dec_act	file	ffplay	0	0.073	wav
+matrix	m2-ffplay-dec_hcom-fifo	dec_hcom	fifo	ffplay	0	0.095	hcom
+matrix	m2-ffplay-dec_hcom-file	dec_hcom	file	ffplay	0	0.095	hcom
+matrix	m2-ffplay-empty.bin-fifo	empty.bin	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-empty.bin-file	empty.bin	file	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_bin-fifo	extsuffix_bin	fifo	ffplay	0	0.033	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_bin-file	extsuffix_bin	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_f32-fifo	extsuffix_f32	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_f32-file	extsuffix_f32	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_snd-fifo	extsuffix_snd	fifo	ffplay	0	0.033	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_snd-file	extsuffix_snd	file	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_txw-fifo	extsuffix_txw	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_txw-file	extsuffix_txw	file	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_wav-fifo	extsuffix_wav	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-extsuffix_wav-file	extsuffix_wav	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	ffplay	0	0.064	wav
+matrix	m2-ffplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	ffplay	0	0.064	wav
+matrix	m2-ffplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	ffplay	0	0.029	<input>: Invalid data found when processing input
+matrix	m2-ffplay-lengate_gsrt_24-file	lengate_gsrt_24	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-lengate_gsrt_25-file	lengate_gsrt_25	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	ffplay	0	0.075	wav
+matrix	m2-ffplay-lengate_hcom_131-file	lengate_hcom_131	file	ffplay	0	0.075	wav
+matrix	m2-ffplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	ffplay	0	0.032	<input>: Invalid data found when processing input
+matrix	m2-ffplay-lengate_hcom_132-file	lengate_hcom_132	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-nomagic512.snd-fifo	nomagic512.snd	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-nomagic512.snd-file	nomagic512.snd	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-posttable_nomatch-fifo	posttable_nomatch	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-posttable_nomatch-file	posttable_nomatch	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	ffplay	0	0.075	wav
+matrix	m2-ffplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	ffplay	0	0.074	wav
+matrix	m2-ffplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	ffplay	0	0.096	hcom
+matrix	m2-ffplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	ffplay	0	0.094	hcom
+matrix	m2-ffplay-txw_piperefuse-fifo	txw_piperefuse	fifo	ffplay	0	0.03	<input>: Invalid data found when processing input
+matrix	m2-ffplay-txw_piperefuse-file	txw_piperefuse	file	ffplay	0	0.031	<input>: Invalid data found when processing input
+matrix	m2-ffplay-zerodata.wav-fifo	zerodata.wav	fifo	ffplay	0	0.062	wav
+matrix	m2-ffplay-zerodata.wav-file	zerodata.wav	file	ffplay	0	0.064	wav
+matrix	m2-paplay-dec_act-fifo	dec_act	fifo	paplay	0	0.129	
+matrix	m2-paplay-dec_act-file	dec_act	file	paplay	0	0.12	
+matrix	m2-paplay-dec_hcom-fifo	dec_hcom	fifo	paplay	0	0.127	
+matrix	m2-paplay-dec_hcom-file	dec_hcom	file	paplay	0	0.128	
+matrix	m2-paplay-empty.bin-fifo	empty.bin	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-empty.bin-file	empty.bin	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-extsuffix_bin-fifo	extsuffix_bin	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_bin-file	extsuffix_bin	file	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_f32-fifo	extsuffix_f32	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_f32-file	extsuffix_f32	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-extsuffix_snd-fifo	extsuffix_snd	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_snd-file	extsuffix_snd	file	paplay	1	0.001	Failed to open audio file.
+matrix	m2-paplay-extsuffix_txw-fifo	extsuffix_txw	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_txw-file	extsuffix_txw	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-extsuffix_wav-fifo	extsuffix_wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-extsuffix_wav-file	extsuffix_wav	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-hdronly_dec_act.wav-fifo	hdronly_dec_act.wav	fifo	paplay	0	0.128	
+matrix	m2-paplay-hdronly_dec_act.wav-file	hdronly_dec_act.wav	file	paplay	0	0.096	
+matrix	m2-paplay-lengate_gsrt_24-fifo	lengate_gsrt_24	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-lengate_gsrt_24-file	lengate_gsrt_24	file	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-lengate_gsrt_25-fifo	lengate_gsrt_25	fifo	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-lengate_gsrt_25-file	lengate_gsrt_25	file	paplay	1	0.001	Failed to open audio file.
+matrix	m2-paplay-lengate_hcom_131-fifo	lengate_hcom_131	fifo	paplay	0	0.129	
+matrix	m2-paplay-lengate_hcom_131-file	lengate_hcom_131	file	paplay	0	0.118	
+matrix	m2-paplay-lengate_hcom_132-fifo	lengate_hcom_132	fifo	paplay	0	0.128	
+matrix	m2-paplay-lengate_hcom_132-file	lengate_hcom_132	file	paplay	0	0.128	
+matrix	m2-paplay-magicbad_dec_act.wav-fifo	magicbad_dec_act.wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-magicbad_dec_act.wav-file	magicbad_dec_act.wav	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-nomagic512.snd-fifo	nomagic512.snd	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-nomagic512.snd-file	nomagic512.snd	file	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-posttable_nomatch-fifo	posttable_nomatch	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-posttable_nomatch-file	posttable_nomatch	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-trunc20_dec_act.wav-fifo	trunc20_dec_act.wav	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-trunc20_dec_act.wav-file	trunc20_dec_act.wav	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-trunc300_dec_act.wav-fifo	trunc300_dec_act.wav	fifo	paplay	0	0.129	
+matrix	m2-paplay-trunc300_dec_act.wav-file	trunc300_dec_act.wav	file	paplay	0	0.104	
+matrix	m2-paplay-trunc300_dec_hcom.wav-fifo	trunc300_dec_hcom.wav	fifo	paplay	0	0.128	
+matrix	m2-paplay-trunc300_dec_hcom.wav-file	trunc300_dec_hcom.wav	file	paplay	0	0.128	
+matrix	m2-paplay-txw_piperefuse-fifo	txw_piperefuse	fifo	paplay	1	0.003	Failed to open audio file.
+matrix	m2-paplay-txw_piperefuse-file	txw_piperefuse	file	paplay	1	0.002	Failed to open audio file.
+matrix	m2-paplay-zerodata.wav-fifo	zerodata.wav	fifo	paplay	0	0.128	
+matrix	m2-paplay-zerodata.wav-file	zerodata.wav	file	paplay	0	0.122	
+pacing	pace-aplay-default-dec_act	dec_act	file	aplay	0	0.18	Signed 16 bit Little Endian, Rate 8000 Hz, Mono
+pacing	pace-aplay-null	stem_sections.wav	file	aplay	0	0.003	Signed 16 bit Little Endian, Rate 48000 Hz, Mono
+pacing	pace-ffplay-dummy	stem_sections.wav	file	ffplay	0	4.04	wav
+pacing	pace-paplay-live	stem_sections.wav	file	paplay	0	4.03	
+name	paplay-fifo-foo-wavcontent	wavcontent.snd	fifo	paplay	0	0.129	
+name	paplay-fifo-nomatch.SND	nomatch.SND	fifo	paplay	1	0.003	Failed to open audio file.
+name	paplay-fifo-nomatch.foo	nomatch.foo	fifo	paplay	1	0.003	Failed to open audio file.
+name	paplay-fifo-nomatch.snd	nomatch.snd	fifo	paplay	1	0.003	Failed to open audio file.
+name	paplay-fifo-nomatch.wav	nomatch.wav	fifo	paplay	1	0.003	Failed to open audio file.
+name	paplay-file-nomatch.SND	nomatch.SND	file	paplay	1	0.002	Failed to open audio file.
+name	paplay-file-nomatch.foo	nomatch.foo	file	paplay	1	0.002	Failed to open audio file.
+name	paplay-file-nomatch.snd	nomatch.snd	file	paplay	1	0.003	Failed to open audio file.
+name	paplay-file-nomatch.wav	nomatch.wav	file	paplay	1	0.003	Failed to open audio file.
+name	paplay-rfd-nomagic	extsuffix_nomatch.snd	rfd	paplay	1	0.003	Failed to open audio file.
+name	paplay-rfd-wavcontent	wavcontent.snd	rfd	paplay	0	0.135	
+name	pwcat-fifo-nomagic-snd	extsuffix_nomatch.snd	fifo	pw-cat	0	0.126	
+name	pwcat-file-nomagic-snd	extsuffix_nomatch.snd	file	pw-cat	0	0.128	

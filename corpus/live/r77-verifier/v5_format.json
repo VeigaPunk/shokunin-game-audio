@@ -1,0 +1,293 @@
+{
+  "probe": "r77-verifier pw-record format axis",
+  "target": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+  "frames": 4800,
+  "legs": {
+    "baseline": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_baseline.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 19244,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 19200,
+        "samples": 9600,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [],
+      "expected_fmt": {
+        "tag": 1,
+        "channels": 2,
+        "rate": 48000,
+        "bits": 16
+      }
+    },
+    "s24": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --format s24 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_s24.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 28844,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 24
+        },
+        "data_declared": 28800,
+        "samples": 14400,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [
+        "--format",
+        "s24"
+      ],
+      "expected_fmt": {
+        "tag": 1,
+        "bits": 24
+      }
+    },
+    "f32": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --format f32 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_f32.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 38488,
+        "fmt": {
+          "tag": 3,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 32
+        },
+        "data_declared": 38400,
+        "samples": 19200,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [
+        "--format",
+        "f32"
+      ],
+      "expected_fmt": {
+        "tag": 3,
+        "bits": 32
+      }
+    },
+    "u8": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --format u8 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_u8.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 9644,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 8
+        },
+        "data_declared": 9600,
+        "samples": 4800,
+        "peak": 32640,
+        "nonzero_frac": 1.0,
+        "carries_tone": true
+      },
+      "requested": [
+        "--format",
+        "u8"
+      ],
+      "expected_fmt": {
+        "tag": 1,
+        "bits": 8
+      }
+    },
+    "rate_192000": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --rate 192000 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_rate_192000.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 19244,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 192000,
+          "bits": 16
+        },
+        "data_declared": 19200,
+        "samples": 9600,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [
+        "--rate",
+        "192000"
+      ],
+      "expected_fmt": {
+        "rate": 192000
+      }
+    },
+    "channels_1": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --channels 1 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_channels_1.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 9644,
+        "fmt": {
+          "tag": 1,
+          "channels": 1,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 9600,
+        "samples": 4800,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [
+        "--channels",
+        "1"
+      ],
+      "expected_fmt": {
+        "channels": 1
+      }
+    },
+    "channels_6": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 48000 --channels 2 --format s16 --channels 6 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-format-4die0oeh/l_channels_6.wav"
+      ],
+      "usage_dump": false,
+      "file": {
+        "exists": true,
+        "bytes": 57680,
+        "fmt": {
+          "tag": 65534,
+          "channels": 6,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 57600,
+        "samples": 28800,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "requested": [
+        "--channels",
+        "6"
+      ],
+      "expected_fmt": {
+        "channels": 6,
+        "tag": 65534
+      }
+    },
+    "format_bogus": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --format bogus <out>",
+      "exit_code": 1,
+      "stderr": [
+        "error: unknown format \"bogus\"",
+        "error: open failed: Invalid argument",
+        "pw-record [options] [<file>|-]"
+      ],
+      "usage_dump": true,
+      "file": {
+        "exists": false
+      },
+      "requested": [
+        "--format",
+        "bogus"
+      ]
+    },
+    "rate_0": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --rate 0 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "error: bad rate 0",
+        "pw-record [options] [<file>|-]",
+        "  -h, --help                            Show this help"
+      ],
+      "usage_dump": true,
+      "file": {
+        "exists": false
+      },
+      "requested": [
+        "--rate",
+        "0"
+      ]
+    },
+    "channels_0": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --channels 0 <out>",
+      "exit_code": 1,
+      "stderr": [
+        "error: bad channels 0",
+        "pw-record [options] [<file>|-]",
+        "  -h, --help                            Show this help"
+      ],
+      "usage_dump": true,
+      "file": {
+        "exists": false
+      },
+      "requested": [
+        "--channels",
+        "0"
+      ]
+    },
+    "channel_map_mismatch": {
+      "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -n 4800 --channels 1 --channel-map FL,FR <out>",
+      "exit_code": 1,
+      "stderr": [
+        "error: channels and channel-map incompatible",
+        "pw-record [options] [<file>|-]",
+        "  -h, --help                            Show this help"
+      ],
+      "usage_dump": true,
+      "file": {
+        "exists": false
+      },
+      "requested": [
+        "--channels",
+        "1",
+        "--channel-map",
+        "FL,FR"
+      ]
+    }
+  },
+  "failures": [],
+  "refusal_class": "usage_refusal"
+}

@@ -1,0 +1,36 @@
+[AGREE] C1a pw-record TERM: rc=1 + FINALIZED header
+      rc=1 bytes=286764 riff_sz=286756 data_decl=286720 data_actual=286720 wave_frames=71680 wave_err=None
+[AGREE] C1b pw-record KILL: riff_sz=8/data=0 wound rejected by stdlib wave
+      rc=-9 bytes=282668 riff_sz=8 data_decl=0 data_actual=282624 wave_frames=None wave_err=Error
+[AGREE] C2a parecord TERM: rc=0 + finalized 64-KiB-granule payload
+      rc=0 bytes=131116 riff_sz=131108 data_decl=131072 data_actual=131072 64k_aligned=True wave_frames=32768 wave_err=None
+[AGREE] C2b parecord KILL: riff_sz=8/data=0 wound rejected
+      rc=-9 bytes=131116 riff_sz=8 data_decl=0 data_actual=131072 64k_aligned=True wave_frames=None wave_err=Error
+[AGREE] C3 rc=0-with-EMPTY-capture is REACHABLE (rc is never the verdict)
+      rc=0 bytes=44 riff_sz=36 data_decl=0 data_actual=0 wave_frames=0 wave_err=None  (TERM at 0.4 s, inside the dead start)
+[AGREE] C4a ffmpeg TERM: rc=255 with a USABLE finalized file
+      rc=255 exists=True bytes=489678 riff_sz=489670 data_decl=489600 data_actual=489600 wave_frames=122400 wave_err=None
+[AGREE] C4b ffmpeg KILL: unfinalized class (missing / 0-byte / 0xFFFFFFFF)
+      rc=-9 exists=True bytes=262144 riff_sz=4294967295 data_decl=4294967295 data_actual=262066 wave_frames=1073741823 wave_err=None
+[DISAGREE] C5 arecord KILL: data=0x80000000, stdlib wave ACCEPTS and INFLATES (accept-and-lie)
+      rc=1 bytes=44 riff_sz=2147483684 (0x80000024) data_decl=2147483648 (0x80000000) data_actual=0 honest_frames=0 wave_frames=536870912 wave_err=None
+[AGREE] C6 arecord -D null -d 1: EXACT 192044 B, unpaced (wall << 1 s)
+      rc=0 bytes=192044 data_actual=192000 riff_sz=192036 wall=0.001 s
+[AGREE] C7 parecord has a ~1.9 s fixed dead start (dead start = wait - captured)
+      TERM@4.0s -> captured 2.229 s (393216 B, rc=0) | TERM@8.0s -> captured 6.316 s (1114112 B, rc=0)  => dead-start estimate 1.684-1.771 s
+[DISAGREE] C8 roundtrip: monitor capture = 960044 B with nonzero audio
+      rc=1 player_rc=1 bytes=960044 expected=960044 data_finalized=True nonzero_byte_fraction=0.000
+
+=== SUMMARY ===
+AGREE     C1a pw-record TERM: rc=1 + FINALIZED header
+AGREE     C1b pw-record KILL: riff_sz=8/data=0 wound rejected by stdlib wave
+AGREE     C2a parecord TERM: rc=0 + finalized 64-KiB-granule payload
+AGREE     C2b parecord KILL: riff_sz=8/data=0 wound rejected
+AGREE     C3 rc=0-with-EMPTY-capture is REACHABLE (rc is never the verdict)
+AGREE     C4a ffmpeg TERM: rc=255 with a USABLE finalized file
+AGREE     C4b ffmpeg KILL: unfinalized class (missing / 0-byte / 0xFFFFFFFF)
+DISAGREE  C5 arecord KILL: data=0x80000000, stdlib wave ACCEPTS and INFLATES (acce
+AGREE     C6 arecord -D null -d 1: EXACT 192044 B, unpaced (wall << 1 s)
+AGREE     C7 parecord has a ~1.9 s fixed dead start (dead start = wait - captured)
+DISAGREE  C8 roundtrip: monitor capture = 960044 B with nonzero audio
+EXIT=0

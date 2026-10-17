@@ -1,0 +1,387 @@
+{
+ "inventory": {
+  "sources": [
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source"
+  ],
+  "monitors": [
+   "alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor"
+  ],
+  "SRC": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+  "SINK": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "HW": "hw:0,0"
+ }
+}
+{
+ "cells": {
+  "pwrecord_term": {
+   "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source --rate 48000 --channels 2 --format s16 <out>",
+   "sig": "TERM",
+   "early_exit_code": null,
+   "exit_code": 1,
+   "stderr_last": "/tmp/r76rev-sev-z6s1km_j/s.wav",
+   "raw": {
+    "exists": true,
+    "file_bytes": 278572,
+    "riff_magic": true,
+    "riff_size_field": 278564,
+    "riff_size_finalized": true,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      278528,
+      36
+     ]
+    ],
+    "data_declared": 278528,
+    "data_actual": 278528,
+    "data_declared_finalized": true,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 69632,
+    "wave_framerate": 48000,
+    "wave_nchannels": 2,
+    "honest_frames": 69632,
+    "declared_frames": 69632,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"1.450667\"\n    }\n}"
+   }
+  },
+  "parecord_term": {
+   "argv": "parecord -d @DEFAULT_SOURCE@ <out>",
+   "sig": "TERM",
+   "early_exit_code": null,
+   "exit_code": 0,
+   "stderr_last": "",
+   "raw": {
+    "exists": true,
+    "file_bytes": 131116,
+    "riff_magic": true,
+    "riff_size_field": 131108,
+    "riff_size_finalized": true,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      131072,
+      36
+     ]
+    ],
+    "data_declared": 131072,
+    "data_actual": 131072,
+    "data_declared_finalized": true,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 44100,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 32768,
+    "wave_framerate": 44100,
+    "wave_nchannels": 2,
+    "honest_frames": 32768,
+    "declared_frames": 32768,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"0.743039\"\n    }\n}"
+   }
+  },
+  "ffmpeg_term": {
+   "argv": "ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -y <out>",
+   "sig": "TERM",
+   "early_exit_code": null,
+   "exit_code": 255,
+   "stderr_last": "",
+   "raw": {
+    "exists": true,
+    "file_bytes": 489678,
+    "riff_magic": true,
+    "riff_size_field": 489670,
+    "riff_size_finalized": true,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "LIST",
+      26,
+      36
+     ],
+     [
+      "data",
+      489600,
+      70
+     ]
+    ],
+    "data_declared": 489600,
+    "data_actual": 489600,
+    "data_declared_finalized": true,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 122400,
+    "wave_framerate": 48000,
+    "wave_nchannels": 2,
+    "honest_frames": 122400,
+    "declared_frames": 122400,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"2.550000\"\n    }\n}"
+   }
+  },
+  "arecord_term": {
+   "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav <out>",
+   "sig": "TERM",
+   "early_exit_code": null,
+   "exit_code": 1,
+   "stderr_last": "Aborted by signal Terminated...",
+   "raw": {
+    "exists": true,
+    "file_bytes": 264180,
+    "riff_magic": true,
+    "riff_size_field": 264172,
+    "riff_size_finalized": true,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      264136,
+      36
+     ]
+    ],
+    "data_declared": 264136,
+    "data_actual": 264136,
+    "data_declared_finalized": true,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 66034,
+    "wave_framerate": 48000,
+    "wave_nchannels": 2,
+    "honest_frames": 66034,
+    "declared_frames": 66034,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"1.375708\"\n    }\n}"
+   }
+  },
+  "pwrecord_kill": {
+   "argv": "pw-record --target alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source --rate 48000 --channels 2 --format s16 <out>",
+   "sig": "KILL",
+   "early_exit_code": null,
+   "exit_code": -9,
+   "stderr_last": "/tmp/r76rev-sev-9tdsnizd/s.wav",
+   "raw": {
+    "exists": true,
+    "file_bytes": 294956,
+    "riff_magic": true,
+    "riff_size_field": 8,
+    "riff_size_finalized": false,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      0,
+      36
+     ]
+    ],
+    "data_declared": 0,
+    "data_actual": 294912,
+    "data_declared_finalized": false,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": false,
+    "wave_error": "Error: fmt chunk and/or data chunk missing",
+    "honest_frames": 73728,
+    "declared_frames": 0,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"1.536000\"\n    }\n}"
+   }
+  },
+  "parecord_kill": {
+   "argv": "parecord -d @DEFAULT_SOURCE@ <out>",
+   "sig": "KILL",
+   "early_exit_code": null,
+   "exit_code": -9,
+   "stderr_last": "",
+   "raw": {
+    "exists": true,
+    "file_bytes": 131116,
+    "riff_magic": true,
+    "riff_size_field": 8,
+    "riff_size_finalized": false,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      0,
+      36
+     ]
+    ],
+    "data_declared": 0,
+    "data_actual": 131072,
+    "data_declared_finalized": false,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 44100,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": false,
+    "wave_error": "Error: fmt chunk and/or data chunk missing",
+    "honest_frames": 32768,
+    "declared_frames": 0,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"0.743039\"\n    }\n}"
+   }
+  },
+  "ffmpeg_kill": {
+   "argv": "ffmpeg -nostdin -nostats -v error -f pulse -i alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source -y <out>",
+   "sig": "KILL",
+   "early_exit_code": null,
+   "exit_code": -9,
+   "stderr_last": "",
+   "raw": {
+    "exists": true,
+    "file_bytes": 262144,
+    "riff_magic": true,
+    "riff_size_field": 4294967295,
+    "riff_size_finalized": false,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "LIST",
+      26,
+      36
+     ],
+     [
+      "data",
+      4294967295,
+      70
+     ]
+    ],
+    "data_declared": 4294967295,
+    "data_actual": 262066,
+    "data_declared_finalized": false,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 1073741823,
+    "wave_framerate": 48000,
+    "wave_nchannels": 2,
+    "honest_frames": 65516,
+    "declared_frames": 1073741823,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"1.364938\"\n    }\n}"
+   }
+  },
+  "arecord_kill": {
+   "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav <out>",
+   "sig": "KILL",
+   "early_exit_code": null,
+   "exit_code": -9,
+   "stderr_last": "Recording WAVE '/tmp/r76rev-sev-jqktqmr0/s.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+   "raw": {
+    "exists": true,
+    "file_bytes": 264044,
+    "riff_magic": true,
+    "riff_size_field": 2147483684,
+    "riff_size_finalized": false,
+    "chunks": [
+     [
+      "fmt ",
+      16,
+      12
+     ],
+     [
+      "data",
+      2147483648,
+      36
+     ]
+    ],
+    "data_declared": 2147483648,
+    "data_actual": 264000,
+    "data_declared_finalized": false,
+    "fmt": {
+     "tag": 1,
+     "channels": 2,
+     "rate": 48000,
+     "bits": 16
+    }
+   },
+   "parsers": {
+    "wave_opens": true,
+    "wave_nframes": 536870912,
+    "wave_framerate": 48000,
+    "wave_nchannels": 2,
+    "honest_frames": 66000,
+    "declared_frames": 536870912,
+    "ffprobe_rc": 0,
+    "ffprobe_out": "{\n    \"format\": {\n        \"duration\": \"1.375000\"\n    }\n}"
+   }
+  }
+ }
+}

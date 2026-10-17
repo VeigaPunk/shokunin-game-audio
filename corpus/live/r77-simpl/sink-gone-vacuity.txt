@@ -1,0 +1,18 @@
+F1 evidence: the `sink_gone` membership test is vacuously true
+
+pactl list sinks short   : ['alsa_output.pci-0000_01_00.1.hdmi-stereo', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink']
+pactl list sources short : ['alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor', 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source', 'alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source']
+
+  'alsa_output.pci-0000_01_00.1.hdmi-stereo'                   in sources -> False   monitor present -> True
+  'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'     in sources -> False   monitor present -> True
+  'alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink'   in sources -> False   monitor present -> True
+  'alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink' in sources -> False   monitor present -> True
+
+4/4 sinks: bare name absent from the source list, monitor present.
+A module-null-sink creates the sink `X` and the source `X.monitor`, so
+`CAPTURE_R77_NULL_SINK not in _capture_r77_sink_names()` (which enumerated
+SOURCES, measure_audio.py:5018 pre-batch) is True for every sink name at
+every moment: `sink_gone` was a constant and the failure clause behind it
+('the probe sink survived the unload — the leg measured nothing') could
+never fire. S6 enumerates sinks instead; the candidate replay keeps
+sink_gone=true because the module really is unloaded by then.

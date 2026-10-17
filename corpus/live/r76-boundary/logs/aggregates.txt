@@ -1,0 +1,36 @@
+total cells: 229
+pw-record (all cells)              n= 48 rc={-9: 6, 1: 42}
+parecord/parec (all cells)         n= 42 rc={-9: 18, 0: 14, 1: 10}
+arecord (all cells)                n=104 rc={-13: 1, -15: 12, -9: 19, 0: 40, 1: 32}
+ffmpeg (all cells)                 n= 75 rc={0: 18, 123: 1, 234: 12, 251: 10, 253: 2, 255: 32}
+
+harness kills: 27 of 229
+runaway: 0
+non_regular cells: 20
+
+pw-record cells with rc=1 and a *complete* file (size==decl+8 and size>44):
+pw-record cells: rc=1 AND complete finalized file (>44 B): 20
+   name-pw-n_wav: 96044
+   name-pw-n_bin: 96044
+   name-pw-n_foo: 96044
+   name-pw-container-override: 96044
+   gate-pw-target-src: 192044
+   bound-pw-src-n48000: 192044
+   bound-pw-src-n24000: 96044
+   sev-mid-pw: 286764
+
+per-consumer sever class stability across the 4 ladder reps:
+  ar-hw        early rc=[-15, 1] sizes=[24044, 44] alive1=[False]
+  ar-hw        mid   rc=[-15] sizes=[264044] alive1=[False]
+  ar-null      early rc=[-15, 1] sizes=[173940044, 194952044, 200760044, 214044044]… alive1=[False]
+  ar-null      mid   rc=[0] sizes=[288000044] alive1=[False]
+  ff-alsa-hw   early rc=[255] sizes=[0] alive1=[False]
+  ff-alsa-hw   mid   rc=[255] sizes=[262144] alive1=[False]
+  ff-alsa-null early rc=[255] sizes=[0] alive1=[False]
+  ff-alsa-null mid   rc=[255] sizes=[2621440, 2883584, 3145728, 3407872] alive1=[False]
+  ff-pulse     early rc=[123, 255] sizes=[0] alive1=[True]
+  ff-pulse     mid   rc=[255] sizes=[262144] alive1=[False]
+  pa           early rc=[0] sizes=[44] alive1=[False]
+  pa           mid   rc=[0] sizes=[44] alive1=[False]
+  pw           early rc=[1] sizes=[12332, 4140, 8236] alive1=[False]
+  pw           mid   rc=[1] sizes=[278572, 286764, 290860] alive1=[False]

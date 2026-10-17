@@ -1,0 +1,409 @@
+{
+ "cleanup": {
+  "unloaded": [
+   536870920,
+   536870922
+  ]
+ },
+ "cli_legs": [
+  {
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1.5k",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F7-cli-load_r79_740622.wav",
+    "peak": [
+     7801,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     3915.72,
+     0.0
+    ],
+    "width": 2
+   },
+   "edges": [
+    "mix_output.r79_fc_live:output_FL -> r79_ns_b_r79_740622:playback_FL",
+    "r79_740622_f7tone:output_FL -> mix_input.r79_fc_live:playback_FL",
+    "r79_740622_f7tone:output_FR -> mix_input.r79_fc_live:playback_FR"
+   ],
+   "leg": "F7-cli-load",
+   "nodes": [
+    "mix_input.r79_fc_live",
+    "mix_output.r79_fc_live"
+   ],
+   "pins": [
+    {
+     "ch": "FL",
+     "err": "",
+     "port": "playback_FL",
+     "rc": 0
+    },
+    {
+     "ch": "FR",
+     "err": "",
+     "port": "playback_FR",
+     "rc": 0
+    }
+   ],
+   "ports_in": [
+    "playback_FL",
+    "playback_FR"
+   ],
+   "record": {
+    "bytes": 96044,
+    "rc": 1
+   },
+   "reply": [
+    ">> load-module libpipewire-module-filter-chain { filter.graph = { nodes = [ { name = mix type = builtin label = mixer control = { \"Gain 1\" = 0.5 \"Gain 2\" = 0.5 } } ] inputs = [ \"mix:In 1\" \"mix:In 2\" ] outputs = [ \"mix:Out\" ] } capture.props = { node.name = \"mix_input.r79_fc_live\" audio.position = [ FL FR ] media.class = \"Audio/Sink\" } playback.props = { node.name = \"mix_output.r79_fc_live\" audio.position = [ FL ] stream.dont-remix = true target.object = \"r79_ns_b_r79_740622\" } }",
+    "1 = @module:22"
+   ]
+  },
+  {
+   "leg": "F8a-cli-unload-refusal",
+   "mvar": "@module:22",
+   "nodes_still": [
+    "mix_input.r79_fc_live",
+    "mix_output.r79_fc_live"
+   ],
+   "reply": [
+    "pipewire-0>> unload-module @module:22",
+    "Error: \"unload-module: unknown module '@module:22'\"",
+    "pipewire-0>> "
+   ]
+  },
+  {
+   "daemon_alive": true,
+   "leg": "F9-cli-bad-label",
+   "nodes_after": [],
+   "reply": [
+    "load-module libpipewire-module-filter-chain { filter.graph = { nodes = [ { name = mix type = builtin label = nosuchfilter control = { \"Gain 1\" = 0.5 \"Gain 2\" = 0.5 } } ] inputs = [ \"mix:In 1\" \"mix:In 2\" ] outputs = [ \"mix:Out\" ] } capture.props = { node.name = \"mix_input.r79_fc_bad\" audio.position = [ FL FR ] media.class = \"Audio/Sink\" } playback.props = { node.name = \"mix_output.r79_fc_bad\" audio.position = [ FL ] stream.dont-remix = true target.object = \"r79_ns_b_r79_740622\" } }",
+    "Error: \"Could not load module\"",
+    "pipewire-0>> "
+   ]
+  },
+  {
+   "daemon_alive": true,
+   "leg": "F10-cli-bad-args",
+   "reply": [
+    "load-module libpipewire-module-filter-chain { args = { oops",
+    "Error: \"Could not load module\"",
+    "pipewire-0>> "
+   ]
+  },
+  {
+   "leg": "F11-cli-quit-teardown",
+   "nodes_after_quit": []
+  }
+ ],
+ "confd_legs": [
+  {
+   "cfg": "/tmp/r79fc-740622/f1",
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1.5k",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F1-confd-good_r79_740622.wav",
+    "peak": [
+     7801,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     3915.66,
+     0.0
+    ],
+    "width": 2
+   },
+   "edges": [
+    "mix_output.r79_fc_good:output_FL -> r79_ns_b_r79_740622:playback_FL",
+    "r79_740622_F1-confd-good_tone:output_FL -> mix_input.r79_fc_good:playback_FL",
+    "r79_740622_F1-confd-good_tone:output_FR -> mix_input.r79_fc_good:playback_FR"
+   ],
+   "expect_met": true,
+   "expect_node": "mix_input.r79_fc_good",
+   "leg": "F1-confd-good",
+   "loader_alive": true,
+   "nodes": [
+    "mix_input.r79_fc_good"
+   ],
+   "nodes_after_kill": [],
+   "pins": [
+    {
+     "ch": "FL",
+     "err": "",
+     "port": "playback_FL",
+     "rc": 0
+    },
+    {
+     "ch": "FR",
+     "err": "",
+     "port": "playback_FR",
+     "rc": 0
+    }
+   ],
+   "ports_in": [
+    "playback_FL",
+    "playback_FR"
+   ],
+   "ports_out": [
+    "monitor_FL",
+    "monitor_FR"
+   ],
+   "rc": -9,
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F1-confd-good_r79_740622.wav",
+    "rc": 1
+   },
+   "stderr": ""
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f2",
+   "expect_met": false,
+   "expect_node": "mix_input.r79_fc_none",
+   "leg": "F2-confd-bad-syntax",
+   "loader_alive": true,
+   "nodes": [],
+   "nodes_after_kill": [],
+   "rc": -9,
+   "stderr": "[W][18:48:50.150523][          conf.c:  427 conf_load()] 0x563d74738da0: error in config '/tmp/r79fc-740622/f2/filter-chain.conf.d/10-bad.conf': Mismatched bracket\n[W][18:48:50.150558][          conf.c:  427 conf_load()] line:     2 | \n[W][18:48:50.150562][          conf.c:  427 conf_load()] column:   1 |-\n"
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f3",
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F3-confd-good-plus-bad_r79_740622.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "edges": [
+    "mix_output.r79_fc_mixed:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r79_740622_F3-confd-good-plus-bad_tone:output_FL -> mix_input.r79_fc_mixed:playback_FL",
+    "r79_740622_F3-confd-good-plus-bad_tone:output_FR -> mix_input.r79_fc_mixed:playback_FR"
+   ],
+   "expect_met": true,
+   "expect_node": "mix_input.r79_fc_mixed",
+   "leg": "F3-confd-good-plus-bad",
+   "loader_alive": true,
+   "nodes": [
+    "mix_input.r79_fc_mixed"
+   ],
+   "nodes_after_kill": [],
+   "pins": [
+    {
+     "ch": "FL",
+     "err": "",
+     "port": "playback_FL",
+     "rc": 0
+    },
+    {
+     "ch": "FR",
+     "err": "",
+     "port": "playback_FR",
+     "rc": 0
+    }
+   ],
+   "ports_in": [
+    "playback_FL",
+    "playback_FR"
+   ],
+   "ports_out": [
+    "monitor_FL",
+    "monitor_FR"
+   ],
+   "rc": -9,
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F3-confd-good-plus-bad_r79_740622.wav",
+    "rc": 1
+   },
+   "stderr": "[W][18:48:52.671864][          conf.c:  427 conf_load()] 0x55f4beeb5dd0: error in config '/tmp/r79fc-740622/f3/filter-chain.conf.d/20-bad.conf': Mismatched bracket\n[W][18:48:52.671906][          conf.c:  427 conf_load()] line:     2 | \n[W][18:48:52.671910][          conf.c:  427 conf_load()] column:   1 |-\n"
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f3b",
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F3b-confd-bad-then-good_r79_740622.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "edges": [
+    "mix_output.r79_fc_late:output_FL -> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL",
+    "r79_740622_F3b-confd-bad-then-good_tone:output_FL -> mix_input.r79_fc_late:playback_FL",
+    "r79_740622_F3b-confd-bad-then-good_tone:output_FR -> mix_input.r79_fc_late:playback_FR"
+   ],
+   "expect_met": true,
+   "expect_node": "mix_input.r79_fc_late",
+   "leg": "F3b-confd-bad-then-good",
+   "loader_alive": true,
+   "nodes": [
+    "mix_input.r79_fc_late"
+   ],
+   "nodes_after_kill": [],
+   "pins": [
+    {
+     "ch": "FL",
+     "err": "",
+     "port": "playback_FL",
+     "rc": 0
+    },
+    {
+     "ch": "FR",
+     "err": "",
+     "port": "playback_FR",
+     "rc": 0
+    }
+   ],
+   "ports_in": [
+    "playback_FL",
+    "playback_FR"
+   ],
+   "ports_out": [
+    "monitor_FL",
+    "monitor_FR"
+   ],
+   "rc": -9,
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/F3b-confd-bad-then-good_r79_740622.wav",
+    "rc": 1
+   },
+   "stderr": "[W][18:48:57.360503][          conf.c:  427 conf_load()] 0x55a3bbbc9dd0: error in config '/tmp/r79fc-740622/f3b/filter-chain.conf.d/10-bad.conf': Mismatched bracket\n[W][18:48:57.360538][          conf.c:  427 conf_load()] line:     2 | \n[W][18:48:57.360541][          conf.c:  427 conf_load()] column:   1 |-\n"
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f4",
+   "expect_met": false,
+   "expect_node": "mix_input.r79_fc_bl",
+   "leg": "F4-confd-badlabel-nofail",
+   "loader_alive": true,
+   "nodes": [],
+   "nodes_after_kill": [],
+   "rc": -9,
+   "stderr": ""
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f5",
+   "expect_met": false,
+   "expect_node": "mix_input.r79_fc_bl2",
+   "leg": "F5-confd-badlabel",
+   "loader_alive": false,
+   "nodes": [],
+   "nodes_after_kill": [],
+   "rc": 254,
+   "stderr": ""
+  },
+  {
+   "cfg": "/tmp/r79fc-740622/f6",
+   "expect_met": false,
+   "expect_node": "mix_input.r79_fc_none",
+   "leg": "F6-confd-base-only",
+   "loader_alive": true,
+   "nodes": [],
+   "nodes_after_kill": [],
+   "rc": -9,
+   "stderr": ""
+  }
+ ],
+ "null_sinks": [
+  {
+   "err": "",
+   "module_id": 536870920,
+   "name": "r79_ns_a_r79_740622",
+   "rc": 0
+  },
+  {
+   "err": "",
+   "module_id": 536870922,
+   "name": "r79_ns_b_r79_740622",
+   "rc": 0
+  }
+ ],
+ "probe": "f-filterchain",
+ "tag": "r79_740622"
+}

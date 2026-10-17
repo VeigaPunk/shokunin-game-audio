@@ -1,0 +1,1092 @@
+{
+ "stage": "f2c",
+ "reps": 3,
+ "entry_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [],
+  "clients": 6
+ },
+ "started": "2026-10-15T11:26:15-0300",
+ "legs": [
+  {
+   "rep": 1,
+   "u_load": {
+    "m1": 536870921,
+    "m2": 536870943,
+    "null_sinks_before": [
+     "536870921",
+     "536870922",
+     "536870942",
+     "536870943"
+    ]
+   },
+   "u_by_name": {
+    "label": "unload_by_name",
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "module-null-sink"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "u_null_sinks_after": [],
+   "u_my_modules_alive": [],
+   "d_creation_poll": {
+    "ok": true,
+    "delay_s": 1.1,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "null"
+     ],
+     [
+      0.16,
+      "null"
+     ],
+     [
+      0.32,
+      "null"
+     ],
+     [
+      0.47,
+      "null"
+     ]
+    ]
+   },
+   "d_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_index": "101668",
+   "v_setvol": {
+    "label": "setvol",
+    "cmd": [
+     "pactl",
+     "set-sink-input-volume",
+     "101668",
+     "50%"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "v_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      0.125,
+      0.125
+     ],
+     "volume": 1.0,
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [0.125, 0.125], \"volume\": 1.0, \"channelMap\": [\"FL\","
+     ]
+    ]
+   },
+   "v_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_replay_node": 94,
+   "v_replay_props": {
+    "label": "replay_props",
+    "cmd": [
+     "pw-cli",
+     "enum-params",
+     "94",
+     "Props"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "7f0204604282d9ddedd06ca8539788b88a41f2831451289f50029b68fb6bf29d",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 2498,
+    "err_len": 0,
+    "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 0.125000\n        Float 0.125000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+    "err_head": ""
+   },
+   "v_replay_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "y_index": "101684",
+   "y_move": {
+    "label": "move",
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "101684",
+     "r90b"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "867cd4b551b0c7540ceb89c76146e6da65a10cc9ceefcf02591a232006e19429",
+    "out_len": 0,
+    "err_len": 24,
+    "out_head": "",
+    "err_head": "Failure: No such entity\n"
+   },
+   "y_store_poll": {
+    "ok": false,
+    "delay_s": null,
+    "polls": [
+     [
+      5.78,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ],
+     [
+      5.93,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "y_stop": {
+    "rc": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "p_normal": {
+    "label": "link_normal",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_normal_links": [],
+   "p_passive": {
+    "label": "link_passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_passive_links": [],
+   "t_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_latency2": {
+    "label": "latency2",
+    "cmd": [
+     "pw-link",
+     "--latency"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern": {
+    "label": "list_pattern",
+    "cmd": [
+     "pw-link",
+     "-o",
+     "r90a:*"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern2": {
+    "label": "list_pattern2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "5529bd93206ca1168d2922c7c5f1425c1f40694760c754148f9b52d1d9922e52",
+    "out_len": 0,
+    "err_len": 47,
+    "out_head": "",
+    "err_head": "missing output and input port names to connect\n"
+   },
+   "t_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "t_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "k_alive": true,
+   "k_node": 94,
+   "k_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "cab66070a27e6d3f01242d7f83f55429e42dd6f7e37a06997150cf58a6bf8fe0",
+    "err_head": "/dev/null\n"
+   },
+   "k_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "_wall_s": 13.98
+  },
+  {
+   "rep": 2,
+   "u_load": {
+    "m1": 536870943,
+    "m2": 536870942,
+    "null_sinks_before": [
+     "536870942",
+     "536870943"
+    ]
+   },
+   "u_by_name": {
+    "label": "unload_by_name",
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "module-null-sink"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "u_null_sinks_after": [],
+   "u_my_modules_alive": [],
+   "d_creation_poll": {
+    "ok": true,
+    "delay_s": 1.1,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "null"
+     ],
+     [
+      0.16,
+      "null"
+     ],
+     [
+      0.32,
+      "null"
+     ],
+     [
+      0.47,
+      "null"
+     ]
+    ]
+   },
+   "d_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_index": "101741",
+   "v_setvol": {
+    "label": "setvol",
+    "cmd": [
+     "pactl",
+     "set-sink-input-volume",
+     "101741",
+     "50%"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "v_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      0.125,
+      0.125
+     ],
+     "volume": 1.0,
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [0.125, 0.125], \"volume\": 1.0, \"channelMap\": [\"FL\","
+     ]
+    ]
+   },
+   "v_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_replay_node": 94,
+   "v_replay_props": {
+    "label": "replay_props",
+    "cmd": [
+     "pw-cli",
+     "enum-params",
+     "94",
+     "Props"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "7f0204604282d9ddedd06ca8539788b88a41f2831451289f50029b68fb6bf29d",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 2498,
+    "err_len": 0,
+    "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 0.125000\n        Float 0.125000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+    "err_head": ""
+   },
+   "v_replay_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "y_index": "101757",
+   "y_move": {
+    "label": "move",
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "101757",
+     "r90b"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "867cd4b551b0c7540ceb89c76146e6da65a10cc9ceefcf02591a232006e19429",
+    "out_len": 0,
+    "err_len": 24,
+    "out_head": "",
+    "err_head": "Failure: No such entity\n"
+   },
+   "y_store_poll": {
+    "ok": false,
+    "delay_s": null,
+    "polls": [
+     [
+      5.79,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ],
+     [
+      5.94,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "y_stop": {
+    "rc": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "p_normal": {
+    "label": "link_normal",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_normal_links": [],
+   "p_passive": {
+    "label": "link_passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_passive_links": [],
+   "t_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_latency2": {
+    "label": "latency2",
+    "cmd": [
+     "pw-link",
+     "--latency"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern": {
+    "label": "list_pattern",
+    "cmd": [
+     "pw-link",
+     "-o",
+     "r90a:*"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern2": {
+    "label": "list_pattern2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "5529bd93206ca1168d2922c7c5f1425c1f40694760c754148f9b52d1d9922e52",
+    "out_len": 0,
+    "err_len": 47,
+    "out_head": "",
+    "err_head": "missing output and input port names to connect\n"
+   },
+   "t_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "t_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "k_alive": true,
+   "k_node": 94,
+   "k_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "cab66070a27e6d3f01242d7f83f55429e42dd6f7e37a06997150cf58a6bf8fe0",
+    "err_head": "/dev/null\n"
+   },
+   "k_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "_wall_s": 13.99
+  },
+  {
+   "rep": 3,
+   "u_load": {
+    "m1": 536870943,
+    "m2": 536870942,
+    "null_sinks_before": [
+     "536870942",
+     "536870943"
+    ]
+   },
+   "u_by_name": {
+    "label": "unload_by_name",
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "module-null-sink"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "u_null_sinks_after": [],
+   "u_my_modules_alive": [],
+   "d_creation_poll": {
+    "ok": true,
+    "delay_s": 1.1,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "null"
+     ],
+     [
+      0.16,
+      "null"
+     ],
+     [
+      0.32,
+      "null"
+     ],
+     [
+      0.48,
+      "null"
+     ]
+    ]
+   },
+   "d_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_index": "101814",
+   "v_setvol": {
+    "label": "setvol",
+    "cmd": [
+     "pactl",
+     "set-sink-input-volume",
+     "101814",
+     "50%"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "v_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      0.125,
+      0.125
+     ],
+     "volume": 1.0,
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [0.125, 0.125], \"volume\": 1.0, \"channelMap\": [\"FL\","
+     ]
+    ]
+   },
+   "v_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "v_replay_node": 94,
+   "v_replay_props": {
+    "label": "replay_props",
+    "cmd": [
+     "pw-cli",
+     "enum-params",
+     "94",
+     "Props"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "7f0204604282d9ddedd06ca8539788b88a41f2831451289f50029b68fb6bf29d",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 2498,
+    "err_len": 0,
+    "out_head": "  Object: size 1256, type Spa:Pod:Object:Param:Props (262146), id Spa:Enum:ParamId:Props (2)\n    Prop: key Spa:Pod:Object:Param:Props:volume (65539), flags 00000000\n      Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:mute (65540), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:channelVolumes (65544), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 0.125000\n        Float 0.125000\n    Prop: key Spa:Pod:Object:Param:Props:channelMap (65547), flags 00000000\n      Array: child.size 4, child.type Spa:Id\n        Id 3        (Spa:Enum:AudioChannel:FL)\n        Id 4        (Spa:Enum:AudioChannel:FR)\n    Prop: key Spa:Pod:Object:Param:Props:softMute (65551), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:softVolumes (65552), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop: key Spa:Pod:Object:Param:Props:monitorMute (65548), flags 00000000\n      Bool false\n    Prop: key Spa:Pod:Object:Param:Props:monitorVolumes (65549), flags 00000000\n      Array: child.size 4, child.type Spa:Float\n        Float 1.000000\n        Float 1.000000\n    Prop",
+    "err_head": ""
+   },
+   "v_replay_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "y_index": "101830",
+   "y_move": {
+    "label": "move",
+    "cmd": [
+     "pactl",
+     "move-sink-input",
+     "101830",
+     "r90b"
+    ],
+    "rc": 1,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "867cd4b551b0c7540ceb89c76146e6da65a10cc9ceefcf02591a232006e19429",
+    "out_len": 0,
+    "err_len": 24,
+    "out_head": "",
+    "err_head": "Failure: No such entity\n"
+   },
+   "y_store_poll": {
+    "ok": false,
+    "delay_s": null,
+    "polls": [
+     [
+      5.79,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ],
+     [
+      5.95,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "y_stop": {
+    "rc": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "p_normal": {
+    "label": "link_normal",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_normal_links": [],
+   "p_passive": {
+    "label": "link_passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "14824411af02304c8a409de6b5b0bb076ae9668c7c147215e57b835b0bdc783c",
+    "out_len": 0,
+    "err_len": 48,
+    "out_head": "",
+    "err_head": "failed to link ports: No such file or directory\n"
+   },
+   "p_passive_links": [],
+   "t_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_latency2": {
+    "label": "latency2",
+    "cmd": [
+     "pw-link",
+     "--latency"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern": {
+    "label": "list_pattern",
+    "cmd": [
+     "pw-link",
+     "-o",
+     "r90a:*"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "t_list_pattern2": {
+    "label": "list_pattern2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 0,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "5529bd93206ca1168d2922c7c5f1425c1f40694760c754148f9b52d1d9922e52",
+    "out_len": 0,
+    "err_len": 47,
+    "out_head": "",
+    "err_head": "missing output and input port names to connect\n"
+   },
+   "t_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_head": ""
+   },
+   "t_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "k_alive": true,
+   "k_node": 94,
+   "k_stop": {
+    "rc": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "cab66070a27e6d3f01242d7f83f55429e42dd6f7e37a06997150cf58a6bf8fe0",
+    "err_head": "/dev/null\n"
+   },
+   "k_store_poll": {
+    "ok": true,
+    "delay_s": 0.01,
+    "entry": {
+     "channelVolumes": [
+      1.0,
+      1.0
+     ],
+     "channelMap": [
+      "FL",
+      "FR"
+     ],
+     "volume": 1.0,
+     "mute": false
+    },
+    "polls": [
+     [
+      0.01,
+      "{\"channelVolumes\": [1.0, 1.0], \"channelMap\": [\"FL\", \"FR\"], \"volume\": 1"
+     ]
+    ]
+   },
+   "_wall_s": 14.0
+  }
+ ],
+ "teardown": {
+  "a": {
+   "cmd": [
+    "pactl",
+    "unload-module",
+    "536870942"
+   ],
+   "rc": 1,
+   "err": "Failure: No such entity\n"
+  },
+  "b": {
+   "cmd": [
+    "pactl",
+    "unload-module",
+    "536870922"
+   ],
+   "rc": 1,
+   "err": "Failure: No such entity\n"
+  }
+ },
+ "exit_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [],
+  "clients": 6
+ },
+ "census_restored": true
+}

@@ -1,0 +1,783 @@
+{
+ "stage": "f2b",
+ "reps": 3,
+ "entry_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915,
+   536870921,
+   536870922
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_4041488"
+  ],
+  "clients": 8
+ },
+ "started": "2026-10-15T11:23:48-0300",
+ "legs": [
+  {
+   "rep": 1,
+   "entry_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915,
+    536870921,
+    536870922
+   ],
+   "t1_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t1_probes": [
+    {
+     "t": 0.0,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.031,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.063,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.122,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.251,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.502,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 1.003,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 2.004,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    }
+   ],
+   "t1_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 1,
+    "err": "Failure: No such entity\n"
+   },
+   "t2_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t2_alive_after_0.6s": true,
+   "t2_node": [],
+   "t2_pactl_sink": [],
+   "t2_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "roc_sink_named": {
+    "argv": [
+     "module-roc-sink",
+     "sink_name=r90roc"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "roc_source": {
+    "argv": [
+     "module-roc-source"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "raop_discover": {
+    "argv": [
+     "module-raop-discover"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "zeroconf_discover_opt": {
+    "argv": [
+     "module-zeroconf-discover",
+     "latency_msec=100"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "tunnel_bad_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "server="
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "tunnel_no_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "sink_name=r90tun4"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "pipe_tunnel": {
+    "argv": [
+     "module-pipe-tunnel"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "switch_on_connect": {
+    "argv": [
+     "module-switch-on-connect"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "rtp_send": {
+    "argv": [
+     "module-rtp-send",
+     "source=r90a.monitor"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "un_by_name": {
+    "loaded": "536870942",
+    "unload_name": null,
+    "rc": 0,
+    "err": "",
+    "still_alive": false
+   },
+   "exit_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915
+   ],
+   "_wall_s": 2.75
+  },
+  {
+   "rep": 2,
+   "entry_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915
+   ],
+   "t1_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t1_probes": [
+    {
+     "t": 0.0,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.031,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.063,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.12,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.253,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.504,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 1.003,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 2.002,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    }
+   ],
+   "t1_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 1,
+    "err": "Failure: No such entity\n"
+   },
+   "t2_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t2_alive_after_0.6s": true,
+   "t2_node": [],
+   "t2_pactl_sink": [],
+   "t2_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "roc_sink_named": {
+    "argv": [
+     "module-roc-sink",
+     "sink_name=r90roc"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "roc_source": {
+    "argv": [
+     "module-roc-source"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "raop_discover": {
+    "argv": [
+     "module-raop-discover"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "zeroconf_discover_opt": {
+    "argv": [
+     "module-zeroconf-discover",
+     "latency_msec=100"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "tunnel_bad_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "server="
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "tunnel_no_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "sink_name=r90tun4"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "pipe_tunnel": {
+    "argv": [
+     "module-pipe-tunnel"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "switch_on_connect": {
+    "argv": [
+     "module-switch-on-connect"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "rtp_send": {
+    "argv": [
+     "module-rtp-send",
+     "source=r90a.monitor"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "un_by_name": {
+    "loaded": "536870942",
+    "unload_name": null,
+    "rc": 0,
+    "err": "",
+    "still_alive": false
+   },
+   "exit_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915
+   ],
+   "_wall_s": 2.71
+  },
+  {
+   "rep": 3,
+   "entry_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915
+   ],
+   "t1_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t1_probes": [
+    {
+     "t": 0.0,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.031,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.063,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.12,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.254,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 0.5,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 1.001,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    },
+    {
+     "t": 2.001,
+     "module_alive": false,
+     "sink_nodes": [],
+     "sink_in_pactl": false
+    }
+   ],
+   "t1_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 1,
+    "err": "Failure: No such entity\n"
+   },
+   "t2_load": {
+    "rc": 0,
+    "id": "536870942",
+    "err": ""
+   },
+   "t2_alive_after_0.6s": true,
+   "t2_node": [],
+   "t2_pactl_sink": [],
+   "t2_unload": {
+    "cmd": [
+     "pactl",
+     "unload-module",
+     "536870942"
+    ],
+    "rc": 0,
+    "err": ""
+   },
+   "roc_sink_named": {
+    "argv": [
+     "module-roc-sink",
+     "sink_name=r90roc"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "roc_source": {
+    "argv": [
+     "module-roc-source"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "raop_discover": {
+    "argv": [
+     "module-raop-discover"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "zeroconf_discover_opt": {
+    "argv": [
+     "module-zeroconf-discover",
+     "latency_msec=100"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "tunnel_bad_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "server="
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "tunnel_no_server": {
+    "argv": [
+     "module-tunnel-sink",
+     "sink_name=r90tun4"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: Invalid argument"
+   },
+   "pipe_tunnel": {
+    "argv": [
+     "module-pipe-tunnel"
+    ],
+    "rc": 1,
+    "out": "",
+    "err": "Failure: No such entity"
+   },
+   "switch_on_connect": {
+    "argv": [
+     "module-switch-on-connect"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "rtp_send": {
+    "argv": [
+     "module-rtp-send",
+     "source=r90a.monitor"
+    ],
+    "rc": 0,
+    "out": "536870942",
+    "err": "",
+    "alive": true,
+    "r90_nodes": [],
+    "unload": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "un_by_name": {
+    "loaded": "536870942",
+    "unload_name": null,
+    "rc": 0,
+    "err": "",
+    "still_alive": false
+   },
+   "exit_modules": [
+    1,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    17,
+    18,
+    20,
+    22,
+    536870912,
+    536870913,
+    536870914,
+    536870915
+   ],
+   "_wall_s": 2.71
+  }
+ ],
+ "exit_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [],
+  "clients": 6
+ },
+ "census_restored": false
+}

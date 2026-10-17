@@ -1,0 +1,405 @@
+{
+ "concurrent": {
+  "BASELINE no playback": {
+   "payload": 384000,
+   "peak": 0,
+   "rc": 1
+  },
+  "play_tone + TWO concurrent monitor captures": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "play_tone + TWO concurrent monitor captures",
+   "payload": 384000,
+   "peak": 16384,
+   "second_rc": 1
+  },
+  "play_tone + cap monitor (paired)": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "play_tone + cap monitor (paired)",
+   "payload": 384000,
+   "peak": 16384,
+   "second_rc": null
+  },
+  "play_tone + ffmpeg monitor": {
+   "cap_argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-t",
+    "2",
+    "-y",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-vyylw2ac/c4.wav"
+   ],
+   "cap_rc": 255,
+   "carries_tone": true,
+   "leg": "play_tone + ffmpeg monitor",
+   "payload": 499234,
+   "peak": 26230,
+   "second_rc": null
+  },
+  "play_tone + parec monitor": {
+   "cap_argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_rc": 0,
+   "carries_tone": true,
+   "leg": "play_tone + parec monitor",
+   "payload": 65536,
+   "peak": 16504,
+   "second_rc": null
+  }
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "lattice": {
+  "noprop|LINE_source": {
+   "cap_argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 384044,
+   "leg": "noprop|LINE_source",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0
+  },
+  "noprop|NO_TARGET (auto)": {
+   "cap_argv": [
+    "pw-record",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 44,
+   "leg": "noprop|NO_TARGET (auto)",
+   "nonzero_frac": null,
+   "payload": 0,
+   "peak": null
+  },
+  "noprop|SPDIF_sink": {
+   "cap_argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 44,
+   "leg": "noprop|SPDIF_sink",
+   "nonzero_frac": null,
+   "payload": 0,
+   "peak": null
+  },
+  "noprop|SPDIF_sink.monitor": {
+   "cap_argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 44,
+   "leg": "noprop|SPDIF_sink.monitor",
+   "nonzero_frac": null,
+   "payload": 0,
+   "peak": null
+  },
+  "prop|@DEFAULT_MONITOR@": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "@DEFAULT_MONITOR@",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|@DEFAULT_MONITOR@",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|@DEFAULT_SOURCE@": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "@DEFAULT_SOURCE@",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|@DEFAULT_SOURCE@",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|GARBAGE": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "no_such_node_xyz",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|GARBAGE",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|HDMI_sink": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 384044,
+   "leg": "prop|HDMI_sink",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0
+  },
+  "prop|LINE_source": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|LINE_source",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|NO_TARGET (auto)": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|NO_TARGET (auto)",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|SPDIF_sink (default)": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|SPDIF_sink (default)",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|SPDIF_sink.monitor": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|SPDIF_sink.monitor",
+   "nonzero_frac": 0.8114,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|SPEAKER_sink": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": false,
+   "file_bytes": 372780,
+   "leg": "prop|SPEAKER_sink",
+   "nonzero_frac": 0.0,
+   "payload": 372736,
+   "peak": 0
+  },
+  "prop|default": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "default",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|default",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  },
+  "prop|pulse": {
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "pulse",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "consumed_default_sink_monitor": true,
+   "file_bytes": 384044,
+   "leg": "prop|pulse",
+   "nonzero_frac": 0.7919,
+   "payload": 384000,
+   "peak": 16384
+  }
+ },
+ "probe": "capture-sink-lattice-r77",
+ "raw": {
+  "parec --raw (pipe) KILL": {
+   "all_zero": true,
+   "cap_hit": false,
+   "err": "",
+   "nbytes": 65536,
+   "rc": -9,
+   "signal": "KILL"
+  },
+  "parec --raw (pipe) TERM": {
+   "all_zero": true,
+   "cap_hit": false,
+   "err": "",
+   "nbytes": 65536,
+   "rc": 0,
+   "signal": "TERM"
+  },
+  "pw-cat -r - (stdout) KILL": {
+   "all_zero": false,
+   "cap_hit": false,
+   "err": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "nbytes": 24,
+   "rc": 1,
+   "signal": "TERM"
+  },
+  "pw-cat -r - (stdout) TERM": {
+   "all_zero": false,
+   "cap_hit": false,
+   "err": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "nbytes": 24,
+   "rc": 1,
+   "signal": "TERM"
+  },
+  "pw-cat -r --raw - (stdout) KILL": {
+   "all_zero": null,
+   "cap_hit": false,
+   "err": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "nbytes": 0,
+   "rc": 1,
+   "signal": null
+  },
+  "pw-cat -r --raw - (stdout) TERM": {
+   "all_zero": null,
+   "cap_hit": false,
+   "err": "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available",
+   "nbytes": 0,
+   "rc": 1,
+   "signal": null
+  },
+  "pw-record -n 48000 (container)": {
+   "bytes": 192044,
+   "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-vyylw2ac/exact0.out",
+   "expected": 192044,
+   "rc": 1
+  },
+  "pw-record -n 48000 ['--raw']": {
+   "bytes": 192000,
+   "err": "",
+   "expected": 192000,
+   "rc": 1
+  }
+ },
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-vyylw2ac"
+}

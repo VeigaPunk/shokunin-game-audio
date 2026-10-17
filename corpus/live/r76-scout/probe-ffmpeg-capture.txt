@@ -1,0 +1,48 @@
+=== ffmpeg -version ===
+ffmpeg version n9.0.1 Copyright (c) 2000-2026 the FFmpeg developers
+built with gcc 16 (GCC)
+configuration: --prefix=/usr --disable-debug --disable-static --disable-stripping --enable-amf --enable-avisynth --enable-cuda-llvm --enable-lto --enable-fontconfig --enable-frei0r --enable-gmp --enable-gnutls --enable-gpl --enable-ladspa --enable-lcms2 --enable-libaom --enable-libass --enable-libbluray --enable-libbs2b --enable-libdav1d --enable-libdrm --enable-libdvdnav --enable-libdvdread --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libharfbuzz --enable-libiec61883 --enable-libjack --enable-libjxl --enable-libmodplug --enable-libmp3lame --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-libplacebo --enable-libpulse --enable-librav1e --enable-librsvg --enable-librubberband --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtheora --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpl --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxcb --enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzmq --enable-nvdec --enable-nvenc --enable-opencl --enable-opengl --enable-shared --enable-vapoursynth --enable-version3 --enable-vulkan --disable-decoder=magicyuv
+=== ffmpeg -devices ===
+Devices:
+ D. = Demuxing supported
+ .E = Muxing supported
+ ---
+ DE alsa            ALSA audio output
+ DE fbdev           Linux framebuffer
+ D  iec61883        libiec61883 (new DV1394) A/V input device
+ D  jack            JACK Audio Connection Kit
+ D  kmsgrab         KMS screen capture
+ D  lavfi           Libavfilter virtual input device
+ DE oss             OSS (Open Sound System) playback
+ DE pulse           Pulse audio output
+ DE sndio           sndio audio playback
+ DE video4linux2,v4l2 Video4Linux2 output device
+ D  x11grab         X11 screen capture, using XCB
+  E xv              XV (XVideo) output device
+=== grep pulse/alsa in formats ===
+ DEd alsa            ALSA audio output
+ DEd pulse           Pulse audio output
+=== ffmpeg -h demuxer=pulse ===
+Demuxer pulse [Pulse audio input]:
+Pulse indev AVOptions:
+  -server            <string>     .D......... set PulseAudio server
+  -name              <string>     .D......... set application name (default "Lavf63.1.101")
+  -stream_name       <string>     .D......... set stream description (default "record")
+  -sample_rate       <int>        .D......... set sample rate in Hz (from 1 to INT_MAX) (default 48000)
+  -channels          <int>        .D......... set number of audio channels (from 1 to INT_MAX) (default 2)
+  -frame_size        <int>        .D........P set number of bytes per frame (from 1 to INT_MAX) (default 1024)
+  -fragment_size     <int>        .D......... set buffering size, affects latency and cpu usage (from -1 to INT_MAX) (default -1)
+  -wallclock         <int>        .D......... set the initial pts using the current time (from -1 to 1) (default 1)
+
+
+Exiting with exit code 0
+rc=0
+=== ffmpeg -h demuxer=alsa ===
+Demuxer alsa [ALSA audio input]:
+ALSA indev AVOptions:
+  -sample_rate       <int>        .D.........  (from 1 to INT_MAX) (default 48000)
+  -ch_layout         <channel_layout> .D.........  (default "2C")
+
+
+Exiting with exit code 0
+rc=0

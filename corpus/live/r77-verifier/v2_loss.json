@@ -1,0 +1,229 @@
+{
+  "probe": "r77-verifier independent target-loss re-link",
+  "own_sink_name": "r77v_loss_sink",
+  "fallback_node": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "bound_bytes": 384044,
+  "failures": [],
+  "sink_load_1": 536870917,
+  "baseline": {
+    "argv": "pw-record -P stream.capture.sink=true --target r77v_loss_sink -n 96000 --rate 48000 --channels 2 --format <out>",
+    "samples": [
+      {
+        "t": 0.3,
+        "bytes": 57388,
+        "nodes": [
+          "r77v_loss_sink"
+        ]
+      },
+      {
+        "t": 0.91,
+        "bytes": 176172,
+        "nodes": [
+          "r77v_loss_sink"
+        ]
+      }
+    ],
+    "wall_s": 2.03,
+    "exit_code": 1,
+    "stderr": "/tmp/r77v-loss-vh_bqhhu/baseline.wav",
+    "file": {
+      "exists": true,
+      "bytes": 384044,
+      "fmt": {
+        "tag": 1,
+        "channels": 2,
+        "rate": 48000,
+        "bits": 16
+      },
+      "data_declared": 384000,
+      "samples": 192000,
+      "peak": 0,
+      "nonzero_frac": 0.0,
+      "carries_tone": false
+    },
+    "sha16": "e3a90286b3b54201"
+  },
+  "fallback_control": {
+    "argv": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 --rate 48000 --channels 2 --format <out>",
+    "samples": [
+      {
+        "t": 0.3,
+        "bytes": 53292,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      },
+      {
+        "t": 0.91,
+        "bytes": 172076,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      }
+    ],
+    "wall_s": 2.03,
+    "exit_code": 1,
+    "stderr": "/tmp/r77v-loss-vh_bqhhu/fallback_control.wav",
+    "file": {
+      "exists": true,
+      "bytes": 384044,
+      "fmt": {
+        "tag": 1,
+        "channels": 2,
+        "rate": 48000,
+        "bits": 16
+      },
+      "data_declared": 384000,
+      "samples": 192000,
+      "peak": 0,
+      "nonzero_frac": 0.0,
+      "carries_tone": false
+    },
+    "sha16": "e3a90286b3b54201"
+  },
+  "after_loss": {
+    "argv": "pw-record -P stream.capture.sink=true --target r77v_loss_sink -n 96000 --rate 48000 --channels 2 --format <out>",
+    "samples": [
+      {
+        "t": 0.3,
+        "bytes": 57388,
+        "nodes": [
+          "r77v_loss_sink"
+        ]
+      },
+      {
+        "t": 0.91,
+        "bytes": 176172,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      },
+      {
+        "t": 1.61,
+        "bytes": 311340,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      }
+    ],
+    "unload": {
+      "module_id": 536870917,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "wall_s": 2.02,
+    "exit_code": 1,
+    "stderr": "/tmp/r77v-loss-vh_bqhhu/after_loss.wav",
+    "file": {
+      "exists": true,
+      "bytes": 384044,
+      "fmt": {
+        "tag": 1,
+        "channels": 2,
+        "rate": 48000,
+        "bits": 16
+      },
+      "data_declared": 384000,
+      "samples": 192000,
+      "peak": 0,
+      "nonzero_frac": 0.0,
+      "carries_tone": false
+    },
+    "sha16": "e3a90286b3b54201"
+  },
+  "sink_gone_after_bounded": true,
+  "sink_load_2": 536870917,
+  "wall_clock": {
+    "argv": "pw-record -P stream.capture.sink=true --target r77v_loss_sink --rate 48000 --channels 2 --format <out>",
+    "samples": [
+      {
+        "t": 0.4,
+        "bytes": 77868,
+        "nodes": [
+          "r77v_loss_sink"
+        ]
+      },
+      {
+        "t": 1.21,
+        "bytes": 233516,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      },
+      {
+        "t": 1.81,
+        "bytes": 348204,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      },
+      {
+        "t": 2.8,
+        "bytes": 540716,
+        "nodes": [
+          "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+        ]
+      }
+    ],
+    "unload": {
+      "module_id": 536870917,
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "wall_s": 3.02,
+    "exit_code": 1,
+    "stderr": "/tmp/r77v-loss-vh_bqhhu/wall.wav",
+    "file": {
+      "exists": true,
+      "bytes": 577580,
+      "fmt": {
+        "tag": 1,
+        "channels": 2,
+        "rate": 48000,
+        "bits": 16
+      },
+      "data_declared": 577536,
+      "samples": 288768,
+      "peak": 0,
+      "nonzero_frac": 0.0,
+      "carries_tone": false
+    },
+    "sha16": "be69c31f860d3d04",
+    "rates": [
+      {
+        "from_s": 0.4,
+        "to_s": 1.21,
+        "pct_of_nominal": 100
+      },
+      {
+        "from_s": 1.21,
+        "to_s": 1.81,
+        "pct_of_nominal": 100
+      },
+      {
+        "from_s": 1.81,
+        "to_s": 2.8,
+        "pct_of_nominal": 101
+      }
+    ]
+  },
+  "unload_1": {
+    "module_id": 536870917,
+    "exit_code": 1,
+    "stderr": "Failure: No such entity"
+  },
+  "unload_2": {
+    "module_id": 536870917,
+    "exit_code": 1,
+    "stderr": "Failure: No such entity"
+  },
+  "sink_gone": true,
+  "nodes_before": [
+    "r77v_loss_sink"
+  ],
+  "nodes_after": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+  ],
+  "sha_match_control": true,
+  "sha_match_dead_sink": true
+}

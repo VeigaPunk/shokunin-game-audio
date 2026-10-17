@@ -1,0 +1,95 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -33369,7 +33369,6 @@
+                          "jack_set_property", "jack_transport_reposition")
+ 
+ _JACK_R95_ERR_CLASSES = (
+-    ("jack_r95_no_daemon", r"Could not connect to JACK server"),
+     ("jack_r95_unknown_mode", r"unknown"),
+ )
+ 
+@@ -33664,7 +33663,6 @@
+         rows[m.group(2)] = {"subject": int(m.group(1)),
+                             "value": m.group(3)}
+     rec["rows"] = rows
+-    rec["row_count"] = len(rows)
+     return rec
+ 
+ 
+@@ -33911,6 +33909,21 @@
+                 f"teardown: r95a-tagged nodes survived: {rest}")
+ 
+ 
++def _jack_r95_unload_ns(entry, failures, leaf, label):
++    """Name-verified mid-run unload of the driver sink + its residue law
++    (ONE authority for the two entries that unload it between legs)."""
++    entry.setdefault("unloads", {})[JACK_R95_NS] = \
++        _pactlmon_r85_unload_own(
++            leaf.get("module_id"), "sink_name", JACK_R95_NS)
++    sinks_now = _capture_r77_sink_names_strict()
++    entry["ns_gone_after_unload"] = (
++        None if sinks_now is None else JACK_R95_NS not in sinks_now)
++    if entry["ns_gone_after_unload"] is False:
++        failures.append(
++            f"{label}: probe sink {JACK_R95_NS} survived the "
++            "name-verified unload")
++
++
+ def _jack_r95_block(entry, failures, msg, loads=None, procs=()):
+     """The named coverage block: kill children, unload anything loaded,
+     record the block (a missing tool/compiler/daemon is a block, never
+@@ -34169,17 +34182,8 @@
+ 
+             # --- s_liveness: no seat sink, no links, the always-process
+             # node must still be scheduled (the boundary's F1).
+-            entry.setdefault("unloads", {})[JACK_R95_NS] = \
+-                _pactlmon_r85_unload_own(
+-                    leaf.get("module_id"), "sink_name", JACK_R95_NS)
++            _jack_r95_unload_ns(entry, failures, leaf, "s_shape")
+             loads = {}
+-            sinks_now = _capture_r77_sink_names_strict()
+-            entry["ns_gone_after_unload"] = (
+-                None if sinks_now is None else JACK_R95_NS not in sinks_now)
+-            if entry["ns_gone_after_unload"] is False:
+-                failures.append(
+-                    f"s_shape: probe sink {JACK_R95_NS} survived the "
+-                    "name-verified unload")
+             cname2 = f"{JACK_R95_PREFIX}_live"
+             legs["s_liveness"] = _jack_r95_probe(
+                 probe, ["tone", "1.8", "0", "0", ""], 12.0,
+@@ -34293,7 +34297,7 @@
+                              j.get("connected"), 1 if found else 0)
+                 _jack_r95_eq(failures, lname, "conns",
+                              j.get("conns"), conns_want)
+-                if dst != conns_want[0] if conns_want else False:
++                if conns_want and dst != conns_want[0]:
+                     l["alias_addressed"] = dst
+                     l["conns_canonical"] = conns_want
+                 edges = sorted(
+@@ -34459,17 +34463,8 @@
+             _jack_r95_band(failures, "b_jack2pw", "capture frames",
+                            cap_st.get("frames"), 60000, 300000)
+             # teardown of the driver sink before the reverse leg
+-            entry.setdefault("unloads", {})[JACK_R95_NS] = \
+-                _pactlmon_r85_unload_own(
+-                    leaf.get("module_id"), "sink_name", JACK_R95_NS)
++            _jack_r95_unload_ns(entry, failures, leaf, "b_jack2pw")
+             loads = {}
+-            sinks_now = _capture_r77_sink_names_strict()
+-            entry["ns_gone_after_unload"] = (
+-                None if sinks_now is None else JACK_R95_NS not in sinks_now)
+-            if entry["ns_gone_after_unload"] is False:
+-                failures.append(
+-                    f"b_jack2pw: probe sink {JACK_R95_NS} survived the "
+-                    "name-verified unload")
+ 
+             # --- b_pw2jack
+             tone = _jack_r95_tone(Path(tmp) / "tone997.wav", 1.5)
+@@ -34897,7 +34892,6 @@
+             else:
+                 _jack_r95_eq(failures, "d_xrun_stall", "rc",
+                              l.get("exit_code"), 0)
+-            if not l.get("killed_at_bound"):
+                 _jack_r95_band(failures, "d_xrun_stall", "stall_cycles",
+                                j.get("stall_cycles"), 4, 100000)
+                 _jack_r95_band(failures, "d_xrun_stall", "cb",

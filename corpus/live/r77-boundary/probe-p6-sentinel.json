@@ -1,0 +1,79 @@
+{
+ "probe": "r77-boundary/p6-sentinel",
+ "t0": "2026-10-14T19:49:52Z",
+ "strings": {
+  "lines": [
+   "297:    --max-file-time=#   start another output file when the old file has recorded",
+   "426:| %02i%%",
+   "452:%s-01.%s",
+   "453:%s-01",
+   "454:%s-%02i.%s",
+   "455:%s-%02i",
+   "512:max-file-time"
+  ],
+  "rc": 0
+ },
+ "rotation_run": {
+  "cmd": "timeout 40 arecord -D null -f S16_LE -c 1 -r 8000 -t wav -m 1 -d 130 /dev/shm/r77b/rot/rot.wav",
+  "rc": 0,
+  "err": "Warning: unable to get channel map\nRecording WAVE '/dev/shm/r77b/rot/rot.wav' : Signed 16 bit Little Endian, Rate 8000 Hz, Mono",
+  "wall_s": 0.003
+ },
+ "rotation_files": {
+  "count": 1,
+  "names_head": [
+   "rot.wav"
+  ],
+  "names_tail": [
+   "rot.wav"
+  ],
+  "base_name_exists": true,
+  "total_bytes": 2080044,
+  "sizes_head": [
+   2080044
+  ],
+  "sizes_tail": [
+   2080044
+  ],
+  "unique_sizes": [
+   2080044
+  ],
+  "widened_past_99": false,
+  "name_at_99": [],
+  "name_at_100": []
+ },
+ "rerun_same_dir": {
+  "rc": 0,
+  "err": "Warning: unable to get channel map\nRecording WAVE '/dev/shm/r77b/rot/rot.wav' : Signed 16 bit Little Endian, Rate 8000 Hz, Mono",
+  "count_before": 1,
+  "count_after": 1,
+  "new_names": [],
+  "clobbered": false,
+  "rot01_mtime": null
+ },
+ "split_run": {
+  "free_gb_before": 16.16,
+  "attempted": true,
+  "rc": 124,
+  "err": "Recording WAVE '/dev/shm/r77b/split/split.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Stereo\nAborted by signal Terminated...",
+  "names": [
+   "split-01.wav",
+   "split-02.wav",
+   "split-03.wav",
+   "split-04.wav"
+  ],
+  "count": 4,
+  "base_exists": false,
+  "head_name": "split-01.wav",
+  "head_size": 0,
+  "head_header": null,
+  "free_gb_after": 14.81,
+  "watchdog_note": "truncates all but the newest rotation file; peak tmpfs use ~2.1 GB"
+ },
+ "pw_record_structural": {
+  "rotation_flags": "0",
+  "rf64_container_listed": false,
+  "rename_template_in_binary": "0",
+  "libsndfile_linked": "1"
+ }
+}

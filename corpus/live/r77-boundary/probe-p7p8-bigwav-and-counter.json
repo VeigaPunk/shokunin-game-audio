@@ -1,0 +1,92 @@
+{
+ "probe": "r77-boundary/p7p8",
+ "t0": "2026-10-14T19:55:57Z",
+ "concurrent_at_start": "3",
+ "phase7_finalized_4gib": {
+  "free_gb_before": 16.16,
+  "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 768000 --channels 64 --format f64 -n 9000000 /dev/shm/r77b/finalized_big.wav",
+  "requested_frames": 9000000,
+  "ended_on_its_own": true,
+  "rc": 1,
+  "err": "/dev/shm/r77b/finalized_big.wav",
+  "wall_s": 76.77,
+  "monitor_tripped": null,
+  "final_bytes": 4608000608,
+  "over_4gib_by": 313033312,
+  "size_samples_tail": [
+   [
+    75.78,
+    4569694816,
+    11.59
+   ],
+   [
+    76.04,
+    4582277728,
+    11.57
+   ],
+   [
+    76.29,
+    4594860640,
+    11.56
+   ],
+   [
+    76.54,
+    4607443552,
+    11.55
+   ]
+  ],
+  "free_gb_after": 11.55,
+  "header_hex_96": "52494646ffffffff57415645666d742028000000feff400000b80b00000070170002400016004000000000000300000000001000800000aa00389b716661637404000000405489005045414b080200000100000099decf6a3a74933e3f071400",
+  "riff_magic": "RIFF",
+  "riff_size_field": 4294967295,
+  "riff_size_field_hex": "ffffffff",
+  "form_type": "WAVE",
+  "chunks": [
+   [
+    "fmt ",
+    40
+   ],
+   [
+    "fact",
+    4
+   ],
+   [
+    "PEAK",
+    520
+   ]
+  ],
+  "free_gb_after_cleanup": 16.16
+ },
+ "phase8_rot100": {
+  "free_gb_before": 16.16,
+  "cmd": "timeout 118 arecord -D null -f S16_LE -c 1 -r 8000 -t wav -m 1 rot100.wav",
+  "ended_on_its_own": true,
+  "rc": 1,
+  "err": "Warning: unable to get channel map\nRecording WAVE '/dev/shm/r77b/rot100/rot100.wav' : Signed 16 bit Little Endian, Rate 8000 Hz, Mono\n/dev/shm/r77b/rot100/rot100-07.wav: Disk quota exceeded",
+  "wall_s": 2.5,
+  "count": 7,
+  "base_name_exists": false,
+  "max_counter": 7,
+  "names_head": [
+   "rot100-01.wav",
+   "rot100-02.wav",
+   "rot100-03.wav",
+   "rot100-04.wav"
+  ],
+  "names_tail": [
+   "rot100-04.wav",
+   "rot100-05.wav",
+   "rot100-06.wav",
+   "rot100-07.wav"
+  ],
+  "reached_99": false,
+  "reached_100": false,
+  "reached_101": false,
+  "reached_108": false,
+  "names_around_99_101": [],
+  "unique_names": 7,
+  "total_bytes_now": 12908433672,
+  "free_gb_after": 3.25,
+  "free_gb_after_cleanup": 16.16
+ }
+}

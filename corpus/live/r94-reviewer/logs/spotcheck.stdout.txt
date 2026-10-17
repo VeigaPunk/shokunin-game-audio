@@ -1,0 +1,90 @@
+PASS stim_a_rebuild_matches_receipt | own rebuild sha 80241968ffe7e28e vs receipt 80241968ffe7e28e
+PASS stim_a_rebuild_matches_scout_prep | own rebuild vs scout prep.json 80241968ffe7e28e
+PASS stim_a_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_b_rebuild_matches_receipt | own rebuild sha 6a2a6b0cad8058ad vs receipt 6a2a6b0cad8058ad
+PASS stim_b_rebuild_matches_scout_prep | own rebuild vs scout prep.json 6a2a6b0cad8058ad
+PASS stim_b_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_c_rebuild_matches_receipt | own rebuild sha a432985979eecd94 vs receipt a432985979eecd94
+PASS stim_c_rebuild_matches_scout_prep | own rebuild vs scout prep.json a432985979eecd94
+PASS stim_c_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_c2_rebuild_matches_receipt | own rebuild sha 56b2b0574a9dea29 vs receipt 56b2b0574a9dea29
+PASS stim_c2_rebuild_matches_scout_prep | own rebuild vs scout prep.json 56b2b0574a9dea29
+PASS stim_c2_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_f_rebuild_matches_receipt | own rebuild sha d9f3db88c353a899 vs receipt d9f3db88c353a899
+PASS stim_f_rebuild_matches_scout_prep | own rebuild vs scout prep.json d9f3db88c353a899
+PASS stim_f_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_h_rebuild_matches_receipt | own rebuild sha db367b67b63a02c6 vs receipt db367b67b63a02c6
+PASS stim_h_rebuild_matches_scout_prep | own rebuild vs scout prep.json db367b67b63a02c6
+PASS stim_h_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_i_rebuild_matches_receipt | own rebuild sha d32ae054e672f34d vs receipt d32ae054e672f34d
+PASS stim_i_rebuild_matches_scout_prep | own rebuild vs scout prep.json d32ae054e672f34d
+PASS stim_i_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_j_rebuild_matches_receipt | own rebuild sha 59357e70c85b0151 vs receipt 59357e70c85b0151
+PASS stim_j_rebuild_matches_scout_prep | own rebuild vs scout prep.json 59357e70c85b0151
+PASS stim_j_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS stim_r_rebuild_matches_receipt | own rebuild sha b318af16cf7c1dea vs receipt b318af16cf7c1dea
+PASS stim_r_rebuild_matches_scout_prep | own rebuild vs scout prep.json b318af16cf7c1dea
+PASS stim_r_content_equals_scout_file | own rebuild sample matrix equals the scout's own stimulus file
+PASS det_gain_m6_default_nondeterministic | 5 distinct shas over 5 fresh processes
+PASS det_gain_m6_D_stable | 1 distinct over 3 reps
+PASS det_gain_m6_D_equals_scout_bytes | own d011774f2a3f0466 vs scout gain_D.json:gain_m6 d011774f2a3f0466
+PASS det_gain_m6_D_matches_receipt | own -D gain -6 bytes equal the r94 receipt's
+PASS det_gain_m6_default_bytes_differ_from_D | the default leg is dither-carried, the -D leg is not (distinct bytes)
+PASS det_gain0_identity_byte_identical_to_stimulus | det_gain0_identity output sha 80241968ffe7e28e vs stimulus 80241968ffe7e28e
+PASS det_passthrough_identity_byte_identical_to_stimulus | det_passthrough_identity output sha 80241968ffe7e28e vs stimulus 80241968ffe7e28e
+PASS det_pad_pct50_identity_byte_identical_to_stimulus | det_pad_pct50_identity output sha 6a2a6b0cad8058ad vs stimulus 6a2a6b0cad8058ad
+PASS det_copy_token_refuses_rc2 | rc=2 stderr=sox FAIL formats: can't open input file `/home/vgpnk/Projects/shokunin/audio-shokunin/corp
+PASS det_f32_to_s24_stable | 1 distinct over 5 reps (>=24 bit suppresses auto-dither)
+PASS det_f32_to_s16_nondeterministic | 5 distinct over 5 reps (<24 bit keeps the auto-dither)
+PASS det_flag_order_after_infile_same_bytes | a -D placed after the infile yields the same bytes as before it
+PASS gain_m6_equals_rint_formula | mismatch 0 vs rint(x*10^(-6/20)); max abs diff 0.0
+PASS gain_m6_peaks | peak -12.021078 (receipt [-12.0211, -18.0406])
+PASS vol_amp_is_ceil_path | mismatch vs ceil 0; vs rint 23000
+PASS vol_amp_is_not_nearest_path | rint mismatch 23000 (the discriminator)
+PASS vol_db_is_rint_path | mismatch 0 vs rint
+PASS vol_pow_is_rint_sqrt_path | mismatch 0 vs rint(x*sqrt(0.5)) = -3.0103 dB; peak -9.031078
+PASS vol_spellings_differ_by_1lsb | n_diff 23000 max 1.0 LSB; receipt n_diff 23000 max 1.0
+PASS chain_order_is_content_visible | gain,norm peak -2.999988; norm,gain peak -8.999645 (receipt -2.999988 / -8.999645)
+PASS len_12000_to_44100_frames | own frames 11025 vs receipt 11025
+PASS len_12001_to_44100_frames | own frames 11026 vs receipt 11026
+PASS len_12000_to_22050_frames | own frames 5512 vs receipt 5512
+PASS len_12000_to_24050_frames | own frames 6013 vs receipt 6013
+PASS len_12000_to_11025_frames | own frames 2756 vs receipt 2756
+PASS alias_23k_default_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_23k_v_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_23k_q_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_23k_a_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_20k_default_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_20k_l_sha_matches_receipt | own bytes equal the receipt's
+PASS alias_20k_a_sha_matches_receipt | own bytes equal the receipt's
+PASS rate_v_not_130db_below_default | own band-minus-peak: default -22.638 dB, -v -22.638 dB (difference 0.000 dB; a -130 dB -v would be ~25 dB lower)
+PASS rate_v_bytes_differ_from_default | -v is a different filter (distinct bytes) at the same rejection level
+PASS rate_130db_home_is_20k_default | own 20k-default band-minus-peak -126.107 dB vs 23k-default -22.638 dB (receipt -129.588 vs -104.386 = 25.2 dB apart)
+PASS rate_q_folds_to_21100 | own -q peak -6.172481 dB with the 21.1 kHz band at -8.829 dB (the tone FOLDS; receipt peak -6.172)
+PASS rate_20k_l_is_the_hole | own -l peak -29.042332 vs -a peak -6.02113 (= -23.02 dB hole at 20 kHz)
+PASS rate_q_a_refuses | rc=1 stderr=sox FAIL rate: override options only work at higher quality levels
+PASS remix_1_selects_channel_1 | mismatch vs L 0; vs (L+R)/2 47000
+PASS downmix_is_floor_LpRp1_over_2 | mismatch vs floor((L+R+1)/2) 0; vs rint((L+R)/2) 17000
+PASS channels_1_same_bytes_as_remix_1_2 | channels 1 and remix 1,2 are the same bytes
+PASS remix_m_is_exact_sum | mismatch 0 vs exact L+R
+PASS remix_0_1_is_zero_then_input1 | ch0 nonzero 0; ch1 vs L mismatch 0 -> [silence, L] (receipt peak [None, -6.0206])
+PASS trim_s_suffix_is_samples | trim 0 1s -> 1 frame(s); trim 0 4800s -> 4800 frames
+PASS trim_1sec_refuses | rc=1 stderr=sox FAIL trim: cannot parse position `(null)'
+PASS trim_is_sample_exact | frames 4800; mismatch vs input head 0
+PASS trim_0_0_is_valid_zero_frame | rc=0 frames=0
+PASS fade_stop_positional_truncates | fade 0 0.15 0.1 -> 7200 frames; fade 0 0.2 0.05 -> 9600 frames (input 12000)
+PASS fade_log_is_100db_per_span | own out/in {'0.5': 0.003169, '0.75': 0.056235, '0.9': 0.31621} vs 10^(-5(1-x)) {'0.5': 0.003162, '0.75': 0.056234, '0.9': 0.316228}
+PASS fade_default_type_is_l | `fade 0.1` is byte-identical to `fade l 0.1`
+PASS repeat_2_is_N_additional_copies | frames 36000 (3N); tiling mismatch 0
+PASS pad_inserts_at_both_ends | frames 26400; first_nonzero 4801; last_nonzero 16799
+PASS silence_cuts_leading_at_window_lag | frames 16796 = 21600-4804; trailing zeros 7200
+PASS silence_below_side_keeps_window_minus_1 | trailing zeros 959 = rate/50 - 1
+PASS dither_s_R_envelope | own max 21 rms 5.740681; receipt max 21 rms 5.740681
+PASS dither_s_R_equals_scout_bytes | own 98e704b8663b4b51 vs scout 98e704b8663b4b51
+PASS dither_p12_envelope | own max 23 rms 7.969959; receipt max 23 rms 7.969959
+PASS stat_RMS_is_interleaved_quadratic_mean | sox printed 0.279509; own numpy interleaved quadratic mean 0.279509
+PASS stat_Maximum_delta_is_interleaved | sox printed 0.72818; own interleaved max|diff| 0.72818 (per-channel would be 0.065277)
+PASS stat_Volume_adjustment | sox printed 2.0 (1/peak 0.5)
+PASS stat_freq_line_law | own 49152 numeric lines = 2048*24 (samples 96000), step 11.71875 Hz; receipt 49152 lines step 11.71875
+
+=== 88 checks, 0 failed ===

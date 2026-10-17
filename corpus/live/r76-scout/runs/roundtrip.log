@@ -1,0 +1,17 @@
+=== ffmpeg-pulse-mon : timeout -s KILL 6 ffmpeg -hide_banner -loglevel error -nostdin -y -f pulse -i alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -t 5 legs/rt-ffmpeg-mon.wav ===
+player_rc=0
+capture_rc=0
+=== ffmpeg-pulse-sink-rt2 : timeout -s KILL 6 ffmpeg -hide_banner -loglevel error -nostdin -y -f pulse -i alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -t 5 legs/rt-ffmpeg-mon2.wav ===
+player_rc=0
+capture_rc=0
+=== parec-monitor : timeout -s KILL 6 parec -d @DEFAULT_MONITOR@ --rate=48000 --channels=2 --format=s16le --file-format=wav legs/rt-parec-mon.wav ===
+player_rc=0
+capture_rc=137
+=== pwrec-sink : timeout -s KILL 6 pw-record --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -P stream.capture.sink=true --rate 48000 --channels 2 --format s16 legs/rt-pwrec-mon.wav ===
+legs/rt-pwrec-mon.wav
+player_rc=0
+capture_rc=137
+-rw-r--r-- 1 vgpnk vgpnk  964478 Oct 14 14:35 legs/rt-ffmpeg-mon2.wav
+-rw-r--r-- 1 vgpnk vgpnk  963726 Oct 14 14:35 legs/rt-ffmpeg-mon.wav
+-rw-r--r-- 1 vgpnk vgpnk  786476 Oct 14 14:35 legs/rt-parec-mon.wav
+-rw-r--r-- 1 vgpnk vgpnk 1146924 Oct 14 14:35 legs/rt-pwrec-mon.wav

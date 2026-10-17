@@ -1,0 +1,273 @@
+base.before2   -> f2.after2      rc=0  ALL law projections + verdicts identical
+                                   # FOLD-2 primary pair (pristine -> folded, both green)
+base.before2   -> f1.after1c     rc=1  DIFFERS (see the hunks above)
+                                   # FOLD-1 primary pair (pristine -> folded, both green)
+base.before1   -> f1.after1d     rc=1  DIFFERS (see the hunks above)
+                                   # FOLD-1 second pair (pristine -> folded, both green)
+base.before2   -> f1.after1      rc=1  DIFFERS (see the hunks above)
+                                   # FOLD-1 pair with the host race firing (folded run red)
+base.before1   -> base.before2   rc=1  DIFFERS (see the hunks above)
+                                   # CONTROL identical bytes (pristine vs pristine)
+base.before2   -> base.before3   rc=1  DIFFERS (see the hunks above)
+                                   # CONTROL identical bytes (pristine vs pristine; 2nd red)
+base.before3   -> base.before4   rc=1  DIFFERS (see the hunks above)
+                                   # CONTROL identical bytes (pristine vs pristine; 3rd)
+f1.after1c     -> f1.after1d     rc=1  DIFFERS (see the hunks above)
+                                   # CONTROL folded vs folded (same folded bytes)
+
+##### base.before2 -> f2.after2   # FOLD-2 primary pair (pristine -> folded, both green)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 0 / 237
+== wpstate_pmod_r90_probe  failures [] -> []  changed leaves: 0 / 179
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 0
+
+##### base.before2 -> f1.after1c   # FOLD-1 primary pair (pristine -> folded, both green)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 0 / 237
+== wpstate_pmod_r90_probe  failures [] -> []  changed leaves: 1 / 179
+   legs.m_phantom.id_recycled_by_foreign
+      A: false
+      B: true
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 1
+
+##### base.before1 -> f1.after1d   # FOLD-1 second pair (pristine -> folded, both green)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 4 / 141
+   legs.f_post.node_format.error_class
+      A: "pwcli_remote_enoent"
+      B: null
+   legs.f_post.node_format.error_hit
+      A: "res:-2 (No such file or directory)"
+      B: null
+   legs.f_post.node_format.stderr
+      A: "remote 0: error id:<n> seq:<n> res:-2 (No such file or directory): no global 120\nremote 0: error id:<n> seq:<n> res:-2 (No such file or directory): unknown resource 122 op:7\n"
+      B: ""
+   legs.f_post.node_format.stderr_bytes
+      A: 172
+      B: 0
+== wplink_r90_probe  failures [] -> []  changed leaves: 0 / 237
+== wpstate_pmod_r90_probe  failures [] -> []  changed leaves: 1 / 179
+   legs.m_phantom.id_recycled_by_foreign
+      A: false
+      B: true
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 5
+
+##### base.before2 -> f1.after1   # FOLD-1 pair with the host race firing (folded run red)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 10 / 237
+   legs.k_reset.drop[0].error_class
+      A: "wpstate_unlink_failed"
+      B: null
+   legs.k_reset.drop[0].error_hit
+      A: "failed to unlink ports: No such file or directory"
+      B: null
+   legs.k_reset.drop[0].exit_code
+      A: 255
+      B: 0
+   legs.k_reset.drop[0].stderr
+      A: "failed to unlink ports: No such file or directory\n"
+      B: ""
+   legs.k_reset.drop[0].stderr_bytes
+      A: 50
+      B: 0
+   legs.k_reset.drop[1].error_class
+      A: null
+      B: "wpstate_unlink_failed"
+   legs.k_reset.drop[1].error_hit
+      A: null
+      B: "failed to unlink ports: No such file or directory"
+   legs.k_reset.drop[1].exit_code
+      A: 0
+      B: 255
+   legs.k_reset.drop[1].stderr
+      A: ""
+      B: "failed to unlink ports: No such file or directory\n"
+   legs.k_reset.drop[1].stderr_bytes
+      A: 0
+      B: 50
+== wpstate_pmod_r90_probe  failures [] -> ['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id']  changed leaves: 7 / 181
+   failures[0]
+      A: "<absent>"
+      B: "m_phantom: the unreachable tunnel did not return 0 (rc 1)"
+   failures[1]
+      A: "<absent>"
+      B: "m_phantom: the tunnel load returned no module id"
+   legs.m_phantom.load.exit_code
+      A: 0
+      B: 1
+   legs.m_phantom.load.stderr
+      A: ""
+      B: "Failure: Unknown error code\n"
+   legs.m_phantom.load.stderr_bytes
+      A: 0
+      B: 28
+   legs.m_phantom.load.stdout
+      A: "<mid>\n"
+      B: ""
+   legs.m_phantom.load.stdout_bytes
+      A: 10
+      B: 0
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 17
+
+##### base.before1 -> base.before2   # CONTROL identical bytes (pristine vs pristine)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 4 / 141
+   legs.f_post.node_format.error_class
+      A: "pwcli_remote_enoent"
+      B: null
+   legs.f_post.node_format.error_hit
+      A: "res:-2 (No such file or directory)"
+      B: null
+   legs.f_post.node_format.stderr
+      A: "remote 0: error id:<n> seq:<n> res:-2 (No such file or directory): no global 120\nremote 0: error id:<n> seq:<n> res:-2 (No such file or directory): unknown resource 122 op:7\n"
+      B: ""
+   legs.f_post.node_format.stderr_bytes
+      A: 172
+      B: 0
+== wplink_r90_probe  failures [] -> []  changed leaves: 10 / 237
+   legs.k_reset.drop[0].error_class
+      A: null
+      B: "wpstate_unlink_failed"
+   legs.k_reset.drop[0].error_hit
+      A: null
+      B: "failed to unlink ports: No such file or directory"
+   legs.k_reset.drop[0].exit_code
+      A: 0
+      B: 255
+   legs.k_reset.drop[0].stderr
+      A: ""
+      B: "failed to unlink ports: No such file or directory\n"
+   legs.k_reset.drop[0].stderr_bytes
+      A: 0
+      B: 50
+   legs.k_reset.drop[1].error_class
+      A: "wpstate_unlink_failed"
+      B: null
+   legs.k_reset.drop[1].error_hit
+      A: "failed to unlink ports: No such file or directory"
+      B: null
+   legs.k_reset.drop[1].exit_code
+      A: 255
+      B: 0
+   legs.k_reset.drop[1].stderr
+      A: "failed to unlink ports: No such file or directory\n"
+      B: ""
+   legs.k_reset.drop[1].stderr_bytes
+      A: 50
+      B: 0
+== wpstate_pmod_r90_probe  failures [] -> []  changed leaves: 0 / 179
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 14
+
+##### base.before2 -> base.before3   # CONTROL identical bytes (pristine vs pristine; 2nd red)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 0 / 237
+== wpstate_pmod_r90_probe  failures [] -> ['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id']  changed leaves: 7 / 181
+   failures[0]
+      A: "<absent>"
+      B: "m_phantom: the unreachable tunnel did not return 0 (rc 1)"
+   failures[1]
+      A: "<absent>"
+      B: "m_phantom: the tunnel load returned no module id"
+   legs.m_phantom.load.exit_code
+      A: 0
+      B: 1
+   legs.m_phantom.load.stderr
+      A: ""
+      B: "Failure: Unknown error code\n"
+   legs.m_phantom.load.stderr_bytes
+      A: 0
+      B: 28
+   legs.m_phantom.load.stdout
+      A: "<mid>\n"
+      B: ""
+   legs.m_phantom.load.stdout_bytes
+      A: 10
+      B: 0
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 7
+
+##### base.before3 -> base.before4   # CONTROL identical bytes (pristine vs pristine; 3rd)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 10 / 237
+   legs.k_reset.drop[0].error_class
+      A: "wpstate_unlink_failed"
+      B: null
+   legs.k_reset.drop[0].error_hit
+      A: "failed to unlink ports: No such file or directory"
+      B: null
+   legs.k_reset.drop[0].exit_code
+      A: 255
+      B: 0
+   legs.k_reset.drop[0].stderr
+      A: "failed to unlink ports: No such file or directory\n"
+      B: ""
+   legs.k_reset.drop[0].stderr_bytes
+      A: 50
+      B: 0
+   legs.k_reset.drop[1].error_class
+      A: null
+      B: "wpstate_unlink_failed"
+   legs.k_reset.drop[1].error_hit
+      A: null
+      B: "failed to unlink ports: No such file or directory"
+   legs.k_reset.drop[1].exit_code
+      A: 0
+      B: 255
+   legs.k_reset.drop[1].stderr
+      A: ""
+      B: "failed to unlink ports: No such file or directory\n"
+   legs.k_reset.drop[1].stderr_bytes
+      A: 0
+      B: 50
+== wpstate_pmod_r90_probe  failures ['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id'] -> ['m_phantom: the unreachable tunnel did not return 0 (rc 1)', 'm_phantom: the tunnel load returned no module id']  changed leaves: 0 / 181
+== wpstate_store_r90_probe  failures [] -> ['w_props: the pw-cli Props write landed at 3.282s, outside the coalescing band', 'w_optout_stream: the control stream wrote no row in the same window — the opt-out leg is vacuous']  changed leaves: 3 / 359
+   failures[0]
+      A: "<absent>"
+      B: "w_props: the pw-cli Props write landed at 3.282s, outside the coalescing band"
+   failures[1]
+      A: "<absent>"
+      B: "w_optout_stream: the control stream wrote no row in the same window \u2014 the opt-out leg is vacuous"
+   legs.w_optout_stream.control_row_present
+      A: true
+      B: false
+TOTAL changed leaves: 13
+
+##### f1.after1c -> f1.after1d   # CONTROL folded vs folded (same folded bytes)
+== wpformat_r90_probe  failures [] -> []  changed leaves: 0 / 141
+== wplink_r90_probe  failures [] -> []  changed leaves: 10 / 237
+   legs.k_reset.drop[0].error_class
+      A: "wpstate_unlink_failed"
+      B: null
+   legs.k_reset.drop[0].error_hit
+      A: "failed to unlink ports: No such file or directory"
+      B: null
+   legs.k_reset.drop[0].exit_code
+      A: 255
+      B: 0
+   legs.k_reset.drop[0].stderr
+      A: "failed to unlink ports: No such file or directory\n"
+      B: ""
+   legs.k_reset.drop[0].stderr_bytes
+      A: 50
+      B: 0
+   legs.k_reset.drop[1].error_class
+      A: null
+      B: "wpstate_unlink_failed"
+   legs.k_reset.drop[1].error_hit
+      A: null
+      B: "failed to unlink ports: No such file or directory"
+   legs.k_reset.drop[1].exit_code
+      A: 0
+      B: 255
+   legs.k_reset.drop[1].stderr
+      A: ""
+      B: "failed to unlink ports: No such file or directory\n"
+   legs.k_reset.drop[1].stderr_bytes
+      A: 0
+      B: 50
+== wpstate_pmod_r90_probe  failures [] -> []  changed leaves: 0 / 179
+== wpstate_store_r90_probe  failures [] -> []  changed leaves: 0 / 357
+TOTAL changed leaves: 10

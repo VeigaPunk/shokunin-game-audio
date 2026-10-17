@@ -1,0 +1,25 @@
+#      ( flags = [ nofail ] )
+#      ( condition = [ { <key1> = <value1>, ... } ... ] )
+# conditions will check the pulse.properties key/values.
+pulse.cmd = [
+    { cmd = "load-module" args = "module-always-sink" flags = [ ]
+        condition = [ { pulse.cmd.always-sink = !false } ] }
+    { cmd = "load-module" args = "module-device-manager" flags = [ ]
+        condition = [ { pulse.cmd.device-manager = !false } ] }
+    { cmd = "load-module" args = "module-device-restore" flags = [ ]
+        condition = [ { pulse.cmd.device-restore = !false } ] }
+    { cmd = "load-module" args = "module-stream-restore" flags = [ ]
+        condition = [ { pulse.cmd.stream-restore = !false } ] }
+    #{ cmd = "load-module" args = "module-switch-on-connect" }
+    #{ cmd = "load-module" args = "module-gsettings" flags = [ nofail ] }
+]
+
+stream.properties = {
+    #node.latency          = 1024/48000
+    #node.autoconnect      = true
+    #resample.quality      = 4
+    #channelmix.normalize  = false
+    #channelmix.mix-lfe    = true
+    #channelmix.upmix      = true
+    #channelmix.upmix-method = psd  # none, simple
+    #channelmix.lfe-cutoff = 150

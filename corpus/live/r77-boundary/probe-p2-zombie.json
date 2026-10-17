@@ -1,0 +1,285 @@
+{
+ "probe": "r77-boundary/p2-zombie",
+ "t0": "2026-10-14T19:44:29Z",
+ "nominal_6s_bytes": 1152044,
+ "A_module_unload": {
+  "load": {
+   "cmd": "pactl load-module module-null-sink sink_name=r77bz rate=48000",
+   "rc": 0,
+   "killed_by_timeout": false,
+   "wall_s": 0.004,
+   "out": "536870916\n",
+   "err": "",
+   "out_bytes": 10,
+   "err_bytes": 0
+  },
+  "module_id": "536870916",
+  "topology_before_loss": {
+   "rc": 0,
+   "n_lines": 4,
+   "lines": [
+    "r77bz:monitor_FL",
+    "r77bz:monitor_FR",
+    "  |<- r77bz:monitor_FL",
+    "  |<- r77bz:monitor_FR"
+   ]
+  },
+  "unload": {
+   "cmd": "pactl unload-module 536870916",
+   "rc": 0,
+   "killed_by_timeout": false,
+   "wall_s": 0.004,
+   "out": "",
+   "err": "",
+   "out_bytes": 0,
+   "err_bytes": 0
+  },
+  "sink_still_listed": false,
+  "topology_after_loss": {
+   "rc": 0,
+   "n_lines": 4,
+   "lines": [
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR",
+    "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+    "  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+   ]
+  },
+  "rc": 1,
+  "killed_by_us": false,
+  "err": "/dev/shm/r77b/zombie_module.wav",
+  "file": {
+   "bytes": 1152044,
+   "riff_size_field": "finalized",
+   "data_declared": 1152000,
+   "data_declared_field": "finalized",
+   "payload_bytes_actual": 1152000,
+   "peak": 0.0,
+   "nonzero_frac": 0.0,
+   "frames": 288000
+  },
+  "nominal_bytes": 1152044,
+  "overrun_vs_nominal": 0,
+  "pacing": {
+   "before_Bps": 190964.8,
+   "after_Bps": 192228.4,
+   "samples": [
+    [
+     0.0,
+     null
+    ],
+    [
+     0.15,
+     28716
+    ],
+    [
+     0.3,
+     57388
+    ],
+    [
+     0.45,
+     86060
+    ],
+    [
+     0.601,
+     114732
+    ],
+    [
+     0.751,
+     143404
+    ],
+    [
+     0.901,
+     172076
+    ],
+    [
+     1.051,
+     200748
+    ],
+    [
+     1.201,
+     229420
+    ],
+    [
+     1.351,
+     262188
+    ],
+    [
+     1.501,
+     290860
+    ],
+    [
+     1.651,
+     315436
+    ],
+    [
+     1.801,
+     344108
+    ],
+    [
+     1.952,
+     372780
+    ],
+    [
+     2.102,
+     401452
+    ],
+    [
+     2.252,
+     430124
+    ],
+    [
+     2.402,
+     458796
+    ],
+    [
+     2.552,
+     487468
+    ],
+    [
+     2.702,
+     516140
+    ],
+    [
+     2.852,
+     544812
+    ],
+    [
+     3.002,
+     577580
+    ],
+    [
+     3.152,
+     606252
+    ],
+    [
+     3.302,
+     634924
+    ],
+    [
+     3.453,
+     663596
+    ],
+    [
+     3.603,
+     692268
+    ],
+    [
+     3.753,
+     720940
+    ],
+    [
+     3.903,
+     749612
+    ],
+    [
+     4.053,
+     778284
+    ],
+    [
+     4.203,
+     806956
+    ],
+    [
+     4.353,
+     835628
+    ],
+    [
+     4.503,
+     864300
+    ],
+    [
+     4.653,
+     892972
+    ],
+    [
+     4.804,
+     921644
+    ],
+    [
+     4.954,
+     950316
+    ],
+    [
+     5.104,
+     978988
+    ],
+    [
+     5.254,
+     1007660
+    ],
+    [
+     5.404,
+     1040428
+    ],
+    [
+     5.554,
+     1073196
+    ],
+    [
+     5.704,
+     1097772
+    ],
+    [
+     5.854,
+     1130540
+    ],
+    [
+     6.004,
+     1152044
+    ]
+   ]
+  },
+  "peak_Bps_nominal": 192000
+ },
+ "B_hard_kill_provider": {
+  "created": false,
+  "pwcli_pid": 320176,
+  "pwcli_alive": false,
+  "abort": "create-node did not produce a sink"
+ },
+ "C_feeder_kill": {
+  "load": {
+   "cmd": "pactl load-module module-null-sink sink_name=r77bz3 rate=48000",
+   "rc": 0,
+   "killed_by_timeout": false,
+   "wall_s": 0.003,
+   "out": "536870916\n",
+   "err": "",
+   "out_bytes": 10,
+   "err_bytes": 0
+  },
+  "feeder_kill": {
+   "rc": -9
+  },
+  "rc": 1,
+  "err": "/dev/shm/r77b/zombie_feeder.wav",
+  "file": {
+   "bytes": 576044,
+   "riff_size_field": "finalized",
+   "data_declared": 576000,
+   "payload_bytes_actual": 576000,
+   "peak": 16384.0,
+   "nonzero_frac": 0.2930347222222222,
+   "frames": 144000
+  },
+  "segments": [
+   {
+    "peak": 16384.0,
+    "nonzero_frac": 0.8561041666666667,
+    "fft_peak_hz": 1000.0
+   },
+   {
+    "peak": 16384.0,
+    "nonzero_frac": 0.023,
+    "fft_peak_hz": 1000.0
+   },
+   {
+    "peak": 0.0,
+    "nonzero_frac": 0.0,
+    "fft_peak_hz": null
+   }
+  ],
+  "nominal_bytes": 576044
+ }
+}

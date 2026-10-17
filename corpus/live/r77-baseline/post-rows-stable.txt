@@ -1,0 +1,265 @@
+post ledger rows=126 (env pinned 65790f13)
+phase-1 ledger rows=126 (env pinned b0b5d4d)
+r76 canonical ledger rows=125
+--- (a) post vs phase-1, index-exact (same MODES ordering):
+ROW-DIFF row-02 capture-r76
+    phase1 exit=1 post exit=0
+    phase1='capture_roundtrip_r76_probe: roundtrip content witness deviated (captured pcm silent or level-far from the member)'
+    post   ='none'
+(a) row-level: {'ROW-STABLE': 125, 'EQUAL': 110, 'ROW-DIFF': 1, 'STRUCTURE-DIFF': 1, 'DECLARED-DRIFT': 1, 'JITTER-LEAVES': 1, 'EQUAL-MOD-PATHS': 13}
+--- (b) post vs r76 canonical receipts:
+(b) row-level: {'ROW-STABLE': 125}
+(b) receipt-level vs r76 canonical: {'EQUAL': 109, 'DECLARED-DRIFT': 1, 'JITTER-LEAVES': 2, 'EQUAL-MOD-PATHS': 13}
+--- receipt-level (post vs phase-1):
+EQUAL	row-01	normal
+STRUCTURE-DIFF	row-02	capture-r76	only-a=['measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.error', 'measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.kind', 'measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.file.data_declared_field', 'measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.file.data_finalized', 'measurements.capture_bounded_r76_probe.legs.ffmpeg_alsa_t.file.duration_bucket_s']	only-b=['measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.bytes', 'measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.data_actual', 'measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.data_declared', 'measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.data_declared_field', 'measurements.capture_bounded_r76_probe.legs.arecord_duration_hw.file.data_finalized']
+DECLARED-DRIFT	row-03	consumers2-r75	leaves=['measurements.consumer2_dec_act_r75_probe.consumers.aplay.transport_axis.file.stderr_tail', 'measurements.consumer2_dec_hcom_r75_probe.consumers.aplay.transport_axis.file.stderr_tail']	jitter=0	path=0
+EQUAL	row-04	lavfsweep-r74
+JITTER-LEAVES	row-05	consumers-r73	jitter=['measurements.consumer_pwcat_ops_r73_probe.pacing_instant.wall_s']	path=0
+EQUAL	row-06	sndfile-transport-r72
+EQUAL	row-07	ffprobe-transport-r71
+EQUAL	row-08	fifo-hold-ladder-r70
+EQUAL	row-09	transport-extsuffix-wav-r69
+EQUAL	row-10	transport-extsuffix-bin-r69
+EQUAL	row-11	transport-extsuffix-txw-r69
+EQUAL	row-12	transport-extsuffix-f32-r69
+EQUAL	row-13	transport-extsuffix-snd-r69
+EQUAL	row-14	transport-posttable-nomatch-r68
+EQUAL	row-15	transport-txw-piperefuse-r68
+EQUAL	row-16	transport-preempt-act-r67
+EQUAL	row-17	transport-preempt-gsrt-r67
+EQUAL	row-18	transport-preempt-hcom-r67
+EQUAL	row-19	transport-preempt-both-r67
+EQUAL	row-20	transport-dec-hcom-r67
+EQUAL	row-21	transport-dec-act-r67
+EQUAL	row-22	transport-lengate-gsrt-24-r67
+EQUAL	row-23	transport-lengate-gsrt-25-r67
+EQUAL	row-24	transport-lengate-hcom-131-r67
+EQUAL	row-25	transport-lengate-hcom-132-r67
+EQUAL	row-26	ui-dec-hcom-r66
+EQUAL	row-27	ui-dec-act-r66
+EQUAL-MOD-PATHS	row-28	ui-lengate-gsrt-24-r66	path=4
+EQUAL-MOD-PATHS	row-29	ui-lengate-gsrt-25-r66	path=4
+EQUAL	row-30	ui-lengate-hcom-131-r66
+EQUAL-MOD-PATHS	row-31	ui-lengate-hcom-132-r66	path=3
+EQUAL-MOD-PATHS	row-32	ui-preempt-act-r65	path=1
+EQUAL-MOD-PATHS	row-33	ui-preempt-gsrt-r65	path=4
+EQUAL-MOD-PATHS	row-34	ui-preempt-hcom-r65	path=4
+EQUAL-MOD-PATHS	row-35	ui-preempt-both-r65	path=4
+EQUAL	row-36	ui-extensible-valid-8-r64
+EQUAL	row-37	ui-extensible-valid-9-r64
+EQUAL-MOD-PATHS	row-38	ui-extensible-valid-24-r64	path=1
+EQUAL-MOD-PATHS	row-39	ui-extensible-valid-25-r64	path=1
+EQUAL-MOD-PATHS	row-40	ui-extensible-valid-56-r64	path=2
+EQUAL-MOD-PATHS	row-41	ui-extensible-valid-57-r64	path=1
+EQUAL	row-42	ui-route-act-84-r63
+EQUAL-MOD-PATHS	row-43	ui-route-act-00-r63	path=1
+EQUAL	row-44	ui-extensible-valid-24-r62
+EQUAL	row-45	ui-extensible-valid-32-r62
+EQUAL	row-46	ui-extensible-valid-17-r61
+EQUAL	row-47	ui-extensible-valid-16-r61
+EQUAL	row-48	ui-extensible-valid-0-r60
+EQUAL	row-49	ui-extensible-valid-16-r60
+EQUAL	row-50	ui-extensible-valid-13-r59
+EQUAL	row-51	ui-extensible-valid-16-r59
+EQUAL	row-52	ui-extensible-valid-14-r58
+EQUAL	row-53	ui-extensible-valid-16-r58
+EQUAL	row-54	ui-extensible-valid-15
+EQUAL	row-55	ui-extensible-valid-16
+EQUAL	row-56	ui-extensible-mask-zero
+EQUAL	row-57	ui-extensible-mask-center
+EQUAL	row-58	ui-extensible-pcm16
+EQUAL	row-59	ui-standard-pcm16-r55
+EQUAL	row-60	ui-pcm32
+EQUAL	row-61	ui-pcm16-r54
+EQUAL	row-62	ui-float32
+EQUAL	row-63	ui-pcm16-r53
+EQUAL	row-64	ui-pcm8
+EQUAL	row-65	ui-pcm16-r52
+EQUAL	row-66	ui-pcm24
+EQUAL	row-67	ui-pcm16
+EQUAL	row-68	ui-channel-stereo
+EQUAL	row-69	ui-channel-mono
+EQUAL	row-70	ui-rate-48001
+EQUAL	row-71	ui-rate-48000-r49
+EQUAL	row-72	ui-rate-47999
+EQUAL	row-73	ui-rate-48000
+EQUAL	row-74	ui-upper-centroid-below
+EQUAL	row-75	ui-upper-centroid-above
+EQUAL	row-76	ui-absolute-centroid-below
+EQUAL	row-77	ui-absolute-centroid-above
+EQUAL	row-78	ui-lower-tolerance-5713
+EQUAL	row-79	ui-lower-tolerance-5711
+EQUAL	row-80	ui-tolerance-5807
+EQUAL	row-81	ui-tolerance-5809
+EQUAL	row-82	ui-crest-46
+EQUAL	row-83	ui-crest-47
+EQUAL	row-84	ui-peak-31129
+EQUAL	row-85	ui-peak-31130
+EQUAL	row-86	outer-slope-32
+EQUAL	row-87	outer-slope-33
+EQUAL	row-88	outer-endpoint-983
+EQUAL	row-89	outer-endpoint-984
+EQUAL	row-90	ambience-orientation-forward
+EQUAL	row-91	ambience-orientation-reverse
+EQUAL	row-92	ambience-centroid-above
+EQUAL	row-93	ambience-centroid-below
+EQUAL	row-94	ui-mixed-pass
+EQUAL	row-95	ui-joint-below
+EQUAL	row-96	ui-orientation-forward
+EQUAL	row-97	ui-orientation-reverse
+EQUAL	row-98	ui-lower-centroid-below
+EQUAL	row-99	ui-lower-centroid-above
+EQUAL	row-100	ui-centroid-below
+EQUAL	row-101	ui-centroid-above
+EQUAL	row-102	ui-duration-below
+EQUAL	row-103	ui-duration-at
+EQUAL	row-104	ui-clone
+EQUAL	row-105	layer-third-join-edge-pass
+EQUAL	row-106	layer-third-join-edge-fail
+EQUAL	row-107	layer-third-join
+EQUAL	row-108	layer-third-slope-edge-pass
+EQUAL	row-109	layer-third-slope-edge-fail
+EQUAL	row-110	layer-third-slope
+EQUAL	row-111	layer-alt-reverse
+EQUAL	row-112	layer-alt-slope
+EQUAL	row-113	layer-alt-join
+EQUAL	row-114	layer-alt-flat
+EQUAL	row-115	layer-slope
+EQUAL	row-116	layer-join
+EQUAL	row-117	flat
+EQUAL	row-118	layer-flat
+EQUAL	row-119	slope
+EQUAL	row-120	failing
+EQUAL-MOD-PATHS	row-121	invalid	path=1
+EQUAL	row-122	normal
+EQUAL	row-123	normal
+EQUAL	row-124	normal
+EQUAL	row-125	normal
+EQUAL	row-126	normal
+=== post-vs-r76 receipt-level ===
+EQUAL	r76-01	normal
+DECLARED-DRIFT	r76-02	consumers2-r75	leaves=['measurements.consumer2_dec_act_r75_probe.consumers.aplay.transport_axis.file.stderr_tail', 'measurements.consumer2_dec_hcom_r75_probe.consumers.aplay.transport_axis.file.stderr_tail']	jitter=0	path=0
+JITTER-LEAVES	r76-03	lavfsweep-r74	jitter=['measurements.consumer_pwcat_ops2_r74_probe.target0_unlinked_stream.wall_s']	path=0
+JITTER-LEAVES	r76-04	consumers-r73	jitter=['measurements.consumer_pwcat_ops_r73_probe.daemon_gate.wall_s', 'measurements.consumer_pwcat_ops_r73_probe.pacing_instant.wall_s']	path=0
+EQUAL	r76-05	sndfile-transport-r72
+EQUAL	r76-06	ffprobe-transport-r71
+EQUAL	r76-07	fifo-hold-ladder-r70
+EQUAL	r76-08	transport-extsuffix-wav-r69
+EQUAL	r76-09	transport-extsuffix-bin-r69
+EQUAL	r76-10	transport-extsuffix-txw-r69
+EQUAL	r76-11	transport-extsuffix-f32-r69
+EQUAL	r76-12	transport-extsuffix-snd-r69
+EQUAL	r76-13	transport-posttable-nomatch-r68
+EQUAL	r76-14	transport-txw-piperefuse-r68
+EQUAL	r76-15	transport-preempt-act-r67
+EQUAL	r76-16	transport-preempt-gsrt-r67
+EQUAL	r76-17	transport-preempt-hcom-r67
+EQUAL	r76-18	transport-preempt-both-r67
+EQUAL	r76-19	transport-dec-hcom-r67
+EQUAL	r76-20	transport-dec-act-r67
+EQUAL	r76-21	transport-lengate-gsrt-24-r67
+EQUAL	r76-22	transport-lengate-gsrt-25-r67
+EQUAL	r76-23	transport-lengate-hcom-131-r67
+EQUAL	r76-24	transport-lengate-hcom-132-r67
+EQUAL	r76-25	ui-dec-hcom-r66
+EQUAL	r76-26	ui-dec-act-r66
+EQUAL-MOD-PATHS	r76-27	ui-lengate-gsrt-24-r66	path=4
+EQUAL-MOD-PATHS	r76-28	ui-lengate-gsrt-25-r66	path=4
+EQUAL	r76-29	ui-lengate-hcom-131-r66
+EQUAL-MOD-PATHS	r76-30	ui-lengate-hcom-132-r66	path=3
+EQUAL-MOD-PATHS	r76-31	ui-preempt-act-r65	path=1
+EQUAL-MOD-PATHS	r76-32	ui-preempt-gsrt-r65	path=4
+EQUAL-MOD-PATHS	r76-33	ui-preempt-hcom-r65	path=4
+EQUAL-MOD-PATHS	r76-34	ui-preempt-both-r65	path=4
+EQUAL	r76-35	ui-extensible-valid-8-r64
+EQUAL	r76-36	ui-extensible-valid-9-r64
+EQUAL-MOD-PATHS	r76-37	ui-extensible-valid-24-r64	path=1
+EQUAL-MOD-PATHS	r76-38	ui-extensible-valid-25-r64	path=1
+EQUAL-MOD-PATHS	r76-39	ui-extensible-valid-56-r64	path=2
+EQUAL-MOD-PATHS	r76-40	ui-extensible-valid-57-r64	path=1
+EQUAL	r76-41	ui-route-act-84-r63
+EQUAL-MOD-PATHS	r76-42	ui-route-act-00-r63	path=1
+EQUAL	r76-43	ui-extensible-valid-24-r62
+EQUAL	r76-44	ui-extensible-valid-32-r62
+EQUAL	r76-45	ui-extensible-valid-17-r61
+EQUAL	r76-46	ui-extensible-valid-16-r61
+EQUAL	r76-47	ui-extensible-valid-0-r60
+EQUAL	r76-48	ui-extensible-valid-16-r60
+EQUAL	r76-49	ui-extensible-valid-13-r59
+EQUAL	r76-50	ui-extensible-valid-16-r59
+EQUAL	r76-51	ui-extensible-valid-14-r58
+EQUAL	r76-52	ui-extensible-valid-16-r58
+EQUAL	r76-53	ui-extensible-valid-15
+EQUAL	r76-54	ui-extensible-valid-16
+EQUAL	r76-55	ui-extensible-mask-zero
+EQUAL	r76-56	ui-extensible-mask-center
+EQUAL	r76-57	ui-extensible-pcm16
+EQUAL	r76-58	ui-standard-pcm16-r55
+EQUAL	r76-59	ui-pcm32
+EQUAL	r76-60	ui-pcm16-r54
+EQUAL	r76-61	ui-float32
+EQUAL	r76-62	ui-pcm16-r53
+EQUAL	r76-63	ui-pcm8
+EQUAL	r76-64	ui-pcm16-r52
+EQUAL	r76-65	ui-pcm24
+EQUAL	r76-66	ui-pcm16
+EQUAL	r76-67	ui-channel-stereo
+EQUAL	r76-68	ui-channel-mono
+EQUAL	r76-69	ui-rate-48001
+EQUAL	r76-70	ui-rate-48000-r49
+EQUAL	r76-71	ui-rate-47999
+EQUAL	r76-72	ui-rate-48000
+EQUAL	r76-73	ui-upper-centroid-below
+EQUAL	r76-74	ui-upper-centroid-above
+EQUAL	r76-75	ui-absolute-centroid-below
+EQUAL	r76-76	ui-absolute-centroid-above
+EQUAL	r76-77	ui-lower-tolerance-5713
+EQUAL	r76-78	ui-lower-tolerance-5711
+EQUAL	r76-79	ui-tolerance-5807
+EQUAL	r76-80	ui-tolerance-5809
+EQUAL	r76-81	ui-crest-46
+EQUAL	r76-82	ui-crest-47
+EQUAL	r76-83	ui-peak-31129
+EQUAL	r76-84	ui-peak-31130
+EQUAL	r76-85	outer-slope-32
+EQUAL	r76-86	outer-slope-33
+EQUAL	r76-87	outer-endpoint-983
+EQUAL	r76-88	outer-endpoint-984
+EQUAL	r76-89	ambience-orientation-forward
+EQUAL	r76-90	ambience-orientation-reverse
+EQUAL	r76-91	ambience-centroid-above
+EQUAL	r76-92	ambience-centroid-below
+EQUAL	r76-93	ui-mixed-pass
+EQUAL	r76-94	ui-joint-below
+EQUAL	r76-95	ui-orientation-forward
+EQUAL	r76-96	ui-orientation-reverse
+EQUAL	r76-97	ui-lower-centroid-below
+EQUAL	r76-98	ui-lower-centroid-above
+EQUAL	r76-99	ui-centroid-below
+EQUAL	r76-100	ui-centroid-above
+EQUAL	r76-101	ui-duration-below
+EQUAL	r76-102	ui-duration-at
+EQUAL	r76-103	ui-clone
+EQUAL	r76-104	layer-third-join-edge-pass
+EQUAL	r76-105	layer-third-join-edge-fail
+EQUAL	r76-106	layer-third-join
+EQUAL	r76-107	layer-third-slope-edge-pass
+EQUAL	r76-108	layer-third-slope-edge-fail
+EQUAL	r76-109	layer-third-slope
+EQUAL	r76-110	layer-alt-reverse
+EQUAL	r76-111	layer-alt-slope
+EQUAL	r76-112	layer-alt-join
+EQUAL	r76-113	layer-alt-flat
+EQUAL	r76-114	layer-slope
+EQUAL	r76-115	layer-join
+EQUAL	r76-116	flat
+EQUAL	r76-117	layer-flat
+EQUAL	r76-118	slope
+EQUAL	r76-119	failing
+EQUAL-MOD-PATHS	r76-120	invalid	path=1
+EQUAL	r76-121	normal
+EQUAL	r76-122	normal
+EQUAL	r76-123	normal
+EQUAL	r76-124	normal
+EQUAL	r76-125	normal

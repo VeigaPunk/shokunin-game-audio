@@ -1,0 +1,397 @@
+{
+  "probe": "r77-verifier arecord open-header law",
+  "device": "hw:0,0",
+  "bytes_per_second": 192000,
+  "legs": {
+    "d3_kill_early": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -d 3 <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 0.5,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/d3_kill_early.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 72044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 576000,
+        "data_actual": 72000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 18000,
+        "declared_frames": 144000,
+        "wave": {
+          "value": 144000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 0.375,
+          "value": 18000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "144000",
+          "value": 144000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "3.000000",
+          "value": 144000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 18000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-d",
+        "3"
+      ],
+      "device": "hw:0,0"
+    },
+    "d5_kill_early": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -d 5 <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 0.5,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/d5_kill_early.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 72044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 960000,
+        "data_actual": 72000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 18000,
+        "declared_frames": 240000,
+        "wave": {
+          "value": 240000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 0.375,
+          "value": 18000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "240000",
+          "value": 240000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "5.000000",
+          "value": 240000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 18000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-d",
+        "5"
+      ],
+      "device": "hw:0,0"
+    },
+    "d12_kill_early": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -d 12 <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 0.5,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/d12_kill_early.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 72044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 2304000,
+        "data_actual": 72000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 18000,
+        "declared_frames": 576000,
+        "wave": {
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 0.375,
+          "value": 18000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "576000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "12.000000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 18000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-d",
+        "12"
+      ],
+      "device": "hw:0,0"
+    },
+    "d12_kill_late": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -d 12 <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 2.5,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/d12_kill_late.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 456044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 2304000,
+        "data_actual": 456000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 114000,
+        "declared_frames": 576000,
+        "wave": {
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 2.375,
+          "value": 114000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "576000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "12.000000",
+          "value": 576000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 114000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-d",
+        "12"
+      ],
+      "device": "hw:0,0"
+    },
+    "s300k_kill": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -s 300000 <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 0.5,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/s300k_kill.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 72044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 1200000,
+        "data_actual": 72000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 18000,
+        "declared_frames": 300000,
+        "wave": {
+          "value": 300000,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 0.375,
+          "value": 18000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "300000",
+          "value": 300000,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "6.250000",
+          "value": 300000,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 18000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-s",
+        "300000"
+      ],
+      "device": "hw:0,0"
+    },
+    "unbounded_kill": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav <out>",
+      "signal": "SIGKILL",
+      "sever_after_s": 1.0,
+      "early_exit_code": null,
+      "exit_code": -9,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/unbounded_kill.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+      ],
+      "file": {
+        "bytes": 168044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "other",
+        "data_declared": 2147483648,
+        "data_actual": 168000,
+        "data_finalized": false
+      },
+      "readers": {
+        "honest_frames": 42000,
+        "declared_frames": 536870912,
+        "wave": {
+          "value": 536870912,
+          "verdict": "declared_echo"
+        },
+        "ffprobe": {
+          "duration_s": 0.875,
+          "value": 42000,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "536870912",
+          "value": 536870912,
+          "verdict": "declared_echo"
+        },
+        "soxi_D": {
+          "raw": "11184.810667",
+          "value": 536870912,
+          "verdict": "declared_echo"
+        },
+        "sndfile": {
+          "value": 42000,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [],
+      "device": "hw:0,0"
+    },
+    "d3_term": {
+      "argv": "arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -t wav -d 3 <out>",
+      "signal": "SIGTERM",
+      "sever_after_s": 0.5,
+      "early_exit_code": null,
+      "exit_code": 1,
+      "stderr": [
+        "Recording WAVE '/tmp/r77v-arec-m628mzju/d3_term.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+        "Aborted by signal Terminated..."
+      ],
+      "file": {
+        "bytes": 72180,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "riff_size_field": "finalized",
+        "data_declared": 72136,
+        "data_actual": 72136,
+        "data_finalized": true
+      },
+      "readers": {
+        "honest_frames": 18034,
+        "declared_frames": 18034,
+        "wave": {
+          "value": 18034,
+          "verdict": "honest"
+        },
+        "ffprobe": {
+          "duration_s": 0.375708,
+          "value": 18034,
+          "verdict": "honest"
+        },
+        "soxi_s": {
+          "raw": "18034",
+          "value": 18034,
+          "verdict": "honest"
+        },
+        "soxi_D": {
+          "raw": "0.375708",
+          "value": 18034,
+          "verdict": "honest"
+        },
+        "sndfile": {
+          "value": 18034,
+          "verdict": "honest"
+        }
+      },
+      "bound_flags": [
+        "-d",
+        "3"
+      ],
+      "device": "hw:0,0"
+    }
+  },
+  "failures": [],
+  "inflation": {
+    "d12_kill_early": 32.0,
+    "d12_kill_late": 5.05,
+    "d3_kill_early": 8.0,
+    "s300k_kill": 16.67
+  }
+}

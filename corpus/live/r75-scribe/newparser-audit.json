@@ -1,0 +1,213 @@
+{
+ "fixture_sha256": "a56107f473c116c668b6d0e487b6635761377defa0706bb54ea49eea6e462cfd",
+ "fixture_blob": "b057bab6b36756a41a41ff789066fbd684a8d581",
+ "cases": {
+  "paplay_invalid": {
+   "path": "rv-paplay-noise.stderr",
+   "bytes": 27,
+   "result": {
+    "fields": [
+     null,
+     "Failed to open audio file."
+    ],
+    "tail": "Failed to open audio file."
+   }
+  },
+  "paplay_xdg_severed": {
+   "path": "rv-pp-xdg.stderr",
+   "bytes": 87,
+   "result": {
+    "fields": [
+     null,
+     "Connection failure: Connection refused"
+    ],
+    "tail": "pa_context_connect() failed: Connection refused"
+   }
+  },
+  "paplay_pulseserver": {
+   "path": "rv-pp-pulseserver.stderr",
+   "bytes": 39,
+   "result": {
+    "fields": [
+     null,
+     "Connection failure: Connection refused"
+    ],
+    "tail": "Connection failure: Connection refused"
+   }
+  },
+  "aplay_raw_fallback": {
+   "path": "rv-aplay-noise.stderr",
+   "bytes": 93,
+   "result": {
+    "fields": [
+     [
+      "raw data",
+      "Unsigned 8 bit, Rate 8000 Hz, Mono"
+     ],
+     null
+    ],
+    "tail": "Playing raw data 'corpus/live/r75-scribe/raw/noise.wav' : Unsigned 8 bit, Rate 8000 Hz, Mono"
+   }
+  },
+  "aplay_valid_verbose": {
+   "path": "aplay-valid.stderr",
+   "bytes": 78,
+   "result": {
+    "fields": [
+     [
+      "WAVE",
+      "Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+     ],
+     null
+    ],
+    "tail": "Playing WAVE 'silence.wav' : Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+   }
+  },
+  "ffplay_invalid_info": {
+   "path": "rv-ffplay-noise.stderr",
+   "bytes": 1821,
+   "result": {
+    "fields": {
+     "ffplay_detected": null,
+     "ffplay_codec": null,
+     "ffplay_duration": null,
+     "lavf_probe": null,
+     "lavf_score": null,
+     "avio_bytes_read": null,
+     "avio_seeks": null,
+     "could_not_seek": false,
+     "ffplay_invalid": true
+    },
+    "tail": "corpus/live/r75-scribe/raw/noise.wav: Invalid data found when processing input"
+   }
+  },
+  "ffplay_valid_info": {
+   "path": "ffplay-file.stderr",
+   "bytes": 2358,
+   "result": {
+    "fields": {
+     "ffplay_detected": "wav",
+     "ffplay_codec": "pcm_s16le",
+     "ffplay_duration": "00:00:00.20",
+     "lavf_probe": null,
+     "lavf_score": null,
+     "avio_bytes_read": null,
+     "avio_seeks": null,
+     "could_not_seek": false,
+     "ffplay_invalid": false
+    },
+    "tail": "   0.13 M-A:  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B"
+   }
+  },
+  "ffplay_sdl_gate": {
+   "path": "ffplay-bogusdrv.stderr",
+   "bytes": 1779,
+   "result": {
+    "fields": {
+     "ffplay_detected": null,
+     "ffplay_codec": null,
+     "ffplay_duration": null,
+     "lavf_probe": null,
+     "lavf_score": null,
+     "avio_bytes_read": null,
+     "avio_seeks": null,
+     "could_not_seek": false,
+     "ffplay_invalid": false
+    },
+    "tail": "(Did you set the DISPLAY variable?)"
+   }
+  }
+ },
+ "fresh_runs": {
+  "paplay_v_valid": {
+   "rc": 0,
+   "stderr_bytes": 700,
+   "fields": [
+    "s16le 1ch 44100Hz",
+    null
+   ],
+   "tail": "Draining connection to server."
+  },
+  "paplay_v_invalid": {
+   "rc": 1,
+   "stderr_bytes": 27,
+   "fields": [
+    null,
+    "Failed to open audio file."
+   ],
+   "tail": "Failed to open audio file."
+  },
+  "aplay_null_valid": {
+   "rc": 0,
+   "stderr_bytes": 150,
+   "fields": [
+    [
+     "WAVE",
+     "Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+    ],
+    null
+   ],
+   "tail": "Playing WAVE '<input>' : Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+  },
+  "aplay_null_invalid": {
+   "rc": 0,
+   "stderr_bytes": 138,
+   "fields": [
+    [
+     "raw data",
+     "Unsigned 8 bit, Rate 8000 Hz, Mono"
+    ],
+    null
+   ],
+   "tail": "Playing raw data '<input>' : Unsigned 8 bit, Rate 8000 Hz, Mono"
+  },
+  "ffplay_dbg_valid": {
+   "rc": 0,
+   "stderr_bytes": 4936,
+   "stderr_lines_splitlines": 69,
+   "stderr_lines_nl": 61,
+   "cr_bytes": 8,
+   "esc2k": 1,
+   "fields": {
+    "ffplay_detected": "wav",
+    "ffplay_codec": "pcm_s16le",
+    "ffplay_duration": "00:00:00.20",
+    "lavf_probe": "wav",
+    "lavf_score": 99,
+    "avio_bytes_read": 17718,
+    "avio_seeks": 0,
+    "could_not_seek": false,
+    "ffplay_invalid": false
+   },
+   "tail": "Statistics: 17718 bytes read, 0 seeks",
+   "tail_has_nan_token": false,
+   "tail_has_hex_ctx": false,
+   "raw_log_has_ctx_addr": false,
+   "statistics_lines": 1
+  },
+  "ffplay_dbg_invalid": {
+   "rc": 0,
+   "stderr_bytes": 2140,
+   "stderr_lines_splitlines": 15,
+   "stderr_lines_nl": 14,
+   "cr_bytes": 1,
+   "esc2k": 0,
+   "fields": {
+    "ffplay_detected": null,
+    "ffplay_codec": null,
+    "ffplay_duration": null,
+    "lavf_probe": null,
+    "lavf_score": null,
+    "avio_bytes_read": 18,
+    "avio_seeks": 0,
+    "could_not_seek": false,
+    "ffplay_invalid": true
+   },
+   "tail": "<input>: Invalid data found when processing input",
+   "tail_has_nan_token": false,
+   "tail_has_hex_ctx": false,
+   "raw_log_has_ctx_addr": false,
+   "statistics_lines": 1
+  }
+ }
+}

@@ -1,0 +1,1859 @@
+{
+ "cleanup": {
+  "unloaded": [
+   536870916,
+   536870917
+  ]
+ },
+ "defaults": {
+  "sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "source": "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source"
+ },
+ "legs": [
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 4095.3,
+      "hz": 1000.0
+     },
+     {
+      "amp": 4095.4,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B01-base_r79_9721.wav",
+    "peak": [
+     8192,
+     8192
+    ],
+    "rate": 48000,
+    "rms": [
+     5539.97,
+     5539.57
+    ],
+    "width": 2
+   },
+   "leg": "B01-base",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b01",
+   "node_props": {
+    "input.r79_9721_b01": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721"
+    },
+    "output.r79_9721_b01": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b01",
+    "input.r79_9721_b01"
+   ],
+   "note": "sink target + capture.sink prop",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B01-base_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B01-base_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.546
+   },
+   "record_offset_s": 1.56,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "output.r79_9721_b01:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b01:output_FR -> r79_ns_b_r79_9721:playback_FR",
+      "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_b01:input_FL",
+      "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_b01:input_FR"
+     ],
+     "input_peers_in": [
+      "r79_ns_a_r79_9721:monitor_FL",
+      "r79_ns_a_r79_9721:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "output.r79_9721_b01:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b01:output_FR -> r79_ns_b_r79_9721:playback_FR",
+      "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_b01:input_FL",
+      "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_b01:input_FR"
+     ],
+     "input_peers_in": [
+      "r79_ns_a_r79_9721:monitor_FL",
+      "r79_ns_a_r79_9721:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": "r79_ns_a_r79_9721",
+   "tone_playing": true,
+   "wait_s": 0.013
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "foreign@596.0Hz",
+     "foreign@596.0Hz"
+    ],
+    "dom": [
+     {
+      "amp": 39.0,
+      "hz": 596.0
+     },
+     {
+      "amp": 39.0,
+      "hz": 596.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B02-sink-noprop_r79_9721.wav",
+    "peak": [
+     1707,
+     1707
+    ],
+    "rate": 48000,
+    "rms": [
+     385.57,
+     385.66
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B02-sink-noprop",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b02",
+   "node_props": {
+    "input.r79_9721_b02": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721"
+    },
+    "output.r79_9721_b02": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b02",
+    "input.r79_9721_b02"
+   ],
+   "note": "sink target, prop absent",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B02-sink-noprop_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B02-sink-noprop_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.527
+   },
+   "record_offset_s": 1.54,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b02:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b02:input_FR",
+      "output.r79_9721_b02:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b02:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b02:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b02:input_FR",
+      "output.r79_9721_b02:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b02:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.014
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721.monitor",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "foreign@228.0Hz",
+     "foreign@228.0Hz"
+    ],
+    "dom": [
+     {
+      "amp": 25.9,
+      "hz": 228.0
+     },
+     {
+      "amp": 25.9,
+      "hz": 228.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B03-dotmonitor_r79_9721.wav",
+    "peak": [
+     793,
+     796
+    ],
+    "rate": 48000,
+    "rms": [
+     158.0,
+     158.17
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B03-dotmonitor",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b03",
+   "node_props": {
+    "input.r79_9721_b03": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721.monitor"
+    },
+    "output.r79_9721_b03": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b03",
+    "input.r79_9721_b03"
+   ],
+   "note": "pulse-style .monitor alias",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B03-dotmonitor_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B03-dotmonitor_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.533
+   },
+   "record_offset_s": 1.55,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b03:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b03:input_FR",
+      "output.r79_9721_b03:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b03:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b03:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b03:input_FR",
+      "output.r79_9721_b03:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b03:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.013
+  },
+  {
+   "args": [
+    "-C",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B04-real-source_r79_9721.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B04-real-source",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b04",
+   "node_props": {
+    "input.r79_9721_b04": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    },
+    "output.r79_9721_b04": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b04",
+    "input.r79_9721_b04"
+   ],
+   "note": "real Audio/Source node",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B04-real-source_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B04-real-source_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.528
+   },
+   "record_offset_s": 1.54,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL -> input.r79_9721_b04:input_FL",
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR -> input.r79_9721_b04:input_FR",
+      "output.r79_9721_b04:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b04:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL",
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL -> input.r79_9721_b04:input_FL",
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR -> input.r79_9721_b04:input_FR",
+      "output.r79_9721_b04:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b04:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL",
+      "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.03
+  },
+  {
+   "args": [
+    "-C",
+    "no_such_node_xyz",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "foreign@824.0Hz",
+     "foreign@824.0Hz"
+    ],
+    "dom": [
+     {
+      "amp": 40.6,
+      "hz": 824.0
+     },
+     {
+      "amp": 40.6,
+      "hz": 824.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B05-garbage_r79_9721.wav",
+    "peak": [
+     1014,
+     1016
+    ],
+    "rate": 48000,
+    "rms": [
+     196.46,
+     196.76
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B05-garbage",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b05",
+   "node_props": {
+    "input.r79_9721_b05": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "no_such_node_xyz"
+    },
+    "output.r79_9721_b05": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b05",
+    "input.r79_9721_b05"
+   ],
+   "note": "unresolvable name",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B05-garbage_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B05-garbage_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.526
+   },
+   "record_offset_s": 1.54,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b05:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b05:input_FR",
+      "output.r79_9721_b05:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b05:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b05:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b05:input_FR",
+      "output.r79_9721_b05:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b05:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.015
+  },
+  {
+   "args": [
+    "-C",
+    "0",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "foreign@960.0Hz",
+     "foreign@960.0Hz"
+    ],
+    "dom": [
+     {
+      "amp": 108.8,
+      "hz": 960.0
+     },
+     {
+      "amp": 108.8,
+      "hz": 960.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B06-target0_r79_9721.wav",
+    "peak": [
+     1392,
+     1393
+    ],
+    "rate": 48000,
+    "rms": [
+     239.45,
+     239.67
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B06-target0",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b06",
+   "node_props": {
+    "input.r79_9721_b06": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": 0
+    },
+    "output.r79_9721_b06": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b06",
+    "input.r79_9721_b06"
+   ],
+   "note": "pw-cat --target 0 idiom",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B06-target0_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B06-target0_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.535
+   },
+   "record_offset_s": 1.56,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b06:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b06:input_FR",
+      "output.r79_9721_b06:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b06:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b06:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b06:input_FR",
+      "output.r79_9721_b06:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b06:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.017
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=false",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "foreign@900.0Hz",
+     "foreign@900.0Hz"
+    ],
+    "dom": [
+     {
+      "amp": 213.6,
+      "hz": 900.0
+     },
+     {
+      "amp": 213.6,
+      "hz": 900.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B07-prop-false_r79_9721.wav",
+    "peak": [
+     1616,
+     1614
+    ],
+    "rate": 48000,
+    "rms": [
+     360.21,
+     360.33
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B07-prop-false",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b07",
+   "node_props": {
+    "input.r79_9721_b07": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721"
+    },
+    "output.r79_9721_b07": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b07",
+    "input.r79_9721_b07"
+   ],
+   "note": "prop explicitly false",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B07-prop-false_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B07-prop-false_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.536
+   },
+   "record_offset_s": 1.55,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b07:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b07:input_FR",
+      "output.r79_9721_b07:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b07:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL -> input.r79_9721_b07:input_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR -> input.r79_9721_b07:input_FR",
+      "output.r79_9721_b07:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b07:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FL",
+      "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source:capture_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.017
+  },
+  {
+   "args": [
+    "-C",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-i",
+    "target.object=r79_ns_a_r79_9721 stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 4095.3,
+      "hz": 1000.0
+     },
+     {
+      "amp": 4095.4,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B08-prop-beats-flag_r79_9721.wav",
+    "peak": [
+     8192,
+     8192
+    ],
+    "rate": 48000,
+    "rms": [
+     5539.97,
+     5539.57
+    ],
+    "width": 2
+   },
+   "leg": "B08-prop-beats-flag",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b08",
+   "node_props": {
+    "input.r79_9721_b08": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721"
+    },
+    "output.r79_9721_b08": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b08",
+    "input.r79_9721_b08"
+   ],
+   "note": "target.object prop + real flag",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B08-prop-beats-flag_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B08-prop-beats-flag_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.545
+   },
+   "record_offset_s": 1.57,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "output.r79_9721_b08:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b08:output_FR -> r79_ns_b_r79_9721:playback_FR",
+      "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_b08:input_FL",
+      "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_b08:input_FR"
+     ],
+     "input_peers_in": [
+      "r79_ns_a_r79_9721:monitor_FL",
+      "r79_ns_a_r79_9721:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "output.r79_9721_b08:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b08:output_FR -> r79_ns_b_r79_9721:playback_FR",
+      "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_b08:input_FL",
+      "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_b08:input_FR"
+     ],
+     "input_peers_in": [
+      "r79_ns_a_r79_9721:monitor_FL",
+      "r79_ns_a_r79_9721:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": "r79_ns_a_r79_9721",
+   "tone_playing": true,
+   "wait_s": 0.013
+  },
+  {
+   "args": [
+    "-i",
+    "target.object=no_such_node_xyz stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B09-prop-garbage_r79_9721.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B09-prop-garbage",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b09",
+   "node_props": {
+    "input.r79_9721_b09": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "no_such_node_xyz"
+    },
+    "output.r79_9721_b09": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b09",
+    "input.r79_9721_b09"
+   ],
+   "note": "unresolvable target.object prop, sink prop true",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B09-prop-garbage_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B09-prop-garbage_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.534
+   },
+   "record_offset_s": 1.55,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79_9721_b09:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79_9721_b09:input_FR",
+      "output.r79_9721_b09:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b09:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79_9721_b09:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79_9721_b09:input_FR",
+      "output.r79_9721_b09:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b09:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.041
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true node.autoconnect=false",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B10-autoconnect-off_r79_9721.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "leg": "B10-autoconnect-off",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b10",
+   "node_props": {
+    "input.r79_9721_b10": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": false,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "r79_ns_a_r79_9721"
+    },
+    "output.r79_9721_b10": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b10",
+    "input.r79_9721_b10"
+   ],
+   "note": "node.autoconnect=false + valid target",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B10-autoconnect-off_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B10-autoconnect-off_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.525
+   },
+   "record_offset_s": 1.54,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "output.r79_9721_b10:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b10:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "output.r79_9721_b10:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b10:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": "r79_ns_a_r79_9721",
+   "tone_playing": true,
+   "wait_s": 0.015
+  },
+  {
+   "args": [
+    "-i",
+    "node.autoconnect=false",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B11-autoconnect-off-garbage_r79_9721.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B11-autoconnect-off-garbage",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b11",
+   "node_props": {
+    "input.r79_9721_b11": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": false,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": null
+    },
+    "output.r79_9721_b11": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b11",
+    "input.r79_9721_b11"
+   ],
+   "note": "node.autoconnect=false, no target",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B11-autoconnect-off-garbage_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B11-autoconnect-off-garbage_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.531
+   },
+   "record_offset_s": 1.54,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "output.r79_9721_b11:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b11:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "output.r79_9721_b11:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b11:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.012
+  },
+  {
+   "args": [
+    "-C",
+    "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": false,
+    "ch": 2,
+    "class": [
+     "silence",
+     "silence"
+    ],
+    "dom": [
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     },
+     {
+      "amp": 0.0,
+      "hz": 0.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B12-source-prop_r79_9721.wav",
+    "peak": [
+     0,
+     0
+    ],
+    "rate": 48000,
+    "rms": [
+     0.0,
+     0.0
+    ],
+    "width": 2
+   },
+   "content_note": "no tone: destination sink carries silence; topology is the witness",
+   "leg": "B12-source-prop",
+   "loopback_rc": -9,
+   "loopback_stderr": "",
+   "name": "r79_9721_b12",
+   "node_props": {
+    "input.r79_9721_b12": {
+     "class": "Stream/Input/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "input_FL",
+      "input_FR",
+      "monitor_FL",
+      "monitor_FR"
+     ],
+     "target.object": "alsa_input.usb-Sony_Interactive_Entertainment_DualSense_Wireless_Controller-00.Direct__Direct__source"
+    },
+    "output.r79_9721_b12": {
+     "class": "Stream/Output/Audio",
+     "node.autoconnect": true,
+     "ports": [
+      "output_FL",
+      "output_FR"
+     ],
+     "target.object": "r79_ns_b_r79_9721"
+    }
+   },
+   "nodes_seen": [
+    "output.r79_9721_b12",
+    "input.r79_9721_b12"
+   ],
+   "note": "real default source + sink prop",
+   "rec_sink": "r79_ns_b_r79_9721",
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B12-source-prop_r79_9721.wav\n",
+    "exists": true,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/B12-source-prop_r79_9721.wav",
+    "rc": 1,
+    "wall": 0.545
+   },
+   "record_offset_s": 1.56,
+   "samples": {
+    "t1.0": {
+     "edges": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79_9721_b12:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79_9721_b12:input_FR",
+      "output.r79_9721_b12:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b12:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    },
+    "t2.2": {
+     "edges": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL -> input.r79_9721_b12:input_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR -> input.r79_9721_b12:input_FR",
+      "output.r79_9721_b12:output_FL -> r79_ns_b_r79_9721:playback_FL",
+      "output.r79_9721_b12:output_FR -> r79_ns_b_r79_9721:playback_FR"
+     ],
+     "input_peers_in": [
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL",
+      "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR"
+     ],
+     "input_peers_out": [],
+     "output_peers_in": [],
+     "output_peers_out": [
+      "r79_ns_b_r79_9721:playback_FL",
+      "r79_ns_b_r79_9721:playback_FR"
+     ]
+    }
+   },
+   "tone_into": null,
+   "tone_playing": false,
+   "wait_s": 0.038
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721",
+    "-c",
+    "1",
+    "-m",
+    "[ MONO ]"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1.5k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     },
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM1-mono-c1-m_r79_9721.wav",
+    "peak": [
+     7801,
+     7801
+    ],
+    "rate": 48000,
+    "rms": [
+     3915.66,
+     3915.66
+    ],
+    "width": 2
+   },
+   "edges": [
+    "output.r79_9721_cm1:output_FL -> r79_ns_b_r79_9721:playback_FL",
+    "output.r79_9721_cm1:output_FR -> r79_ns_b_r79_9721:playback_FR",
+    "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_cm1:input_FL",
+    "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_cm1:input_FR"
+   ],
+   "leg": "CM1-mono-c1-m",
+   "loopback_stderr": "",
+   "nodes_seen": [
+    "output.r79_9721_cm1",
+    "input.r79_9721_cm1"
+   ],
+   "props": {
+    "input.r79_9721_cm1": {
+     "audio.channels": 1,
+     "audio.position": "[ MONO ]",
+     "media.class": "Stream/Input/Audio",
+     "node.name": "input.r79_9721_cm1",
+     "port.group": "stream.0",
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "output.r79_9721_cm1": {
+     "audio.channels": 1,
+     "audio.position": "[ MONO ]",
+     "media.class": "Stream/Output/Audio",
+     "node.name": "output.r79_9721_cm1",
+     "port.group": "stream.0",
+     "ports_in": [],
+     "ports_out": [
+      "output_FL",
+      "output_FR"
+     ]
+    }
+   },
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM1-mono-c1-m_r79_9721.wav\n",
+    "rc": 1
+   },
+   "wait_s": 0.014
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721",
+    "-c",
+    "1"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 4095.3,
+      "hz": 1000.0
+     },
+     {
+      "amp": 4095.4,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM2-c1-only_r79_9721.wav",
+    "peak": [
+     8192,
+     8192
+    ],
+    "rate": 48000,
+    "rms": [
+     5538.63,
+     5539.57
+    ],
+    "width": 2
+   },
+   "edges": [
+    "output.r79_9721_cm2:output_FL -> r79_ns_b_r79_9721:playback_FL",
+    "output.r79_9721_cm2:output_FR -> r79_ns_b_r79_9721:playback_FR",
+    "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_cm2:input_FL",
+    "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_cm2:input_FR"
+   ],
+   "leg": "CM2-c1-only",
+   "loopback_stderr": "",
+   "nodes_seen": [
+    "output.r79_9721_cm2",
+    "input.r79_9721_cm2"
+   ],
+   "props": {
+    "input.r79_9721_cm2": {
+     "audio.channels": 1,
+     "audio.position": "[ FL, FR ]",
+     "media.class": "Stream/Input/Audio",
+     "node.name": "input.r79_9721_cm2",
+     "port.group": "stream.0",
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "output.r79_9721_cm2": {
+     "audio.channels": 1,
+     "audio.position": "[ FL, FR ]",
+     "media.class": "Stream/Output/Audio",
+     "node.name": "output.r79_9721_cm2",
+     "port.group": "stream.0",
+     "ports_in": [],
+     "ports_out": [
+      "output_FL",
+      "output_FR"
+     ]
+    }
+   },
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM2-c1-only_r79_9721.wav\n",
+    "rc": 1
+   },
+   "wait_s": 0.013
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721",
+    "-m",
+    "[ MONO ]"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1.5k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     },
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM3-m-only_r79_9721.wav",
+    "peak": [
+     7801,
+     7801
+    ],
+    "rate": 48000,
+    "rms": [
+     3915.66,
+     3915.66
+    ],
+    "width": 2
+   },
+   "edges": [
+    "output.r79_9721_cm3:output_FL -> r79_ns_b_r79_9721:playback_FL",
+    "output.r79_9721_cm3:output_FR -> r79_ns_b_r79_9721:playback_FR",
+    "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_cm3:input_FL",
+    "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_cm3:input_FR"
+   ],
+   "leg": "CM3-m-only",
+   "loopback_stderr": "",
+   "nodes_seen": [
+    "output.r79_9721_cm3",
+    "input.r79_9721_cm3"
+   ],
+   "props": {
+    "input.r79_9721_cm3": {
+     "audio.channels": 2,
+     "audio.position": "[ MONO ]",
+     "media.class": "Stream/Input/Audio",
+     "node.name": "input.r79_9721_cm3",
+     "port.group": "stream.0",
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "output.r79_9721_cm3": {
+     "audio.channels": 2,
+     "audio.position": "[ MONO ]",
+     "media.class": "Stream/Output/Audio",
+     "node.name": "output.r79_9721_cm3",
+     "port.group": "stream.0",
+     "ports_in": [],
+     "ports_out": [
+      "output_FL",
+      "output_FR"
+     ]
+    }
+   },
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM3-m-only_r79_9721.wav\n",
+    "rc": 1
+   },
+   "wait_s": 0.019
+  },
+  {
+   "args": [
+    "-C",
+    "r79_ns_a_r79_9721",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79_ns_b_r79_9721",
+    "-m",
+    "MONO"
+   ],
+   "content": {
+    "bytes": 96044,
+    "carries_tone": true,
+    "ch": 2,
+    "class": [
+     "tone1.5k",
+     "tone1.5k"
+    ],
+    "dom": [
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     },
+     {
+      "amp": 2047.6,
+      "hz": 1500.0
+     }
+    ],
+    "exists": true,
+    "frames": 24000,
+    "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM4-m-unbracketed_r79_9721.wav",
+    "peak": [
+     7801,
+     7801
+    ],
+    "rate": 48000,
+    "rms": [
+     3915.66,
+     3915.66
+    ],
+    "width": 2
+   },
+   "edges": [
+    "output.r79_9721_cm4:output_FL -> r79_ns_b_r79_9721:playback_FL",
+    "output.r79_9721_cm4:output_FR -> r79_ns_b_r79_9721:playback_FR",
+    "r79_ns_a_r79_9721:monitor_FL -> input.r79_9721_cm4:input_FL",
+    "r79_ns_a_r79_9721:monitor_FR -> input.r79_9721_cm4:input_FR"
+   ],
+   "leg": "CM4-m-unbracketed",
+   "loopback_stderr": "",
+   "nodes_seen": [
+    "output.r79_9721_cm4",
+    "input.r79_9721_cm4"
+   ],
+   "props": {
+    "input.r79_9721_cm4": {
+     "audio.channels": 2,
+     "audio.position": "MONO",
+     "media.class": "Stream/Input/Audio",
+     "node.name": "input.r79_9721_cm4",
+     "port.group": "stream.0",
+     "ports_in": [
+      "input_FL",
+      "input_FR"
+     ],
+     "ports_out": [
+      "monitor_FL",
+      "monitor_FR"
+     ]
+    },
+    "output.r79_9721_cm4": {
+     "audio.channels": 2,
+     "audio.position": "MONO",
+     "media.class": "Stream/Output/Audio",
+     "node.name": "output.r79_9721_cm4",
+     "port.group": "stream.0",
+     "ports_in": [],
+     "ports_out": [
+      "output_FL",
+      "output_FR"
+     ]
+    }
+   },
+   "record": {
+    "bytes": 96044,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-scout/raw/CM4-m-unbracketed_r79_9721.wav\n",
+    "rc": 1
+   },
+   "wait_s": 0.014
+  }
+ ],
+ "null_sinks": [
+  {
+   "err": "",
+   "module_id": 536870916,
+   "name": "r79_ns_a_r79_9721",
+   "rc": 0
+  },
+  {
+   "err": "",
+   "module_id": 536870917,
+   "name": "r79_ns_b_r79_9721",
+   "rc": 0
+  }
+ ],
+ "probe": "b-capture-matrix",
+ "tag": "r79_9721"
+}

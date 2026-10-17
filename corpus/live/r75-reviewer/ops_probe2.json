@@ -1,0 +1,34 @@
+{
+ "ffplay_nowriter": {
+  "alive_after_3s": true,
+  "threads_wchan": {
+   "1091726": "hrtimer_nanosleep",
+   "1091728": "wait_for_partner"
+  },
+  "exit_code_killpg": -9
+ },
+ "paplay_pulse_severed": {
+  "exit_code": 1,
+  "wall_s": 0.002,
+  "stderr": "Connection failure: Connection refused\npa_context_connect() failed: Connection refused"
+ },
+ "paplay_gate_precedence": {
+  "blocked": true,
+  "wall_s": 5.001
+ },
+ "aplay_device_hw:99": {
+  "exit_code": 1,
+  "wall_s": 0.001,
+  "stderr": "ALSA lib confmisc.c:165:(snd_config_get_card) [error.core] Cannot get card index for 99\naplay: main:850: audio open error: Invalid argument"
+ },
+ "aplay_device_nosuchdev": {
+  "exit_code": 1,
+  "wall_s": 0.001,
+  "stderr": "ALSA lib pcm.c:2722:(snd_pcm_open_noupdate) [error.pcm] Unknown PCM nosuchdev\naplay: main:850: audio open error: No such file or directory"
+ },
+ "ffplay_bad_sdl_driver": {
+  "exit_code": 1,
+  "wall_s": 0.023,
+  "stderr": "Could not initialize SDL - Audio target 'nosuchdriver' not available\n(Did you set the DISPLAY variable?)"
+ }
+}

@@ -1,0 +1,61 @@
+### r77 SIMPLIFIER — replay proof
+comparator: corpus/live/r77-simpl/compare_r77.py (A strict / B contract / C self)
+calibration: the 3 canonical clean receipts pass self- and cross-pairs (A=B=C=0)
+
+### 1. PAIR, attempt 2 — pristine control vs batch candidate, back-to-back in one quiet window
+    both failures={}, both contention.host_is_quiet=true, all 3 loss shas = e3a90286b3b54201
+leaves compared          : 2708
+A strict diffs           : 0
+B contract-leaf diffs    : 0
+  (declared drift diffs  : 178)
+C self-consistency viols : 0
+control   failures       : {}
+candidate failures       : {}
+VERDICT: PASS (A=0 B=0 C=0 failures ctl=0 cand=0)
+
+### 2. candidate vs the three canonical clean receipts (cross-window)
+--- vs 20261014T200120162289Z
+leaves compared          : 2710
+A strict diffs           : 0
+B contract-leaf diffs    : 0
+  (declared drift diffs  : 185)
+C self-consistency viols : 0
+control   failures       : {}
+candidate failures       : {}
+--- vs 20261014T200431704613Z
+leaves compared          : 2708
+A strict diffs           : 0
+B contract-leaf diffs    : 0
+  (declared drift diffs  : 149)
+C self-consistency viols : 0
+control   failures       : {}
+candidate failures       : {}
+--- vs 20261014T200645323501Z
+leaves compared          : 2708
+A strict diffs           : 0
+B contract-leaf diffs    : 0
+  (declared drift diffs  : 181)
+C self-consistency viols : 0
+control   failures       : {}
+candidate failures       : {}
+
+### 3. NEGATIVE CONTROL, attempt 1 — contaminated window (foreign client fed the fallback node)
+    pristine control FAILED the loss leg; the comparator names 10 leaves, all loss-content
+leaves compared          : 2709
+A strict diffs           : 10
+B contract-leaf diffs    : 5
+  (declared drift diffs  : 166)
+C self-consistency viols : 0
+control   failures       : {"capture_target_loss_r77_probe": ["target loss: the post-loss artifact is NOT byte-identical to the FALLBACK node's own same-bound control \u2014 the re-link is not total"]}
+candidate failures       : {}
+  STRICT measurements.capture_target_loss_r77_probe.bounded.after_loss.all_zero_payload: False != True
+  STRICT measurements.capture_target_loss_r77_probe.bounded.after_loss.sha256_16: '413b4778e1ac77d8' != 'e3a90286b3b54201'
+  STRICT measurements.capture_target_loss_r77_probe.bounded.fallback_control.all_zero_payload: False != True
+  STRICT measurements.capture_target_loss_r77_probe.bounded.fallback_control.sha256_16: 'b1c1e2be76b291bc' != 'e3a90286b3b54201'
+  STRICT measurements.capture_target_loss_r77_probe.bounded.sha_match_control: False != True
+  STRICT measurements.capture_target_loss_r77_probe.bounded.sha_match_dead_sink: False != True
+  STRICT measurements.capture_target_loss_r77_probe.failures[0]: "target loss: the post-loss artifact is NOT byte-identical to the FALLBACK node's own same-bound control — the re-link is not total" != '<MISSING>'
+  STRICT measurements.capture_target_loss_r77_probe.wall_clock.file.all_zero_payload: False != True
+  STRICT measurements.capture_target_loss_r77_probe.wall_clock.file.bytes: 569388 != 573484
+  STRICT measurements.capture_target_loss_r77_probe.wall_clock.file.sha256_16: '7053a16607c521df' != 'ef81376bf75c86f5'
+VERDICT: FAIL (A=10 B=5 C=0 failures ctl=1 cand=0)

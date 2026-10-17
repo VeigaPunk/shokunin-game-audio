@@ -1,0 +1,1 @@
+bash -c pactl list sinks short; pactl list sources short; pw-dump | python3 -c "import json,sys;d=json.load(sys.stdin);print(sorted(str((o.get('info',{}).get('props',{}) or {}).get('node.name')) for o in d if o.get('type')=='PipeWire:Interface:Node'))"

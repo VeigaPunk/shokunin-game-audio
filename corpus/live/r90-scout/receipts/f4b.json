@@ -1,0 +1,683 @@
+{
+ "stage": "f4b",
+ "reps": 3,
+ "entry_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [],
+  "clients": 6
+ },
+ "started": "2026-10-15T11:24:07-0300",
+ "legs": [
+  {
+   "rep": 1,
+   "setup": {
+    "mid_a": 536870942,
+    "mid_b": 536870922
+   },
+   "d1_link1": {
+    "label": "link1",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_link2": {
+    "label": "link2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d1_ids": [
+    "83",
+    "136"
+   ],
+   "d1_bulk_disc_names": {
+    "label": "bulk_disc_names",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count_after": [
+    1,
+    "r90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_ids": [
+    "83",
+    "136"
+   ],
+   "d2_disc_two_ids": {
+    "label": "disc_two_ids",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "83",
+     "136"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "d2_count_after": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_remaining_ids": [
+    "83",
+    "136"
+   ],
+   "w1_wait_missing_out": {
+    "label": "wait_missing_out",
+    "cmd": [
+     "pw-link",
+     "-w",
+     "r90a:monitor_ZZ",
+     "r90b:playback_FL"
+    ],
+    "rc": null,
+    "timed_out": true,
+    "ms": 2002,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_passive": {
+    "label": "passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_link_objects": [
+    {
+     "id": 136,
+     "props": {
+      "link.input.port": 85,
+      "link.output.port": 130,
+      "object.serial": 101245
+     }
+    }
+   ],
+   "p1_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_after": [
+    0,
+    ""
+   ],
+   "teardown": {
+    "a": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    },
+    "b": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870922"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "r90_nodes_after": [],
+   "_wall_s": 2.86
+  },
+  {
+   "rep": 2,
+   "setup": {
+    "mid_a": 536870922,
+    "mid_b": 536870942
+   },
+   "d1_link1": {
+    "label": "link1",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 3,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_link2": {
+    "label": "link2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d1_ids": [
+    "136",
+    "83"
+   ],
+   "d1_bulk_disc_names": {
+    "label": "bulk_disc_names",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count_after": [
+    1,
+    "r90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_ids": [
+    "136",
+    "83"
+   ],
+   "d2_disc_two_ids": {
+    "label": "disc_two_ids",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "136",
+     "83"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "d2_count_after": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_remaining_ids": [
+    "136",
+    "83"
+   ],
+   "w1_wait_missing_out": {
+    "label": "wait_missing_out",
+    "cmd": [
+     "pw-link",
+     "-w",
+     "r90a:monitor_ZZ",
+     "r90b:playback_FL"
+    ],
+    "rc": null,
+    "timed_out": true,
+    "ms": 2002,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_passive": {
+    "label": "passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_link_objects": [
+    {
+     "id": 83,
+     "props": {
+      "link.input.port": 85,
+      "link.output.port": 173,
+      "object.serial": 101287
+     }
+    }
+   ],
+   "p1_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_after": [
+    0,
+    ""
+   ],
+   "teardown": {
+    "a": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870922"
+     ],
+     "rc": 0,
+     "err": ""
+    },
+    "b": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "r90_nodes_after": [],
+   "_wall_s": 2.86
+  },
+  {
+   "rep": 3,
+   "setup": {
+    "mid_a": 536870942,
+    "mid_b": 536870922
+   },
+   "d1_link1": {
+    "label": "link1",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_link2": {
+    "label": "link2",
+    "cmd": [
+     "pw-link",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d1_ids": [
+    "83",
+    "136"
+   ],
+   "d1_bulk_disc_names": {
+    "label": "bulk_disc_names",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL",
+     "r90a:monitor_FR",
+     "r90b:playback_FR"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "d1_count_after": [
+    1,
+    "r90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_ids": [
+    "83",
+    "136"
+   ],
+   "d2_disc_two_ids": {
+    "label": "disc_two_ids",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "83",
+     "136"
+    ],
+    "rc": 255,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "ab9360e45e3e91235ec9c0a202e8790828a50615588e7594ee966aeceda2968b",
+    "out_len": 0,
+    "err_len": 50,
+    "out_head": "",
+    "err_head": "failed to unlink ports: No such file or directory\n"
+   },
+   "d2_count_after": [
+    2,
+    "r90a:monitor_FL\n  |-> r90b:playback_FL\nr90a:monitor_FR\n  |-> r90b:playback_FR\nr90b:playback_FL\n  |<- r90a:monitor_FL\nr90b:playback_FR\n  |<- r90a:monitor_FR\n"
+   ],
+   "d2_remaining_ids": [
+    "83",
+    "136"
+   ],
+   "w1_wait_missing_out": {
+    "label": "wait_missing_out",
+    "cmd": [
+     "pw-link",
+     "-w",
+     "r90a:monitor_ZZ",
+     "r90b:playback_FL"
+    ],
+    "rc": null,
+    "timed_out": true,
+    "ms": 2002,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_passive": {
+    "label": "passive",
+    "cmd": [
+     "pw-link",
+     "-P",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 2,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_link_objects": [
+    {
+     "id": 136,
+     "props": {
+      "link.input.port": 85,
+      "link.output.port": 130,
+      "object.serial": 101329
+     }
+    }
+   ],
+   "p1_latency": {
+    "label": "latency",
+    "cmd": [
+     "pw-link",
+     "-t"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_cleanup": {
+    "label": "cleanup",
+    "cmd": [
+     "pw-link",
+     "-d",
+     "r90a:monitor_FL",
+     "r90b:playback_FL"
+    ],
+    "rc": 0,
+    "timed_out": false,
+    "ms": 1,
+    "out_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "err_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "out_len": 0,
+    "err_len": 0,
+    "out_head": "",
+    "err_head": ""
+   },
+   "p1_after": [
+    0,
+    ""
+   ],
+   "teardown": {
+    "a": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870942"
+     ],
+     "rc": 0,
+     "err": ""
+    },
+    "b": {
+     "cmd": [
+      "pactl",
+      "unload-module",
+      "536870922"
+     ],
+     "rc": 0,
+     "err": ""
+    }
+   },
+   "r90_nodes_after": [],
+   "_wall_s": 2.86
+  }
+ ],
+ "exit_census": {
+  "modules": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   14,
+   16,
+   17,
+   18,
+   20,
+   22,
+   536870912,
+   536870913,
+   536870914,
+   536870915
+  ],
+  "r90_nodes": [],
+  "sibling_nodes": [],
+  "clients": 6
+ },
+ "census_restored": true
+}

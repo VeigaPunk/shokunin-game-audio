@@ -1,0 +1,57 @@
+# Labrat H1 sub-claim check (read-only, live filesystem)
+# claim audited (reports/round-79/r79-author.md §13):
+#   "stream.capture.sink appears ONLY in WirePlumber's shipped material
+#    (/usr/share/doc/wireplumber/NEWS.rst:1553,
+#     /usr/share/wireplumber/scripts/lib/common-utils.lua:42)
+#    and in NO PipeWire config or man page. Man pages were not decoded
+#    (gzip), so 'absent from man pages' is bounded."
+
+## 1. WirePlumber citations — VERIFIED (2/2)
+$ sed -n '1553p' /usr/share/doc/wireplumber/NEWS.rst
+  also respects "stream.capture.sink" property of streams which declares
+$ sed -n '42p' /usr/share/wireplumber/scripts/lib/common-utils.lua
+          cutils.parseBool (properties ["stream.capture.sink"])) then
+
+## 2. PipeWire config tree — VERIFIED absent
+$ grep -rl "stream\.capture\.sink" /usr/share/pipewire/ /usr/share/doc/pipewire/ 2>/dev/null
+  (no output)
+
+## 3. PipeWire MAN PAGES — FALSIFIED (string IS present)
+$ for f in /usr/share/man/man*/*.gz; do zgrep -q "stream\.capture\.sink" "$f" && echo "MAN-HIT: $f"; done
+  MAN-HIT: /usr/share/man/man7/libpipewire-module-protocol-simple.7.gz
+$ pacman -Qo /usr/share/man/man7/libpipewire-module-protocol-simple.7.gz
+  ...is owned by pipewire-audio 1:1.6.8-1
+
+$ zcat /usr/share/man/man7/libpipewire-module-protocol-simple.7.gz | sed -n '70,74p'
+  \fBnode.rate\fP
+  .IP "\(bu" 2
+  \fBstream.capture.sink\fP        <-- line 72: listed stream property
+  .IP "\(bu" 2
+  \fBnode.name\fP
+
+$ zcat /usr/share/man/man7/libpipewire-module-protocol-simple.7.gz | sed -n '110,118p'
+          capture\&.props = {
+              # The node name or id to use for capture\&.
+              #target\&.object = null
+              #
+              # To make the capture stream capture the monitor ports
+              #stream\&.capture\.sink = false     <-- shipped example
+              #
+              # Make this a sink instead of a capture stream
+              media\&.class = Audio/Sink
+
+## 4. filter-chain fragment count
+$ ls /usr/share/pipewire/filter-chain/*.conf | wc -l
+  12
+$ grep -lE "capture\.props|playback\.props|node\.autoconnect" /usr/share/pipewire/filter-chain/*.conf | wc -l
+  12
+$ grep -l "node.passive" /usr/share/pipewire/filter-chain/*.conf | wc -l
+  11      # eq6 included: sink-eq6.conf:66  node.passive = true
+# => report's "(11 fragments)" is at best the node.passive count; the
+#    directory holds 12 fragments and all 12 carry at least one of the
+#    cited props.
+
+## 5. Impact
+No measured r79 claim depends on H1 (author states this explicitly, §13).
+H1 is advisory, and it left no receipt in corpus/live/ — this check is
+the first execution evidence for the claim, and it contradicts it.

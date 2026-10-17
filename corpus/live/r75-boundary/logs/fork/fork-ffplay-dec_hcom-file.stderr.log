@@ -1,0 +1,52 @@
+    nan    :  0.000 fd=   0 aq=    0KB vq=    0KB sq=    0B [AVFormatContext @ 0x7fec540009c0] Opening '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/round-66/pair_dec_hcom.wav' for reading
+[file @ 0x7fec54001340] Setting default whitelist 'file,crypto,data'
+[hcom @ 0x7fec540009c0] Format hcom probed with size=2048 and score=100
+[hcom @ 0x7fec540009c0] Before avformat_find_stream_info() pos: 160 bytes read:600 seeks:0 nb_streams:1
+[hcom @ 0x7fec540009c0] After avformat_find_stream_info() pos: 600 bytes read:600 seeks:0 frames:1
+[2KInput #0, hcom, from '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/round-66/pair_dec_hcom.wav':
+  Duration: N/A, bitrate: N/A
+  Stream #0:0, 1, 1/22050: Audio: hcom, 22050 Hz, 1 channels, u8
+detected 32 logical cores
+[ffplay_abuffer @ 0x7fec540070c0] Setting 'sample_rate' to value '22050'
+[ffplay_abuffer @ 0x7fec540070c0] Setting 'sample_fmt' to value 'u8'
+[ffplay_abuffer @ 0x7fec540070c0] Setting 'time_base' to value '1/22050'
+[ffplay_abuffer @ 0x7fec540070c0] Setting 'channel_layout' to value '1 channels'
+[ffplay_abuffer @ 0x7fec540070c0] tb:1/22050 samplefmt:u8 samplerate:22050 chlayout:1 channels
+Filter 'ffplay_abuffer' formats:
+  out[0] 'default':
+    Channel layouts: 1 channels
+    Sample rates: 22050
+    Sample formats: u8
+Filter 'ffplay_abuffersink' formats:
+  in[0] 'default':
+    Channel layouts: 
+    Sample rates: 
+    Sample formats: s16
+[ffplay_abuffersink @ 0x7fec54007540] auto-inserting filter 'auto_aresample_0' between the filter 'ffplay_abuffer' and the filter 'ffplay_abuffersink'
+[AVFilterGraph @ 0x7fec54004580] query_formats: 2 queried, 6 merged, 7 already done, 0 delayed
+[auto_aresample_0 @ 0x7fec54007c80] [SWR @ 0x7fec540116c0] Using s16p internally between filters
+[auto_aresample_0 @ 0x7fec54007c80] ch:1 chl:1 channels fmt:u8 r:22050Hz -> ch:1 chl:1 channels fmt:s16 r:22050Hz
+Audio frame changed from rate:22050 ch:1 fmt:u8 layout:1 channels serial:-1 to rate:22050 ch:1 fmt:u8 layout:1 channels serial:1
+[ffplay_abuffer @ 0x7fec54007540] Setting 'sample_rate' to value '22050'
+[ffplay_abuffer @ 0x7fec54007540] Setting 'sample_fmt' to value 'u8'
+[ffplay_abuffer @ 0x7fec54007540] Setting 'time_base' to value '1/22050'
+[ffplay_abuffer @ 0x7fec54007540] Setting 'channel_layout' to value '1 channels'
+[ffplay_abuffer @ 0x7fec54007540] tb:1/22050 samplefmt:u8 samplerate:22050 chlayout:1 channels
+Filter 'ffplay_abuffer' formats:
+  out[0] 'default':
+    Channel layouts: 1 channels
+    Sample rates: 22050
+    Sample formats: u8
+Filter 'ffplay_abuffersink' formats:
+  in[0] 'default':
+    Channel layouts: mono
+    Sample rates: 22050
+    Sample formats: s16
+[ffplay_abuffersink @ 0x7fec540070c0] auto-inserting filter 'auto_aresample_0' between the filter 'ffplay_abuffer' and the filter 'ffplay_abuffersink'
+[AVFilterGraph @ 0x7fec54004580] query_formats: 2 queried, 6 merged, 6 already done, 0 delayed
+[auto_aresample_0 @ 0x7fec540071c0] [SWR @ 0x7fec40002d00] Using s16p internally between filters
+[auto_aresample_0 @ 0x7fec540071c0] ch:1 chl:1 channels fmt:u8 r:22050Hz -> ch:1 chl:mono fmt:s16 r:22050Hz
+[AVIOContext @ 0x7fec54009540] Statistics: 600 bytes read, 0 seeks
+
+--- stdout ---
+

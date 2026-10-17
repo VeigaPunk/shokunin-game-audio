@@ -1,0 +1,62 @@
+# r73-scribe checks — 2026-10-14 14:36:00Z
+
+## host
+plazir27
+2026-10-14 14:36:00 UTC
+
+## git HEAD
+50f55eb r71 fix: strip ffmpeg ASLR module tags in _tail normalizer (late critic — seek-sensitive members would fragment into unstable singleton groups)
+4fff488 r72 report-last: adjudicator + LOG + SCORECARD + seat reports (5 seats landed pre-commit, all byte-corroborated)
+26baed1 r72: third decoder libsndfile transport matrix — measured 4-class partition (critic-corrected claim), .snd named-fork pinned, byte-stable x2
+
+## landing check
+probe-consumers-r73 in measure_audio.py: 0
+fixture blob: df1e5becb17e9846b25a82f80dfd18e24471099f (HEAD: df1e5becb17e9846b25a82f80dfd18e24471099f)
+r73 receipts: 0
+r73 scratch dirs: corpus/live/r73-boundary corpus/live/r73-critic corpus/live/r73-reviewer corpus/live/r73-scout corpus/live/r73-scribe 
+
+## brief vs artifact path
+brief cites: reports/frontier/fb-pipewire.md
+fa-sndfile.md
+actual: ports/frontier/fb-pipewire.md
+c079aba wave-10 report-last: final verdicts + seat scratch (r71); oversized r70-simplifier head.tar untracked+ignored (265MB > GitHub limit)
+
+## toolchain
+pw-cat
+Compiled with libpipewire 1.6.8
+/usr/bin/pw-cat
+mpv v0.41.0 Copyright © 2000-2025 mpv/MPlayer/mplayer2 projects
+ built on Aug 28 2026 19:44:41
+libplacebo version: v7.360.1
+FFmpeg library versions:
+   libavcodec      63.1.101
+   libavdevice     63.1.101
+   libavfilter     12.1.101
+   libavformat     63.1.101
+   libavutil       61.1.101
+   libswresample   7.1.101
+   libswscale      10.1.101
+
+## daemon
+1905 /usr/bin/pipewire
+2290 /usr/bin/pipewire-pulse
+1906 /usr/bin/wireplumber
+Server Protocol Version: 35
+Server Name: PulseAudio (on PipeWire 1.6.8)
+52 SUSPENDED
+60 IDLE
+61 SUSPENDED
+62 SUSPENDED
+
+## landed-arm audit addendum (14:51–14:56Z)
+# fixture: working tree modified by author landing; blobs 7b89bff41d48… (14:50–14:53) then 2334abd893a8… (14:54:23Z, +466/-3)
+# receipts (sha256[:16] of measurements.json):
+#   20261014T145109998458Z-consumers-r73 3c3b19a0f9d1a09a (run1)
+#   20261014T145113997684Z-consumers-r73 3c3b19a0f9d1a09a (run2, == run1)
+#   20261014T145204328075Z-consumers-r73 3a0218b3fc524464 (run3: 1 leaf pacing_instant/wall_s 4.033->4.032)
+#   20261014T145319250378Z-consumers-r73 e7f0d6091df23960 (run4: 1 leaf pacing_trickle/wall_s 6.003->6.004)
+#   20261014T145502288182Z-consumers-r73 245dfa1a41131a55 (run5: newer revision; adds pwcat_name_axis key)
+# forks in landed receipt: pw-cat fork=extsuffix_snd only; mpv fork=dec_hcom only; 7 members no fork
+# insertion-only spot checks (byte-identical pre/post edit): normal 8e8cdad6; transport-extsuffix-snd-r69 80f6d64b;
+#   sndfile-transport-r72 f7faaedb; ui-preempt-gsrt-r65 099c76de; ffprobe-transport-r71 578cad95 (== committed r72-era)
+# no r73 commit; HEAD f5d7faf; r73-author.md absent at 14:55Z

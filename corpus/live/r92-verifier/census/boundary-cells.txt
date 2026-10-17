@@ -1,0 +1,114 @@
+# r92 boundary receipt cells (tracked, committed tree)
+## b1_replay rows[0].analysis.gain_db / rbj reference
+  copy: gain_db={'1000': -0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': -0.0} rbj={'1000': 0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': 0.0}
+  bq_lowpass-1000: gain_db={'1000': -3.012, '12000': -47.37, '200': -0.007, '20000': -71.437, '4000': -24.477} rbj={'200': -0.007, '1000': -3.012, '4000': -24.477, '12000': -47.339, '20000': -70.217}
+  bq_peaking-1000-p6: gain_db={'1000': 6.0, '12000': 0.028, '200': 0.266, '20000': 0.002, '4000': 0.405} rbj={'200': 0.266, '1000': 6.0, '4000': 0.405, '12000': 0.028, '20000': 0.002}
+  bq_peaking-1000-m6: gain_db={'1000': -6.001, '12000': -0.028, '200': -0.266, '20000': -0.002, '4000': -0.405} rbj={'200': -0.266, '1000': -6.0, '4000': -0.405, '12000': -0.028, '20000': -0.002}
+  bq_notch-1000: gain_db={'1000': -93.812, '12000': -0.019, '200': -0.184, '20000': -0.001, '4000': -0.284} rbj={'200': -0.184, '1000': -283.171, '4000': -0.284, '12000': -0.019, '20000': -0.001}
+  bq_highshelf-4000-m6: gain_db={'1000': -0.023, '12000': -5.967, '200': -0.0, '20000': -6.0, '4000': -3.0} rbj={'200': -0.0, '1000': -0.023, '4000': -3.0, '12000': -5.967, '20000': -6.0}
+  bq_lowshelf-200-p6: gain_db={'1000': 0.011, '12000': 0.0, '200': 3.0, '20000': 0.0, '4000': 0.0} rbj={'200': 3.0, '1000': 0.01, '4000': 0.0, '12000': 0.0, '20000': 0.0}
+  bq_highpass-1000: gain_db={'1000': -3.012, '12000': 0.0, '200': -27.992, '20000': -0.0, '4000': -0.015} rbj={'200': -27.99, '1000': -3.012, '4000': -0.016, '12000': -0.0, '20000': -0.0}
+  bq_bandpass-1000: gain_db={'1000': 0.0, '12000': -23.652, '200': -13.821, '20000': -35.102, '4000': -11.979} rbj={'200': -13.822, '1000': -0.0, '4000': -11.979, '12000': -23.651, '20000': -35.107}
+  bq_allpass-1000: gain_db={'1000': -0.0, '12000': -0.0, '200': -0.0, '20000': 0.0, '4000': 0.0} rbj={'200': 0.0, '1000': 0.0, '4000': 0.0, '12000': -0.0, '20000': 0.0}
+  delay-realname: gain_db=None rbj=None
+  delay-realname-q: gain_db={'1000': -0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': -0.0} rbj=None
+  notch_floor_s16: {'1000': -63.841, '12000': 188.745, '200': 230.215, '20000': 183.323, '4000': 206.434}
+## b2_clamp
+  Q-10: gain_db={'1000': 20.0, '12000': -47.334, '200': 0.352, '20000': -69.671, '4000': -23.927} nz=24000 note=exact advertised max
+  Q-10.5: gain_db={'1000': 20.0, '12000': -47.334, '200': 0.352, '20000': -69.671, '4000': -23.927} nz=24000 note=past max -> clamp?
+  Q-1e9: gain_db={'1000': 20.0, '12000': -47.334, '200': 0.352, '20000': -69.671, '4000': -23.927} nz=24000 note=absurd Q -> clamp?
+  Q--1: gain_db={'1000': -3.01, '12000': -47.317, '200': -0.007, '20000': -70.757, '4000': -24.475} nz=24000 note=negative Q -> 0/default?
+  freq-0: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} nz=0 note=degenerate (scout: silence)
+  freq-neg: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} nz=0 note=negative (scout: silence)
+  freq-49000: gain_db={'1000': 0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': 0.0} nz=23000 note=alias->1000Hz if unguarded
+  freq-97000: gain_db={'1000': 0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': 0.0} nz=23000 note=double alias->1000Hz
+  freq-24000: gain_db={'1000': -0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': -0.0} nz=23000 note=exactly Nyquist
+  freq-24001: gain_db={'1000': -0.0, '12000': 0.0, '200': 0.0, '20000': 0.0, '4000': -0.0} nz=23000 note=1 Hz past Nyquist
+  pwcli_eof: {"eof": [{"err": "Error: \"unsupported type PipeWire:Interface:SecurityContext\"\nError: \"unsupported type PipeWire:Interface:Profiler\"", "out": "pipewire.sec.pid = \"3228486\"\n \t\tpipewire.sec.uid = \"1000\"\n \t\tpipewire.sec.gid = \"1000\"\n \t\tpipewire.sec.socket = \"pipewire-0-manager\"\n \t\tapplication.name = \"pw-dump\"\n \t\tpipewire.access = \"unrestricted\"", "rc": -9, "timed_out": true}, {"err": "o such file or directory): no global 233\nremote 0: error id:0 seq:170 res:-2 (No such file or directory): unknown resource 84 op:7\nremote 0: error id:84 seq:171 res:-2 (No such file
+## b3_ir graphs
+  delay-real-q: {"valid": true}
+  delay-real-q-over: {"valid": true}
+  delay-typo: {"valid": true}
+  ir-2tap: {"valid": true}
+  ir-2tap-g0.5: {"valid": true}
+  ir-bad-dir: {"valid": false}
+  ir-bad-empty: {"valid": false}
+  ir-bad-missing: {"valid": false}
+  ir-bad-missing-dbg5: {"valid": false}
+  ir-bad-text: {"valid": false}
+  ir-d100: {"valid": true}
+  ir-d100-44k: {"valid": true}
+  ir-dc64: {"valid": true}
+  ir-decay512: {"valid": true}
+  ir-f32file: {"valid": true}
+  ir-gain4: {"valid": true}
+  ir-negtap: {"valid": true}
+  ir-noconfig: {"valid": false}
+  ir-noconfig-dbg5: {"valid": false}
+  ir-s24: {"valid": true}
+  ir-stereo: {"valid": true}
+  ir-tail1500-t1024: {"valid": true}
+  ir-tail1500-t4096: {"valid": true}
+  load-ir-2tap: {"valid": true}
+## b5_extras graphs
+  bqraw-coefcfg: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} note=raw label, coeffs via config
+  bqraw-coefctl: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} note=raw label, coeffs via control
+  bqraw-noconfig: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} note=raw label, no config
+  freq--24000: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} note=guard vs formula discriminator
+  freq-tiny: gain_db={'1000': -272.041, '12000': -272.041, '200': -272.041, '20000': -272.041, '4000': -272.041} note=sub-Hz freq
+  lowpass-gain6: gain_db={'1000': -3.012, '12000': -47.37, '200': -0.007, '20000': -71.437, '4000': -24.477} note=is Gain inert on a label that does not use it?
+## b6_diag legs
+  missing-dbg3: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "3"}
+  missing-dbg5: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "5"}
+  noconfig-dbg3: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "3"}
+  noconfig-dbg5: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "5"}
+  textfile-dbg5: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "5"}
+  valid-dbg3: {"loaded_graph": null, "n_E": null, "n_W": null, "n_I": null, "n_D": null, "rc": null, "debug": "3"}
+## b7_delay legs
+  d-0: req_samples=0.0 shifts=[0, 0]
+  d-0p001: req_samples=48.0 shifts=[48, 1072]
+  d-0p01: req_samples=480.0 shifts=[1504, 480]
+  d-0p02: req_samples=960.0 shifts=[960, 960]
+  d-0p049: req_samples=2352.0 shifts=[2352, 3376]
+  d-0p05: req_samples=2400.0 shifts=[2400, 2400]
+  d-0p051: req_samples=2448.0 shifts=[2431, 2431]
+  d-0p06: req_samples=2880.0 shifts=[2431, 3455]
+  d-0p1: req_samples=4800.0 shifts=[3455, 2431]
+## b9_dbg
+  missing-dbg3: n_E=0 n_W=0 n_I=104 n_D=0 loaded=True
+  missing-dbg5: n_E=0 n_W=0 n_I=104 n_D=3412 loaded=True
+  noconfig-dbg3: n_E=0 n_W=0 n_I=104 n_D=0 loaded=True
+  noconfig-dbg5: n_E=0 n_W=0 n_I=104 n_D=3363 loaded=True
+## b4_wpexec legs
+  dir-as-script: rc=None stdout=None stderr=None
+  empty-script: rc=None stdout=None stderr=None
+  hello: rc=None stdout=None stderr=None
+  ladder-core: rc=None stdout=None stderr=None
+  ladder-core-require: rc=None stdout=None stderr=None
+  ladder-format: rc=None stdout=None stderr=None
+  ladder-localmodule: rc=None stdout=None stderr=None
+  ladder-pairs: rc=None stdout=None stderr=None
+  ladder-rawget: rc=None stdout=None stderr=None
+  ladder-require-api: rc=None stdout=None stderr=None
+  ladder-settings: rc=None stdout=None stderr=None
+  ladder-settings-get: rc=None stdout=None stderr=None
+  ladder-version: rc=None stdout=None stderr=None
+  lm-badlabel: rc=None stdout=None stderr=None
+  lm-badmodule: rc=None stdout=None stderr=None
+  lm-error-after-load: rc=None stdout=None stderr=None
+  lm-ok: rc=None stdout=None stderr=None
+  missing-file: rc=None stdout=None stderr=None
+  no-argv: rc=None stdout=None stderr=None
+  noquit: rc=None stdout=None stderr=None
+  runtime-error: rc=None stdout=None stderr=None
+  syntax: rc=None stdout=None stderr=None
+  w2-full: rc=None stdout=None stderr=None
+## sweeps
+  b1: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b2: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b3: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b4: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b5: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b6: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b7: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final={'modules': [], 'nodes': [], 'procs': []}
+  b9: sweep={'after': {'modules': [], 'nodes': [], 'procs': []}, 'before': {'modules': [], 'nodes': [], 'procs': []}, 'clean': True} final=None

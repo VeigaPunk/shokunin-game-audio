@@ -1,0 +1,84 @@
+--- F1  b01 sink-prop arm did not link (kind='node', probe=None)
+    failures       : []
+    leg.outcome    : capture_default_source_unnegotiated
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : ['capture b01_sink_prop: capture_default_source_unnegotiated — no session default source at this leg (source_meta=None); the capture stream published with zero ports and never linked']
+    entry.confound_observed: True
+    PASS(no failure): True
+--- F1b c01 playback node published unnegotiated
+    failures       : []
+    leg.outcome    : capture_default_source_unnegotiated
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : ['playback c01_sink: capture_default_source_unnegotiated — no session default source at this leg (source_meta=None); the capture stream published with zero ports and never linked']
+    entry.confound_observed: True
+    PASS(no failure): True
+--- F1c same leg, probe says available=True
+    failures       : []
+    leg.outcome    : capture_default_source_unnegotiated
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : ['capture b01_sink_prop: capture_default_source_unnegotiated — no session default source at this leg (source_meta=None); the capture stream published with zero ports and never linked']
+    entry.confound_observed: True
+    PASS(no failure): True
+--- F1d control: source_meta set -> the leg FAILS instead
+    failures       : ['capture b01_sink_prop: expected producers [r79lb_ns_a_3943556], got []']
+    leg.outcome    : None
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : None
+    entry.confound_observed: None
+    PASS(no failure): False
+--- F2  tap bound to a FOREIGN producer, capture side linked
+    failures       : []
+    leg.outcome    : None
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : None
+    entry.confound_observed: None
+    PASS(no failure): True
+--- F2b same forge, capture union emptied:
+    leg.confound   : tap bound to ['some_foreign_node_r79'] — never to r79lb_ns_b_3943556 or the stream's own peers; `mine` is unattributed
+    failures       : []
+--- F3  b02 bound the default SINK monitor, expected the default SOURCE
+    failures       : ["capture b02_sink_noprop: expected producers [alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source], got ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink']"]
+    leg.outcome    : capture_default_source_unnegotiated
+    leg.confound   : tap bound to [] — never to r79lb_ns_b_3943556 or the stream's own peers; `mine` is unattributed
+    entry.coverage : None
+    entry.named    : None
+    entry.confound_observed: None
+    PASS(no failure): False
+--- F3b b01 sink-prop arm fell back to the default sink monitor
+    failures       : []
+    leg.outcome    : None
+    leg.confound   : default re-asserted: expected r79lb_ns_a_3943556, authority now ['alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source', 'alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] — consumers track the live default
+    entry.coverage : ['capture b01_sink_prop: default_reasserted mid-leg']
+    entry.named    : None
+    entry.confound_observed: True
+    PASS(no failure): True
+--- F4  route present at t=1.3s, GONE at t=2.7s (union-only check)
+    failures       : []
+    leg.outcome    : None
+    leg.confound   : None
+    entry.coverage : None
+    entry.named    : None
+    entry.confound_observed: None
+    PASS(no failure): True
+--- F5  FL-only (one-port) link through the entry's own port pin
+    pports         : ['input.r79lb_3943556_b01_sink_prop:monitor_FL']
+    failures       : []
+
+=== SUMMARY ===
+  True  F1_sinkprop_arm_broken_is_a_named_outcome
+  True  F1b_playback_node_gets_capture_side_explanation
+  True  F1c_probe_says_available_but_class_still_assigned
+  False F1d_control_source_meta_set_refuses_the_class
+  True  F2_tap_bound_to_foreign_producer_is_not_a_confound
+  True  F2b_confound_only_fires_with_empty_capture_union
+  False F3_wrong_domain_binding_excused
+  True  F3b_probe_target_fell_back_is_excused
+  True  F4_bimodal_link_history_passes
+  True  F5_one_port_link_satisfies_port_pin
+
+  oracles in run B with source_meta=None: 1 -- see census.py

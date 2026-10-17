@@ -1,0 +1,538 @@
+[
+ {
+  "argv": [
+   "pw-record",
+   "--target",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-pw.fifo"
+  ],
+  "cell": "fifo-noreader-pw",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-pw.fifo",
+  "pid": 2642260,
+  "rc": -9,
+  "stdout_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-pw.fifo",
+  "wall_s": 4.013,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "pw-record",
+   "--target",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-pw.fifo"
+  ],
+  "cell": "fifo-earlyexit-pw",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-pw.fifo",
+  "pid": 2642384,
+  "rc": -9,
+  "stdout_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-pw.fifo",
+  "wall_s": 5.016,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "11"
+  ]
+ },
+ {
+  "argv": [
+   "parecord",
+   "-d",
+   "@DEFAULT_SOURCE@",
+   "--file-format=wav",
+   "--rate=48000",
+   "--channels=2",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-pa.fifo"
+  ],
+  "cell": "fifo-noreader-pa",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-pa.fifo",
+  "pid": 2642473,
+  "rc": -9,
+  "stdout_tail": "",
+  "wall_s": 4.013,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "parecord",
+   "-d",
+   "@DEFAULT_SOURCE@",
+   "--file-format=wav",
+   "--rate=48000",
+   "--channels=2",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-pa.fifo"
+  ],
+  "cell": "fifo-earlyexit-pa",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-pa.fifo",
+  "pid": 2642969,
+  "rc": -9,
+  "stdout_tail": "",
+  "wall_s": 5.016,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "11"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "30",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ar.fifo"
+  ],
+  "cell": "fifo-noreader-ar",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ar.fifo",
+  "pid": 2644232,
+  "rc": -9,
+  "stdout_tail": "Recording WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ar.fifo' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono",
+  "wall_s": 4.013,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "30",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ar.fifo"
+  ],
+  "cell": "fifo-earlyexit-ar",
+  "env_over": {},
+  "group": "fifo",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ar.fifo",
+  "pid": 2645088,
+  "rc": -9,
+  "stdout_tail": "Recording WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ar.fifo' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono",
+  "wall_s": 5.016,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "11"
+  ]
+ },
+ {
+  "argv": [
+   "ffmpeg",
+   "-hide_banner",
+   "-nostdin",
+   "-loglevel",
+   "error",
+   "-f",
+   "pulse",
+   "-i",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "-y",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ff-pulse.fifo"
+  ],
+  "cell": "fifo-noreader-ff-pulse",
+  "env_over": {},
+  "group": "fifo",
+  "killed_by": null,
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ff-pulse.fifo",
+  "pid": 2646107,
+  "rc": 234,
+  "stdout_tail": "e a standard extension for the filename or specify the format manually.\n[out#0 @ 0x55b5b4e03bc0] Error initializing the muxer for /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ff-pulse.fifo: Invalid argument\nError opening output file /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/nr-ff-pulse.fifo.\nError opening output files: Invalid argument",
+  "wall_s": 0.081,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "ffmpeg",
+   "-hide_banner",
+   "-nostdin",
+   "-loglevel",
+   "error",
+   "-f",
+   "pulse",
+   "-i",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "-y",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ff-pulse.fifo"
+  ],
+  "cell": "fifo-earlyexit-ff-pulse",
+  "env_over": {},
+  "group": "fifo",
+  "killed_by": null,
+  "ladder": null,
+  "non_regular": true,
+  "out": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ff-pulse.fifo",
+  "pid": 2646110,
+  "rc": 234,
+  "stdout_tail": "e a standard extension for the filename or specify the format manually.\n[out#0 @ 0x5612a0861bc0] Error initializing the muxer for /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ff-pulse.fifo: Invalid argument\nError opening output file /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/rt/ep-ff-pulse.fifo.\nError opening output files: Invalid argument",
+  "wall_s": 0.101,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "11"
+  ]
+ },
+ {
+  "argv": [
+   "pw-record",
+   "--target",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "/dev/full"
+  ],
+  "cell": "sink-devfull-pw",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2646113,
+  "rc": 1,
+  "stdout_tail": "/dev/full\nsndfile: failed to open audio file \"/dev/full\": System error : No space left on device.\nerror: open failed: Input/output error",
+  "wall_s": 0.02,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "pw-record",
+   "--target",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "/dev/null"
+  ],
+  "cell": "sink-devnull-pw",
+  "env_over": {},
+  "group": "sink",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "out": null,
+  "pid": 2646116,
+  "rc": -9,
+  "stdout_tail": "/dev/null",
+  "wall_s": 4.013,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "parecord",
+   "-d",
+   "@DEFAULT_SOURCE@",
+   "--file-format=wav",
+   "--rate=48000",
+   "--channels=2",
+   "/dev/full"
+  ],
+  "cell": "sink-devfull-pa",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2647090,
+  "rc": 1,
+  "stdout_tail": "Failed to open audio file.",
+  "wall_s": 0.02,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "parecord",
+   "-d",
+   "@DEFAULT_SOURCE@",
+   "--file-format=wav",
+   "--rate=48000",
+   "--channels=2",
+   "/dev/null"
+  ],
+  "cell": "sink-devnull-pa",
+  "env_over": {},
+  "group": "sink",
+  "harness_kill": true,
+  "killed_by": "harness",
+  "ladder": null,
+  "out": null,
+  "pid": 2647125,
+  "rc": -9,
+  "stdout_tail": "",
+  "wall_s": 4.013,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "30",
+   "/dev/full"
+  ],
+  "cell": "sink-devfull-ar",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648149,
+  "rc": 1,
+  "stdout_tail": "Recording WAVE '/dev/full' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono\narecord: begin_wave:2773: write error",
+  "wall_s": 0.021,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "30",
+   "/dev/null"
+  ],
+  "cell": "sink-devnull-ar",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648151,
+  "rc": 0,
+  "stdout_tail": "Recording WAVE '/dev/null' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono",
+  "wall_s": 0.02,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "ffmpeg",
+   "-hide_banner",
+   "-nostdin",
+   "-loglevel",
+   "error",
+   "-f",
+   "pulse",
+   "-i",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "-y",
+   "/dev/full"
+  ],
+  "cell": "sink-devfull-ff-pulse",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648153,
+  "rc": 234,
+  "stdout_tail": "[AVFormatContext @ 0x55b62207fcc0] Unable to choose an output format for '/dev/full'; use a standard extension for the filename or specify the format manually.\n[out#0 @ 0x55b62207fbc0] Error initializing the muxer for /dev/full: Invalid argument\nError opening output file /dev/full.\nError opening output files: Invalid argument",
+  "wall_s": 0.101,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "ffmpeg",
+   "-hide_banner",
+   "-nostdin",
+   "-loglevel",
+   "error",
+   "-f",
+   "pulse",
+   "-i",
+   "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+   "-y",
+   "/dev/null"
+  ],
+  "cell": "sink-devnull-ff-pulse",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648156,
+  "rc": 234,
+  "stdout_tail": "[AVFormatContext @ 0x560130c62cc0] Unable to choose an output format for '/dev/null'; use a standard extension for the filename or specify the format manually.\n[out#0 @ 0x560130c62bc0] Error initializing the muxer for /dev/null: Invalid argument\nError opening output file /dev/null.\nError opening output files: Invalid argument",
+  "wall_s": 0.081,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "1",
+   "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/out"
+  ],
+  "cell": "sink-dir-as-target",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648159,
+  "rc": 1,
+  "stdout_tail": "Recording WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/out' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono\n/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-boundary/out: Is a directory",
+  "wall_s": 0.02,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ },
+ {
+  "argv": [
+   "arecord",
+   "-D",
+   "null",
+   "-f",
+   "S16_LE",
+   "-r",
+   "48000",
+   "-c",
+   "1",
+   "-d",
+   "1",
+   "/proc/self/nope.wav"
+  ],
+  "cell": "sink-unwritable",
+  "env_over": {},
+  "group": "sink",
+  "killed_by": null,
+  "ladder": null,
+  "out": null,
+  "pid": 2648161,
+  "rc": 1,
+  "stdout_tail": "Recording WAVE '/proc/self/nope.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Mono\n/proc/self/nope.wav: No such file or directory",
+  "wall_s": 0.02,
+  "wrapper": [
+   "timeout",
+   "-s",
+   "KILL",
+   "10"
+  ]
+ }
+]

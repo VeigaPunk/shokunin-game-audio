@@ -1,0 +1,512 @@
+{
+ "mechanism": {
+  "hcom_demuxer": "no read_seek / read_timestamp (upstream hcom.c)",
+  "no_syscall": "strace -f: 0 lseek during refresh seek; ffmpeg -ss 0.005: 'could not seek to position', AVIO stats '0 seeks'",
+  "seek_failed_string": "av_strerror(-1) == 'Operation not permitted' (libavutil 61.1.101 ctypes probe)"
+ },
+ "mpv": {
+  "dec_act": {
+   "fifo_path": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_act__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_act__file.log",
+    "rc": 0
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_act__stdin_file.log",
+    "rc": 0
+   },
+   "stdin_pipe": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_act__stdin_pipe.log",
+    "rc": 0
+   }
+  },
+  "dec_hcom": {
+   "fifo_path": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_hcom__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "reject:no-data(seek-flush)",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_hcom__file.log",
+    "rc": 2
+   },
+   "fork": true,
+   "stdin_file": {
+    "class": "reject:no-data(seek-flush)",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_hcom__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/dec_hcom__stdin_pipe.log",
+    "rc": 0
+   }
+  },
+  "extsuffix_bin": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_bin__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_bin__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_bin__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_bin__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "extsuffix_f32": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_f32__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_f32__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_f32__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_f32__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "extsuffix_snd": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_snd__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_snd__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_snd__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_snd__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "extsuffix_txw": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_txw__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_txw__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_txw__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_txw__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "extsuffix_wav": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_wav__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_wav__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_wav__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/extsuffix_wav__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "lengate_gsrt_25": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/lengate_gsrt_25__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/lengate_gsrt_25__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/lengate_gsrt_25__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/lengate_gsrt_25__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "posttable_nomatch": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/posttable_nomatch__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/posttable_nomatch__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/posttable_nomatch__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/posttable_nomatch__stdin_pipe.log",
+    "rc": 2
+   }
+  },
+  "tone4s": {
+   "fifo_path": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/tone4s__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/tone4s__file.log",
+    "rc": 0
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/tone4s__stdin_file.log",
+    "rc": 0
+   },
+   "stdin_pipe": {
+    "class": "accept:played",
+    "log": "corpus/live/r73-scout/logs/mpv/tone4s__stdin_pipe.log",
+    "rc": 0
+   }
+  },
+  "txw_piperefuse": {
+   "fifo_path": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/txw_piperefuse__fifo_path.log",
+    "rc": 2
+   },
+   "file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/txw_piperefuse__file.log",
+    "rc": 2
+   },
+   "fork": false,
+   "stdin_file": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/txw_piperefuse__stdin_file.log",
+    "rc": 2
+   },
+   "stdin_pipe": {
+    "class": "reject:format-not-recognized",
+    "log": "corpus/live/r73-scout/logs/mpv/txw_piperefuse__stdin_pipe.log",
+    "rc": 2
+   }
+  }
+ },
+ "mpv_hcom_pcm_probe": {
+  "cmd": "mpv --ao=pcm --ao-pcm-file=<raw> --ao-pcm-waveheader=no",
+  "fifo_arm": {
+   "note": "3520 samples u8 @22050Hz = ffmpeg's single 440B packet",
+   "pcm_bytes": 3520,
+   "rc": 0
+  },
+  "file_arm": {
+   "note": "no PCM file created; 0 samples decoded",
+   "pcm_bytes": null,
+   "rc": 2
+  }
+ },
+ "probe": "r73-scout summary (independent pre-measurement)",
+ "pwcat": {
+  "dec_act": {
+   "fifo_path": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/dec_act__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/dec_act__file.log",
+    "rc": 0
+   },
+   "fork": false
+  },
+  "dec_hcom": {
+   "fifo_path": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/dec_hcom__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/dec_hcom__file.log",
+    "rc": 0
+   },
+   "fork": false
+  },
+  "extsuffix_bin": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_bin__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_bin__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "extsuffix_f32": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_f32__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_f32__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "extsuffix_snd": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_snd__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_snd__file.log",
+    "rc": 0
+   },
+   "fork": true
+  },
+  "extsuffix_txw": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_txw__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_txw__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "extsuffix_wav": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_wav__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/extsuffix_wav__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "lengate_gsrt_25": {
+   "fifo_path": {
+    "class": "reject:other",
+    "log": "corpus/live/r73-scout/logs/pwcat/lengate_gsrt_25__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:other",
+    "log": "corpus/live/r73-scout/logs/pwcat/lengate_gsrt_25__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "posttable_nomatch": {
+   "fifo_path": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/posttable_nomatch__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:format-not-recognised",
+    "log": "corpus/live/r73-scout/logs/pwcat/posttable_nomatch__file.log",
+    "rc": 1
+   },
+   "fork": false
+  },
+  "tone4s": {
+   "fifo_path": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/tone4s__fifo_path.log",
+    "rc": 0
+   },
+   "file": {
+    "class": "accept",
+    "log": "corpus/live/r73-scout/logs/pwcat/tone4s__file.log",
+    "rc": 0
+   },
+   "fork": false
+  },
+  "txw_piperefuse": {
+   "fifo_path": {
+    "class": "reject:unimplemented-format",
+    "log": "corpus/live/r73-scout/logs/pwcat/txw_piperefuse__fifo_path.log",
+    "rc": 1
+   },
+   "file": {
+    "class": "reject:unimplemented-format",
+    "log": "corpus/live/r73-scout/logs/pwcat/txw_piperefuse__file.log",
+    "rc": 1
+   },
+   "fork": false
+  }
+ },
+ "pwcat_name_axis_probe": {
+  "fifo_named_g1.fifo": {
+   "rc": 1,
+   "stderr": "Format not recognised."
+  },
+  "fifo_named_g2.snd": {
+   "rc": 0,
+   "stderr": ""
+  },
+  "note": "same .snd bytes, fifo path extension is the only variable",
+  "stdin_dash": {
+   "rc": 1,
+   "stderr": "Format not recognised."
+  }
+ },
+ "special_legs": {
+  "daemon_gate": {
+   "pw_cat_fifo_empty_runtime_no_writer": {
+    "log": "logs/special/A2.out",
+    "note": "fifo open never reached",
+    "rc": 1,
+    "wall_s": 0.003
+   },
+   "pw_cat_file_empty_runtime": {
+    "log": "logs/special/A1.out",
+    "msg": "error: pw_context_connect() failed: Host is down",
+    "rc": 1,
+    "wall_s": 0.003
+   }
+  },
+  "mpv_linger_1s": {
+   "log": "logs/special/F2.log",
+   "rc": 0,
+   "wall_s": 1.235
+  },
+  "mpv_writerless_fifo": {
+   "log": "logs/special/F1.log",
+   "rc": 137,
+   "wall_s": 5.001
+  },
+  "mpv_zero_byte_writer": {
+   "class": "unrecognized file format",
+   "log": "logs/special/F3.log",
+   "rc": 2,
+   "wall_s": 0.237
+  },
+  "pacing": {
+   "chunked_1600B_0.2s": {
+    "log": "logs/special/D2.out",
+    "rc": 0,
+    "wall_s": 8.209
+   },
+   "instant_dump_4s_tone": {
+    "log": "logs/special/D1.out",
+    "rc": 0,
+    "wall_s": 4.035
+   },
+   "raw_mode_a": {
+    "log": "logs/special/D3.out",
+    "rc": 0,
+    "wall_s": 0.35
+   }
+  },
+  "target_0_unlinked": {
+   "log": "logs/special/E1.out",
+   "note": "hangs (no drain) but TERM-terminable at deadline",
+   "rc": 124,
+   "wall_s": 4.002
+  },
+  "writerless_fifo": {
+   "log": "logs/special/B1.status",
+   "sigterm": "still alive 1.5s after SIGTERM",
+   "state": "S",
+   "timeout_k2_4": {
+    "note": "TERM at 4s ignored; KILL after 2s",
+    "rc": 137,
+    "wall_s": 6.001
+   },
+   "timeout_kill_5": {
+    "rc": 137,
+    "wall_s": 5.001
+   },
+   "wchan": "wait_for_partner"
+  },
+  "zero_byte_writer": {
+   "log": "logs/special/C1.out",
+   "msg": "Format not recognised.",
+   "rc": 1,
+   "wall_s": 0.203
+  }
+ }
+}

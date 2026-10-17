@@ -1,0 +1,838 @@
+{
+ "group": "g6-suspended-target",
+ "host_start": {
+  "t": 1792052208.332,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 18,
+  "foreign_r7x_nodes": [
+   "r79lb_224789_a6_tap",
+   "r79lb_fc_196168",
+   "r79lb_ns_a_224789",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_224789",
+   "r79lb_ns_b_4041488"
+  ],
+  "foreign_procs": [
+   "196167 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "196168 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "224785 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224788 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224789 python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79",
+   "227711 pw-record -P stream.capture.sink=true -P node.name=r79lb_224789_a6_tap --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-shape-t2d8z5dz/tap_a6.wav",
+   "227713 pw-loopback -n r79lb_224789_a6 -C r79lb_ns_a_224789 -i stream.capture.sink=true",
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log"
+  ]
+ },
+ "sinks": [
+  {
+   "name": "r79b_227760_ns_a",
+   "module_id": 536870925,
+   "rc": 0,
+   "err": ""
+  },
+  {
+   "name": "r79b_227760_ns_b",
+   "module_id": 536870928,
+   "rc": 0,
+   "err": ""
+  },
+  {
+   "name": "r79b_227760_ns_hp",
+   "module_id": 536870917,
+   "rc": 0,
+   "err": ""
+  }
+ ],
+ "legs": [
+  {
+   "leg": "g6a-idle-target",
+   "name": "r79b_227760_g6a",
+   "steps": [
+    {
+     "phase": "idle-target-live",
+     "states": {
+      "r79b_227760_ns_a": {
+       "index": null,
+       "state": "absent"
+      },
+      "r79b_227760_ns_b": {
+       "index": null,
+       "state": "absent"
+      }
+     },
+     "sample": {
+      "input": {
+       "present": true,
+       "id": 135,
+       "serial": 74808,
+       "class": "Stream/Input/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_a",
+       "autoconnect": true,
+       "ports_in": [
+        "input_FL",
+        "input_FR"
+       ],
+       "ports_out": [
+        "monitor_FL",
+        "monitor_FR"
+       ]
+      },
+      "output": {
+       "present": true,
+       "id": 88,
+       "serial": 74807,
+       "class": "Stream/Output/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_b",
+       "autoconnect": true,
+       "ports_in": [],
+       "ports_out": [
+        "output_FL",
+        "output_FR"
+       ]
+      },
+      "input_in_peers": [
+       "r79b_227760_ns_a:monitor_FL",
+       "r79b_227760_ns_a:monitor_FR"
+      ],
+      "input_out_peers": [],
+      "output_out_peers": [
+       "r79b_227760_ns_b:playback_FL",
+       "r79b_227760_ns_b:playback_FR"
+      ],
+      "output_in_peers": [],
+      "links": [
+       "output.r79b_227760_g6a:output_FL -> r79b_227760_ns_b:playback_FL",
+       "output.r79b_227760_g6a:output_FR -> r79b_227760_ns_b:playback_FR",
+       "r79b_227760_g6a_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+       "r79b_227760_g6a_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+       "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6a:input_FL",
+       "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6a:input_FR"
+      ],
+      "self_link": false,
+      "sinks_present": {
+       "r79b_227760_ns_a": true,
+       "r79b_227760_ns_b": true
+      },
+      "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+      "default_source": null
+     }
+    },
+    {
+     "phase": "playback-target-suspended",
+     "suspend_rc": 0,
+     "suspend_err": "",
+     "states": {
+      "r79b_227760_ns_a": {
+       "index": null,
+       "state": "absent"
+      },
+      "r79b_227760_ns_b": {
+       "index": null,
+       "state": "absent"
+      }
+     },
+     "sample": {
+      "input": {
+       "present": true,
+       "id": 135,
+       "serial": 74808,
+       "class": "Stream/Input/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_a",
+       "autoconnect": true,
+       "ports_in": [
+        "input_FL",
+        "input_FR"
+       ],
+       "ports_out": [
+        "monitor_FL",
+        "monitor_FR"
+       ]
+      },
+      "output": {
+       "present": true,
+       "id": 88,
+       "serial": 74807,
+       "class": "Stream/Output/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_b",
+       "autoconnect": true,
+       "ports_in": [],
+       "ports_out": [
+        "output_FL",
+        "output_FR"
+       ]
+      },
+      "input_in_peers": [
+       "r79b_227760_ns_a:monitor_FL",
+       "r79b_227760_ns_a:monitor_FR"
+      ],
+      "input_out_peers": [],
+      "output_out_peers": [
+       "r79b_227760_ns_b:playback_FL",
+       "r79b_227760_ns_b:playback_FR"
+      ],
+      "output_in_peers": [],
+      "links": [
+       "output.r79b_227760_g6a:output_FL -> r79b_227760_ns_b:playback_FL",
+       "output.r79b_227760_g6a:output_FR -> r79b_227760_ns_b:playback_FR",
+       "r79b_227760_g6a_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+       "r79b_227760_g6a_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+       "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6a:input_FL",
+       "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6a:input_FR"
+      ],
+      "self_link": false,
+      "sinks_present": {
+       "r79b_227760_ns_a": true,
+       "r79b_227760_ns_b": true
+      },
+      "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+      "default_source": null
+     }
+    },
+    {
+     "phase": "playback-target-resumed",
+     "resume_rc": 0,
+     "states": {
+      "r79b_227760_ns_a": {
+       "index": null,
+       "state": "absent"
+      },
+      "r79b_227760_ns_b": {
+       "index": null,
+       "state": "absent"
+      }
+     },
+     "sample": {
+      "input": {
+       "present": true,
+       "id": 135,
+       "serial": 74808,
+       "class": "Stream/Input/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_a",
+       "autoconnect": true,
+       "ports_in": [
+        "input_FL",
+        "input_FR"
+       ],
+       "ports_out": [
+        "monitor_FL",
+        "monitor_FR"
+       ]
+      },
+      "output": {
+       "present": true,
+       "id": 88,
+       "serial": 74807,
+       "class": "Stream/Output/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_b",
+       "autoconnect": true,
+       "ports_in": [],
+       "ports_out": [
+        "output_FL",
+        "output_FR"
+       ]
+      },
+      "input_in_peers": [
+       "r79b_227760_ns_a:monitor_FL",
+       "r79b_227760_ns_a:monitor_FR"
+      ],
+      "input_out_peers": [],
+      "output_out_peers": [
+       "r79b_227760_ns_b:playback_FL",
+       "r79b_227760_ns_b:playback_FR"
+      ],
+      "output_in_peers": [],
+      "links": [
+       "output.r79b_227760_g6a:output_FL -> r79b_227760_ns_b:playback_FL",
+       "output.r79b_227760_g6a:output_FR -> r79b_227760_ns_b:playback_FR",
+       "r79b_227760_g6a_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+       "r79b_227760_g6a_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+       "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6a:input_FL",
+       "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6a:input_FR"
+      ],
+      "self_link": false,
+      "sinks_present": {
+       "r79b_227760_ns_a": true,
+       "r79b_227760_ns_b": true
+      },
+      "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+      "default_source": null
+     }
+    },
+    {
+     "phase": "capture-target-suspended",
+     "suspend_rc": 0,
+     "states": {
+      "r79b_227760_ns_a": {
+       "index": null,
+       "state": "absent"
+      },
+      "r79b_227760_ns_b": {
+       "index": null,
+       "state": "absent"
+      }
+     },
+     "sample": {
+      "input": {
+       "present": true,
+       "id": 135,
+       "serial": 74808,
+       "class": "Stream/Input/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_a",
+       "autoconnect": true,
+       "ports_in": [
+        "input_FL",
+        "input_FR"
+       ],
+       "ports_out": [
+        "monitor_FL",
+        "monitor_FR"
+       ]
+      },
+      "output": {
+       "present": true,
+       "id": 88,
+       "serial": 74807,
+       "class": "Stream/Output/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_b",
+       "autoconnect": true,
+       "ports_in": [],
+       "ports_out": [
+        "output_FL",
+        "output_FR"
+       ]
+      },
+      "input_in_peers": [
+       "r79b_227760_ns_a:monitor_FL",
+       "r79b_227760_ns_a:monitor_FR"
+      ],
+      "input_out_peers": [],
+      "output_out_peers": [
+       "r79b_227760_ns_b:playback_FL",
+       "r79b_227760_ns_b:playback_FR"
+      ],
+      "output_in_peers": [],
+      "links": [
+       "output.r79b_227760_g6a:output_FL -> r79b_227760_ns_b:playback_FL",
+       "output.r79b_227760_g6a:output_FR -> r79b_227760_ns_b:playback_FR",
+       "r79b_227760_g6a_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+       "r79b_227760_g6a_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+       "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6a:input_FL",
+       "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6a:input_FR"
+      ],
+      "self_link": false,
+      "sinks_present": {
+       "r79b_227760_ns_a": true,
+       "r79b_227760_ns_b": true
+      },
+      "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+      "default_source": null
+     }
+    },
+    {
+     "phase": "capture-target-resumed",
+     "resume_rc": 0,
+     "states": {
+      "r79b_227760_ns_a": {
+       "index": null,
+       "state": "absent"
+      },
+      "r79b_227760_ns_b": {
+       "index": null,
+       "state": "absent"
+      }
+     },
+     "sample": {
+      "input": {
+       "present": true,
+       "id": 135,
+       "serial": 74808,
+       "class": "Stream/Input/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_a",
+       "autoconnect": true,
+       "ports_in": [
+        "input_FL",
+        "input_FR"
+       ],
+       "ports_out": [
+        "monitor_FL",
+        "monitor_FR"
+       ]
+      },
+      "output": {
+       "present": true,
+       "id": 88,
+       "serial": 74807,
+       "class": "Stream/Output/Audio",
+       "state": "running",
+       "target_object": "r79b_227760_ns_b",
+       "autoconnect": true,
+       "ports_in": [],
+       "ports_out": [
+        "output_FL",
+        "output_FR"
+       ]
+      },
+      "input_in_peers": [
+       "r79b_227760_ns_a:monitor_FL",
+       "r79b_227760_ns_a:monitor_FR"
+      ],
+      "input_out_peers": [],
+      "output_out_peers": [
+       "r79b_227760_ns_b:playback_FL",
+       "r79b_227760_ns_b:playback_FR"
+      ],
+      "output_in_peers": [],
+      "links": [
+       "output.r79b_227760_g6a:output_FL -> r79b_227760_ns_b:playback_FL",
+       "output.r79b_227760_g6a:output_FR -> r79b_227760_ns_b:playback_FR",
+       "r79b_227760_g6a_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+       "r79b_227760_g6a_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+       "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6a:input_FL",
+       "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6a:input_FR"
+      ],
+      "self_link": false,
+      "sinks_present": {
+       "r79b_227760_ns_a": true,
+       "r79b_227760_ns_b": true
+      },
+      "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+      "default_source": null
+     }
+    }
+   ],
+   "wait_s": 0.012,
+   "nodes_seen": [
+    "input.r79b_227760_g6a",
+    "output.r79b_227760_g6a"
+   ],
+   "idle_tap": {
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6a_idle_tap.wav",
+     "exists": true,
+     "frames": 38400,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 153644,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5635.7,
+      5635.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    },
+    "rc": 1
+   },
+   "suspended_tap": {
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6b_suspended_tap.wav",
+     "exists": true,
+     "frames": 38400,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 153644,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5635.7,
+      5635.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    },
+    "rc": 1,
+    "bytes": 153644,
+    "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6b_suspended_tap.wav\n"
+   },
+   "resumed_tap": {
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6c_resumed_tap.wav",
+     "exists": true,
+     "frames": 38400,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 153644,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5635.7,
+      5635.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    },
+    "rc": 1
+   },
+   "capture_suspended_tap": {
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6d_cap_susp_tap.wav",
+     "exists": true,
+     "frames": 38400,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 153644,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5635.8,
+      5635.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    },
+    "rc": 1
+   },
+   "capture_resumed_tap": {
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6e_cap_res_tap.wav",
+     "exists": true,
+     "frames": 38400,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 153644,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5635.8,
+      5635.6
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    },
+    "rc": 1
+   },
+   "alive": true,
+   "tone_reap": {
+    "wall_s": 3.0,
+    "rc": -9,
+    "stderr": ""
+   }
+  },
+  {
+   "leg": "g6e-created-while-suspended",
+   "name": "r79b_227760_g6e-created-while-suspended",
+   "argv": [
+    "-C",
+    "r79b_227760_ns_a",
+    "-i",
+    "stream.capture.sink=true",
+    "-P",
+    "r79b_227760_ns_hp"
+   ],
+   "tone_into": "r79b_227760_ns_a",
+   "tap_sink": "r79b_227760_ns_hp",
+   "note": "target explicitly suspended before the loopback spawns",
+   "wait_s": 0.012,
+   "nodes_seen": [
+    "input.r79b_227760_g6e-created-while-suspended",
+    "output.r79b_227760_g6e-created-while-suspended"
+   ],
+   "samples": {
+    "t1.2": {
+     "input": {
+      "present": true,
+      "id": 178,
+      "serial": 75114,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_227760_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 106,
+      "serial": 75113,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_227760_ns_hp",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_227760_ns_a:monitor_FL",
+      "r79b_227760_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_227760_ns_hp:playback_FL",
+      "r79b_227760_ns_hp:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_227760_g6e-created-while-suspended:output_FL -> r79b_227760_ns_hp:playback_FL",
+      "output.r79b_227760_g6e-created-while-suspended:output_FR -> r79b_227760_ns_hp:playback_FR",
+      "r79b_227760_g6e-created-while-suspended_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+      "r79b_227760_g6e-created-while-suspended_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+      "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6e-created-while-suspended:input_FL",
+      "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6e-created-while-suspended:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_227760_ns_a": true,
+      "r79b_227760_ns_hp": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    },
+    "t2.4": {
+     "input": {
+      "present": true,
+      "id": 178,
+      "serial": 75114,
+      "class": "Stream/Input/Audio",
+      "state": "running",
+      "target_object": "r79b_227760_ns_a",
+      "autoconnect": true,
+      "ports_in": [
+       "input_FL",
+       "input_FR"
+      ],
+      "ports_out": [
+       "monitor_FL",
+       "monitor_FR"
+      ]
+     },
+     "output": {
+      "present": true,
+      "id": 106,
+      "serial": 75113,
+      "class": "Stream/Output/Audio",
+      "state": "running",
+      "target_object": "r79b_227760_ns_hp",
+      "autoconnect": true,
+      "ports_in": [],
+      "ports_out": [
+       "output_FL",
+       "output_FR"
+      ]
+     },
+     "input_in_peers": [
+      "r79b_227760_ns_a:monitor_FL",
+      "r79b_227760_ns_a:monitor_FR"
+     ],
+     "input_out_peers": [],
+     "output_out_peers": [
+      "r79b_227760_ns_hp:playback_FL",
+      "r79b_227760_ns_hp:playback_FR"
+     ],
+     "output_in_peers": [],
+     "links": [
+      "output.r79b_227760_g6e-created-while-suspended:output_FL -> r79b_227760_ns_hp:playback_FL",
+      "output.r79b_227760_g6e-created-while-suspended:output_FR -> r79b_227760_ns_hp:playback_FR",
+      "r79b_227760_g6e-created-while-suspended_tone:output_FL -> r79b_227760_ns_a:playback_FL",
+      "r79b_227760_g6e-created-while-suspended_tone:output_FR -> r79b_227760_ns_a:playback_FR",
+      "r79b_227760_ns_a:monitor_FL -> input.r79b_227760_g6e-created-while-suspended:input_FL",
+      "r79b_227760_ns_a:monitor_FR -> input.r79b_227760_g6e-created-while-suspended:input_FR"
+     ],
+     "self_link": false,
+     "sinks_present": {
+      "r79b_227760_ns_a": true,
+      "r79b_227760_ns_hp": true
+     },
+     "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+     "default_source": null
+    }
+   },
+   "tap": {
+    "target": "r79b_227760_ns_hp",
+    "record": {
+     "rc": 1,
+     "bytes": 192044,
+     "err": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6e-created-while-suspended_r79b_227760_tap.wav\n"
+    },
+    "content": {
+     "path": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r79-boundary/raw/g6e-created-while-suspended_r79b_227760_tap.wav",
+     "exists": true,
+     "frames": 48000,
+     "ch": 2,
+     "rate": 48000,
+     "bytes": 192044,
+     "peak": [
+      8192,
+      8192
+     ],
+     "rms": [
+      5667.4,
+      5667.3
+     ],
+     "dom": [
+      {
+       "hz": 1000.0,
+       "amp": 8191.3
+      },
+      {
+       "hz": 1500.0,
+       "amp": 8191.4
+      }
+     ],
+     "class": [
+      "tone1k",
+      "tone1.5k"
+     ],
+     "carries_tone": true
+    }
+   },
+   "alive_before_reap": true,
+   "wall_s": 2.0,
+   "rc": -9,
+   "stderr": ""
+  }
+ ],
+ "states": {
+  "idle": {
+   "r79b_227760_ns_a": {
+    "index": null,
+    "state": "absent"
+   },
+   "r79b_227760_ns_b": {
+    "index": null,
+    "state": "absent"
+   },
+   "r79b_227760_ns_hp": {
+    "index": null,
+    "state": "absent"
+   }
+  },
+  "explicit_suspend": {
+   "r79b_227760_ns_hp": {
+    "index": null,
+    "state": "absent"
+   },
+   "rc": 0
+  }
+ },
+ "host_end": {
+  "t": 1792052227.957,
+  "default_sink": "{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}",
+  "default_source": null,
+  "nodes_total": 23,
+  "foreign_r7x_nodes": [
+   "r79b_227760_ns_a",
+   "r79b_227760_ns_b",
+   "r79b_227760_ns_hp",
+   "r79lb_229236_a1_feed",
+   "r79lb_229236_a1_tap",
+   "r79lb_ns_a_224789",
+   "r79lb_ns_a_229236",
+   "r79lb_ns_a_4041488",
+   "r79lb_ns_b_224789",
+   "r79lb_ns_b_229236",
+   "r79lb_ns_b_4041488"
+  ],
+  "foreign_procs": [
+   "224785 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224788 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && cp corpus/forge-r79/measure_audio.py corpus/fixtures/measure_audio_forge_r79.py && sha256sum corpus/fixtures/measure_audio_forge_r79.py && (python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79 > corpus/live/r79-verify/forge/forge-run.stdout.json 2> corpus/live/r79-verify/forge/forge-run.stderr.log; echo \"EXIT=$?\" >> corpus/live/r79-verify/forge/forge-run.stdout.json; echo FORGE2_DONE)",
+   "224789 python3 corpus/fixtures/measure_audio_forge_r79.py --probe-capture-r79",
+   "229235 python3 ../pidpin.py 0 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "229236 python3 corpus/fixtures/measure_audio.py --probe-capture-r79",
+   "229716 pw-record -P stream.capture.sink=true -P node.name=r79lb_229236_a1_tap --target r79lb_ns_b_229236 -n 264000 --rate 48000 --channels 2 --format s16 /tmp/capture-r79-shape-zq8efofk/tap_a1.wav",
+   "229720 pw-loopback -n r79lb_229236_a1 -C r79lb_ns_a_229236 -i stream.capture.sink=true -P r79lb_ns_b_229236",
+   "229808 pw-cat -p -P node.name=r79lb_229236_a1_feed --target r79lb_ns_a_229236 /tmp/capture-r79-shape-zq8efofk/tag_tone.wav",
+   "3135374 bash -c while pgrep -f \"python3 corpus/fixtures/measure_audio\" >/dev/null; do sleep 15; done; echo DONE; tail -5 /tmp/r78-folded-probe7.log"
+  ]
+ },
+ "final_check": {
+  "group": "g6",
+  "own_nodes_after": [],
+  "own_sink_modules_after": [],
+  "own_procs_alive": []
+ }
+}

@@ -1,0 +1,31 @@
+# r95-simplifier blocker census — 2026-10-16T09:13:16Z
+## loadavg / nproc
+52.41 53.19 54.08 52/2061 3396546
+32
+
+## yes fleet
+48
+2316230    1537    13:10:41 yes
+2316231    1537    13:10:41 yes
+2316232    1537    13:10:41 yes
+
+## stuck pw-dump processes (all lanes)
+3200623       13:01 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/audio-shokunin-wt-r98 && time (pactl list sinks short | wc -l) ; time (pw-dump | wc -c) ; cat /proc/loadavg
+3207490       12:35 bash -c pactl list modules short 2>/dev/null | grep -i "r93a\|r93s" | head; echo "--- sinks ---"; pactl list sinks short 2>/dev/null | grep -i "r93" | head; echo "--- pw-dump nodes ---"; pw-dump 2>/dev/null | python3 -c " import json,sys d=json.load(sys.stdin) for o in d:     p=(o.get('info') or {}).get('props') or {}     n=p.get('node.name','')     if 'r93' in n: print(o.get('type'), o['id'], n, (o.get('info') or {}).get('state')) " | head -20; echo "--- procs ---"; ps -eo pid,etimes,cmd | grep -E "pw-cli|pw-play" | grep -v grep | grep r93 | head
+3208674       12:31 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/audio-shokunin-wt-r98 && time (pactl list sinks short | wc -l) ; time (pw-dump | wc -c) ; cat /proc/loadavg
+3208675       12:31 pw-dump
+3224758       11:35 pw-dump
+3254578       09:03 bash -c cd /home/vgpnk/Projects/shokunin && time pactl list sinks short | wc -l; echo "--- r92a procs ---"; pgrep -af "r92a|pw-cli|pw-record|pw-play|wpexec" | head -20; echo "--- r92a nodes ---"; pw-dump 2>/dev/null | grep -c r92a; echo "--- modules ---"; pactl list modules short | grep -c r92a; echo "--- loadavg ---"; cat /proc/loadavg
+3261714       08:33 pw-dump
+3297574       06:28 bash -c pw-dump 2>/dev/null | python3 -c " import json,sys d=json.load(sys.stdin) from collections import Counter c=Counter(str(o.get('type')).split('.')[-1] for o in d) print(c) print('clients:',[ (o['id'], (o.get('info') or {}).get('props',{}).get('client.name')) for o in d if str(o.get('type','')).endswith('Client')][:20]) " 2>&1
+3297578       06:28 pw-dump
+3315074       05:35 bash -c sleep 3; ps -eo pid,cmd | grep "[w]pstate-r90" | grep -c measure_audio; echo "--- modules:"; pactl list modules short | grep r90a; echo "(end)"; echo "--- nodes:"; pw-dump 2>/dev/null | grep -o '"node.name": "r90a_[^"]*"' | sort -u; echo "(end)"; echo "--- loopbacks:"; pactl list modules short | grep -c loopback
+3328941       05:02 pw-dump
+3359971       03:10 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin/audio-shokunin-wt-r98 && (time timeout 200 pw-dump > /home/vgpnk/Projects/shokunin/tmp/r98a_dump4.json 2>/dev/null) 2>&1; echo "rc=$?"; wc -c /home/vgpnk/Projects/shokunin/tmp/r98a_dump4.json
+
+## this seat's own residue (must be empty)
+(none)
+
+## family lock (sibling lane, untouched)
+-rw-r--r-- 1 vgpnk vgpnk 52 Oct 16 06:02 corpus/live/measure_audio-jack-r95.lock
+pid=3228981 ns=r95a_ns_3228981 role=r95arole3228981

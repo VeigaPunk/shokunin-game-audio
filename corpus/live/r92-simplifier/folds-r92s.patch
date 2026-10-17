@@ -1,0 +1,218 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -39929,6 +39929,20 @@
+                   if p.poll() is None]}
+ 
+ 
++def _fc92_daemon_gate(entry, failures):
++    """A wedged/saturated daemon makes the WHOLE entry unmeasurable: it is
++    named as a block AND as a failure — a battery that measured nothing
++    must never read as green. Returns the blocked entry, or None."""
++    d = entry.get("daemon") or {}
++    if d.get("ok"):
++        return None
++    why = (f"daemon unreachable or saturated: pactl info "
++           f"rc={d.get('exit_code')} killed={d.get('killed_at_bound')} "
++           f"wall={d.get('wall_s')}s")
++    failures.append(why + " — the entry is unmeasurable")
++    return _fc92_block(entry, failures, why)
++
++
+ def _fc92_block(entry, failures, msg, ctx=None):
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+@@ -40159,12 +40173,9 @@
+     stable only modulo the block quantum (measured +/-1024-sample
+     jumps), so the arm is `delta == want + k*blocksize`."""
+     if delta is None:
+-        return False, None
+-    ks = []
+-    for k in range(-4, 5):
+-        if abs(delta - (want + k * FILTERCHAIN_R92_BLOCKSIZE)) <= tol:
+-            ks.append(k)
+-    return bool(ks), ks
++        return False
++    return any(abs(delta - (want + k * FILTERCHAIN_R92_BLOCKSIZE)) <= tol
++               for k in range(-4, 5))
+ 
+ 
+ def _fc92_audio_attempt(ctx, tag, node, kind, stim, fmt="s16",
+@@ -40431,22 +40442,9 @@
+         return _fc92_block(
+             entry, failures,
+             f"missing tools: {[t for t, p in tools.items() if not p]}")
+-    if not (entry.get("daemon") or {}).get("ok"):
+-        # a wedged/saturated daemon makes the WHOLE entry unmeasurable:
+-        # it is named as a block AND as a failure — a battery that
+-        # measured nothing must never read as green.
+-        failures.append(
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s — the "
+-            "entry is unmeasurable")
+-        return _fc92_block(
+-            entry, failures,
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s")
++    blocked = _fc92_daemon_gate(entry, failures)
++    if blocked is not None:
++        return blocked
+     ctx = _fc92_ctx()
+     try:
+         legs["a_lifetime"] = _fc92_lifetime_leg(ctx)
+@@ -40605,7 +40603,7 @@
+     if not l.get("loaded") or \
+             l.get("capture_class") != "Stream/Input/Audio" or \
+             "playback_MONO" in (l.get("capture_ports") or []) or \
+-            (l.get("feed_link") or {}).get("rc") == 0:
++            (l.get("feed_link") or {}).get("rc") in (0, None):
+         _fc92_leg_fail(failures, "a_ports_none", l,
+                        "without media.class the capture side is not the "
+                        "unfeedable Stream/Input/Audio class (no "
+@@ -40745,22 +40743,9 @@
+         return _fc92_block(
+             entry, failures,
+             f"missing tools: {[t for t, p in tools.items() if not p]}")
+-    if not (entry.get("daemon") or {}).get("ok"):
+-        # a wedged/saturated daemon makes the WHOLE entry unmeasurable:
+-        # it is named as a block AND as a failure — a battery that
+-        # measured nothing must never read as green.
+-        failures.append(
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s — the "
+-            "entry is unmeasurable")
+-        return _fc92_block(
+-            entry, failures,
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s")
++    blocked = _fc92_daemon_gate(entry, failures)
++    if blocked is not None:
++        return blocked
+     ctx = _fc92_ctx()
+     stim = ctx["stim"]["tone"]
+     legs_spec = [
+@@ -40902,7 +40887,8 @@
+             _fc92_leg_fail(failures, tag, legs[tag],
+                            "the silence class is not exact digital "
+                            f"zeros: {a.get('out_nz_exact')}")
+-    if any(abs(v) > 0.05 for v in gains("d_fhi").values()):
++    if any(abs(v) > 0.05 for v in gains("d_fhi").values()) or \
++            len(gains("d_fhi")) != 5:
+         _fc92_leg_fail(failures, "d_fhi", legs["d_fhi"],
+                        "Freq above Nyquist is not a pass-through "
+                        f"(an unguarded biquad would read -3.012 dB at "
+@@ -40998,22 +40984,9 @@
+         return _fc92_block(
+             entry, failures,
+             f"missing tools: {[t for t, p in tools.items() if not p]}")
+-    if not (entry.get("daemon") or {}).get("ok"):
+-        # a wedged/saturated daemon makes the WHOLE entry unmeasurable:
+-        # it is named as a block AND as a failure — a battery that
+-        # measured nothing must never read as green.
+-        failures.append(
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s — the "
+-            "entry is unmeasurable")
+-        return _fc92_block(
+-            entry, failures,
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s")
++    blocked = _fc92_daemon_gate(entry, failures)
++    if blocked is not None:
++        return blocked
+     ctx = _fc92_ctx()
+     st = ctx["stim"]
+     conv = lambda ir=None, extra=None: _fc92_node(          # noqa: E731
+@@ -41088,7 +41061,7 @@
+         _fc92_leg_fail(failures, "i_2tap", legs["i_2tap"],
+                        "the 2-tap IR is not reproduced (gap 64, ratio "
+                        f"0.5, first tap 0.999939): {a}")
+-    ok, ks = _fc92_shift_ok(a.get("delta_samples"), 0)
++    ok = _fc92_shift_ok(a.get("delta_samples"), 0)
+     if not ok:
+         _fc92_leg_fail(failures, "i_2tap", legs["i_2tap"],
+                        "the IR[0] tap is not at the reference position "
+@@ -41102,7 +41075,7 @@
+                        "convolver gain=0.5 does not scale the kernel "
+                        f"exactly: {a}")
+     a = an("i_d100")
+-    ok, ks = _fc92_shift_ok(a.get("delta_samples"), 100)
++    ok = _fc92_shift_ok(a.get("delta_samples"), 100)
+     if not ok or a.get("out_n_gt") != 1:
+         _fc92_leg_fail(failures, "i_d100", legs["i_d100"],
+                        "the delta@100 IR is not a single impulse at "
+@@ -41110,14 +41083,14 @@
+     a = an("i_441")
+     # the peak offset is a PRE/POST difference like every other tap
+     # shift: block-quantised (measured 1134 = 1024 + 110)
+-    ok, _ks = _fc92_shift_ok(a.get("peak_delta"), 110)
++    ok = _fc92_shift_ok(a.get("peak_delta"), 110)
+     if not ok or (a.get("out_n_gt") or 0) < 30:
+         _fc92_leg_fail(failures, "i_441", legs["i_441"],
+                        "a 44.1 kHz IR in a 48 kHz graph is not the "
+                        "resampled 47-tap kernel peaked at ~+110 "
+                        f"(mod {FILTERCHAIN_R92_BLOCKSIZE}): {a}")
+     a = an("i_stereo")
+-    ok, ks = _fc92_shift_ok(a.get("delta_samples"), 10)
++    ok = _fc92_shift_ok(a.get("delta_samples"), 10)
+     if not ok or a.get("out_n_gt") != 1:
+         _fc92_leg_fail(failures, "i_stereo", legs["i_stereo"],
+                        "a 2-channel IR does not silently use channel 0 "
+@@ -41150,6 +41123,11 @@
+                   "i_dir": "fc92_convolver_file"}
+     for tag, cls in silent_cls.items():
+         a = an(tag)
++        lt = (legs[tag].get("load") or {}).get("load_text") or ""
++        if "[E]" in lt or "failed file" in lt:
++            _fc92_leg_fail(failures, tag, legs[tag],
++                           "the silent class is not silent at LOAD (the "
++                           f"load reply carries a failure line): {lt[:160]}")
+         if a.get("out_nz_exact") != 0:
+             _fc92_leg_fail(failures, tag, legs[tag],
+                            "the silent convolver class is not exact "
+@@ -41164,7 +41142,7 @@
+                       ("d_50ms", 2400), ("d_over", 2431),
+                       ("d_over2", 2431)):
+         a = an(tag)
+-        ok, ks = _fc92_shift_ok(a.get("delta_samples"), want)
++        ok = _fc92_shift_ok(a.get("delta_samples"), want)
+         if not ok or a.get("out_n_gt") != 1:
+             _fc92_leg_fail(failures, tag, legs[tag],
+                            f"the delay is not {want} samples "
+@@ -41267,22 +41245,9 @@
+         return _fc92_block(
+             entry, failures,
+             f"missing tools: {[t for t, p in tools.items() if not p]}")
+-    if not (entry.get("daemon") or {}).get("ok"):
+-        # a wedged/saturated daemon makes the WHOLE entry unmeasurable:
+-        # it is named as a block AND as a failure — a battery that
+-        # measured nothing must never read as green.
+-        failures.append(
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s — the "
+-            "entry is unmeasurable")
+-        return _fc92_block(
+-            entry, failures,
+-            "daemon unreachable or saturated: pactl info "
+-            f"rc={(entry.get('daemon') or {}).get('exit_code')} "
+-            f"killed={(entry.get('daemon') or {}).get('killed_at_bound')} "
+-            f"wall={(entry.get('daemon') or {}).get('wall_s')}s")
++    blocked = _fc92_daemon_gate(entry, failures)
++    if blocked is not None:
++        return blocked
+     ctx = _fc92_ctx()
+     try:
+         legs["w_print"] = _fc92_wpx_leg(

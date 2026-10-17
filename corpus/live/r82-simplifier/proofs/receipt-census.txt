@@ -1,0 +1,39 @@
+== A: all 8 r82 entries green in all 4 runs ==
+PASS  final3.measurements.json: 8 entries, failures={}
+PASS  final4.measurements.json: 8 entries, failures={}
+PASS  run1.measurements.json: 8 entries, failures={}
+PASS  run2.measurements.json: 8 entries, failures={}
+
+== B: T5 — e1..e6 'out' is null in every run (check can never fire) ==
+PASS  e1..e6 out is None in all 4 runs (6 legs x 4)
+
+== C: T7 — d2 carries no 'starred' leaf; d3/d4 do ==
+PASS  final3.measurements.json: d2 no starred, d3/d4 starred present
+PASS  final4.measurements.json: d2 no starred, d3/d4 starred present
+PASS  run1.measurements.json: d2 no starred, d3/d4 starred present
+PASS  run2.measurements.json: d2 no starred, d3/d4 starred present
+
+== D: T10 — kill_watch fired with sigkilled:true; no 'missing' ==
+PASS  final3.measurements.json: 3 kill_watch events, results=[{'sigkilled': True}, {'sigkilled': True}, {'sigkilled': True}]
+PASS  final4.measurements.json: 3 kill_watch events, results=[{'sigkilled': True}, {'sigkilled': True}, {'sigkilled': True}]
+PASS  run1.measurements.json: 3 kill_watch events, results=[{'sigkilled': True}, {'sigkilled': True}, {'sigkilled': True}]
+PASS  run2.measurements.json: 3 kill_watch events, results=[{'sigkilled': True}, {'sigkilled': True}, {'sigkilled': True}]
+
+== E: T6 — d0 device rows complete + stable across the two reps ==
+PASS  final3.measurements.json: pinned subset {'alsa': 'DE', 'pulse': 'DE', 'jack': 'D.', 'oss': 'DE', 'sndio': 'DE'}, no pipewire row, reps equal
+PASS  final4.measurements.json: pinned subset {'alsa': 'DE', 'pulse': 'DE', 'jack': 'D.', 'oss': 'DE', 'sndio': 'DE'}, no pipewire row, reps equal
+PASS  run1.measurements.json: pinned subset {'alsa': 'DE', 'pulse': 'DE', 'jack': 'D.', 'oss': 'DE', 'sndio': 'DE'}, no pipewire row, reps equal
+PASS  run2.measurements.json: pinned subset {'alsa': 'DE', 'pulse': 'DE', 'jack': 'D.', 'oss': 'DE', 'sndio': 'DE'}, no pipewire row, reps equal
+
+== F: 0-hit arm census (armed envelopes, never realized) ==
+PASS  final3.measurements.json: c3=['eio_251', 'eio_251', 'eio_251'] a5=params_251
+PASS  final4.measurements.json: c3=['eio_251', 'eio_251', 'eio_251'] a5=params_251
+PASS  run1.measurements.json: c3=['eio_251', 'eio_251', 'eio_251'] a5=params_251
+PASS  run2.measurements.json: c3=['eio_251', 'eio_251', 'eio_251'] a5=params_251
+PASS  no wallcap/bytecap kills in any r82 leg (got {})
+
+== G: error-class vocabulary realized (context) ==
+      realized: ['ff_access_denied', 'ff_alsa_busy', 'ff_alsa_params', 'ff_alsa_unknown_pcm', 'ff_io_error', 'ff_libpulse_assert', 'ff_no_such_process', 'ff_option_range', 'ff_pulse_sink_info', 'ff_sched_assert', 'ff_unknown_format']
+PASS  every tuple class except the other_error catch-all is realized
+
+RESULT: ALL RECEIPT FACTS HOLD

@@ -1,0 +1,1224 @@
+{
+ "entry": {
+  "default_sink": {
+   "argv": [
+    "pactl",
+    "get-default-sink"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\n",
+   "stdout_sha256": "a88530d6f6a4225d742be7a29be739eb8ae4bb4029efe7f4e45163c1c027a038",
+   "timed_out": false
+  },
+  "default_source": {
+   "argv": [
+    "pactl",
+    "get-default-source"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\n",
+   "stdout_sha256": "e06e0a54c5a2edf86c95b91a4e7fc4e1da02e3d17140e0507140d92e42a35638",
+   "timed_out": false
+  },
+  "modules_short": {
+   "argv": [
+    "pactl",
+    "list",
+    "modules",
+    "short"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870917\tmodule-null-sink\tsink_name=r79lb_ns_a_1141702\t\n536870919\tmodule-null-sink\tsink_name=r79lb_ns_b_1141702\t\n",
+   "stdout_sha256": "b680fe1520a12ab168fa9533add59136f3bb6f5fbdeb357cbc4732bc86f38ee9",
+   "timed_out": false
+  },
+  "pw_dump_objects": 110,
+  "pw_link_l": {
+   "argv": [
+    "pw-link",
+    "-l"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> r79lb_1141702_a6_tap:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> r79lb_1141702_a6_tap:input_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n  |<- output.r79lb_1141702_a6:output_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\n  |<- output.r79lb_1141702_a6:output_FR\nr79lb_ns_a_1141702:monitor_FL\n  |-> input.r79lb_1141702_a6:input_FL\nr79lb_ns_a_1141702:monitor_FR\n  |-> input.r79lb_1141702_a6:input_FR\nr79lb_1141702_a6_tap:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\nr79lb_1141702_a6_tap:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\noutput.r79lb_1141702_a6:output_FL\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\noutput.r79lb_1141702_a6:output_FR\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\ninput.r79lb_1141702_a6:input_FL\n  |<- r79lb_ns_a_1141702:monitor_FL\ninput.r79lb_1141702_a6:input_FR\n  |<- r79lb_ns_a_1141702:monitor_FR\n",
+   "stdout_sha256": "6aee99ecd7d6eb72b637040be9fd43a1ef08b1b8551675f4dac7bfa8af7430a1",
+   "timed_out": false
+  },
+  "r91_residue": [],
+  "tag": "props-entry",
+  "when": "2026-10-15T17:05:58Z"
+ },
+ "exit": {
+  "default_sink": {
+   "argv": [
+    "pactl",
+    "get-default-sink"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\n",
+   "stdout_sha256": "a88530d6f6a4225d742be7a29be739eb8ae4bb4029efe7f4e45163c1c027a038",
+   "timed_out": false
+  },
+  "default_source": {
+   "argv": [
+    "pactl",
+    "get-default-source"
+   ],
+   "dur_s": 0.003,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\n",
+   "stdout_sha256": "e06e0a54c5a2edf86c95b91a4e7fc4e1da02e3d17140e0507140d92e42a35638",
+   "timed_out": false
+  },
+  "modules_short": {
+   "argv": [
+    "pactl",
+    "list",
+    "modules",
+    "short"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "1\tlibpipewire-module-rt\t{\n            nice.level    = -11\n            rt.prio       = 88\n            #rt.time.soft = -1\n            #rt.time.hard = -1\n            #rlimits.enabled = true\n            rtportal.enabled = false\n            #rtkit.enabled = true\n            #uclamp.min = 0\n            #uclamp.max = 1024\n        }\t\n2\tlibpipewire-module-protocol-native\t{\n            # List of server Unix sockets, and optionally permissions\n            #sockets = [ { name = \"pipewire-0\" }, { name = \"pipewire-0-manager\" } ]\n        }\t\n4\tlibpipewire-module-profiler\t{\n            #profile.interval.ms = 0\n        }\t\n6\tlibpipewire-module-metadata\t\t\n8\tlibpipewire-module-spa-device-factory\t\t\n10\tlibpipewire-module-spa-node-factory\t\t\n12\tlibpipewire-module-client-node\t\t\n14\tlibpipewire-module-client-device\t\t\n16\tlibpipewire-module-portal\t\t\n17\tlibpipewire-module-access\t{\n            # Socket-specific access permissions\n            #access.socket = { pipewire-0 = \"default\", pipewire-0-manager = \"unrestricted\" }\n\n            # Deprecated legacy mode (not socket-based),\n            # for now enabled by default if access.socket is not specified\n            #access.legacy = true\n        }\t\n18\tlibpipewire-module-adapter\t\t\n20\tlibpipewire-module-link-factory\t{\n            #allow.link.passive = false\n\t}\t\n22\tlibpipewire-module-session-manager\t\t\n536870912\tmodule-always-sink\t\t\n536870913\tmodule-device-manager\t\t\n536870914\tmodule-device-restore\t\t\n536870915\tmodule-stream-restore\t\t\n536870917\tmodule-null-sink\tsink_name=r79lb_ns_b_1141702\t\n536870919\tmodule-null-sink\tsink_name=r79lb_ns_a_1141702\t\n",
+   "stdout_sha256": "f45ca16868e6dc2b2095cfa1c72c3a08e4f02ddd1b0bfee26204dda2a932c20d",
+   "timed_out": false
+  },
+  "pw_dump_objects": 110,
+  "pw_link_l": {
+   "argv": [
+    "pw-link",
+    "-l"
+   ],
+   "dur_s": 0.002,
+   "rc": 0,
+   "stderr": "",
+   "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "stdout": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source:capture_FL\n  |-> input.r79lb_1141702_b04_real_source:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source:capture_FR\n  |-> input.r79lb_1141702_b04_real_source:input_FR\nr79lb_ns_b_1141702:monitor_FL\n  |-> r79lb_1141702_b04_real_source_tap:input_FL\nr79lb_ns_b_1141702:monitor_FR\n  |-> r79lb_1141702_b04_real_source_tap:input_FR\nr79lb_ns_b_1141702:playback_FL\n  |<- output.r79lb_1141702_b04_real_source:output_FL\nr79lb_ns_b_1141702:playback_FR\n  |<- output.r79lb_1141702_b04_real_source:output_FR\nr79lb_1141702_b04_real_source_tap:input_FL\n  |<- r79lb_ns_b_1141702:monitor_FL\nr79lb_1141702_b04_real_source_tap:input_FR\n  |<- r79lb_ns_b_1141702:monitor_FR\noutput.r79lb_1141702_b04_real_source:output_FL\n  |-> r79lb_ns_b_1141702:playback_FL\noutput.r79lb_1141702_b04_real_source:output_FR\n  |-> r79lb_ns_b_1141702:playback_FR\ninput.r79lb_1141702_b04_real_source:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source:capture_FL\ninput.r79lb_1141702_b04_real_source:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source:capture_FR\n",
+   "stdout_sha256": "b9262c50b0ad4300ae4a39e520109f032449db58745fdd0dee43ee1f97fd541c",
+   "timed_out": false
+  },
+  "r91_residue": [],
+  "tag": "props-exit",
+  "when": "2026-10-15T17:06:27Z"
+ },
+ "legs": {
+  "F1_pwrec_plain_r0": {
+   "family": "F1_pwrec_plain",
+   "file_bytes": 44,
+   "node": {
+    "id": 134,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 129,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r0.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_plain",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 134,
+     "object.register": false,
+     "object.serial": 2458,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2458,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 0,
+   "run_killed": null,
+   "run_rc": 1,
+   "wpctl_inspect": ""
+  },
+  "F1_pwrec_plain_r1": {
+   "family": "F1_pwrec_plain",
+   "file_bytes": 44,
+   "node": {
+    "id": 134,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 129,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r1.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r1.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_plain",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 134,
+     "object.register": false,
+     "object.serial": 2474,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2474,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 1,
+   "run_killed": null,
+   "run_rc": 1,
+   "wpctl_inspect": ""
+  },
+  "F1_pwrec_plain_r2": {
+   "family": "F1_pwrec_plain",
+   "file_bytes": 44,
+   "node": {
+    "id": 134,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 129,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r2.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F1_pwrec_plain_r2.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_plain",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 134,
+     "object.register": false,
+     "object.serial": 2490,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2490,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 2,
+   "run_killed": null,
+   "run_rc": 1,
+   "wpctl_inspect": ""
+  },
+  "F2_pwrec_capsink_r0": {
+   "family": "F2_pwrec_capsink",
+   "file_bytes": 462892,
+   "node": {
+    "id": 134,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 129,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r0.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r0.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_capsink",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 134,
+     "object.register": false,
+     "object.serial": 2506,
+     "port.group": "stream.0",
+     "stream.capture.sink": true,
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2506,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 0,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 134, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * application.name = \"pw-record\"\n  * client.id = \"129\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.category = \"Capture\"\n  * media.class = \"Stream/Input/Audio\"\n    media.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r0.wav\"\n    media.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r0.wav\"\n  * media.role = \"Music\"\n  * media.type = \"Audio\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"main-loop\"\n  * node.name = \"r91s_pwrec_capsink\"\n    node.rate = \"1/48000\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2506\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"true\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F2_pwrec_capsink_r1": {
+   "family": "F2_pwrec_capsink",
+   "file_bytes": 462892,
+   "node": {
+    "id": 133,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 134,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r1.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r1.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_capsink",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 133,
+     "object.register": false,
+     "object.serial": 2598,
+     "port.group": "stream.0",
+     "stream.capture.sink": true,
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2598,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 1,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 133, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * application.name = \"pw-record\"\n  * client.id = \"134\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.category = \"Capture\"\n  * media.class = \"Stream/Input/Audio\"\n    media.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r1.wav\"\n    media.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r1.wav\"\n  * media.role = \"Music\"\n  * media.type = \"Audio\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"main-loop\"\n  * node.name = \"r91s_pwrec_capsink\"\n    node.rate = \"1/48000\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2598\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"true\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F2_pwrec_capsink_r2": {
+   "family": "F2_pwrec_capsink",
+   "file_bytes": 462892,
+   "node": {
+    "id": 125,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "application.name": "pw-record",
+     "client.id": 133,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.category": "Capture",
+     "media.class": "Stream/Input/Audio",
+     "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r2.wav",
+     "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r2.wav",
+     "media.role": "Music",
+     "media.type": "Audio",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.loop.class": "main",
+     "node.loop.name": "main-loop",
+     "node.name": "r91s_pwrec_capsink",
+     "node.rate": "1/48000",
+     "node.want-driver": true,
+     "object.id": 125,
+     "object.register": false,
+     "object.serial": 2636,
+     "port.group": "stream.0",
+     "stream.capture.sink": true,
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2636,
+    "state": "suspended"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 2,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 125, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * application.name = \"pw-record\"\n  * client.id = \"133\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.category = \"Capture\"\n  * media.class = \"Stream/Input/Audio\"\n    media.filename = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r2.wav\"\n    media.name = \"/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r91-scout/tmp/props_F2_pwrec_capsink_r2.wav\"\n  * media.role = \"Music\"\n  * media.type = \"Audio\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"main-loop\"\n  * node.name = \"r91s_pwrec_capsink\"\n    node.rate = \"1/48000\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2636\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"true\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F3_gst_src_default_r0": {
+   "family": "F3_gst_src_default",
+   "file_bytes": 413740,
+   "node": {
+    "id": 125,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 134,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_default",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_default",
+     "node.dont-reconnect": true,
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_default",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 125,
+     "object.register": false,
+     "object.serial": 2673,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2673,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 0,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 125, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"134\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_default\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_default\"\n    node.dont-reconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_default\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2673\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F3_gst_src_default_r1": {
+   "family": "F3_gst_src_default",
+   "file_bytes": 413740,
+   "node": {
+    "id": 125,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 133,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_default",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_default",
+     "node.dont-reconnect": true,
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_default",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 125,
+     "object.register": false,
+     "object.serial": 2749,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2749,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 1,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 125, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"133\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_default\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_default\"\n    node.dont-reconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_default\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2749\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F3_gst_src_default_r2": {
+   "family": "F3_gst_src_default",
+   "file_bytes": 413740,
+   "node": {
+    "id": 125,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 134,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_default",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_default",
+     "node.dont-reconnect": true,
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_default",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 125,
+     "object.register": false,
+     "object.serial": 2823,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2823,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 2,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 125, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"134\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_default\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_default\"\n    node.dont-reconnect = \"true\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_default\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2823\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F4_gst_src_override_r0": {
+   "family": "F4_gst_src_override",
+   "file_bytes": 413740,
+   "node": {
+    "id": 133,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 125,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_override",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_override",
+     "node.dont-reconnect": "FALSE",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_override",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 133,
+     "object.register": false,
+     "object.serial": 2865,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2865,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 0,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 133, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"125\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_override\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_override\"\n    node.dont-reconnect = \"FALSE\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_override\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2865\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F4_gst_src_override_r1": {
+   "family": "F4_gst_src_override",
+   "file_bytes": 413740,
+   "node": {
+    "id": 133,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 134,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_override",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_override",
+     "node.dont-reconnect": "FALSE",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_override",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 133,
+     "object.register": false,
+     "object.serial": 2898,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2898,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 1,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 133, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"134\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_override\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_override\"\n    node.dont-reconnect = \"FALSE\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_override\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2898\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F4_gst_src_override_r2": {
+   "family": "F4_gst_src_override",
+   "file_bytes": 413740,
+   "node": {
+    "id": 125,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 133,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Input/Audio",
+     "media.name": "gst_r91_src_override",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_src_override",
+     "node.dont-reconnect": "FALSE",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_src_override",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 125,
+     "object.register": false,
+     "object.serial": 2967,
+     "port.group": "stream.0",
+     "stream.capture.sink": "TRUE",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 2967,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 2,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 125, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"133\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Input/Audio\"\n    media.name = \"gst_r91_src_override\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_src_override\"\n    node.dont-reconnect = \"FALSE\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_src_override\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"2967\"\n    port.group = \"stream.0\"\n    stream.capture.sink = \"TRUE\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F5_gst_sink_silence_r0": {
+   "family": "F5_gst_sink_silence",
+   "node": {
+    "id": 134,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 125,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst_r91_sink_silence",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_sink_silence",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_sink_silence",
+     "node.rate": "1/48000",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 134,
+     "object.register": false,
+     "object.serial": 3042,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 3042,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 0,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 134, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"125\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Output/Audio\"\n    media.name = \"gst_r91_sink_silence\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_sink_silence\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_sink_silence\"\n    node.rate = \"1/48000\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"3042\"\n    port.group = \"stream.0\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F5_gst_sink_silence_r1": {
+   "family": "F5_gst_sink_silence",
+   "node": {
+    "id": 133,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 134,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst_r91_sink_silence",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_sink_silence",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_sink_silence",
+     "node.rate": "1/48000",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 133,
+     "object.register": false,
+     "object.serial": 3099,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 3099,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.002,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 1,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 133, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"134\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Output/Audio\"\n    media.name = \"gst_r91_sink_silence\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_sink_silence\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_sink_silence\"\n    node.rate = \"1/48000\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"3099\"\n    port.group = \"stream.0\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  },
+  "F5_gst_sink_silence_r2": {
+   "family": "F5_gst_sink_silence",
+   "node": {
+    "id": 133,
+    "props": {
+     "adapt.follower.spa-node": "",
+     "client.id": 125,
+     "clock.quantum-limit": 8192,
+     "factory.id": 9,
+     "library.name": "audioconvert/libspa-audioconvert",
+     "media.class": "Stream/Output/Audio",
+     "media.name": "gst_r91_sink_silence",
+     "node.async": true,
+     "node.autoconnect": true,
+     "node.description": "gst_r91_sink_silence",
+     "node.driver-id": 88,
+     "node.loop.class": "main",
+     "node.loop.name": "pipewire-main-l",
+     "node.name": "gst_r91_sink_silence",
+     "node.rate": "1/48000",
+     "node.target": "r91s_ns1",
+     "node.want-driver": true,
+     "object.id": 133,
+     "object.register": false,
+     "object.serial": 3140,
+     "port.group": "stream.0",
+     "stream.is-live": true,
+     "target.object": "r91s_ns1"
+    },
+    "serial": 3140,
+    "state": "running"
+   },
+   "ns1_load": {
+    "idx": 536870916,
+    "load": {
+     "argv": [
+      "pactl",
+      "load-module",
+      "module-null-sink",
+      "sink_name=r91s_ns1",
+      "node.description=r91scout_r91s_ns1"
+     ],
+     "dur_s": 0.003,
+     "rc": 0,
+     "stderr": "",
+     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "stdout": "536870916\n",
+     "stdout_sha256": "6eff38e45666d431cdfc21730001a386f894e5cbe573203776436c524d2a78da",
+     "timed_out": false
+    },
+    "ok": true,
+    "row": [
+     {
+      "args": "sink_name=r91s_ns1 node.description=r91scout_r91s_ns1",
+      "index": 536870916,
+      "name": "module-null-sink"
+     }
+    ]
+   },
+   "ns1_unload": {
+    "gone": true,
+    "ok": true,
+    "rc": 0,
+    "stderr": "",
+    "stdout": ""
+   },
+   "rep": 2,
+   "run_killed": "wallcap",
+   "run_rc": -9,
+   "wpctl_inspect": "id 133, type PipeWire:Interface:Node\n    adapt.follower.spa-node = \"\"\n  * client.id = \"125\"\n    clock.quantum-limit = \"8192\"\n  * factory.id = \"9\"\n    library.name = \"audioconvert/libspa-audioconvert\"\n  * media.class = \"Stream/Output/Audio\"\n    media.name = \"gst_r91_sink_silence\"\n    node.async = \"true\"\n    node.autoconnect = \"true\"\n  * node.description = \"gst_r91_sink_silence\"\n    node.driver-id = \"88\"\n    node.loop.class = \"main\"\n    node.loop.name = \"pipewire-main-l\"\n  * node.name = \"gst_r91_sink_silence\"\n    node.rate = \"1/48000\"\n    node.target = \"r91s_ns1\"\n    node.want-driver = \"true\"\n    object.register = \"false\"\n  * object.serial = \"3140\"\n    port.group = \"stream.0\"\n    stream.is-live = \"true\"\n    target.object = \"r91s_ns1\"\n"
+  }
+ },
+ "reps": 3,
+ "stage": "props"
+}

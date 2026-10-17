@@ -1,0 +1,1 @@
+/usr/bin/alsabat-test.sh

@@ -1,0 +1,20 @@
+== aplay_leg(file, silence.wav)
+    {"input": "live/r75-scribe/raw/silence.wav", "exit_code": 0, "device": "null", "alsa_kind": "WAVE", "alsa_spec": "Signed 16 bit Little Endian, Rate 44100 Hz, Mono", "alsa_error": null, "error": null, "stderr_tail": "Playing WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>' : Signed 16 bit Little Endian, Rate 44100 Hz, Mono"}
+    stderr_tail has /home/vgpnk: True
+    stderr_tail: "Playing WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>' : Signed 16 bit Little Endian, Rate 44100 Hz, Mono"
+== aplay_leg(file, noise.wav)
+    {"input": "live/r75-scribe/raw/noise.wav", "exit_code": 0, "device": "null", "alsa_kind": "raw data", "alsa_spec": "Unsigned 8 bit, Rate 8000 Hz, Mono", "alsa_error": null, "error": null, "stderr_tail": "Playing raw data '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>' : Unsigned 8 bit, Rate 8000 Hz, Mono"}
+    stderr_tail has /home/vgpnk: True
+    stderr_tail: "Playing raw data '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>' : Unsigned 8 bit, Rate 8000 Hz, Mono"
+== ffplay_leg(file, noise.wav)
+    {"input": "live/r75-scribe/raw/noise.wav", "exit_code": 0, "ffplay_detected": null, "ffplay_codec": null, "ffplay_duration": null, "lavf_probe": null, "lavf_score": null, "avio_bytes_read": 18, "avio_seeks": 0, "could_not_seek": false, "ffplay_invalid": true, "error": "invalid_data", "stderr_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>: Invalid data found when processing inp
+    stderr_tail has /home/vgpnk: True
+    stderr_tail: '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/<input>: Invalid data found when processing input'
+== ffplay_leg(file, silence.wav)
+    {"input": "live/r75-scribe/raw/silence.wav", "exit_code": 0, "ffplay_detected": "wav", "ffplay_codec": "pcm_s16le", "ffplay_duration": "00:00:00.20", "lavf_probe": "wav", "lavf_score": 99, "avio_bytes_read": 17718, "avio_seeks": 0, "could_not_seek": false, "ffplay_invalid": false, "error": null, "stderr_tail": "Statistics: 17718 bytes read, 0 seeks"}
+    stderr_tail has /home/vgpnk: False
+    stderr_tail: 'Statistics: 17718 bytes read, 0 seeks'
+== paplay_leg(file, silence.wav)
+    {"input": "live/r75-scribe/raw/silence.wav", "exit_code": 0, "pa_sample_spec": "s16le 1ch 44100Hz", "pa_error": null, "error": null, "stderr_tail": "Draining connection to server."}
+    stderr_tail has /home/vgpnk: False
+    stderr_tail: 'Draining connection to server.'

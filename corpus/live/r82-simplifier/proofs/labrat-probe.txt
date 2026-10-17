@@ -1,0 +1,95 @@
+R82-SIMPLIFIER READ-ONLY PROBE — labrat seat report (verbatim; agent 1e41d4df)
+================================================================================
+Environment: host=devin substrate; this seat has read/grep tools ONLY —
+no shell, no python, no patch, no sha256. python/numpy versions: not
+measurable from this seat. Repo path read-only; nothing modified;
+/tmp/r82sprobe could not be created (no exec/write tool), so the report
+lives only in this text (tee step impossible — anomaly noted).
+
+HYPOTHESIS (verbatim): "The folded copy is behavior-identical to the
+base copy on every executable surface that can be exercised without the
+live PipeWire graph: the patch reconstructs the folded copy byte-for-
+byte, the folded module compiles and imports, and the edited helpers
+return identical leaves to the base module on identical inputs; every
+deleted parameter/branch is unreachable from the base copy's call
+graph."
+
+CHECK 1 patch<->fold correspondence: UNVERIFIED-BY-EXECUTION (cannot
+run `patch`/sha256). Static cross-check SUBSTITUTED: all 11 patch hunks
+are present in folded/measure_audio.py at shifted line numbers —
+  folded:14375 def _ffpw_r82_last_node(leg, src="main")
+  folded:14385 def _ffpw_r82_kill_watch(proc)   (None-check+label gone)
+  folded:14450 _ffpw_r82_kill_watch(procs.get(arg))  (1-arg call)
+  folded:14503 def _ffpw_r82_shot(argv, timeout_s=12.0)  (env gone)
+  folded:14579-81 path=Path(path); insp=_capture_wav_inspect(path)
+  FFPW_R82_FFPLAY absent from folded; `rows_pw, _` at folded:14820;
+  `_cap(name, pre, src, env=None, ...)` at folded:14928 (post gone);
+  `_landed_on(name, sink, want_target)` at folded:15339 (taps gone);
+  "missing entirely" and "refused leg must not" blocks absent.
+  => consistent with a clean apply; byte-identity itself not measured.
+
+CHECK 2 compile/import: NOT RUN (no exec capability). FAIL-TO-MEASURE,
+not a falsification.
+
+CHECK 3 differential D1-D4: NOT RUN (no exec capability). Static basis
+for the differential claims is under check 4.
+
+CHECK 4 census on base copy (static, measured by grep/read — PASS):
+  _ffpw_r82_last_node: 22 call sites (15048,15093,15107,15125,15135,
+    15147,15161,15175,15193,15214,15360,15400,15428,15441,15460,15477,
+    15601,15621,16122,16139,16241,16262); NONE passes require_linked
+    (only r81-family _gst_r81_last_node uses it). PASS.
+  _ffpw_r82_shot: 7 call sites 14791-14804; all are bare argv lists;
+    none passes env_extra. PASS.
+  _landed_on: 8 call sites 15399-15424; none passes taps. PASS.
+  _star: 1 binding occurrence only (14839, tuple Store); 0 Load refs.
+    PASS.
+  FFPW_R82_FFPLAY: 1 occurrence total (14267 definition); 0 uses. PASS.
+  _ffpw_r82_leg inside ffpw_error_classes_r82_entry: 6 calls
+    (e1..e6, 15929-15949); all omit out_path — leg["out"] stays unset
+    so the deleted `out.get("exists") and bytes>44` block was dead.
+    PASS.
+  _ffpw_r82_kill_watch: exactly 1 call site (14456); sole kill_watch
+    event is (2.0,"kill_watch","pump") at 15745 in the leg that passes
+    watch={"pump": pump} at 15741. PASS.
+  _ffpw_r82_tone_windows: 4 call sites (14957 `out`, 15303 `path` after
+    Path(path).exists() guard, 15717 same guard, 15747 `cap`); all
+    pass non-empty path expressions. PASS.
+  _cap post= param: all 13 call sites 14964-15021 omit post. PASS.
+  want_flags missing-row block (14826-28): not strictly unreachable —
+    it fires only when a pinned row is absent, a case where the
+    preceding loop (14818-21) already appended a failure. It changes
+    failure TEXT on an already-failing path only; never affects a
+    passing run. NUANCE, reported not hidden.
+
+CHECK 5: no live audio run — by design. No ffmpeg/pactl/pw-* invoked.
+
+ANOMALIES / RESIDUAL RISK:
+ A) Dynamic checks (1 byte-identity, 2 compile/import, 3 differential
+    D1-D4) could not be executed by this seat — no exec tool. The
+    hypothesis is only statically supported, not empirically executed.
+ B) kill_watch None edge: base returns {"missing": label} if
+    procs.get(arg) is None; folded calls proc.poll() on None ->
+    AttributeError, caught by the `except Exception` in _ffpw_r82_leg's
+    event loop, producing a different `fired` record. Reachable only
+    if _ffpw_r82_pump returned None while the leg still runs events —
+    a failure-path leaf difference, not a happy-path difference.
+ C) Report could not be teed to /tmp/r82sprobe/report.txt (no write).
+
+VERDICT: not falsified within the statically checkable scope — all
+eight census predicates PASS on the base copy and all 11 hunks are
+present in the folded copy. The hypothesis's executable claims
+(byte-identity, compile, differential leaves) remain UNMEASURED, and
+two failure-path deltas (A-untested, B kill_watch None-leaf, plus the
+want_flags failure-text nuance) bound the "behavior-identical" claim.
+Cleanup: no artifacts created; repository untouched.
+================================================================================
+EXECUTOR FOLLOW-UP (same session, exec-capable): the labrat's unmeasured
+executable claims were run by the executor seat as
+`proofs/differential.py` (see proofs/differential.txt): patch re-apply
+byte-identical to the folded copy (D0), both modules import, D2-D5
+differential leaves identical, D6 folded-copy census re-run — all PASS.
+The labrat's residual-risk note B is exactly the Tier-C T10 item: the
+`missing` leaf is unreachable at the sole call site (literal "pump" in
+the same leg as `watch={"pump": pump}`) and is disclosed in the report's
+Tier-C/limits sections.

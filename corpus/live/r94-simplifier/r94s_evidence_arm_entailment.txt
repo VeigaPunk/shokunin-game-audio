@@ -1,0 +1,29 @@
+d20 bound at block line(s): [1393]
+arm dropped by A6 at block line: [1394]
+retained arms at block lines    : [1417, 1420]
+
+dropped arm (lines 1394-1398):
+        _sox_r94_arm(entry, d20,
+                     d20.get("band_21100hz_db") is not None and
+                     d20["band_21100hz_db"] < -110.0,
+                     "the only ~-129.6 dB row in the lattice is the 20 kHz stimulus "
+                     f"DEFAULT leg; got {d20.get('band_21100hz_db')}")
+retained arm that reads the same value (lines 1420-1423):
+        _sox_r94_arm(entry, L["rate_130db_home"],
+                     d20.get("band_21100hz_db") is not None and
+                     d20["band_21100hz_db"] < -120.0,
+                     "the 20 kHz default leg must carry the ~-129.6 dB band")
+
+writes to d20 between the two arms: NONE
+  -> both arms read the same object attribute, unmuted; both append to
+     entry['failures'] via _sox_r94_arm; neither has a side effect.
+
+condition A (dropped): d20['band_21100hz_db'] < -110.0
+condition B (kept)   : d20['band_21100hz_db'] < -120.0
+entailment (B => A) over 15000 values in [-200,-50]: True
+
+=> removing A can never turn a failing entry into a passing one (B still
+   fires) nor a passing entry into a failing one (A fired only where B
+   fires). The only observable difference is one fewer DUPLICATE failure
+   line in the band [-120,-110). A mutation tester would score the
+   dropped arm an equivalent mutant.

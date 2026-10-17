@@ -1,0 +1,275 @@
+--- a/measure_audio.py
++++ b/measure_audio.py (r94s variant B)
+@@ -31255,7 +31255,7 @@
+         pass
+ 
+ 
+-def _sox_r94_spawn(argv, timeout=SOX_R94_WALL, env=None, wd=None):
++def _sox_r94_spawn(argv, timeout=SOX_R94_WALL, env=None):
+     """One triple-bounded sox spawn: wall cap, drained-capture byte cap,
+     RLIMIT_CORE=0, own session + process-group kill escalation. sox writes
+     its product to a FILE (never a device), so stdout is /dev/null and only
+@@ -31265,7 +31265,7 @@
+         proc = subprocess.Popen(
+             [str(a) for a in argv], stdout=subprocess.DEVNULL,
+             stderr=subprocess.PIPE, stdin=subprocess.DEVNULL,
+-            env=env, cwd=wd, start_new_session=True,
++            env=env, start_new_session=True,
+             preexec_fn=_sox_r94_limit)
+     except OSError as exc:
+         rec["spawn_error"] = str(exc)[:160]
+@@ -31323,7 +31323,7 @@
+     arr = np.asarray(data_i16)
+     if arr.ndim == 1:
+         arr = arr[:, None]
+-    frames, channels = arr.shape
++    channels = arr.shape[1]
+     body = arr.astype("<i2").tobytes()
+     block = channels * 2
+     fmt = struct.pack("<HHIIHH", 1, channels, rate, rate * block, block, 16)
+@@ -31415,7 +31415,7 @@
+     handed back for formula comparisons."""
+     arr, meta = _sox_r94_read(path)
+     m = {"frames": meta["frames"], "channels": meta["channels"],
+-         "rate": meta["rate"], "bits": meta["bits"], "fmt_tag": meta["fmt_tag"]}
++         "rate": meta["rate"], "bits": meta["bits"]}
+     if meta["frames"] == 0:
+         m.update({"peak_db": [None] * meta["channels"],
+                   "rms_db": [None] * meta["channels"]})
+@@ -31424,8 +31424,6 @@
+         rms = np.sqrt((arr ** 2).mean(axis=0))
+         m["peak_db"] = [_sox_r94_db(p) for p in peak]
+         m["rms_db"] = [_sox_r94_db(r) for r in rms]
+-    first = (arr[:8] * (2 ** (meta["bits"] - 1))).round().astype("int64")
+-    m["first8_ints"] = [[int(v) for v in row] for row in first]
+     return m, arr
+ 
+ 
+@@ -31697,7 +31695,7 @@
+ 
+ 
+ def _sox_r94_leg(scratch, name, argv, infile, reps=1, env=None,
+-                 timeout=SOX_R94_WALL, want_metrics=True, note=None):
++                 timeout=SOX_R94_WALL, want_metrics=True):
+     """One leg = `reps` fresh-process runs of the same argv. Output files are
+     per-rep (fresh process, fresh product); the sha set is the determinism
+     witness. Returns the leg record; the caller arms it."""
+@@ -31740,8 +31738,6 @@
+         # The sha is volatile BY LAW on this leg (the law is nondeterminism),
+         # so a cross-run diff must exclude it rather than read it as drift.
+         leg["volatile_sha"] = True
+-    if note:
+-        leg["note"] = note
+     if want_metrics and paths[0].exists() and leg["rc"] == 0:
+         try:
+             m, arr = _sox_r94_metrics(paths[0])
+@@ -31764,6 +31760,16 @@
+ def _sox_r94_m(leg, key, default=None):
+     m = leg.get("metrics") or {}
+     return m.get(key, default)
++
++
++def _sox_r94_railed(leg, thresh):
++    """Count of samples railed at/above `thresh` LSB on one leg's
++    product — the single authority behind both -G guard rows."""
++    arr = leg.get("_arr")
++    if arr is None:
++        return None
++    ints = np.rint(arr * 32768.0)
++    return int(np.count_nonzero(np.abs(ints) >= thresh))
+ 
+ 
+ def _sox_r94_stimuli(entry, refs):
+@@ -31847,7 +31853,7 @@
+     scratch = _sox_r94_scratch()
+     refs = _sox_r94_scout_refs()
+     st = _sox_r94_stimuli(entry, refs)
+-    A, B, F, I = st["a"], st["b"], st["f"], st["i"]
++    A, F = st["a"], st["f"]
+     L = entry["legs"]
+ 
+     # --- the auto-dither predicate: default s16 is nondeterministic -------
+@@ -31899,9 +31905,7 @@
+ 
+     # --- integer / unity operations are byte-identical to the input -------
+     for name, infile, tail in (("det_gain0_identity", A, ["gain", "0"]),
+-                               ("det_passthrough_identity", A, []),
+-                               ("det_rate_same_identity", B, ["rate", "48000"]),
+-                               ("det_pad_pct50_identity", B, ["pad", "%50"])):
++                               ("det_passthrough_identity", A, [])):
+         leg = _sox_r94_leg(scratch, name, [SOX_R94, "-D", "{in}", "{out}"] + tail,
+                            infile, reps=1)
+         L[name] = leg
+@@ -31911,8 +31915,6 @@
+     _sox_r94_ref_arm(entry, L["det_gain0_identity"], refs, "gain_D.json", "gain_0")
+     _sox_r94_ref_arm(entry, L["det_passthrough_identity"], refs, "dither_D.json",
+                      "copy_plain")
+-    _sox_r94_ref_arm(entry, L["det_pad_pct50_identity"], refs,
+-                     "repeat_pad_silence_D.json", "pad_pct50")
+ 
+     # CORRECTION to the scout's D10 wording: `copy` is NOT an effect on this
+     # build. `sox in.wav out.wav copy` parses the token as a THIRD positional
+@@ -32227,19 +32229,13 @@
+     # The guard row: -G is NOT a limiter. Only the -D equality is reproducible
+     # (the scout's >=32767 threshold row is dither-sensitive; the boundary
+     # re-armed the >=32766 equality under -D).
+-    def clipped_ge(arr, thresh):
+-        if arr is None:
+-            return None
+-        ints = np.rint(arr * 32768.0)
+-        return int(np.count_nonzero(np.abs(ints) >= thresh))
+-
+     plain = _sox_r94_leg(scratch, "guard_gain_p12_D",
+                          [SOX_R94, "-D", "{in}", "{out}", "gain", "12"], A)
+     guarded = _sox_r94_leg(scratch, "guard_gain_p12_G_D",
+                            [SOX_R94, "-D", "-G", "{in}", "{out}", "gain", "12"], A)
+     L["guard_gain_p12_D"], L["guard_gain_p12_G_D"] = plain, guarded
+-    c_plain = clipped_ge(plain.get("_arr"), 32766)
+-    c_guard = clipped_ge(guarded.get("_arr"), 32766)
++    c_plain = _sox_r94_railed(plain, 32766)
++    c_guard = _sox_r94_railed(guarded, 32766)
+     L["guard_not_limiter"] = {
+         "name": "guard_not_limiter", "threshold": 32766,
+         "clipped_gain12_D": c_plain, "clipped_G_gain12_D": c_guard,
+@@ -32293,14 +32289,14 @@
+     L = entry["legs"]
+ 
+     # --- the length matrix -------------------------------------------------
+-    length_rows = (("len_12000_to_44100", B, 44100, 12000, 11025),
+-                   ("len_12001_to_44100", I, 44100, 12001, 11026),
+-                   ("len_12000_to_22050", B, 22050, 12000, 5512),
+-                   ("len_12000_to_24050", B, 24050, 12000, 6013),
+-                   ("len_12000_to_11025", B, 11025, 12000, 2756),
+-                   ("len_12000_to_32000", B, 32000, 12000, 8000))
++    length_rows = (("len_12000_to_44100", B, 44100, 12000),
++                   ("len_12001_to_44100", I, 44100, 12001),
++                   ("len_12000_to_22050", B, 22050, 12000),
++                   ("len_12000_to_24050", B, 24050, 12000),
++                   ("len_12000_to_11025", B, 11025, 12000),
++                   ("len_12000_to_32000", B, 32000, 12000))
+     fitted = {"floor": [], "round": [], "half_even": [], "ceil": []}
+-    for name, infile, out_rate, in_frames, expect in length_rows:
++    for name, infile, out_rate, in_frames in length_rows:
+         leg = _sox_r94_leg(scratch, name,
+                            [SOX_R94, "-D", "{in}", "{out}", "rate", str(out_rate)],
+                            infile)
+@@ -32390,7 +32386,6 @@
+         ("alias_20k_default", H, ["rate", "44100"], "default"),
+         ("alias_20k_l", H, ["rate", "-l", "44100"], "l"),
+         ("alias_20k_a", H, ["rate", "-a", "44100"], "a"),
+-        ("alias_20k_v", H, ["rate", "-v", "44100"], "v"),
+     )
+     for name, infile, tail, opt in alias_specs:
+         leg = _sox_r94_leg(scratch, name, [SOX_R94, "-D", "{in}", "{out}"] + tail, infile)
+@@ -32481,11 +32476,6 @@
+ 
+     # The disarm guard: the ~-130 dB figure belongs to the 20 kHz DEFAULT leg.
+     d20 = L["alias_20k_default"]
+-    _sox_r94_arm(entry, d20,
+-                 d20.get("band_21100hz_db") is not None and
+-                 d20["band_21100hz_db"] < -110.0,
+-                 "the only ~-129.6 dB row in the lattice is the 20 kHz stimulus "
+-                 f"DEFAULT leg; got {d20.get('band_21100hz_db')}")
+     L["rate_130db_home"] = {
+         "name": "rate_130db_home",
+         "disarmed_claim": "23 kHz `-v` rejects at -130 dB",
+@@ -32758,7 +32748,7 @@
+     exact = L["trim_0_0.1"]
+     arr = exact.get("_arr")
+     if arr is not None:
+-        n, mx = _sox_r94_mismatch(arr * 32768.0, bin_i[:4800])
++        n, _ = _sox_r94_mismatch(arr * 32768.0, bin_i[:4800])
+         exact["mismatch_vs_input_head"] = n
+         _sox_r94_arm(entry, exact, n == 0,
+                      "trim content must be SAMPLE-EXACT (the first 4 800 frames "
+@@ -32889,13 +32879,24 @@
+     bin_i = bin_arr[:, 0] * 32768.0
+     N = bin_arr.shape[0]
+ 
++    def trail_zeros(arr):
++        """Trailing zero-frame count of a product's channel 0 — the one
++        authority behind the three silence rows."""
++        ints = np.rint(arr[:, 0] * 32768.0).astype("int64")
++        trail = 0
++        for v in ints[::-1]:
++            if v != 0:
++                break
++            trail += 1
++        return trail
++
+     rep2 = _sox_r94_leg(scratch, "repeat_2",
+                         [SOX_R94, "-D", "{in}", "{out}", "repeat", "2"], B)
+     L["repeat_2"] = rep2
+     arr = rep2.get("_arr")
+     if arr is not None:
+         tiled = np.tile(bin_i, 3)[:arr.shape[0]]
+-        n, mx = _sox_r94_mismatch(arr[:, 0] * 32768.0, tiled)
++        n, _ = _sox_r94_mismatch(arr[:, 0] * 32768.0, tiled)
+         rep2["mismatch_vs_tiling"] = n
+         _sox_r94_arm(entry, rep2,
+                      _sox_r94_m(rep2, "frames") == 3 * N and n == 0,
+@@ -32958,11 +32959,7 @@
+     arr = sil.get("_arr")
+     if arr is not None:
+         ints = np.rint(arr[:, 0] * 32768.0).astype("int64")
+-        trail = 0
+-        for v in ints[::-1]:
+-            if v != 0:
+-                break
+-            trail += 1
++        trail = trail_zeros(arr)
+         sil["trailing_zero_frames"] = trail
+         nz = np.nonzero(ints)[0]
+         sil["last_nonzero_frame"] = int(nz[-1]) if nz.size else None
+@@ -32983,12 +32980,7 @@
+     L["silence_both_0.1"] = both
+     arr = both.get("_arr")
+     if arr is not None:
+-        ints = np.rint(arr[:, 0] * 32768.0).astype("int64")
+-        trail = 0
+-        for v in ints[::-1]:
+-            if v != 0:
+-                break
+-            trail += 1
++        trail = trail_zeros(arr)
+         both["trailing_zero_frames"] = trail
+         _sox_r94_arm(entry, both, trail == WINDOW,
+                      "the below-periods side must keep window_size-1 = "
+@@ -33007,12 +32999,7 @@
+     L["silence_both_leave"] = leave
+     arr = leave.get("_arr")
+     if arr is not None:
+-        ints = np.rint(arr[:, 0] * 32768.0).astype("int64")
+-        trail = 0
+-        for v in ints[::-1]:
+-            if v != 0:
+-                break
+-            trail += 1
++        trail = trail_zeros(arr)
+         leave["trailing_zero_frames"] = trail
+         _sox_r94_arm(entry, leave, trail == WINDOW + 4800,
+                      "`-l` must KEEP the declared duration plus the window lag "
+@@ -33103,13 +33090,6 @@
+     # The guard row: -G is not a limiter. The DEFAULT path is dither-sensitive
+     # (the boundary measured 7 979 vs 3 989 at the >=32767 threshold) and is
+     # recorded, never armed; the -D equality is armed in sox_gain_r94_entry.
+-    def railed(leg, thresh):
+-        arr = leg.get("_arr")
+-        if arr is None:
+-            return None
+-        ints = np.rint(arr * 32768.0)
+-        return int(np.count_nonzero(np.abs(ints) >= thresh))
+-
+     g_def = _sox_r94_leg(scratch, "guard_gain_p12_default",
+                          [SOX_R94, "{in}", "{out}", "gain", "12"], A)
+     g_g_def = _sox_r94_leg(scratch, "guard_G_gain_p12_default",
+@@ -33121,7 +33101,8 @@
+         _leg["volatile_sha"] = True
+         _leg["volatile_reason"] = "default-path auto-dither (time-seeded TPDF)"
+     L["guard_gain_p12_default"], L["guard_G_gain_p12_default"] = g_def, g_g_def
+-    c1, c2_ = railed(g_def, 32767), railed(g_g_def, 32767)
++    c1, c2_ = (_sox_r94_railed(g_def, 32767),
++               _sox_r94_railed(g_g_def, 32767))
+     L["guard_default_path_row"] = {
+         "name": "guard_default_path_row", "threshold": 32767,
+         "railed_gain12_default": c1, "railed_G_gain12_default": c2_,

@@ -1,0 +1,41 @@
+== 1. F13 check_tap: every arm, control vs candidate ==
+PASS check_tap arm [no tap key]: failures=['unit: no tap recorded — the content pin is absent'] confound=False
+PASS check_tap arm [empty tap]: failures=['unit: no tap recorded — the content pin is absent'] confound=False
+PASS check_tap arm [tap ran=False]: failures=['unit: the monitor tap produced no windows — the content pin is vacuous'] confound=False
+PASS check_tap arm [tap bound elsewhere]: failures=[] confound=True
+PASS check_tap arm [want_tone=True, silent]: failures=['unit: the tap on sink_x carried no tag-tone windows — consumption without content is not a playout verdict'] confound=False
+PASS check_tap arm [want_tone=False, mine]: failures=['unit: tag tone on sink_x — this leg was never fed our tone; a `mine` window is contamination, not coverage'] confound=False
+PASS no control call site passes require=
+PASS candidate has no 'require' parameter left
+
+== 2. F14 union: helper vs the control's inline comprehension ==
+PASS union identical on 7 synthetic sample sets
+
+== 3. F16 block: inline control block vs candidate helper ==
+PASS block [no default sink/source authority r…] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [no default sink/source authority r…] loads=True: entry equal, unload calls ctl=1 cand=1
+PASS block [no default sink authority readable…] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [no default sink authority readable…] loads=True: entry equal, unload calls ctl=1 cand=1
+PASS block [a probe null sink/monitor did not …] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [a probe null sink/monitor did not …] loads=True: entry equal, unload calls ctl=1 cand=1
+PASS block [the probe null sink/monitor did no…] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [the probe null sink/monitor did no…] loads=True: entry equal, unload calls ctl=1 cand=1
+PASS block [the fc null sink/monitor did not e…] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [the fc null sink/monitor did not e…] loads=True: entry equal, unload calls ctl=1 cand=1
+PASS block [no shipped filter-chain.conf…] loads=False: entry equal, unload calls ctl=0 cand=0
+PASS block [no shipped filter-chain.conf…] loads=True: entry equal, unload calls ctl=1 cand=1
+
+== 4. static premises (machine re-checked on the control source) ==
+PASS F1 LOOPBACK_R79_TIMEOUT_S: 1 ref in control (its def), 0 in cand
+PASS F6 extra_tw is store-only in the control
+PASS F7/F8 inv is store-only in the matrix and fc entries
+PASS F9 ctx is store-only in the fc entry
+PASS F10 want_node is store-only in the fc entry
+PASS F11 ltag is store-only in the hotplug entry
+PASS F2 line is store-only in the r79 runner
+PASS F5 s0 is assigned once in the capture entry (so `s0 is None` at the leg loop is False)
+PASS F12 the verdict loop's re-declared table equals RECS verbatim (4 lines, twice)
+PASS F4 tap_t ternary has identical arms in the control
+PASS F15 the code computes a tracks-request verdict in both; both stale byte-identical claims are gone from the candidate
+
+UNIT VERDICT: PASS

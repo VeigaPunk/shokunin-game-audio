@@ -1,0 +1,96 @@
+== SHAPE ==
+a1 input node: {'media_class': 'Stream/Input/Audio', 'client_id': 104, 'node_link_group': 'loopback-3944132-20', 'node_group': 'pw-loopback-3944132', 'target_object': 'r79lb_ns_a_3943556', 'node_virtual': True, 'audio_position': '[ FL, FR ]'}
+a1 output node: {'media_class': 'Stream/Output/Audio', 'client_id': 104, 'target_object': 'r79lb_ns_b_3943556', 'node_trigger': None}
+a1 ports in: ['input.r79lb_3943556_a1:input_FL', 'input.r79lb_3943556_a1:input_FR'] out: ['input.r79lb_3943556_a1:monitor_FL', 'input.r79lb_3943556_a1:monitor_FR']
+a1 output ports: ['output.r79lb_3943556_a1:output_FL', 'output.r79lb_3943556_a1:output_FR'] in: []
+a1 route: ['r79lb_ns_a_3943556'] -> ['r79lb_ns_b_3943556'] tap mine 40
+a2_space capture props: {'stream_capture_sink': True, 'media_role': 'DSP', 'target_object': 'r79lb_ns_a_3943556'}
+a2_comma capture props: {'stream_capture_sink': True, 'media_role': 'DSP', 'target_object': 'r79lb_ns_a_3943556'}
+a5: capture_default_source_unnegotiated | a6 consumers: ['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] | a7: {'verdict': 'declined', 'reason': "no -C/-P routes the live default source into the shared default sink — the scout's measured contamination window; A5+A6 cover both autoconnect defaults one-sided."}
+dsource probe: {'tag': 'r79lb_3943556_dsprobe', 'available': False, 'node_published': False, 'timed_out': False, 'exit_code': 1, 'error_class': 'no_target_node'}
+
+== CAPTURE LATTICE ==
+b01_sink_prop              -C r79lb_ns_a_3943556 -i stream.capture.sink=true -P r79lb_n prods=['r79lb_ns_a_3943556'] adv='r79lb_ns_a_3943556' outcome=None
+b02_sink_noprop            -C r79lb_ns_a_3943556 -P r79lb_ns_b_3943556                  prods=[] adv='r79lb_ns_a_3943556' outcome=capture_default_source_unnegotiated
+b03_dotmonitor             -C r79lb_ns_a_3943556.monitor -P r79lb_ns_b_3943556          prods=[] adv='r79lb_ns_a_3943556.monitor' outcome=capture_default_source_unnegotiated
+b04_real_source            -C alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source -P  prods=['alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source'] adv='alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source' outcome=None
+b05_garbage                -C no_such_node_r79 -P r79lb_ns_b_3943556                    prods=[] adv='no_such_node_r79' outcome=capture_default_source_unnegotiated
+b06_zero                   -C 0 -P r79lb_ns_b_3943556                                   prods=[] adv=0 outcome=capture_default_source_unnegotiated
+b07_prop_false             -C r79lb_ns_a_3943556 -i stream.capture.sink=false -P r79lb_ prods=[] adv='r79lb_ns_a_3943556' outcome=capture_default_source_unnegotiated
+b08_prop_beats_flag        -C alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source -i  prods=['r79lb_ns_a_3943556'] adv='r79lb_ns_a_3943556' outcome=None
+b09_prop_garbage_sinkprop  -i target.object=no_such_node_r79 stream.capture.sink=true - prods=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] adv='no_such_node_r79' outcome=None
+b10_autoconnect_off        -C r79lb_ns_a_3943556 -i stream.capture.sink=true node.autoc prods=[] adv='r79lb_ns_a_3943556' outcome=None
+b11_autoconnect_off_notarget -i node.autoconnect=false -P r79lb_ns_b_3943556              prods=[] adv=None outcome=None
+b12_source_sinkprop        -C alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source -i  prods=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] adv='alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source' outcome=None
+
+== PLAYBACK LATTICE ==
+c01_sink                 cons=['r79lb_ns_b_3943556'] exp=['r79lb_ns_b_3943556'] mine=40 adv='r79lb_ns_b_3943556'
+c02_second_sink          cons=['r79lb_ns_b2_3943556'] exp=['r79lb_ns_b2_3943556'] mine=40 adv='r79lb_ns_b2_3943556'
+c03_garbage              cons=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 adv='no_such_sink_r79'
+c04_source_name          cons=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 adv='alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source'
+c05_zero                 cons=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 adv=0
+c06_absent               cons=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 adv=None
+c07_prop_beats_flag      cons=['r79lb_ns_b2_3943556'] exp=['r79lb_ns_b2_3943556'] mine=40 adv='r79lb_ns_b2_3943556'
+c08_autoconnect_off      cons=[] exp=[] mine=0 adv='r79lb_ns_b_3943556'
+c09_capsink_decoration   cons=['r79lb_ns_b_3943556'] exp=['r79lb_ns_b_3943556'] mine=40 adv='r79lb_ns_b_3943556'
+c10_prop_garbage         cons=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 adv='no_such_sink_r79'
+c07 flag-sink control tap: {'target': 'r79lb_ns_b_3943556', 'bound_to_target': True, 'mine_windows': 0, 'peak_l': 0, 'peak_r': 0, 'ran': True}
+
+== MATRIX ==
+cm1_mono_c1_m    props={'channels': 1, 'position': '[ MONO ]', 'signature': 'mix'} ch=[{'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}, {'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}] mix=True stereo=False ratio=0.5
+cm2_c1_only      props={'channels': 1, 'position': '[ FL, FR ]', 'signature': 'stereo'} ch=[{'at_l': 4538.6, 'at_r': 2.7, 'peak': 8192}, {'at_l': 4.1, 'at_r': 4538.6, 'peak': 8192}] mix=False stereo=True ratio=None
+cm3_m_only       props={'channels': 2, 'position': '[ MONO ]', 'signature': 'mix'} ch=[{'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}, {'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}] mix=True stereo=False ratio=0.5
+cm4_m_bare       props={'channels': 2, 'position': 'MONO', 'signature': 'mix'} ch=[{'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}, {'at_l': 2269.3, 'at_r': 2269.3, 'peak': 8192}] mix=True stereo=False ratio=0.5
+
+== RECORD ==
+loopback wall 16.73 wait {'input.r79lb_3943556_rect_lb': {'ready': True, 'waited_s': 0.108}, 'output.r79lb_3943556_rect_lb': {'ready': True, 'waited_s': 0.002}}
+d2a_input_node       target=input.r79lb_3943556_rect_lb prop=False rc=1 exp=['alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source'] mine=None outcome=capture_default_source_unnegotiated
+d2b_output_node      target=output.r79lb_3943556_rect_lb prop=False rc=1 exp=['output.r79lb_3943556_rect_lb'] mine=14 outcome=None
+d2c_input_capsink    target=input.r79lb_3943556_rect_lb prop=True rc=1 exp=['input.r79lb_3943556_rect_lb'] mine=14 outcome=None
+d2d_output_capsink   target=output.r79lb_3943556_rect_lb prop=True rc=1 exp=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] mine=0 outcome=None
+d17_manual_pin       target=None prop=None rc=1 exp=None mine=14 outcome=None
+d17 pins: [('input.r79lb_3943556_rect_lb:monitor_FL', 'r79lb_3943556_d17:input_FL', 0)]
+
+== HOTPLUG ==
+e1_unload_playback     pre=['r79lb_hp_3943556'] post=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] killed=True tap_mine=16 tap_ran=True
+e2_load_playback       pre=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] post=['r79lb_hp2_3943556'] killed=True tap_mine=37 tap_ran=True
+e3_unload_capture      pre=['r79lb_ns_a_3943556'] post=['alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink'] killed=True tap_mine=16 tap_ran=True
+
+== PWCAT ==
+param verdict: latency_param_tracks_request set: 3
+d01_default            lat='4800/48000' force= feed=tone cons=None err=None
+d02_flag_10ms          lat='480/48000' force= feed=tone cons=None err=None
+d03_flag_256           lat='256/48000' force= feed=tone cons=None err=None
+d04_prop_480           lat=480 force= feed=tone cons=None err=None
+d05_prop_fraction      lat='1024/48000' force= feed=tone cons=None err=None
+d06_prop_beats_flag    lat='2048/48000' force= feed=tone cons=None err=None
+d07_flag_zero          lat=None force= feed=tone cons=None err=None
+d08_prop_zero          lat=0 force= feed=tone cons=None err=None
+d09_flag_500ms         lat='24000/48000' force= feed=tone cons=None err=None
+d10_force_latency      lat='480/48000' force= feed=tone cons=None err=None
+d11_capsink_valid      lat='4800/48000' force= feed=tone cons=None err=None
+d12_capsink_garbage    lat='4800/48000' force= feed=silence cons=None err=None
+d13_autoconnect_off    lat='4800/48000' force= feed=tone cons=None err=None
+
+== FILTERCHAIN ==
+f1_good                alive=True rc=-9 seen=['mix_input.r79fc_3943556_f1', 'mix_output.r79fc_3943556_f1'] expect_met=True after=[]
+     two_tone: [{'at_l': 4095.6, 'at_r': 4095.7, 'peak': 8192}, {'at_l': 0.0, 'at_r': 0.0, 'peak': 0}]
+f2_bad_syntax          alive=True rc=-9 seen=[] expect_met=True after=[]
+     stderr_scan: "[W][04:21:44.556930][          conf.c:  427 conf_load()] 0x563f81f20db0: error in config '<cfg>/filter-chain.conf.d/10-bad.conf': Mismatched bracket\n["
+f3_good_then_bad       alive=True rc=-9 seen=['mix_input.r79fc_3943556_f3', 'mix_output.r79fc_3943556_f3'] expect_met=True after=[]
+     stderr_scan: "[W][04:21:48.174475][          conf.c:  427 conf_load()] 0x560c824c2de0: error in config '<cfg>/filter-chain.conf.d/20-bad.conf': Mismatched bracket\n["
+f3b_bad_then_good      alive=True rc=-9 seen=['mix_input.r79fc_3943556_f3b', 'mix_output.r79fc_3943556_f3b'] expect_met=True after=[]
+     stderr_scan: "[W][04:21:51.791519][          conf.c:  427 conf_load()] 0x564e7bcedde0: error in config '<cfg>/filter-chain.conf.d/10-bad.conf': Mismatched bracket\n["
+f4_badlabel_nofail     alive=True rc=-9 seen=[] expect_met=True after=[]
+f5_badlabel            alive=False rc=254 seen=[] expect_met=True after=[]
+f6_base_only           alive=True rc=-9 seen=[] expect_met=True after=[]
+f7_cli_load            alive=None rc=None seen=['mix_input.r79fc_3943556_live', 'mix_output.r79fc_3943556_live'] expect_met=None after=None
+     two_tone: [{'at_l': 4095.6, 'at_r': 4095.7, 'peak': 8192}, {'at_l': 0.0, 'at_r': 0.0, 'peak': 0}]
+     reply tail: ['1 = @module:22']
+f8_unload_refusal      alive=None rc=None seen=None expect_met=None after=None
+     reply tail: ['Error: "unload-module: unknown module \'@module:22\'"']
+f9_bad_label           alive=None rc=None seen=None expect_met=None after=None
+     reply tail: ['pipewire-0>> ']
+f10_bad_args           alive=None rc=None seen=None expect_met=None after=None
+     reply tail: ['pipewire-0>> ']
+f11_quit_teardown      alive=None rc=None seen=None expect_met=None after=None

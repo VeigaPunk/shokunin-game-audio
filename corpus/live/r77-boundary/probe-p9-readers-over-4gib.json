@@ -1,0 +1,45 @@
+{
+ "probe": "r77-boundary/p9-readers-over-4gib",
+ "t0": "2026-10-14T19:57:48Z",
+ "free_gb_before": 16.16,
+ "capture": {
+  "cmd": "pw-record -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink --rate 768000 --channels 64 --format f64 -n 9000000 /dev/shm/r77b/over4gib.wav",
+  "ended_on_its_own": true,
+  "rc": 1,
+  "wall_s": 71.51,
+  "bytes": 4608000608,
+  "over_4gib_by": 313033312,
+  "err": "/dev/shm/r77b/over4gib.wav"
+ },
+ "header": {
+  "hex96": "52494646ffffffff57415645666d742028000000feff400000b80b00000070170002400016004000000000000300000000001000800000aa00389b716661637404000000405489005045414b080200000100000003dfcf6a8981303e55430e00",
+  "riff_size_field": 4294967295
+ },
+ "reader_wall_s": 0.78,
+ "readers": {
+  "soxi_s": "0",
+  "soxi_D": "0.000000",
+  "sndfile_frames": "8388607",
+  "sndfile_duration": "00:00:10.923",
+  "sndfile_error": null,
+  "ffprobe_duration": "11.718750",
+  "python_wave_frames": null,
+  "python_wave_error": "Error: unknown extended format: 00000003-0000-0010-8000-00aa00389b71",
+  "soxi_s_raw": "0",
+  "soxi_D_raw": "0.000000",
+  "soxi_s_err": "soxi WARN wav: wave header missing extended part of fmt chunk\nsoxi WARN wav: data length is unspecified; taking it from the file length",
+  "soxi_D_err": "soxi WARN wav: wave header missing extended part of fmt chunk\nsoxi WARN wav: data length is unspecified; taking it from the file length",
+  "sndfile_rc": 0,
+  "sndfile_head": "========================================\nFile : /dev/shm/r77b/over4gib.wav\nLength : 4608000608\nWarning : filelength > 0xffffffff. This is bad!!!!\nRIFF : 4294967295\nWAVE\nfmt  : 40\n  Format        : 0xFFFE => WAVE_FORMAT_EXTENSIBLE\n  Channels      : 64\n  Sample Rate   : 768000\n  Block Align   : 512\n  Bit Width     : 64\n  Bytes/sec     : 393216000\n  Valid Bits    : 64\n  Channel Mask  : 0x0 (should no",
+  "sndfile_err": "",
+  "ffprobe_rc": 0,
+  "ffprobe_err": "",
+  "truth": {
+   "frames": 9000000,
+   "duration_s": 11.7188,
+   "channels": 64,
+   "rate": 768000
+  }
+ },
+ "free_gb_after_cleanup": 16.15
+}

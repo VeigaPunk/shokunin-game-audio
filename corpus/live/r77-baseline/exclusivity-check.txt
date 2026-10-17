@@ -1,0 +1,21 @@
+=== r77-baseline exclusivity-guard check (post-commit fixture 65790f1) ===
+
+--- control: TWO guarded flags (--probe-consumers2-r75 --probe-capture-r76)
+rc=2
+guard_fired=1
+usage: measure_audio.py [-h] [--probe-failing] [--probe-slope] [--probe-flat]
+                        [--probe-layer-flat] [--probe-layer-join]
+                        [--probe-layer-slope] [--probe-layer-alt-flat]
+
+--- control 2: guarded + r77 (--probe-consumers2-r75 --probe-capture-r77)
+rc=124 (124 = ran to timeout, guard did NOT fire)
+guard_fired=0
+
+--- test: --probe-capture-r77 --probe-capture-r76
+rc=124 (124 = ran to timeout, guard did NOT fire)
+guard_fired=0
+
+static: guard sum tail (measure_audio.py:5801) + independent dispatch blocks:
+74, args.probe_consumers2_r75, args.probe_capture_r76]) > 1:
+6092:    if args.probe_capture_r77:
+6111:    if args.probe_capture_r76:

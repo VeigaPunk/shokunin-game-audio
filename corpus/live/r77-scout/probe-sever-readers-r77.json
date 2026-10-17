@@ -1,0 +1,870 @@
+{
+ "probe": "sever-readers-r77",
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd",
+ "wounds": {
+  "arecord_hw_KILL": {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "cd",
+    "<out>"
+   ],
+   "bytes": 154408,
+   "data_actual": 154364,
+   "data_declared_field": "placeholder_80000000",
+   "early_exit_rc": null,
+   "err_tail": "Recording WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/arecord_hw_KILL.wav' : Signed 16 bit Little Endian",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 38591,
+   "leg": "arecord_hw_KILL",
+   "out_kind": "riff_wav",
+   "rc": -9,
+   "readers": {
+    "ffprobe": {
+     "duration": "0.875079",
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "38591",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "536870912",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 536870912,
+    "wave_rate": 44100
+   },
+   "riff_size_field": "other",
+   "sig": "SIGKILL",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "inflated",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 38591,
+     "sndfile": 38591,
+     "soxi": 536870912,
+     "wave": 536870912
+    },
+    "wave": "inflated",
+    "wave_err": "opens"
+   }
+  },
+  "arecord_hw_TERM": {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "cd",
+    "<out>"
+   ],
+   "bytes": 154524,
+   "data_actual": 154480,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "Aborted by signal Terminated...",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 38620,
+   "leg": "arecord_hw_TERM",
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "readers": {
+    "ffprobe": {
+     "duration": "0.875737",
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "38620",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "38620",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 38620,
+    "wave_rate": 44100
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 38620,
+     "sndfile": 38620,
+     "soxi": 38620,
+     "wave": 38620
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "arecord_null_KILL": {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-f",
+    "cd",
+    "<out>"
+   ],
+   "bytes": null,
+   "data_actual": null,
+   "data_declared_field": null,
+   "early_exit_rc": null,
+   "err_tail": "Recording WAVE '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/arecord_null_KILL.wav' : Signed 16 bit Little Endi",
+   "fmt": {},
+   "honest_frames": null,
+   "leg": "arecord_null_KILL",
+   "out_kind": "missing",
+   "rc": -9,
+   "readers": {},
+   "riff_size_field": null,
+   "sig": "SIGKILL",
+   "verdict": "no_file"
+  },
+  "arecord_null_TERM": {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-f",
+    "cd",
+    "<out>"
+   ],
+   "bytes": null,
+   "data_actual": null,
+   "data_declared_field": null,
+   "early_exit_rc": null,
+   "err_tail": "Aborted by signal Terminated...",
+   "fmt": {},
+   "honest_frames": null,
+   "leg": "arecord_null_TERM",
+   "out_kind": "missing",
+   "rc": 1,
+   "readers": {},
+   "riff_size_field": null,
+   "sig": "SIGTERM",
+   "verdict": "no_file"
+  },
+  "ffmpeg_monitor_KILL": {
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 0,
+   "data_actual": null,
+   "data_declared_field": null,
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {},
+   "honest_frames": null,
+   "leg": "ffmpeg_monitor_KILL",
+   "out_kind": "empty",
+   "rc": -9,
+   "readers": {},
+   "riff_size_field": null,
+   "sig": "SIGKILL",
+   "verdict": "no_file"
+  },
+  "ffmpeg_monitor_TERM": {
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 201678,
+   "data_actual": 201600,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 50400,
+   "leg": "ffmpeg_monitor_TERM",
+   "out_kind": "riff_wav",
+   "rc": 255,
+   "readers": {
+    "ffprobe": {
+     "duration": "1.050000",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "50400",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "50400",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 50400,
+    "wave_rate": 48000
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 50400,
+     "sndfile": 50400,
+     "soxi": 50400,
+     "wave": 50400
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "ffmpeg_pulse_KILL": {
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 0,
+   "data_actual": null,
+   "data_declared_field": null,
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {},
+   "honest_frames": null,
+   "leg": "ffmpeg_pulse_KILL",
+   "out_kind": "empty",
+   "rc": -9,
+   "readers": {},
+   "riff_size_field": null,
+   "sig": "SIGKILL",
+   "verdict": "no_file"
+  },
+  "ffmpeg_pulse_TERM": {
+   "argv": [
+    "ffmpeg",
+    "-nostdin",
+    "-nostats",
+    "-v",
+    "error",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-y",
+    "<out>"
+   ],
+   "bytes": 201678,
+   "data_actual": 201600,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 50400,
+   "leg": "ffmpeg_pulse_TERM",
+   "out_kind": "riff_wav",
+   "rc": 255,
+   "readers": {
+    "ffprobe": {
+     "duration": "1.050000",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "50400",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "50400",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 50400,
+    "wave_rate": 48000
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 50400,
+     "sndfile": 50400,
+     "soxi": 50400,
+     "wave": 50400
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "parec_filefmt_KILL": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 44,
+   "data_actual": 0,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 0,
+   "leg": "parec_filefmt_KILL",
+   "out_kind": "riff_wav_empty",
+   "rc": -9,
+   "readers": {
+    "ffprobe": {
+     "duration": null,
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "0",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "rejects:Error",
+    "wave_msg": "fmt chunk and/or data chunk missing"
+   },
+   "riff_size_field": "placeholder_8",
+   "sig": "SIGKILL",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 0,
+     "sndfile": 0,
+     "soxi": 0,
+     "wave": null
+    },
+    "wave": "err",
+    "wave_err": "rejects:Error"
+   }
+  },
+  "parec_filefmt_TERM": {
+   "argv": [
+    "parec",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--file-format=wav",
+    "<out>"
+   ],
+   "bytes": 44,
+   "data_actual": 0,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 0,
+   "leg": "parec_filefmt_TERM",
+   "out_kind": "riff_wav_empty",
+   "rc": 0,
+   "readers": {
+    "ffprobe": {
+     "duration": null,
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "0",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 0,
+    "wave_rate": 44100
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 0,
+     "sndfile": 0,
+     "soxi": 0,
+     "wave": 0
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "parecord_KILL": {
+   "argv": [
+    "parecord",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 44,
+   "data_actual": 0,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 0,
+   "leg": "parecord_KILL",
+   "out_kind": "riff_wav_empty",
+   "rc": -9,
+   "readers": {
+    "ffprobe": {
+     "duration": null,
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "0",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "rejects:Error",
+    "wave_msg": "fmt chunk and/or data chunk missing"
+   },
+   "riff_size_field": "placeholder_8",
+   "sig": "SIGKILL",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 0,
+     "sndfile": 0,
+     "soxi": 0,
+     "wave": null
+    },
+    "wave": "err",
+    "wave_err": "rejects:Error"
+   }
+  },
+  "parecord_TERM": {
+   "argv": [
+    "parecord",
+    "-d",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 44,
+   "data_actual": 0,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 44100,
+    "tag": 1
+   },
+   "honest_frames": 0,
+   "leg": "parecord_TERM",
+   "out_kind": "riff_wav_empty",
+   "rc": 0,
+   "readers": {
+    "ffprobe": {
+     "duration": null,
+     "nb_frames": null,
+     "rate": "44100"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "0",
+    "sndfile_rate": "44100",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 0,
+    "wave_rate": 44100
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 0,
+     "sndfile": 0,
+     "soxi": 0,
+     "wave": 0
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "pwcat_KILL": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 192556,
+   "data_actual": 192512,
+   "data_declared_field": "zero",
+   "early_exit_rc": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/pwcat_KILL.wav",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 48128,
+   "leg": "pwcat_KILL",
+   "out_kind": "riff_wav",
+   "rc": -9,
+   "readers": {
+    "ffprobe": {
+     "duration": "1.002667",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "48128",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "rejects:Error",
+    "wave_msg": "fmt chunk and/or data chunk missing"
+   },
+   "riff_size_field": "placeholder_8",
+   "sig": "SIGKILL",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "short",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 48128,
+     "sndfile": 48128,
+     "soxi": 0,
+     "wave": null
+    },
+    "wave": "err",
+    "wave_err": "rejects:Error"
+   }
+  },
+  "pwcat_TERM": {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 188460,
+   "data_actual": 188416,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/pwcat_TERM.wav",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 47104,
+   "leg": "pwcat_TERM",
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "readers": {
+    "ffprobe": {
+     "duration": "0.981333",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "47104",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "47104",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 47104,
+    "wave_rate": 48000
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 47104,
+     "sndfile": 47104,
+     "soxi": 47104,
+     "wave": 47104
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  },
+  "pwrecord_KILL": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 192556,
+   "data_actual": 192512,
+   "data_declared_field": "zero",
+   "early_exit_rc": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/pwrecord_KILL.wav",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 48128,
+   "leg": "pwrecord_KILL",
+   "out_kind": "riff_wav",
+   "rc": -9,
+   "readers": {
+    "ffprobe": {
+     "duration": "1.002667",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "48128",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "0",
+    "wave": "rejects:Error",
+    "wave_msg": "fmt chunk and/or data chunk missing"
+   },
+   "riff_size_field": "placeholder_8",
+   "sig": "SIGKILL",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "short",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 48128,
+     "sndfile": 48128,
+     "soxi": 0,
+     "wave": null
+    },
+    "wave": "err",
+    "wave_err": "rejects:Error"
+   }
+  },
+  "pwrecord_TERM": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "<out>"
+   ],
+   "bytes": 184364,
+   "data_actual": 184320,
+   "data_declared_field": "finalized",
+   "early_exit_rc": null,
+   "err_tail": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-ek8ndbbd/pwrecord_TERM.wav",
+   "fmt": {
+    "bits": 16,
+    "channels": 2,
+    "rate": 48000,
+    "tag": 1
+   },
+   "honest_frames": 46080,
+   "leg": "pwrecord_TERM",
+   "out_kind": "riff_wav",
+   "rc": 1,
+   "readers": {
+    "ffprobe": {
+     "duration": "0.960000",
+     "nb_frames": null,
+     "rate": "48000"
+    },
+    "ffprobe_err": "",
+    "ffprobe_rc": 0,
+    "sndfile_err": "",
+    "sndfile_frames": "46080",
+    "sndfile_rate": "48000",
+    "sndfile_rc": 0,
+    "soxi_err": "",
+    "soxi_rc": 0,
+    "soxi_samples": "46080",
+    "wave": "opens",
+    "wave_ch": 2,
+    "wave_frames": 46080,
+    "wave_rate": 48000
+   },
+   "riff_size_field": "finalized",
+   "sig": "SIGTERM",
+   "verdict": {
+    "ffprobe": "err",
+    "ffprobe_rc": 0,
+    "sndfile": "honest",
+    "sndfile_rc": 0,
+    "soxi": "honest",
+    "soxi_rc": 0,
+    "values": {
+     "ffprobe": null,
+     "honest": 46080,
+     "sndfile": 46080,
+     "soxi": 46080,
+     "wave": 46080
+    },
+    "wave": "honest",
+    "wave_err": "opens"
+   }
+  }
+ }
+}

@@ -1,0 +1,19 @@
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -39929,15 +39929,9 @@
+                   if p.poll() is None]}
+ 
+ 
+-def _fc92_block(entry, failures, msg, ctx=None):
++def _fc92_block(entry, failures, msg):
+     entry["blocked"] = msg
+     entry.setdefault("coverage_blocked", []).append(msg)
+-    if ctx is not None:
+-        for proc in ctx.get("procs") or ():
+-            _fc92_reap(proc)
+-        for name in list(ctx.get("loads") or {}):
+-            entry.setdefault("unloads", {})[name] = _fc92_unload_ns(ctx,
+-                                                                   name)
+     entry["failures"] = failures
+     return entry
+ 

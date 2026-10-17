@@ -1,0 +1,1984 @@
+{
+ "bridge_post_edges": [],
+ "bridge_pre": [
+  {
+   "class": "Midi/Bridge",
+   "id": 50,
+   "in": [
+    [
+     "Midi Through: Port-0 (playback)",
+     51,
+     "8 bit raw midi"
+    ]
+   ],
+   "name": "Midi-Bridge",
+   "out": [
+    [
+     "Midi Through: Port-0 (capture)",
+     52,
+     "8 bit raw midi"
+    ]
+   ],
+   "props": {
+    "media.class": "Midi/Bridge",
+    "node.driver": true,
+    "node.loop.name": "data-loop.0",
+    "node.name": "Midi-Bridge",
+    "object.id": 50,
+    "object.serial": 51
+   }
+  },
+  {
+   "class": "Midi/Bridge",
+   "id": 35,
+   "in": [
+    [
+     "in",
+     56,
+     "8 bit raw midi"
+    ]
+   ],
+   "name": "bluez_midi.server",
+   "out": [
+    [
+     "out",
+     55,
+     "8 bit raw midi"
+    ]
+   ],
+   "props": {
+    "media.class": "Midi/Bridge",
+    "node.description": "BLE MIDI 1",
+    "node.loop.name": "data-loop.0",
+    "node.name": "bluez_midi.server",
+    "object.id": 35,
+    "object.serial": 60
+   }
+  }
+ ],
+ "legs": [
+  {
+   "argv": [
+    "pw-mididump"
+   ],
+   "edges": [
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_P8_nodename_o:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_P8_nodename_o:input_FR",
+    "r83dsp_pbX:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "r83dsp_pbX:output_FR -> r83dsp_p1_nsb:playback_FR"
+   ],
+   "leg": "M1_dump_bare",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 101,
+     "in": [
+      [
+       "input_FL",
+       167,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       168,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_P8_nodename_o",
+     "out": [
+      [
+       "monitor_FL",
+       117,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       127,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_P8_nodename_o input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_P8_nodename_o",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3307674",
+      "node.link-group": "loopback-3307674-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_P8_nodename_o",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 101,
+      "object.register": false,
+      "object.serial": 13286,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 86,
+     "in": [],
+     "name": "r83dsp_pbX",
+     "out": [
+      [
+       "output_FL",
+       81,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       160,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_P8_nodename_o output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_P8_nodename_o",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3307674",
+      "node.link-group": "loopback-3307674-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_pbX",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 86,
+      "object.register": false,
+      "object.serial": 13285,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    }
+   ],
+   "rc": -9,
+   "stderr": "",
+   "stdout": "",
+   "wall_s": 5.01
+  },
+  {
+   "aplaymidi": {
+    "err": "",
+    "rc": 0
+   },
+   "argv": [
+    "pw-mididump",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/raw/m2_dump.mid"
+   ],
+   "edges": [
+    "output.r83dsp_p1_P9_mediaclass:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_P9_mediaclass:output_FR -> r83dsp_p1_nsb:playback_FR"
+   ],
+   "leg": "M2_dump_file",
+   "nodes": [
+    {
+     "class": "Audio/Source",
+     "id": 117,
+     "in": [],
+     "name": "input.r83dsp_p1_P9_mediaclass",
+     "out": [
+      [
+       "capture_FR",
+       168,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Source",
+      "media.name": "r83dsp_p1_P9_mediaclass input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_P9_mediaclass",
+      "node.driver-id": 121,
+      "node.group": "pw-loopback-3309385",
+      "node.link-group": "loopback-3309385-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_P9_mediaclass",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 117,
+      "object.register": false,
+      "object.serial": 13500,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 127,
+     "in": [],
+     "name": "output.r83dsp_p1_P9_mediaclass",
+     "out": [
+      [
+       "output_FL",
+       145,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       167,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_P9_mediaclass output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_P9_mediaclass",
+      "node.driver-id": 121,
+      "node.group": "pw-loopback-3309385",
+      "node.link-group": "loopback-3309385-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_P9_mediaclass",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 127,
+      "object.register": false,
+      "object.serial": 13499,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 121,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": 255,
+   "stderr": "error opening /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/raw/m2_dump.mid: No such file or directory\n",
+   "stdout": "",
+   "wall_s": 0.0
+  },
+  {
+   "aplaymidi": {
+    "err": "",
+    "rc": 0
+   },
+   "argv": [
+    "pw-mididump",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/raw/m3_dump.mid"
+   ],
+   "edges": [
+    "output.r83dsp_p1_CC0_ctrl:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC0_ctrl:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_CC0_ctrl_tone:output_FL -> r83dsp_p1_nsa:playback_FL",
+    "r83dsp_p1_CC0_ctrl_tone:output_FR -> r83dsp_p1_nsa:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC0_ctrl:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC0_ctrl:input_FR"
+   ],
+   "leg": "M3_dump_pin",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 127,
+     "in": [
+      [
+       "input_FL",
+       128,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       173,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC0_ctrl",
+     "out": [
+      [
+       "monitor_FL",
+       153,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       163,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC0_ctrl input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC0_ctrl",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3310440",
+      "node.link-group": "loopback-3310440-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC0_ctrl",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 127,
+      "object.register": false,
+      "object.serial": 13520,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 168,
+     "in": [],
+     "name": "output.r83dsp_p1_CC0_ctrl",
+     "out": [
+      [
+       "output_FL",
+       167,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       86,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC0_ctrl output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC0_ctrl",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3310440",
+      "node.link-group": "loopback-3310440-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC0_ctrl",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 168,
+      "object.register": false,
+      "object.serial": 13519,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 136,
+     "in": [],
+     "name": "r83dsp_p1_CC0_ctrl_tone",
+     "out": [
+      [
+       "output_FL",
+       170,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       140,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.category": "Playback",
+      "media.class": "Stream/Output/Audio",
+      "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/tone48.wav",
+      "media.format": "WAV (Microsoft)",
+      "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/tone48.wav",
+      "media.role": "Music",
+      "media.type": "Audio",
+      "node.async": true,
+      "node.autoconnect": true,
+      "node.driver-id": 114,
+      "node.latency": "4800/48000",
+      "node.loop.class": "main",
+      "node.loop.name": "main-loop",
+      "node.name": "r83dsp_p1_CC0_ctrl_tone",
+      "node.rate": "1/48000",
+      "node.want-driver": true,
+      "object.id": 136,
+      "object.register": false,
+      "object.serial": 13532,
+      "port.group": "stream.0",
+      "stream.capture.sink": false,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Midi/Bridge",
+     "id": 50,
+     "in": [
+      [
+       "Midi Through: Port-0 (playback)",
+       51,
+       "8 bit raw midi"
+      ]
+     ],
+     "name": "Midi-Bridge",
+     "out": [
+      [
+       "Midi Through: Port-0 (capture)",
+       52,
+       "8 bit raw midi"
+      ]
+     ],
+     "props": {
+      "media.class": "Midi/Bridge",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "Midi-Bridge",
+      "object.id": 50,
+      "object.serial": 51
+     }
+    }
+   ],
+   "pins": [
+    {
+     "err": "failed to link ports: No such file or directory",
+     "i": "pw-mididump:input",
+     "o": "Midi-Bridge:Midi Through: Port-0 (capture)",
+     "rc": 255
+    }
+   ],
+   "rc": 255,
+   "stderr": "error opening /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/raw/m3_dump.mid: No such file or directory\n",
+   "stdout": "",
+   "wall_s": 0.0
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "Midi-Bridge",
+    "-P",
+    "node.name=r83dsp_midiplay",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid"
+   ],
+   "aseqdump": {
+    "rc": -9,
+    "stdout": ""
+   },
+   "edges": [
+    "output.r83dsp_p1_CC0_ctrl:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC0_ctrl:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC0_ctrl:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC0_ctrl:input_FR"
+   ],
+   "leg": "M4_play_bridge",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 127,
+     "in": [
+      [
+       "input_FL",
+       128,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       173,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC0_ctrl",
+     "out": [
+      [
+       "monitor_FL",
+       153,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       163,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC0_ctrl input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC0_ctrl",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3310440",
+      "node.link-group": "loopback-3310440-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC0_ctrl",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 127,
+      "object.register": false,
+      "object.serial": 13520,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 168,
+     "in": [],
+     "name": "output.r83dsp_p1_CC0_ctrl",
+     "out": [
+      [
+       "output_FL",
+       167,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       86,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC0_ctrl output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC0_ctrl",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3310440",
+      "node.link-group": "loopback-3310440-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC0_ctrl",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 168,
+      "object.register": false,
+      "object.serial": 13519,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": 1,
+   "stderr": "stream node 140 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available\n",
+   "stdout": "",
+   "wall_s": 0.0
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "0",
+    "-P",
+    "node.name=r83dsp_midi0",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid"
+   ],
+   "edges": [
+    "output.r83dsp_p1_CC1_i_mono:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC1_i_mono:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC1_i_mono:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC1_i_mono:input_FR"
+   ],
+   "leg": "M5_play_t0",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 153,
+     "in": [
+      [
+       "input_FL",
+       168,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       86,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC1_i_mono",
+     "out": [
+      [
+       "monitor_FL",
+       159,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       167,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC1_i_mono input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC1_i_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3311825",
+      "node.link-group": "loopback-3311825-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC1_i_mono",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 153,
+      "object.register": false,
+      "object.serial": 13556,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 163,
+     "in": [],
+     "name": "output.r83dsp_p1_CC1_i_mono",
+     "out": [
+      [
+       "output_FL",
+       173,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       144,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC1_i_mono output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC1_i_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3311825",
+      "node.link-group": "loopback-3311825-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC1_i_mono",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 163,
+      "object.register": false,
+      "object.serial": 13555,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Stream/Output/Midi",
+     "id": 101,
+     "in": [],
+     "name": "r83dsp_midi0",
+     "out": [
+      [
+       "output_1",
+       140,
+       "8 bit raw midi"
+      ]
+     ],
+     "props": {
+      "media.category": "Playback",
+      "media.class": "Stream/Output/Midi",
+      "media.filename": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid",
+      "media.name": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid",
+      "media.role": "Music",
+      "media.type": "Midi",
+      "node.async": true,
+      "node.loop.class": "main",
+      "node.name": "r83dsp_midi0",
+      "node.want-driver": true,
+      "object.id": 101,
+      "object.serial": 13583,
+      "port.group": "stream.0",
+      "stream.is-live": true
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": -9,
+   "stderr": "",
+   "stdout": "",
+   "wall_s": 5.01
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "-P",
+    "node.name=r83dsp_midi_nf",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/no_such.mid"
+   ],
+   "edges": [
+    "output.r83dsp_p1_CC2_o_mono:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC2_o_mono:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC2_o_mono:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC2_o_mono:input_FR"
+   ],
+   "leg": "M6_play_nofile",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 159,
+     "in": [
+      [
+       "input_FL",
+       163,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       144,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC2_o_mono",
+     "out": [
+      [
+       "monitor_FL",
+       143,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       173,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC2_o_mono input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC2_o_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3313462",
+      "node.link-group": "loopback-3313462-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC2_o_mono",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 159,
+      "object.register": false,
+      "object.serial": 13589,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 167,
+     "in": [],
+     "name": "output.r83dsp_p1_CC2_o_mono",
+     "out": [
+      [
+       "output_FL",
+       86,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       136,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC2_o_mono output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC2_o_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3313462",
+      "node.link-group": "loopback-3313462-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC2_o_mono",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 167,
+      "object.register": false,
+      "object.serial": 13588,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": 1,
+   "stderr": "midifile: can't read midi file '/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/no_such.mid': No such file or directory\nerror: open failed: No such file or directory\npw-midiplay [options] [<file>|-]\n  -h, --help                            Show this help\n      --version                         Show version\n  -v, --verbose                         Enable verbose operations\n\n  -R, --remote                          Remote daemon name\n      --media-type                      Set media type (default Audio)\n      --media-category                  Set media category (default Playback)\n      --media-role                      Set media role (default Music)\n      --target                          Set node target serial or name (default auto)\n                                          0 means don't link\n      --latency                         Set node latency (default 100ms)\n                                          Xunit (unit = s, ms, us, ns)\n                                          or direct samples (256)\n                                          the rate is the one of the source file\n  -P  --properties                      Set node properties\n\n      --rate                            Sample rate (default 48000)\n      --channels                        Number of channels (default 2)\n      --channel-map                     Channel map\n                                            a channel layout: \"Stereo\", \"5.1\",... or\n                                            comma separated list of channel names: eg. \"FL,FR\"\n      --list-layouts                    List supported channel layouts\n      --list-channel-names              List supported channel maps\n      --format                          Sample format (default s16)\n      --list-formats                    List supported sample formats\n      --container                       Container format\n      --list-containers                 List supported containers and extensions\n      --volume                          Stream volume 0-1.0 (default 1.000)\n  -q  --quality                         Resampler quality (0 - 15) (default 4)\n  -a, --raw                             RAW mode\n  -M, --force-midi                      Force midi format, one of \"none\", \"midi\" or \"ump\", (default none)\n  -n, --sample-count COUNT              Stop after COUNT samples\n\n",
+   "stdout": "",
+   "wall_s": 0.0
+  },
+  {
+   "argv": [
+    "pw-mididump",
+    "-M",
+    "ump"
+   ],
+   "edges": [
+    "output.r83dsp_p1_CC2_o_mono:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC2_o_mono:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC2_o_mono:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC2_o_mono:input_FR"
+   ],
+   "leg": "M7_dump_ump",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 159,
+     "in": [
+      [
+       "input_FL",
+       163,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       144,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC2_o_mono",
+     "out": [
+      [
+       "monitor_FL",
+       143,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       173,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC2_o_mono input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC2_o_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3313462",
+      "node.link-group": "loopback-3313462-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC2_o_mono",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 159,
+      "object.register": false,
+      "object.serial": 13589,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 167,
+     "in": [],
+     "name": "output.r83dsp_p1_CC2_o_mono",
+     "out": [
+      [
+       "output_FL",
+       86,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       136,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC2_o_mono output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC2_o_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3313462",
+      "node.link-group": "loopback-3313462-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC2_o_mono",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 167,
+      "object.register": false,
+      "object.serial": 13588,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": -9,
+   "stderr": "",
+   "stdout": "",
+   "wall_s": 5.01
+  },
+  {
+   "argv": [
+    "pw-midiplay",
+    "--target",
+    "no_such_midi_r83",
+    "-P",
+    "node.name=r83dsp_midi_gb",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid"
+   ],
+   "aseqdump": {
+    "rc": -9,
+    "stdout": ""
+   },
+   "edges": [
+    "output.r83dsp_p1_CC3_both_mono:output_FL -> r83dsp_p1_nsb:playback_FL",
+    "output.r83dsp_p1_CC3_both_mono:output_FR -> r83dsp_p1_nsb:playback_FR",
+    "r83dsp_p1_nsa:monitor_FL -> input.r83dsp_p1_CC3_both_mono:input_FL",
+    "r83dsp_p1_nsa:monitor_FR -> input.r83dsp_p1_CC3_both_mono:input_FR"
+   ],
+   "leg": "M8_play_garbage",
+   "nodes": [
+    {
+     "class": "Stream/Input/Audio",
+     "id": 143,
+     "in": [
+      [
+       "input_FL",
+       153,
+       "32 bit float mono audio"
+      ],
+      [
+       "input_FR",
+       167,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "input.r83dsp_p1_CC3_both_mono",
+     "out": [
+      [
+       "monitor_FL",
+       136,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       145,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Input/Audio",
+      "media.name": "r83dsp_p1_CC3_both_mono input",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC3_both_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3314615",
+      "node.link-group": "loopback-3314615-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "input.r83dsp_p1_CC3_both_mono",
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 143,
+      "object.register": false,
+      "object.serial": 13624,
+      "port.group": "stream.0",
+      "stream.capture.sink": true,
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsa"
+     }
+    },
+    {
+     "class": "Stream/Output/Audio",
+     "id": 173,
+     "in": [],
+     "name": "output.r83dsp_p1_CC3_both_mono",
+     "out": [
+      [
+       "output_FL",
+       144,
+       "32 bit float mono audio"
+      ],
+      [
+       "output_FR",
+       128,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Stream/Output/Audio",
+      "media.name": "r83dsp_p1_CC3_both_mono output",
+      "node.autoconnect": true,
+      "node.description": "r83dsp_p1_CC3_both_mono",
+      "node.driver-id": 114,
+      "node.group": "pw-loopback-3314615",
+      "node.link-group": "loopback-3314615-20",
+      "node.loop.name": "data-loop.0",
+      "node.name": "output.r83dsp_p1_CC3_both_mono",
+      "node.trigger": true,
+      "node.virtual": true,
+      "node.want-driver": true,
+      "object.id": 173,
+      "object.register": false,
+      "object.serial": 13623,
+      "port.group": "stream.0",
+      "stream.is-live": true,
+      "target.object": "r83dsp_p1_nsb"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 114,
+     "in": [
+      [
+       "playback_FL",
+       104,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       92,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsa",
+     "out": [
+      [
+       "monitor_FL",
+       97,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       106,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsa Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsa",
+      "object.id": 114,
+      "object.serial": 10766,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 121,
+     "in": [
+      [
+       "playback_FL",
+       116,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       107,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p1_nsb",
+     "out": [
+      [
+       "monitor_FL",
+       113,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       124,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p1_nsb Audio/Sink sink",
+      "node.driver": true,
+      "node.driver-id": 114,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p1_nsb",
+      "object.id": 121,
+      "object.serial": 10778,
+      "port.group": "stream.0"
+     }
+    },
+    {
+     "class": "Audio/Sink",
+     "id": 122,
+     "in": [
+      [
+       "playback_FL",
+       119,
+       "32 bit float mono audio"
+      ],
+      [
+       "playback_FR",
+       120,
+       "32 bit float mono audio"
+      ]
+     ],
+     "name": "r83dsp_p4_ns",
+     "out": [
+      [
+       "monitor_FL",
+       118,
+       "32 bit float mono audio"
+      ],
+      [
+       "monitor_FR",
+       96,
+       "32 bit float mono audio"
+      ]
+     ],
+     "props": {
+      "media.class": "Audio/Sink",
+      "node.description": "r83dsp_p4_ns Audio/Sink sink",
+      "node.driver": true,
+      "node.loop.name": "data-loop.0",
+      "node.name": "r83dsp_p4_ns",
+      "object.id": 122,
+      "object.serial": 10776,
+      "port.group": "stream.0"
+     }
+    }
+   ],
+   "rc": 1,
+   "stderr": "stream node 90 error: no target node available\nremote error: id=2 seq:9 res:-2 (No such file or directory): no target node available\n",
+   "stdout": "",
+   "wall_s": 0.0
+  }
+ ],
+ "m2_file": {
+  "bytes": 0,
+  "exists": false
+ },
+ "m3_file": {
+  "bytes": 0,
+  "exists": false
+ },
+ "smf": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r83-scout/scratch/r83_note.mid",
+ "smf_bytes": 42
+}

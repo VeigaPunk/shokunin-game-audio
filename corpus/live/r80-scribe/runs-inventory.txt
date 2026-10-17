@@ -1,0 +1,44 @@
+# r80 scribe — module-r80 receipt/run inventory snapshot
+# taken during the audit (2026-10-15, local -0300)
+
+## canonical runs dirs (ls -d corpus/live/runs/*module-r80*)
+20261015T134206631212Z-module-r80   measurements.json 68584 B  mtime 10:42:06  (author run 1 — disclosed a2 failure, own_pid 712083)
+20261015T134301846760Z-module-r80   measurements.json 68517 B  mtime 10:43:01  (author formal run A, own_pid 726605)
+20261015T134359918834Z-module-r80   measurements.json 68523 B  mtime 10:43:59  (author formal run B, own_pid 736128)
+20261015T152510343508Z-module-r80   measurements.json 68524 B  mtime 12:25:10  (POST-REPORT run, own_pid 930381 — green)
+20261015T153530291390Z-module-r80   measurements.json 68524 B? mtime 12:35:30  (POST-REPORT run, own_pid 986178 — green; appeared DURING this audit)
+
+## corpus/live/r80-author/
+receipt-20261015T134301846760Z-module-r80.json  sha256 8a3a37a462a2035bd4301304e72f49c043ecaa880ab7a07290722ce11724d49e  (== canonical)
+receipt-20261015T134359918834Z-module-r80.json  sha256 ba565dc759cf9108be4e1fecb58e2944de0ac341ab8d2b6f816dcdb8e19d40e1  (== canonical)
+receipt-20261015T152510343508Z-module-r80.json  sha256 66d0532ade6b24e6baa4c8c70a69c0d74b894ce8734186e6cb54c64204206098  (== canonical; mtime 12:32:02; NOT listed in receipt-shas.txt)
+receipt-shas.txt (mtime 10:44:20) lists: fixture sha + the two formal-run copies + the two canonical measurements — nothing about the third copy
+
+## canonical receipt for the disclosed failure
+corpus/live/runs/20261015T134206631212Z-module-r80/measurements.json  sha256 65d11f0ba9feb4f0cc4c41818a1eea410e7853e340089f16cec8f992dc61bce4
+failures: ["args a2: sink_properties description did NOT land — got 'r80md'"]  (args entry); topology entry failures []
+
+## module_count fields actually recorded (all module-r80 receipts)
+T134206631212Z: 49 -> 49
+T134301846760Z: 49 -> 49
+T134359918834Z: 49 -> 49
+T152510343508Z: 47 -> 47
+T153530291390Z: 48 -> 48
+(author table prints "count 23→23" — no receipt carries 23)
+
+## volatile values per run (a5 stale pmid / destroyed_id / t4 peak / own_pid / tag freq pair)
+T134301846760Z: pmid 536870942, destroyed_id 151, t4 peak_l/r max 8137, own_pid 726605, mine freqs (1210,1710)
+T134359918834Z: pmid 536870931, destroyed_id 227, t4 peak max 8189, own_pid 736128, mine freqs (1000,1500)
+T152510343508Z: pmid 536870943, destroyed_id 290, t4 peak max 8137, own_pid 930381, mine freqs (1210,1710)
+
+The author report's "measured (run 2 verbatim)" column quotes pmid 536870942,
+destroy 151, peak 8137, marker r80md_desc_726605_marker — all matching
+T134301846760Z (the FIRST formal run), i.e. "run 2" is consistent only if the
+disclosed failing run is counted as run 1.
+
+## tree state during audit
+git status:  M SHONEN.md (pre-existing foreign dirt),  M corpus/fixtures/measure_audio.py (+905/-3, sha 3b69541f…),
+             M corpus/fixtures/__pycache__/measure_audio.cpython-314.pyc (stat-dirty only:
+             worktree sha256 6e271a2d2341208973e1476baf635e02f5ef4f2ff60f43cd1015bebfdbc27473 == HEAD blob;
+             mtime 12:32:41 — recompiled by the post-report re-runs, content unchanged)
+HEAD: ee6d6847cf27f9fd2c9dd784ada25468ef0a1426 (reflog top, unchanged)

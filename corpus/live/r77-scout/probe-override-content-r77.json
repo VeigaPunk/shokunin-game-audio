@@ -1,0 +1,301 @@
+{
+ "content": {
+  "tone->SPDIF; cap parec SPDIF.monitor": {
+   "bytes": 65536,
+   "cap_argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_rc": 0,
+   "carries_tone": true,
+   "leg": "tone->SPDIF; cap parec SPDIF.monitor",
+   "nonzero_frac": 0.8799,
+   "payload": 65536,
+   "peak": 16504,
+   "play_rc": 0,
+   "play_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+  },
+  "tone->SPDIF; cap prop|SPDIF_sink": {
+   "bytes": 384044,
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "tone->SPDIF; cap prop|SPDIF_sink",
+   "nonzero_frac": 0.9147,
+   "payload": 384000,
+   "peak": 16384,
+   "play_rc": 0,
+   "play_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+  },
+  "tone->SPDIF; cap prop|SPEAKER_sink": {
+   "bytes": 384044,
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "tone->SPDIF; cap prop|SPEAKER_sink",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0,
+   "play_rc": 0,
+   "play_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+  },
+  "tone->SPEAKER; cap parec SPDIF.monitor": {
+   "bytes": 65536,
+   "cap_argv": [
+    "parec",
+    "-d",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "--raw"
+   ],
+   "cap_rc": 0,
+   "carries_tone": true,
+   "leg": "tone->SPEAKER; cap parec SPDIF.monitor",
+   "nonzero_frac": 0.8799,
+   "payload": 65536,
+   "peak": 16504,
+   "play_rc": 0,
+   "play_sink": "spk"
+  },
+  "tone->SPEAKER; cap prop|GARBAGE": {
+   "bytes": 384044,
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "no_such_node_xyz",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "tone->SPEAKER; cap prop|GARBAGE",
+   "nonzero_frac": 0.9137,
+   "payload": 384000,
+   "peak": 16384,
+   "play_rc": 0,
+   "play_sink": "spk"
+  },
+  "tone->SPEAKER; cap prop|SPDIF_sink": {
+   "bytes": 384044,
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": true,
+   "leg": "tone->SPEAKER; cap prop|SPDIF_sink",
+   "nonzero_frac": 0.9067,
+   "payload": 384000,
+   "peak": 32768,
+   "play_rc": 0,
+   "play_sink": "spk"
+  },
+  "tone->SPEAKER; cap prop|SPEAKER_sink": {
+   "bytes": 384044,
+   "cap_argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+    "-n",
+    "96000"
+   ],
+   "cap_rc": 1,
+   "carries_tone": false,
+   "leg": "tone->SPEAKER; cap prop|SPEAKER_sink",
+   "nonzero_frac": 0.0,
+   "payload": 384000,
+   "peak": 0,
+   "play_rc": 0,
+   "play_sink": "spk"
+  }
+ },
+ "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+ "probe": "override-content-r77",
+ "tmp": "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-scout/scratch/r77-scout-6b9pif3d",
+ "topology": {
+  "noprop|SPDIF_monitor": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor"
+   ],
+   "bytes": 44,
+   "input_streams": [
+    {
+     "node.name": "pw-record",
+     "object.serial": 13333,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\n  |-> pw-record:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n  |-> pw-record:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\npw-record:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n",
+   "rc": 1
+  },
+  "noprop|SPEAKER_sink": {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "bytes": 44,
+   "input_streams": [
+    {
+     "node.name": "parec",
+     "object.serial": 13321,
+     "stream.capture.sink": true,
+     "target.object": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> parec:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> parec:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nparec:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\nparec:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n",
+   "rc": 1
+  },
+  "prop|GARBAGE": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "no_such_node_xyz"
+   ],
+   "bytes": 290860,
+   "input_streams": [
+    {
+     "node.name": "parec",
+     "object.serial": 13257,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    },
+    {
+     "node.name": "pw-record",
+     "object.serial": 13267,
+     "stream.capture.sink": true,
+     "target.object": "no_such_node_xyz"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> pw-record:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> pw-record:input_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n  |<- paplay:output_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\n  |<- paplay:output_FR\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\n  |-> parec:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n  |-> parec:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nparec:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\nparec:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\npw-record:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\npw-record:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\npaplay:output_FL\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\npaplay:output_FR\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\n",
+   "rc": 1
+  },
+  "prop|HDMI_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+   ],
+   "bytes": 288812,
+   "input_streams": [
+    {
+     "node.name": "pw-record",
+     "object.serial": 13249,
+     "stream.capture.sink": true,
+     "target.object": "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+    },
+    {
+     "node.name": "parec",
+     "object.serial": 13257,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:monitor_FL\n  |-> pw-record:input_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:monitor_FR\n  |-> pw-record:input_FR\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\n  |-> parec:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n  |-> parec:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_FL\n  |<- alsa_output.pci-0000_01_00.1.hdmi-stereo:monitor_FL\npw-record:input_FR\n  |<- alsa_output.pci-0000_01_00.1.hdmi-stereo:monitor_FR\nparec:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\nparec:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n",
+   "rc": 1
+  },
+  "prop|NO_TARGET": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "bytes": 286764,
+   "input_streams": [
+    {
+     "node.name": "pw-record",
+     "object.serial": 13301,
+     "stream.capture.sink": true,
+     "target.object": null
+    },
+    {
+     "node.name": "parec",
+     "object.serial": 13303,
+     "stream.capture.sink": true,
+     "target.object": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> pw-record:input_FL\n  |-> parec:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> pw-record:input_FR\n  |-> parec:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\npw-record:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\nparec:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\nparec:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n",
+   "rc": 1
+  },
+  "prop|SPDIF_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+   ],
+   "bytes": 294956,
+   "input_streams": [
+    {
+     "node.name": "pw-record",
+     "object.serial": 13197,
+     "stream.capture.sink": true,
+     "target.object": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\n  |-> pw-record:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\n  |-> pw-record:input_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\n  |<- paplay:output_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\n  |<- paplay:output_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FL\npw-record:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:monitor_FR\npaplay:output_FL\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FL\npaplay:output_FR\n  |-> alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink:playback_FR\n",
+   "rc": 1
+  },
+  "prop|SPEAKER_sink": {
+   "argv": [
+    "pw-record",
+    "-P",
+    "stream.capture.sink=true",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+   ],
+   "bytes": 266284,
+   "input_streams": [
+    {
+     "node.name": "pw-record",
+     "object.serial": 13225,
+     "stream.capture.sink": true,
+     "target.object": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+    },
+    {
+     "node.name": "parec",
+     "object.serial": 13239,
+     "stream.capture.sink": null,
+     "target.object": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+    }
+   ],
+   "pwlink_text": "alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\n  |<- Chromium:output_FL\n  |<- Chromium:output_FL\nalsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\n  |<- Chromium:output_FR\n  |<- Chromium:output_FR\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FL\n  |-> pw-record:input_FL\nalsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FR\n  |-> pw-record:input_FR\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\n  |-> parec:input_FL\nalsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n  |-> parec:input_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\nChromium:output_FL\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FL\nChromium:output_FR\n  |-> alsa_output.pci-0000_01_00.1.hdmi-stereo:playback_FR\npw-record:input_FL\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FL\npw-record:input_FR\n  |<- alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink:monitor_FR\nparec:input_FL\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FL\nparec:input_FR\n  |<- alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source:capture_FR\n",
+   "rc": 1
+  }
+ }
+}

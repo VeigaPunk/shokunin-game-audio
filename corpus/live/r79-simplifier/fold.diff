@@ -1,0 +1,403 @@
+--- control/corpus/fixtures/measure_audio.py	2026-10-15 05:00:53.470884302 -0300
++++ cand/corpus/fixtures/measure_audio.py	2026-10-15 05:03:24.225478702 -0300
+@@ -8866,9 +8866,10 @@
+ #     APPEARANCE re-links to the named node. The client never exits and
+ #     never logs — only topology and content move.
+ #   PWCAT LATENCY. --latency/-P node.latency store the prop VERBATIM
+-#     (prop beats flag); the reported Latency param is byte-identical on
+-#     every leg — intent, not a negotiated param. stream.capture.sink on
+-#     a playback stream is recorded decoration.
++#     (prop beats flag); the reported Latency param is RECORDED as a
++#     named verdict, never asserted (r78 measured one value, r79 run 2
++#     measured three that track the request) — the prop is the hard
++#     pin. stream.capture.sink on a playback stream is decoration.
+ #   FILTER-CHAIN. libpipewire-module-filter-chain is a CLIENT of the
+ #     running session — the documented conf.d recipe and pw-cli
+ #     load-module both publish into the live daemon and the nodes die
+@@ -8878,7 +8879,6 @@
+ #     'unknown module' — teardown is client exit, and a scraped reply id
+ #     is NEVER fed to `destroy` (the reply interleaves the async global
+ #     dump; a wrong id can name a daemon-owned module).
+-LOOPBACK_R79_TIMEOUT_S = CONSUMER_R73_TIMEOUT_S
+ LOOPBACK_R79_SETTLE_S = 0.6
+ LOOPBACK_R79_NODE_WAIT_S = 5.0
+ LOOPBACK_R79_LEG_BOUND_S = 4.6
+@@ -9183,7 +9183,7 @@
+         fired.append({"kind": "feed_reap", "tag": ftag,
+                       "exit_code": f.returncode})
+     err = proc.stderr.read().decode(errors="replace")
+-    cls, line = _playback_r78_errclass(err)
++    cls, _ = _playback_r78_errclass(err)
+     shown = " ".join(argv)
+     for name in ctx.get("redact", ()):
+         if name:
+@@ -9236,14 +9236,10 @@
+             "default_sink_at_leg": ctx["default_at_start"],
+             "default_source_at_leg": ctx.get("source_at_start"),
+             **run,
+-            "input_producers_union": sorted(
+-                {n for s in run["samples"]
+-                 for n in (s["watch"].get(f"input.{ltag}") or {})
+-                 .get("producers") or []}),
+-            "output_consumers_union": sorted(
+-                {n for s in run["samples"]
+-                 for n in (s["watch"].get(f"output.{ltag}") or {})
+-                 .get("consumers") or []})}
++            "input_producers_union": _loopback_r79_union(
++                run["samples"], f"input.{ltag}", "producers"),
++            "output_consumers_union": _loopback_r79_union(
++                run["samples"], f"output.{ltag}", "consumers")}
+     if tap is not None:
+         _capture_r77_reap(tap, PLAYBACK_R78_TIMEOUT_S)
+         twit = [s.get("tap_witnesses", {}).get(f"{ltag}_tap")
+@@ -9357,7 +9353,7 @@
+ 
+ 
+ def _loopback_r79_check_tap(entry, failures, lname, leg, *,
+-                            want_tone=None, require=True):
++                            want_tone=None):
+     """The content-witness contract (r78): a tap that produced no windows
+     is vacuous; a tap that never bound to its target attributes `mine`
+     to nothing. want_tone=True requires carries_tone; False forbids ANY
+@@ -9365,9 +9361,8 @@
+     only."""
+     tap = leg.get("tap") or {}
+     if not tap:
+-        if require:
+-            failures.append(f"{lname}: no tap recorded — the content "
+-                            "pin is absent")
++        failures.append(f"{lname}: no tap recorded — the content "
++                        "pin is absent")
+         return
+     if not tap.get("ran"):
+         failures.append(f"{lname}: the monitor tap produced no windows "
+@@ -9608,7 +9603,7 @@
+ def _loopback_r79_sinks_unload(loads):
+     """Unload ONLY the module ids captured at our loads — never a name
+     lookup, never a foreign module (the round's by-name ban)."""
+-    for nm, leaf in loads.items():
++    for leaf in loads.values():
+         _playback_r78_unload(leaf.get("module_id"))
+ 
+ 
+@@ -9627,6 +9622,18 @@
+         failures.append(f"teardown: r79-tagged nodes survived: {rest}")
+ 
+ 
++def _loopback_r79_block(entry, failures, msg, loads=None):
++    """The named coverage block every entry shares: record it, unload
++    anything this entry loaded, and return the entry — a blocked leg is
++    named coverage, never a silent pass."""
++    entry["blocked"] = msg
++    entry["coverage_blocked"] = [msg]
++    if loads is not None:
++        _loopback_r79_sinks_unload(loads)
++    entry["failures"] = failures
++    return entry
++
++
+ # --------------------------------------------------------------------------
+ # (1) SHAPE — one client, two nodes, the copy is in-client; -i/-o prop
+ #     syntax and the verbatim target.object.
+@@ -9652,19 +9659,15 @@
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     s0 = ora0["source_meta"] or inv["default_source"]
+     if not d0 or not s0:
+-        entry["blocked"] = "no default sink/source authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink/source authority readable")
+     ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+     loads = _loopback_r79_sinks_load((ns_a, ns_b))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     legs = {}
+     try:
+         with tempfile.TemporaryDirectory(
+@@ -9882,10 +9885,8 @@
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     s0 = ora0["source_meta"] or inv["default_source"]
+     if not d0 or not s0:
+-        entry["blocked"] = "no default sink/source authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink/source authority readable")
+     # a REAL non-monitor, non-default source for the honored-source arms —
+     # a monitor name resolves only through the sink domain, and foreign
+     # probe monitors (r84alsa_ns.monitor etc.) never qualify.
+@@ -9898,11 +9899,9 @@
+     loads = _loopback_r79_sinks_load((ns_a, ns_b))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     SRC = nondef or s0
+     # (name, extra tail, expected producers of input.<n>, feed, want_tone)
+     # -P ns_b pins playback on EVERY leg (fail-closed). Expected kinds:
+@@ -9959,7 +9958,7 @@
+             entry["default_source_probe"] = \
+                 _loopback_r79_default_source_probe(tmp)
+             for name, tail, (kind, arg), feed, want_tone in LEGS:
+-                if "@SRC@" in tail and nondef is None and s0 is None:
++                if "@SRC@" in tail and nondef is None:
+                     legs[name] = {"blocked": "no real source enumerated"}
+                     continue
+                 ora = _loopback_r79_oracle()
+@@ -9972,12 +9971,11 @@
+                         ctx["source_at_start"] if kind == "dsource" else
+                         ctx["default_at_start"] if kind == "dsink" else
+                         None)
+-                tap_t = ns_b if kind != "none" else ns_b
+                 legs[name] = _loopback_r79_leg(
+                     name, tail + ["-P", ns_b] if "-P" not in tail
+                     else tail, ctx,
+                     feed_sink=ns_a if feed else None,
+-                    tap_target=tap_t,
++                    tap_target=ns_b,
+                     tap_seconds=LOOPBACK_R79_LEG_BOUND_S +
+                     PLAYBACK_R78_TAP_LEAD_S + 0.5)
+                 legs[name]["expected_kind"] = kind
+@@ -10098,10 +10096,8 @@
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     s0 = ora0["source_meta"] or inv["default_source"]
+     if not d0:
+-        entry["blocked"] = "no default sink authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink authority readable")
+     real_sources = [s for s in inv["sources"]
+                     if not s.endswith(".monitor")]
+     nondef = next((s for s in real_sources
+@@ -10111,11 +10107,9 @@
+     loads = _loopback_r79_sinks_load((ns_a, ns_b, ns_b2))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     CAP = ["-C", ns_a, "-i", "stream.capture.sink=true"]
+     # (name, playback tail, expected consumers, feed+tone)
+     #   "node" -> [name]; "dsink" -> [default sink]; "none" -> []
+@@ -10167,9 +10161,6 @@
+                 tap_t = want if want is not None else ns_b
+                 # c07's content control needs a second tap on the flag
+                 # sink — bound+ran in the witness list, silent on `mine`.
+-                extra_tw = []
+-                if name == "c07_prop_beats_flag":
+-                    extra_tw = [("c07_flag_sink_tap", ns_b)]
+                 ctx_l = dict(ctx, tap_witnesses=list(
+                     ctx.get("tap_witnesses", ())) + [
+                         (f"{LOOPBACK_R79_PREFIX}_{name}_ctrltap", ns_b)]
+@@ -10280,7 +10271,6 @@
+     content pin is the per-channel two-tone signature on the playback
+     sink's monitor."""
+     failures = []
+-    inv = _capture_inventory()
+     ora0 = _loopback_r79_oracle()
+     entry = {"probe": "pw-loopback channel matrix — audio.position "
+                       "drives the mix",
+@@ -10291,11 +10281,9 @@
+     loads = _loopback_r79_sinks_load((ns_a, ns_b))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     # (name, extra tail, expected audio.channels, expected
+     #  audio.position, expected signature)
+     LEGS = (
+@@ -10424,19 +10412,15 @@
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     s0 = ora0["source_meta"] or inv["default_source"]
+     if not d0 or not s0:
+-        entry["blocked"] = "no default sink/source authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink/source authority readable")
+     ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+     loads = _loopback_r79_sinks_load((ns_a, ns_b))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     legs = {}
+     frames = int(1.4 * PLAYBACK_R78_TONE_RATE)
+     lb_proc = None
+@@ -10577,11 +10561,7 @@
+         failures.append("record lattice: the loopback under test never "
+                         "showed the pinned ns_a->lb->ns_b route — every "
+                         "record verdict below is unanchored")
+-    for name, target, capprop, (kind, *karg) in (
+-            ("d2a_input_node", in_n, False, ("source",)),
+-            ("d2b_output_node", out_n, False, ("node", out_n)),
+-            ("d2c_input_capsink", in_n, True, ("node", in_n)),
+-            ("d2d_output_capsink", out_n, True, ("dsink",))):
++    for name, target, capprop, (kind, *karg) in RECS:
+         leg = legs.get(name)
+         if leg is None:
+             failures.append(f"record {name}: leg absent")
+@@ -10689,20 +10669,16 @@
+              "oracle_at_start": ora0}
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     if not d0:
+-        entry["blocked"] = "no default sink authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink authority readable")
+     ns_a, ns_b = LOOPBACK_R79_NS_A, LOOPBACK_R79_NS_B
+     hp, hp2 = LOOPBACK_R79_HP, LOOPBACK_R79_HP2
+     loads = _loopback_r79_sinks_load((ns_a, ns_b, hp))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "a probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "a probe null sink/monitor did not enumerate", loads)
+     hp_mid = loads[hp]["module_id"]
+     nsa_mid = loads[ns_a]["module_id"]
+     legs = {}
+@@ -10785,7 +10761,7 @@
+     if not e1:
+         failures.append("hotplug e1: leg absent")
+     else:
+-        ltag, out_n = e1["ltag"], f"output.{e1['ltag']}"
++        out_n = f"output.{e1['ltag']}"
+         pre = e1["samples"][0] if e1["samples"] else {}
+         post = e1["samples"][2:] if len(e1["samples"]) > 2 else []
+         if (pre.get("watch") or {}).get(out_n, {}).get("consumers") \
+@@ -10888,8 +10864,8 @@
+     """(7) pw-cat's playback latency vector, the scout's D01-D13 armed:
+     --latency and -P node.latency store the prop VERBATIM (prop beats
+     flag; --latency 0 is a non-fatal argv error while -P node.latency=0
+-    is stored unvalidated); the reported Latency param is byte-identical
+-    on every leg — intent, never a negotiated param; and
++    is stored unvalidated); the reported Latency param is RECORDED as
++    a named verdict, never asserted — the prop is the hard pin; and
+     stream.capture.sink on a PLAYBACK stream is decoration."""
+     failures = []
+     inv = _capture_inventory()
+@@ -10910,19 +10886,15 @@
+              "oracle_at_start": ora0}
+     d0 = ora0["sink_meta"] or inv["default_sink"]
+     if not d0:
+-        entry["blocked"] = "no default sink authority readable"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures, "no default sink authority readable")
+     ns_b = LOOPBACK_R79_NS_B
+     loads = _loopback_r79_sinks_load((ns_b,))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "the probe null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "the probe null sink/monitor did not enumerate", loads)
+     # (name, extra tail, target, expected node.latency (as string —
+     #   pw-dump JSON types vary), expected node.force-latency)
+     LEGS = (
+@@ -11135,7 +11107,6 @@
+     module); `quit` is the teardown. The DSP witness: tone pinned onto
+     the chain's input ports -> 0.5*(L+R) on FL only."""
+     failures = []
+-    inv = _capture_inventory()
+     ora0 = _loopback_r79_oracle()
+     entry = {"probe": "filter-chain module — client-scoped conf.d/pw-cli "
+                       "loading, parse-soft vs runtime-fatal",
+@@ -11148,18 +11119,13 @@
+     loads = _loopback_r79_sinks_load((fc,))
+     entry["sink_loads"] = loads
+     if not all(l.get("monitor_seen") for l in loads.values()):
+-        entry["blocked"] = "the fc null sink/monitor did not enumerate"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(
++            entry, failures,
++            "the fc null sink/monitor did not enumerate", loads)
+     base = "/usr/share/pipewire/filter-chain.conf"
+     if not Path(base).exists():
+-        entry["blocked"] = "no shipped filter-chain.conf"
+-        entry["coverage_blocked"] = [entry["blocked"]]
+-        _loopback_r79_sinks_unload(loads)
+-        entry["failures"] = failures
+-        return entry
++        return _loopback_r79_block(entry, failures,
++                                   "no shipped filter-chain.conf", loads)
+     fc_tag = LOOPBACK_R79_FC_PREFIX
+     bad_frag = "context.modules = [ { name = x\n"
+     legs = {}
+@@ -11168,13 +11134,6 @@
+                 prefix="r79fc-") as tmp:    # SHORT — the AF_UNIX limit
+             tone = Path(tmp) / "tag_tone.wav"
+             _playback_r78_write_tone(tone, LOOPBACK_R79_TONE_S)
+-            ctx = {"tmp": tmp, "tone": tone,
+-                   "bound_s": LOOPBACK_R79_HP_BOUND_S,
+-                   "own_sinks": {fc}, "redact": [fc],
+-                   "default_at_start": ora0["sink_meta"] or
+-                   ora0["sink_pactl"],
+-                   "source_at_start": ora0["source_meta"] or
+-                   ora0["source_pactl"]}
+ 
+             def mkcfg(legname, fragments):
+                 d = Path(tmp) / legname
+@@ -11460,8 +11419,7 @@
+     if "conf_load()" not in f2text and "error in config" not in f2text:
+         failures.append(f"fc f2: expected the parse warning on stderr, "
+                         f"got {f2.get('stderr_scan')!r}")
+-    for name, want_node in (("f3_good_then_bad", True),
+-                            ("f3b_bad_then_good", True)):
++    for name in ("f3_good_then_bad", "f3b_bad_then_good"):
+         fl = legs.get(name) or {}
+         if not fl.get("loader_alive") or not fl.get("expect_met"):
+             failures.append(f"fc {name}: a bad sibling fragment must "

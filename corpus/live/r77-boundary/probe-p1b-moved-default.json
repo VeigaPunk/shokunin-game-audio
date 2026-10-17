@@ -1,0 +1,487 @@
+{
+ "probe": "r77-boundary/p1b-moved-default",
+ "t0": "2026-10-14T19:46:02Z",
+ "quiet_at_start": {
+  "concurrent_audio_clients": [
+   "316472     140 python3 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/fixtures/measure_audio.py --probe-fifo-hold-ladder-r70",
+   " 323862      50 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && (timeout 900 python3 corpus/fixtures/measure_audio.py --probe-capture-r77 > corpus/live/r77-author/r77-run1.stdout.json 2> corpus/live/r77-author/r77-run1.stderr.log; echo \"EXIT=$?\"); head -c 4000 corpus/live/r77-author/r77-run1.stdout.json; echo; echo \"--- stderr\"; tail -25 corpus/live/r77-author/r77-run1.stderr.log",
+   " 323863      50 bash -c cd /home/vgpnk/Projects/shokunin/audio-shokunin && (timeout 900 python3 corpus/fixtures/measure_audio.py --probe-capture-r77 > corpus/live/r77-author/r77-run1.stdout.json 2> corpus/live/r77-author/r77-run1.stderr.log; echo \"EXIT=$?\"); head -c 4000 corpus/live/r77-author/r77-run1.stdout.json; echo; echo \"--- stderr\"; tail -25 corpus/live/r77-author/r77-run1.stderr.log",
+   " 323864      50 timeout 900 python3 corpus/fixtures/measure_audio.py --probe-capture-r77",
+   " 323865      50 python3 corpus/fixtures/measure_audio.py --probe-capture-r77",
+   " 426865       1 pw-cat -r -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink /tmp/capture-r77-6876053h/w_pwc.wav",
+   " 427059       0 ffmpeg -loglevel quiet -nostdin -strict -2 -i /tmp/fifo-hold-r70-ufxfmdtp/pair_dec_act.wav -f au -"
+  ],
+  "n": 7
+ },
+ "default_move_mechanism": {
+  "before": {
+   "pactl_get": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "pw_metadata_default": "Found \"default\" metadata 39\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\nupdate: id:83 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.source' value:'{ \"name\": \"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\" }' type:'Spa:String:JSON'\nupdate: id:132 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\" }' type:'Spa:String:JSON'\nupdate: id:91 key:",
+   "rc": 0
+  },
+  "after_pactl_set": {
+   "pactl_get": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "pw_metadata_default": "Found \"default\" metadata 39\nupdate: id:0 key:'default.audio.sink' value:'{\"name\":\"alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink\"}' type:'Spa:String:JSON'\nupdate: id:83 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.source' value:'{ \"name\": \"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\" }' type:'Spa:String:JSON'\nupdate: id:132 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\" }' type:'Spa:String:JSON'\nupdate: id:91 ke",
+   "rc": 0
+  },
+  "pactl_set_rc": 0,
+  "pactl_set_err": "",
+  "get_samples_after_pactl_set": [
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+  ],
+  "pactl_set_effective": false,
+  "after_pw_metadata_write": {
+   "pactl_get": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "pw_metadata_default": "Found \"default\" metadata 39\nupdate: id:0 key:'default.audio.sink' value:'{\"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\"}' type:'Spa:String:JSON'\nupdate: id:83 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.source' value:'{ \"name\": \"alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source\" }' type:'Spa:String:JSON'\nupdate: id:132 key:'target.object' value:'58' type:'Spa:Id'\nupdate: id:0 key:'default.configured.audio.sink' value:'{ \"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\" }' type:'Spa:String:JSON'\nupdate: id:91",
+   "rc": 0
+  },
+  "pw_metadata_write_rc": 0,
+  "pw_metadata_write_out": "Found \"default\" metadata 39\nset property: id:0 key:default.audio.sink value:{\"name\": \"alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink\"} type:(null)",
+  "get_samples_after_pw_metadata": [
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink"
+  ],
+  "pw_metadata_effective": true
+ },
+ "moved_legs": [
+  {
+   "tag": "moved_garbage",
+   "target": "no_such_node_xyz",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "fallback under a moved default",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_garbage__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target no_such_node_xyz -n 96000 /dev/shm/r77b/p1b_moved_garbage__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_garbage__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "moved_garbage__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target no_such_node_xyz -n 96000 /dev/shm/r77b/p1b_moved_garbage__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_garbage__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "moved_alias",
+   "target": "@DEFAULT_MONITOR@",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "alias under a moved default",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_alias__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target @DEFAULT_MONITOR@ -n 96000 /dev/shm/r77b/p1b_moved_alias__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_alias__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "moved_alias__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target @DEFAULT_MONITOR@ -n 96000 /dev/shm/r77b/p1b_moved_alias__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_alias__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7437,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "moved_auto",
+   "target": null,
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "auto+prop under a moved default",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_auto__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true -n 96000 /dev/shm/r77b/p1b_moved_auto__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_auto__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "moved_auto__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true -n 96000 /dev/shm/r77b/p1b_moved_auto__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_auto__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "moved_speaker_named",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "explicit new-default sink",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "moved_speaker_named__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1b_moved_speaker_named__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_speaker_named__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "moved_speaker_named__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1b_moved_speaker_named__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_speaker_named__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "moved_spdif_named",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "explicit old-default sink",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "moved_spdif_named__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/p1b_moved_spdif_named__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_spdif_named__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7743,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "moved_spdif_named__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink -n 96000 /dev/shm/r77b/p1b_moved_spdif_named__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_moved_spdif_named__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   }
+  }
+ ],
+ "restore": {
+  "rc": 0,
+  "now": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+ },
+ "monitor_name_edges": [
+  {
+   "tag": "edge_speaker_monitor",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "non-default monitor name",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_speaker_monitor__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor -n 96000 /dev/shm/r77b/p1b_edge_speaker_monitor__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_speaker_monitor__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7437,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "edge_speaker_monitor__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor -n 96000 /dev/shm/r77b/p1b_edge_speaker_monitor__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_speaker_monitor__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "edge_hdmi_monitor",
+   "target": "alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "non-default monitor name",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_hdmi_monitor__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor -n 96000 /dev/shm/r77b/p1b_edge_hdmi_monitor__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_hdmi_monitor__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "edge_hdmi_monitor__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.pci-0000_01_00.1.hdmi-stereo.monitor -n 96000 /dev/shm/r77b/p1b_edge_hdmi_monitor__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_hdmi_monitor__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "edge_spdif_monitor",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "default monitor name",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_spdif_monitor__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/p1b_edge_spdif_monitor__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_spdif_monitor__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "edge_spdif_monitor__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor -n 96000 /dev/shm/r77b/p1b_edge_spdif_monitor__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_spdif_monitor__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "edge_partial_name",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker_",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "truncated real name",
+   "signature": [
+    true,
+    false
+   ],
+   "consumed": "default/SPDIF monitor",
+   "a": {
+    "tag": "edge_partial_name__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker_ -n 96000 /dev/shm/r77b/p1b_edge_partial_name__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_partial_name__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7539,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "edge_partial_name__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker_ -n 96000 /dev/shm/r77b/p1b_edge_partial_name__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_partial_name__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   }
+  },
+  {
+   "tag": "edge_speaker_bare",
+   "target": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+   "props": [
+    "-P",
+    "stream.capture.sink=true"
+   ],
+   "note": "bare non-default sink name (control)",
+   "signature": [
+    false,
+    true
+   ],
+   "consumed": "SPEAKER monitor",
+   "a": {
+    "tag": "edge_speaker_bare__SPDIF",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1b_edge_speaker_bare__SPDIF.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_speaker_bare__SPDIF.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 0,
+    "nz": 0,
+    "fft_hz": null,
+    "tone": false,
+    "level_inflated_vs_clean_tone": false
+   },
+   "b": {
+    "tag": "edge_speaker_bare__SPK",
+    "cmd": "pw-record -P -P -P stream.capture.sink=true --target alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink -n 96000 /dev/shm/r77b/p1b_edge_speaker_bare__SPK.wav",
+    "rc": 1,
+    "err": "/dev/shm/r77b/p1b_edge_speaker_bare__SPK.wav",
+    "bytes": 384044,
+    "riff": "finalized",
+    "data": "finalized",
+    "peak": 16384.0,
+    "nz": 0.7437,
+    "fft_hz": 1000.0,
+    "tone": true,
+    "level_inflated_vs_clean_tone": false
+   }
+  }
+ ],
+ "quiet_at_end": {
+  "concurrent_audio_clients": [
+   "442815       0 python3 /home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r77-baseline/measure-env/corpus/fixtures/measure_audio.py --probe-ui-lengate-gsrt-25-r66"
+  ],
+  "n": 1
+ }
+}

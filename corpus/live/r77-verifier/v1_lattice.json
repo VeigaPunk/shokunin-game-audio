@@ -1,0 +1,213 @@
+{
+  "probe": "r77-verifier independent fallback lattice",
+  "inventory": {
+    "default_sink": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "other_sink": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+    "source": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "bound_bytes": 384044
+  },
+  "legs": {
+    "prop_default_sink": {
+      "target_arg": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "capture_sink_prop": true,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": true,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/prop_default_sink.wav"
+      ],
+      "consumed_nodes": [
+        "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+      ],
+      "ambiguous": false,
+      "target_object_props": [
+        "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+      ],
+      "target_object_is_request": true,
+      "file": {
+        "exists": true,
+        "bytes": 384044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 384000,
+        "samples": 192000,
+        "peak": 4124,
+        "nonzero_frac": 0.8183,
+        "carries_tone": true
+      },
+      "expect_tone": true
+    },
+    "prop_garbage": {
+      "target_arg": "no_such_node_v77",
+      "capture_sink_prop": true,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": true,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/prop_garbage.wav"
+      ],
+      "consumed_nodes": [
+        "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+      ],
+      "ambiguous": false,
+      "target_object_props": [
+        "no_such_node_v77"
+      ],
+      "target_object_is_request": true,
+      "file": {
+        "exists": true,
+        "bytes": 384044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 384000,
+        "samples": 192000,
+        "peak": 4124,
+        "nonzero_frac": 0.829,
+        "carries_tone": true
+      },
+      "expect_tone": true
+    },
+    "prop_source": {
+      "target_arg": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+      "capture_sink_prop": true,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": true,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/prop_source.wav"
+      ],
+      "consumed_nodes": [
+        "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink"
+      ],
+      "ambiguous": false,
+      "target_object_props": [
+        "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+      ],
+      "target_object_is_request": true,
+      "file": {
+        "exists": true,
+        "bytes": 384044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 384000,
+        "samples": 192000,
+        "peak": 4124,
+        "nonzero_frac": 0.829,
+        "carries_tone": true
+      },
+      "expect_tone": true
+    },
+    "prop_other_sink": {
+      "target_arg": "alsa_output.pci-0000_01_00.1.hdmi-stereo",
+      "capture_sink_prop": true,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": true,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/prop_other_sink.wav"
+      ],
+      "consumed_nodes": [
+        "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+      ],
+      "ambiguous": false,
+      "target_object_props": [
+        "alsa_output.pci-0000_01_00.1.hdmi-stereo"
+      ],
+      "target_object_is_request": true,
+      "file": {
+        "exists": true,
+        "bytes": 384044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 384000,
+        "samples": 192000,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "expect_tone": false
+    },
+    "noprop_default_sink": {
+      "target_arg": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "capture_sink_prop": false,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": false,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/noprop_default_sink.wav",
+        "stream node 246 error: no target node available"
+      ],
+      "consumed_nodes": [],
+      "ambiguous": false,
+      "target_object_props": [],
+      "target_object_is_request": false,
+      "file": {
+        "exists": true,
+        "bytes": 44,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 0,
+        "samples": 0,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "expect_tone": null
+    },
+    "noprop_source": {
+      "target_arg": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+      "capture_sink_prop": false,
+      "default_sink_at_cell": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+      "live_at_sample": true,
+      "exit_code": 1,
+      "stderr": [
+        "/tmp/r77v-lattice-a63l07m9/noprop_source.wav"
+      ],
+      "consumed_nodes": [
+        "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+      ],
+      "ambiguous": false,
+      "target_object_props": [
+        "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source"
+      ],
+      "target_object_is_request": true,
+      "file": {
+        "exists": true,
+        "bytes": 384044,
+        "fmt": {
+          "tag": 1,
+          "channels": 2,
+          "rate": 48000,
+          "bits": 16
+        },
+        "data_declared": 384000,
+        "samples": 192000,
+        "peak": 0,
+        "nonzero_frac": 0.0,
+        "carries_tone": false
+      },
+      "expect_tone": null
+    }
+  },
+  "failures": []
+}

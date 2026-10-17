@@ -1,0 +1,31 @@
+=== r82v post-state 2026-10-15T20:28:49Z ===
+loadavg: 96.34 98.48 86.37 97/2022 802727
+--- r82v_* objects (sinks/sources/modules/nodes):
+0
+0
+--- r82ff_* objects:
+0
+0
+--- probe processes left:
+764181 bash -c cd /tmp/r83a_dev && python3 - <<'EOF' import subprocess, time, json, wave, os, signal import numpy as np  def amp_at(seg, rate, f):     # windowed DTFT amp at exact freq (Hann coherent-gain corrected)     w = np.hanning(len(seg))     x = seg.astype(np.float64)*w     X = np.abs(np.sum(x*np.exp(-2j*np.pi*f*np.arange(len(seg))/rate)))     return 4.0*X/len(seg)  def windows(path, f1, f2, ws=0.5):     with wave.open(path,"rb") as w:         raw = w.readframes(w.getnframes()); rate=w.getframerate(); ch=w.getnchannels()     a = np.frombuffer(raw,dtype="<i2").reshape(-1,ch)     out=[]     step=int(rate*ws)     for i in range(0, len(a)-step, step):         seg=a[i:i+step]         out.append((round(i/rate,2),                     round(amp_at(seg[:,0],rate,f1),1),                     round(amp_at(seg[:,0],rate,f2),1),                     round(amp_at(seg[:,1],rate,f1),1) if ch>1 else None,                     round(amp_at(seg[:,1],rate,f2),1) if ch>1 else None))     return out  def leg(extra, tapwav, secs=3.0, nsb="r83a_dev_nsb"):     lb = subprocess.Popen(["pw-loopback","-n","r83a_dev_mlb",         "-C","r83a_dev_nsa","-i","stream.capture.sink=true",         "-P",nsb,*extra],         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,         start_new_session=True)     time.sleep(1.2)     tap = subprocess.Popen(["pw-record","-P","stream.capture.sink=true",         "-P","node.name=r83a_dev_mtap","--target",nsb,         "-n",str(int(48000*secs)),"--rate","48000","--channels","2","--format","s16",         tapwav], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,         start_new_session=True)     time.sleep(0.3)     feed = subprocess.Popen(["pw-cat","-p","-P","node.name=r83a_dev_mfeed",         "--target","r83a_dev_nsa","tone.wav"],         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,         start_new_session=True)     tap.wait(timeout=secs+5)     os.killpg(feed.pid,signal.SIGKILL); feed.wait()     os.killpg(lb.pid,signal.SIGKILL); lb.wait()  for label, extra in (("m_alone",["-m","[ MONO ]"]),                      ("c1_mono",["-c","1","-m","[ MONO ]"])):     for rep in range(2):         leg(extra, f"m_{label}_{rep}.wav", 4.0)         print(label, rep, windows(f"m_{label}_{rep}.wav", 1000, 1500)) EOF
+793921 pw-record -P stream.capture.sink=true -P node.name=r83a_dev_mtap --target r83a_dev_nsb -n 192000 --rate 48000 --channels 2 --format s16 m_c1_mono_0.wav
+--- sinks now:
+61	alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink	PipeWire	s16le 2ch 48000Hz	SUSPENDED
+62	alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+63	alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+60843	alsa_output.pci-0000_01_00.1.hdmi-stereo	PipeWire	s32le 2ch 48000Hz	SUSPENDED
+133750	r83a_dev_nsa	PipeWire	float32le 2ch 48000Hz	IDLE
+133757	r83a_dev_nsb	PipeWire	float32le 2ch 48000Hz	IDLE
+--- modules now:
+536870926	module-null-sink	sink_name=r83a_dev_nsb	
+536870928	module-null-sink	sink_name=r83a_dev_nsa	
+--- default sink/source:
+Default Sink: alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink
+Default Source: alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source
+--- r82v tmp:
+ls-tree.txt
+r82v-tree.tar
+s3_c13.wav
+s4_a6.wav
+tone.wav
+tree-files.txt

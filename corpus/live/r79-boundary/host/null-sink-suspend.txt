@@ -1,0 +1,14 @@
+# r79-boundary — null-sink suspend semantics (probe-owned sink only, read/write to that sink only)
+2026-10-15T08:21:23Z
+module=536870924 sink=r79b_susp_251021
+idle state:
+80409	r79b_susp_251021	PipeWire	float32le 2ch 48000Hz	SUSPENDED
+with stream:
+80409	r79b_susp_251021	PipeWire	float32le 2ch 48000Hz	RUNNING
+pactl suspend-sink r79b_susp_251021 1 -> rc=0
+after suspend 1:
+80409	r79b_susp_251021	PipeWire	float32le 2ch 48000Hz	RUNNING
+pactl suspend-sink r79b_susp_251021 0 -> rc=0
+after suspend 0:
+80409	r79b_susp_251021	PipeWire	float32le 2ch 48000Hz	RUNNING
+own r79b_susp objects after: 17

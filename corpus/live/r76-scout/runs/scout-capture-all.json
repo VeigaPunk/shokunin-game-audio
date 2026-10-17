@@ -1,0 +1,2209 @@
+{
+ "batch": "all",
+ "filter": null,
+ "host": "plazir27",
+ "legs": [
+  {
+   "argv": [
+    "pw-record",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-pwrec-default-sc.out"
+   ],
+   "env": {},
+   "id": "gate-pwrec-default-sc",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "no --target: pw-record default target",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/gate-pwrec-default-sc.out",
+    "stream node 114 error: no target node available",
+    "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-pwrec-line-sc.out"
+   ],
+   "env": {},
+   "id": "gate-pwrec-line-sc",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "explicit source target",
+   "out_bytes": 19244,
+   "out_sha16": "3ac1bdf363578593",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/gate-pwrec-line-sc.out"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.131,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-pwrec-sink-sc.out"
+   ],
+   "env": {},
+   "id": "gate-pwrec-sink-sc",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "sink node as capture target",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/gate-pwrec-sink-sc.out",
+    "stream node 114 error: no target node available",
+    "remote error: id=2 seq:7 res:-2 (No such file or directory): no target node available"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-P",
+    "stream.capture.sink=true",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-pwrec-sink-capsink-sc.out"
+   ],
+   "env": {},
+   "id": "gate-pwrec-sink-capsink-sc",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "sink node + stream.capture.sink=true",
+   "out_bytes": 19244,
+   "out_sha16": "0cb129400ef49770",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/gate-pwrec-sink-capsink-sc.out"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.141,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-parec-nodev.out"
+   ],
+   "env": {},
+   "id": "gate-parec-nodev",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "no -d",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 1,
+   "stderr_tail": [
+    "Stream error: No such entity"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-parec-defsrc.out"
+   ],
+   "env": {},
+   "id": "gate-parec-defsrc",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "-d @DEFAULT_SOURCE@",
+   "out_bytes": 1966080,
+   "out_sha16": "92fd45c62bf2641e",
+   "rc": -9,
+   "stderr_tail": [],
+   "term_sent_at": null,
+   "wall_s": 12.003,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-arec-null.out"
+   ],
+   "env": {},
+   "id": "gate-arec-null",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "null plugin (unpaced, zero samples)",
+   "out_bytes": 192044,
+   "out_sha16": "35de5fa5f7827db0",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/gate-arec-null.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-d",
+    "1",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-arec-hw00.out"
+   ],
+   "env": {},
+   "id": "gate-arec-hw00",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "direct kernel device",
+   "out_bytes": 192044,
+   "out_sha16": "fe1a59163fc69dc1",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/gate-arec-hw00.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.038,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-ff-alsa-null-t1.wav"
+   ],
+   "env": {},
+   "id": "gate-ff-alsa-null-t1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg alsa null, -t 1",
+   "out_bytes": 1928910,
+   "out_sha16": "6b0d7a0ab0673a51",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     768KiB time=00:00:00.49 bitrate=12626.6kbits/s speed=0.996x elapsed=0:00:00.50    ",
+    "[out#0/wav @ 0x55f107323500] video:0KiB audio:1884KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.004044%",
+    "size=    1884KiB time=00:00:01.00 bitrate=15431.3kbits/s speed=   1x elapsed=0:00:01.00    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.028,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 1928902
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-ff-pulse-line-t1.wav"
+   ],
+   "env": {},
+   "id": "gate-ff-pulse-line-t1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg pulse line, -t 1",
+   "out_bytes": 193490,
+   "out_sha16": "53800b7c55e466ee",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     188KiB time=00:00:01.00 bitrate=1536.6kbits/s speed=   1x elapsed=0:00:01.00    ",
+    "[out#0/wav @ 0x557b82c2abc0] video:0KiB audio:189KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.040328%",
+    "size=     189KiB time=00:00:01.00 bitrate=1547.9kbits/s speed=0.938x elapsed=0:00:01.06    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.178,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 193482
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/gate-ff-pulse-mon-t1.wav"
+   ],
+   "env": {},
+   "id": "gate-ff-pulse-mon-t1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg pulse monitor, -t 1",
+   "out_bytes": 194390,
+   "out_sha16": "661efdf4b04157c8",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     188KiB time=00:00:01.00 bitrate=1536.6kbits/s speed=   1x elapsed=0:00:01.00    ",
+    "[out#0/wav @ 0x558967babc00] video:0KiB audio:190KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.040142%",
+    "size=     190KiB time=00:00:01.00 bitrate=1555.1kbits/s speed=0.94x elapsed=0:00:01.06    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.137,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 194382
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-pwrec-sc4800.out"
+   ],
+   "env": {},
+   "id": "cap-pwrec-sc4800",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "sample-count cap",
+   "out_bytes": 19244,
+   "out_sha16": "3ac1bdf363578593",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/cap-pwrec-sc4800.out"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.161,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "0",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-pwrec-sc0.out"
+   ],
+   "env": {},
+   "id": "cap-pwrec-sc0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "sample-count 0 = unbounded?",
+   "out_bytes": 233516,
+   "out_sha16": "89729e37e8613682",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/cap-pwrec-sc0.out"
+   ],
+   "term_sent_at": 1.208,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 233472,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 233508
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-d1.out"
+   ],
+   "env": {},
+   "id": "cap-arec-d1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "arecord -d 1",
+   "out_bytes": 192044,
+   "out_sha16": "bf9e497b4926041b",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-d1.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-d0.out"
+   ],
+   "env": {},
+   "id": "cap-arec-d0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "arecord -d 0",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 1,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-d0.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+    "Aborted by signal Terminated..."
+   ],
+   "term_sent_at": 1.208,
+   "wall_s": 1.218,
+   "wav": {
+    "absent": true
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-nodev-d1.out"
+   ],
+   "env": {},
+   "id": "cap-arec-nodev-d1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "repeat",
+   "out_bytes": 192044,
+   "out_sha16": "98df1bb0ca5f2f72",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-nodev-d1.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "0.5",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-pulse-t0.5.wav"
+   ],
+   "env": {},
+   "id": "cap-ff-pulse-t0.5",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "pulse -t 0.5",
+   "out_bytes": 98754,
+   "out_sha16": "32f855dec33d6aa4",
+   "rc": 0,
+   "stderr_tail": [
+    "size=      94KiB time=00:00:00.50 bitrate=1537.2kbits/s speed=   1x elapsed=0:00:00.50    ",
+    "[out#0/wav @ 0x558ad157bbc0] video:0KiB audio:96KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.079047%",
+    "size=      96KiB time=00:00:00.50 bitrate=1580.1kbits/s speed=0.833x elapsed=0:00:00.59    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.735,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 98746
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-pulse-t1-b.wav"
+   ],
+   "env": {},
+   "id": "cap-ff-pulse-t1-b",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "pulse -t 1 repeat",
+   "out_bytes": 192258,
+   "out_sha16": "acf13fe423a85513",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     188KiB time=00:00:01.00 bitrate=1536.6kbits/s speed=   1x elapsed=0:00:01.00    ",
+    "[out#0/wav @ 0x556f27d12bc0] video:0KiB audio:188KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.040587%",
+    "size=     188KiB time=00:00:01.00 bitrate=1538.1kbits/s speed=0.935x elapsed=0:00:01.07    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.157,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192250
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-alsa-null-t1-b.wav"
+   ],
+   "env": {},
+   "id": "cap-ff-alsa-null-t1-b",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "alsa null -t 1 repeat",
+   "out_bytes": 1509522,
+   "out_sha16": "808baef42ed9bd05",
+   "rc": 0,
+   "stderr_tail": [
+    "size=    1280KiB time=00:00:00.99 bitrate=10487.3kbits/s speed=   1x elapsed=0:00:01.00    ",
+    "[out#0/wav @ 0x55a0a318c500] video:0KiB audio:1474KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.005167%",
+    "size=    1474KiB time=00:00:01.00 bitrate=12076.2kbits/s speed=   1x elapsed=0:00:01.00    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.027,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 1509514
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-parec-4s-stdout.out"
+   ],
+   "env": {},
+   "id": "cap-parec-4s-stdout",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "parec raw stdout, TERM at 1.2s",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.209,
+   "wall_s": 1.219,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev1-pwrec.out"
+   ],
+   "env": {},
+   "id": "sev1-pwrec",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "wav header finalize [TERM1]",
+   "out_bytes": 229420,
+   "out_sha16": "156b6cc305c14859",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/sev1-pwrec.out"
+   ],
+   "term_sent_at": 1.208,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 229376,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 229412
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev2-pwrec.out"
+   ],
+   "env": {},
+   "id": "sev2-pwrec",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "wav header finalize [TERM2 @1.6]",
+   "out_bytes": 225324,
+   "out_sha16": "db5031ef6470dd8e",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/sev2-pwrec.out"
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.217,
+   "wav": {
+    "data_size": 225280,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 225316
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--file-format=wav",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev1-parec.out"
+   ],
+   "env": {},
+   "id": "sev1-parec",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "parecord wav header finalize [TERM1]",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.207,
+   "wall_s": 1.217,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--file-format=wav",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev2-parec.out"
+   ],
+   "env": {},
+   "id": "sev2-parec",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "parecord wav header finalize [TERM2 @1.6]",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.207,
+   "wall_s": 1.217,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev1-arec-hw00.out"
+   ],
+   "env": {},
+   "id": "sev1-arec-hw00",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "hw capture header finalize [TERM1]",
+   "out_bytes": 216180,
+   "out_sha16": "7868b49b15effb5c",
+   "rc": 1,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/sev1-arec-hw00.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+    "Aborted by signal Terminated..."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.288,
+   "wav": {
+    "data_size": 216136,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 216172
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev2-arec-hw00.out"
+   ],
+   "env": {},
+   "id": "sev2-arec-hw00",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "hw capture header finalize [TERM2 @1.6]",
+   "out_bytes": 216176,
+   "out_sha16": "0ac83282031ad70e",
+   "rc": 1,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/sev2-arec-hw00.out' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+    "Aborted by signal Terminated..."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.288,
+   "wav": {
+    "data_size": 216132,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 216168
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev1-ff-pulse.wav"
+   ],
+   "env": {},
+   "id": "sev1-ff-pulse",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "ffmpeg trailer on TERM [TERM1]",
+   "out_bytes": 297678,
+   "out_sha16": "2f3976987c04fd1e",
+   "rc": 255,
+   "stderr_tail": [
+    "[out#0/wav @ 0x5604f2f66bc0] video:0KiB audio:291KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.026210%",
+    "size=     291KiB time=00:00:01.53 bitrate=1553.0kbits/s speed=0.999x elapsed=0:00:01.53    ",
+    "Exiting normally, received signal 15."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.62,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 297670
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev2-ff-pulse.wav"
+   ],
+   "env": {},
+   "id": "sev2-ff-pulse",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "ffmpeg trailer on TERM [TERM2 @1.6]",
+   "out_bytes": 288078,
+   "out_sha16": "36cddf38fe908a3b",
+   "rc": 255,
+   "stderr_tail": [
+    "[out#0/wav @ 0x55c51393dbc0] video:0KiB audio:281KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.027083%",
+    "size=     281KiB time=00:00:01.49 bitrate=1538.0kbits/s speed=0.997x elapsed=0:00:01.50    ",
+    "Exiting normally, received signal 15."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.589,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 288070
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev1-ff-alsa-null.wav"
+   ],
+   "env": {},
+   "id": "sev1-ff-alsa-null",
+   "kill_sent_at": 3.209,
+   "mode": "term",
+   "note": "ffmpeg alsa null trailer on TERM [TERM1]",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [
+    "[aost#0:0/pcm_s16le @ 0x55a3f9c7b8c0] Non-monotonic DTS; previous: 2749, current: 2736; changing to 2749. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x55a3f9c7b8c0] Non-monotonic DTS; previous: 2749, current: 2736; changing to 2749. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x55a3f9c7b8c0] Non-monotonic DTS; previous: 2749, current: 2736; changing to 2749. This may result in incorrect timestamps in the output file."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 3.219,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev2-ff-alsa-null.wav"
+   ],
+   "env": {},
+   "id": "sev2-ff-alsa-null",
+   "kill_sent_at": 1.61,
+   "mode": "term",
+   "note": "ffmpeg alsa null trailer on TERM [TERM2 @1.6]",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [
+    "[aost#0:0/pcm_s16le @ 0x5631fa8c58c0] Non-monotonic DTS; previous: 2727, current: 2714; changing to 2727. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x5631fa8c58c0] Non-monotonic DTS; previous: 2727, current: 2714; changing to 2727. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x5631fa8c58c0] Non-monotonic DTS; previous: 2727, current: 2714; changing to 2727. This may result in incorrect timestamps in the output file."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.62,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-pwrec-raw-ext-wav.wav"
+   ],
+   "env": {},
+   "id": "name-pwrec-raw-ext-wav",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": ".wav default container",
+   "out_bytes": 19244,
+   "out_sha16": "3ac1bdf363578593",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/name-pwrec-raw-ext-wav.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.181,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--raw",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-pwrec-raw-ext-raw.raw"
+   ],
+   "env": {},
+   "id": "name-pwrec-raw-ext-raw",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "-a/--raw into .raw name",
+   "out_bytes": 19200,
+   "out_sha16": "17744bb6a4ed1d9d",
+   "rc": 1,
+   "stderr_tail": [],
+   "term_sent_at": null,
+   "wall_s": 0.171,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--container",
+    "raw",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-pwrec-container-raw.wav"
+   ],
+   "env": {},
+   "id": "name-pwrec-container-raw",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "--container raw into .wav name",
+   "out_bytes": 19200,
+   "out_sha16": "17744bb6a4ed1d9d",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/name-pwrec-container-raw.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.171,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--raw",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-parec-raw-ext-wav.wav"
+   ],
+   "env": {},
+   "id": "name-parec-raw-ext-wav",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "parec --raw into .wav name",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.208,
+   "wall_s": 1.218,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--file-format=wav",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-parec-ff-wav.wav"
+   ],
+   "env": {},
+   "id": "name-parec-ff-wav",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "--file-format=wav into .wav name",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.207,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--file-format=wav",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-parec-ff-wav-ext-raw.raw"
+   ],
+   "env": {},
+   "id": "name-parec-ff-wav-ext-raw",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "--file-format=wav into .raw",
+   "out_bytes": 44,
+   "out_sha16": "4872b61c768dff94",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.208,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 36
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-t",
+    "wav",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-arec-t-wav.wav"
+   ],
+   "env": {},
+   "id": "name-arec-t-wav",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "arecord -t wav",
+   "out_bytes": 192044,
+   "out_sha16": "860374431e956d1b",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/name-arec-t-wav.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-t",
+    "raw",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-arec-t-raw.raw"
+   ],
+   "env": {},
+   "id": "name-arec-t-raw",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "arecord -t raw",
+   "out_bytes": 192000,
+   "out_sha16": "ba0b12d55b25a245",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording raw data '<legs>/name-arec-t-raw.raw' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "form": "8\u00a0\u00e1\u0018",
+    "magic": "8\u00a0\u00e1\u0018"
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "null",
+    "-d",
+    "1",
+    "-t",
+    "raw",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-arec-t-raw-ext-wav.wav"
+   ],
+   "env": {},
+   "id": "name-arec-t-raw-ext-wav",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "arecord -t raw, .wav name",
+   "out_bytes": 192000,
+   "out_sha16": "078c5516b61652a1",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording raw data '<legs>/name-arec-t-raw-ext-wav.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.01,
+   "wav": {
+    "form": "8\u00a0a2",
+    "magic": "8\u00a0a2"
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "-t",
+    "1",
+    "-f",
+    "s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-ff-alsa-null-fraw.raw"
+   ],
+   "env": {},
+   "id": "name-ff-alsa-null-fraw",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg -f s16le out",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [
+    "[s16le @ 0x563d73d18600] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 671 >= 671",
+    "[s16le @ 0x563d73d18600] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 672 >= 672",
+    "[s16le @ 0x563d73d18600] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 673 >= 673"
+   ],
+   "term_sent_at": null,
+   "wall_s": 12.004,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "alsa",
+    "-i",
+    "null",
+    "-t",
+    "1",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/name-ff-alsa-null-fwav.wav"
+   ],
+   "env": {},
+   "id": "name-ff-alsa-null-fwav",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg wav out (default muxer)",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [
+    "[aost#0:0/pcm_s16le @ 0x5627d8e819c0] Non-monotonic DTS; previous: 3049, current: 3037; changing to 3049. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x5627d8e819c0] Non-monotonic DTS; previous: 3049, current: 3037; changing to 3049. This may result in incorrect timestamps in the output file.",
+    "[aost#0:0/pcm_s16le @ 0x5627d8e819c0] Non-monotonic DTS; previous: 3049, current: 3037; changing to 3049. This may result in incorrect timestamps in the output file."
+   ],
+   "term_sent_at": null,
+   "wall_s": 12.01,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "-v",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/rc-pwrec-sc4800-v.wav"
+   ],
+   "env": {},
+   "id": "rc-pwrec-sc4800-v",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "verbose, 0.1s bounded capture",
+   "out_bytes": 19244,
+   "out_sha16": "3ac1bdf363578593",
+   "rc": 1,
+   "stderr_tail": [
+    "stream set volume to 1.000 - success",
+    "stream node 135",
+    "stream time: now:99363006013482 rate:1/48000 ticks:0 delay:1536 queued:0 buffered:0 buffers:2 avail:0 size:1024"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.172,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "48000",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/rc-pwrec-sc48000.wav"
+   ],
+   "env": {},
+   "id": "rc-pwrec-sc48000",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "1.0s bounded capture",
+   "out_bytes": 192044,
+   "out_sha16": "ede1f6dd33abfce7",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/rc-pwrec-sc48000.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.026,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "pw-cat",
+    "-r",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--sample-count",
+    "4800",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/rc-pwcat-r-sc4800.wav"
+   ],
+   "env": {},
+   "id": "rc-pwcat-r-sc4800",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "pw-cat -r explicit record mode",
+   "out_bytes": 19244,
+   "out_sha16": "3ac1bdf363578593",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/rc-pwcat-r-sc4800.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 0.131,
+   "wav": {
+    "data_size": 19200,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 19236
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+    "-P",
+    "stream.capture.sink=true",
+    "--sample-count",
+    "48000",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/rc-pwrec-mon-sink.wav"
+   ],
+   "env": {},
+   "id": "rc-pwrec-mon-sink",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "monitor capture via sink+property, 1s",
+   "out_bytes": 192044,
+   "out_sha16": "ede1f6dd33abfce7",
+   "rc": 1,
+   "stderr_tail": [
+    "<legs>/rc-pwrec-mon-sink.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.036,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-term-0.5.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-term-0.5",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "TERM at 0.5s",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 0.503,
+   "wall_s": 0.513,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-term-1.0.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-term-1.0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "TERM at 1.0s",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.007,
+   "wall_s": 1.017,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-term-1.5.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-term-1.5",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "TERM at 1.5s",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 1.51,
+   "wall_s": 1.52,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-term-2.0.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-term-2.0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "TERM at 2.0s",
+   "out_bytes": 65536,
+   "out_sha16": "de2f256064a0af79",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 2.003,
+   "wall_s": 2.013,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-term-3.0.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-term-3.0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "TERM at 3.0s",
+   "out_bytes": 262144,
+   "out_sha16": "8a39d2abd3999ab7",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 3.009,
+   "wall_s": 3.019,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--raw",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/flush-parec-kill-1.2.wav"
+   ],
+   "env": {},
+   "id": "flush-parec-kill-1.2",
+   "kill_sent_at": 1.208,
+   "mode": "term",
+   "note": "SIGKILL only at 1.2s",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [],
+   "term_sent_at": null,
+   "wall_s": 1.218,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "pw-record",
+    "--target",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "--rate",
+    "48000",
+    "--channels",
+    "2",
+    "--format",
+    "s16",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/kill-pwrec.wav"
+   ],
+   "env": {},
+   "id": "kill-pwrec",
+   "kill_sent_at": 1.208,
+   "mode": "term",
+   "note": "pw-record SIGKILL only",
+   "out_bytes": 229420,
+   "out_sha16": "a5a98f58f2460309",
+   "rc": -9,
+   "stderr_tail": [
+    "<legs>/kill-pwrec.wav"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 8
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--file-format=wav",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/kill-parec-wav.wav"
+   ],
+   "env": {},
+   "id": "kill-parec-wav",
+   "kill_sent_at": 1.208,
+   "mode": "term",
+   "note": "parecord --file-format=wav SIGKILL only",
+   "out_bytes": 44,
+   "out_sha16": "4b96a2dbb0e9cc5c",
+   "rc": -9,
+   "stderr_tail": [],
+   "term_sent_at": null,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 0,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 8
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/kill-arec-hw00.wav"
+   ],
+   "env": {},
+   "id": "kill-arec-hw00",
+   "kill_sent_at": 1.208,
+   "mode": "term",
+   "note": "arecord hw SIGKILL only",
+   "out_bytes": 216044,
+   "out_sha16": "89e9778df15a225c",
+   "rc": -9,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/kill-arec-hw00.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.218,
+   "wav": {
+    "data_size": 2147483648,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 2147483684
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/kill-ff-pulse.wav"
+   ],
+   "env": {},
+   "id": "kill-ff-pulse",
+   "kill_sent_at": 1.207,
+   "mode": "term",
+   "note": "ffmpeg pulse SIGKILL only",
+   "out_bytes": 0,
+   "out_sha16": null,
+   "rc": -9,
+   "stderr_tail": [
+    "      encoder         : Lavc63.1.101 pcm_s16le",
+    "size=      94KiB time=00:00:00.54 bitrate=1402.2kbits/s speed= 1.1x elapsed=0:00:00.50    ",
+    "size=     188KiB time=00:00:01.04 bitrate=1471.4kbits/s speed=1.04x elapsed=0:00:01.00    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.218,
+   "wav": {
+    "magic": "",
+    "short": 0
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev-ff-pulse-term-1.2.wav"
+   ],
+   "env": {},
+   "id": "sev-ff-pulse-term-1.2",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "ffmpeg pulse, TERM at 1.2s (no -t)",
+   "out_bytes": 297678,
+   "out_sha16": "2f3976987c04fd1e",
+   "rc": 255,
+   "stderr_tail": [
+    "[out#0/wav @ 0x55752ee0abc0] video:0KiB audio:291KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.026210%",
+    "size=     291KiB time=00:00:01.56 bitrate=1520.8kbits/s speed=1.02x elapsed=0:00:01.53    ",
+    "Exiting normally, received signal 15."
+   ],
+   "term_sent_at": 1.207,
+   "wall_s": 1.64,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 297670
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/sev-ff-pulse-term-2.5.wav"
+   ],
+   "env": {},
+   "id": "sev-ff-pulse-term-2.5",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "ffmpeg pulse, TERM at 2.5s (no -t)",
+   "out_bytes": 489678,
+   "out_sha16": "4ecaeb605aed7962",
+   "rc": 255,
+   "stderr_tail": [
+    "[out#0/wav @ 0x561c709dcbc0] video:0KiB audio:478KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.015931%",
+    "size=     478KiB time=00:00:02.54 bitrate=1536.6kbits/s speed=1.01x elapsed=0:00:02.51    ",
+    "Exiting normally, received signal 15."
+   ],
+   "term_sent_at": 2.505,
+   "wall_s": 2.596,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 489670
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "1",
+    "-f",
+    "s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-pulse-raw-t1.raw"
+   ],
+   "env": {},
+   "id": "cap-ff-pulse-raw-t1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg pulse -> raw s16le, -t 1",
+   "out_bytes": 195248,
+   "out_sha16": "451a4addc7dfb289",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     188KiB time=00:00:01.00 bitrate=1536.0kbits/s speed=   1x elapsed=0:00:01.00    ",
+    "[out#0/s16le @ 0x55cca6859c00] video:0KiB audio:191KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.000000%",
+    "size=     191KiB time=00:00:01.00 bitrate=1562.0kbits/s speed=0.938x elapsed=0:00:01.06    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.157,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "2",
+    "-f",
+    "s16le",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-pulse-raw-t2.raw"
+   ],
+   "env": {},
+   "id": "cap-ff-pulse-raw-t2",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg pulse -> raw s16le, -t 2",
+   "out_bytes": 383780,
+   "out_sha16": "4dc5c1c3061c8d0c",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     256KiB time=00:00:02.00 bitrate=1048.6kbits/s speed=   1x elapsed=0:00:02.00    ",
+    "[out#0/s16le @ 0x55888d64ac00] video:0KiB audio:375KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.000000%",
+    "size=     375KiB time=00:00:02.00 bitrate=1535.1kbits/s speed=0.977x elapsed=0:00:02.04    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 2.133,
+   "wav": {
+    "form": "\u0000\u0000\u0000\u0000",
+    "magic": "\u0000\u0000\u0000\u0000"
+   }
+  },
+  {
+   "argv": [
+    "ffmpeg",
+    "-hide_banner",
+    "-nostdin",
+    "-y",
+    "-f",
+    "pulse",
+    "-i",
+    "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+    "-t",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-ff-pulse-t2.wav"
+   ],
+   "env": {},
+   "id": "cap-ff-pulse-t2",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "ffmpeg pulse -> wav, -t 2",
+   "out_bytes": 383990,
+   "out_sha16": "a8e7d99e80809afe",
+   "rc": 0,
+   "stderr_tail": [
+    "size=     256KiB time=00:00:02.00 bitrate=1048.6kbits/s speed=   1x elapsed=0:00:02.00    ",
+    "[out#0/wav @ 0x55a782d98bc0] video:0KiB audio:375KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.020317%",
+    "size=     375KiB time=00:00:02.00 bitrate=1536.0kbits/s speed=0.977x elapsed=0:00:02.04    "
+   ],
+   "term_sent_at": null,
+   "wall_s": 2.133,
+   "wav": {
+    "data_size": 26,
+    "data_tag": "LIST",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 383982
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-d",
+    "1",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-hw00-d1.wav"
+   ],
+   "env": {},
+   "id": "cap-arec-hw00-d1",
+   "kill_sent_at": null,
+   "mode": "run",
+   "note": "hw device, -d 1",
+   "out_bytes": 192044,
+   "out_sha16": "7a1050d528b99605",
+   "rc": 0,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-hw00-d1.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo"
+   ],
+   "term_sent_at": null,
+   "wall_s": 1.036,
+   "wav": {
+    "data_size": 192000,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 192036
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-d",
+    "0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-hw00-d0.wav"
+   ],
+   "env": {},
+   "id": "cap-arec-hw00-d0",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "hw device, -d 0 (TERM at 1.2s)",
+   "out_bytes": 216140,
+   "out_sha16": "1237a96bb841c8d8",
+   "rc": 1,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-hw00-d0.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+    "Aborted by signal Terminated..."
+   ],
+   "term_sent_at": 1.208,
+   "wall_s": 1.288,
+   "wav": {
+    "data_size": 216096,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 216132
+   }
+  },
+  {
+   "argv": [
+    "arecord",
+    "-D",
+    "hw:0,0",
+    "-f",
+    "S16_LE",
+    "-r",
+    "48000",
+    "-c",
+    "2",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-arec-hw00-nod.wav"
+   ],
+   "env": {},
+   "id": "cap-arec-hw00-nod",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "hw device, no -d (TERM at 1.2s)",
+   "out_bytes": 216184,
+   "out_sha16": "4ce165de4a433069",
+   "rc": 1,
+   "stderr_tail": [
+    "Recording WAVE '<legs>/cap-arec-hw00-nod.wav' : Signed 16 bit Little Endian, Rate 48000 Hz, Stereo",
+    "Aborted by signal Terminated..."
+   ],
+   "term_sent_at": 1.208,
+   "wall_s": 1.288,
+   "wav": {
+    "data_size": 216140,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 216176
+   }
+  },
+  {
+   "argv": [
+    "parec",
+    "-d",
+    "@DEFAULT_SOURCE@",
+    "--rate=48000",
+    "--channels=2",
+    "--format=s16le",
+    "--file-format=wav",
+    "/home/vgpnk/Projects/shokunin/audio-shokunin/corpus/live/r76-scout/legs/cap-parec-ff-wav-term-2.5.wav"
+   ],
+   "env": {},
+   "id": "cap-parec-ff-wav-term-2.5",
+   "kill_sent_at": null,
+   "mode": "term",
+   "note": "parecord wav, TERM at 2.5s",
+   "out_bytes": 131116,
+   "out_sha16": "0dbb80504d14cb8a",
+   "rc": 0,
+   "stderr_tail": [],
+   "term_sent_at": 2.506,
+   "wall_s": 2.516,
+   "wav": {
+    "data_size": 131072,
+    "data_tag": "data",
+    "fmt_size": 16,
+    "form": "WAVE",
+    "magic": "RIFF",
+    "riff_size": 131108
+   }
+  }
+ ],
+ "utc": "2026-10-14T17:34:34Z"
+}

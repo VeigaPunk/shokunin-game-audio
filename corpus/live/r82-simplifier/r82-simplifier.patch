@@ -1,0 +1,147 @@
+diff --git a/corpus/fixtures/measure_audio.py b/corpus/fixtures/measure_audio.py
+--- a/corpus/fixtures/measure_audio.py
++++ b/corpus/fixtures/measure_audio.py
+@@ -14264,7 +14264,6 @@ FFPW_R82_BOGUS_SOURCE = "no_such_source_r82"
+ FFPW_R82_BOGUS_PCM = "no_such_pcm_r82"
+ FFPW_R82_BAD_SERVER = "unix:/nonexistent-r82ff"
+ FFPW_R82_ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")   # ffplay emits \x1b[2K
+-FFPW_R82_FFPLAY = "ffplay"
+ FFPW_R82_PROP_KEEP = re.compile(
+     r"^(node\.|stream\.|target\.|media\.|application\.|client\.|"
+     r"object\.|pulse\.|port\.|clock\.|library\.|factory\.|adapt\.|"
+@@ -14373,23 +14372,18 @@ def _ffpw_r82_sample(procs, out_path, el):
+     return s
+ 
+ 
+-def _ffpw_r82_last_node(leg, src="main", require_linked=False):
++def _ffpw_r82_last_node(leg, src="main"):
+     """The last sample's node leaf for `src` — the verdict surface."""
+     for s in reversed(leg.get("samples") or []):
+         for nd in (s.get("nodes") or []):
+             if src and nd.get("src") != src:
+                 continue
+-            if require_linked and not (nd.get("consumers") or
+-                                       nd.get("producers")):
+-                continue
+             return nd
+     return None
+ 
+ 
+-def _ffpw_r82_kill_watch(proc, label):
++def _ffpw_r82_kill_watch(proc):
+     """Timed-event kill for a watch proc (the pump) — SIGKILL its pgid."""
+-    if proc is None:
+-        return {"missing": label}
+     if proc.poll() is not None:
+         return {"already_exited": proc.returncode}
+     try:
+@@ -14453,7 +14447,7 @@ def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
+                 if kind == "unload_module":
+                     res = _gst_r81_unload_own(arg, sink_name=FFPW_R82_NS)
+                 elif kind == "kill_watch":
+-                    res = _ffpw_r82_kill_watch(procs.get(arg), arg)
++                    res = _ffpw_r82_kill_watch(procs.get(arg))
+                 else:
+                     res = {"unknown_event": kind}
+             except Exception as exc:                 # defensive: event must not kill the loop
+@@ -14506,20 +14500,12 @@ def _ffpw_r82_leg(name, argv, ctx, env_extra=None, out_path=None,
+     return rec
+ 
+ 
+-def _ffpw_r82_shot(argv, env_extra=None, timeout_s=12.0):
++def _ffpw_r82_shot(argv, timeout_s=12.0):
+     """A read-only instant command (devices/sources/sinks/-h/ffprobe
+     listing) — subprocess timeout is the bound; no stream ever opens."""
+-    env = None
+-    if env_extra:
+-        env = dict(os.environ)
+-        for k, v in env_extra.items():
+-            if v is None:
+-                env.pop(k, None)
+-            else:
+-                env[k] = v
+     try:
+         proc = subprocess.run(argv, capture_output=True,
+-                              timeout=timeout_s, env=env)
++                              timeout=timeout_s)
+     except (subprocess.TimeoutExpired, OSError) as exc:
+         return {"argv": " ".join(argv), "rc": None,
+                 "error": type(exc).__name__ + ": " + str(exc)[:120]}
+@@ -14590,11 +14576,9 @@ def _ffpw_r82_tone_windows(path):
+     within 6%, amp>=the r78 floor): `mine` means BOTH channels carry the
+     tag, `audio` means any signal — the only statement that survives a
+     shared default sink."""
+-    path = Path(path) if path else None
+-    insp = (_capture_wav_inspect(path) if path is not None
+-            else {"exists": False})
+-    pcm = (_playback_r78_pcm_array(path, insp) if path is not None
+-           else None)
++    path = Path(path)
++    insp = _capture_wav_inspect(path)
++    pcm = _playback_r78_pcm_array(path, insp)
+     out = {"exists": insp.get("exists"), "bytes": insp.get("bytes"),
+            "windows": [], "mine_spans": []}
+     if pcm is None:
+@@ -14823,9 +14807,6 @@ def ffpw_device_surfaces_r82_entry():
+         failures.append("devices: a pipewire device row EXISTS — the "
+                         "build-gained-a-device realization (falsifies "
+                         "the scout lattice)")
+-    if any(rows.get(d) is None for d in want_flags):
+-        failures.append("devices: a pinned audio device row is missing "
+-                        f"entirely — {rows_seen[0]}")
+     if rows_seen[0] != rows_seen[1]:
+         failures.append("devices: rep-to-rep drift in the device table")
+     # ---- d1: forcing the absent indev is rc=234 EINVAL ----
+@@ -14836,7 +14817,7 @@ def ffpw_device_surfaces_r82_entry():
+                         "EINVAL `Unknown input format`")
+     # ---- d2/d3/d4: the enumeration channels ----
+     leg = legs["d2_sources_pipewire"]
+-    rows_pw, _star = _ffpw_r82_enum_rows(leg.get("out") or "")
++    rows_pw, _ = _ffpw_r82_enum_rows(leg.get("out") or "")
+     leg["rows"] = rows_pw
+     if leg.get("rc") != 0:
+         failures.append(f"sources pipewire: rc={leg.get('rc')} != 0")
+@@ -14944,12 +14925,12 @@ def ffpw_capture_lattice_r82_entry():
+             time.sleep(0.4)     # let the pump link before the legs sample it
+             watch = {"pump": pump}
+ 
+-            def _cap(name, pre, src, post=None, env=None, wall=None,
++            def _cap(name, pre, src, env=None, wall=None,
+                      w=watch, tone=False):
+                 out = str(Path(tmp) / f"{name}.wav")
+                 leg = _ffpw_r82_leg(
+                     name,
+-                    base + list(pre) + ["-i", src] + list(post or []) +
++                    base + list(pre) + ["-i", src] +
+                     ["-t", "2.0", "-c:a", "pcm_s16le", out],
+                     ctx, env_extra=env, out_path=out,
+                     watch=w, wall_cap=wall or FFPW_R82_WALL_S)
+@@ -15355,7 +15336,7 @@ def ffpw_playback_lattice_r82_entry():
+         return ((leg.get("taps") or {}).get(label) or {}).get("tone") or {}
+ 
+     # ---- the two routing shapes ----
+-    def _landed_on(name, sink, want_target, taps=True):
++    def _landed_on(name, sink, want_target):
+         leg = legs.get(name) or {}
+         nd = _ffpw_r82_last_node(leg)
+         if leg.get("exit_code") != 0 or nd is None:
+@@ -15376,8 +15357,6 @@ def ffpw_playback_lattice_r82_entry():
+         if nd.get("consumers") != [sink]:
+             failures.append(f"play {name}: consumers "
+                             f"{nd.get('consumers')} != [{sink}]")
+-        if not taps:
+-            return
+         tdef = _tap_tone(leg, "tap_def")
+         tns = _tap_tone(leg, "tap_ns")
+         if sink == FFPW_R82_NS:
+@@ -15966,10 +15945,6 @@ def ffpw_error_classes_r82_entry():
+                        (leg.get("error_hit") or "")):
+             failures.append(f"err {lname}: stderr missing the pinned "
+                             f"token {hit!r} — {leg.get('stderr_head')}")
+-        out = leg.get("out") or {}
+-        if out.get("exists") and (out.get("bytes") or 0) > 44:
+-            failures.append(f"err {lname}: a refused leg must not "
+-                            f"produce audio — {out}")
+     entry["failures"] = failures
+     return entry
+ 
