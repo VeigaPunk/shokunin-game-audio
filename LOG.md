@@ -1583,3 +1583,21 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+
+## 2026-10-17 — root README (front door; not a craft round)
+
+Operator request: make every shokunin-repo README amazing, and do not
+alter Devin wiki links. Evidence that motivated this change:
+
+- this repo either had no root `README.md`, or carried the generic
+  "A **shokunin lane** … What's here" template / a thinner front door
+- `PROVINCE.md` and (where present) `SKILL.md` already named the domain,
+  refusals, and in-repo gates; the GitHub front door did not
+- Devin wiki URL pattern is the existing fleet line in
+  `VeigaPunk/shokunin` README (`app.devin.ai/org/veigapunk/wiki/…`)
+  and `VeigaPunk/ufo-fsd-alpha`; the fleet overview link is preserved
+  byte-identical in the fleet-root README
+
+This commit writes or rewrites `README.md` from those sourced files and
+the commands/paths named in it. No axis claim, no score moved, no corpus
+admission, no protocol change.
