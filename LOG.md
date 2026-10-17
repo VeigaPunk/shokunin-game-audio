@@ -1583,3 +1583,17 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+
+## 2026-10-17 — README: replace the shared shonen template
+
+Operator request: make the README a useful front door. Evidence:
+
+- The previous `README.md` was the shared 23-line shonen-lane template
+  (identical across the 2026-10 public remotes except for the Domain
+  line, plus this lane's extra command section when one existed).
+- Replacement text restates `PROVINCE.md`, existing command blocks, and
+  file-tree facts from `ls` of this checkout. No new craft claim.
+- Devin wiki URLs were not added or rewritten. The only verified fleet
+  wiki link remains the fleet-root line in `VeigaPunk/shokunin`.
+
+Not a craft round. No axis claim.
