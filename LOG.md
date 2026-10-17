@@ -1583,3 +1583,14 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+
+## 2026-10-17 — root README
+
+Motivating evidence: the previous root README was the shared lane template
+and named a root `SKILL.md` this repo does not have. The replacement cites
+`PROVINCE.md` (including the task-boundary table), `SHONEN.md` (four boxes
+checked by named verifiers, scoped as that file states),
+`corpus/fixtures/measure_audio.py` (docstring and `--probe-failing` at the
+argparse block), and `corpus/knowledge/2026-10-12-fixture-battery.md` for
+the round-1 exit contract. `generate_timings.sh` is five `gnuplot` lines.
+No Devin wiki URL was present; none was added.
