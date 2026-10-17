@@ -1583,3 +1583,16 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+
+## 2026-10-17 — first-class README (not a craft round)
+
+**Evidence.** This repository either had no root `README.md` or only the
+generic 22-line lane stub (`A **shokunin lane** — an expert agent for one
+domain…`). A new agent landing here had to reconstruct the province from
+`PROVINCE.md`, `SKILL.md` (when present), the directory listing, and
+`LOG.md`. Wrote `README.md` from those sources: owned domain and refusals
+from `PROVINCE.md`, start-here commands from files that exist in-tree
+(`tools/`, `scripts/`, `verifiers/`, `corpus/`), and fleet links to
+`VeigaPunk/shokunin`. No axis claim. No Devin wiki URL was added or
+rewritten (the only in-tree Devin wiki link remains the fleet-root
+`README.md` line).
