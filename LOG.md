@@ -1583,3 +1583,8 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+## 2026-10-17 — root README rewritten
+
+- **Trigger.** Operator request for a repository front door. The previous `README.md` was the shared lane template and did not name the measurement checker.
+- **Action.** Rewrote `README.md` from `PROVINCE.md` (SFX/soundtrack scope, task-boundary table, refusals) and `corpus/fixtures/measure_audio.py` (docstring; `--probe-*` flags in the argparse block). Root listing has no `SKILL.md`. `generate_timings.sh` is five `gnuplot TimingN.plot` lines; those plot files are not in the tree. The short-SFX gated-loudness sentence cites the round-1 scorecard verdict, not a new measurement. `ports/frontier/fb-pipewire.md` is named from the path. No Devin wiki URL was present and none was added.
+- **Non-claims.** No axis claim, no score change, no measurement run. Not a craft round.
