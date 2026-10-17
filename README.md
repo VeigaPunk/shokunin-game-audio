@@ -5,6 +5,8 @@ under the [shokunin skill](https://github.com/VeigaPunk/shokunin).
 
 **Domain:** Game audio production — SFX and soundtrack — verified by headless analysis: duration, loudness, spectral content, loop-seam continuity.
 
+**Wiki:** [Devin wiki](https://app.devin.ai/org/veigapunk/wiki/VeigaPunk/shokunin-game-audio?branch=main)
+
 ## What's here
 
 - `SKILL.md` — the distilled expertise: decision tables, error patterns,
