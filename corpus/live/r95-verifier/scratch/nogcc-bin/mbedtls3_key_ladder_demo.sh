@@ -1,1 +1,0 @@
-/usr/bin/mbedtls3_key_ladder_demo.sh

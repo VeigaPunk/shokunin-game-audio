@@ -1,1 +1,0 @@
-/usr/bin/gflags_completions.sh

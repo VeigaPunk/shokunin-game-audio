@@ -1,1 +1,0 @@
-Core.quit() Core.quit()

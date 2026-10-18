@@ -1,1 +1,0 @@
-/usr/bin/fixqt4headers.pl

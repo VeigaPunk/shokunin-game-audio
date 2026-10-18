@@ -1,1 +1,0 @@
-/usr/bin/alsa-info.sh

@@ -1,1 +1,0 @@
-/usr/bin/wpg2svgbatch.pl
