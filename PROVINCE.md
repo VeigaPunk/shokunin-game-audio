@@ -29,3 +29,25 @@ Classify the **requested action and effect**, not its filename or the requester'
 Examples to classify without oral context: (1) synthesize an original UI click and log FFT centroid → **audio-province**; (2) create an isolated 200 Hz stem layer WAV and check seam/gap → **audio-province**, but wiring adaptive layer selection in engine → **refuse**; (3) “make the impact more cinematic” → **uncertain** until the measurable requested change is stated, and no claim of cinematic quality; (4) inspect sample rate of an external recording → **audio-only analysis** if no rights inference is requested, while clearing the sample for a store release → **refuse**; (5) generate a soundtrack matching a new character backstory → audio can build a signal from a *separately approved* brief, but setting narrative canon → **refuse/route to lore owner**; (6) export an audio-only asset into an engine directory → **refuse** because destination and integration are outside the write boundary. A mixed task does not become audio-owned merely because its WAV is in this tree.
 
 Evidence boundary for this checklist: `.shokunin/audio/reports/round-24/r24-history.md` inspected 47 first-parent commits from after mint `0f60e76` through pre-round `2a19811` and found post-mint changed paths only under audio/reports trees; mint's two fleet bookkeeping paths and round-1 verifier report are named above. A separate non-author verifier must independently check the tracked range and held-out classifications before any SHONEN box-4 decision. Neither Git path names nor fixture metrics prove absence of untracked/external behavior, universal domain compliance, perceived quality, rights clearance, or production readiness.
+
+## Correction — round 101 (2026-10-19)
+
+The declared write scope `.shokunin/audio/**` is the pre-extraction path: `reports/round-8/r8-verifier.md:3` records the exit-127 failure, and `ls -d .shokunin` fails in this checkout. Real write surfaces are repository-root `corpus/**`, `reports/**`, `ports/**`, and the ledgers.
+
+## Core / Frontier / Adjacent — round 101
+
+### Core — held
+
+SFX/stem synthesis and headless measurement battery (fixture-battery, audio-checklist, threshold-calibration, seed); loop seams and section joins; decoder/transport behaviour (SoX_ng, ffmpeg, libsndfile — the 10 sox/ffmpeg knowledge entries: `ls corpus/knowledge | grep -E '^2026-10-1[34]-' | grep -cE 'sox|ffmpeg'` → 10, 2026-10-19).
+
+### Core — gap entered this round
+
+Per-asset normalization tooling (K1); loudness-measurement conventions — mono/dual-mono and true peak (K3); ship formats and engine import defaults (K4); platform loudness targets (K5).
+
+### Frontier
+
+Realtime transport / PipeWire-Pulse-JACK-GStreamer consumer lattices (rounds 71–100: held only in LOG.md, reports/, and corpus/live receipts; port `ports/frontier/fb-pipewire.md`); engine-native adaptive music (Godot AudioStreamInteractive/Synchronized); AI-audio terms ledger (record-only); ship-codec round-trip deltas (Ogg/Opus/QOA, unmeasured).
+
+### Adjacent
+
+Engine integration/triggers, bus routing, runtime peak monitoring, and game mechanics (game-dev-2d / game-dev-3d); narrative canon (lore); sample-rights clearance and publishing (operator); research method (chousa); middleware licensing/integration (FMOD/Wwise — record only).

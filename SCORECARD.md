@@ -894,21 +894,209 @@ Non-author `reports/round-80/r80-verifier.md`: CONFIRM — 4th green run, 266 le
 
 | r86 | audio | pwctl tools lattice | ADMIT-with-findings | fa5994a0 |
 
+## Round 87 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-87/r87-verifier.md:20`; reproducible-green gate failed. |
+| coverage | **unadjudicated** | `reports/round-87/r87-verifier.md:20`; the frozen-byte verifier recorded red runs. |
+| calibration | **unadjudicated** | `reports/round-87/r87-verifier.md:20`; no adjudicator or axis call exists. |
+
+The verifier's exact verdict is “GATE FAIL — NOT VERIFIED as a reproducible green landing.” (`reports/round-87/r87-verifier.md:20`). Later fold `1977cf42` is an ancestor of HEAD and corrected the combined pwbind/btwit defects; the fold verification is in `reports/round-87/r87-fold.md:21-42` and `reports/round-88/r88-fold.md:21-30`. `LOG.md:1586-1588` records the round. No adjudication or ADMIT is asserted.
+The critic's contemporaneous seat report says “ADMIT-with-findings” (`reports/round-87/r87-critic.md:9`); this is a critic opinion, not an adjudication, so the lane's verdict remains unadjudicated with no ADMIT.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 88 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-88/r88-verifier.md:20`; reproducible-green gate failed. |
+| coverage | **unadjudicated** | `reports/round-88/r88-verifier.md:20`; all encoded laws passed, but co-tenanted verdict arms were red. |
+| calibration | **unadjudicated** | `reports/round-88/r88-verifier.md:20`; no adjudicator or axis call exists. |
+
+The verifier's exact verdict is “GATE FAIL as a reproducible green landing — PASS on every encoded law.” (`reports/round-88/r88-verifier.md:20`). Later fold `1977cf42` is an ancestor of HEAD and corrected the combined pwbind/btwit defects; the fold verification is in `reports/round-88/r88-fold.md:21-43` and `reports/round-87/r87-fold.md:21-29`. `LOG.md:1590-1592` records the round. No adjudication or ADMIT is asserted.
+The critic's contemporaneous seat report says “ADMIT-with-findings” (`reports/round-88/r88-critic.md:9`); this is a critic opinion, not an adjudication, so the lane's verdict remains unadjudicated with no ADMIT.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 89 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings (no per-axis call)** | `reports/round-89/r89-adjudicator.md:3-11` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings (no per-axis call)** | `reports/round-89/r89-adjudicator.md:3-11` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings (no per-axis call)** | `reports/round-89/r89-adjudicator.md:3-11` gives the overall disposition only. |
+
+The adjudicator admitted with findings after the foldfix and re-verification; no axis-specific verdict is inferred. The verifier recorded GATE FAIL on the original landing and the re-verifier GATE PASS (`reports/round-89/r89-verifier.md:22-30`; `reports/round-89/r89-reverify.md:20-32`). `LOG.md:1418-1426` records the round and its limitations.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 90 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings + foldfix contract (no per-axis call)** | `reports/round-90/r90-adjudicator.md:3-10` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings + foldfix contract (no per-axis call)** | `reports/round-90/r90-adjudicator.md:3-10` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings + foldfix contract (no per-axis call)** | `reports/round-90/r90-adjudicator.md:3-10` gives the overall disposition only. |
+
+The verifier passed the committed bytes (`reports/round-90/r90-verifier.md:17-22`); the adjudicator retained a foldfix contract and no per-axis verdict. `LOG.md:1444-1460` records the landing and subsequent fold evidence.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 91 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-91/r91-adjudicator.md:3-11` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-91/r91-adjudicator.md:3-11` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-91/r91-adjudicator.md:3-11` gives the overall disposition only. |
+
+The verifier reports one green committed-byte run with 128/128 checks, while two of six full-family executions were red; the adjudicator admits only the measured core and requires a fold (`reports/round-91/r91-verifier.md:27-39`; `reports/round-91/r91-adjudicator.md:24-51`). `LOG.md:1461-1466` preserves the reds and unresolved work.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 92 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-92/r92-adjudicator.md:3-5` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-92/r92-adjudicator.md:3-5` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-92/r92-adjudicator.md:3-5` gives the overall disposition only. |
+
+The verifier passed committed-byte runs with 304/304 checks and one substantive finding; the adjudicator rejects the contradicted mechanism and coverage claims and leaves required repairs open (`reports/round-92/r92-verifier.md:22-33`; `reports/round-92/r92-adjudicator.md:26-55`). `LOG.md:1467-1472` records this scoped admission.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 93 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-93/r93-verifier.md:8,40-50`; advisory single-run result only. |
+| coverage | **unadjudicated** | `reports/round-93/r93-verifier.md:8,40-50`; advisory single-run result only. |
+| calibration | **unadjudicated** | `reports/round-93/r93-verifier.md:8,40-50`; no admission decision. |
+
+The verifier reports one rc 0 run and explicitly labels the report advisory, not a gate-admission decision. Failure-path and entry-cleanup folds are recorded at `LOG.md:1507-1518,1570-1579` and `reports/round-93/r93-entry-cleanup-fold.md`; no adjudicator exists and no ADMIT is asserted.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 94 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings (no per-axis call)** | `reports/round-94/r94-adjudicator.md:3-16` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings (no per-axis call)** | `reports/round-94/r94-adjudicator.md:3-16` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings (no per-axis call)** | `reports/round-94/r94-adjudicator.md:3-16` gives the overall disposition only. |
+
+The verifier passed on merged committed bytes and re-derived the recorded cells; the adjudicator retained a fail-open census finding and other fold-queue items, without axis-specific calls (`reports/round-94/r94-verifier.md:18-26`; `reports/round-94/r94-adjudicator.md:27-48`). `LOG.md:1427-1433` records the limits.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 95 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings (no per-axis call)** | `reports/round-95/r95-adjudicator.md:3-12` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings (no per-axis call)** | `reports/round-95/r95-adjudicator.md:3-12` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings (no per-axis call)** | `reports/round-95/r95-adjudicator.md:3-12` gives the overall disposition only. |
+
+The adjudicator records the initial verifier pass, folded findings, and fold verification; the fold verifier confirms receipt-level coverage but does not confirm the stdout summary (`reports/round-95/r95-adjudicator.md:5-12`; `reports/round-95/r95-foldverify.md:14-27`). `LOG.md:1434-1443` preserves the remaining display and lock findings.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 96 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-96/r96-adjudicator.md:3-6` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-96/r96-adjudicator.md:3-6` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings + required fold (no per-axis call)** | `reports/round-96/r96-adjudicator.md:3-6` gives the overall disposition only. |
+
+The verifier reports PASS on committed bytes; the adjudicator excludes the false option-position law and unsupported negative-witness claims and requires repairs before unattended use (`reports/round-96/r96-verifier.md:17-28`; `reports/round-96/r96-adjudicator.md:30-52`). `LOG.md:1473-1478` records the limitations.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 97 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **ADMIT-with-findings + required safety fold (no per-axis call)** | `reports/round-97/r97-adjudicator.md:3-5` gives the overall disposition only. |
+| coverage | **ADMIT-with-findings + required safety fold (no per-axis call)** | `reports/round-97/r97-adjudicator.md:3-5` gives the overall disposition only. |
+| calibration | **ADMIT-with-findings + required safety fold (no per-axis call)** | `reports/round-97/r97-adjudicator.md:3-5` gives the overall disposition only. |
+
+The verifier reports PASS with findings on committed bytes; the adjudicator explicitly does not clear the teardown guard for unattended execution or certify shared-state isolation (`reports/round-97/r97-verifier.md:20-28`; `reports/round-97/r97-adjudicator.md:27-59`). `LOG.md:1479-1484` retains the open safety issues.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 98 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-98/r98-verifier.md:3-4,38-43`; advisory single-run result only. |
+| coverage | **unadjudicated** | `reports/round-98/r98-verifier.md:3-4,38-43`; advisory single-run result only. |
+| calibration | **unadjudicated** | `reports/round-98/r98-verifier.md:3-4,38-43`; no admission decision. |
+
+The verifier reports one rc 0 run, explicitly not a gate-admission decision. Failure-path and scope folds are retained in `LOG.md:1507-1518,1549-1558` and `reports/round-98/r98-scope-fold.md`; no adjudicator exists and no ADMIT is asserted.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 99 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-99/r99-verifier.md:6,29-37`; advisory single-run result only. |
+| coverage | **unadjudicated** | `reports/round-99/r99-verifier.md:6,29-37`; advisory single-run result only. |
+| calibration | **unadjudicated** | `reports/round-99/r99-verifier.md:6,29-37`; no admission decision. |
+
+The verifier reports one rc 0 run and labels it advisory, not an admission. Preserve the disclosure erratum: at least three recorded LAN controls, with TX deltas 7205/6376 plus 6034; interface counters include ambient traffic, deleted dev runs are not enumerated, no new control was run, and default-off remains armed (`LOG.md:1542-1548`). Safety and missing-witness folds remain at `LOG.md:1485-1491,1559-1569`; no adjudicator exists and no ADMIT is asserted.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 100 verdict — 2026-10-16
+
+| axis | verdict | evidence |
+|---|---|---|
+| depth | **unadjudicated** | `reports/round-100/r100-verifier.md:36-40`; rc 0 is explicitly not complete coverage. |
+| coverage | **unadjudicated** | `reports/round-100/r100-verifier.md:36-40`; scoped three-leg run only. |
+| calibration | **unadjudicated** | `reports/round-100/r100-verifier.md:10,36-40`; no admission decision. |
+
+The verifier's advisory run returned rc 0 but explicitly did not establish complete coverage. The witness fold and its narrow clock-leg scope are recorded in `reports/round-100/r100-witness-fold.md` and `LOG.md:1500-1506`; no adjudicator exists and no ADMIT is asserted.
+reconciled in round 101 (2026-10-19) from the committed record; no new verification performed
+
+## Round 101 verdict — 2026-10-19 (kaika campaign; self-verdicts pending non-author verification)
+
+Declared claims (three, causally separable, distinct axes). Lowest-scoring axis: **undefined** — the axes table carries no 0–10 score (lines 6-10 of this file, unchanged since mint); calibration was chosen by defect density [INFERENCE], and because the round claims all three owned axes the lowest-axis obligation is met under any score assignment. Measured commit: the round-101 commit on `kaika/round` (hash recorded in the fleet report `.ufo/reports/round-101/audio.md` and the round-101 `LOG.md` entry); before-state: base `defbe128` (`reports/round-101/r101-scribe.md`; `git show defbe128:<path>` for each command below).
+
+| axis | claim | self-verdict | before → after (commands below) | evidence |
+|---|---|---|---|---|
+| calibration | C1 — ledgers tell the truth about rounds 87–100 | **improved** (pending) | axis score unmeasured → unmeasured (no 0–10 rubric); c1a 0 → 14; c1b 0 → 18 (6 rounds × 3 axes); c1c 0 → 2; c1d 4 → 0 (lane-dispatched verifiers are still the lane); c1e 4 → 0 | sections `## Round 87 verdict` … `## Round 100 verdict` above; `LOG.md` `## Round 87`, `## Round 88`, `## Rounds 82–100 ledger reconciliation`; `SHONEN.md`; `PROVINCE.md` `## Correction — round 101` |
+| coverage | C2 — expansion on uncovered ground + capability `sources-registry` | **improved** (pending) | axis score unmeasured → unmeasured (no 0–10 rubric); c2a 14 → 18; c2b 0 → 4; c2c absent → 15; c2d absent → 22; coverage-map gap rows holding an entry 0 → 4 (`corpus/README.md` §Core gap sweep) | `corpus/lessons/round-101.md` `## Gate` (4 admitted, 3 rejected), `corpus/SOURCES.md`, `corpus/QUALITY.md`, `corpus/README.md` |
+| depth | C3 — opt-in `--probe-truepeak-r101` (sample vs true peak, mono vs dual-mono LUFS) with analytic controls | **improved** (pending) | axis score unmeasured → unmeasured (no 0–10 rubric); c3a 0 → 2; c3b 0 → 17 artifacts with a finite measured true peak in a harness receipt; controls: 12 kHz π/4 overshoot +2.999 dB vs +3.010 analytic (±0.08), phase-0 0.000, dual-mono +3.010 LU (±0.002) | `reports/round-101/r101-truepeak.md`; receipts `corpus/live/runs/20261019T224242100746Z-truepeak-r101/` (post-fix) and `20261019T222216086962Z-` / `20261019T222222270145Z-truepeak-r101` (byte-identical, sha256 `6b9e1fb8…`) |
+
+```sh
+# from the lane root
+grep -cE '^## Round (8[7-9]|9[0-9]|100) verdict' SCORECARD.md                          # c1a
+grep -cE '^\| (depth|coverage|calibration) \| \*\*unadjudicated\*\*' SCORECARD.md       # c1b
+grep -cE '^## Round (87|88) ' LOG.md                                                    # c1c
+grep -c '\[x\]' SHONEN.md                                                               # c1d
+grep -c '\.shokunin' SHONEN.md                                                          # c1e
+ls corpus/knowledge/*.md | wc -l                                                        # c2a
+for f in corpus/knowledge/*.md; do head -1 "$f"; done | grep -cE '^source: S[0-9]{3}'  # c2b
+grep -cE '^\|[[:space:]]*S[0-9]{3,}[[:space:]]*\|' corpus/SOURCES.md                    # c2c
+grep -cE '^\| Q[0-9]+ \|' corpus/QUALITY.md                                             # c2d
+grep -cE '^- K[1345] — ' corpus/README.md                                                     # c2e
+grep -c 'probe-truepeak-r101' corpus/fixtures/measure_audio.py                          # c3a
+python3 -c "import json,math;t=json.load(open('corpus/live/runs/20261019T224242100746Z-truepeak-r101/measurements.json'))['measurements']['truepeak_r101'];print(sum(math.isfinite(v['mono']['true_peak_dbtp']) for v in t['artifacts'].values()))"  # c3b
+```
+
+No-harm checks: normal-mode receipt `corpus/live/runs/20261019T224248272957Z-normal/measurements.json` sha256 `8e8cdad6cc3c356d07c463498f4759b8d73e73935cf591d117732f09ffaffb1b` = the r81–r83 pin; `measure()` and `SPECS` unchanged; mode/suffix selectors evaluated old-vs-new over all 144 probe flags with 0 mismatches after the round's own fix of a dropped-arm defect (lesson M16 — found by the L1, fixed before commit). Ledger edits: `LOG.md` and `PROVINCE.md` insertions only (`git diff --numstat defbe128 -- LOG.md PROVINCE.md` shows 0 deletions); `SCORECARD.md` has 4 deletions: the placeholder Capabilities row, capability-rollout note, Saturation-line stub, and Planned-population stub; each was replaced by round-101 declarations. No round section was removed; `SHONEN.md` was regenerated to the canonical seed. Provider exhaustion: four executor seats died on provider rate limits and were re-dispatched; the L1 authored K1/K3/K4/K5 and `corpus/SOURCES.md` itself (`.ufo/reports/round-101/audio.md` §Work performed).
+
 ## Capabilities
 
 | Capability | What it can now do | Evidence pointer | First-working round |
 |---|---|---|---|
-| — none yet — | | | |
+| sources-registry | Keep `corpus/SOURCES.md` per SOURCES contract v1: opened, honestly tiered rows with anchors, a rejected row with flip, Paths, Search log; every contract census command runs clean | `corpus/SOURCES.md`; census commands in `corpus/lessons/round-101.md` `## Gate` (rows 15, malformed 0, `A=11 B=2 C=2`, `mined=14 rejected=1`, dup/enum/missing print nothing) | 101 |
+| truepeak-probe | Measure sample peak, true peak (dBTP), overshoot and mono vs dual-mono integrated loudness on all 17 canonical artifacts, fail-closed behind analytic controls | `python3 corpus/fixtures/measure_audio.py --probe-truepeak-r101` (exit 0) → `corpus/live/runs/*-truepeak-r101/measurements.json`; `python3 corpus/fixtures/test_truepeak_r101.py` (6 tests OK) | 101 |
 
-Rows enter only through a round that demonstrates the capability running (`AXES.md` §Capabilities); none enter through this rollout.
+Rows enter only through a round that demonstrates capability running (`AXES.md` §Capabilities); both entries above were demonstrated by round-101 census and measurement receipts.
 
 ## Saturation
 
-The lane's saturation line and stagnation window N are to be declared by the lane on its next round per `AXES.md` §The stagnation nudge; not asserted by this conformance change.
+Declared round 101: **saturation line — not declarable** while the owned axes carry no 0–10 score (the lane has no score rubric; see the axes table); **stagnation window N = 10 rounds**. Until a rubric exists the nudge cannot fire on the score half; the capability half is now live (two rows entered in round 101).
 
 ## Planned
 
-Populated by the lane at each round start per the `SCORECARD.md` contract; no entries declared by this rollout.
+Next round (102) — intended claims, each falsifiable:
+- calibration: author a 0–10 score rubric per owned axis (counting command per score) so the lowest-axis rule becomes mechanically evaluable; before: 3 `unmeasured` rows.
+- coverage/frontier: measure QOA-induced deltas on the lane fixtures (needs decodable QOA bytes — `qoaconv` lead in `corpus/SOURCES.md`), moving the ship-codec frontier row toward Core.
+- depth: re-run and admit or finally reject K2 (loudnorm two-pass linear gate; rejected this round under Q5) with n9.0.1 line cites.
 
 ## Retired
 

@@ -54367,6 +54367,620 @@ def sofa_shared_r100_entry():
     entry["failures"] = failures
     return entry
 
+# r101: compare FFmpeg's sample and true-peak meters on the canonical PCM16
+# corpus, with two synthetic peak controls and a dual-mono loudness control.
+TRUEPEAK_R101_RATE = 48000
+TRUEPEAK_R101_SCRATCH = ROOT / "live" / "round-101-truepeak"
+TRUEPEAK_R101_NUM = r"(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|[+-]?(?:inf|nan))"
+TRUEPEAK_R101_ANALYTIC_OVERSHOOT_DB = {
+    "positive_12khz_phase_pi_over4": 3.0103,
+    "negative_12khz_phase0": 0.0,
+}
+TRUEPEAK_R101_ANALYTIC_OVERSHOOT_TOLERANCE_DB = 0.08
+
+
+def _truepeak_r101_number(token, label):
+    try:
+        value = float(token)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label}: unparseable numeric token {token!r}") from exc
+    if math.isnan(value):
+        raise ValueError(f"{label}: NaN is ambiguous")
+    return value
+
+
+def _truepeak_r101_decimal_step(token):
+    match = re.fullmatch(
+        r"[+-]?\d+(?:\.(\d*))?(?:[eE]([+-]?\d+))?", token)
+    if not match:
+        return None
+    places = len(match.group(1) or "")
+    exponent = int(match.group(2) or "0")
+    return 10.0 ** (exponent - places)
+
+
+def _truepeak_r101_db(value):
+    if math.isinf(value) and value < 0:
+        return None
+    if not math.isfinite(value):
+        raise ValueError("peak: non-finite value")
+    return round(value, 6)
+
+
+def _truepeak_r101_integrated(token):
+    value = _truepeak_r101_number(token, "integrated loudness")
+    if (math.isinf(value) and value < 0) or value <= -70.0:
+        return None
+    if not math.isfinite(value):
+        raise ValueError("integrated loudness: positive infinity is invalid")
+    return round(value, 6)
+
+
+def _truepeak_r101_amplitude_db(token, label):
+    value = _truepeak_r101_number(token, label)
+    if math.isinf(value) and value < 0:
+        return None, None
+    if not math.isfinite(value) or value < 0:
+        raise ValueError(f"{label}: expected finite non-negative amplitude")
+    if value == 0:
+        return None, None
+    db = 20.0 * math.log10(value)
+    step = _truepeak_r101_decimal_step(token)
+    if step is None or step >= value * 2:
+        error_db = None
+        resolution = "metadata amplitude precision unavailable"
+    else:
+        lower = value - step / 2.0
+        upper = value + step / 2.0
+        error_db = max(abs(20.0 * math.log10(lower / value)),
+                       abs(20.0 * math.log10(upper / value)))
+        resolution = f"{step:g} linear amplitude"
+    return round(db, 6), {
+        "resolution": resolution,
+        "max_error_db": (round(error_db, 6)
+                         if error_db is not None else None),
+    }
+
+
+def _truepeak_r101_summary_token(summary, pattern, label):
+    matches = re.findall(pattern, summary, flags=re.MULTILINE)
+    if len(matches) != 1:
+        raise ValueError(
+            f"{label}: expected exactly one summary value, found {len(matches)}")
+    return matches[0]
+
+
+def _truepeak_r101_metadata_tokens(stderr, key):
+    return re.findall(
+        rf"(?m)^.*?\blavfi\.r128\.{re.escape(key)}=([^\s]+).*$", stderr)
+
+
+def _truepeak_r101_parse_ebur128(stderr):
+    """Parse one FFmpeg ebur128 summary; malformed output never becomes null."""
+    summaries = re.findall(
+        r"(?m)^\[Parsed_ebur128_\d+ @ [^\]]+\] Summary:\s*$", stderr)
+    if len(summaries) != 1:
+        raise ValueError(
+            f"expected exactly one Summary block, found {len(summaries)}")
+    summary_start = re.search(
+        r"(?m)^\[Parsed_ebur128_\d+ @ [^\]]+\] Summary:\s*$", stderr)
+    summary = stderr[summary_start.start():]
+
+    sample_summary = _truepeak_r101_summary_token(
+        summary,
+        rf"^[ \t]*Sample peak:[ \t]*\r?\n[ \t]*Peak:[ \t]*"
+        rf"({TRUEPEAK_R101_NUM})[ \t]+dBFS[ \t]*$",
+        "Sample peak")
+    true_summary = _truepeak_r101_summary_token(
+        summary,
+        rf"^[ \t]*True peak:[ \t]*\r?\n[ \t]*Peak:[ \t]*"
+        rf"({TRUEPEAK_R101_NUM})[ \t]+dBFS[ \t]*$",
+        "True peak")
+    integrated_summary = _truepeak_r101_summary_token(
+        summary,
+        rf"^[ \t]*Integrated loudness:[ \t]*\r?\n[ \t]*I:[ \t]*"
+        rf"({TRUEPEAK_R101_NUM})[ \t]+LUFS[ \t]*$",
+        "Integrated loudness I")
+
+    sample_meta = _truepeak_r101_metadata_tokens(stderr, "sample_peak")
+    true_meta = _truepeak_r101_metadata_tokens(stderr, "true_peak")
+    integrated_meta = _truepeak_r101_metadata_tokens(stderr, "I")
+    for key, tokens in (("sample_peak", sample_meta),
+                        ("true_peak", true_meta),
+                        ("I", integrated_meta)):
+        for token in tokens:
+            _truepeak_r101_number(token, f"metadata {key}")
+
+    if sample_meta:
+        sample_db, sample_precision = _truepeak_r101_amplitude_db(
+            sample_meta[-1], "metadata sample peak")
+        sample_source = "ametadata:lavfi.r128.sample_peak"
+        if sample_precision is None:
+            sample_precision = {
+                "resolution": "metadata reports zero amplitude",
+                "max_error_db": None}
+    else:
+        sample_db = _truepeak_r101_db(
+            _truepeak_r101_number(sample_summary, "summary sample peak"))
+        sample_precision = {"resolution": "0.1 dB",
+                            "max_error_db": 0.05}
+        sample_source = "summary:Sample peak"
+
+    if true_meta:
+        true_db, true_precision = _truepeak_r101_amplitude_db(
+            true_meta[-1], "metadata true peak")
+        true_source = "ametadata:lavfi.r128.true_peak"
+        if true_precision is None:
+            true_precision = {
+                "resolution": "metadata reports zero amplitude",
+                "max_error_db": None}
+    else:
+        true_db = _truepeak_r101_db(
+            _truepeak_r101_number(true_summary, "summary true peak"))
+        true_precision = {"resolution": "0.1 dB",
+                          "max_error_db": 0.05}
+        true_source = "summary:True peak"
+
+    if integrated_meta:
+        integrated_token = integrated_meta[-1]
+        integrated_source = "ametadata:lavfi.r128.I"
+        integrated_step = _truepeak_r101_decimal_step(integrated_token)
+        integrated_precision = {
+            "resolution": (f"{integrated_step:g} LU"
+                           if integrated_step is not None else
+                           "metadata non-finite literal"),
+            "max_error_lu": (round(integrated_step / 2.0, 9)
+                             if integrated_step is not None else None),
+        }
+    else:
+        integrated_token = integrated_summary
+        integrated_source = "summary:Integrated loudness I"
+        integrated_precision = {"resolution": "0.1 LU",
+                                "max_error_lu": 0.05}
+
+    return {
+        "sample_peak_dbfs": sample_db,
+        "true_peak_dbtp": true_db,
+        "integrated_lufs": _truepeak_r101_integrated(integrated_token),
+        "integrated_lufs_raw": integrated_token,
+        "precision": {
+            "sample_peak_dbfs": {
+                "source": sample_source, **sample_precision},
+            "true_peak_dbtp": {
+                "source": true_source, **true_precision},
+            "integrated_lufs": {
+                "source": integrated_source, **integrated_precision},
+        },
+    }
+
+
+def _truepeak_r101_relative(path):
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _truepeak_r101_sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _truepeak_r101_write_control(path, frequency, amplitude, phase,
+                                 duration_s, fade_in_s=0.0):
+    frames = int(round(duration_s * TRUEPEAK_R101_RATE))
+    positions = np.arange(frames, dtype=np.float64)
+    samples = amplitude * np.sin(
+        2.0 * math.pi * frequency * positions / TRUEPEAK_R101_RATE + phase)
+    fade_frames = int(round(fade_in_s * TRUEPEAK_R101_RATE))
+    if fade_frames:
+        ramp = np.arange(fade_frames + 1, dtype=np.float64)
+        envelope = np.ones(frames, dtype=np.float64)
+        envelope[:fade_frames + 1] = 0.5 * (
+            1.0 - np.cos(math.pi * ramp / fade_frames))
+        samples *= envelope
+    pcm = np.clip(np.rint(samples * 32768.0), -32768, 32767).astype("<i2")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(path), "wb") as out:
+        out.setnchannels(1)
+        out.setsampwidth(2)
+        out.setframerate(TRUEPEAK_R101_RATE)
+        out.writeframes(pcm.tobytes())
+    return {"path": _truepeak_r101_relative(path),
+            "sha256": _truepeak_r101_sha256(path),
+            "frames": int(pcm.size),
+            "rate_hz": TRUEPEAK_R101_RATE,
+            "channels": 1,
+            "format": "PCM16"}
+
+
+def _truepeak_r101_pcm16(path):
+    with wave.open(str(path), "rb") as source:
+        if (source.getnchannels() != 1 or source.getsampwidth() != 2
+                or source.getframerate() != TRUEPEAK_R101_RATE
+                or source.getcomptype() != "NONE"):
+            raise ValueError(f"{path}: expected 48 kHz mono PCM16 WAV")
+        raw = source.readframes(source.getnframes())
+    return np.frombuffer(raw, dtype="<i2").copy()
+
+
+def _truepeak_r101_quantized_expectation(path, frequency, steady_start):
+    """Derive the tone peak from the control's actual quantized PCM16 period."""
+    pcm = _truepeak_r101_pcm16(path)
+    period = TRUEPEAK_R101_RATE // math.gcd(
+        TRUEPEAK_R101_RATE, int(frequency))
+    steady = pcm[steady_start:]
+    if steady.size < 2 * period or not np.array_equal(
+            steady[period:], steady[:-period]):
+        raise ValueError("control PCM16 steady region is not periodic")
+    cycle = steady[:period].astype(np.float64) / 32768.0
+    fundamental = int(round(frequency * period / TRUEPEAK_R101_RATE))
+    if abs(frequency * period / TRUEPEAK_R101_RATE - fundamental) > 1e-12:
+        raise ValueError("control frequency does not fit its quantized period")
+    coefficients = np.fft.rfft(cycle)
+    other = np.delete(np.abs(coefficients), fundamental)
+    if other.size and float(np.max(other)) > 1e-9:
+        raise ValueError("control period is not a single quantized sinusoid")
+    true_amplitude = 2.0 * abs(coefficients[fundamental]) / period
+    pcm_peak = float(np.max(np.abs(pcm.astype(np.int32)))) / 32768.0
+    if true_amplitude <= 0 or pcm_peak <= 0:
+        raise ValueError("control PCM16 has no numeric peak")
+    return {
+        "sample_peak_dbfs": round(20.0 * math.log10(pcm_peak), 6),
+        "true_peak_dbfs": round(20.0 * math.log10(true_amplitude), 6),
+        "overshoot_db": round(
+            20.0 * math.log10(true_amplitude / pcm_peak), 6),
+        "steady_period_samples": period,
+        "quantized_period_pcm16": [int(value) for value in cycle * 32768],
+    }
+
+
+def _truepeak_r101_run_ebur128(path, dualmono, log_dir, tag):
+    filter_graph = "ebur128=metadata=1:peak=sample+true"
+    if dualmono:
+        filter_graph += ":dualmono=true"
+    argv = ["ffmpeg", "-hide_banner", "-nostats", "-i", str(path),
+            "-af", filter_graph + ",ametadata=mode=print", "-f", "null", "-"]
+    result = subprocess.run(argv, check=False, capture_output=True,
+                            timeout=30)
+    stderr = result.stderr.decode("utf-8", errors="replace")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    (log_dir / f"{tag}-{'dualmono' if dualmono else 'mono'}.stderr.log"
+     ).write_text(stderr, encoding="utf-8")
+    if result.returncode != 0:
+        raise ValueError(f"ffmpeg exited {result.returncode}")
+    return _truepeak_r101_parse_ebur128(stderr)
+
+
+def _truepeak_r101_numpy_peak(path):
+    result = subprocess.run(
+        ["sox", str(path), "-t", "f32", "-e", "floating-point", "-"],
+        check=False, capture_output=True, timeout=30)
+    if result.returncode != 0:
+        raise ValueError(f"SoX decode exited {result.returncode}")
+    samples = np.frombuffer(result.stdout, dtype="<f4").astype(np.float64)
+    if not samples.size or not np.all(np.isfinite(samples)):
+        raise ValueError("SoX/NumPy decode returned empty or non-finite samples")
+    peak = float(np.max(np.abs(samples)))
+    if peak <= 0:
+        raise ValueError("SoX/NumPy decode has no numeric sample peak")
+    return round(peak, 9), round(20.0 * math.log10(peak), 6)
+
+
+def _truepeak_r101_measure_path(path, name, log_dir):
+    failures = []
+    passes = {}
+    for dualmono, key in ((False, "mono"), (True, "dualmono")):
+        try:
+            passes[key] = _truepeak_r101_run_ebur128(
+                path, dualmono, log_dir, name)
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            passes[key] = {
+                "sample_peak_dbfs": None,
+                "true_peak_dbtp": None,
+                "integrated_lufs": None,
+                "integrated_lufs_raw": None,
+                "precision": {},
+            }
+            failures.append(
+                f"{name} {key}: {type(exc).__name__}: {exc}")
+        measured = passes[key]
+        for field in ("sample_peak_dbfs", "true_peak_dbtp"):
+            if measured[field] is None or not math.isfinite(measured[field]):
+                failures.append(f"{name} {key}: missing finite {field}")
+        measured["overshoot_db"] = (
+            round(measured["true_peak_dbtp"]
+                  - measured["sample_peak_dbfs"], 6)
+            if (measured["true_peak_dbtp"] is not None
+                and measured["sample_peak_dbfs"] is not None) else None)
+        measured["exceeds_minus1_dbtp"] = (
+            measured["true_peak_dbtp"] > -1.0
+            if measured["true_peak_dbtp"] is not None else None)
+    try:
+        numpy_peak, numpy_peak_db = _truepeak_r101_numpy_peak(path)
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        numpy_peak, numpy_peak_db = None, None
+        failures.append(f"{name}: NumPy sample-peak decode failed: {exc}")
+    mono_sample = passes["mono"]["sample_peak_dbfs"]
+    sample_precision = (passes["mono"].get("precision", {}).get(
+        "sample_peak_dbfs", {}))
+    resolution = sample_precision.get("max_error_db")
+    if mono_sample is not None and numpy_peak_db is not None:
+        tolerance = (float(resolution) if resolution is not None else 0.05)
+        crosscheck = round(abs(mono_sample - numpy_peak_db), 6)
+        if crosscheck > tolerance + 1e-6:
+            failures.append(
+                f"{name}: FFmpeg sample peak differs from NumPy decode by "
+                f"{crosscheck:.6f} dB (resolution bound {tolerance:.6f} dB)")
+    else:
+        tolerance, crosscheck = None, None
+    return {
+        "path": _truepeak_r101_relative(path),
+        "sha256": _truepeak_r101_sha256(path) if path.is_file() else None,
+        "mono": passes["mono"],
+        "dualmono": passes["dualmono"],
+        "dualmono_delta_lu": (
+            round(passes["dualmono"]["integrated_lufs"]
+                  - passes["mono"]["integrated_lufs"], 3)
+            if (passes["dualmono"]["integrated_lufs"] is not None
+                and passes["mono"]["integrated_lufs"] is not None) else None),
+        "numpy_decoded_sample_peak_full_scale": numpy_peak,
+        "numpy_decoded_sample_peak_dbfs": numpy_peak_db,
+        "sample_peak_crosscheck_error_db": crosscheck,
+        "sample_peak_crosscheck_tolerance_db": (
+            round(tolerance, 6) if tolerance is not None else None),
+        "failures": failures,
+    }
+
+
+def _truepeak_r101_peak_error(measurement, field):
+    return (measurement.get("precision", {}).get(field, {})
+            .get("max_error_db"))
+
+def _truepeak_r101_control_overshoot_matches(control_name, observed_db,
+                                              tolerance_db):
+    expected_db = TRUEPEAK_R101_ANALYTIC_OVERSHOOT_DB.get(control_name)
+    if expected_db is None or observed_db is None:
+        return False
+    try:
+        observed_db = float(observed_db)
+        tolerance_db = float(tolerance_db)
+    except (TypeError, ValueError):
+        return False
+    return (math.isfinite(observed_db) and math.isfinite(tolerance_db)
+            and tolerance_db >= 0.0
+            and abs(observed_db - expected_db) <= tolerance_db)
+
+
+def _truepeak_r101_probe():
+    """Corpus plus quantized controls; all required misses become failures."""
+    failures = []
+    artifacts = {}
+    controls = {}
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    run_dir = TRUEPEAK_R101_SCRATCH / stamp
+    try:
+        run_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        failures.append(f"scratch directory: {type(exc).__name__}: {exc}")
+    log_dir = run_dir / "ffmpeg"
+    control_dir = run_dir / "controls"
+    control_specs = (
+        ("positive_12khz_phase_pi_over4", 12000, 0.5, math.pi / 4,
+         2.5, 0.005, 240),
+        ("negative_12khz_phase0", 12000, 0.5, 0.0,
+         2.5, 0.005, 240),
+        ("dualmono_1khz", 1000, 0.5, 0.0,
+         3.0, 0.0, 0),
+    )
+    control_paths = {}
+    for name, frequency, amplitude, phase, duration, fade, steady_start in \
+            control_specs:
+        path = control_dir / f"{name}.wav"
+        try:
+            source = _truepeak_r101_write_control(
+                path, frequency, amplitude, phase, duration, fade)
+            measured = _truepeak_r101_measure_path(path, name, log_dir)
+            control_paths[name] = (path, frequency, steady_start, source)
+            controls[name] = {"source": source, **measured}
+            failures.extend(measured["failures"])
+        except (OSError, ValueError, wave.Error) as exc:
+            failures.append(
+                f"control {name}: {type(exc).__name__}: {exc}")
+            controls[name] = {
+                "source": None, "path": _truepeak_r101_relative(path),
+                "failures": [f"{type(exc).__name__}: {exc}"]}
+    for control_name in ("positive_12khz_phase_pi_over4",
+                         "negative_12khz_phase0"):
+        control = controls.get(control_name, {})
+        source_info = control_paths.get(control_name)
+        if source_info is None:
+            continue
+        path, frequency, steady_start, _source = source_info
+        mono = control.get("mono") or {}
+        observed = mono.get("overshoot_db")
+        analytic_expected = TRUEPEAK_R101_ANALYTIC_OVERSHOOT_DB[
+            control_name]
+        analytic_tolerance = (
+            TRUEPEAK_R101_ANALYTIC_OVERSHOOT_TOLERANCE_DB)
+        analytic_match = _truepeak_r101_control_overshoot_matches(
+            control_name, observed, analytic_tolerance)
+        control["analytic_expected_overshoot_db"] = analytic_expected
+        control["analytic_expected_overshoot_tolerance_db"] = (
+            analytic_tolerance)
+        control["analytic_overshoot_error_db"] = (
+            round(abs(observed - analytic_expected), 6)
+            if observed is not None and math.isfinite(observed) else None)
+        control["analytic_overshoot_matches"] = analytic_match
+        if not analytic_match:
+            failures.append(
+                f"control {control_name}: overshoot {observed!r} dB "
+                f"is not within independent analytic reference "
+                f"{analytic_expected:.4f} ±{analytic_tolerance:.2f} dB")
+        try:
+            expected = _truepeak_r101_quantized_expectation(
+                path, frequency, steady_start)
+            control["quantized_pcm16_expectation"] = expected
+            mono = control["mono"]
+            tp_error = _truepeak_r101_peak_error(
+                mono, "true_peak_dbtp")
+            sp_error = _truepeak_r101_peak_error(
+                mono, "sample_peak_dbfs")
+            # Critic measured the 5 ms fade at +3.026 dB vs the quantized
+            # sinusoid's +3.010 dB ideal. The 0.08 dB floor covers that
+            # filter residual and metadata rounding; 0.1 dB summary fallback
+            # uses the sum of both fields' half-step bounds plus 0.02 dB.
+            tolerance = max(
+                0.08, (tp_error or 0.0) + (sp_error or 0.0) + 0.02)
+            observed = mono["overshoot_db"]
+            expected_overshoot = expected["overshoot_db"]
+            expected_tp = expected["true_peak_dbfs"]
+            peak_tolerance = max(0.08, (tp_error or 0.0) + 0.02)
+            control["expected_overshoot_tolerance_db"] = round(
+                tolerance, 6)
+            control["expected_true_peak_tolerance_db"] = round(
+                peak_tolerance, 6)
+            control["overshoot_error_db"] = (
+                round(abs(observed - expected_overshoot), 6)
+                if observed is not None else None)
+            control["true_peak_error_db"] = (
+                round(abs(mono["true_peak_dbtp"] - expected_tp), 6)
+                if mono["true_peak_dbtp"] is not None else None)
+            if (control["overshoot_error_db"] is None
+                    or control["overshoot_error_db"] > tolerance):
+                failures.append(
+                    f"control {control_name}: overshoot is not within "
+                    f"{tolerance:.6f} dB of quantized PCM16 expectation")
+            if (control["true_peak_error_db"] is None
+                    or control["true_peak_error_db"] > peak_tolerance):
+                failures.append(
+                    f"control {control_name}: true peak is not within "
+                    f"{peak_tolerance:.6f} dB of quantized PCM16 expectation")
+            if (mono["sample_peak_dbfs"] is None
+                    or abs(mono["sample_peak_dbfs"]
+                           - expected["sample_peak_dbfs"]) > max(
+                               0.06, (sp_error or 0.0) + 0.01)):
+                failures.append(
+                    f"control {control_name}: sample peak misses its "
+                    "quantized PCM16 expectation")
+            if mono["integrated_lufs"] is None or \
+                    control["dualmono"]["integrated_lufs"] is None:
+                failures.append(
+                    f"control {control_name}: integrated loudness is not numeric")
+        except (KeyError, ValueError, TypeError) as exc:
+            failures.append(
+                f"control {control_name}: expectation failed: "
+                f"{type(exc).__name__}: {exc}")
+
+    dual_control = controls.get("dualmono_1khz", {})
+    if dual_control.get("dualmono_delta_lu") is None:
+        failures.append("control dualmono_1khz: mono/dual-mono I is not numeric")
+    else:
+        mono_error = (dual_control.get("mono", {}).get("precision", {})
+                      .get("integrated_lufs", {}).get("max_error_lu"))
+        dual_error = (dual_control.get("dualmono", {}).get("precision", {})
+                      .get("integrated_lufs", {}).get("max_error_lu"))
+        dual_tolerance = max(
+            0.002, (mono_error or 0.0) + (dual_error or 0.0))
+        dual_control["expected_delta_lu"] = 3.0103
+        dual_control["expected_delta_tolerance_lu"] = round(
+            dual_tolerance, 6)
+        dual_control["delta_error_lu"] = round(
+            abs(dual_control["dualmono_delta_lu"] - 3.0103), 6)
+        if dual_control["delta_error_lu"] > dual_tolerance:
+            failures.append(
+                "control dualmono_1khz: dual-mono I delta is outside "
+                f"±{dual_tolerance:.6f} LU of +3.0103 LU")
+
+    for name, spec in SPECS.items():
+        path = ARTIFACTS / f"{name}.wav"
+        try:
+            row = _truepeak_r101_measure_path(path, name, log_dir)
+        except (OSError, ValueError, wave.Error) as exc:
+            row = {"path": _truepeak_r101_relative(path),
+                   "sha256": None, "failures": [
+                       f"{type(exc).__name__}: {exc}"]}
+        artifacts[name] = row
+        failures.extend(row.get("failures", []))
+        if spec[0] <= 0.36:
+            if (row.get("mono", {}).get("integrated_lufs") is not None
+                    or row.get("dualmono", {}).get("integrated_lufs")
+                    is not None):
+                failures.append(
+                    f"{name}: expected the ebur128 -70 LUFS short-file floor")
+        else:
+            mono_loud = row.get("mono", {}).get("integrated_lufs")
+            dual_loud = row.get("dualmono", {}).get("integrated_lufs")
+            if mono_loud is None or dual_loud is None:
+                failures.append(
+                    f"{name}: expected finite mono and dual-mono integrated I")
+            else:
+                delta = row.get("dualmono_delta_lu")
+                mono_error = (row["mono"]["precision"]
+                              ["integrated_lufs"].get("max_error_lu"))
+                dual_error = (row["dualmono"]["precision"]
+                              ["integrated_lufs"].get("max_error_lu"))
+                tolerance = max(
+                    0.002, (mono_error or 0.0) + (dual_error or 0.0))
+                row["dualmono_expected_delta_lu"] = 3.0103
+                row["dualmono_expected_tolerance_lu"] = round(
+                    tolerance, 6)
+                if delta is None or abs(delta - 3.0103) > tolerance:
+                    failures.append(
+                        f"{name}: dual-mono I delta {delta!r} LU does not "
+                        f"match +3.0103 ±{tolerance:.6f} LU")
+
+    if len(artifacts) != len(SPECS):
+        failures.append(
+            f"artifact census: {len(artifacts)} rows, expected {len(SPECS)}")
+    floor_names = [name for name, spec in SPECS.items() if spec[0] <= 0.36]
+    gated_names = [name for name, spec in SPECS.items() if spec[0] > 0.36]
+    observed_floor_names = [
+        name for name, row in artifacts.items()
+        if row.get("mono", {}).get("integrated_lufs") is None
+        and row.get("dualmono", {}).get("integrated_lufs") is None]
+    if set(observed_floor_names) != set(floor_names):
+        failures.append(
+            "short-file floor census differs from the eight SPECS files "
+            "at or below 0.36 s")
+    observed_over = [
+        name for name, row in artifacts.items()
+        if row.get("mono", {}).get("true_peak_dbtp") is not None
+        and row["mono"]["true_peak_dbtp"] > -1.0]
+    if observed_over != ["impact"]:
+        failures.append(
+            f"only-impact-over-minus1 telemetry set was {observed_over!r}")
+    for name, expected in (("impact", (-1.8, -0.7)),
+                           ("movement_alt", (-3.9, -3.1))):
+        row = artifacts.get(name, {})
+        sample = row.get("mono", {}).get("sample_peak_dbfs")
+        true = row.get("mono", {}).get("true_peak_dbtp")
+        if (sample is None or true is None
+                or abs(sample - expected[0]) > 0.06
+                or abs(true - expected[1]) > 0.06):
+            failures.append(
+                f"{name}: sample/true peak does not match the measured "
+                f"{expected[0]:.1f}/{expected[1]:.1f} dB signature")
+    # SPECS contains eight files at <=0.36 s and nine above it; the 0.40 s
+    # impact_third is gated, so the pre-run 8-gated/9-floor expectation was
+    # reversed relative to both the fixture inventory and its measurements.
+    if len(gated_names) != 9 or len(floor_names) != 8:
+        failures.append("SPECS loudness split is not 9 gated / 8 short-floor")
+    return {
+        "probe": "ffmpeg ebur128 sample/true peak + mono/dual-mono loudness",
+        "artifacts": artifacts,
+        "artifact_count": len(artifacts),
+        "short_floor_artifacts": observed_floor_names,
+        "gated_artifacts": gated_names,
+        "controls": controls,
+        "failures": failures,
+        "run_id": stamp,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--probe-failing", action="store_true")
@@ -54504,6 +55118,7 @@ def main():
     parser.add_argument("--probe-pulsecli-r96", action="store_true")
     parser.add_argument("--probe-wppol-r97", action="store_true")
     parser.add_argument("--probe-ebur-r93", action="store_true")
+    parser.add_argument("--probe-truepeak-r101", action="store_true")
     parser.add_argument("--probe-rtp-r99", action="store_true")
     parser.add_argument("--probe-sofa-r100", action="store_true")
     parser.add_argument("--probe-pwstream-r98", action="store_true")
@@ -54516,6 +55131,8 @@ def main():
     parser.add_argument("--probe-capture-r77", action="store_true")
     parser.add_argument("--probe-capture-r76", action="store_true")
     args = parser.parse_args()
+    if args.probe_truepeak_r101 and sum(vars(args).values()) > 1:
+        parser.error("choose one probe mode")
     if sum([args.probe_sofa_r100, args.probe_rtp_r99, args.probe_ebur_r93, args.probe_pwstream_r98, args.probe_wppol_r97, args.probe_wpstate_r90, args.probe_sox_r94, args.probe_slope, args.probe_failing, args.probe_flat, args.probe_layer_flat, args.probe_layer_join, args.probe_layer_slope, args.probe_layer_alt_flat, args.probe_layer_alt_join, args.probe_layer_alt_slope, args.probe_layer_alt_reverse, args.probe_layer_third_slope, args.probe_layer_third_slope_edge_pass, args.probe_layer_third_slope_edge_fail, args.probe_layer_third_join, args.probe_layer_third_join_edge_pass, args.probe_layer_third_join_edge_fail, args.probe_invalid, args.probe_ui_clone, args.probe_ui_duration_below, args.probe_ui_duration_at, args.probe_ui_centroid_below, args.probe_ui_centroid_above, args.probe_ui_lower_centroid_below, args.probe_ui_lower_centroid_above, args.probe_ui_orientation_forward, args.probe_ui_orientation_reverse, args.probe_ui_joint_below, args.probe_ui_mixed_pass, args.probe_ambience_centroid_below, args.probe_ambience_centroid_above, args.probe_ambience_orientation_forward, args.probe_ambience_orientation_reverse, args.probe_outer_endpoint_983, args.probe_outer_endpoint_984, args.probe_outer_slope_32, args.probe_outer_slope_33, args.probe_ui_peak_31129, args.probe_ui_peak_31130, args.probe_ui_crest_46, args.probe_ui_crest_47, args.probe_ui_tolerance_5807, args.probe_ui_tolerance_5809, args.probe_ui_lower_tolerance_5713, args.probe_ui_lower_tolerance_5711, args.probe_ui_absolute_centroid_below, args.probe_ui_absolute_centroid_above, args.probe_ui_upper_centroid_below, args.probe_ui_upper_centroid_above, args.probe_ui_rate_47999, args.probe_ui_rate_48000, args.probe_ui_rate_48001, args.probe_ui_rate_48000_r49, args.probe_ui_channel_stereo, args.probe_ui_channel_mono, args.probe_ui_pcm24, args.probe_ui_pcm16, args.probe_ui_pcm8, args.probe_ui_pcm16_r52, args.probe_ui_float32, args.probe_ui_pcm16_r53, args.probe_ui_pcm32, args.probe_ui_pcm16_r54, args.probe_ui_extensible_pcm16, args.probe_ui_standard_pcm16_r55, args.probe_ui_extensible_mask_zero, args.probe_ui_extensible_mask_center, args.probe_ui_extensible_valid_15, args.probe_ui_extensible_valid_16, args.probe_ui_extensible_valid_14_r58, args.probe_ui_extensible_valid_16_r58, args.probe_ui_extensible_valid_13_r59, args.probe_ui_extensible_valid_16_r59, args.probe_ui_extensible_valid_0_r60, args.probe_ui_extensible_valid_16_r60, args.probe_ui_extensible_valid_17_r61, args.probe_ui_extensible_valid_16_r61, args.probe_ui_extensible_valid_24_r62, args.probe_ui_extensible_valid_32_r62, args.probe_ui_route_act_84_r63, args.probe_ui_route_act_00_r63, args.probe_ui_extensible_valid_8_r64, args.probe_ui_extensible_valid_9_r64, args.probe_ui_extensible_valid_24_r64, args.probe_ui_extensible_valid_25_r64, args.probe_ui_extensible_valid_56_r64, args.probe_ui_extensible_valid_57_r64, args.probe_ui_preempt_act_r65, args.probe_ui_preempt_gsrt_r65, args.probe_ui_preempt_hcom_r65, args.probe_ui_preempt_both_r65, args.probe_ui_dec_hcom_r66, args.probe_ui_dec_act_r66, args.probe_ui_lengate_gsrt_24_r66, args.probe_ui_lengate_gsrt_25_r66, args.probe_ui_lengate_hcom_131_r66, args.probe_ui_lengate_hcom_132_r66, args.probe_transport_preempt_act_r67, args.probe_transport_preempt_gsrt_r67, args.probe_transport_preempt_hcom_r67, args.probe_transport_preempt_both_r67, args.probe_transport_dec_hcom_r67, args.probe_transport_dec_act_r67, args.probe_transport_lengate_gsrt_24_r67, args.probe_transport_lengate_gsrt_25_r67, args.probe_transport_lengate_hcom_131_r67, args.probe_transport_lengate_hcom_132_r67, args.probe_transport_posttable_nomatch_r68, args.probe_transport_txw_piperefuse_r68, args.probe_transport_extsuffix_wav_r69, args.probe_transport_extsuffix_bin_r69, args.probe_transport_extsuffix_txw_r69, args.probe_transport_extsuffix_f32_r69, args.probe_transport_extsuffix_snd_r69, args.probe_fifo_hold_ladder_r70, args.probe_ffprobe_transport_r71, args.probe_sndfile_transport_r72, args.probe_consumers_r73, args.probe_lavfsweep_r74, args.probe_consumers2_r75, args.probe_capture_r76, args.probe_capture_r77, args.probe_capture_r78, args.probe_capture_r79, args.probe_module_r80, args.probe_gst_r81, args.probe_ffmpeg_r82, args.probe_pwcat_r83, args.probe_alsapw_r84, args.probe_pactlmon_r85, args.probe_pwctl_r86, args.probe_pwbind_r87, args.probe_btwit_r88, args.probe_pwprof_r89, args.probe_jack_r95, args.probe_gstfrz_r91, args.probe_filterchain_r92, args.probe_pulsecli_r96]) > 1:
         parser.error("choose one probe mode")
     if args.probe_invalid:
@@ -54528,7 +55145,8 @@ def main():
         print(json.dumps({"receipt": str(out / "measurements.json"),
                           "failures": {r["probe"]: r["observed_failure"] for r in results}}))
         return 1 if all(r["status"] in ("expected_failure", "expected_pass") for r in results) else 2
-    command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
+    if not args.probe_truepeak_r101:
+        command(sys.executable, str(Path(__file__).with_name("build_artifacts.py")),
             *(["--probe-fifo-hold-ladder-r70"] if args.probe_fifo_hold_ladder_r70 else []),
             *(["--probe-transport-extsuffix-wav-r69"] if args.probe_transport_extsuffix_wav_r69 else []),
             *(["--probe-transport-extsuffix-bin-r69"] if args.probe_transport_extsuffix_bin_r69 else []),
@@ -54633,6 +55251,8 @@ def main():
             *(["--probe-ui-lengate-hcom-131-r66"] if args.probe_ui_lengate_hcom_131_r66 else []),
             *(["--probe-ui-lengate-hcom-132-r66"] if args.probe_ui_lengate_hcom_132_r66 else []))
     measurements = {name: measure(name, spec) for name, spec in SPECS.items()}
+    if args.probe_truepeak_r101:
+        measurements["truepeak_r101"] = _truepeak_r101_probe()
     if args.probe_slope:
         path = ROOT / "live" / "round-3" / "slope_probe.wav"
         measurements["slope_probe"] = measure("slope_probe", (1.0, 5, 24000, True), path)
@@ -56060,7 +56680,7 @@ def main():
             measurements[name]["failures"].append("sections: internal join adjacent sample gap > .03 full scale")
         if name in ("stem_layer", "stem_layer_alt", "stem_layer_third", "slope200_probe", "edgepass_probe", "edgefail_probe", "join200_probe", "join200_edgepass_probe", "join200_edgefail_probe", "flat180_probe", "join180_probe", "slope180_probe", "reverse180_probe", "layer_slope_probe") and result["internal_join_side_slope_mismatch_full_scale_per_sample"] is not None and result["internal_join_side_slope_mismatch_full_scale_per_sample"] > .001:
             measurements[name]["failures"].append("sections: internal join side slope mismatch > .001 full scale per sample")
-    mode = "probe-sofa-r100" if args.probe_sofa_r100 else "probe-rtp-r99" if args.probe_rtp_r99 else "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    mode = "probe-truepeak-r101" if args.probe_truepeak_r101 else "probe-sofa-r100" if args.probe_sofa_r100 else "probe-rtp-r99" if args.probe_rtp_r99 else "probe-ebur-r93" if args.probe_ebur_r93 else "probe-pwstream-r98" if args.probe_pwstream_r98 else "probe-wppol-r97" if args.probe_wppol_r97 else "probe-pulsecli-r96" if args.probe_pulsecli_r96 else "probe-filterchain-r92" if args.probe_filterchain_r92 else "probe-gstfrz-r91" if args.probe_gstfrz_r91 else "probe-wpstate-r90" if args.probe_wpstate_r90 else "probe-sox-r94" if args.probe_sox_r94 else "probe-jack-r95" if args.probe_jack_r95 else "probe-pwprof-r89" if args.probe_pwprof_r89 else "probe-btwit-r88" if args.probe_btwit_r88 else "probe-pwbind-r87" if args.probe_pwbind_r87 else "probe-pwctl-r86" if args.probe_pwctl_r86 else "probe-pactlmon-r85" if args.probe_pactlmon_r85 else "probe-alsapw-r84" if args.probe_alsapw_r84 else "probe-pwcat-r83" if args.probe_pwcat_r83 else "probe-ffmpeg-r82" if args.probe_ffmpeg_r82 else "probe-gst-r81" if args.probe_gst_r81 else "probe-module-r80" if args.probe_module_r80 else "probe-capture-r79" if args.probe_capture_r79 else "probe-capture-r78" if args.probe_capture_r78 else "probe-capture-r77" if args.probe_capture_r77 else "probe-capture-r76" if args.probe_capture_r76 else "probe-consumers2-r75" if args.probe_consumers2_r75 else "probe-lavfsweep-r74" if args.probe_lavfsweep_r74 else "probe-consumers-r73" if args.probe_consumers_r73 else "probe-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "probe-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "probe-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "probe-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "probe-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "probe-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "probe-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "probe-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "probe-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "probe-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "probe-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "probe-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "probe-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "probe-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "probe-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "probe-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "probe-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "probe-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "probe-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "probe-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "probe-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "probe-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "probe-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "probe-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "probe-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "probe-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "probe-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "probe-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "probe-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "probe-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "probe-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "probe-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "probe-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "probe-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "probe-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "probe-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "probe-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "probe-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "probe-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("probe-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("probe-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("probe-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("probe-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("probe-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("probe-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("probe-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("probe-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("probe-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("probe-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("probe-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("probe-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("probe-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("probe-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("probe-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("probe-ui-pcm32" if args.probe_ui_pcm32 else ("probe-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("probe-ui-float32" if args.probe_ui_float32 else ("probe-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("probe-ui-pcm8" if args.probe_ui_pcm8 else ("probe-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("probe-ui-pcm24" if args.probe_ui_pcm24 else ("probe-ui-pcm16" if args.probe_ui_pcm16 else ("probe-ui-channel-stereo" if args.probe_ui_channel_stereo else ("probe-ui-channel-mono" if args.probe_ui_channel_mono else ("probe-ui-rate-48001" if args.probe_ui_rate_48001 else ("probe-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("probe-ui-rate-47999" if args.probe_ui_rate_47999 else ("probe-ui-rate-48000" if args.probe_ui_rate_48000 else ("probe-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("probe-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("probe-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("probe-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("probe-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("probe-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("probe-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("probe-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("probe-ui-crest-46" if args.probe_ui_crest_46 else ("probe-ui-crest-47" if args.probe_ui_crest_47 else ("probe-ui-peak-31129" if args.probe_ui_peak_31129 else ("probe-ui-peak-31130" if args.probe_ui_peak_31130 else ("probe-outer-slope-32" if args.probe_outer_slope_32 else ("probe-outer-slope-33" if args.probe_outer_slope_33 else ("probe-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("probe-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("probe-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("probe-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("probe-ambience-centroid-above" if args.probe_ambience_centroid_above else ("probe-ambience-centroid-below" if args.probe_ambience_centroid_below else ("probe-ui-mixed-pass" if args.probe_ui_mixed_pass else ("probe-ui-joint-below" if args.probe_ui_joint_below else ("probe-ui-orientation-forward" if args.probe_ui_orientation_forward else ("probe-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("probe-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("probe-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("probe-ui-centroid-below" if args.probe_ui_centroid_below else ("probe-ui-centroid-above" if args.probe_ui_centroid_above else ("probe-ui-duration-below" if args.probe_ui_duration_below else ("probe-ui-duration-at" if args.probe_ui_duration_at else ("probe-ui-clone" if args.probe_ui_clone else ("probe-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("probe-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("probe-layer-third-join" if args.probe_layer_third_join else ("probe-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("probe-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "probe-layer-third-slope" if args.probe_layer_third_slope else ("probe-layer-alt-reverse" if args.probe_layer_alt_reverse else ("probe-layer-alt-slope" if args.probe_layer_alt_slope else ("probe-layer-alt-join" if args.probe_layer_alt_join else ("probe-layer-alt-flat" if args.probe_layer_alt_flat else ("probe-layer-slope" if args.probe_layer_slope else ("probe-layer-join" if args.probe_layer_join else ("probe-layer-flat" if args.probe_layer_flat else ("probe-flat" if args.probe_flat else ("probe-slope" if args.probe_slope else ("probe-failing" if args.probe_failing else "normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
     receipt = {"mode": mode,
                "thresholds": {"rate_hz": 48000, "duration_tolerance_s": .001,
                               "peak_max_exclusive": .95, "rms_min_exclusive": .001,
@@ -56080,9 +56700,15 @@ def main():
                "movement_family_comparisons": movement_family_comparisons,
                "ambience_family_comparisons": ambience_family_comparisons, "sections": sections}
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-    suffix = "-sofa-r100" if args.probe_sofa_r100 else "-rtp-r99" if args.probe_rtp_r99 else "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else "-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal")))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
-    out = ROOT / "live" / "runs" / (stamp + suffix)
-    out.mkdir(parents=True)
+    suffix = "-truepeak-r101" if args.probe_truepeak_r101 else "-sofa-r100" if args.probe_sofa_r100 else "-rtp-r99" if args.probe_rtp_r99 else "-ebur-r93" if args.probe_ebur_r93 else "-pwstream-r98" if args.probe_pwstream_r98 else "-wppol-r97" if args.probe_wppol_r97 else "-pulsecli-r96" if args.probe_pulsecli_r96 else "-filterchain-r92" if args.probe_filterchain_r92 else "-gstfrz-r91" if args.probe_gstfrz_r91 else "-wpstate-r90" if args.probe_wpstate_r90 else "-sox-r94" if args.probe_sox_r94 else "-jack-r95" if args.probe_jack_r95 else "-pwprof-r89" if args.probe_pwprof_r89 else "-btwit-r88" if args.probe_btwit_r88 else "-pwbind-r87" if args.probe_pwbind_r87 else "-pwctl-r86" if args.probe_pwctl_r86 else "-pactlmon-r85" if args.probe_pactlmon_r85 else "-alsapw-r84" if args.probe_alsapw_r84 else "-pwcat-r83" if args.probe_pwcat_r83 else "-ffmpeg-r82" if args.probe_ffmpeg_r82 else "-gst-r81" if args.probe_gst_r81 else "-module-r80" if args.probe_module_r80 else "-capture-r79" if args.probe_capture_r79 else "-capture-r78" if args.probe_capture_r78 else "-capture-r77" if args.probe_capture_r77 else "-capture-r76" if args.probe_capture_r76 else "-consumers2-r75" if args.probe_consumers2_r75 else "-lavfsweep-r74" if args.probe_lavfsweep_r74 else "-consumers-r73" if args.probe_consumers_r73 else "-sndfile-transport-r72" if args.probe_sndfile_transport_r72 else "-ffprobe-transport-r71" if args.probe_ffprobe_transport_r71 else "-fifo-hold-ladder-r70" if args.probe_fifo_hold_ladder_r70 else "-transport-extsuffix-wav-r69" if args.probe_transport_extsuffix_wav_r69 else "-transport-extsuffix-bin-r69" if args.probe_transport_extsuffix_bin_r69 else "-transport-extsuffix-txw-r69" if args.probe_transport_extsuffix_txw_r69 else "-transport-extsuffix-f32-r69" if args.probe_transport_extsuffix_f32_r69 else "-transport-extsuffix-snd-r69" if args.probe_transport_extsuffix_snd_r69 else "-transport-posttable-nomatch-r68" if args.probe_transport_posttable_nomatch_r68 else "-transport-txw-piperefuse-r68" if args.probe_transport_txw_piperefuse_r68 else "-transport-preempt-act-r67" if args.probe_transport_preempt_act_r67 else "-transport-preempt-gsrt-r67" if args.probe_transport_preempt_gsrt_r67 else "-transport-preempt-hcom-r67" if args.probe_transport_preempt_hcom_r67 else "-transport-preempt-both-r67" if args.probe_transport_preempt_both_r67 else "-transport-dec-hcom-r67" if args.probe_transport_dec_hcom_r67 else "-transport-dec-act-r67" if args.probe_transport_dec_act_r67 else "-transport-lengate-gsrt-24-r67" if args.probe_transport_lengate_gsrt_24_r67 else "-transport-lengate-gsrt-25-r67" if args.probe_transport_lengate_gsrt_25_r67 else "-transport-lengate-hcom-131-r67" if args.probe_transport_lengate_hcom_131_r67 else "-transport-lengate-hcom-132-r67" if args.probe_transport_lengate_hcom_132_r67 else "-ui-dec-hcom-r66" if args.probe_ui_dec_hcom_r66 else "-ui-dec-act-r66" if args.probe_ui_dec_act_r66 else "-ui-lengate-gsrt-24-r66" if args.probe_ui_lengate_gsrt_24_r66 else "-ui-lengate-gsrt-25-r66" if args.probe_ui_lengate_gsrt_25_r66 else "-ui-lengate-hcom-131-r66" if args.probe_ui_lengate_hcom_131_r66 else "-ui-lengate-hcom-132-r66" if args.probe_ui_lengate_hcom_132_r66 else "-ui-preempt-act-r65" if args.probe_ui_preempt_act_r65 else "-ui-preempt-gsrt-r65" if args.probe_ui_preempt_gsrt_r65 else "-ui-preempt-hcom-r65" if args.probe_ui_preempt_hcom_r65 else "-ui-preempt-both-r65" if args.probe_ui_preempt_both_r65 else "-ui-extensible-valid-8-r64" if args.probe_ui_extensible_valid_8_r64 else "-ui-extensible-valid-9-r64" if args.probe_ui_extensible_valid_9_r64 else "-ui-extensible-valid-24-r64" if args.probe_ui_extensible_valid_24_r64 else "-ui-extensible-valid-25-r64" if args.probe_ui_extensible_valid_25_r64 else "-ui-extensible-valid-56-r64" if args.probe_ui_extensible_valid_56_r64 else "-ui-extensible-valid-57-r64" if args.probe_ui_extensible_valid_57_r64 else "-ui-route-act-84-r63" if args.probe_ui_route_act_84_r63 else "-ui-route-act-00-r63" if args.probe_ui_route_act_00_r63 else ("-ui-extensible-valid-24-r62" if args.probe_ui_extensible_valid_24_r62 else ("-ui-extensible-valid-32-r62" if args.probe_ui_extensible_valid_32_r62 else ("-ui-extensible-valid-17-r61" if args.probe_ui_extensible_valid_17_r61 else ("-ui-extensible-valid-16-r61" if args.probe_ui_extensible_valid_16_r61 else ("-ui-extensible-valid-0-r60" if args.probe_ui_extensible_valid_0_r60 else ("-ui-extensible-valid-16-r60" if args.probe_ui_extensible_valid_16_r60 else ("-ui-extensible-valid-13-r59" if args.probe_ui_extensible_valid_13_r59 else ("-ui-extensible-valid-16-r59" if args.probe_ui_extensible_valid_16_r59 else ("-ui-extensible-valid-14-r58" if args.probe_ui_extensible_valid_14_r58 else ("-ui-extensible-valid-16-r58" if args.probe_ui_extensible_valid_16_r58 else ("-ui-extensible-valid-15" if args.probe_ui_extensible_valid_15 else ("-ui-extensible-valid-16" if args.probe_ui_extensible_valid_16 else ("-ui-extensible-mask-zero" if args.probe_ui_extensible_mask_zero else ("-ui-extensible-mask-center" if args.probe_ui_extensible_mask_center else ("-ui-extensible-pcm16" if args.probe_ui_extensible_pcm16 else ("-ui-standard-pcm16-r55" if args.probe_ui_standard_pcm16_r55 else ("-ui-pcm32" if args.probe_ui_pcm32 else ("-ui-pcm16-r54" if args.probe_ui_pcm16_r54 else ("-ui-float32" if args.probe_ui_float32 else ("-ui-pcm16-r53" if args.probe_ui_pcm16_r53 else ("-ui-pcm8" if args.probe_ui_pcm8 else ("-ui-pcm16-r52" if args.probe_ui_pcm16_r52 else ("-ui-pcm24" if args.probe_ui_pcm24 else ("-ui-pcm16" if args.probe_ui_pcm16 else ("-ui-channel-stereo" if args.probe_ui_channel_stereo else ("-ui-channel-mono" if args.probe_ui_channel_mono else ("-ui-rate-48001" if args.probe_ui_rate_48001 else ("-ui-rate-48000-r49" if args.probe_ui_rate_48000_r49 else ("-ui-rate-47999" if args.probe_ui_rate_47999 else ("-ui-rate-48000" if args.probe_ui_rate_48000 else ("-ui-upper-centroid-below" if args.probe_ui_upper_centroid_below else ("-ui-upper-centroid-above" if args.probe_ui_upper_centroid_above else ("-ui-absolute-centroid-below" if args.probe_ui_absolute_centroid_below else ("-ui-absolute-centroid-above" if args.probe_ui_absolute_centroid_above else ("-ui-lower-tolerance-5713" if args.probe_ui_lower_tolerance_5713 else ("-ui-lower-tolerance-5711" if args.probe_ui_lower_tolerance_5711 else ("-ui-tolerance-5807" if args.probe_ui_tolerance_5807 else ("-ui-tolerance-5809" if args.probe_ui_tolerance_5809 else ("-ui-crest-46" if args.probe_ui_crest_46 else ("-ui-crest-47" if args.probe_ui_crest_47 else ("-ui-peak-31129" if args.probe_ui_peak_31129 else ("-ui-peak-31130" if args.probe_ui_peak_31130 else ("-outer-slope-32" if args.probe_outer_slope_32 else ("-outer-slope-33" if args.probe_outer_slope_33 else ("-outer-endpoint-983" if args.probe_outer_endpoint_983 else ("-outer-endpoint-984" if args.probe_outer_endpoint_984 else ("-ambience-orientation-forward" if args.probe_ambience_orientation_forward else ("-ambience-orientation-reverse" if args.probe_ambience_orientation_reverse else ("-ambience-centroid-above" if args.probe_ambience_centroid_above else ("-ambience-centroid-below" if args.probe_ambience_centroid_below else ("-ui-mixed-pass" if args.probe_ui_mixed_pass else ("-ui-joint-below" if args.probe_ui_joint_below else ("-ui-orientation-forward" if args.probe_ui_orientation_forward else ("-ui-orientation-reverse" if args.probe_ui_orientation_reverse else ("-ui-lower-centroid-below" if args.probe_ui_lower_centroid_below else ("-ui-lower-centroid-above" if args.probe_ui_lower_centroid_above else ("-ui-centroid-below" if args.probe_ui_centroid_below else ("-ui-centroid-above" if args.probe_ui_centroid_above else ("-ui-duration-below" if args.probe_ui_duration_below else ("-ui-duration-at" if args.probe_ui_duration_at else ("-ui-clone" if args.probe_ui_clone else ("-layer-third-join-edge-pass" if args.probe_layer_third_join_edge_pass else ("-layer-third-join-edge-fail" if args.probe_layer_third_join_edge_fail else ("-layer-third-join" if args.probe_layer_third_join else ("-layer-third-slope-edge-pass" if args.probe_layer_third_slope_edge_pass else ("-layer-third-slope-edge-fail" if args.probe_layer_third_slope_edge_fail else "-layer-third-slope" if args.probe_layer_third_slope else ("-layer-alt-reverse" if args.probe_layer_alt_reverse else ("-layer-alt-slope" if args.probe_layer_alt_slope else ("-layer-alt-join" if args.probe_layer_alt_join else ("-layer-alt-flat" if args.probe_layer_alt_flat else ("-layer-slope" if args.probe_layer_slope else ("-layer-join" if args.probe_layer_join else ("-layer-flat" if args.probe_layer_flat else ("-flat" if args.probe_flat else ("-slope" if args.probe_slope else ("-failing" if args.probe_failing else "-normal"))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+    if args.probe_truepeak_r101:
+        out = TRUEPEAK_R101_SCRATCH / measurements["truepeak_r101"]["run_id"]
+    else:
+        out = ROOT / "live" / "runs" / (stamp + suffix)
+    if args.probe_truepeak_r101:
+        out.mkdir(parents=True, exist_ok=True)
+    else:
+        out.mkdir(parents=True)
     (out / "measurements.json").write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
     failed = {k: v["failures"] for k,v in measurements.items() if v["failures"]}
     blocked = {k: v["coverage_blocked"] for k, v in measurements.items()

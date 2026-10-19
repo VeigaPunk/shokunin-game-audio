@@ -1583,3 +1583,68 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Already present as a real recordable section: the axes score table (`axis | score | evidence / counting command | last change`) at the head of SCORECARD.md. `planned:` and `retired:` existed only as bare prose lines — not sections a reader could record into per the contract.
 - Added at the end of SCORECARD.md (purely additive; all existing bytes unchanged): `## Capabilities` (empty repertoire table, header row only), `## Saturation`, `## Planned`, `## Retired`.
 - No axis claim was made and no score moved; no verdict was changed. Capability rows and the saturation line + stagnation window N remain for the lane to declare on its next round.
+## Round 87 — 2026-10-16 — pw-cat/pw-midi*/pw-cli device-binding lattice (reconciled in round 101)
+
+- Trigger: the `--probe-pwbind-r87` device-binding family → action: the frozen-byte verifier replayed the landing, then combined fold commit `1977cf42` (ancestor of HEAD) corrected pwbind/btwit defects (+310/-112) and was fold-verified under r88 registry churn → outcome: “GATE FAIL — NOT VERIFIED as a reproducible green landing.”; the later fold run was green, but no adjudicator exists, so unadjudicated and no ADMIT → pointer: `reports/round-87/r87-verifier.md:20`, `reports/round-87/r87-fold.md:21-42`, `LOG.md:1586`.
+
+## Round 88 — 2026-10-16 — Bluetooth absent-class + pw-dump/pw-cli/pw-top witness-diff lattice (reconciled in round 101)
+
+- Trigger: the `--probe-btwit-r88` Bluetooth/witness-diff family → action: the frozen-byte verifier replayed the landing, then combined fold commit `1977cf42` (ancestor of HEAD) corrected pwbind/btwit defects (+310/-112) and was fold-verified under r87 registry churn → outcome: “GATE FAIL as a reproducible green landing — PASS on every encoded law.”; the later fold run was green, but no adjudicator exists, so unadjudicated and no ADMIT → pointer: `reports/round-88/r88-verifier.md:20`, `reports/round-88/r88-fold.md:21-43`, `LOG.md:1590`.
+
+## Rounds 82–100 ledger reconciliation — 2026-10-19 (round 101)
+
+| round | LOG bullet | report dir | adjudicator | SCORECARD section |
+|---|---|---|---|---|
+| 82 | `LOG.md:1388-1394` | `reports/round-82/` | yes | `## Round 82 verdict` |
+| 83 | `LOG.md:1380-1387` | `reports/round-83/` | yes | `## Round 83 verdict` |
+| 84 | `LOG.md:1395-1401` | `reports/round-84/` | yes | `## Round 84 verdict` |
+| 85 | `LOG.md:1402-1409` | `reports/round-85/` | yes | `## Round 85 verdict` |
+| 86 | `LOG.md:1410-1417` | `reports/round-86/` | yes | `## Round 86 verdict` |
+| 87 | `LOG.md:1586-1588` | `reports/round-87/` | no | `## Round 87 verdict` |
+| 88 | `LOG.md:1590-1592` | `reports/round-88/` | no | `## Round 88 verdict` |
+| 89 | `LOG.md:1418-1426` | `reports/round-89/` | yes | `## Round 89 verdict` |
+| 90 | `LOG.md:1444-1460` | `reports/round-90/` | yes | `## Round 90 verdict` |
+| 91 | `LOG.md:1461-1466` | `reports/round-91/` | yes | `## Round 91 verdict` |
+| 92 | `LOG.md:1467-1472` | `reports/round-92/` | yes | `## Round 92 verdict` |
+| 93 | `LOG.md:1507-1518,1570-1579` | `reports/round-93/` | no | `## Round 93 verdict` |
+| 94 | `LOG.md:1427-1433` | `reports/round-94/` | yes | `## Round 94 verdict` |
+| 95 | `LOG.md:1434-1443` | `reports/round-95/` | yes | `## Round 95 verdict` |
+| 96 | `LOG.md:1473-1478` | `reports/round-96/` | yes | `## Round 96 verdict` |
+| 97 | `LOG.md:1479-1484` | `reports/round-97/` | yes | `## Round 97 verdict` |
+| 98 | `LOG.md:1507-1518,1549-1558` | `reports/round-98/` | no | `## Round 98 verdict` |
+| 99 | `LOG.md:1485-1491,1542-1548,1559-1569` | `reports/round-99/` | no | `## Round 99 verdict` |
+| 100 | `LOG.md:1500-1506` | `reports/round-100/` | no | `## Round 100 verdict` |
+
+## Round 101 — 2026-10-19 — kaika campaign: ledger truth 87–100, first SOURCES/QUALITY/lessons + four entries, true-peak probe
+
+- Declared claims: C1 calibration (ledgers for rounds 87–100), C2 coverage (+ capability `sources-registry`), C3 depth (+ capability `truepeak-probe`). Lowest-scoring axis undefined (no scores); all three owned axes claimed. Before-state custody: `reports/round-101/r101-scribe.md` (base `defbe128`).
+- Motivating evidence: STATE dossier `fleet-ledger/.ufo/waves/kaika-w1/audio-state.md` §1 (five disagreeing round ledgers; 87/88 GATE FAIL never logged), §3 (no QUALITY/README/lessons; 0 entries after r71), §4 (M1–M12 uncaptured); ART dossier `audio-art.md` §4 K1–K6 leads (falsified/corrected by `reports/round-101/r101-reviewer.md` before admission).
+- C1 trigger → action → outcome: 0 SCORECARD sections for 87–100 → 14 sections transcribed from adjudicators or marked `unadjudicated` ({87,88,93,98,99,100}), LOG `## Round 87` / `## Round 88` with verbatim GATE FAIL, SHONEN regenerated canonical (0 `[x]`), PROVINCE correction + Core/Frontier/Adjacent → counts in `SCORECARD.md` `## Round 101 verdict` (c1a–c1e).
+- C2 trigger → action → outcome: no bar, no registry, no lessons → `corpus/QUALITY.md` Q1–Q16 (each citing a `corpus/lessons/round-101.md` M-row), `corpus/SOURCES.md` 13 opened rows (census clean), gate admitted 4 entries on 4 uncovered coverage rows and rejected 3 (K1-as-drafted, K2, K6) → `corpus/lessons/round-101.md` `## Gate`.
+- C3 trigger → action → outcome: the harness requested `ebur128=peak=true` and discarded it (`measure_audio.py:83-84`) → opt-in `--probe-truepeak-r101` + `corpus/fixtures/test_truepeak_r101.py` → 17/17 artifacts with measured TP, `impact` the only one over −1 dBTP (−0.658 dBTP vs SP −1.841), controls pass; normal receipt still equals pin `8e8cdad6…`.
+- Mistakes caught in-round (all before commit): M13 master-branch line cites, M14 length-vs-gate regime (reviewer); M15 L1 census carried from the brief (probe seat); M16 selector rewrite dropped two r63 arms (L1 per-flag evaluation; fixed by the probe seat, re-verified 144/144). Every executed arm is disclosed: one pre-correction rc=1 probe receipt `corpus/live/runs/20261019T221921076914Z-truepeak-r101/`, two intermediate runs `…222015057220Z…`, `…222020943567Z…`, a pre-fix normal run `…222038093718Z-normal`, and the pre-fix green pair `…222216086962Z…` / `…222222270145Z…` + normal `…222229360101Z-normal`, all kept.
+- Provider exhaustion: executor seats `ExecSources-2`, `ExecTruePeak-2` died (resource_exhausted), `ExecLedger-2`/`ExecCorpusBar-2`/`ExecLoudness-2` stalled with zero edits and were cancelled; re-spawns `-3` of Sources/Loudness/CorpusBar/TruePeak died (Codex at capacity); `ExecLedger-3`, `ExecCorpusBar-4`, `ExecTruePeak-4` completed. The L1 authored K1, K3, K4, K5 and `corpus/SOURCES.md` directly.
+- Re-verification (freshness): host ffmpeg n9.0.1 / SoX_ng 14.8.0.1 / Godot 4.7.2 match the pins the entries carry; every entry `recheck:` was run on 2026-10-19.
+- Next (falsifiable): see `SCORECARD.md` `## Planned` — score rubric (calibration), QOA delta measurement (frontier), K2 re-run (depth).
+
+## Round 101 continuation — 2026-10-19 — corrections after the first L1's provider death
+
+- Continuation: the first L1 (`W2RoundAudio-8`) terminated after a provider rate limit with the three declared claims and their uncommitted lane work preserved. This continuation kept C1 calibration, C2 coverage/`sources-registry`, and C3 depth/`truepeak-probe`; no claim was replaced or added.
+- Swarm sufficiency: the inherited single batched L2 call already covered planner, connector, executor, scribe, scout, reviewer, and critic roles; its outputs are under `reports/round-101/`. The continuation revived the in-flight wave-2 reviewer and critic for read-only correction checks. No second ≥8-seat swarm was dispatched because no new independent research/execution surface remained; the task was to resolve identified review findings and close the original claims.
+- Wave-2 corrections: K1's `loudnorm` rate is 192000 Hz on every mode path, with 48000 Hz only at the final output after downstream resampling (`corpus/knowledge/2026-10-19-loudnorm-short-sfx-regimes.md` `Filter-rate witness`); K3's per-fixture dual-mono offset is +3.010/+3.011 LU; the K1 table is 12 rows / 15 inputs, not 13. The reviewer findings and scope are recorded at `reports/round-101/r101-reviewer-w2.md`.
+- SOURCES correction: append-only S014/S015 clarify S005's rate scope and S001's phase qualifier. The original 13-row tier histogram is A=9/B=2/C=2; current census is 15 rows, A=11/B=2/C=2, mined=14/rejected=1, malformed=0, with duplicate/enum/tier-inflation/missing-path commands empty. The old→new `used-by` records and row-level quotes are in `corpus/lessons/round-101.md` `## Continuation corrections`.
+- Learning from review: appended M17–M22 and Q17–Q20; Q5/Q3 cover count and citation-cause corrections. The old Gate's Q1–Q15 range is superseded by the complete Q1–Q20 bar. No Frontier row moved into Core; the four admitted entries remain the only frontier-adjacent expansion.
+- Push policy: no push was made; the standing operator “No push” rule in the kaika binding overrides the upstream commit-then-push instruction.
+- Q20 follow-up: the resumed reviewer found K4 also cites rejected S011 (source metadata and its tutorial row). The final `used-by` value is K4 plus the lesson; `corpus/lessons/round-101.md` records the chain `— → L → K4,L`. The other source-row mappings were confirmed complete.
+
+## Round 101 C3 review correction — 2026-10-19 — no-write dispatch and independent control oracle
+
+- A second single batched L2 swarm (9 roles) was dispatched after the inherited critic falsified C3. Read-only review evidence is consolidated at `reports/round-101/r101-c3-repair-review.md`.
+- The critic found two C3 defects: the truepeak flag reached the preexisting `build_artifacts.py` call that writes canonical fixtures, and the positive-control expected value came from the same generated WAV, allowing a wrong-phase positive control to validate itself. These are captured as M23/Q21 and M24/Q22 in `corpus/lessons/round-101.md` and `corpus/QUALITY.md`.
+- The truepeak branch now skips the builder while retaining it for legacy modes; controls, FFmpeg logs, and the receipt are scoped to `corpus/live/round-101-truepeak/<run-id>/`. The acceptance oracle is name-keyed and analytic (+3.0103 dB / 0.0 dB ±0.08); the quantized-PCM comparison remains a separate accuracy cross-check.
+- This repairs the same C3 claim, not a fourth claim. C2's quality-bar census now includes Q1–Q22 (22 rows). L1 test, real-probe, and canonical-artifact immutability measurements remain pending below.
+- Timeline clarification: `LOG.md:1633` records that no second swarm was warranted for the first C1/C2 source corrections; after the later C3 critic falsified no-write/control invariants, the separate 9-seat batched repair swarm above was dispatched.
+
+## Round 101 C1 disclosure correction — 2026-10-19
+
+- The post-landing reviewer found that `reports/round-87/r87-critic.md:9` and `reports/round-88/r88-critic.md:9` each say “ADMIT-with-findings.” These are critic-seat opinions, not adjudications, so the 87/88 axis status remains `unadjudicated` with no ADMIT. `SCORECARD.md:906,918` now names the opinions and their non-adjudicator status; M25/Q11 records the lesson.
