@@ -14,3 +14,7 @@
 ## Verdict
 
 C1's falsifiable claim metrics are supported by the cited source reports and the independent count review. Self-verdict remains **improved, pending non-author verification**; no axis score is invented because the lane has no 0–10 rubric. The critic opinions for 87/88 remain subordinate to the absent adjudicators and do not change their status.
+
+## Measurement commit closure
+
+`SCORECARD.md:1055` and `LOG.md:1652` now record the exact measured commit `d00a8d229645c41fab39b4cdc2f396f64216b581`; the after counts were run against it. The next lane commit carries this append-only record, the final C3 receipt, and the report pointer.

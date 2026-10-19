@@ -139,3 +139,12 @@ No `corpus/README.md` Frontier item moved into Core this round. Four uncovered C
 ### Used-by follow-up
 
 The reviewer rechecked every source ID against the round-101 knowledge entries and found that the Godot QOA entry cites S011 in its provenance and its rejected-tutorial row. The `used-by` change chain is `— → corpus/lessons/round-101.md → corpus/knowledge/2026-10-19-godot-wav-import-default-qoa.md, corpus/lessons/round-101.md`; the final S011 value now lists both citers. No other `used-by` values changed in this pass.
+
+## Final continuation gate — 2026-10-19
+
+The current criteria bar applied here is **Q1–Q22**; the earlier Q1–Q15 and Q1–Q20 statements above are historical intermediate ranges. C1/C2/C3 remain the same three claims; C1 critic opinions are not adjudications, C1 axis score is unmeasured, and no round-101 ADMIT is asserted.
+
+- `python3 corpus/fixtures/test_truepeak_r101.py` → 10 tests, OK (parser/fail-closed, analytic positive/negative controls, truepeak builder exclusion, default-mode builder preservation).
+- `timeout 900 python3 corpus/fixtures/measure_audio.py --probe-truepeak-r101` → exit 0, `failures: {}`, `coverage_blocked: {}`; final receipt `corpus/live/round-101-truepeak/20261019T233319127994Z/measurements.json`, 17 finite artifact true peaks, positive +2.999 dB vs +3.0103 analytic, phase-0 0.000 dB, dual-mono +3.010 LU.
+- Canonical fixture check before/after the real probe: `sha256sum corpus/artifacts/*.wav | sha256sum` → `f4e1eb8db062802426fb68ce528212d9d4219e8fd698857658529933020410a9` both times; `git status --porcelain -- corpus/artifacts` empty; `git diff --quiet defbe128 -- corpus/artifacts` exit 0.
+- A default-mode CLI run in a temporary copy of the two fixture scripts and 17 WAVs returned rc 0, no failures or coverage blocks, and receipt SHA-256 `8e8cdad6cc3c356d07c463498f4759b8d73e73935cf591d117732f09ffaffb1b`, matching the pinned normal receipt; all writes stayed in the temporary directory.

@@ -1648,3 +1648,12 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 ## Round 101 C1 disclosure correction — 2026-10-19
 
 - The post-landing reviewer found that `reports/round-87/r87-critic.md:9` and `reports/round-88/r88-critic.md:9` each say “ADMIT-with-findings.” These are critic-seat opinions, not adjudications, so the 87/88 axis status remains `unadjudicated` with no ADMIT. `SCORECARD.md:906,918` now names the opinions and their non-adjudicator status; M25/Q11 records the lesson.
+
+## Round 101 after-measurements — 2026-10-19 — measured on lane commit `d00a8d229645c41fab39b4cdc2f396f64216b581`
+
+- C1 counts on `defbe128` → the measured commit: verdict sections 0→14; unadjudicated rows 0→18; LOG 87/88 headings 0→2; SHONEN `[x]` 4→0 and `.shokunin` occurrences 4→0. The exact commands are `SCORECARD.md` c1a–c1e; base outputs are in `reports/round-101/r101-scribe.md`.
+- C2 counts: knowledge entries 14→18; first-line `source:` headers 0→4; SOURCES rows 0→15; QUALITY criteria 0→22; indexed Core-gap rows 0→4. Exact commands are `SCORECARD.md` c2a–c2e; the absent base files/counts are recorded in `r101-scribe.md` and `corpus/lessons/round-101.md`.
+- C3 counts: `probe-truepeak-r101` occurrences 0→2; finite true peaks in the final receipt 0→17 (`corpus/live/round-101-truepeak/20261019T233319127994Z/measurements.json`). The test command returned 10 tests, OK; the real probe returned exit 0 with `failures: {}` and `coverage_blocked: {}`.
+- SOURCES census on the measured tree: rows 15; malformed 0; tiers A=11/B=2/C=2; statuses mined=14/rejected=1; duplicate IDs, enum/tier inflation and missing mined-path commands emitted nothing.
+- No-harm: the canonical WAV aggregate SHA-256 was `f4e1eb8d…` before and after the truepeak run; `git status --porcelain -- corpus/artifacts` was empty and `git diff --quiet defbe128 -- corpus/artifacts` exited 0. The legacy normal-mode run in a temporary copy returned rc 0 and receipt SHA-256 `8e8cdad6cc3c356d07c463498f4759b8d73e73935cf591d117732f09ffaffb1b`, matching the pinned normal receipt; all temporary writes were removed by the temp-directory context.
+- `SCORECARD.md` now records the exact measured commit above; the later path-limited measurement-record commit carries this append-only output and the round-scoped receipt.
