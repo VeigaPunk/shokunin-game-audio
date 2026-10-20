@@ -17,7 +17,7 @@ Tier definitions live in [corpus/SOURCES.md](SOURCES.md) (contract v1); this fil
 | Q9 | Disclose every arm actually executed in the round's own record at run time. Post-hoc disclosure is a calibration failure. | lesson: `corpus/lessons/round-101.md#M3` |
 | Q10 | Physical-network emission is default-off. An arm may emit only when its invocation explicitly names the interface. | lesson: `corpus/lessons/round-101.md#M4` |
 | Q11 | A round without an adjudicator is `unadjudicated` and cannot be called ADMIT; a fold or later green repair does not replace a verdict. | lesson: `corpus/lessons/round-101.md#M1`, `#M2`, `#M25` |
-| Q12 | A cited commit is reachable from the published branch, or its evidence is explicitly marked `branch-scoped`. | lesson: `corpus/lessons/round-101.md#M6` |
+| Q12 | A cited commit is reachable from the published branch, or its evidence is explicitly marked `branch-scoped`. | lesson: `corpus/lessons/round-101.md#M6`, `#M26` |
 | Q13 | Verdict and evidence headers give the observation date. Planned wave dates are not observation dates. | lesson: `corpus/lessons/round-101.md#M10` |
 | Q14 | Lane commits use `audio-shokunin <audio@shokunin.local>` identity; CI or another identity is not substituted. | lesson: `corpus/lessons/round-101.md#M5` |
 | Q15 | Generated test work-products stay under `corpus/live/<round>/`; root-level generated artifacts are not admitted. Ignore regenerable scratch by class and prove the census before admission. | lesson: `corpus/lessons/round-101.md#M9`, `#M12` |

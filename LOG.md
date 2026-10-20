@@ -1657,3 +1657,9 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - SOURCES census on the measured tree: rows 15; malformed 0; tiers A=11/B=2/C=2; statuses mined=14/rejected=1; duplicate IDs, enum/tier inflation and missing mined-path commands emitted nothing.
 - No-harm: the canonical WAV aggregate SHA-256 was `f4e1eb8d…` before and after the truepeak run; `git status --porcelain -- corpus/artifacts` was empty and `git diff --quiet defbe128 -- corpus/artifacts` exited 0. The legacy normal-mode run in a temporary copy returned rc 0 and receipt SHA-256 `8e8cdad6cc3c356d07c463498f4759b8d73e73935cf591d117732f09ffaffb1b`, matching the pinned normal receipt; all temporary writes were removed by the temp-directory context.
 - `SCORECARD.md` now records the exact measured commit above; the later path-limited measurement-record commit carries this append-only output and the round-scoped receipt.
+
+## Round 101 C3 acceptance and measurement-provenance correction — 2026-10-19
+
+- Parent review found the first true-peak implementation treated quantized PCM16 expectation differences as failures. The revised `corpus/fixtures/measure_audio.py` keeps those values as diagnostics only; the independent analytic overshoot oracle is the acceptance gate. The 10-test/receipt result above is therefore historical, pre-correction evidence, not final C3 verification.
+- The 17-peak receipt above first entered Git on `343cd978ef376fc6e0c3d53a8740b931f7d031df`, not `d00a8d229645c41fab39b4cdc2f396f64216b581`. C3 code-work and the receipt-carrying revision are distinct; the corrected code will be measured by a fresh probe and its actual receipt-carrying commit below.
+- The reopened S011 source row changes `recheck` from `—` to `on-release`; lesson M26 records that transition. Other provenance corrections and the stdout-only nature of `coverage_blocked` are recorded in the lesson.

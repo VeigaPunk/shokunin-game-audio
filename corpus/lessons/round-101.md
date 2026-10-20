@@ -29,6 +29,7 @@
 | M23 | Truepeak probe rebuilt canonical inputs and split generated outputs | `corpus/fixtures/measure_audio.py:main` dispatches `build_artifacts.py` before the truepeak probe; `corpus/fixtures/build_artifacts.py:12,15-22` sets `OUT` to `corpus/artifacts` and writes WAVs there. `reports/round-101/r101-truepeak.md:16-20` records receipts under `corpus/live/runs/` while controls and logs are under `corpus/live/round-101-truepeak/`. | Q21 | Final correction: truepeak measurement reads existing canonical WAVs without invoking the builder or rewriting `corpus/artifacts`; controls, logs, and its receipt all stay under `corpus/live/round-101-truepeak/`. With Q22 (M24), the complete current criteria bar is Q1–Q22; the earlier gate range remains historical. |
 | M24 | Positive-control oracle self-validated against its generated PCM | `corpus/fixtures/measure_audio.py:_truepeak_r101_probe` derived expected overshoot by reading the same generated control WAV with `_truepeak_r101_quantized_expectation`, allowing a phase-0 positive-control mutation to agree with itself. | Q22 | Control acceptance uses a name-keyed analytic oracle independent of signal generation and observation: phase-π/4 12 kHz expects ≈+3.0103 dB and phase-0 expects ≈0.0 dB (±0.08 dB); quantized-PCM expectation is only a separate accuracy cross-check. |
 | M25 | Non-adjudicator critic disposition omitted from reconciled record | `reports/round-87/r87-critic.md:9` and `reports/round-88/r88-critic.md:9` say “ADMIT-with-findings”; the Round 87/88 SCORECARD and LOG initially omitted this opinion while correctly preserving unadjudicated/no-ADMIT status. | Q11 | Record critic opinions as advisory evidence, explicitly not adjudication, and keep the authoritative status unadjudicated until an adjudicator exists. |
+| M26 | Code-work revision conflated with receipt-carrying revision | The initial SCORECARD/LOG c3b attribution pointed at code-work revision `d00a8d22` although that tree lacked the 17-peak receipt; the receipt/count evidence was first carried by revision `343cd978` (review closure: `reports/round-101/r101-c1-review.md:18-20`). | Q12 | Name the code-work revision and receipt/count-carrying revision separately; cite a receipt only against the actual final head whose tree contains it. |
 
 ## Honest stops (taste working)
 
@@ -148,3 +149,13 @@ The current criteria bar applied here is **Q1–Q22**; the earlier Q1–Q15 and 
 - `timeout 900 python3 corpus/fixtures/measure_audio.py --probe-truepeak-r101` → exit 0, `failures: {}`, `coverage_blocked: {}`; final receipt `corpus/live/round-101-truepeak/20261019T233319127994Z/measurements.json`, 17 finite artifact true peaks, positive +2.999 dB vs +3.0103 analytic, phase-0 0.000 dB, dual-mono +3.010 LU.
 - Canonical fixture check before/after the real probe: `sha256sum corpus/artifacts/*.wav | sha256sum` → `f4e1eb8db062802426fb68ce528212d9d4219e8fd698857658529933020410a9` both times; `git status --porcelain -- corpus/artifacts` empty; `git diff --quiet defbe128 -- corpus/artifacts` exit 0.
 - A default-mode CLI run in a temporary copy of the two fixture scripts and 17 WAVs returned rc 0, no failures or coverage blocks, and receipt SHA-256 `8e8cdad6cc3c356d07c463498f4759b8d73e73935cf591d117732f09ffaffb1b`, matching the pinned normal receipt; all writes stayed in the temporary directory.
+
+## SOURCES recheck correction — 2026-10-19
+
+Reviewer E09 found the rejected, versioned Godot tutorial row S011 lacked a recheck cadence. Only the permitted `recheck` field changed: `— → on-release` (`corpus/SOURCES.md:19`). The final registry retains S011's rejected status, flip condition, and K4/lesson `used-by` paths.
+
+## Final continuation clarifications — 2026-10-19
+
+- In the final-probe report, `coverage_blocked` is CLI stdout, not a stored `measurements.json` field; this clarification adds no telemetry.
+- ART dossier IDs S014–S018 are a separate sequence from the local `corpus/SOURCES.md` registry IDs S014/S015 (FFmpeg loudnorm and ITU-R BS.1770-5).
+- The four preexisting Core-gap rows were filled; no Frontier row was promoted into Core.

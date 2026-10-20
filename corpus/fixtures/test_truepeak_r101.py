@@ -1,7 +1,9 @@
-"""Hermetic truepeak parser, analytic-control, and CLI-dispatch checks."""
+"""Truepeak parser, analytic-control, and CLI regression checks."""
+import json
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 from unittest import mock
@@ -93,6 +95,64 @@ class TruePeakR101ParserTest(unittest.TestCase):
         exec(compile(path.read_bytes(), str(path), "exec"), ns)
         cls.namespace = ns
         cls.parse = staticmethod(ns["_truepeak_r101_parse_ebur128"])
+
+    def _require_truepeak_toolchain(self):
+        missing = [
+            name for name in ("ffmpeg", "ffprobe", "sox")
+            if shutil.which(name) is None
+        ]
+        if missing:
+            self.skipTest(
+                "requires installed FFmpeg/SoX tools: "
+                + ", ".join(missing))
+
+    def _copy_canonical_artifacts(self, root):
+        artifacts = root / "artifacts"
+        artifacts.mkdir()
+        source = self.namespace["ARTIFACTS"]
+        for name in self.namespace["SPECS"]:
+            shutil.copyfile(source / f"{name}.wav",
+                            artifacts / f"{name}.wav")
+        return artifacts
+
+    def _run_real_truepeak_cli(self, root, artifacts, replacements=None):
+        builder_calls = []
+        original_command = self.namespace["command"]
+
+        def command_without_builder(*args):
+            if any(Path(str(argument)).name == "build_artifacts.py"
+                   for argument in args):
+                builder_calls.append(args)
+                raise AssertionError(
+                    "truepeak regression must not execute build_artifacts.py")
+            return original_command(*args)
+
+        patched = {
+            "ROOT": root,
+            "ARTIFACTS": artifacts,
+            "TRUEPEAK_R101_SCRATCH":
+                root / "live" / "round-101-truepeak",
+            "command": command_without_builder,
+        }
+        patched.update(replacements or {})
+        stdout = StringIO()
+        with mock.patch.dict(self.namespace, patched), \
+                mock.patch.object(
+                    self.namespace["sys"], "argv",
+                    ["measure_audio.py", "--probe-truepeak-r101"]), \
+                redirect_stdout(stdout):
+            exit_status = self.namespace["main"]()
+
+        response = json.loads(stdout.getvalue())
+        receipt_path = Path(response["receipt"])
+        try:
+            receipt_path.relative_to(root)
+        except ValueError:
+            self.fail(f"CLI receipt escaped temporary root: {receipt_path}")
+        with receipt_path.open(encoding="utf-8") as receipt_file:
+            receipt = json.load(receipt_file)
+        self.assertEqual(builder_calls, [])
+        return exit_status, receipt
 
     def test_metadata_precision_wins_over_summary(self):
         got = self.parse(METADATA_EBUR128)
@@ -246,6 +306,82 @@ class TruePeakR101ParserTest(unittest.TestCase):
             self.assertEqual(len(builder_calls), 1)
             self.assertTrue(list(
                 (root / "live" / "runs").glob("*/measurements.json")))
+
+    def test_real_cli_keeps_quantized_disagreement_non_gating(self):
+        self._require_truepeak_toolchain()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifacts = self._copy_canonical_artifacts(root)
+            actual_expectation = self.namespace[
+                "_truepeak_r101_quantized_expectation"]
+            positive_name = "positive_12khz_phase_pi_over4"
+
+            def disagreeing_quantized_expectation(
+                    path, frequency, steady_start):
+                expected = actual_expectation(
+                    path, frequency, steady_start)
+                if Path(path).stem == positive_name:
+                    expected = dict(expected)
+                    expected["overshoot_db"] = 0.0
+                return expected
+
+            exit_status, receipt = self._run_real_truepeak_cli(
+                root, artifacts,
+                {"_truepeak_r101_quantized_expectation":
+                 disagreeing_quantized_expectation})
+
+            self.assertFalse(exit_status)
+            truepeak = receipt["measurements"]["truepeak_r101"]
+            positive = truepeak["controls"][positive_name]
+            self.assertTrue(positive["analytic_overshoot_matches"])
+            self.assertLessEqual(
+                positive["analytic_overshoot_error_db"],
+                positive["analytic_expected_overshoot_tolerance_db"])
+            self.assertEqual(
+                positive["quantized_pcm16_expectation"]["overshoot_db"],
+                0.0)
+            self.assertGreater(positive["overshoot_error_db"], 2.9)
+            self.assertEqual(truepeak["failures"], [])
+
+    def test_real_phase0_positive_generator_fails_analytic_gate(self):
+        self._require_truepeak_toolchain()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifacts = self._copy_canonical_artifacts(root)
+            positive_name = "positive_12khz_phase_pi_over4"
+            original_writer = self.namespace["_truepeak_r101_write_control"]
+
+            def phase0_positive_writer(path, frequency, amplitude, phase,
+                                       duration_s, fade_in_s=0.0):
+                if Path(path).stem == positive_name:
+                    phase = 0.0
+                return original_writer(
+                    path, frequency, amplitude, phase, duration_s,
+                    fade_in_s)
+
+            self.assertEqual(
+                self.namespace["TRUEPEAK_R101_ANALYTIC_OVERSHOOT_DB"][
+                    positive_name],
+                3.0103)
+            exit_status, receipt = self._run_real_truepeak_cli(
+                root, artifacts,
+                {"_truepeak_r101_write_control": phase0_positive_writer})
+
+            self.assertTrue(exit_status)
+            truepeak = receipt["measurements"]["truepeak_r101"]
+            positive = truepeak["controls"][positive_name]
+            self.assertEqual(
+                positive["analytic_expected_overshoot_db"], 3.0103)
+            self.assertFalse(positive["analytic_overshoot_matches"])
+            self.assertLessEqual(
+                positive["overshoot_error_db"],
+                positive["expected_overshoot_tolerance_db"])
+            self.assertLessEqual(
+                abs(positive["quantized_pcm16_expectation"]["overshoot_db"]),
+                0.08)
+            self.assertTrue(any(
+                "independent analytic reference" in failure
+                for failure in truepeak["failures"]))
 
 
 if __name__ == "__main__":
