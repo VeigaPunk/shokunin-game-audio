@@ -159,3 +159,12 @@ Reviewer E09 found the rejected, versioned Godot tutorial row S011 lacked a rech
 - In the final-probe report, `coverage_blocked` is CLI stdout, not a stored `measurements.json` field; this clarification adds no telemetry.
 - ART dossier IDs S014–S018 are a separate sequence from the local `corpus/SOURCES.md` registry IDs S014/S015 (FFmpeg loudnorm and ITU-R BS.1770-5).
 - The four preexisting Core-gap rows were filled; no Frontier row was promoted into Core.
+
+## Final continuation measurements — 2026-10-20
+
+The earlier 10-test result and receipt ending `20261019T233319127994Z` are historical, pre-telemetry-correction evidence. The corrected code-work revision is `ba46f3718a8b18bf3c4695e1e4de6c8d21a86af8`; final counters and the fresh receipt are carried by measured commit `02c1330708962b5c68938c71bce9658d516dc63e`.
+
+- `python3 corpus/fixtures/test_truepeak_r101.py` → 12 tests in 4.539s, OK. Final reviewer and critic found no static blocker (`reports/round-101/r101-c3-repair-review.md:34-40`); neither ran tests.
+- `timeout 900 python3 corpus/fixtures/measure_audio.py --probe-truepeak-r101` → exit 0; CLI stdout reports `failures: {}` and `coverage_blocked: {}`. The latter is not stored in the receipt. The fresh receipt `corpus/live/round-101-truepeak/20261020T001910858001Z/measurements.json` has SHA-256 `2ce0a0f57757ff9d4a21739da1615566fff41b4ac9855d0ac916d28270ce7f40` and 17 finite artifact true peaks. Positive control +2.999335 dB vs +3.0103 analytic (0.010965 dB error, 0.08 dB tolerance); phase-0 control 0.000 dB; dual-mono +3.010 LU.
+- Final SOURCES census: 15 rows, malformed 0, tiers A=11/B=2/C=2, statuses mined=14/rejected=1; duplicate IDs, enum/tier-inflation, and missing mined-path commands emitted nothing. `fleet-ledger/scripts/sources-census.sh validate` returned `ok`, with W01 for tier-C S007 and W04 for same-URL cross-scope S014/S015.
+- After the fresh probe, canonical WAV status emitted nothing; `git diff --quiet defbe128 -- corpus/artifacts` exited 0; aggregate SHA-256 remained `f4e1eb8db062802426fb68ce528212d9d4219e8fd698857658529933020410a9`.
