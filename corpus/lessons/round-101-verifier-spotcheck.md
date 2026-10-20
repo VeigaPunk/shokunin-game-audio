@@ -24,3 +24,5 @@ Expansion improved by the four entries, not row counts. Quality improved narrowl
 - `coverage_blocked` is a stdout field, not a persisted receipt claim; ART source IDs and registry IDs are separate namespaces; filling Core gaps is not a Frontier-to-Core promotion.
 
 Evidence: fleet `.ufo/waves/kaika-w3/audio-{review,critic}.md` and `audio-final-smoke.txt`; report `.ufo/reports/round-101/audio.md` including its post-review errata. No full historical audio battery or visual/listening-quality assessment is claimed.
+
+- Q20 used-by follow-through (metadata only, no new learning or claim credit): S011 `used-by` old `corpus/knowledge/2026-10-19-godot-wav-import-default-qoa.md, corpus/lessons/round-101.md` → new `corpus/knowledge/2026-10-19-godot-wav-import-default-qoa.md, corpus/lessons/round-101.md, corpus/lessons/round-101-verifier-spotcheck.md`; this lesson cites S011, so the row must list it.
