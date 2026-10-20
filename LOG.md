@@ -1673,3 +1673,11 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
 - Final SOURCES contract census: rows 15; malformed 0; tiers A=11/B=2/C=2; statuses mined=14/rejected=1; duplicate IDs, enum/tier inflation and missing mined-path checks emitted nothing. `fleet-ledger/scripts/sources-census.sh validate` returned `ok`, with disclosed W01 S007 tier-C and W04 duplicate-URL warnings for S014/S015. S011 remains rejected with `recheck: on-release`.
 - No-harm after the fresh probe: `sha256sum corpus/artifacts/*.wav | sha256sum` is unchanged at `f4e1eb8db062802426fb68ce528212d9d4219e8fd698857658529933020410a9`; canonical status emitted nothing and `git diff --quiet defbe128 -- corpus/artifacts` exited 0. The earlier isolated normal-mode run remains in the prior section; the new 12-test suite also checks default-mode builder dispatch in a temporary root.
 - No push: the operator's standing “No push” rule overrides the generic commit-and-push instruction; only the lane commits are created.
+
+- 2026-10-17 — README: Devin wiki link. Operator directive (2026-10-17):
+  insert the Devin wiki link into the README header of every repository
+  with a generated wiki. a `**Wiki:**` link added to the `README.md` header to
+  https://app.devin.ai/org/veigapunk/wiki/VeigaPunk/shokunin-game-audio?branch=main.
+  Evidence: the org's Devin wiki index lists this repo's generated wiki;
+  sibling lane READMEs carry the same `**Wiki:**` header.
+  Documentation-only change; no round run, no axis moved.
