@@ -1130,3 +1130,19 @@ Parent integrator `/root` adopts independent `/root/judge_audio_round88` review 
 Denominators stay distinct:66 laws×7 green receipts=462 checks (not stress runs); four reviewer green receipts×106=424 checks with separate own-row skips; reviewer red104/106 is two checks for one mechanism; dev78/102 is a different pre-correction revision. Stress15 failure strings overlap across7 of9 red runs. Changed-source green contains28+41+10=79 legs, stable_core99, zero foreign_noise events; none proves repaired adverse coverage.
 
 Original available source `28303165351faad324da84878958f3ecdc466a65`; folded source `1977cf4206f5bde37b94debb30139633ca5d85c0`. No new native execution, retrospective pass, new round, renumbering, code/assets/receipt alteration, fleet/count edit, or round93 work. Full admission remains withheld; see appended LOG and review for exact pins and unresolved behavior.
+
+
+## 2026-11-02 — outside terminal adjudication: historical AUDIO93 PARTIAL-NOT-ADMITTED
+
+Parent integrator `/root` adopts independent `/root/judge_audio_round93` review of existing substantive93. This terminal partial disposition is neither blanket rejection of its real green native observations nor full repaired admission. Prior SCORECARD bytes remain verbatim as the historical pre-decision record. Evidence: `reports/round-93/cloud-closure-20261102/audio93-independent-review.md` and the separately authored `audio93-closure-packet.md`.
+
+| criterion | terminal disposition | evidence limit |
+|---|---|---|
+| depth | Bounded native semantic observations retained | Real frozen independent green; host/version/fixture scope, no new external numerical derivation |
+| coverage | Partial; full robust-instrument admission not established | Original fail-open setup/silent predicates and export-lock gap; gain output unmeasured; scoped repairs not independently remeasured natively |
+| calibration | Honest narrowing adopted, not retroactive author credit |90 keys/65 tags,83 playback exits0,73 feed.ok observations; absent fields/refusals not failures; static AST continuity not runtime certification |
+| completed substantive attempt | Terminally reviewed partial upon parent adoption; not successful admission | Actual original work, independent native observation/adversarial review and repairs evaluated; no automatic count change here |
+
+Available source `7d7ed474d7a477f9bfe21c24e252993a123dd3c3` bridges frozen file bytes only. Latest scoped cleanup `1a974ff6a234f10267006433b47304d0f36affd7` retains nine scientific cores statically against actual parent `561f44b115e1efcbac2a84af6c20aee1e304da99`; callback cases do not establish universal cleanup or outer receipt writing. Original author/verifier task cards remain unrecovered; boundary capture custody is46 matching available/73 missing WAVs. No modern acceptance gate, two-sided decay requirement,32-label author requirement or87/88 fold gate is imposed retroactively.
+
+No fresh native execution, retrospective pass, new round, renumbering, code/assets/receipt alteration, fleet/count edit or98 adjudication. Full repaired admission remains unproven. See appended LOG and independent review for attribution, hashes, supported learning and specific missing replay.
