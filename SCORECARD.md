@@ -1115,3 +1115,18 @@ Next round (102) — intended claims, each falsifiable:
 | completed substantive attempt | Yes, terminally rejected upon integrator adoption; not successful admission | Original work, independent frozen-byte failures and substantive repair reviewed; no automatic count in this file |
 
 Original pin `d1e687b9b6beda083969e4a770d79a6b4407cde9`; fold pin `1977cf4206f5bde37b94debb30139633ca5d85c0`. Independent original failures establish rejection without new runtime. One authentic folded-shape green does not satisfy the declared two-green-runs → verifier-r2 acceptance gate; repaired full admission remains withheld. No fresh audio execution, new round, later-round renumbering, code/assets/receipt alteration or fleet/count change. See appended LOG closure for attribution and custody.
+
+## 2026-11-02 — outside adjudication: existing AUDIO88 REJECT AS DECLARED
+
+Parent integrator `/root` adopts independent `/root/judge_audio_round88` review as a present-day terminal negative decision on the existing substantive attempt, not successful admission. All prior SCORECARD bytes and original historical findings remain intact. Evidence: `reports/round-88/cloud-closure-20261102/audio88-independent-review.md` and its separately authored navigation packet.
+
+| criterion | terminal disposition | evidence limit |
+|---|---|---|
+| depth | Full original admission rejected; bounded diagnostic learning retained | Original independently reviewed host-specific absence/refusal and witness laws; no codec/audio-quality claim |
+| coverage | Reproducible-green and completed-fold claims rejected |9 stress runs/7 red; separate reviewer red and fail-open control; one genuine folded green with zero scrub events, missing two-green/verifier-r2 chain |
+| calibration | Original/fold whole-green representation rejected; narrower observations preserved | Alleged first folded green is original A2; alleged pre-green red072313 is original green A1, distinct from dev071710 |
+| completed substantive attempt | Yes, terminally rejected upon parent adoption; no automatic count change here | Genuine original work, independent failures, repairs and evidence limits reviewed; not administrative closure |
+
+Denominators stay distinct:66 laws×7 green receipts=462 checks (not stress runs); four reviewer green receipts×106=424 checks with separate own-row skips; reviewer red104/106 is two checks for one mechanism; dev78/102 is a different pre-correction revision. Stress15 failure strings overlap across7 of9 red runs. Changed-source green contains28+41+10=79 legs, stable_core99, zero foreign_noise events; none proves repaired adverse coverage.
+
+Original available source `28303165351faad324da84878958f3ecdc466a65`; folded source `1977cf4206f5bde37b94debb30139633ca5d85c0`. No new native execution, retrospective pass, new round, renumbering, code/assets/receipt alteration, fleet/count edit, or round93 work. Full admission remains withheld; see appended LOG and review for exact pins and unresolved behavior.
