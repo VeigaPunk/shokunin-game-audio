@@ -1681,3 +1681,14 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   Evidence: the org's Devin wiki index lists this repo's generated wiki;
   sibling lane READMEs carry the same `**Wiki:**` header.
   Documentation-only change; no round run, no axis moved.
+
+
+## Historical round 87 — outside adjudication adopted 2026-11-02 (not a new training round)
+
+The owning integrator `/root` adopts independent reviewer `/root/judge_audio_round87`'s **REJECT AS DECLARED** for the existing substantive round 87: **historical 87 is now closed rejected**, not admitted. This new documentary decision supersedes only the prior pending/unadjudicated status, leaving the original reports and all preceding LOG bytes intact. It is not a retrospective successful gate, a new round, or a renumbering of any later round.
+
+Evidence: `reports/round-87/cloud-closure-20261102/audio87-independent-review.md` and the corrected author navigation packet `audio87-closure-packet.md` alongside it. These are exact copies of independently produced audit files; the reviewer is persisting both, not claiming authorship of the author packet. Original source pin `d1e687b9b6beda083969e4a770d79a6b4407cde9` failed independent committed-byte repeatability; fold pin `1977cf4206f5bde37b94debb30139633ca5d85c0` has real repairs but only one preserved genuine folded-shape green. The alleged other folded green is pre-fold author B. Two folded greens → committed verifier-r2 acceptance is not established; repaired full admission remains withheld.
+
+Substantive learning retained: boundary-corrected routing precedence, host-bounded mode/Props/MIDI observations, independent negative controls, false-fail buffered-log window diagnosis and nonvacuous/explicit-missing-data repairs. Preserved law matrix totals 293/301, not the original report's 295/301; the fold statically addresses the specific missing-snaps direct-subscript KeyError, without newly executing that failure branch. These corrections are detailed in the retained packet addendum and independent decision.
+
+This closure used read-only historical Git/source/receipt inspection followed by documentary persistence only: no fresh audio execution, device/LAN/settings operations, fixtures or receipt changes. Reviewer persistence identity is recorded in this commit; the parent's adoption is the authority, not a fabricated historical adjudicator. No fleet/count edit occurs here. Goal accounting, including conservative withholding of r1, belongs to the separate integrator report.

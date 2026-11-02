@@ -1101,3 +1101,17 @@ Next round (102) — intended claims, each falsifiable:
 ## Retired
 
 - none retired; record with justification when an axis is retired.
+
+
+## Round 87 — outside terminal adjudication adopted 2026-11-02
+
+**Historical round 87 now closed REJECT AS DECLARED; no ADMIT.** This is the owning integrator `/root`'s adoption of independent review `/root/judge_audio_round87`, not a newly trained round or retrospective successful replay. The earlier unadjudicated entries remain verbatim as the pre-decision record.
+
+| criterion | terminal disposition | evidence |
+|---|---|---|
+| depth | Full declaration rejected; substantive bounded learning retained | `reports/round-87/cloud-closure-20261102/audio87-independent-review.md`, criterion table |
+| coverage | Full admission rejected; incomplete folded repeatability/negative-path evidence retained | Same review, original failures and duplicated folded-green analysis |
+| calibration | Original/fold whole-green representation rejected; later honest narrowing recorded, not retroactive author credit | Same review; corrected `audio87-closure-packet.md` addendum |
+| completed substantive attempt | Yes, terminally rejected upon integrator adoption; not successful admission | Original work, independent frozen-byte failures and substantive repair reviewed; no automatic count in this file |
+
+Original pin `d1e687b9b6beda083969e4a770d79a6b4407cde9`; fold pin `1977cf4206f5bde37b94debb30139633ca5d85c0`. Independent original failures establish rejection without new runtime. One authentic folded-shape green does not satisfy the declared two-green-runs → verifier-r2 acceptance gate; repaired full admission remains withheld. No fresh audio execution, new round, later-round renumbering, code/assets/receipt alteration or fleet/count change. See appended LOG closure for attribution and custody.
