@@ -1146,3 +1146,17 @@ Parent integrator `/root` adopts independent `/root/judge_audio_round93` review 
 Available source `7d7ed474d7a477f9bfe21c24e252993a123dd3c3` bridges frozen file bytes only. Latest scoped cleanup `1a974ff6a234f10267006433b47304d0f36affd7` retains nine scientific cores statically against actual parent `561f44b115e1efcbac2a84af6c20aee1e304da99`; callback cases do not establish universal cleanup or outer receipt writing. Original author/verifier task cards remain unrecovered; boundary capture custody is46 matching available/73 missing WAVs. No modern acceptance gate, two-sided decay requirement,32-label author requirement or87/88 fold gate is imposed retroactively.
 
 No fresh native execution, retrospective pass, new round, renumbering, code/assets/receipt alteration, fleet/count edit or98 adjudication. Full repaired admission remains unproven. See appended LOG and independent review for attribution, hashes, supported learning and specific missing replay.
+
+
+## 2026-11-03 — outside terminal adjudication: historical AUDIO98 PARTIAL-NOT-ADMITTED
+
+Parent `/root` adopts independent `/root/judge_audio_round98` terminal review of the existing substantive attempt. Prior SCORECARD bytes remain unchanged. Evidence: `reports/round-98/cloud-closure-20261103/audio98-independent-review.md` and the separately authored closure packet alongside.
+
+| criterion | disposition | limit |
+|---|---|---|
+| depth | Bounded domain knowledge and implementation retained | Native pw_stream state, timing, geometry and policy distinctions remain host/version/fixture-specific |
+| coverage | Partial, no full repaired-family admission | 67 keys are not 67 fully measured laws; one policy and two profiler coverage blocks remain |
+| calibration | Honest narrowing adopted | Original independent observations are not rewritten to certify later repairs; source-byte bridge is not commit-identity recovery |
+| completed substantive attempt | Terminally reviewed partial upon parent adoption | Eligible once for parent accounting; no automatic count change or successful admission here |
+
+No numeric score, new native execution, new round or retrospective pass. Original author card remains unavailable. Actual review cards establish a single advisory verifier run; no two-green gate is imported. Scoped repair evidence and current graph-reader failure risk remain explicit.
