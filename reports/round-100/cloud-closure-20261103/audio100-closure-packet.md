@@ -1,0 +1,53 @@
+# Audio100 historical closure preparation
+
+Prepared 2026-11-03 by /root/audit_audio_round100. This is read-only substantive preparation for a distinct independent reviewer, not terminal adjudication, admission or count increment. No repository module, historical fixture, audio test, network fixture, service or native family was executed. Only Git reads, text/JSON parsing, hashes and AST inspection were used. All new files are confined to this directory. No publication or lane/fleet edit occurred.
+
+## Identity and contemporary contract
+
+RUN-STATE and active roots were read first. Parent reports Audio99 independently closed PARTIAL-NOT-ADMITTED, completed99/numbered101. This packet does not advance it. Active audio HEAD is4a3b826a872aa70bcc892f37cd3efbb615ca7626 and tracked tree is clean. Fresh public HEAD/main reconciliation confirms f9da7ee97e0ba95da1803c2afe9c616c519bae18 at https://github.com/VeigaPunk/shokunin-game-audio.git. Public main is unchanged by this inspection.
+
+Read current canonical skill and protocol headings, original round100 scout/boundary cards and wave24 review-common/review-roles. Original review contract specifies nine entries/37 leg keys, fixed failure-accumulator plumbing before cited greens, and exactly one advisory frozen-export verifier run. No new numeric grader, threshold, rerun or admission was authorized to the original leaf. rc0 is explicitly not complete coverage. No two-green rule from another round is imposed here. Original author task card was not found; author/report evidence cannot recreate missing instructions. Historical model/host descriptions are documentary, not claims of present GLM execution.
+
+## Real substantive work and knowledge
+
+This was a SOFA/spatializer HRTF capstone, not an empty plan. Scout ranked residue and distinguished unlanded prior author work from unmeasured domain surfaces. Boundary attacked pins under load, private/shared cores, sample rates, quantum, configuration and control changes. Author implemented nine probe entries plus the1175-line self-contained r100sofa.py. Its current SHA26e966601abf5d1d784842b192fa3e2d7e299538b832702f7124c90a3f227481 matches declared original bytes. There is actual independent original verification and adversarial review, plus later repairs.
+
+Domain learning worth retaining, bounded to observed host/toolchain and fixture:
+- Binaural azimuth effects are stereo/routing-dependent: fine-recipe ILD about+4.6084/-4.6084dB at90/270degrees, zero at0/180; channel-swap reverses sign.
+- Apparent cross-process instability was substantially a window-selection/stride artifact. Distinguish coarse estimator scatter from waveform/physical variability and do not turn this into universal perceptual quality.
+- Front/back difference changes with stimulus frequency, so a single440Hz attenuation is not a general spatial spectral law.
+- Radius appeared inert in tested cells, while elevation/control-plane updates had measurable effects. Quoted configuration tokens could silently drop a control; read-back witnesses matter.
+- default.sofa was the same underlying symlink target/file, not independent HRTF evidence. Sample-rate mismatch resampled rather than universally refusing activation; n_samples ladder includes an88200 extrapolation subsequently observed by author.
+- Private sandbox state and the shared operator graph are materially different: shared loads wrote restore rows. A clean owned-node census is not an unchanged operator store.
+
+## Preserved receipt custody and source chain
+
+SHA256/size of original independent r100-verifier-receipt.json are42f284789dc1ef0217b0ad4848454a72c563ff2f4c278273d105da02b33a2b25 /891226bytes. This and all five independent report hashes match final-review-evidence.json. Actual JSON recount:2+7+4+5+3+7+4+3+2=37 sofa leg keys, nine entries. All failures arrays empty, no named coverage blocks. Seventeen other canonical placeholders are not extra sofa legs or measured laws. All nine entries report own_nodes_after[] and own_procs_after[]. Eight private entries have zero stream_properties_own_rows; shared entry has exactly two, explicitly recorded as operator WirePlumber restore-row residue. Never claim zero operator mutation.
+
+The original verifier ran once under1500s timeout, rc0, on the then-frozen export and retained37 post_sweep-clean observations. Live settings in the receipt show quantum512/2048 and rate96000 were actually applied in that particular run. Successful observed settings do not erase a missing fail-closed witness gate in original code. Host was contended; do not infer timing/performance invariance or cross-host results.
+
+Original review pin bb177513a615a32d3bc150ecbdcf78302e110d8c is not recovered as the same commit identity. Available7d7ed474d7a477f9bfe21c24e252993a123dd3c3 has exact source SHA801e153b84368bba4a77e85c129376612c797694c435e9104cdad6e62169be2f matching original custody manifest. Recovered integration fec20f1f0cacb235aea7889686f07cb90094dacd has SHA5c8f7e9dc587346b3ec2e1f87cefd432ee873e559289b1cf5fd1c06bfa09e9ab. Same content is not restored original commit ancestry. Current full source SHAc42212539c6d494d51d1511f7a10bbeb622432ed323f717dc95cd0e3dab933a4 differs. Of38 sofa-related functions,33 ASTs unchanged and5 changed; byte/AST continuity is not full native behavior certification.
+
+Original author two green runs, negative-control.json and sidecars are not present in this recovered author-worktree location. Original scribe independently visited the separate author worktree, reports manifest-verified custody and explains earlier critic/reviewer absence; retain that positive historical attestation instead of calling all author evidence invented. But do not claim fresh custody: source binding was sidecar-borne rather than embedded in those original receipts, and sidecars are currently missing. Scribe records early falsely-green clobbered-failure runs, a subsequent real RED, superseded38-leg retry run and final37-leg greens. All remain distinct. Author reports21 failures under perturbed laws; this packet has not recovered or rerun that negative control.
+
+## Source-linked adverse findings and later dispositions
+
+Actual frozen/current functions are extracted alongside this packet.
+1. Original helpers appended failures to the entry while initial author local-list assignments clobbered them. Frozen reviewed entry now aliases entry.setdefault('failures',[]) before assignments, so current/frozen source supports the plumbing correction. Historical false greens remain failures of the test instrument, not passing rounds.
+2. Frozen clock entry recorded applied settings without requiring them; a non-applied variant could have greened. Current entry requires each requested default.clock property to match the live settings key. This is source-supported repair, not proof all future clock paths are correct.
+3. Frozen unload helper skipped absent module_unload_verified through 'if mod and not matched'. Current helper fails whenever matched is absent/false. Eight tests cover missing/matching clock, missing/matching unload, unreadable/no logs, census after exception, and late startup unwind; only read here, never executed.
+4. Original tree-relative lock swallowed OSError and minimal exported tree lacked corpus/live. Later host-global lock rejects unmet prerequisites and protects cross-checkout exclusion. Universal receipt-on-exception remains unproven; hard refusal can occur before receipt writing. CLI now displays blocks but partial-block rc semantics remain unchanged.
+5. Clock cleanup moved into finally; late sandbox startup unwinds owned children. These bounded repairs do not establish universal exception containment or cleanup under external/uncatchable termination. Original/source-proven failure paths must not be relabeled observed live failures.
+6. A concrete report/code conflict: author's §3 table claims the no-config -22 class as armed/measured, but frozen and current nine-entry plans contain no no_config=True leg; constants remain unused. Original reviewer F3 noticed omission but incorrectly said author §3 did not claim it. The no-config scout/boundary observations may be retained separately; do not count it as a verified family cell or silently repeat the author's stronger table claim.
+7. Silence-until-fed is genuinely armed in sofa_shape_r100_entry: both stereo recipe RMS values must equal0.0 and frames must lie20000..400000. Do not confuse it with absent no-config coverage or describe it as frames-only. Initial verifier narrative's caution does not override actual source.
+8. Narrow±0.02dB clock band, window/transfer rounding ambiguity, unarmed IR/latency, shared-store residue and limited host/version coverage remain explicit. No universal HRTF/perceptual-quality admission follows.
+
+Later changed-entry receipt r100-clock-repair-receipt.json SHA320defd59d1852a099ff61e329f37bf3981df616748feb71107f35ae54abfa4c (77409bytes) names historical294e6c24 and source SHAa8760b120fbbb47d091f6d0a674e3630d4fd20b9ee6e366df0f6c57371a019f9. Recovered781d08804157e5e559d505ef78ca75cd512706ea has that exact SHA. It records the three applied settings, no failures/blocks and six retained process exits; scope is changed clock entry only, authored observation, not independent replay of all nine entries or all current bytes. Preserve this positive evidence with scope, rather than pretending repaired clock remains completely unobserved.
+
+## Current raw custody
+
+Read manifests relative to original directories, never manufacture missing entries. Boundary373 entries:269present/hash-matching,104missing,0mismatch. Scout25:7present/matching,18missing,0mismatch. boundary-custody.json lists every path/status. Missing captures do not invalidate every surviving textual/JSON observation but prevent full waveform reanalysis/custody claims. No audio bytes were decoded, replayed or newly generated.
+
+## Independent review questions
+
+There is enough substantive authored, adversarial and independently observed work to consider a bounded completed reviewed attempt, separately from admitted improvement. Parent/reviewer must decide whether PARTIAL-NOT-ADMITTED closure is warranted, without pressure to reach100. Test the source-linked no-config contradiction and preserve the valid silence-unfed gate; verify receipt hashes and settings; keep unavailable author evidence historically attested, not freshly recovered. Withhold universal safety, full repaired-family verification, complete original custody, perceptual quality and unmeasured cells. This preparation changes neither counts nor ledger and grants no execution/publication authority.

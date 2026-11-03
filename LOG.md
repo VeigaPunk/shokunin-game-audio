@@ -1747,3 +1747,18 @@ The later authored, changed-e2e-only receipt records native peak0.5, wire peak0.
 Original minimal-export lock bypass, confinement abstention ordering and missing-witness/exception paths limit broad safeguards. Later repairs and historical pre-guard LAN emissions remain explicitly documented; no new emission occurred. Recovered review cards require one advisory verifier run, not round88's two-green gate; original author card is unavailable. No later predicate is silently imposed.
 
 Only documentary/source inspection and this path-limited persistence occurred. No native execution, device/network/provider action, source or original receipt alteration, fleet/count edit or publication. Parent owns once-only completed-attempt accounting after durable closure; no full capability admission follows from this partial terminal decision.
+
+
+## 2026-11-03 — outside adjudication of historical AUDIO100 (parent adopted)
+
+Parent integrator `/root` adopts independent reviewer `/root/judge_audio_round100`'s **PARTIAL-NOT-ADMITTED** disposition for the existing substantive round100. This terminal partial decision preserves real historical native observations without admitting the full repaired capability. Pending status alone is superseded; preceding LOG bytes and original reports remain intact. No new round, retrospective pass, renumbering or fabricated historical adjudicator is implied.
+
+Evidence: `reports/round-100/cloud-closure-20261103/audio100-independent-review.md`, independent hashes/receipt observations/static source comparison, and the separately authored `audio100-closure-packet.md` by `/root/audit_audio_round100`. All are exact copies; the reviewer persists the packet without claiming authorship.
+
+Original independent verifier receipt SHA256 `42f284789dc1ef0217b0ad4848454a72c563ff2f4c278273d105da02b33a2b25` matches custody: nine entries,37 dictionary keys,37 clean sweeps, no reported failures/coverage blocks. Applied clock settings are actually observed. These are scoped host/version/fixture observations, not37 independent laws or universal completeness. Private entries report zero operator-store rows; shared entry records two. The configured-but-unfed silence predicate genuinely arms both RMS0 and a20000–400000frame band. It does not establish the unarmed no-config activation-refusal law that the author table overstated.
+
+Original scribe independently reports verified author greens and21-failure negative control in the separate author worktree; other reviewers' main-tree absence observations do not invalidate that scoped attestation. Those author files/sidecars are absent from today's active lane, so fresh custody is not claimed. Available7d7ed474 source SHA801e153b84368bba4a77e85c129376612c797694c435e9104cdad6e62169be2f bridges the frozen file, not the missing historical commit identity. Original author card remains unavailable; actual wave24 review contract mandates one advisory verifier run, not a retroactively imported two-green gate.
+
+Later clock/unload/setup-unwind/host-lock repairs are source-supported. The changed-clock receipt is a scoped author observation, not independent full-family verification. IR/latency and no-config gaps, universal exception/termination containment, transfer/window precision limits and shared-store residue remain explicit. Preserved historical false greens and RED attempts are not converted into passes.
+
+Only documentary/source inspection and this path-limited persistence occurred. No new native execution, audio/device/network/provider action, source/original receipt alteration, fleet/count edit or publication. Parent owns once-only completed-attempt accounting after durable fleet closure; partial terminal review is not capability admission.

@@ -1174,3 +1174,17 @@ Parent `/root` adopts independent `/root/judge_audio_round99` terminal review of
 | completed substantive attempt | Terminally reviewed partial upon parent adoption | Eligible once for parent accounting; no automatic count change, numerical score or full admission here |
 
 Original lock/confinement/missing-witness limitations, historical pre-guard LAN emissions and later repair scope remain explicit. The actual review contract required one advisory run; no invented two-green gate or missing author predicate is imposed. No new native execution, retrospective pass, new round, source/evidence alteration, fleet/count update or publication occurred.
+
+
+## 2026-11-03 — outside terminal adjudication: historical AUDIO100 PARTIAL-NOT-ADMITTED
+
+Parent `/root` adopts independent `/root/judge_audio_round100` terminal review of the existing substantive attempt. Prior SCORECARD bytes remain verbatim. Evidence: `reports/round-100/cloud-closure-20261103/audio100-independent-review.md` and separate closure packet, hashes, receipt observations and source comparison alongside.
+
+| criterion | disposition | limit |
+|---|---|---|
+| depth | Bounded HRTF/spatializer knowledge retained | Native azimuth/mirror, control, transfer, rate and silence mechanisms remain host/version/fixture-specific |
+| coverage | Partial, no complete repaired-family admission |37 keys are not universal laws; no-config and IR/latency unarmed; changed-clock author observation is not independent nine-entry replay |
+| calibration | Honest narrowing adopted | Historical applied-clock evidence survives missing original guards; missing present custody is distinct from scribe's historical verification; source-byte bridge is not commit recovery |
+| completed substantive attempt | Terminally reviewed partial upon parent adoption | Eligible once for parent accounting after fleet closure; no automatic counter change, numerical score or accepted-capability admission here |
+
+Original false-green instrumentation failures and later bounded repairs remain distinct. No new native execution, retrospective pass, new round, source/evidence alteration, fleet/count update or publication occurred. No later round's gate is imposed.
