@@ -1160,3 +1160,17 @@ Parent `/root` adopts independent `/root/judge_audio_round98` terminal review of
 | completed substantive attempt | Terminally reviewed partial upon parent adoption | Eligible once for parent accounting; no automatic count change or successful admission here |
 
 No numeric score, new native execution, new round or retrospective pass. Original author card remains unavailable. Actual review cards establish a single advisory verifier run; no two-green gate is imported. Scoped repair evidence and current graph-reader failure risk remain explicit.
+
+
+## 2026-11-03 — outside terminal adjudication: historical AUDIO99 PARTIAL-NOT-ADMITTED
+
+Parent `/root` adopts independent `/root/judge_audio_round99` terminal review of the existing substantive attempt. Prior SCORECARD bytes remain verbatim. Evidence: `reports/round-99/cloud-closure-20261103/audio99-independent-review.md` and the separately authored closure packet, hashes/static comparison and receipt shape alongside.
+
+| criterion | disposition | limit |
+|---|---|---|
+| depth | Bounded native transport knowledge and causal correction retained | Host/version-specific packet geometry, argument placement, timestamp shape and source-port routing distinctions |
+| coverage | Partial, no full repaired-family admission |37 keys include four setup records; two original e2e blocks; later authored changed-entry evidence is not independent full-family verification |
+| calibration | Honest narrowing adopted | Original port mismatch supersedes host-address causal speculation; AST similarity and source-byte bridges do not establish runtime or commit identity |
+| completed substantive attempt | Terminally reviewed partial upon parent adoption | Eligible once for parent accounting; no automatic count change, numerical score or full admission here |
+
+Original lock/confinement/missing-witness limitations, historical pre-guard LAN emissions and later repair scope remain explicit. The actual review contract required one advisory run; no invented two-green gate or missing author predicate is imposed. No new native execution, retrospective pass, new round, source/evidence alteration, fleet/count update or publication occurred.

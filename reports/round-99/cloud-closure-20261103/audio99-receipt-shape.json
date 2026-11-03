@@ -1,0 +1,78 @@
+{
+  "rtp_census_r99_probe": {
+    "legs": [
+      "c_modules",
+      "c_absent",
+      "c_docs"
+    ],
+    "failures": [],
+    "blocked": null
+  },
+  "rtp_sink_r99_probe": {
+    "legs": [
+      "tone",
+      "s_props",
+      "s_default",
+      "s_lattice_mtu200",
+      "s_lattice_mtu8000",
+      "s_lattice_10_20",
+      "s_lattice_50_100",
+      "s_two"
+    ],
+    "failures": [],
+    "blocked": null
+  },
+  "rtp_source_r99_probe": {
+    "legs": [
+      "tone",
+      "r_shape",
+      "r_mcast",
+      "r_unicast_same",
+      "r_unicast_foreign",
+      "r_ts_offset",
+      "r_s24be"
+    ],
+    "failures": [],
+    "blocked": null
+  },
+  "rtp_refusal_r99_probe": {
+    "legs": [
+      "x_destip",
+      "x_f32",
+      "x_media",
+      "x_srcport0",
+      "x_ifname",
+      "x_ptime_pair",
+      "x_ptime_module_args",
+      "x_ptime_props_only"
+    ],
+    "failures": [],
+    "blocked": null
+  },
+  "rtp_e2e_r99_probe": {
+    "legs": [
+      "tone",
+      "e_native",
+      "e_sap",
+      "e_relink",
+      "e_lan",
+      "e_lan_control"
+    ],
+    "failures": [],
+    "blocked": [
+      "e_native: the native multicast pair is unmeasurable on this pass \u2014 the sink emitted (see legs.e_native.verdict.sink_emitted and the wire peak) but the co-located source recorded silence; the source socket is bound to the group and the sink's socket carries the host's LAN address on lo ('ESTAB 0 0 192.168.0.253%lo:51674 239.255.42.99:46814 users:((\"pipewire\",pid=1432576,fd=51))'). The r99 boundary recorded the tone over this same path, so C6 is not falsified here, it is unmeasured.",
+      "e_lan_control: physical-LAN transmission disabled; requires explicit operator approval and RTP_R99_ALLOW_LAN_CONTROL=1"
+    ]
+  },
+  "rtp_axis_r99_probe": {
+    "legs": [
+      "tone",
+      "a_quantum",
+      "a_rate",
+      "a_order",
+      "a_target_pos"
+    ],
+    "failures": [],
+    "blocked": null
+  }
+}
