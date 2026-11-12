@@ -1681,3 +1681,16 @@ paused by operator 2026-10-12, round 19 closed, no round 20.
   Evidence: the org's Devin wiki index lists this repo's generated wiki;
   sibling lane READMEs carry the same `**Wiki:**` header.
   Documentation-only change; no round run, no axis moved.
+
+
+## 2026-11-12: publish reviewed curation notes
+
+Published 7 independently reviewed original reading note(s) from the saved curation copies. The note text and source/rights boundaries are preserved exactly. Notes carrying publication holds were excluded. This entry records publication only, not source-code reuse, capability admission, training, or assimilation. No private receipts or source captures are included.
+
+- `considerthese/2026-11-11-sample-count-slot-migration.md`: source `Shokunin-Audio-Sample-Count-Slot-Migration-2026-11-11.md`; SHA-256 `2404ee355e87c08d17433575bce72281d70db96051a9b9fa55ae6b71d7e8c16b`.
+- `considerthese/2026-11-12-flac-coded-number-units.md`: source `Shokunin-Audio-FLAC-Coded-Number-Units-2026-11-12.md`; SHA-256 `926198bbf869fcc49cbc4e0c390063a641c4666c6ba1ee29236702cadba4a2de`.
+- `considerthese/2026-11-12-typed-discard-counts.md`: source `Shokunin-Audio-Typed-Discard-Counts-2026-11-12.md`; SHA-256 `d921f9e61ddfba00ac3b6fd72d5a58214deac38d44346872202fe761e56684a4`.
+- `considerthese/2026-11-11-processor-lifetime.md`: source `Shokunin-Audio-Processor-Lifetime-2026-11-11.md`; SHA-256 `aebaf78bf09e8632e4f33fd0b8ddfce15192d1e4eba1408272e4d86ba801af51`.
+- `considerthese/2026-11-12-read-count-units.md`: source `Shokunin-Audio-Read-Count-Units-2026-11-12.md`; SHA-256 `2bb13eb1254b532324394423a6cecde0879e09c8ec53de8dff561e70604ce5ca`.
+- `considerthese/2026-11-12-gstreamer-timeline-identity.md`: source `Shokunin-Audio-GStreamer-Timeline-Identity-2026-11-12.md`; SHA-256 `086f1f115c021deaf3b335f365562a3e10a12859d5c94d009463d97e1decc58c`.
+- `considerthese/2026-11-12-loudness-range-population.md`: source `Shokunin-Audio-Loudness-Range-Population-2026-11-12.md`; SHA-256 `e9f56ce3427892a892470bbbe362be5cd757134c5fb64d68076f2595b315d2ed`.
